@@ -1,7 +1,7 @@
-/*==[ ContentLoad.js ]========================================================================================
+/* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
                       images/webm preloading, rarjpeg detecting, thread/images downloading
-============================================================================================================*/
+=========================================================================================================== */
 
 function detectImgFile(ab) {
 	var i, j, dat = new Uint8Array(ab),
@@ -82,7 +82,7 @@ WorkerPool.prototype = {
 		this._pool.run([data, transferObjs, fn]);
 	},
 	_createWorker(num, data) {
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			var w = this._freeWorkers.pop(),
 				[sendData, transferObjs, fn] = data;
 			w.onmessage = e => {
@@ -126,15 +126,15 @@ function addImgFileIcon(nameLink, fName, info) {
 		ext = 'mp3';
 	}
 	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
-		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
+		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
+	) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
 function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
-		responseType: 'arraybuffer',
-		overrideMimeType: 'text/plain; charset=x-user-defined'
+		responseType     : 'arraybuffer',
+		overrideMimeType : 'text/plain; charset=x-user-defined'
 	}, url.startsWith('blob')).then(xhr => {
 		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
@@ -252,7 +252,7 @@ function loadDocFiles(imgOnly) {
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		var [url, fName, el, imgLink] = data,
-			safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
+			safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 		progress.value = current;
 		counter.innerHTML = current;
 		current++;
@@ -278,25 +278,25 @@ function loadDocFiles(imgOnly) {
 			return imgOnly ? null : getDataFromImg(el).then(data => {
 				el.src = thumbName;
 				tar.addFile(thumbName, data);
-			}, () => { el.src = safeName; });
-
+			}, () => (el.src = safeName));
 		} else if(imgData && imgData.length > 0) {
 			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 		} else {
 			$del(el);
 		}
 	}), function() {
-		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
+		var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
-				scriptStr = '(' + String(de_main_func_inner) +
+				scriptStr = '(' + String(deMainFuncInner) +
 					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 			} else {
-				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
+				/* global deMainFuncOuter */
+				scriptStr = '(' + String(deMainFuncOuter) + ')(' + localData + ');';
 			}
 			tar.addString('data/dollscript.js', scriptStr);
 			var dt = doc.doctype;
@@ -322,8 +322,9 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
-			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
 		$each($Q('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -339,7 +340,7 @@ function loadDocFiles(imgOnly) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' +
+		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' +
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
@@ -350,7 +351,7 @@ function loadDocFiles(imgOnly) {
 				$del(el);
 				return;
 			}
-			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(fName) !== -1) {
 				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);

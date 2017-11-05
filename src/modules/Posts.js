@@ -1,6 +1,6 @@
-/*==[ Posts.js ]==============================================================================================
+/* ==[ Posts.js ]=============================================================================================
                                                     POSTS
-============================================================================================================*/
+=========================================================================================================== */
 
 class AbstractPost {
 	constructor(thr, num, isOp) {
@@ -61,11 +61,10 @@ class AbstractPost {
 			isPview = this instanceof Pview;
 		if(type === 'click') {
 			switch(e.button) {
-				case 0: break;
-				case 1:
-					e.stopPropagation();
-					/* falls through */
-				default: return;
+			case 0: break;
+			case 1: e.stopPropagation();
+				/* falls through */
+			default: return;
 			}
 			if(this._menu) {
 				this._menu.remove();
@@ -86,9 +85,10 @@ class AbstractPost {
 						this._getFullMsg(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && (aib.tiny ? el : temp) === this._pref &&
-					          !/Reply|Ответ/.test(el.textContent))
-					{
+					} else if(Cfg.insertNum && pr.form &&
+						this._pref === (aib.tiny ? el : temp) &&
+						!/Reply|Ответ/.test(el.textContent)
+					) {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
@@ -104,9 +104,9 @@ class AbstractPost {
 						} else {
 							window.location = el.href.replace(/#i/, '#');
 						}
-					} else if((temp = el.textContent)[0] === '>' && temp[1] === '>' &&
-					          !temp[2].includes('\/'))
-					{
+					} else if((temp = el.textContent)[0] === '>' &&
+						temp[1] === '>' && !temp[2].includes('/')
+					) {
 						var post = pByNum.get(+temp.match(/\d+/));
 						if(post) {
 							post.selectAndScrollTo();
@@ -129,9 +129,10 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl &&
-				   e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
-				{
+				if(Cfg.expandImgs !== 0 && !(
+					Cfg.webmControl &&
+					e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)
+				)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -164,9 +165,11 @@ class AbstractPost {
 			return;
 		}
 		if(!isOutEvent && Cfg.expandImgs &&
-		   el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
-		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
-		{
+			el.tagName === 'IMG' &&
+			!el.classList.contains('de-fullimg') &&
+			(temp = this.images.getImageByEl(el)) &&
+			(temp.isImage || temp.isVideo)
+		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
 		if(!this._hasEvents) {
@@ -225,7 +228,7 @@ class AbstractPost {
 						this.kid.markToDel(); // If cursor is over any preview - delete its kids
 					}
 				} else { // We need to show a preview for this link
-					this._linkDelay = setTimeout(() => this.kid = Pview.show(this, el), Cfg.linksOver);
+					this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -246,10 +249,10 @@ class AbstractPost {
 		}
 		$replace(origMsg, newMsg);
 		Object.defineProperties(this, {
-			'msg': { configurable: true, value: newMsg },
-			'trunc': { configurable: true, value: null }
+			msg   : { configurable: true, value: newMsg },
+			trunc : { configurable: true, value: null }
 		});
-		Post.content.remove(this);
+		Post.Сontent.remove(this);
 		if(Cfg.addYouTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -297,7 +300,9 @@ class AbstractPost {
 				const els = $Q(aib.qRPost, form);
 				for(let i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
+						this.updateMsg(
+							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
+							maybeSpells.value);
 						$del(el);
 						break;
 					}
@@ -307,21 +312,25 @@ class AbstractPost {
 		}, emptyFn);
 	}
 	_getMenuImgSrc(el) {
-		var link = el.nextSibling,
-			p = encodeURIComponent(link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
-		return '<a class="de-menu-item de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
-			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
-			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="de-menu-item de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' + p : p) + 'WhatAnime</a>';
+		const link = el.nextSibling;
+		let p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
+			'" target="_blank">' + Lng.searchIn[lang];
+		return `<a class="de-menu-item ${ [
+			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
+			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
+				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+		].join('</a><a class="de-menu-item ') }</a>`;
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
 			this._menu.remove();
 		}
 		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
-		this._menu.onremove = () => this._menu = null;
+		this._menu.onremove = () => (this._menu = null);
 	}
 }
 
@@ -357,7 +366,8 @@ class Post extends AbstractPost {
 			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode), el => el.classList.remove('de-post-hiddencontent'));
+			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+				el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
 	constructor(el, thr, num, count, isOp, prev) {
@@ -383,8 +393,8 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-mypost');
 		}
 		var refEl = $q(aib.qPostRef, el),
-			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
-				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '">' +
+				'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
 		this._pref = refEl;
@@ -414,10 +424,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return new Post.content(this).headerEl;
+		return new Post.Сontent(this).headerEl;
 	}
 	get html() {
-		return new Post.content(this).html;
+		return new Post.Сontent(this).html;
 	}
 	get nextInThread() {
 		var post = this.next;
@@ -431,24 +441,24 @@ class Post extends AbstractPost {
 		return post;
 	}
 	get note() {
-		var value = new Post.note(this);
+		var value = new Post.Note(this);
 		Object.defineProperty(this, 'note', { value });
 		return value;
 	}
 	get posterName() {
-		return new Post.content(this).posterName;
+		return new Post.Сontent(this).posterName;
 	}
 	get posterTrip() {
-		return new Post.content(this).posterTrip;
+		return new Post.Сontent(this).posterTrip;
 	}
 	get subj() {
-		return new Post.content(this).subj;
+		return new Post.Сontent(this).subj;
 	}
 	get text() {
-		return new Post.content(this).text;
+		return new Post.Сontent(this).text;
 	}
 	get title() {
-		return new Post.content(this).title;
+		return new Post.Сontent(this).title;
 	}
 	get tNum() {
 		return this.thr.thrId;
@@ -458,7 +468,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return new Post.content(this).wrap;
+		return new Post.Сontent(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -552,11 +562,11 @@ class Post extends AbstractPost {
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
-				'brd': aib.b,
-				'num': this.num,
-				'thrNum': this.thr.num,
-				'hide': hide,
-				'title': this.isOp ? this.title : ''
+				brd    : aib.b,
+				hide   : hide,
+				num    : this.num,
+				thrNum : this.thr.num,
+				title  : this.isOp ? this.title : ''
 			});
 			locStorage.removeItem('__de-post');
 		}
@@ -638,7 +648,7 @@ class Post extends AbstractPost {
 		}
 	}
 
-	_getMenuHide(el) {
+	_getMenuHide() {
 		var str = '', sel = window.getSelection(),
 			ssel = sel.toString().trim(),
 			getItem = name => '<span info="hide-' + name + '" class="de-menu-item">' +
@@ -684,10 +694,10 @@ class Post extends AbstractPost {
 				end = end.parentNode;
 			}
 			var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) ||
-			   (nav.matchesSelector(start, aib.qPostSubj) &&
-			    nav.matchesSelector(end, aib.qPostSubj)))
-			{
+			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
+				nav.matchesSelector(start, aib.qPostSubj) &&
+				nav.matchesSelector(end, aib.qPostSubj)
+			)) {
 				if(this._selText.includes('\n')) {
 					Spells.add(1 /* #exp */, '/' +
 						quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
@@ -764,7 +774,7 @@ class Post extends AbstractPost {
 		});
 	}
 }
-Post.content = class PostContent extends TemporaryContent {
+Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
 		if(this._inited) {
@@ -802,8 +812,8 @@ Post.content = class PostContent extends TemporaryContent {
 	}
 	get text() {
 		var value = this.post.msg.innerHTML
-			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-			.replace(/<[^>]+?>/g,'')
+			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
+			.replace(/<[^>]+?>/g, '')
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
 			.replace(/&nbsp;/g, '\u00A0').trim();
@@ -823,7 +833,7 @@ Post.content = class PostContent extends TemporaryContent {
 };
 Post.hasNew = false;
 Post.hiddenNums = new Set();
-Post.note = class PostNote {
+Post.Note = class PostNote {
 	constructor(post) {
 		this.text = null;
 		this._post = post;
@@ -903,7 +913,7 @@ Post.findSameText = function(oNum, oHid, oWords, post) {
 	}
 	if(oHid) {
 		if(post.spellHidden) {
-			post.note.reset();
+			Post.Note.reset();
 		} else {
 			post.setVisib(false);
 		}
@@ -929,8 +939,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: nav.viewportWidth() },
-			'wHeight': { writable: true, configurable: true, value: val }
+			wHeight : { writable: true, configurable: true, value: val },
+			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
 		return val;
 	},
@@ -941,8 +951,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: nav.viewportHeight() }
+			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
+			wWidth  : { writable: true, configurable: true, value: val }
 		});
 		return val;
 	},

@@ -1,12 +1,12 @@
-/*==[ Panel.js ]==============================================================================================
+/* ==[ Panel.js ]=============================================================================================
                                                   MAIN PANEL
-============================================================================================================*/
+=========================================================================================================== */
 
 var panel = Object.create({
-	_el: null,
-	_hideTO: 0,
-	_menu: null,
-	_menuTO: 0,
+	_el     : null,
+	_hideTO : 0,
+	_menu   : null,
+	_menuTO : 0,
 	get _pcountEl() {
 		var value = $id('de-panel-info-pcount');
 		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
@@ -51,8 +51,8 @@ var panel = Object.create({
 		}
 		var panelTitle = title || Lng.panelBtn[id][lang];
 		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
-		return `
-		<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${ panelTitle }" href="${ href || '#' }">
+		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
+			panelTitle }" href="${ href || '#' }">
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
@@ -63,8 +63,8 @@ var panel = Object.create({
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
-		  (!rt || !this._el.contains(rt.farthestViewportElement || rt)))
-		{
+			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
+		) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	},
@@ -106,7 +106,7 @@ var panel = Object.create({
 						preloadImages(form.el);
 					}
 				}
-			break;
+				break;
 			case 'de-panel-maskimg':
 				toggleCfg('maskImgs');
 				updateCSS();
@@ -162,7 +162,7 @@ var panel = Object.create({
 					this._menu = addMenu(el);
 					this._menu.onover = () => clearTimeout(this._hideTO);
 					this._menu.onout = () => this._prepareToHide(null);
-					this._menu.onremove = () => this._menu = null;
+					this._menu.onremove = () => (this._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
@@ -189,8 +189,7 @@ var panel = Object.create({
 					</svg>
 				</div>
 				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (
-					this._getButton('cfg') +
+				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
@@ -215,8 +214,9 @@ var panel = Object.create({
 						'<span id="de-panel-info-pcount" title="' +
 							Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' +
 							Thread.first.pcount + '</span>' +
-						'<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
-						'<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' +
+						`<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">` +
+							`${ imgLen }</span>` +
+						`<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>` +
 					'</span>')) }
 				</span>
 			</div>

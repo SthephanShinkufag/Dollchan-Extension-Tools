@@ -1,6 +1,6 @@
-/*==[ Browser.js ]============================================================================================
+/* ==[ Browser.js ]===========================================================================================
                                       BROWSER DETECTORS AND DEPENDENCIES
-============================================================================================================*/
+=========================================================================================================== */
 
 function checkStorage() {
 	try {
@@ -30,7 +30,7 @@ function initNavFuncs() {
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
-	let isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -59,10 +59,10 @@ function initNavFuncs() {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
-		const origFormData = FormData;
+		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
-			const rv = form ? new origFormData(form) : new origFormData();
+			const rv = form ? new OrigFormData(form) : new OrigFormData();
 			rv.append = function append(name, value, fileName = null) {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
@@ -84,21 +84,22 @@ function initNavFuncs() {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		Firefox: firefox,
-		WebKit: webkit,
-		Chrome: chrome,
-		Safari: safari,
-		Presto: !!window.opera,
-		MsEdge: ua.includes('Edge/'),
-		isGM: isGM,
-		isNewGM: isNewGM,
+		Firefox         : firefox,
+		WebKit          : webkit,
+		Chrome          : chrome,
+		Safari          : safari,
+		Presto          : !!window.opera,
+		MsEdge          : ua.includes('Edge/'),
+		isGM            : isGM,
+		isNewGM         : isNewGM,
+		isChromeStorage : isChromeStorage,
+		isScriptStorage : isScriptStorage,
+		isGlobal        : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
+			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get isESNext() {
-			return typeof de_main_func_outer === 'undefined';
+			return typeof deMainFuncOuter === 'undefined';
 		},
-		isChromeStorage: isChromeStorage,
-		isScriptStorage: isScriptStorage,
-		isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
-		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') || (isNewGM && (typeof GM.xmlHttpRequest === 'function')),
 		get scriptInstall() {
 			if(this.Firefox) {
 				if(this.isNewGM) {
@@ -147,39 +148,40 @@ function initNavFuncs() {
 			return value;
 		},
 		get viewportHeight() {
-			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
-			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
-			let ctor = Uint8Array;
+			let Ctor = Uint8Array;
 			if(!nav.isNewGM && nav.Firefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
-						ctor = unsafeWindow.Uint8Array;
+						Ctor = unsafeWindow.Uint8Array;
 					}
 				} catch(e) {
-					ctor = unsafeWindow.Uint8Array;
+					Ctor = unsafeWindow.Uint8Array;
 				}
 			}
 			switch(arguments.length) {
-				case 1: return new ctor(data);
-				case 2: return new ctor(data, i);
-				case 3: return new ctor(data, i, len);
+			case 1: return new Ctor(data);
+			case 2: return new Ctor(data, i);
+			case 3: return new Ctor(data, i, len);
 			}
 			throw new Error();
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ?
+				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }

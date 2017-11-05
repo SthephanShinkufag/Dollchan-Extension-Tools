@@ -1,10 +1,10 @@
-/*==[ Spells.js ]=============================================================================================
+/* ==[ Spells.js ]============================================================================================
                                                     SPELLS
-============================================================================================================*/
+=========================================================================================================== */
 
 var Spells = Object.create({
-	hash: null,
-	names: [
+	hash  : null,
+	names : [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
 		'all', 'video', 'wipe', 'num', 'vauthor'
 	],
@@ -58,7 +58,7 @@ var Spells = Object.create({
 		return str;
 	},
 	add(type, arg, isNeg) {
-		var temp, fld = $id('de-spell-txt'),
+		var fld = $id('de-spell-txt'),
 			val = fld && fld.value,
 			chk = $q('input[info="hideBySpell"]'),
 			spells = val && this.parseText(val);
@@ -76,10 +76,15 @@ var Spells = Object.create({
 			if(spells[1]) {
 				spells[1].some(scope && isNeg ? function(spell, i) {
 					var data;
-					if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
-					   data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
-					   String(data[1][1]) === sArg && String(data[0][2]) === sScope)
-					{
+					if(spell[0] === 0xFF &&
+						((data = spell[1]) instanceof Array) &&
+						data.length === 2 &&
+						data[0][0] === 0x20C &&
+						data[1][0] === type &&
+						data[1][2] == null &&
+						String(data[1][1]) === sArg &&
+						String(data[0][2]) === sScope
+					) {
 						idx = i;
 						return true;
 					}
@@ -143,16 +148,21 @@ var Spells = Object.create({
 				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
 				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
 				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-		}
 		// #wipe
-		else if(type === 14) {
+		} else if(type === 14) {
 			if(val === 0x3F && !wipeMsg) {
 				return spell;
 			}
 			var [msgBit, msgData] = wipeMsg || [],
 				names = [],
-				bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
-					16: 'capslock', 32: 'numbers', 64: 'whitespace' };
+				bits = {
+					1  : 'samelines',
+					2  : 'samewords',
+					4  : 'longwords',
+					8  : 'symbols',
+					16 : 'capslock',
+					32 : 'numbers',
+					64 : 'whitespace' };
 			for(var bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
@@ -164,9 +174,8 @@ var Spells = Object.create({
 				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 			}
 			return spell + '(' + names.join(',') + ')';
-		}
 		// #num, #tlen
-		else if(type === 15 || type === 11) {
+		} else if(type === 15 || type === 11) {
 			var temp_, temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
@@ -182,9 +191,8 @@ var Spells = Object.create({
 				spell += temp_.join(',');
 			}
 			return spell + ')';
-		}
 		// #words, #name, #trip, #vauthor
-		else if(type === 0 || type === 6 || type === 7 || type === 16) {
+		} else if(type === 0 || type === 6 || type === 7 || type === 16) {
 			return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 		} else {
 			return spell + '(' + String(val) + ')';
@@ -193,10 +201,9 @@ var Spells = Object.create({
 	disable() {
 		var value = null, configurable = true;
 		Object.defineProperties(this, {
-			hiders: { configurable, value },
-			reps: { configurable, value },
-			outreps: { configurable, value }
-		});
+			hiders  : { configurable, value },
+			outreps : { configurable, value },
+			reps    : { configurable, value } });
 		saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
@@ -303,10 +310,9 @@ var Spells = Object.create({
 		if(!Cfg.hideBySpell) {
 			var value = null, configurable = true;
 			Object.defineProperties(this, {
-				hiders: { configurable, value },
-				reps: { configurable, value },
-				outreps: { configurable, value }
-			});
+				hiders  : { configurable, value },
+				outreps : { configurable, value },
+				reps    : { configurable, value } });
 			return;
 		}
 		var spells, data;
@@ -394,9 +400,10 @@ var Spells = Object.create({
 				}
 			} else {
 				var scope = spell[2];
-				if(!scope || (scope[0] === aib.b &&
-				   (scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))))
-				{
+				if(!scope || (
+					scope[0] === aib.b &&
+					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
+				)) {
 					if(type === 12) {
 						neg = !neg;
 					} else {
@@ -406,7 +413,7 @@ var Spells = Object.create({
 					}
 				}
 			}
-			for(j = lastSpell; j >= 0 && (((newSpells[j][0] & 0x200) !== 0) ^ neg); --j) {}
+			for(j = lastSpell; j >= 0 && (((newSpells[j][0] & 0x200) !== 0) ^ neg); --j) /* empty */;
 			if(j !== lastSpell) {
 				newSpells = newSpells.slice(0, j + 1);
 				lastSpell = j;
@@ -423,14 +430,13 @@ var Spells = Object.create({
 	_setData(hiders, reps, outreps) {
 		var configurable = true;
 		Object.defineProperties(this, {
-			hiders: { configurable, value: this._initHiders(hiders) },
-			reps: { configurable, value: this._initReps(reps) },
-			outreps: { configurable, value: this._initReps(outreps) }
-		});
+			hiders  : { configurable, value: this._initHiders(hiders) },
+			outreps : { configurable, value: this._initReps(outreps) },
+			reps    : { configurable, value: this._initReps(reps) } });
 	},
 	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length-1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
 				const temp = [0xFF, []];
 				do {
@@ -444,12 +450,15 @@ var Spells = Object.create({
 		sp = sp.sort();
 		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			// Removes duplicates and weaker spells
-			if(sp[i][0] === sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
-			  (sp[i][2] === null || // Stronger spell with 3 parameters
-			   sp[i][2] === undefined || // Equal spells with 2 parameters
-			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2])))
-			{ // Equal spells with 3 parameters
-				sp.splice(i+1, 1);
+			const j = i + 1;
+			if(sp[i][0] === sp[j][0] &&
+				sp[i][1] <= sp[j][1] &&
+				sp[i][1] >= sp[j][1] && (
+					sp[i][2] === null || // Stronger spell with 3 parameters
+					sp[i][2] === undefined || // Equal spells with 2 parameters
+					(sp[i][2] <= sp[j][2] && sp[i][2] >= sp[j][2]))
+			) { // Equal spells with 3 parameters
+				sp.splice(j, 1);
 				i--;
 				len--;
 			// Moves brackets to the end of the list
@@ -462,9 +471,8 @@ var Spells = Object.create({
 	},
 	_sync(data) {
 		locStorage['__de-spells'] = JSON.stringify({
-			'hide': !!Cfg.hideBySpell,
-			'data': data
-		});
+			hide : !!Cfg.hideBySpell,
+			data : data });
 		locStorage.removeItem('__de-spells');
 	}
 });
@@ -476,12 +484,12 @@ function SpellsCodegen(sList) {
 	this.hasError = false;
 }
 SpellsCodegen.prototype = {
-	TYPE_UNKNOWN: 0,
-	TYPE_ANDOR: 1,
-	TYPE_NOT: 2,
-	TYPE_SPELL: 3,
-	TYPE_PARENTHESES: 4,
-	TYPE_REPLACER: 5,
+	TYPE_UNKNOWN     : 0,
+	TYPE_ANDOR       : 1,
+	TYPE_NOT         : 2,
+	TYPE_SPELL       : 3,
+	TYPE_PARENTHESES : 4,
+	TYPE_REPLACER    : 5,
 
 	generate() {
 		return this._sList ? this._generate(this._sList, false) : null;
@@ -494,8 +502,8 @@ SpellsCodegen.prototype = {
 			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
 	},
 
-	_errMsg: '',
-	_errMsgArg: null,
+	_errMsg    : '',
+	_errMsgArg : null,
 	_generate(sList, inParens) {
 		var spells = [],
 			reps = [],
@@ -552,7 +560,7 @@ SpellsCodegen.prototype = {
 					if(!res) {
 						return null;
 					}
-					(name === 'rep'? reps : outreps).push(res[1]);
+					(name === 'rep' ? reps : outreps).push(res[1]);
 					i += res[0] - 1;
 					this._col += res[0] - 1;
 					lastType = this.TYPE_REPLACER;
@@ -637,9 +645,9 @@ SpellsCodegen.prototype = {
 			return null;
 		}
 		if(lastType !== this.TYPE_SPELL &&
-		   lastType !== this.TYPE_PARENTHESES &&
-		   lastType !== this.TYPE_REPLACER)
-		{
+			lastType !== this.TYPE_PARENTHESES &&
+			lastType !== this.TYPE_REPLACER
+		) {
 			this._setError(Lng.seMissSpell[lang], null);
 			return null;
 		}
@@ -652,7 +660,7 @@ SpellsCodegen.prototype = {
 		return [spells, reps, outreps];
 	},
 	_getScope(str) {
-		var m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
 		if(m) {
 			return [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]];
 		}
@@ -775,13 +783,13 @@ SpellsCodegen.prototype = {
 			if(m) {
 				val = m[1].split(/, */).reduce(function(val, str) {
 					switch(str) {
-					case 'samelines': return val |= 1;
-					case 'samewords': return val |= 2;
-					case 'longwords': return val |= 4;
-					case 'symbols': return val |= 8;
-					case 'capslock': return val |= 16;
-					case 'numbers': return val |= 32;
-					case 'whitespace': return val |= 64;
+					case 'samelines': return (val |= 1);
+					case 'samewords': return (val |= 2);
+					case 'longwords': return (val |= 4);
+					case 'symbols': return (val |= 8);
+					case 'capslock': return (val |= 16);
+					case 'numbers': return (val |= 32);
+					case 'whitespace': return (val |= 64);
 					default: return -1;
 					}
 				}, 0);
@@ -906,17 +914,16 @@ class SpellsRunner {
 						data = [];
 						for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
 							var hidden = post.spellHidden;
-							data.push(hidden ? [true, post.note.text] : [false, null]);
+							data.push(hidden ? [true, Post.Note.text] : [false, null]);
 						}
 						SpellsRunner.cachedData = data;
 					}
 				}
 				sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
-					'hash': Cfg.hideBySpell ? Spells.hash : 0,
-					'lastCount': lPost.count,
-					'lastNum': lPost.num,
-					'data': data
-				});
+					hash      : Cfg.hideBySpell ? Spells.hash : 0,
+					lastCount : lPost.count,
+					lastNum   : lPost.num,
+					data      : data });
 			}
 			toggleWindow('hid', true);
 		}
@@ -986,8 +993,7 @@ SpellsInterpreter.prototype = {
 		var cl = this._ctx.length;
 		var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null]
-		                 : this.run();
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 	},
 	_checkRes(spell, val, isNegScope) {
 		var flags = spell[0];
@@ -1120,17 +1126,17 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_sage(val) {
+	_sage() {
 		return this._post.sage;
 	},
-	_op(val) {
+	_op() {
 		return this._post.isOp;
 	},
 	_tlen(val) {
 		var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 		return !val ? !!text : this._tlenNum_helper(val, text.length);
 	},
-	_all(val) {
+	_all() {
 		return true;
 	},
 	_video(val) {
@@ -1158,7 +1164,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 1): samewords
 		if(val & 2) {
-			arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+			arr = txt.replace(/[\s.?!,>]+/g, ' ').toUpperCase().split(' ');
 			if((len = arr.length) > 3) {
 				arr.sort();
 				let keys = 0;
@@ -1187,7 +1193,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 2): longwords
 		if(val & 4) {
-			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s.?!,>:;-]+/g, ' ').split(' ');
 			if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
 				this._wipeMsg = [4, null];
 				return true;
@@ -1196,16 +1202,14 @@ SpellsInterpreter.prototype = {
 		// (1 << 3): symbols
 		if(val & 8) {
 			const _txt = txt.replace(/\s+/g, '');
-			if((len = _txt.length) > 30 &&
-			   (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-			{
+			if((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я.?!,]/ig, '').length / len) > 0.4) {
 				this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
 				return true;
 			}
 		}
 		// (1 << 4): capslock
 		if(val & 16) {
-			arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+			arr = txt.replace(/[\s.?!;,-]+/g, ' ').trim().split(' ');
 			if((len = arr.length) > 4) {
 				let n = 0;
 				let capsw = 0;
@@ -1287,7 +1291,7 @@ SpellsInterpreter.prototype = {
 		if(videos.linksCount === videos.loadedLinksCount) {
 			return false;
 		}
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			videos.titleLoadFn = data => {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					resolve(true);

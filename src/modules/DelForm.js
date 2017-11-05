@@ -1,6 +1,6 @@
-/*==[ DelForm.js ]============================================================================================
+/* ==[ DelForm.js ]===========================================================================================
                                                    DELFORM
-============================================================================================================*/
+=========================================================================================================== */
 
 class DelForm {
 	static [Symbol.iterator]() {
@@ -119,7 +119,8 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					html5Submit(el, e.target).then(checkDelete).catch(e => $popup('delete', getErrorMessage(e)));
+					html5Submit(el, e.target).then(checkDelete).catch(
+						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}

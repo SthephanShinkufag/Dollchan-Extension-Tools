@@ -1,7 +1,7 @@
-/*==[ FormSubmit.js ]=========================================================================================
+/* ==[ FormSubmit.js ]========================================================================================
                                                     SUBMIT
     postform/delform html5/iframe submit, images and webms parsing, duplicate files posting, EXIF clearing
-============================================================================================================*/
+=========================================================================================================== */
 
 function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
@@ -12,7 +12,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|post deleted|обновл|удален[о\.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|post deleted|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -36,7 +36,7 @@ function getUploadFunc() {
 		progress.value = data.loaded;
 		counterEl.textContent = prettifySize(data.loaded);
 		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
-										   '/' + Lng.second[lang];
+			'/' + Lng.second[lang];
 	};
 }
 
@@ -178,13 +178,14 @@ async function html5Submit(form, submitter, needProgress = false) {
 			const fileName = value.name;
 			const newFileName = Cfg.removeFName ?
 				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
-			if((Cfg.postSameImg || Cfg.removeEXIF) &&
-			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
-				value.type === 'video/webm' && !aib.mak))
-			{
+			if((Cfg.postSameImg || Cfg.removeEXIF) && (
+				value.type === 'image/jpeg' ||
+				value.type === 'image/png' ||
+				value.type === 'video/webm' && !aib.mak)
+			) {
 				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
-					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
+					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
 				value = new File(data, newFileName);
 			} else if(Cfg.removeFName) {
@@ -206,7 +207,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 }
 
 async function readFile(file, asText = false) {
-	return new Promise((resolve, reject) => {
+	return new Promise(resolve => {
 		var fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
@@ -231,15 +232,15 @@ function cleanFile(data, extraData) {
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
 		var deep = 1;
-		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
 					if(!jpgDat && deep === 1) {
 						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 						} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
-						         (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF))
-						{
+							(img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF)
+						) {
 							jpgDat = subarray(i + 11, i + 16);
 						}
 					}
@@ -285,8 +286,12 @@ function cleanFile(data, extraData) {
 	}
 	// PNG
 	if(img[0] === 0x89 && img[1] === 0x50) {
-		for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
-			img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
+		for(i = 0, len = img.length - 7; i < len && (
+			img[i] !== 0x49 ||
+			img[i + 1] !== 0x45 ||
+			img[i + 2] !== 0x4E ||
+			img[i + 3] !== 0x44
+		); i++) /* empty */;
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -381,8 +386,8 @@ var WebmParser = function(data) {
 		this.size = size;
 	}
 	WebmElement.prototype = {
-		error: false,
-		id: 0
+		error : false,
+		id    : 0
 	};
 
 	function Parser(data) {

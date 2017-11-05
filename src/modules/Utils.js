@@ -1,6 +1,6 @@
-/*==[ Utils.js ]==============================================================================================
+/* ==[ Utils.js ]=============================================================================================
                                                     UTILS
-============================================================================================================*/
+=========================================================================================================== */
 
 // DOM SEARCH
 
@@ -18,7 +18,6 @@ function $parent(el, tagName) {
 	} while(el && el.tagName !== tagName);
 	return el;
 }
-
 
 // DOM MODIFIERS
 
@@ -109,7 +108,6 @@ function $DOM(html) {
 	return myDoc;
 }
 
-
 // CSS UTILS
 
 function $toggle(el, needToShow = el.style.display) {
@@ -159,7 +157,6 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
-
 // OTHER UTILS
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
@@ -168,12 +165,13 @@ const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => '/' + b + (b ? '/' : '');
 
-const getAbsLink = url =>
+const getAbsLink = url => (
 	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url
+);
 
 // Prepares a string to be used as a new RegExp argument
-const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
+const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 
 // Converts a string to a regular expression
 function toRegExp(str, noG) {
@@ -254,12 +252,12 @@ const Logger = {
 		}
 	},
 
-	_finished: false,
-	_marks: []
+	_finished : false,
+	_marks    : []
 };
 
 function sleep(ms) {
-	return new Promise((resolve, reject) => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
@@ -271,7 +269,7 @@ class CancelablePromise {
 		return new CancelablePromise((res, rej) => rej(val));
 	}
 	static resolve(val) {
-		return new CancelablePromise((res, rej) => res(val));
+		return new CancelablePromise(res => res(val));
 	}
 	constructor(resolver, cancelFn) {
 		this._promise = new Promise((resolve, reject) => {
@@ -316,16 +314,16 @@ class CancelablePromise {
 	}
 }
 
-function Maybe(ctor/*, ...args*/) {
-	this._ctor = ctor;
-	//this._args = args;
+function Maybe(Ctor/* , ...args */) {
+	this._ctor = Ctor;
+	// this._args = args;
 	this.hasValue = false;
 }
 Maybe.prototype = {
 	get value() {
-		const ctor = this._ctor;
-		this.hasValue = !!ctor;
-		const val = ctor ? new ctor(/*...this._args*/) : null;
+		const Ctor = this._ctor;
+		this.hasValue = !!Ctor;
+		const val = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
 	},
@@ -338,7 +336,7 @@ Maybe.prototype = {
 
 class TemporaryContent {
 	constructor(key) {
-		const oClass = /*new.target*/this.constructor; // https://github.com/babel/babel/issues/1088
+		const oClass = /* new.target */this.constructor; // https://github.com/babel/babel/issues/1088
 		if(oClass.purgeTO) {
 			clearTimeout(oClass.purgeTO);
 		}
@@ -537,22 +535,24 @@ function getErrorMessage(e) {
 function* getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
-  constructSet:
+
+	constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
 		const field = controls[i];
 		const tagName = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
 		if($parent(field, 'DATALIST', form) || isFormElDisabled(field) ||
-		   (field !== submitter && (tagName === 'button' ||
-		       (tagName === 'input' && (type === 'submit' || type === 'reset' || type ===  'button'))
-		   )) ||
-		   (tagName === 'input' && (
-		       (type === 'checkbox' && !field.checked) ||
-		       (type === 'radio' && !field.checked) ||
-		       (type === 'image' && !name)
-		   )) ||
-		   tagName === 'object'
+			field !== submitter && (
+				tagName === 'button' ||
+				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
+			) ||
+			tagName === 'input' && (
+				type === 'checkbox' && !field.checked ||
+				type === 'radio' && !field.checked ||
+				type === 'image' && !name
+			) ||
+			tagName === 'object'
 		) {
 			continue;
 		}
@@ -562,10 +562,10 @@ function* getFormElements(form, submitter) {
 				const option = options[j];
 				if(option.selected && !isFormElDisabled(option)) {
 					yield {
-						el: field,
-						name: fixName(name),
-						value: option.value,
-						type: type
+						el    : field,
+						name  : fixName(name),
+						type  : type,
+						value : option.value
 					};
 				}
 			}
@@ -575,64 +575,65 @@ function* getFormElements(form, submitter) {
 			case 'checkbox':
 			case 'radio':
 				yield {
-					el: field,
-					name: fixName(name),
-					value: field.value || 'on',
-					type: type
+					el    : field,
+					name  : fixName(name),
+					type  : type,
+					value : field.value || 'on'
 				};
 				continue constructSet;
-			case 'file':
+			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield {
-							el: field,
-							name: name,
-							value: files[j],
-							type: type
+							el    : field,
+							name  : name,
+							type  : type,
+							value : files[j]
 						};
 					}
 				} else if(field.obj && (imgFile = field.obj.imgFile)) {
 					yield {
-						el: field,
-						name: name,
-						value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] }),
-						type: type
+						el    : field,
+						name  : name,
+						type  : type,
+						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
 					};
 				} else {
 					yield {
-						el: field,
-						name: fixName(name),
-						value: new File([''], ''),
-						type: 'application/octet-stream'
+						el    : field,
+						name  : fixName(name),
+						type  : 'application/octet-stream',
+						value : new File([''], '')
 					};
 				}
 				continue constructSet;
 			}
+			}
 		}
 		if(type === 'textarea') {
 			yield {
-				el: field,
-				name: name || '',
-				value: field.value,
-				type: type
+				el    : field,
+				name  : name || '',
+				type  : type,
+				value : field.value
 			};
 		} else {
 			yield {
-				el: field,
-				name: fixName(name),
-				value: field.value,
-				type: type
+				el    : field,
+				name  : fixName(name),
+				type  : type,
+				value : field.value
 			};
 		}
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
 			yield {
-				el: field,
-				name: fixName(dirname),
-				value: (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr'),
-				type: 'direction'
+				el    : field,
+				name  : fixName(dirname),
+				type  : 'direction',
+				value : (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr')
 			};
 		}
 	}

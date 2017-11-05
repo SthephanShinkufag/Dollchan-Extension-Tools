@@ -1,16 +1,17 @@
-/*==[ Storage.js ]============================================================================================
+/* ==[ Storage.js ]===========================================================================================
                                                    STORAGE
-============================================================================================================*/
+=========================================================================================================== */
 
 // Gets data from the global storage
 async function getStored(id) {
 	if(nav.isNewGM) {
-		return await GM.getValue(id);
+		const value = await GM.getValue(id);
+		return value;
 	} else if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		return (await new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
+		const value = await new Promise(resolve => chrome.storage.local.get(id, function(obj) {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
@@ -18,7 +19,8 @@ async function getStored(id) {
 					resolve(obj[id]);
 				});
 			}
-		})));
+		}));
+		return value;
 	} else if(nav.isScriptStorage) { // Opera Presto only
 		return scriptStorage.getItem(id);
 	}
@@ -96,7 +98,7 @@ function saveCfg(id, val) {
 function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
-  
+
 function readData() {
 	return Promise.all([getStored('DESU_Exclude'), readFavorites(), readCfg()]);
 }
@@ -126,7 +128,7 @@ async function readCfg() {
 		Cfg.addVocaroo = 0;
 	}
 	if(aib.dobr && !Cfg.useDobrAPI) {
-		aib.jsonBuilder = null;
+		aib.JsonBuilder = null;
 	}
 	if(!('FormData' in window)) {
 		Cfg.ajaxPosting = 0;
@@ -182,9 +184,8 @@ function readPostsData(firstPost, fav) {
 		if(str) {
 			const json = JSON.parse(str);
 			if(json.hash === (Cfg.hideBySpell ? Spells.hash : 0) &&
-			   pByNum.has(json.lastNum) &&
-			   pByNum.get(json.lastNum).count === json.lastCount)
-			{
+				pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount
+			) {
 				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
@@ -308,7 +309,6 @@ function readViewedPosts() {
 		}
 	}
 }
-
 
 // HIDDEN AND MY POSTS STORAGE
 
@@ -462,7 +462,6 @@ class MyPosts extends PostsStorage {
 MyPosts.storageName = 'de-myposts';
 MyPosts._cachedData = null;
 
-
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
 		var data, temp, post, val = e.newValue;
@@ -479,24 +478,25 @@ function initStorageEvent() {
 				temp.value = val;
 			}
 			return;
-		case '__de-post': (() => {
-			try {
-				data = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			HiddenThreads.purge();
-			HiddenPosts.purge();
-			if(data.brd === aib.b) {
-				if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
-					post.setUserVisib(data.hide, false);
-				} else if((post = pByNum.get(data.thrNum))) {
-					post.thr.userTouched.set(data.num, data.hide);
+		case '__de-post':
+			(() => {
+				try {
+					data = JSON.parse(val);
+				} catch(err) {
+					return;
 				}
-			}
-			toggleWindow('hid', true);
-		})();
-		return;
+				HiddenThreads.purge();
+				HiddenPosts.purge();
+				if(data.brd === aib.b) {
+					if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
+						post.setUserVisib(data.hide, false);
+					} else if((post = pByNum.get(data.thrNum))) {
+						post.thr.userTouched.set(data.num, data.hide);
+					}
+				}
+				toggleWindow('hid', true);
+			})();
+			return;
 		case 'de-threads':
 			HiddenThreads.purge();
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);

@@ -1,6 +1,6 @@
-/*==[ Threads.js ]============================================================================================
+/* ==[ Threads.js ]===========================================================================================
                                                    THREADS
-============================================================================================================*/
+=========================================================================================================== */
 
 class Thread {
 	static get first() {
@@ -9,7 +9,7 @@ class Thread {
 	static get last() {
 		return DelForm.last.lastThr;
 	}
-	static removeSavedData(brd, num) {
+	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	constructor(el, num, prev, form) {
@@ -61,10 +61,10 @@ class Thread {
 					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 				repBtn.onclick = e => {
 					$pd(e);
-					var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
+					var nextCoord = !this.next || this.last.omitted ? null : this.next.top;
 					this._toggleReplies(repBtn, updBtn);
 					if(nextCoord) {
-						scrollTo(window.pageXOffset, windows.pageYOffset + this.next.top - nextCoord);
+						scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
 					}
 				};
 				this._toggleReplies(repBtn, updBtn);
@@ -82,11 +82,11 @@ class Thread {
 		return post;
 	}
 	get nextNotHidden() {
-		for(var thr = this.next; thr && thr.hidden; thr = thr.next) {}
+		for(var thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
-		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
+		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get userTouched() {
@@ -99,8 +99,7 @@ class Thread {
 	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
-		var count = 0,
-			idx = post.count;
+		let count = 0;
 		do {
 			if(removePost && this.last === post) {
 				this.last = post.prev;
@@ -115,7 +114,7 @@ class Thread {
 		this.pcount -= count;
 		return post;
 	}
-	/**
+	/*
 	* Thread loading via ajax.
 	*   Calls from the list of threads, not in a thread.
 	*   Adds posts to current thread accoring to task:
@@ -136,7 +135,7 @@ class Thread {
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
 			e => $popup('load-thr', getErrorMessage(e)));
 	}
-	/**
+	/*
 	* New posts loading via ajax.
 	*  Calls by thread updater, by clicking on >>[Get new posts] button, and after sending a reply.
 	*  Adds new posts to the end of current thread.
@@ -161,13 +160,13 @@ class Thread {
 				}
 				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
 				fav[h][b][num] = {
-					'cnt': this.pcount,
-					'new': 0,
-					'you': 0,
-					'txt': this.op.title,
-					'url': aib.getThrUrl(b, num),
-					'last': aib.anchor + this.last.num,
-					'type': type
+					cnt  : this.pcount,
+					new  : 0,
+					you  : 0,
+					txt  : this.op.title,
+					url  : aib.getThrUrl(b, num),
+					last : aib.anchor + this.last.num,
+					type : type
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, num);
@@ -254,7 +253,7 @@ class Thread {
 		var fragm, newCount = end - begin,
 			newVisCount = newCount,
 			nums = [];
-		if(aib.jsonBuilder && nav.hasTemplate) {
+		if(aib.JsonBuilder && nav.hasTemplate) {
 			let temp = document.createElement('template');
 			let html = [];
 			for(let i = begin; i < end; ++i) {
@@ -332,13 +331,12 @@ class Thread {
 		} else {
 			let nonExisted = pBuilder.length - existed,
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
-				iprv = this._importPosts(op,
-				                         pBuilder,
-				                         Math.max(0, nonExisted + existed - needToShow),
-				                         nonExisted,
-				                         maybeVParser,
-				                         maybeSpells);
-			let [,,fragm,last,nums] = iprv;
+				iprv = this._importPosts(op, pBuilder,
+					Math.max(0, nonExisted + existed - needToShow),
+					nonExisted,
+					maybeVParser,
+					maybeSpells);
+			let [,, fragm, last, nums] = iprv;
 			maybeVParser.end();
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
@@ -426,12 +424,12 @@ class Thread {
 			len = pBuilder.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 &&
-		   (aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num))
-		{
+		if(post.count !== 0 && (
+			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
+		)) {
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
-			for(i = post.count - 1; i < len && post; ) {
+			for(i = post.count - 1; i < len && post;) {
 				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
@@ -479,7 +477,8 @@ class Thread {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
+			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count,
+				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -560,11 +559,11 @@ var navPanel = {
 		}
 	},
 
-	_el: null,
-	_showhideTO: 0,
-	_thrs: null,
-	_currentThr: null,
-	_visible: false,
+	_currentThr : null,
+	_el         : null,
+	_showhideTO : 0,
+	_thrs       : null,
+	_visible    : false,
 	_checkThreads() {
 		var el = this._findCurrentThread();
 		if(el) {
@@ -616,8 +615,8 @@ var navPanel = {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 			clearTimeout(this._showhideTO);
 			this._showhideTO = setTimeout(
-				expand ? (() => this._el.classList.remove('de-thr-navpanel-hidden')) :
-				         (() => this._el.classList.add('de-thr-navpanel-hidden')),
+				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+				() => this._el.classList.add('de-thr-navpanel-hidden'),
 				Cfg.linksOver);
 		}
 	},

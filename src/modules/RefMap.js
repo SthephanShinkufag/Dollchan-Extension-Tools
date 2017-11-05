@@ -1,6 +1,6 @@
-/*==[ RefMap.js ]=============================================================================================
+/* ==[ RefMap.js ]============================================================================================
                                              REFERENCE LINKS MAP
-============================================================================================================*/
+=========================================================================================================== */
 
 class RefMap {
 	static gen(posts, thrURL) {
@@ -190,7 +190,7 @@ class RefMap {
 	}
 	_createEl(innerHTML, isHidden) {
 		var el, msg = this._post.msg,
-			html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+			html = `<div class="de-refmap${ isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
 		if(aib.dobr && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
 		} else {

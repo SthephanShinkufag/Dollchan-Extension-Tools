@@ -1,7 +1,7 @@
-/*==[ Players.js ]============================================================================================
+/* ==[ Players.js ]===========================================================================================
                                           PLAYERS / LINKS EMBEDDERS
                                 youtube, vimeo, mp3, vocaroo embedding players
-============================================================================================================*/
+=========================================================================================================== */
 
 function Videos(post, player = null, playerInfo = null) {
 	this.post = post;
@@ -25,7 +25,7 @@ Videos._global = {
 	}
 };
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
+Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	var txt;
 	if(isYtube) {
@@ -42,7 +42,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 				(Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' +
 				'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
 			'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
-				'//vimeo.com/moogaloop.swf' + '?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
 				'allowscriptaccess="always" allowfullscreen="true"></embed>';
 	}
@@ -74,10 +74,11 @@ Videos._fixTime = function(seconds = 0, minutes = 0, hours = 0) {
 		hours += Math.floor(seconds / 60);
 		minutes %= 60;
 	}
-	var timeStr = (hours   ? hours   + 'h' : '') +
-	              (minutes ? minutes + 'm' : '') +
-	              (seconds ? seconds + 's' : '');
-	return [timeStr, hours, minutes, seconds];
+	return [
+		(hours ? hours + 'h' : '') +
+		(minutes ? minutes + 'm' : '') +
+		(seconds ? seconds + 's' : ''),
+		hours, minutes, seconds];
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
@@ -95,60 +96,61 @@ Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...dat
 	return sleep(250);
 };
 Videos._getYTInfoAPI = function(info, num, id) {
-	return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
-	             '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
-	             null, false).then(xhr => {
+	return $ajax(
+		'https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
+		'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
+		'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
+		null, false
+	).then(xhr => {
 		var items = JSON.parse(xhr.responseText).items[0];
-		return Videos._titlesLoaderHelper(info, num,
-		                                  items.snippet.title,
-		                                  items.snippet.channelTitle,
-		                                  items.statistics.viewCount,
-		                                  items.snippet.publishedAt.substr(0, 10),
-		                                  items.contentDetails.duration.substr(2).toLowerCase());
+		return Videos._titlesLoaderHelper(
+			info, num,
+			items.snippet.title,
+			items.snippet.channelTitle,
+			items.statistics.viewCount,
+			items.snippet.publishedAt.substr(0, 10),
+			items.contentDetails.duration.substr(2).toLowerCase());
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
 	return (nav.isGM ?
-		$ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
-	:
-		$ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')
-	).then(xhr =>
-	{
+		$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
+			null, false) :
+		$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
+	).then(xhr => {
 		var json = JSON.parse(xhr.responseText);
-		return Videos._titlesLoaderHelper(info, num,
-		                                  json.title,
-		                                  json.author_name,
-		                                  null,
-		                                  null,
-		                                  null);
+		return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 	}).catch(() => Videos._titlesLoaderHelper(info, num));
 };
 Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 		var [, isYtube,, id] = info;
 		if(isYtube) {
-			return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
+			return Cfg.ytApiKey ?
+				Videos._getYTInfoAPI(info, num, id) :
+				Videos._getYTInfoOembed(info, num, id);
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			var entry = JSON.parse(xhr.responseText)[0];
-			return Videos._titlesLoaderHelper(info, num,
-			                                  entry.title,
-			                                  entry.user_name,
-			                                  entry.stats_number_of_plays,
-			                                  (/(.*)\s(.*)?/.exec(entry.upload_date))[1],
-											  Videos._fixTime(entry.duration)[0]);
+			return Videos._titlesLoaderHelper(
+				info, num,
+				entry.title,
+				entry.user_name,
+				entry.stats_number_of_plays,
+				(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+				Videos._fixTime(entry.duration)[0]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
 		sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
 	});
 };
 Videos.prototype = {
-	currentLink: null,
-	hasLinks: false,
-	playerInfo: null,
-	titleLoadFn: null,
-	linksCount: 0,
-	loadedLinksCount: 0,
+	currentLink      : null,
+	hasLinks         : false,
+	linksCount       : 0,
+	loadedLinksCount : 0,
+	playerInfo       : null,
+	titleLoadFn      : null,
 	get player() {
 		const post = this.post;
 		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
@@ -183,10 +185,9 @@ Videos.prototype = {
 			var src = isYtube ?
 				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
 				aib.prot + '//vimeo.com/' + m[1];
-			link = $bEnd(this.post.msg, `
-			<p class="de-video-ext"><a class="de-video-link ${
-				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '')
-			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
+			link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' +
+				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') +
+				`" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
 		}
 		if(dataObj) {
 			Videos.setLinkData(link, dataObj);
@@ -342,7 +343,13 @@ function embedMediaLinks(data) {
 				}
 			// Flash plugin for old browsers that not support HTML5 audio
 			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', `<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=${ src }"><br>`);
+				el.insertAdjacentHTML('beforeend', '<object data="' +
+					'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' +
+					'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' +
+					'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' +
+					'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' +
+					'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' +
+					'loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
 			}
 		}
 	}
@@ -353,8 +360,8 @@ function embedMediaLinks(data) {
 			const el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('\/').pop()
-						}" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
+					<embed src="http://vocaroo.com/player.swf?playMediaID=` + link.href.split('/').pop() +
+						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
 				</div>`);
 			}
 		}

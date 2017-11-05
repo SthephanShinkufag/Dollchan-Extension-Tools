@@ -1,6 +1,6 @@
-/*==[ WindowFavorites.js ]====================================================================================
+/* ==[ WindowFavorites.js ]===================================================================================
                                               WINDOW: FAVORITES
-============================================================================================================*/
+=========================================================================================================== */
 
 // Delete previously marked entries from Favorites
 function cleanFavorites() {
@@ -42,31 +42,36 @@ function showFavoritesWindow(body, data) {
 				}
 
 				// Generate DOM for separate entry
-				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b
-					}" de-num="${ tNum }" de-url="${ t.url }">
+				const favLinkHref = t.url + (
+					!t.last ? '' :
+					t.last.startsWith('#') ? t.last :
+					h === aib.host ? aib.anchor + t.last : '');
+				const favInfIwrapTitle =
+					!t.err ? '' :
+					t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
+					'title="' + t.err + '"';
+				const favInfIconClass = !t.err ? '' :
+					t.err === 'Closed' || t.err === 'Archived' ?
+						'de-fav-closed' : 'de-fav-unavail';
+				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
+				const favInfNewDisp = t['new'] ? '' : ' style="display: none;"';
+				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
+					b }" de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
-					<a class="de-fav-link" href="${ t.url + (!t.last ? '' :
-						t.last.startsWith('#') ? t.last :
-						h === aib.host ? aib.anchor + t.last : '') }" rel="noreferrer">
-						${ tNum }
-					</a>
+					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
-						<span class="de-fav-inf-iwrap" ${ !t.err ? '' :
-							t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
-							'title="' + t.err + '"' }>
-							<svg class="de-fav-inf-icon ${ !t.err ? '' :
-								t.err === 'Closed' || t.err === 'Archived' ?
-									'de-fav-closed' : 'de-fav-unavail' }">
+						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
+							<svg class="de-fav-inf-icon ${ favInfIconClass }">
 								<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
 								<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
 								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
 							</svg>
 						</span>
-						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${
-							t.you ? '' : ' style="display: none;"' }>${ t.you || 0 }</span>
-						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${
-							t['new'] ? '' : ' style="display: none;"' }>${ t['new'] || 0 }</span>
+						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
+							${ t.you || 0 }</span>
+						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
+							${ t['new'] || 0 }</span>
 						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
@@ -75,7 +80,6 @@ function showFavoritesWindow(body, data) {
 			if(!innerHtml) {
 				continue;
 			}
-
 			// Building a foldable block for specific board
 			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
@@ -101,22 +105,22 @@ function showFavoritesWindow(body, data) {
 				// remembering of scroll position is no longer needed
 				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 				break;
-			case 'de-fav-header-switch':
+			case 'de-fav-header-switch': {
 				const checked = el.checked;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), checkBox => checkBox.checked = checked);
+				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
 				break;
+			}
 			case 'de-fav-header-link':
 				el = el.parentNode.nextElementSibling;
 				$pd(e); // TODO: remove and make it possible to follow a board link
 				break;
 			default: return;
 			}
-
 			// Fold/unfold the board block
 			if(el.hasAttribute('de-opened')) {
 				el.style.display = 'none';
@@ -133,7 +137,8 @@ function showFavoritesWindow(body, data) {
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(getEditButton('favor', fn => readFavorites().then(data => fn(data, true, saveFavorites))));
+	div.appendChild(getEditButton('favor',
+		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
@@ -151,13 +156,11 @@ function showFavoritesWindow(body, data) {
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
 			let f = fav[host][b][num];
-
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived' ) {
+			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
 				continue;
 			}
-
 			const countEl = $q('.de-fav-inf-new', el);
 			const youEl = countEl.previousElementSibling;
 			const iconEl = $q('.de-fav-inf-icon', el);
@@ -191,7 +194,6 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 				continue;
 			}
-
 			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
@@ -217,7 +219,6 @@ function showFavoritesWindow(body, data) {
 					isUpdate = true;
 				}
 			}
-
 			// Updating a counter of new posts
 			const posts = $Q(aib.qRPost, form);
 			const cnt = posts.length + 1 - f.cnt;
@@ -229,13 +230,12 @@ function showFavoritesWindow(body, data) {
 				$show(countEl);
 				f['new'] = cnt;
 				isUpdate = true;
-
 				// Check for replies to my posts
 				if(myposts && myposts[b]) {
 					f.you = 0;
 					for(let j = 0; j < cnt; ++j) {
 						const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
-						for(let a = 0, len = links.length, num; a < len; ++a) {
+						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
 							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
 								f.you++;
@@ -264,25 +264,23 @@ function showFavoritesWindow(body, data) {
 			return;
 		}
 		$popup('load-pages', Lng.loading[lang], true);
-
 		// Create indexed array of entries and "waiting" SVG icon for each entry
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
 			thrInfo.push({
-				found: false,
-				num: +el.getAttribute('de-num'),
-				pageEl: $q('.de-fav-inf-page', el),
-				iconClass: iconEl.getAttribute('class'),
+				found     : false,
+				num       : +el.getAttribute('de-num'),
+				pageEl    : $q('.de-fav-inf-page', el),
+				iconClass : iconEl.getAttribute('class'),
 				iconEl,
-				iconTitle: titleEl.getAttribute('title'),
+				iconTitle : titleEl.getAttribute('title'),
 				titleEl
 			});
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 		}
-
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
@@ -294,7 +292,6 @@ function showFavoritesWindow(body, data) {
 			} catch(e) {
 				continue;
 			}
-
 			// Search for threads on current page
 			for(let i = 0; i < len; ++i) {
 				const pInfo = thrInfo[i];
@@ -311,12 +308,10 @@ function showFavoritesWindow(body, data) {
 					infoLoaded++;
 				}
 			}
-
 			if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
 				break;
 			}
 		}
-
 		// Process missed threads that not found
 		for(let i = 0; i < len; ++i) {
 			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
@@ -331,7 +326,6 @@ function showFavoritesWindow(body, data) {
 				pageEl.textContent = '@?'; // Indicates that thread not found
 			}
 		}
-
 		closePopup('load-pages');
 	}));
 
@@ -385,7 +379,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => el.checked = false); // Unselect all checkboxes
+		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }

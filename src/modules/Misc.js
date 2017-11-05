@@ -1,6 +1,6 @@
-/*==[ Misc.js ]===============================================================================================
+/* ==[ Misc.js ]==============================================================================================
                                                 MISCELLANEOUS
-============================================================================================================*/
+=========================================================================================================== */
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
@@ -93,8 +93,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			}
 		}
 		return Promise.reject();
-	}, () => isManual ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' :
-	                    Promise.reject()
+	}, () => !isManual ? Promise.reject() :
+		`<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
 	);
 }
 
@@ -115,7 +115,7 @@ function initPage() {
 	} else {
 		navPanel.init();
 	}
-	if(!localData){
+	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
 		if(aib.t) {
 			Thread.first.el.nextSibling.firstChild.firstElementChild
@@ -141,9 +141,10 @@ function scrollPage() {
 			scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
-		          (num = hash.match(/#[ip]?(\d+)$/)) &&
-		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
-		{
+			(num = hash.match(/#[ip]?(\d+)$/)) &&
+			(num = +num[1]) &&
+			(post = pByNum.get(num)) && !post.isOp
+		) {
 			post.selectAndScrollTo();
 		}
 	}, 0);

@@ -1,6 +1,6 @@
-/*==[ WindowVidHid.js ]=======================================================================================
+/* ==[ WindowVidHid.js ]======================================================================================
                                         WINDOW: VIDEOS, HIDDEN THREADS
-============================================================================================================*/
+=========================================================================================================== */
 
 function showVideosWindow(body) {
 	const els = $Q('.de-video-link');
@@ -22,8 +22,9 @@ function showVideosWindow(body) {
 		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
-	const linkList = $add(`<div id="de-video-list" style="max-width: ${ +Cfg.YTubeWidth + 40
-		}px; max-height: ${ nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+	const linkList = $add(`<div id="de-video-list" style="max-width: ${
+		+Cfg.YTubeWidth + 40 }px; max-height: ${
+		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
 	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
 	// The first video should not start automatically!
@@ -66,11 +67,11 @@ function showVideosWindow(body) {
 
 	// Events for control buttons
 	body.addEventListener('click', {
-		linkList: linkList,
-		listHidden: false,
-		player: body.firstElementChild,
-		playerInfo: null,
-		currentLink: null,
+		currentLink : null,
+		listHidden  : false,
+		linkList    : linkList,
+		player      : body.firstElementChild,
+		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
 			if(el.classList.contains('de-abtn')) {
@@ -95,12 +96,13 @@ function showVideosWindow(body) {
 					node = node.nextElementSibling || node.parentNode.firstElementChild;
 					node.lastElementChild.click();
 					break;
-				case 'de-video-btn-resize': // Expand/collapse video player
+				case 'de-video-btn-resize': { // Expand/collapse video player
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
 					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
 						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
+				}
 				}
 				$pd(e);
 				return;
@@ -151,7 +153,7 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => el.checked = e.target.checked);
+				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
 			for(let tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
 					<input type="checkbox">
@@ -171,9 +173,9 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
+		for(let i = 0, els = $Q('.de-entry[info]', e.target.parentNode), len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
@@ -201,10 +203,10 @@ function showHiddenWindow(body) {
 				// Synchronize current hidden thread in other tabs
 				// Storage event listeners are loacted at initStorageEvent()
 				locStorage['__de-post'] = JSON.stringify({
-					'brd': b,
-					'num': num,
-					'thrNum': num,
-					'hide': false
+					brd    : b,
+					hide   : false,
+					num    : num,
+					thrNum : num
 				});
 				locStorage.removeItem('__de-post');
 			}

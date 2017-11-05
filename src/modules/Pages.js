@@ -1,6 +1,6 @@
-/*==[ Pages.js ]==============================================================================================
+/* ==[ Pages.js ]=============================================================================================
                                                  PAGES LOADER
-============================================================================================================*/
+=========================================================================================================== */
 
 var Pages = {
 	add() {
@@ -73,8 +73,8 @@ var Pages = {
 		}
 	},
 
-	_adding: false,
-	_addPromise: null,
+	_adding     : false,
+	_addPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide((formEl = aib.fixHTML(formEl)));
@@ -82,7 +82,7 @@ var Pages = {
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
-		if(pageNum != aib.page && form.firstThr) {
+		if(pageNum !== aib.page && form.firstThr) {
 			formEl.insertAdjacentHTML('afterbegin', `<div class="de-page-num">
 				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
 				<hr>

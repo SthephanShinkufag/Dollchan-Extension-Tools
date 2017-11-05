@@ -1,6 +1,6 @@
-/*==[ BoardDefaults.js ]======================================================================================
+/* ==[ BoardDefaults.js ]=====================================================================================
                                              IMAGEBOARD DEFAULTS
-============================================================================================================*/
+=========================================================================================================== */
 
 class BaseBoard {
 	constructor(prot, dm) {
@@ -41,7 +41,7 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
-		this.jsonBuilder = null;
+		this.JsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
@@ -67,8 +67,9 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]',
-			'[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+		var value = nav.cssMatches(this.qImgInfo + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -146,8 +147,8 @@ class BaseBoard {
 	}
 	fixHTML(data, isForm = false) {
 		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks ||
-			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks))
-		{
+			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)
+		) {
 			return data;
 		}
 		var str;
@@ -223,7 +224,7 @@ class BaseBoard {
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
-					   .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
@@ -239,8 +240,8 @@ class BaseBoard {
 	getImgWrap(img) {
 		return $parent(img, 'A').parentNode;
 	}
-	getJsonApiUrl(brd, tNum) {}
-	getOmitted(el, len) {
+	getJsonApiUrl() {}
+	getOmitted(el) {
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
@@ -285,11 +286,11 @@ class BaseBoard {
 		if(el.tagName === 'TD') {
 			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
 				return isOp ? el : $parent(el, 'TABLE');
-			}});
+			} });
 		} else {
-			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
+			Object.defineProperty(this, 'getPostWrap', { value(el) {
 				return el;
-			}});
+			} });
 		}
 		return this.getPostWrap(el, isOp);
 	}
@@ -314,9 +315,9 @@ class BaseBoard {
 			this.t = +temp[1].match(/^\d+/)[0];
 			this.page = this.firstPage;
 		} else { // We are on board
-			const temp = url.match(/\/?(\d+)[^\/]*?$/);
+			const temp = url.match(/\/?(\d+)[^/]*?$/);
 			this.page = temp && +temp[1] || this.firstPage;
-			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
 		}
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];

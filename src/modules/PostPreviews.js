@@ -1,13 +1,13 @@
-/*==[ PostPreviews.js ]=======================================================================================
+/* ==[ PostPreviews.js ]======================================================================================
                                                 POST PREVIEWS
-============================================================================================================*/
+=========================================================================================================== */
 
 class Pview extends AbstractPost {
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static show(parent, link) {
-		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1];
+		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
@@ -64,8 +64,9 @@ class Pview extends AbstractPost {
 			}
 		}
 		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-		const diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom
-		                       : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+		const diff = pv._isTop ?
+			pv._offsetTop - window.pageYOffset - cr.bottom :
+			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
 		if(Math.abs(diff) > 1) {
 			if(scroll) {
 				scrollTo(window.pageXOffset, window.pageYOffset - diff);
@@ -118,7 +119,7 @@ class Pview extends AbstractPost {
 		// Get post preview via ajax. Uses json if available.
 		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
 			pBuilder => {
-				if(aib.jsonBuilder) {
+				if(aib.JsonBuilder) {
 					const html = [];
 					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
 						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
@@ -157,7 +158,9 @@ class Pview extends AbstractPost {
 			pByEl.delete(el);
 			if(Cfg.animation) {
 				$animate(el, 'de-pview-anim', true);
-				el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+				el.style.animationName = 'de-post-close-' +
+					(this._isTop ? 't' : 'b') +
+					(this._isLeft ? 'l' : 'r');
 			} else {
 				el.remove();
 			}
@@ -194,7 +197,10 @@ class Pview extends AbstractPost {
 			default: break checkMouse;
 			}
 			var el = fixEventEl(e.relatedTarget);
-			if(!el || (isOverEvent && (el.tagName !== 'A' || el.lchecked)) || (el !== this.el && !this.el.contains(el))) {
+			if(!el ||
+				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
+				el !== this.el && !this.el.contains(el)
+			) {
 				if(isOverEvent) {
 					this.mouseEnter();
 				} else if(Pview.top) {

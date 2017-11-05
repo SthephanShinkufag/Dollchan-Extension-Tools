@@ -1,6 +1,6 @@
-/*==[ WindowUtils.js ]========================================================================================
+/* ==[ WindowUtils.js ]=======================================================================================
                                                 WINDOW: UTILS
-============================================================================================================*/
+=========================================================================================================== */
 
 function updateWinZ(style) {
 	if(style.zIndex < topWinZ) {
@@ -10,13 +10,13 @@ function updateWinZ(style) {
 
 function makeDraggable(name, win, head) {
 	head.addEventListener('mousedown', {
-		_win: win,
-		_wStyle: win.style,
-		_oldX: 0,
-		_oldY: 0,
-		_X: 0,
-		_Y: 0,
-		_Z: 0,
+		_oldX   : 0,
+		_oldY   : 0,
+		_win    : win,
+		_wStyle : win.style,
+		_X      : 0,
+		_Y      : 0,
+		_Z      : 0,
 		handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
@@ -104,17 +104,15 @@ WinResizer.prototype = {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.height = Math.max(
-					parseInt(this.tStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-							(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
 				), 90) + 'px';
 			} else {
 				val = e.clientX;
-				this.tStyle.width = Math.max(
-					parseInt(this.tStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-							(val > maxX - 20 ? maxX : val) - cr.right
+				this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
 				), this.name === 'reply' ? 275 : 400) + 'px';
 			}
 			return;
@@ -149,8 +147,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-		win = $aBegin($id('de-main'),
-		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		win = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -179,15 +176,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = e => {
-			switch(fixEventEl(e.target).classList[0]) {
-			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
-			case 'de-btn-toggle': this.title =
-				Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+		el.onmouseover = ({ target }) => {
+			const el = target.parentNode;
+			switch(fixEventEl(target).classList[0]) {
+			case 'de-btn-close': el.title = Lng.closeWindow[lang]; break;
+			case 'de-btn-toggle': el.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		el.firstElementChild.onclick = e => {
+		el.firstElementChild.onclick = () => {
 			const width = win.style.width;
 			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
@@ -211,15 +208,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	updateWinZ(win.style);
 	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
-	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
-	{
+		(el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))
+	) {
 		toggleWindow(el.id.substr(7), false);
 	}
 	const isAnim = !noAnim && !isUpd && Cfg.animation;
 	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
-		win.addEventListener('animationend', function aEvent() {
-			this.removeEventListener('animationend', aEvent);
+		win.addEventListener('animationend', function aEvent(e) {
+			e.target.removeEventListener('animationend', aEvent);
 			showWindow(win, body, name, remove, data, Cfg.animation);
 			win = body = name = remove = data = null;
 		});

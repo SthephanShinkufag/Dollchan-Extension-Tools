@@ -1,7 +1,7 @@
-/*==[ Form.js ]===============================================================================================
+/* ==[ Form.js ]==============================================================================================
                                                    POSTFORM
                  postform improving, quick reply window, markup text panel, sage button, etc
-============================================================================================================*/
+=========================================================================================================== */
 
 function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
@@ -50,8 +50,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.pForm.appendChild(this.oeForm);
 	}
 	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-	this.pArea = [$bBegin(DelForm.first.el, html),
-	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+	this.pArea = [
+		$bBegin(DelForm.first.el, html),
+		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 	this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 	this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -60,8 +61,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 	this.isBottom = Cfg.addPostForm === 1;
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-	makeDraggable('reply', this.qArea, $aBegin(this.qArea,
-	`<div class="de-win-head">
+	makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 		<span class="de-win-title"></span>
 		<span class="de-win-buttons">
 			<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
@@ -85,11 +85,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		saveCfg('sageReply', 0);
 		this._setSage();
 		this.files.clear();
-		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(node => {
-			if(node) {
-				node.value = '';
-			}
-		});
+		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
+			node => {
+				if(node) {
+					node.value = '';
+				}
+			});
 	};
 	(el = el.nextElementSibling).onclick = () => {
 		toggleCfg('replyWinDrag');
@@ -115,14 +116,14 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
-		this.txta.addEventListener('mouseup', function() {
-			saveCfg('textaWidth', parseInt(this.style.width, 10));
-			saveCfg('textaHeight', parseInt(this.style.height, 10));
+		this.txta.addEventListener('mouseup', ({ target }) => {
+			saveCfg('textaWidth', parseInt(target.style.width, 10));
+			saveCfg('textaHeight', parseInt(target.style.height, 10));
 		});
 	} else {
 		$aEnd(this.txta, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
-			_el: this.txta,
-			_elStyle: this.txta.style,
+			_el      : this.txta,
+			_elStyle : this.txta.style,
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
@@ -130,11 +131,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 					docBody.addEventListener('mouseup', this);
 					$pd(e);
 					return;
-				case 'mousemove':
+				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
 					this._elStyle.width = (e.clientX - cr.left) + 'px';
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
+				}
 				default: // mouseup
 					docBody.removeEventListener('mousemove', this);
 					docBody.removeEventListener('mouseup', this);
@@ -287,13 +289,13 @@ PostForm.setUserPassw = function() {
 	}
 };
 PostForm.prototype = {
-	isHidden: false,
-	isQuick: false,
-	isBottom: false,
-	lastQuickPNum: -1,
-	pForm: null,
-	pArea: [],
-	qArea: null,
+	isBottom      : false,
+	isHidden      : false,
+	isQuick       : false,
+	lastQuickPNum : -1,
+	pArea         : [],
+	pForm         : null,
+	qArea         : null,
 	addTextPanel() {
 		var id, val, btns, html = '', tPanel = $id('de-txt-panel');
 		if(!Cfg.addTextBtns || (aib.fch && !$q('input[type="checkbox"][name="spoiler"]', this.form))) {
@@ -315,10 +317,10 @@ PostForm.prototype = {
 				continue;
 			}
 			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
-				Cfg.addTextBtns === 2 ?
-					(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
-				Cfg.addTextBtns === 3 ?
-					'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' :
+				Cfg.addTextBtns === 2 ? (html === '' ? '[ ' : '') +
+					'<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
+				Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">' +
+					val[i] + '</button>' :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
 			}</div>`;
 		}
@@ -429,10 +431,10 @@ PostForm.prototype = {
 			var isOnNewLine = temp === '' || temp.slice(-1) === '\n';
 			$txtInsert(this.txta, (
 				isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') :
-					(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
-				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
+				(isOnNewLine ? '' : '\n') +
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')
+			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
+					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {

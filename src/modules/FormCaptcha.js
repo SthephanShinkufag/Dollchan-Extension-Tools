@@ -1,6 +1,6 @@
-/*==[ FormCaptcha.js ]========================================================================================
+/* ==[ FormCaptcha.js ]=======================================================================================
                                                     CAPTCHA
-============================================================================================================*/
+=========================================================================================================== */
 
 class Captcha {
 	constructor(el, initNum) {
@@ -47,12 +47,12 @@ class Captcha {
 	}
 	handleEvent(e) {
 		switch(e.type) {
-		case 'keypress':
+		case 'keypress': {
 			if(!Cfg.captchaLang || e.which === 0) {
 				return;
 			}
 			const ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
-			const en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
+			const en = "qwertyuiop[]]assdfghjkl;''zxcvbnm,.`\\";
 			const code = e.charCode || e.keyCode;
 			let i, chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
@@ -68,6 +68,7 @@ class Captcha {
 			}
 			$txtInsert(e.target, chr);
 			break;
+		}
 		case 'focus': this.updOutdated();
 		}
 		$pd(e);
@@ -166,7 +167,7 @@ class Captcha {
 				aib._capUpdPromise = null;
 				return CancelablePromise.reject(e);
 			}
-		}))
+		}));
 	}
 	updOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {

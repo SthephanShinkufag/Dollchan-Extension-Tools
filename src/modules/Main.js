@@ -1,6 +1,6 @@
-/*==[ Main.js ]===============================================================================================
+/* ==[ Main.js ]==============================================================================================
                                                      MAIN
-============================================================================================================*/
+=========================================================================================================== */
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.init();
@@ -58,12 +58,12 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload',
-			e => sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset);
+			() => (sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset));
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
-		                     rp => saveCfg('timeRPattern', rp));
+			rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
 	MyPosts.read();
@@ -77,7 +77,7 @@ async function runMain(checkDomains, dataPromise) {
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 		if(!Thread.first) {
-			throw 'No threads detected!';
+			throw new Error('No threads detected!');
 		}
 	} catch(e) {
 		console.error('Delform parsing error:', getErrorMessage(e));

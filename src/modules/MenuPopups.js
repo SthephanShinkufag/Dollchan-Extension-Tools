@@ -1,6 +1,6 @@
-/*==[ MenuPopups.js ]=========================================================================================
+/* ==[ MenuPopups.js ]========================================================================================
                                                 POPUPS & MENU
-============================================================================================================*/
+=========================================================================================================== */
 
 function closePopup(data) {
 	var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
@@ -101,10 +101,10 @@ function Menu(parentEl, html, clickFn, isFixed = true) {
 	el.addEventListener('click', this);
 }
 Menu.prototype = {
-	_closeTO: 0,
-	onover: null,
-	onout: null,
-	onremove: null,
+	onout    : null,
+	onover   : null,
+	onremove : null,
+	_closeTO : 0,
 	remove() {
 		if(!this._el) {
 			return;

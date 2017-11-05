@@ -3,7 +3,7 @@
 // @version         17.10.24.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
-// @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
+// @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
@@ -22,171 +22,175 @@
 // @nocompat        Chrome
 // ==/UserScript==
 
-(function de_main_func_inner(scriptStorage, FormData, scrollTo, localData) {
+/* eslint indent: ["error", "tab", {
+	"flatTernaryExpressions": true,
+	"outerIIFEBody": 0
+}] */
+(function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '8019512';
+const commit = '75e48b2';
 
-/*==[ DefaultCfg.js ]=========================================================================================
+/* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
-============================================================================================================*/
+=========================================================================================================== */
 
 const defaultCfg = {
-	'disabled':         0,      // Dollchan enabled by default
-	'language':         0,      // Dollchan language [0=ru, 1=en]
-	'hideBySpell':      1,      // hide posts by spells
-	'spells':           null,   // user defined spells
-	'sortSpells':       0,      // sort spells and remove duplicates
-	'menuHiddBtn':      1,      // extra options for "Hide" buttons
-	'hideRefPsts':      0,      // hide replies to hidden posts
-	'delHiddPost':      0,      // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
-	'ajaxUpdThr':       1,      // threads updater
-	'updThrDelay':      20,     //    update interval (sec)
-	'updCount':         1,      //    show countdown to thread update
-	'favIcoBlink':      0,      //    blink the favicon on new posts
-	'desktNotif':       0,      //    desktop notifications for new posts
-	'noErrInTitle':     0,      //    don't show error code in title (except 404)
-	'markNewPosts':     1,      //    highlight new posts with color
-	'useDobrAPI':       1,      //    dobrochan: use json API
-	'markMyPosts':      1,      // highlight my own posts
-	'hideReplies':      0,      // show only op-posts in threads list
-	'expandTrunc':      0,      // auto-expand truncated posts
-	'updThrBtns':       1,      // show "Get new posts" buttons in threads list
-	'showHideBtn':      1,      // show "Hide" buttons
-	'showRepBtn':       1,      // show "Quick reply" buttons
-	'postBtnsCSS':      1,      // post buttons style [0=simple, 1=gradient grey, 2=custom]
-	'postBtnsBack':  '#8c8c8c', //    custom background color
-	'noSpoilers':       1,      // text spoilers expansion [0=off, 1=grey, 2=native]
-	'noPostNames':      0,      // hide poster names
-	'widePosts':        0,      // stretch posts to screen width
-	'correctTime':      0,      // time correction in posts
-	'timeOffset':       '+0',   //    time offset (h)
-	'timePattern':      '',     //    search pattern
-	'timeRPattern':     '',     //    replace pattern
-	'expandImgs':       2,      // expand images on click [0=off, 1=in post, 2=by center]
-	'imgNavBtns':       1,      //    add buttons to navigate images
-	'imgInfoLink':      1,      //    show name under expanded image
-	'resizeDPI':        0,      //    don't upscale images on high DPI displays
-	'resizeImgs':       1,      //    resize large images to fit screen
-	'minImgSize':       100,    //    minimal size for expanded images (px)
-	'zoomFactor':       25,     //    images zoom sensibility [1-100%]
-	'webmControl':      1,      //    show control bar for WebM
-	'webmTitles':       0,      //    load titles from WebM metadata
-	'webmVolume':       100,    //    default volume for WebM [0-100%]
-	'minWebmWidth':     320,    //    minimal width for WebM (px)
-	'preLoadImgs':      0,      // preload images
-	'findImgFile':      0,      //    detect embedded files in images
-	'openImgs':         0,      // replace thumbs with original images [0=off, 1=all images, 2=GIFs only, 3=non-GIFs]
-	'imgSrcBtns':       1,      // add "Search" buttons for images
-	'delImgNames':      0,      // hide filenames
-	'maskImgs':         0,      // NSFW mode
-	'maskVisib':        7,      // image opacity in NSFW mode [0-100%]
-	'linksNavig':       1,      // posts navigation by >>links
-	'linksOver':        100,    //    delay appearance (ms)
-	'linksOut':         1500,   //    delay disappearance (ms)
-	'markViewed':       0,      //    mark viewed posts
-	'strikeHidd':       0,      //    strike >>links to hidden posts
-	'removeHidd':       0,      //        also remove from reply maps
-	'noNavigHidd':      0,      //    don't show previews for hidden posts
-	'markMyLinks':      1,      // mark links to my posts with (You)
-	'crossLinks':       0,      // replace http:// with >>/b/links*
-	'decodeLinks':      0,      // decode %D0%A5%D1 in links
-	'insertNum':        1,      // insert >>link on №postnumber click*
-	'addOPLink':        0,      // insert >>link when replying to OP on board
-	'addImgs':          0,      // load images to jpg/png/gif links*
-	'addMP3':           1,      // embed mp3 links
-	'addVocaroo':       1,      // embed Vocaroo links
-	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
-	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
-	'YTubeWidth':       360,    //    player width (px)
-	'YTubeHeigh':       270,    //    player height (px)
-	'YTubeTitles':      0,      //    load titles for YouTube links
-	'ytApiKey':         '',     //    YouTube API key
-	'addVimeo':         1,      //    embed Vimeo links
-	'ajaxPosting':      1,      // posting without refresh
-	'postSameImg':      1,      //    ability to post duplicate images
-	'removeEXIF':       1,      //    remove EXIF from JPEG
-	'removeFName':      0,      //    clear file names
-	'sendErrNotif':     1,      //    inform in title about post send error
-	'scrAfterRep':      0,      //    scroll to bottom after reply
-	'fileInputs':       2,      //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
-	'addPostForm':      2,      // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
-	'spacedQuote':      1,      // insert a space when quoting "> "
-	'favOnReply':       1,      // add thread to favorites after reply
-	'warnSubjTrip':     0,      // warn about a tripcode in "Subject" field
-	'addSageBtn':       1,      // replace "Email" with Sage button
-	'saveSage':         1,      // remember sage
-	'sageReply':        0,      //    reply with sage
-	'cap4chanAlt':      1,      // 4chan: use alternative captcha
-	'capUpdTime':       300,    // captcha update interval (sec)
-	'captchaLang':      1,      // forced captcha input language [0=off, 1=en, 2=ru]
-	'addTextBtns':      1,      // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtBtnsLoc':       1,      //    located at [0=top, 1=bottom]
-	'passwValue':       '',     // user password value
-	'userName':         0,      // user name
-	'nameValue':        '',     //    value
-	'noBoardRule':      1,      // hide board rules
-	'noPassword':       1,      // hide form "Password" field
-	'noName':           0,      // hide form "Name" field
-	'noSubj':           0,      // hide form "Subject" field
-	'scriptStyle':      0,      /* Dollchan style
+	disabled     : 0,    // Dollchan enabled by default
+	language     : 0,    // Dollchan language [0=ru, 1=en]
+	hideBySpell  : 1,    // hide posts by spells
+	spells       : null, // user defined spells
+	sortSpells   : 0,    // sort spells and remove duplicates
+	menuHiddBtn  : 1,    // extra options for "Hide" buttons
+	hideRefPsts  : 0,    // hide replies to hidden posts
+	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
+	ajaxUpdThr   : 1,    // threads updater
+	updThrDelay  : 20,   //    update interval (sec)
+	updCount     : 1,    //    show countdown to thread update
+	favIcoBlink  : 0,    //    blink the favicon on new posts
+	desktNotif   : 0,    //    desktop notifications for new posts
+	noErrInTitle : 0,    //    don't show error code in title (except 404)
+	markNewPosts : 1,    //    highlight new posts with color
+	useDobrAPI   : 1,    //    dobrochan: use json API
+	markMyPosts  : 1,    // highlight my own posts
+	hideReplies  : 0,    // show only op-posts in threads list
+	expandTrunc  : 0,    // auto-expand truncated posts
+	updThrBtns   : 1,    // show "Get new posts" buttons in threads list
+	showHideBtn  : 1,    // show "Hide" buttons
+	showRepBtn   : 1,    // show "Quick reply" buttons
+	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
+	postBtnsBack : '#8c8c8c', //    custom background color
+	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
+	noPostNames  : 0,    // hide poster names
+	widePosts    : 0,    // stretch posts to screen width
+	correctTime  : 0,    // time correction in posts
+	timeOffset   : '+0', //    time offset (h)
+	timePattern  : '',   //    search pattern
+	timeRPattern : '',   //    replace pattern
+	expandImgs   : 2,    // expand images on click [0=off, 1=in post, 2=by center]
+	imgNavBtns   : 1,    //    add buttons to navigate images
+	imgInfoLink  : 1,    //    show name under expanded image
+	resizeDPI    : 0,    //    don't upscale images on high DPI displays
+	resizeImgs   : 1,    //    resize large images to fit screen
+	minImgSize   : 100,  //    minimal size for expanded images (px)
+	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
+	webmControl  : 1,    //    show control bar for WebM
+	webmTitles   : 0,    //    load titles from WebM metadata
+	webmVolume   : 100,  //    default volume for WebM [0-100%]
+	minWebmWidth : 320,  //    minimal width for WebM (px)
+	preLoadImgs  : 0,    // preload images
+	findImgFile  : 0,    //    detect embedded files in images
+	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
+	imgSrcBtns   : 1,    // add "Search" buttons for images
+	delImgNames  : 0,    // hide filenames
+	maskImgs     : 0,    // NSFW mode
+	maskVisib    : 7,    // image opacity in NSFW mode [0-100%]
+	linksNavig   : 1,    // posts navigation by >>links
+	linksOver    : 100,  //    delay appearance (ms)
+	linksOut     : 1500, //    delay disappearance (ms)
+	markViewed   : 0,    //    mark viewed posts
+	strikeHidd   : 0,    //    strike >>links to hidden posts
+	removeHidd   : 0,    //        also remove from reply maps
+	noNavigHidd  : 0,    //    don't show previews for hidden posts
+	markMyLinks  : 1,    // mark links to my posts with (You)
+	crossLinks   : 0,    // replace http:// with >>/b/links*
+	decodeLinks  : 0,    // decode %D0%A5%D1 in links
+	insertNum    : 1,    // insert >>link on №postnumber click*
+	addOPLink    : 0,    // insert >>link when replying to OP on board
+	addImgs      : 0,    // load images to jpg/png/gif links*
+	addMP3       : 1,    // embed mp3 links
+	addVocaroo   : 1,    // embed Vocaroo links
+	addYouTube   : 3,    // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
+	YTubeType    : 0,    //    player type [0=flash, 1=HTML5]
+	YTubeWidth   : 360,  //    player width (px)
+	YTubeHeigh   : 270,  //    player height (px)
+	YTubeTitles  : 0,    //    load titles for YouTube links
+	ytApiKey     : '',   //    YouTube API key
+	addVimeo     : 1,    //    embed Vimeo links
+	ajaxPosting  : 1,    // posting without refresh
+	postSameImg  : 1,    //    ability to post duplicate images
+	removeEXIF   : 1,    //    remove EXIF from JPEG
+	removeFName  : 0,    //    clear file names
+	sendErrNotif : 1,    //    inform in title about post send error
+	scrAfterRep  : 0,    //    scroll to bottom after reply
+	fileInputs   : 2,    //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
+	addPostForm  : 2,    // reply form display in thread [0=at top, 1=at bottom, 2=hidden]
+	spacedQuote  : 1,    // insert a space when quoting "> "
+	favOnReply   : 1,    // add thread to favorites after reply
+	warnSubjTrip : 0,    // warn about a tripcode in "Subject" field
+	addSageBtn   : 1,    // replace "Email" with Sage button
+	saveSage     : 1,    // remember sage
+	sageReply    : 0,    //    reply with sage
+	cap4chanAlt  : 1,    // 4chan: use alternative captcha
+	capUpdTime   : 300,  // captcha update interval (sec)
+	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
+	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
+	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
+	passwValue   : '',   // user password value
+	userName     : 0,    // user name
+	nameValue    : '',   //    value
+	noBoardRule  : 1,    // hide board rules
+	noPassword   : 1,    // hide form "Password" field
+	noName       : 0,    // hide form "Name" field
+	noSubj       : 0,    // hide form "Subject" field
+	scriptStyle  : 0,    /* Dollchan style
 		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
-	'userCSS':          0,      // user CSS
-	'userCSSTxt':       '',     //    css text
-	'expandPanel':      0,      // show full main panel
-	'panelCounter':     1,      // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
-	'rePageTitle':      1,      // show thread title in the page tab
-	'animation':        1,      // CSS3 animation
-	'closePopups':      0,      // close popups automatically
-	'inftyScroll':      1,      // infinite scrolling for pages
-	'scrollToTop':      0,      // always scroll to top in the threads list
-	'hotKeys':          1,      // hotkeys
-	'loadPages':        1,      //    number of pages that are loaded on F5
-	'updScript':        1,      // auto check for Dollchan updates
-	'scrUpdIntrv':      1,      //    interval in days (every val+1 day)
-	'turnOff':          0,      // enable Dollchan only on this site
-	'textaWidth':       300,    // textarea width (px)
-	'textaHeight':      115,    // textarea height (px)
-	'replyWinDrag':     0,      // draggable "Quick Reply" form
-	'replyWinX':    'right: 0', //    "Quick Reply" form X position
-	'replyWinY':    'top: 0',   //    "Quick Reply" form Y position
-	'cfgWinDrag':       0,      // draggable "Settings" window
-	'cfgWinX':      'right: 0', //    "Settings" window X position
-	'cfgWinY':      'top: 0',   //    "Settings" window Y position
-	'cfgTab':       'filters',  // remembered tab in "Settings" window
-	'hidWinDrag':       0,      // draggable "Hidden" window
-	'hidWinX':      'right: 0', //    "Hidden" window X position
-	'hidWinY':      'top: 0',   //    "Hidden" window Y position
-	'favWinDrag':       0,      // draggable "Favorites" window
-	'favWinX':      'right: 0', //    "Favorites" window X position
-	'favWinY':      'top: 0',   //    "Favorites" window Y position
-	'favWinWidth':      500,    //    "Favorites" window width (px)
-	'vidWinDrag':       0,      // draggable "Video" window
-	'vidWinX':      'right: 0', //    "Video" window X position
-	'vidWinY':      'top: 0',   //    "Video" window Y position
+	userCSS      : 0,    // user CSS
+	userCSSTxt   : '',   //    css text
+	expandPanel  : 0,    // show full main panel
+	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
+	rePageTitle  : 1,    // show thread title in the page tab
+	animation    : 1,    // CSS3 animation
+	closePopups  : 0,    // close popups automatically
+	inftyScroll  : 1,    // infinite scrolling for pages
+	scrollToTop  : 0,    // always scroll to top in the threads list
+	hotKeys      : 1,    // hotkeys
+	loadPages    : 1,    //    number of pages that are loaded on F5
+	updScript    : 1,    // auto check for Dollchan updates
+	scrUpdIntrv  : 1,    //    interval in days (every val+1 day)
+	turnOff      : 0,    // enable Dollchan only on this site
+	textaWidth   : 300,  // textarea width (px)
+	textaHeight  : 115,  // textarea height (px)
+	replyWinDrag : 0,          // draggable "Quick Reply" form
+	replyWinX    : 'right: 0', //    "Quick Reply" form X position
+	replyWinY    : 'top: 0',   //    "Quick Reply" form Y position
+	cfgTab       : 'filters',  // remembered tab in "Settings" window
+	cfgWinDrag   : 0,          // draggable "Settings" window
+	cfgWinX      : 'right: 0', //    "Settings" window X position
+	cfgWinY      : 'top: 0',   //    "Settings" window Y position
+	hidWinDrag   : 0,          // draggable "Hidden" window
+	hidWinX      : 'right: 0', //    "Hidden" window X position
+	hidWinY      : 'top: 0',   //    "Hidden" window Y position
+	favWinDrag   : 0,          // draggable "Favorites" window
+	favWinX      : 'right: 0', //    "Favorites" window X position
+	favWinY      : 'top: 0',   //    "Favorites" window Y position
+	favWinWidth  : 500,        //    "Favorites" window width (px)
+	vidWinDrag   : 0,          // draggable "Video" window
+	vidWinX      : 'right: 0', //    "Video" window X position
+	vidWinY      : 'top: 0'    //    "Video" window Y position
 };
 
-/*==[ Localization.js ]=======================================================================================
+/* ==[ Localization.js ]======================================================================================
                                                  LOCALIZATION
-============================================================================================================*/
+=========================================================================================================== */
 
 const Lng = {
 	// "Settings" window: tab names
 	cfgTab: {
-		filters: ['Фильтры', 'Filters', 'Фільтри'],
-		posts:   ['Посты', 'Posts', 'Пости'],
-		images:  ['Картинки', 'Images', 'Зображ.'],
-		links:   ['Ссылки', 'Links', 'Посил.'],
-		form:    ['Форма', 'Form', 'Форма'],
-		common:  ['Общее', 'Common', 'Спільне'],
-		info:    ['Инфо', 'Info', 'Інфо']
+		filters : ['Фильтры', 'Filters', 'Фільтри'],
+		posts   : ['Посты', 'Posts', 'Пости'],
+		images  : ['Картинки', 'Images', 'Зображ.'],
+		links   : ['Ссылки', 'Links', 'Посил.'],
+		form    : ['Форма', 'Form', 'Форма'],
+		common  : ['Общее', 'Common', 'Спільне'],
+		info    : ['Инфо', 'Info', 'Інфо']
 	},
 	// "Settings" window: options
 	cfg: {
 		language: {
-			sel: [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
-			txt: ['', '', '']
+			sel : [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
+			txt : ['', '', '']
 		},
 
 		// "Filters" tab
@@ -485,8 +489,8 @@ const Lng = {
 				'до YouTube посилань* ']
 		},
 		YTubeType: {
-			sel: [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
-			txt: ['', '', '']
+			sel : [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
+			txt : ['', '', '']
 		},
 		YTubeTitles: [
 			'Загружать названия к YouTube ссылкам*',
@@ -997,17 +1001,23 @@ const Lng = {
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру']],
 	fullMonth: [
-		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
-		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
+		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+			'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+		['January', 'February', 'March', 'April', 'May', 'June',
+			'July', 'August', 'September', 'October', 'November', 'December'],
+		['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+			'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
 	week: [
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
-		'янв': 0, 'фев': 1, 'мар': 2, 'апр': 3, 'май': 4, 'мая': 4, 'июн': 5, 'июл': 6, 'авг': 7, 'сен': 8, 'окт': 9, 'ноя': 10, 'дек': 11,
-		'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11,
-		'січ': 0, 'лют': 1, 'бер': 2, 'кві': 3, 'тра': 4, 'чер': 5, 'лип': 6, 'сер': 7, 'вер': 8, 'жов': 9, 'лис': 10, 'гру': 11
+		янв : 0, фев : 1, мар : 2, апр : 3, май : 4, мая : 4, июн : 5, июл : 6, авг : 7, сен : 8, окт : 9,
+		ноя : 10, дек : 11,
+		jan : 0, feb : 1, mar : 2, apr : 3, may : 4, jun : 5, jul : 6, aug : 7, sep : 8, oct : 9,
+		nov : 10, dec : 11,
+		січ : 0, лют : 1, бер : 2, кві : 3, тра : 4, чер : 5, лип : 6, сер : 7, вер : 8, жов : 9,
+		лис : 10, гру : 11
 	},
 
 	// Spells: popups
@@ -1041,7 +1051,7 @@ const Lng = {
 		'неочікуваний символ: %s'],
 	seMissClBkt: [
 		'пропущена закрывающая скобка',
-		'missing \')\' in expression',
+		"missing ')' in expression",
 		'пропущено закривну дужку'],
 	seRepsInParens: [
 		'спелл %s не должен располагаться в скобках',
@@ -1278,9 +1288,9 @@ const Lng = {
 		'Enter a link to the file manually',
 		'Ввести посилання на файл вручну'],
 	enterTheLink: [
-		'Введите ссылку и нажмите \'+\'',
-		'Enter the link and click \'+\'',
-		'Введіть посилання та натисніть \'+\''],
+		"Введите ссылку и нажмите '+'",
+		"Enter the link and click '+'",
+		"Введіть посилання та натисніть '+'"],
 	helpAddFile: [
 		'Встроить ogg/rar/zip/7z в картинку',
 		'Embed ogg/rar/zip/7z into the image',
@@ -1407,42 +1417,42 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 
 	// Single words
-	second: ['с', 's', 'с'],
-	sizeByte: [' Байт', ' Byte', ' Байт'],
-	sizeKByte: [' КБ', ' KB', ' КБ'],
-	sizeMByte: [' МБ', ' MB', ' МБ'],
-	sizeGByte: [' ГБ', ' GB', ' ГБ'],
-	name: ['Имя', 'Name', 'Імʼя'],
-	subj: ['Тема', 'Subject', 'Тема'],
-	mail: ['Почта', 'Email', 'Пошта'],
-	video: ['Видео','Video', 'Відео'],
-	cap: ['Капча', 'Captcha', 'Капча'],
-	add: ['Добавить', 'Add', 'Додати'],
-	apply: ['Применить', 'Apply', 'Застосувати'],
-	cancel: ['Отмена', 'Cancel', 'Скасувати'],
-	clear: ['Очистить', 'Clear', 'Очистити'],
-	refresh: ['Обновить', 'Refresh', 'Оновити'],
-	save: ['Сохранить', 'Save', 'Зберегти'],
-	load: ['Загрузить', 'Load', 'Завантажити'],
-	edit: ['Правка', 'Edit', 'Правка'],
-	file: ['Файл', 'File', 'Файл'],
-	global: ['Глобальные', 'Global', 'Глобальні'],
-	reset: ['Сброс', 'Reset', 'Скинути'],
-	remove: ['Удалить', 'Remove', 'Видалити'],
-	change: ['Сменить', 'Change', 'Змінити'],
-	page: ['Страница', 'Page', 'Сторінка'],
-	reply: ['Ответ', 'Reply', 'Відповідь'],
-	replies: ['Ответы:', 'Replies:', 'Відповіді:'],
-	makeReply: ['Ответить', 'Reply', 'Відповісти'],
-	error: ['Ошибка', 'Error', 'Помилка'],
-	loading: ['Загрузка…', 'Loading…', 'Завантаження…'],
-	sending: ['Отправка…', 'Sending…', 'Надсилання…'],
-	checking: ['Проверка…', 'Checking…', 'Перевірка…'],
-	updating: ['Обновление…', 'Updating…', 'Оновлення…'],
-	deleting: ['Удаление…', 'Deleting…', 'Видалення…'],
-	deletion: ['Удаление…', 'Deletion…', 'Видалення…'],
-	deleted: ['удалён', 'deleted', 'видалено'],
-	hide: ['Скрыть: ', 'Hide: ', 'Сховати: '],
+	second    : ['с', 's', 'с'],
+	sizeByte  : [' Байт', ' Byte', ' Байт'],
+	sizeKByte : [' КБ', ' KB', ' КБ'],
+	sizeMByte : [' МБ', ' MB', ' МБ'],
+	sizeGByte : [' ГБ', ' GB', ' ГБ'],
+	name      : ['Имя', 'Name', 'Імʼя'],
+	subj      : ['Тема', 'Subject', 'Тема'],
+	mail      : ['Почта', 'Email', 'Пошта'],
+	video     : ['Видео', 'Video', 'Відео'],
+	cap       : ['Капча', 'Captcha', 'Капча'],
+	add       : ['Добавить', 'Add', 'Додати'],
+	apply     : ['Применить', 'Apply', 'Застосувати'],
+	cancel    : ['Отмена', 'Cancel', 'Скасувати'],
+	clear     : ['Очистить', 'Clear', 'Очистити'],
+	refresh   : ['Обновить', 'Refresh', 'Оновити'],
+	save      : ['Сохранить', 'Save', 'Зберегти'],
+	load      : ['Загрузить', 'Load', 'Завантажити'],
+	edit      : ['Правка', 'Edit', 'Правка'],
+	file      : ['Файл', 'File', 'Файл'],
+	global    : ['Глобальные', 'Global', 'Глобальні'],
+	reset     : ['Сброс', 'Reset', 'Скинути'],
+	remove    : ['Удалить', 'Remove', 'Видалити'],
+	change    : ['Сменить', 'Change', 'Змінити'],
+	page      : ['Страница', 'Page', 'Сторінка'],
+	reply     : ['Ответ', 'Reply', 'Відповідь'],
+	replies   : ['Ответы:', 'Replies:', 'Відповіді:'],
+	makeReply : ['Ответить', 'Reply', 'Відповісти'],
+	error     : ['Ошибка', 'Error', 'Помилка'],
+	loading   : ['Загрузка…', 'Loading…', 'Завантаження…'],
+	sending   : ['Отправка…', 'Sending…', 'Надсилання…'],
+	checking  : ['Проверка…', 'Checking…', 'Перевірка…'],
+	updating  : ['Обновление…', 'Updating…', 'Оновлення…'],
+	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
+	deletion  : ['Удаление…', 'Deletion…', 'Видалення…'],
+	deleted   : ['удалён', 'deleted', 'видалено'],
+	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
 
 	// Miscellaneous
 	hidePosts: [
@@ -1487,19 +1497,25 @@ const Lng = {
 		['новий пост', 'нових пости', 'нових постів', 'Останній']]
 };
 
-/*==[ GlobalVars.js ]==*/
+/* ==[ GlobalVars.js ]== */
 
-const doc = window.document, emptyFn = Function.prototype, aProto = Array.prototype;
+const doc = window.document;
+const emptyFn = Function.prototype;
+const aProto = Array.prototype;
 const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater, dTime, pr, dummy, lang, isExpImg,
-	isPreImg, needScroll, excludeList, quotetxt = '', nativeXHRworks = true, visPosts = 2, topWinZ = 0;
+let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
+	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
+let quotetxt = '';
+let nativeXHRworks = true;
+let visPosts = 2;
+let topWinZ = 0;
 
-/*==[ Utils.js ]==============================================================================================
+/* ==[ Utils.js ]=============================================================================================
                                                     UTILS
-============================================================================================================*/
+=========================================================================================================== */
 
 // DOM SEARCH
 
@@ -1517,7 +1533,6 @@ function $parent(el, tagName) {
 	} while(el && el.tagName !== tagName);
 	return el;
 }
-
 
 // DOM MODIFIERS
 
@@ -1608,7 +1623,6 @@ function $DOM(html) {
 	return myDoc;
 }
 
-
 // CSS UTILS
 
 function $toggle(el, needToShow = el.style.display) {
@@ -1658,7 +1672,6 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
-
 // OTHER UTILS
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
@@ -1667,12 +1680,13 @@ const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => '/' + b + (b ? '/' : '');
 
-const getAbsLink = url =>
+const getAbsLink = url => (
 	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url
+);
 
 // Prepares a string to be used as a new RegExp argument
-const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
+const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 
 // Converts a string to a regular expression
 function toRegExp(str, noG) {
@@ -1753,12 +1767,12 @@ const Logger = {
 		}
 	},
 
-	_finished: false,
-	_marks: []
+	_finished : false,
+	_marks    : []
 };
 
 function sleep(ms) {
-	return new Promise((resolve, reject) => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
@@ -1770,7 +1784,7 @@ class CancelablePromise {
 		return new CancelablePromise((res, rej) => rej(val));
 	}
 	static resolve(val) {
-		return new CancelablePromise((res, rej) => res(val));
+		return new CancelablePromise(res => res(val));
 	}
 	constructor(resolver, cancelFn) {
 		this._promise = new Promise((resolve, reject) => {
@@ -1815,16 +1829,16 @@ class CancelablePromise {
 	}
 }
 
-function Maybe(ctor/*, ...args*/) {
-	this._ctor = ctor;
-	//this._args = args;
+function Maybe(Ctor/* , ...args */) {
+	this._ctor = Ctor;
+	// this._args = args;
 	this.hasValue = false;
 }
 Maybe.prototype = {
 	get value() {
-		const ctor = this._ctor;
-		this.hasValue = !!ctor;
-		const val = ctor ? new ctor(/*...this._args*/) : null;
+		const Ctor = this._ctor;
+		this.hasValue = !!Ctor;
+		const val = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
 	},
@@ -1837,7 +1851,7 @@ Maybe.prototype = {
 
 class TemporaryContent {
 	constructor(key) {
-		const oClass = /*new.target*/this.constructor; // https://github.com/babel/babel/issues/1088
+		const oClass = /* new.target */this.constructor; // https://github.com/babel/babel/issues/1088
 		if(oClass.purgeTO) {
 			clearTimeout(oClass.purgeTO);
 		}
@@ -2036,22 +2050,24 @@ function getErrorMessage(e) {
 function* getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
-  constructSet:
+
+	constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
 		const field = controls[i];
 		const tagName = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
 		if($parent(field, 'DATALIST', form) || isFormElDisabled(field) ||
-		   (field !== submitter && (tagName === 'button' ||
-		       (tagName === 'input' && (type === 'submit' || type === 'reset' || type ===  'button'))
-		   )) ||
-		   (tagName === 'input' && (
-		       (type === 'checkbox' && !field.checked) ||
-		       (type === 'radio' && !field.checked) ||
-		       (type === 'image' && !name)
-		   )) ||
-		   tagName === 'object'
+			field !== submitter && (
+				tagName === 'button' ||
+				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
+			) ||
+			tagName === 'input' && (
+				type === 'checkbox' && !field.checked ||
+				type === 'radio' && !field.checked ||
+				type === 'image' && !name
+			) ||
+			tagName === 'object'
 		) {
 			continue;
 		}
@@ -2061,10 +2077,10 @@ function* getFormElements(form, submitter) {
 				const option = options[j];
 				if(option.selected && !isFormElDisabled(option)) {
 					yield {
-						el: field,
-						name: fixName(name),
-						value: option.value,
-						type: type
+						el    : field,
+						name  : fixName(name),
+						type  : type,
+						value : option.value
 					};
 				}
 			}
@@ -2074,64 +2090,65 @@ function* getFormElements(form, submitter) {
 			case 'checkbox':
 			case 'radio':
 				yield {
-					el: field,
-					name: fixName(name),
-					value: field.value || 'on',
-					type: type
+					el    : field,
+					name  : fixName(name),
+					type  : type,
+					value : field.value || 'on'
 				};
 				continue constructSet;
-			case 'file':
+			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield {
-							el: field,
-							name: name,
-							value: files[j],
-							type: type
+							el    : field,
+							name  : name,
+							type  : type,
+							value : files[j]
 						};
 					}
 				} else if(field.obj && (imgFile = field.obj.imgFile)) {
 					yield {
-						el: field,
-						name: name,
-						value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] }),
-						type: type
+						el    : field,
+						name  : name,
+						type  : type,
+						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
 					};
 				} else {
 					yield {
-						el: field,
-						name: fixName(name),
-						value: new File([''], ''),
-						type: 'application/octet-stream'
+						el    : field,
+						name  : fixName(name),
+						type  : 'application/octet-stream',
+						value : new File([''], '')
 					};
 				}
 				continue constructSet;
 			}
+			}
 		}
 		if(type === 'textarea') {
 			yield {
-				el: field,
-				name: name || '',
-				value: field.value,
-				type: type
+				el    : field,
+				name  : name || '',
+				type  : type,
+				value : field.value
 			};
 		} else {
 			yield {
-				el: field,
-				name: fixName(name),
-				value: field.value,
-				type: type
+				el    : field,
+				name  : fixName(name),
+				type  : type,
+				value : field.value
 			};
 		}
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
 			yield {
-				el: field,
-				name: fixName(dirname),
-				value: (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr'),
-				type: 'direction'
+				el    : field,
+				name  : fixName(dirname),
+				type  : 'direction',
+				value : (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr')
 			};
 		}
 	}
@@ -2186,19 +2203,20 @@ function downloadBlob(blob, name) {
 	}, 2e5);
 }
 
-/*==[ Storage.js ]============================================================================================
+/* ==[ Storage.js ]===========================================================================================
                                                    STORAGE
-============================================================================================================*/
+=========================================================================================================== */
 
 // Gets data from the global storage
 async function getStored(id) {
 	if(nav.isNewGM) {
-		return await GM.getValue(id);
+		const value = await GM.getValue(id);
+		return value;
 	} else if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		return (await new Promise((resolve, reject) => chrome.storage.local.get(id, function(obj) {
+		const value = await new Promise(resolve => chrome.storage.local.get(id, function(obj) {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
@@ -2206,7 +2224,8 @@ async function getStored(id) {
 					resolve(obj[id]);
 				});
 			}
-		})));
+		}));
+		return value;
 	} else if(nav.isScriptStorage) { // Opera Presto only
 		return scriptStorage.getItem(id);
 	}
@@ -2284,7 +2303,7 @@ function saveCfg(id, val) {
 function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
 }
-  
+
 function readData() {
 	return Promise.all([getStored('DESU_Exclude'), readFavorites(), readCfg()]);
 }
@@ -2314,7 +2333,7 @@ async function readCfg() {
 		Cfg.addVocaroo = 0;
 	}
 	if(aib.dobr && !Cfg.useDobrAPI) {
-		aib.jsonBuilder = null;
+		aib.JsonBuilder = null;
 	}
 	if(!('FormData' in window)) {
 		Cfg.ajaxPosting = 0;
@@ -2370,9 +2389,8 @@ function readPostsData(firstPost, fav) {
 		if(str) {
 			const json = JSON.parse(str);
 			if(json.hash === (Cfg.hideBySpell ? Spells.hash : 0) &&
-			   pByNum.has(json.lastNum) &&
-			   pByNum.get(json.lastNum).count === json.lastCount)
-			{
+				pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount
+			) {
 				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
@@ -2496,7 +2514,6 @@ function readViewedPosts() {
 		}
 	}
 }
-
 
 // HIDDEN AND MY POSTS STORAGE
 
@@ -2650,7 +2667,6 @@ class MyPosts extends PostsStorage {
 MyPosts.storageName = 'de-myposts';
 MyPosts._cachedData = null;
 
-
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
 		var data, temp, post, val = e.newValue;
@@ -2667,24 +2683,25 @@ function initStorageEvent() {
 				temp.value = val;
 			}
 			return;
-		case '__de-post': (() => {
-			try {
-				data = JSON.parse(val);
-			} catch(err) {
-				return;
-			}
-			HiddenThreads.purge();
-			HiddenPosts.purge();
-			if(data.brd === aib.b) {
-				if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
-					post.setUserVisib(data.hide, false);
-				} else if((post = pByNum.get(data.thrNum))) {
-					post.thr.userTouched.set(data.num, data.hide);
+		case '__de-post':
+			(() => {
+				try {
+					data = JSON.parse(val);
+				} catch(err) {
+					return;
 				}
-			}
-			toggleWindow('hid', true);
-		})();
-		return;
+				HiddenThreads.purge();
+				HiddenPosts.purge();
+				if(data.brd === aib.b) {
+					if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
+						post.setUserVisib(data.hide, false);
+					} else if((post = pByNum.get(data.thrNum))) {
+						post.thr.userTouched.set(data.num, data.hide);
+					}
+				}
+				toggleWindow('hid', true);
+			})();
+			return;
 		case 'de-threads':
 			HiddenThreads.purge();
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
@@ -2723,15 +2740,15 @@ function initStorageEvent() {
 	});
 }
 
-/*==[ Panel.js ]==============================================================================================
+/* ==[ Panel.js ]=============================================================================================
                                                   MAIN PANEL
-============================================================================================================*/
+=========================================================================================================== */
 
 var panel = Object.create({
-	_el: null,
-	_hideTO: 0,
-	_menu: null,
-	_menuTO: 0,
+	_el     : null,
+	_hideTO : 0,
+	_menu   : null,
+	_menuTO : 0,
 	get _pcountEl() {
 		var value = $id('de-panel-info-pcount');
 		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
@@ -2776,8 +2793,8 @@ var panel = Object.create({
 		}
 		var panelTitle = title || Lng.panelBtn[id][lang];
 		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
-		return `
-		<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${ panelTitle }" href="${ href || '#' }">
+		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
+			panelTitle }" href="${ href || '#' }">
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
@@ -2788,8 +2805,8 @@ var panel = Object.create({
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
-		  (!rt || !this._el.contains(rt.farthestViewportElement || rt)))
-		{
+			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
+		) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	},
@@ -2831,7 +2848,7 @@ var panel = Object.create({
 						preloadImages(form.el);
 					}
 				}
-			break;
+				break;
 			case 'de-panel-maskimg':
 				toggleCfg('maskImgs');
 				updateCSS();
@@ -2887,7 +2904,7 @@ var panel = Object.create({
 					this._menu = addMenu(el);
 					this._menu.onover = () => clearTimeout(this._hideTO);
 					this._menu.onout = () => this._prepareToHide(null);
-					this._menu.onremove = () => this._menu = null;
+					this._menu.onremove = () => (this._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
@@ -2914,8 +2931,7 @@ var panel = Object.create({
 					</svg>
 				</div>
 				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (
-					this._getButton('cfg') +
+				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
@@ -2940,8 +2956,9 @@ var panel = Object.create({
 						'<span id="de-panel-info-pcount" title="' +
 							Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' +
 							Thread.first.pcount + '</span>' +
-						'<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>' +
-						'<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>' +
+						`<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">` +
+							`${ imgLen }</span>` +
+						`<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>` +
 					'</span>')) }
 				</span>
 			</div>
@@ -2971,9 +2988,9 @@ var panel = Object.create({
 	}
 });
 
-/*==[ WindowUtils.js ]========================================================================================
+/* ==[ WindowUtils.js ]=======================================================================================
                                                 WINDOW: UTILS
-============================================================================================================*/
+=========================================================================================================== */
 
 function updateWinZ(style) {
 	if(style.zIndex < topWinZ) {
@@ -2983,13 +3000,13 @@ function updateWinZ(style) {
 
 function makeDraggable(name, win, head) {
 	head.addEventListener('mousedown', {
-		_win: win,
-		_wStyle: win.style,
-		_oldX: 0,
-		_oldY: 0,
-		_X: 0,
-		_Y: 0,
-		_Z: 0,
+		_oldX   : 0,
+		_oldY   : 0,
+		_win    : win,
+		_wStyle : win.style,
+		_X      : 0,
+		_Y      : 0,
+		_Z      : 0,
 		handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
@@ -3077,17 +3094,15 @@ WinResizer.prototype = {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.height = Math.max(
-					parseInt(this.tStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-							(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
 				), 90) + 'px';
 			} else {
 				val = e.clientX;
-				this.tStyle.width = Math.max(
-					parseInt(this.tStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-							(val > maxX - 20 ? maxX : val) - cr.right
+				this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
 				), this.name === 'reply' ? 275 : 400) + 'px';
 			}
 			return;
@@ -3122,8 +3137,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
 			'de-win-fixed" style="right: 0; bottom: 25px'
 		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
-		win = $aBegin($id('de-main'),
-		`<div id="de-win-${ name }" class="${ winAttr }; display: none;">
+		win = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
@@ -3152,15 +3166,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = e => {
-			switch(fixEventEl(e.target).classList[0]) {
-			case 'de-btn-close': this.title = Lng.closeWindow[lang]; break;
-			case 'de-btn-toggle': this.title =
-				Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+		el.onmouseover = ({ target }) => {
+			const el = target.parentNode;
+			switch(fixEventEl(target).classList[0]) {
+			case 'de-btn-close': el.title = Lng.closeWindow[lang]; break;
+			case 'de-btn-toggle': el.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		el.firstElementChild.onclick = e => {
+		el.firstElementChild.onclick = () => {
 			const width = win.style.width;
 			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
@@ -3184,15 +3198,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	updateWinZ(win.style);
 	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
-	  (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode)))
-	{
+		(el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))
+	) {
 		toggleWindow(el.id.substr(7), false);
 	}
 	const isAnim = !noAnim && !isUpd && Cfg.animation;
 	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
-		win.addEventListener('animationend', function aEvent() {
-			this.removeEventListener('animationend', aEvent);
+		win.addEventListener('animationend', function aEvent(e) {
+			e.target.removeEventListener('animationend', aEvent);
 			showWindow(win, body, name, remove, data, Cfg.animation);
 			win = body = name = remove = data = null;
 		});
@@ -3242,9 +3256,9 @@ function showWindow(win, body, name, remove, data, isAnim) {
 	}
 }
 
-/*==[ WindowVidHid.js ]=======================================================================================
+/* ==[ WindowVidHid.js ]======================================================================================
                                         WINDOW: VIDEOS, HIDDEN THREADS
-============================================================================================================*/
+=========================================================================================================== */
 
 function showVideosWindow(body) {
 	const els = $Q('.de-video-link');
@@ -3266,8 +3280,9 @@ function showVideosWindow(body) {
 		<a class="de-abtn" id="de-video-btn-next" href="#" title="${ Lng.nextVideo[lang] }">&#x25B6;</a>
 		<a class="de-abtn" id="de-video-btn-hide" href="#" title="${ Lng.hideLnkList[lang] }">&#x25B2;</a>
 	</div>`;
-	const linkList = $add(`<div id="de-video-list" style="max-width: ${ +Cfg.YTubeWidth + 40
-		}px; max-height: ${ nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+	const linkList = $add(`<div id="de-video-list" style="max-width: ${
+		+Cfg.YTubeWidth + 40 }px; max-height: ${
+		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
 
 	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
 	// The first video should not start automatically!
@@ -3310,11 +3325,11 @@ function showVideosWindow(body) {
 
 	// Events for control buttons
 	body.addEventListener('click', {
-		linkList: linkList,
-		listHidden: false,
-		player: body.firstElementChild,
-		playerInfo: null,
-		currentLink: null,
+		currentLink : null,
+		listHidden  : false,
+		linkList    : linkList,
+		player      : body.firstElementChild,
+		playerInfo  : null,
 		handleEvent(e) {
 			const el = e.target;
 			if(el.classList.contains('de-abtn')) {
@@ -3339,12 +3354,13 @@ function showVideosWindow(body) {
 					node = node.nextElementSibling || node.parentNode.firstElementChild;
 					node.lastElementChild.click();
 					break;
-				case 'de-video-btn-resize': // Expand/collapse video player
+				case 'de-video-btn-resize': { // Expand/collapse video player
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
 					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
 						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
+				}
 				}
 				$pd(e);
 				return;
@@ -3395,7 +3411,7 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => el.checked = e.target.checked);
+				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
 			for(let tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
 					<input type="checkbox">
@@ -3415,9 +3431,9 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, els = $Q('.de-entry[info]', this.parentNode), len = els.length; i < len; ++i) {
+		for(let i = 0, els = $Q('.de-entry[info]', e.target.parentNode), len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
@@ -3445,10 +3461,10 @@ function showHiddenWindow(body) {
 				// Synchronize current hidden thread in other tabs
 				// Storage event listeners are loacted at initStorageEvent()
 				locStorage['__de-post'] = JSON.stringify({
-					'brd': b,
-					'num': num,
-					'thrNum': num,
-					'hide': false
+					brd    : b,
+					hide   : false,
+					num    : num,
+					thrNum : num
 				});
 				locStorage.removeItem('__de-post');
 			}
@@ -3459,9 +3475,9 @@ function showHiddenWindow(body) {
 	}));
 }
 
-/*==[ WindowFavorites.js ]====================================================================================
+/* ==[ WindowFavorites.js ]===================================================================================
                                               WINDOW: FAVORITES
-============================================================================================================*/
+=========================================================================================================== */
 
 // Delete previously marked entries from Favorites
 function cleanFavorites() {
@@ -3503,31 +3519,36 @@ function showFavoritesWindow(body, data) {
 				}
 
 				// Generate DOM for separate entry
-				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${ b
-					}" de-num="${ tNum }" de-url="${ t.url }">
+				const favLinkHref = t.url + (
+					!t.last ? '' :
+					t.last.startsWith('#') ? t.last :
+					h === aib.host ? aib.anchor + t.last : '');
+				const favInfIwrapTitle =
+					!t.err ? '' :
+					t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
+					'title="' + t.err + '"';
+				const favInfIconClass = !t.err ? '' :
+					t.err === 'Closed' || t.err === 'Archived' ?
+						'de-fav-closed' : 'de-fav-unavail';
+				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
+				const favInfNewDisp = t['new'] ? '' : ' style="display: none;"';
+				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
+					b }" de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
-					<a class="de-fav-link" href="${ t.url + (!t.last ? '' :
-						t.last.startsWith('#') ? t.last :
-						h === aib.host ? aib.anchor + t.last : '') }" rel="noreferrer">
-						${ tNum }
-					</a>
+					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
-						<span class="de-fav-inf-iwrap" ${ !t.err ? '' :
-							t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
-							'title="' + t.err + '"' }>
-							<svg class="de-fav-inf-icon ${ !t.err ? '' :
-								t.err === 'Closed' || t.err === 'Archived' ?
-									'de-fav-closed' : 'de-fav-unavail' }">
+						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
+							<svg class="de-fav-inf-icon ${ favInfIconClass }">
 								<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>
 								<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>
 								<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>
 							</svg>
 						</span>
-						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${
-							t.you ? '' : ' style="display: none;"' }>${ t.you || 0 }</span>
-						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${
-							t['new'] ? '' : ' style="display: none;"' }>${ t['new'] || 0 }</span>
+						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
+							${ t.you || 0 }</span>
+						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
+							${ t['new'] || 0 }</span>
 						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
@@ -3536,7 +3557,6 @@ function showFavoritesWindow(body, data) {
 			if(!innerHtml) {
 				continue;
 			}
-
 			// Building a foldable block for specific board
 			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
@@ -3562,22 +3582,22 @@ function showFavoritesWindow(body, data) {
 				// remembering of scroll position is no longer needed
 				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 				break;
-			case 'de-fav-header-switch':
+			case 'de-fav-header-switch': {
 				const checked = el.checked;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), checkBox => checkBox.checked = checked);
+				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
 				break;
+			}
 			case 'de-fav-header-link':
 				el = el.parentNode.nextElementSibling;
 				$pd(e); // TODO: remove and make it possible to follow a board link
 				break;
 			default: return;
 			}
-
 			// Fold/unfold the board block
 			if(el.hasAttribute('de-opened')) {
 				el.style.display = 'none';
@@ -3594,7 +3614,8 @@ function showFavoritesWindow(body, data) {
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(getEditButton('favor', fn => readFavorites().then(data => fn(data, true, saveFavorites))));
+	div.appendChild(getEditButton('favor',
+		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
@@ -3612,13 +3633,11 @@ function showFavoritesWindow(body, data) {
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
 			let f = fav[host][b][num];
-
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived' ) {
+			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
 				continue;
 			}
-
 			const countEl = $q('.de-fav-inf-new', el);
 			const youEl = countEl.previousElementSibling;
 			const iconEl = $q('.de-fav-inf-icon', el);
@@ -3652,7 +3671,6 @@ function showFavoritesWindow(body, data) {
 				isUpdate = true;
 				continue;
 			}
-
 			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
@@ -3678,7 +3696,6 @@ function showFavoritesWindow(body, data) {
 					isUpdate = true;
 				}
 			}
-
 			// Updating a counter of new posts
 			const posts = $Q(aib.qRPost, form);
 			const cnt = posts.length + 1 - f.cnt;
@@ -3690,13 +3707,12 @@ function showFavoritesWindow(body, data) {
 				$show(countEl);
 				f['new'] = cnt;
 				isUpdate = true;
-
 				// Check for replies to my posts
 				if(myposts && myposts[b]) {
 					f.you = 0;
 					for(let j = 0; j < cnt; ++j) {
 						const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
-						for(let a = 0, len = links.length, num; a < len; ++a) {
+						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
 							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
 								f.you++;
@@ -3725,25 +3741,23 @@ function showFavoritesWindow(body, data) {
 			return;
 		}
 		$popup('load-pages', Lng.loading[lang], true);
-
 		// Create indexed array of entries and "waiting" SVG icon for each entry
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
 			thrInfo.push({
-				found: false,
-				num: +el.getAttribute('de-num'),
-				pageEl: $q('.de-fav-inf-page', el),
-				iconClass: iconEl.getAttribute('class'),
+				found     : false,
+				num       : +el.getAttribute('de-num'),
+				pageEl    : $q('.de-fav-inf-page', el),
+				iconClass : iconEl.getAttribute('class'),
 				iconEl,
-				iconTitle: titleEl.getAttribute('title'),
+				iconTitle : titleEl.getAttribute('title'),
 				titleEl
 			});
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 		}
-
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
@@ -3755,7 +3769,6 @@ function showFavoritesWindow(body, data) {
 			} catch(e) {
 				continue;
 			}
-
 			// Search for threads on current page
 			for(let i = 0; i < len; ++i) {
 				const pInfo = thrInfo[i];
@@ -3772,12 +3785,10 @@ function showFavoritesWindow(body, data) {
 					infoLoaded++;
 				}
 			}
-
 			if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
 				break;
 			}
 		}
-
 		// Process missed threads that not found
 		for(let i = 0; i < len; ++i) {
 			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
@@ -3792,7 +3803,6 @@ function showFavoritesWindow(body, data) {
 				pageEl.textContent = '@?'; // Indicates that thread not found
 			}
 		}
-
 		closePopup('load-pages');
 	}));
 
@@ -3846,14 +3856,14 @@ function showFavoritesWindow(body, data) {
 
 	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => el.checked = false); // Unselect all checkboxes
+		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }
 
-/*==[ WindowSettings.js ]=====================================================================================
+/* ==[ WindowSettings.js ]====================================================================================
                                                WINDOW: SETTINGS
-============================================================================================================*/
+=========================================================================================================== */
 
 const cfgWindow = Object.create({
 	init(body) {
@@ -3906,10 +3916,9 @@ const cfgWindow = Object.create({
 				const obj = {};
 				const com = data[aib.dm];
 				for(let i in com) {
-					if(i !== 'correctTime' && i !== 'timePattern' &&
-					   i !== 'userCSS' && i !== 'userCSSTxt' &&
-					   com[i] !== defaultCfg[i] && i !== 'stats')
-					{
+					if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
+						i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
+					) {
 						obj[i] = com[i];
 					}
 				}
@@ -3997,12 +4006,16 @@ const cfgWindow = Object.create({
 						continue;
 					}
 					switch(i) {
-					case 0: name.push('Cfg');
-						let cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]);
+					case 0: name.push('Cfg'); {
+						let cfgData = await Promise.all([
+							getStored('DESU_Config'),
+							getStored('DESU_keys'),
+							getStored('DESU_Exclude')]);
 						val.push('"settings":' + cfgData[0],
 							'"hotkeys":' + (cfgData[1] || '""'),
 							`"exclude":"${ cfgData[2] || '' }"`);
 						break;
+					}
 					case 1: name.push('Fav');
 						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
 						break;
@@ -4037,8 +4050,8 @@ const cfgWindow = Object.create({
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
 			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', function() {
-			const els = $Q('input[type="checkbox"]', this.parentNode);
+		).appendChild($btn(Lng.clear[lang], '', ({ target }) => {
+			const els = $Q('input[type="checkbox"]', target.parentNode);
 			for(let i = 1, len = els.length; i < len; ++i) {
 				if(!els[i].checked) {
 					continue;
@@ -4094,14 +4107,14 @@ const cfgWindow = Object.create({
 					pr.updateLanguage();
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
-						      el => el.title = Lng.youCanDrag[lang]);
+							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
 				this._updateCSS();
 				panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
-			case 'delHiddPost':
+			case 'delHiddPost': {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(post.hidden && !post.isOp) {
@@ -4114,6 +4127,7 @@ const cfgWindow = Object.create({
 				}
 				updateCSS();
 				break;
+			}
 			case 'postBtnsCSS':
 				updateCSS();
 				if(nav.Presto) {
@@ -4191,7 +4205,7 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'markNewPosts': Post.clearMarks(); break;
-			case 'useDobrAPI': aib.jsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
+			case 'useDobrAPI': aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
@@ -4200,13 +4214,14 @@ const cfgWindow = Object.create({
 				updateCSS();
 				break;
 			case 'correctTime': DateTime.toggleSettings(); break;
-			case 'imgInfoLink':
+			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
 					img.click();
 				}
 				updateCSS();
 				break;
+			}
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(let form of DelForm) {
@@ -4255,14 +4270,14 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'turnOff': getStoredObj('DESU_Config').then(data => {
-					for(let dm in data) {
-						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-							data[dm].disabled = Cfg.turnOff;
-						}
+				for(let dm in data) {
+					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+						data[dm].disabled = Cfg.turnOff;
 					}
-					data[aib.dm].turnOff = Cfg.turnOff;
-					setStored('DESU_Config', JSON.stringify(data));
-				});
+				}
+				data[aib.dm].turnOff = Cfg.turnOff;
+				setStored('DESU_Config', JSON.stringify(data));
+			});
 			}
 			return;
 		}
@@ -4295,23 +4310,22 @@ const cfgWindow = Object.create({
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
 			case 'de-cfg-btn-debug':
-				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>')
-					.firstElementChild.value = JSON.stringify(
-				{
-					'version': version,
-					'location': String(window.location),
-					'nav': nav,
-					'cfg': Cfg,
-					'sSpells': Spells.list.split('\n'),
-					'oSpells': sesStorage['de-spells-' + aib.b + (aib.t || '')],
-					'perf': Logger.getData(true)
+				$popup('cfg-debug',
+					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
+				).firstElementChild.value = JSON.stringify({
+					version  : version,
+					location : String(window.location),
+					nav      : nav,
+					cfg      : Cfg,
+					sSpells  : Spells.list.split('\n'),
+					oSpells  : sesStorage['de-spells-' + aib.b + (aib.t || '')],
+					perf     : Logger.getData(true)
 				}, function(key, value) {
 					switch(key) {
 					case 'stats':
 					case 'nameValue':
 					case 'passwValue':
-					case 'ytApiKey':
-						return void 0;
+					case 'ytApiKey': return void 0;
 					}
 					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
 				}, '\t');
@@ -4331,12 +4345,13 @@ const cfgWindow = Object.create({
 				break;
 			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
 			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
-			case 'webmVolume':
+			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
 				saveCfg('webmVolume', val);
 				locStorage['__de-webmvolume'] = val;
 				locStorage.removeItem('__de-webmvolume');
 				break;
+			}
 			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'maskVisib':
 				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
@@ -4410,13 +4425,15 @@ const cfgWindow = Object.create({
 			}
 			if(id === 'common') {
 				// XXX: remove and make insertion in this._getCfgCommon()
-				$after($q('input[info="userCSS"]').parentNode, getEditButton('css', fn =>
-					fn(Cfg.userCSSTxt, false, function() {
+				$after($q('input[info="userCSS"]').parentNode, getEditButton(
+					'css',
+					fn => fn(Cfg.userCSSTxt, false, function() {
 						saveCfg('userCSSTxt', this.value);
 						updateCSS();
 						toggleWindow('cfg', true);
-					}
-				), 'de-cfg-button'));
+					}),
+					'de-cfg-button'
+				));
 			}
 		}
 		newTab.className = 'de-cfg-body';
@@ -4467,8 +4484,7 @@ const cfgWindow = Object.create({
 	// "Posts" tab
 	_getCfgPosts() {
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
-			${ !localData ?
-				this._getBox('ajaxUpdThr') +
+			${ localData ? '' : this._getBox('ajaxUpdThr') +
 				this._getInp('updThrDelay') +
 				`<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
@@ -4477,7 +4493,7 @@ const cfgWindow = Object.create({
 					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
-				</div>` : '' }
+				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ this._getBox('hideReplies') }<br>
 			${ this._getBox('expandTrunc') }<br>
@@ -4516,9 +4532,10 @@ const cfgWindow = Object.create({
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ !nav.Presto ? this._getBox('preLoadImgs') + '<br>' : '' }
-			${ !nav.Presto && !aib.fch ?
-				`<div class="de-cfg-depend">${ this._getBox('findImgFile') }</div>` : '' }
+			${ nav.Presto ? '' : this._getBox('preLoadImgs') + '<br>' }
+			${ nav.Presto || aib.fch ? '' : `<div class="de-cfg-depend">
+				${ this._getBox('findImgFile') }
+			</div>` }
 			${ this._getSel('openImgs') }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getBox('delImgNames') }<br>
@@ -4576,22 +4593,17 @@ const cfgWindow = Object.create({
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ?
-				this._getBox('addSageBtn') +
+			${ pr.mail ? this._getBox('addSageBtn') +
 				this._getBox('saveSage') + '<br>' : '' }
-			${ pr.cap ?
-				(aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
+			${ pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
 				this._getInp('capUpdTime') + '<br>' +
 				this._getSel('captchaLang') + '<br>' : '' }
-			${ pr.txta ?
-				this._getSel('addTextBtns') +
+			${ pr.txta ? this._getSel('addTextBtns') +
 				this._getBox('txtBtnsLoc') + '<br>' : '' }
-			${ pr.passw ?
-				this._getInp('passwValue', true, 9) +
+			${ pr.passw ? this._getInp('passwValue', true, 9) +
 				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
-						Lng.change[lang] }"><br>` : '' }
-			${ pr.name ?
-				this._getInp('nameValue', false, 9) + ' ' +
+					Lng.change[lang] }"><br>` : '' }
+			${ pr.name ? this._getInp('nameValue', false, 9) + ' ' +
 				this._getBox('userName') + '<br>' : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
@@ -4618,16 +4630,15 @@ const cfgWindow = Object.create({
 			<div class="de-cfg-depend">
 				${ this._getInp('loadPages') }
 			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ?
-				this._getBox('updScript') +
+			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') +
 				`<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
-					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="${
-							Lng.checkNow[lang] }">
+					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
+						Lng.checkNow[lang] + `">
 				</div>` : '' }
-			${ nav.isGlobal ?
-				Lng.cfg.excludeList[lang] +
-				`<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">` +
+			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
+				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
+				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
 				this._getBox('turnOff') : '' }
 		</div>`;
 	},
@@ -4637,20 +4648,22 @@ const cfgWindow = Object.create({
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isESNext ? '.es6' : '')}</a>&nbsp;|&nbsp;
+					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ this._getInfoTable([
+				<div id="de-info-stats">` +
+				this._getInfoTable([
 					[Lng.thrViewed[lang], Cfg.stats.view],
 					[Lng.thrCreated[lang], Cfg.stats.op],
 					[Lng.thrHidden[lang], HiddenThreads.getCount()],
 					[Lng.postsSent[lang], Cfg.stats.reply]
-				], false) }</div>
+				], false) + `</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
 			</div>
-			<input type="button" id="de-cfg-btn-debug" value="${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+			<input type="button" id="de-cfg-btn-debug" value="` +
+				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
 	},
 
@@ -4664,8 +4677,8 @@ const cfgWindow = Object.create({
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
-				escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
+				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
 	},
 
 	// Creates a select for multiple option values
@@ -4757,9 +4770,9 @@ const cfgWindow = Object.create({
 	}
 });
 
-/*==[ MenuPopups.js ]=========================================================================================
+/* ==[ MenuPopups.js ]========================================================================================
                                                 POPUPS & MENU
-============================================================================================================*/
+=========================================================================================================== */
 
 function closePopup(data) {
 	var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
@@ -4860,10 +4873,10 @@ function Menu(parentEl, html, clickFn, isFixed = true) {
 	el.addEventListener('click', this);
 }
 Menu.prototype = {
-	_closeTO: 0,
-	onover: null,
-	onout: null,
-	onremove: null,
+	onout    : null,
+	onover   : null,
+	onremove : null,
+	_closeTO : 0,
 	remove() {
 		if(!this._el) {
 			return;
@@ -4957,18 +4970,18 @@ function addMenu(el) {
 	}
 }
 
-/*==[ Hotkeys.js ]============================================================================================
+/* ==[ Hotkeys.js ]===========================================================================================
                                                    HOTKEYS
-============================================================================================================*/
+=========================================================================================================== */
 
 var HotKeys = {
-	cPost: null,
-	enabled: false,
-	gKeys: null,
-	lastPageOffset: 0,
-	ntKeys: null,
-	tKeys: null,
-	version: 7,
+	cPost          : null,
+	enabled        : false,
+	gKeys          : null,
+	lastPageOffset : 0,
+	ntKeys         : null,
+	tKeys          : null,
+	version        : 7,
 	getDefaultKeys() {
 		var globKeys = [
 			/* One post/thread above      */ 0x004B /* = K          */,
@@ -5364,18 +5377,19 @@ function KeyEditListener(popupEl, keys, allKeys) {
 // Browsers have different codes for these keys (see HotKeys.readKeys):
 //     Firefox - '-' - 173, '=' - 61, ';' - 59
 //     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
 KeyEditListener.keyCodes = [
-	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,
-	,,,,,,/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→',
-	'↓',,,,,/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B',
-	'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-	/* Left WIN Key */,/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2',
-	'Numpad 3','Numpad 4','Numpad 5','Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *',
-	'Numpad +',,'Numpad -','Numpad .','Numpad /',/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,
-	/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,
-	/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.',
-	'/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
+	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
+	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
+	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
+	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
+	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
+	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
+	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
+	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
+	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
 ];
+/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
 KeyEditListener.getStrKey = function(key) {
 	return (key & 0x1000 ? 'Ctrl+' : '') +
 		(key & 0x2000 ? 'Shift+' : '') +
@@ -5392,7 +5406,7 @@ KeyEditListener.getEditMarkup = function(keys) {
 			allKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
 				'" size="16" value="' + KeyEditListener.getStrKey(key) +
-				(isText ? '" de-text' : '"' ) + ' readonly>';
+				(isText ? '" de-text' : '"') + ' readonly>';
 		}) +
 	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">' +
 	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">';
@@ -5410,9 +5424,9 @@ KeyEditListener.setTitle = function(el, idx) {
 	el.title = title;
 };
 KeyEditListener.prototype = {
-	cEl: null,
-	cKey: -1,
-	errorInput: false,
+	cEl        : null,
+	cKey       : -1,
+	errorInput : false,
 	get saveButton() {
 		var val = $id('de-keys-save');
 		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
@@ -5554,10 +5568,10 @@ KeyEditListener.prototype = {
 	}
 };
 
-/*==[ ContentLoad.js ]========================================================================================
+/* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
                       images/webm preloading, rarjpeg detecting, thread/images downloading
-============================================================================================================*/
+=========================================================================================================== */
 
 function detectImgFile(ab) {
 	var i, j, dat = new Uint8Array(ab),
@@ -5638,7 +5652,7 @@ WorkerPool.prototype = {
 		this._pool.run([data, transferObjs, fn]);
 	},
 	_createWorker(num, data) {
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			var w = this._freeWorkers.pop(),
 				[sendData, transferObjs, fn] = data;
 			w.onmessage = e => {
@@ -5682,15 +5696,15 @@ function addImgFileIcon(nameLink, fName, info) {
 		ext = 'mp3';
 	}
 	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
-		) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
+		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
+	) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 }
 
 function downloadImgData(url, repeatOnError = true) {
 	return $ajax(url, {
-		responseType: 'arraybuffer',
-		overrideMimeType: 'text/plain; charset=x-user-defined'
+		responseType     : 'arraybuffer',
+		overrideMimeType : 'text/plain; charset=x-user-defined'
 	}, url.startsWith('blob')).then(xhr => {
 		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
 			return new Uint8Array(xhr.response);
@@ -5808,7 +5822,7 @@ function loadDocFiles(imgOnly) {
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		var [url, fName, el, imgLink] = data,
-			safeName = fName.replace(/[\\\/:*?"<>|]/g, '_');
+			safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 		progress.value = current;
 		counter.innerHTML = current;
 		current++;
@@ -5834,25 +5848,25 @@ function loadDocFiles(imgOnly) {
 			return imgOnly ? null : getDataFromImg(el).then(data => {
 				el.src = thumbName;
 				tar.addFile(thumbName, data);
-			}, () => { el.src = safeName; });
-
+			}, () => (el.src = safeName));
 		} else if(imgData && imgData.length > 0) {
 			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 		} else {
 			$del(el);
 		}
 	}), function() {
-		var docName = aib.dm + '-' + aib.b.replace(/[\\\/:*?"<>|]/g, '') + '-' + aib.t;
+		var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
-				scriptStr = '(' + String(de_main_func_inner) +
+				scriptStr = '(' + String(deMainFuncInner) +
 					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
 			} else {
-				scriptStr = '(' + String(de_main_func_outer) + ')(' + localData + ');';
+				/* global deMainFuncOuter */
+				scriptStr = '(' + String(deMainFuncOuter) + ')(' + localData + ');';
 			}
 			tar.addString('data/dollscript.js', scriptStr);
 			var dt = doc.doctype;
@@ -5878,8 +5892,9 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
-			'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
 		$each($Q('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -5895,7 +5910,7 @@ function loadDocFiles(imgOnly) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
 		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' +
+		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' +
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
@@ -5906,7 +5921,7 @@ function loadDocFiles(imgOnly) {
 				$del(el);
 				return;
 			}
-			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\\/:*?"<>|]/g, '_').toLowerCase();
+			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(fName) !== -1) {
 				var temp = url.lastIndexOf('.'),
 					ext = url.substring(temp);
@@ -5934,9 +5949,9 @@ function loadDocFiles(imgOnly) {
 	els = null;
 }
 
-/*==[ TimeCorrection.js ]=====================================================================================
+/* ==[ TimeCorrection.js ]====================================================================================
                                                TIME CORRECTION
-============================================================================================================*/
+=========================================================================================================== */
 
 function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	if(DateTime.checkPattern(pattern)) {
@@ -5945,12 +5960,12 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	}
 	this.regex = pattern
 		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
-		.replace(/\-/g, '[^<]')
+		.replace(/-/g, '[^<]')
 		.replace(/\+/g, '[^0-9<]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
+	this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	this.diff = parseInt(diff, 10);
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
@@ -5971,25 +5986,25 @@ DateTime.toggleSettings = function(el) {
 DateTime.checkPattern = function(val) {
 	return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') ||
 		!(val.includes('n') || val.includes('m')) ||
-		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+		/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 DateTime.prototype = {
-	genDateTime: null,
-	onRPat: null,
-	pad2: pad2,
+	genDateTime : null,
+	onRPat      : null,
+	pad2        : pad2,
 	genRFunc(rPattern) {
-		return new Function('dtime', 'return \'' +
+		return new Function('dtime', "return '" +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
-			.replace('_s', '\' + this.pad2(dtime.getSeconds()) + \'')
-			.replace('_i', '\' + this.pad2(dtime.getMinutes()) + \'')
-			.replace('_h', '\' + this.pad2(dtime.getHours()) + \'')
-			.replace('_d', '\' + this.pad2(dtime.getDate()) + \'')
-			.replace('_w', '\' + this.arrW[dtime.getDay()] + \'')
-			.replace('_n', '\' + this.pad2(dtime.getMonth() + 1) + \'')
-			.replace('_m', '\' + this.arrM[dtime.getMonth()] + \'')
-			.replace('_M', '\' + this.arrFM[dtime.getMonth()] + \'')
-			.replace('_y', '\' + (\'\' + dtime.getFullYear()).substring(2) + \'')
-			.replace('_Y', '\' + dtime.getFullYear() + \'') + '\';');
+				.replace('_s', "' + this.pad2(dtime.getSeconds()) + '")
+				.replace('_i', "' + this.pad2(dtime.getMinutes()) + '")
+				.replace('_h', "' + this.pad2(dtime.getHours()) + '")
+				.replace('_d', "' + this.pad2(dtime.getDate()) + '")
+				.replace('_w', "' + this.arrW[dtime.getDay()] + '")
+				.replace('_n', "' + this.pad2(dtime.getMonth() + 1) + '")
+				.replace('_m', "' + this.arrM[dtime.getMonth()] + '")
+				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
+				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
+				.replace('_Y', "' + dtime.getFullYear() + '") + "';");
 	},
 	getRPattern(txt) {
 		var m = txt.match(new RegExp(this.regex));
@@ -5998,7 +6013,7 @@ DateTime.prototype = {
 			return false;
 		}
 		var rPattern = '';
-		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len; ) {
+		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 			var a = m[i++],
 				p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
@@ -6032,17 +6047,18 @@ DateTime.prototype = {
 				case 'm': month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0; break;
 				}
 			}
-			var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+			var dtime = new Date(year.length === 2 ? '20' + year :
+				year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
 			return this.genDateTime(dtime);
 		});
 	}
 };
 
-/*==[ Players.js ]============================================================================================
+/* ==[ Players.js ]===========================================================================================
                                           PLAYERS / LINKS EMBEDDERS
                                 youtube, vimeo, mp3, vocaroo embedding players
-============================================================================================================*/
+=========================================================================================================== */
 
 function Videos(post, player = null, playerInfo = null) {
 	this.post = post;
@@ -6066,7 +6082,7 @@ Videos._global = {
 	}
 };
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
+Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	var txt;
 	if(isYtube) {
@@ -6083,7 +6099,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 				(Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' +
 				'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
 			'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
-				'//vimeo.com/moogaloop.swf' + '?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
 				'allowscriptaccess="always" allowfullscreen="true"></embed>';
 	}
@@ -6115,10 +6131,11 @@ Videos._fixTime = function(seconds = 0, minutes = 0, hours = 0) {
 		hours += Math.floor(seconds / 60);
 		minutes %= 60;
 	}
-	var timeStr = (hours   ? hours   + 'h' : '') +
-	              (minutes ? minutes + 'm' : '') +
-	              (seconds ? seconds + 's' : '');
-	return [timeStr, hours, minutes, seconds];
+	return [
+		(hours ? hours + 'h' : '') +
+		(minutes ? minutes + 'm' : '') +
+		(seconds ? seconds + 's' : ''),
+		hours, minutes, seconds];
 };
 Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
 	if(data.length !== 0) {
@@ -6136,60 +6153,61 @@ Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...dat
 	return sleep(250);
 };
 Videos._getYTInfoAPI = function(info, num, id) {
-	return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
-	             '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
-	             null, false).then(xhr => {
+	return $ajax(
+		'https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
+		'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
+		'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
+		null, false
+	).then(xhr => {
 		var items = JSON.parse(xhr.responseText).items[0];
-		return Videos._titlesLoaderHelper(info, num,
-		                                  items.snippet.title,
-		                                  items.snippet.channelTitle,
-		                                  items.statistics.viewCount,
-		                                  items.snippet.publishedAt.substr(0, 10),
-		                                  items.contentDetails.duration.substr(2).toLowerCase());
+		return Videos._titlesLoaderHelper(
+			info, num,
+			items.snippet.title,
+			items.snippet.channelTitle,
+			items.statistics.viewCount,
+			items.snippet.publishedAt.substr(0, 10),
+			items.contentDetails.duration.substr(2).toLowerCase());
 	}).catch(() => Videos._getYTInfoOembed(info, num, id));
 };
 Videos._getYTInfoOembed = function(info, num, id) {
 	return (nav.isGM ?
-		$ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false)
-	:
-		$ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')
-	).then(xhr =>
-	{
+		$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
+			null, false) :
+		$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
+	).then(xhr => {
 		var json = JSON.parse(xhr.responseText);
-		return Videos._titlesLoaderHelper(info, num,
-		                                  json.title,
-		                                  json.author_name,
-		                                  null,
-		                                  null,
-		                                  null);
+		return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 	}).catch(() => Videos._titlesLoaderHelper(info, num));
 };
 Videos._getTitlesLoader = function() {
 	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 		var [, isYtube,, id] = info;
 		if(isYtube) {
-			return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
+			return Cfg.ytApiKey ?
+				Videos._getYTInfoAPI(info, num, id) :
+				Videos._getYTInfoOembed(info, num, id);
 		}
 		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
 			var entry = JSON.parse(xhr.responseText)[0];
-			return Videos._titlesLoaderHelper(info, num,
-			                                  entry.title,
-			                                  entry.user_name,
-			                                  entry.stats_number_of_plays,
-			                                  (/(.*)\s(.*)?/.exec(entry.upload_date))[1],
-											  Videos._fixTime(entry.duration)[0]);
+			return Videos._titlesLoaderHelper(
+				info, num,
+				entry.title,
+				entry.user_name,
+				entry.stats_number_of_plays,
+				(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+				Videos._fixTime(entry.duration)[0]);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}, () => {
 		sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
 	});
 };
 Videos.prototype = {
-	currentLink: null,
-	hasLinks: false,
-	playerInfo: null,
-	titleLoadFn: null,
-	linksCount: 0,
-	loadedLinksCount: 0,
+	currentLink      : null,
+	hasLinks         : false,
+	linksCount       : 0,
+	loadedLinksCount : 0,
+	playerInfo       : null,
+	titleLoadFn      : null,
 	get player() {
 		const post = this.post;
 		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
@@ -6224,10 +6242,9 @@ Videos.prototype = {
 			var src = isYtube ?
 				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
 				aib.prot + '//vimeo.com/' + m[1];
-			link = $bEnd(this.post.msg, `
-			<p class="de-video-ext"><a class="de-video-link ${
-				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '')
-			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
+			link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' +
+				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') +
+				`" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
 		}
 		if(dataObj) {
 			Videos.setLinkData(link, dataObj);
@@ -6383,7 +6400,13 @@ function embedMediaLinks(data) {
 				}
 			// Flash plugin for old browsers that not support HTML5 audio
 			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', `<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=${ src }"><br>`);
+				el.insertAdjacentHTML('beforeend', '<object data="' +
+					'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' +
+					'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' +
+					'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' +
+					'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' +
+					'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' +
+					'loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
 			}
 		}
 	}
@@ -6394,17 +6417,17 @@ function embedMediaLinks(data) {
 			const el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('\/').pop()
-						}" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
+					<embed src="http://vocaroo.com/player.swf?playMediaID=` + link.href.split('/').pop() +
+						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
 				</div>`);
 			}
 		}
 	}
 }
 
-/*==[ Ajax.js ]===============================================================================================
+/* ==[ Ajax.js ]==============================================================================================
                                                 AJAX FUNCTIONS
-============================================================================================================*/
+=========================================================================================================== */
 
 // Main AJAX util
 function $ajax(url, params = null, useNative = nativeXHRworks) {
@@ -6420,9 +6443,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		};
 		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		const obj = {
-			'method': (params && params.method) || 'GET',
-			'url': nav.fixLink(url),
-			'onreadystatechange'(e) {
+			method : (params && params.method) || 'GET',
+			url    : nav.fixLink(url),
+			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
@@ -6476,9 +6499,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 			if(target.readyState === 4) {
 				if(target.status === 200 ||
-				   (aib.tiny && target.status === 400) ||
-				   (target.status === 0 && target.responseType === 'arraybuffer'))
-				{
+					(aib.tiny && target.status === 400) ||
+					(target.status === 0 && target.responseType === 'arraybuffer')
+				) {
 					resolve(target);
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
@@ -6527,13 +6550,18 @@ class AjaxError {
 		this.message = message;
 	}
 	toString() {
-		return this.code <= 0 ? String(this.message || Lng.noConnect[lang])
-		                      : 'HTTP [' + this.code + '] ' + this.message;
+		return this.code <= 0 ?
+			String(this.message || Lng.noConnect[lang]) :
+			'HTTP [' + this.code + '] ' + this.message;
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, { toString() { return Lng.thrClosed[lang]; } });
-AjaxError.Timeout = new AjaxError(0, { toString() { return Lng.noConnect[lang] + ' (timeout)'; } });
+AjaxError.Locked = new AjaxError(-1, { toString() {
+	return Lng.thrClosed[lang];
+} });
+AjaxError.Timeout = new AjaxError(0, { toString() {
+	return Lng.noConnect[lang] + ' (timeout)';
+} });
 
 class AjaxCache extends null {
 	static clear() {
@@ -6552,8 +6580,9 @@ class AjaxCache extends null {
 	static saveData(url, xhr) {
 		var ETag = null, LastModified = null, i = 0,
 			hasCacheControl = false,
-			ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
-			                                             : xhr.responseHeaders;
+			ajaxHeaders = 'getAllResponseHeaders' in xhr ?
+				xhr.getAllResponseHeaders() :
+				xhr.responseHeaders;
 		for(var header of ajaxHeaders.split('\r\n')) {
 			let lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
@@ -6581,7 +6610,9 @@ class AjaxCache extends null {
 			}
 		}
 		let hasUrl = AjaxCache._data.has(url);
-		AjaxCache._data.set(url, { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+		AjaxCache._data.set(url, {
+			hasCacheControl,
+			params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
 		return hasUrl || hasCacheControl;
 	}
 }
@@ -6599,16 +6630,16 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 }
 
 function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.jsonBuilder) {
+	if(aib.JsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
-				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
 			} catch(e) {
 				if(e instanceof AjaxError) {
 					return CancelablePromise.reject(e);
 				}
 				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
-				aib.jsonBuilder = null;
+				aib.JsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
 		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
@@ -6635,9 +6666,9 @@ function infoLoadErrors(e, showError = true) {
 	}
 }
 
-/*==[ Pages.js ]==============================================================================================
+/* ==[ Pages.js ]=============================================================================================
                                                  PAGES LOADER
-============================================================================================================*/
+=========================================================================================================== */
 
 var Pages = {
 	add() {
@@ -6710,8 +6741,8 @@ var Pages = {
 		}
 	},
 
-	_adding: false,
-	_addPromise: null,
+	_adding     : false,
+	_addPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide((formEl = aib.fixHTML(formEl)));
@@ -6719,7 +6750,7 @@ var Pages = {
 		var form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
-		if(pageNum != aib.page && form.firstThr) {
+		if(pageNum !== aib.page && form.firstThr) {
 			formEl.insertAdjacentHTML('afterbegin', `<div class="de-page-num">
 				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
 				<hr>
@@ -6765,13 +6796,13 @@ toggleInfinityScroll.onwheel = e => {
 	}
 };
 
-/*==[ Spells.js ]=============================================================================================
+/* ==[ Spells.js ]============================================================================================
                                                     SPELLS
-============================================================================================================*/
+=========================================================================================================== */
 
 var Spells = Object.create({
-	hash: null,
-	names: [
+	hash  : null,
+	names : [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
 		'all', 'video', 'wipe', 'num', 'vauthor'
 	],
@@ -6825,7 +6856,7 @@ var Spells = Object.create({
 		return str;
 	},
 	add(type, arg, isNeg) {
-		var temp, fld = $id('de-spell-txt'),
+		var fld = $id('de-spell-txt'),
 			val = fld && fld.value,
 			chk = $q('input[info="hideBySpell"]'),
 			spells = val && this.parseText(val);
@@ -6843,10 +6874,15 @@ var Spells = Object.create({
 			if(spells[1]) {
 				spells[1].some(scope && isNeg ? function(spell, i) {
 					var data;
-					if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
-					   data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
-					   String(data[1][1]) === sArg && String(data[0][2]) === sScope)
-					{
+					if(spell[0] === 0xFF &&
+						((data = spell[1]) instanceof Array) &&
+						data.length === 2 &&
+						data[0][0] === 0x20C &&
+						data[1][0] === type &&
+						data[1][2] == null &&
+						String(data[1][1]) === sArg &&
+						String(data[0][2]) === sScope
+					) {
 						idx = i;
 						return true;
 					}
@@ -6910,16 +6946,21 @@ var Spells = Object.create({
 				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
 				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
 				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-		}
 		// #wipe
-		else if(type === 14) {
+		} else if(type === 14) {
 			if(val === 0x3F && !wipeMsg) {
 				return spell;
 			}
 			var [msgBit, msgData] = wipeMsg || [],
 				names = [],
-				bits = { 1: 'samelines', 2: 'samewords', 4: 'longwords', 8: 'symbols',
-					16: 'capslock', 32: 'numbers', 64: 'whitespace' };
+				bits = {
+					1  : 'samelines',
+					2  : 'samewords',
+					4  : 'longwords',
+					8  : 'symbols',
+					16 : 'capslock',
+					32 : 'numbers',
+					64 : 'whitespace' };
 			for(var bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
@@ -6931,9 +6972,8 @@ var Spells = Object.create({
 				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 			}
 			return spell + '(' + names.join(',') + ')';
-		}
 		// #num, #tlen
-		else if(type === 15 || type === 11) {
+		} else if(type === 15 || type === 11) {
 			var temp_, temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
@@ -6949,9 +6989,8 @@ var Spells = Object.create({
 				spell += temp_.join(',');
 			}
 			return spell + ')';
-		}
 		// #words, #name, #trip, #vauthor
-		else if(type === 0 || type === 6 || type === 7 || type === 16) {
+		} else if(type === 0 || type === 6 || type === 7 || type === 16) {
 			return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
 		} else {
 			return spell + '(' + String(val) + ')';
@@ -6960,10 +6999,9 @@ var Spells = Object.create({
 	disable() {
 		var value = null, configurable = true;
 		Object.defineProperties(this, {
-			hiders: { configurable, value },
-			reps: { configurable, value },
-			outreps: { configurable, value }
-		});
+			hiders  : { configurable, value },
+			outreps : { configurable, value },
+			reps    : { configurable, value } });
 		saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
@@ -7070,10 +7108,9 @@ var Spells = Object.create({
 		if(!Cfg.hideBySpell) {
 			var value = null, configurable = true;
 			Object.defineProperties(this, {
-				hiders: { configurable, value },
-				reps: { configurable, value },
-				outreps: { configurable, value }
-			});
+				hiders  : { configurable, value },
+				outreps : { configurable, value },
+				reps    : { configurable, value } });
 			return;
 		}
 		var spells, data;
@@ -7161,9 +7198,10 @@ var Spells = Object.create({
 				}
 			} else {
 				var scope = spell[2];
-				if(!scope || (scope[0] === aib.b &&
-				   (scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))))
-				{
+				if(!scope || (
+					scope[0] === aib.b &&
+					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
+				)) {
 					if(type === 12) {
 						neg = !neg;
 					} else {
@@ -7173,7 +7211,7 @@ var Spells = Object.create({
 					}
 				}
 			}
-			for(j = lastSpell; j >= 0 && (((newSpells[j][0] & 0x200) !== 0) ^ neg); --j) {}
+			for(j = lastSpell; j >= 0 && (((newSpells[j][0] & 0x200) !== 0) ^ neg); --j) /* empty */;
 			if(j !== lastSpell) {
 				newSpells = newSpells.slice(0, j + 1);
 				lastSpell = j;
@@ -7190,14 +7228,13 @@ var Spells = Object.create({
 	_setData(hiders, reps, outreps) {
 		var configurable = true;
 		Object.defineProperties(this, {
-			hiders: { configurable, value: this._initHiders(hiders) },
-			reps: { configurable, value: this._initReps(reps) },
-			outreps: { configurable, value: this._initReps(outreps) }
-		});
+			hiders  : { configurable, value: this._initHiders(hiders) },
+			outreps : { configurable, value: this._initReps(outreps) },
+			reps    : { configurable, value: this._initReps(reps) } });
 	},
 	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length-1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
 				const temp = [0xFF, []];
 				do {
@@ -7211,12 +7248,15 @@ var Spells = Object.create({
 		sp = sp.sort();
 		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			// Removes duplicates and weaker spells
-			if(sp[i][0] === sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
-			  (sp[i][2] === null || // Stronger spell with 3 parameters
-			   sp[i][2] === undefined || // Equal spells with 2 parameters
-			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2])))
-			{ // Equal spells with 3 parameters
-				sp.splice(i+1, 1);
+			const j = i + 1;
+			if(sp[i][0] === sp[j][0] &&
+				sp[i][1] <= sp[j][1] &&
+				sp[i][1] >= sp[j][1] && (
+					sp[i][2] === null || // Stronger spell with 3 parameters
+					sp[i][2] === undefined || // Equal spells with 2 parameters
+					(sp[i][2] <= sp[j][2] && sp[i][2] >= sp[j][2]))
+			) { // Equal spells with 3 parameters
+				sp.splice(j, 1);
 				i--;
 				len--;
 			// Moves brackets to the end of the list
@@ -7229,9 +7269,8 @@ var Spells = Object.create({
 	},
 	_sync(data) {
 		locStorage['__de-spells'] = JSON.stringify({
-			'hide': !!Cfg.hideBySpell,
-			'data': data
-		});
+			hide : !!Cfg.hideBySpell,
+			data : data });
 		locStorage.removeItem('__de-spells');
 	}
 });
@@ -7243,12 +7282,12 @@ function SpellsCodegen(sList) {
 	this.hasError = false;
 }
 SpellsCodegen.prototype = {
-	TYPE_UNKNOWN: 0,
-	TYPE_ANDOR: 1,
-	TYPE_NOT: 2,
-	TYPE_SPELL: 3,
-	TYPE_PARENTHESES: 4,
-	TYPE_REPLACER: 5,
+	TYPE_UNKNOWN     : 0,
+	TYPE_ANDOR       : 1,
+	TYPE_NOT         : 2,
+	TYPE_SPELL       : 3,
+	TYPE_PARENTHESES : 4,
+	TYPE_REPLACER    : 5,
 
 	generate() {
 		return this._sList ? this._generate(this._sList, false) : null;
@@ -7261,8 +7300,8 @@ SpellsCodegen.prototype = {
 			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
 	},
 
-	_errMsg: '',
-	_errMsgArg: null,
+	_errMsg    : '',
+	_errMsgArg : null,
 	_generate(sList, inParens) {
 		var spells = [],
 			reps = [],
@@ -7319,7 +7358,7 @@ SpellsCodegen.prototype = {
 					if(!res) {
 						return null;
 					}
-					(name === 'rep'? reps : outreps).push(res[1]);
+					(name === 'rep' ? reps : outreps).push(res[1]);
 					i += res[0] - 1;
 					this._col += res[0] - 1;
 					lastType = this.TYPE_REPLACER;
@@ -7404,9 +7443,9 @@ SpellsCodegen.prototype = {
 			return null;
 		}
 		if(lastType !== this.TYPE_SPELL &&
-		   lastType !== this.TYPE_PARENTHESES &&
-		   lastType !== this.TYPE_REPLACER)
-		{
+			lastType !== this.TYPE_PARENTHESES &&
+			lastType !== this.TYPE_REPLACER
+		) {
 			this._setError(Lng.seMissSpell[lang], null);
 			return null;
 		}
@@ -7419,7 +7458,7 @@ SpellsCodegen.prototype = {
 		return [spells, reps, outreps];
 	},
 	_getScope(str) {
-		var m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
 		if(m) {
 			return [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]];
 		}
@@ -7542,13 +7581,13 @@ SpellsCodegen.prototype = {
 			if(m) {
 				val = m[1].split(/, */).reduce(function(val, str) {
 					switch(str) {
-					case 'samelines': return val |= 1;
-					case 'samewords': return val |= 2;
-					case 'longwords': return val |= 4;
-					case 'symbols': return val |= 8;
-					case 'capslock': return val |= 16;
-					case 'numbers': return val |= 32;
-					case 'whitespace': return val |= 64;
+					case 'samelines': return (val |= 1);
+					case 'samewords': return (val |= 2);
+					case 'longwords': return (val |= 4);
+					case 'symbols': return (val |= 8);
+					case 'capslock': return (val |= 16);
+					case 'numbers': return (val |= 32);
+					case 'whitespace': return (val |= 64);
 					default: return -1;
 					}
 				}, 0);
@@ -7673,17 +7712,16 @@ class SpellsRunner {
 						data = [];
 						for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
 							var hidden = post.spellHidden;
-							data.push(hidden ? [true, post.note.text] : [false, null]);
+							data.push(hidden ? [true, Post.Note.text] : [false, null]);
 						}
 						SpellsRunner.cachedData = data;
 					}
 				}
 				sesStorage['de-hidden-' + aib.b + aib.t] = !data ? null : JSON.stringify({
-					'hash': Cfg.hideBySpell ? Spells.hash : 0,
-					'lastCount': lPost.count,
-					'lastNum': lPost.num,
-					'data': data
-				});
+					hash      : Cfg.hideBySpell ? Spells.hash : 0,
+					lastCount : lPost.count,
+					lastNum   : lPost.num,
+					data      : data });
 			}
 			toggleWindow('hid', true);
 		}
@@ -7753,8 +7791,7 @@ SpellsInterpreter.prototype = {
 		var cl = this._ctx.length;
 		var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null]
-		                 : this.run();
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
 	},
 	_checkRes(spell, val, isNegScope) {
 		var flags = spell[0];
@@ -7887,17 +7924,17 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_sage(val) {
+	_sage() {
 		return this._post.sage;
 	},
-	_op(val) {
+	_op() {
 		return this._post.isOp;
 	},
 	_tlen(val) {
 		var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 		return !val ? !!text : this._tlenNum_helper(val, text.length);
 	},
-	_all(val) {
+	_all() {
 		return true;
 	},
 	_video(val) {
@@ -7925,7 +7962,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 1): samewords
 		if(val & 2) {
-			arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+			arr = txt.replace(/[\s.?!,>]+/g, ' ').toUpperCase().split(' ');
 			if((len = arr.length) > 3) {
 				arr.sort();
 				let keys = 0;
@@ -7954,7 +7991,7 @@ SpellsInterpreter.prototype = {
 		}
 		// (1 << 2): longwords
 		if(val & 4) {
-			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s.?!,>:;-]+/g, ' ').split(' ');
 			if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
 				this._wipeMsg = [4, null];
 				return true;
@@ -7963,16 +8000,14 @@ SpellsInterpreter.prototype = {
 		// (1 << 3): symbols
 		if(val & 8) {
 			const _txt = txt.replace(/\s+/g, '');
-			if((len = _txt.length) > 30 &&
-			   (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-			{
+			if((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я.?!,]/ig, '').length / len) > 0.4) {
 				this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
 				return true;
 			}
 		}
 		// (1 << 4): capslock
 		if(val & 16) {
-			arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+			arr = txt.replace(/[\s.?!;,-]+/g, ' ').trim().split(' ');
 			if((len = arr.length) > 4) {
 				let n = 0;
 				let capsw = 0;
@@ -8054,7 +8089,7 @@ SpellsInterpreter.prototype = {
 		if(videos.linksCount === videos.loadedLinksCount) {
 			return false;
 		}
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			videos.titleLoadFn = data => {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					resolve(true);
@@ -8069,10 +8104,10 @@ SpellsInterpreter.prototype = {
 	}
 };
 
-/*==[ Form.js ]===============================================================================================
+/* ==[ Form.js ]==============================================================================================
                                                    POSTFORM
                  postform improving, quick reply window, markup text panel, sage button, etc
-============================================================================================================*/
+=========================================================================================================== */
 
 function PostForm(form, oeForm = null, ignoreForm = false) {
 	if(!ignoreForm && !form) {
@@ -8121,8 +8156,9 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		this.pForm.appendChild(this.oeForm);
 	}
 	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
-	this.pArea = [$bBegin(DelForm.first.el, html),
-	              $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+	this.pArea = [
+		$bBegin(DelForm.first.el, html),
+		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 	this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 	this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -8131,8 +8167,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		(Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost') + '"></div>');
 	this.isBottom = Cfg.addPostForm === 1;
 	this.setReply(false, !aib.t || Cfg.addPostForm > 1);
-	makeDraggable('reply', this.qArea, $aBegin(this.qArea,
-	`<div class="de-win-head">
+	makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 		<span class="de-win-title"></span>
 		<span class="de-win-buttons">
 			<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
@@ -8156,11 +8191,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 		saveCfg('sageReply', 0);
 		this._setSage();
 		this.files.clear();
-		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(node => {
-			if(node) {
-				node.value = '';
-			}
-		});
+		[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
+			node => {
+				if(node) {
+					node.value = '';
+				}
+			});
 	};
 	(el = el.nextElementSibling).onclick = () => {
 		toggleCfg('replyWinDrag');
@@ -8186,14 +8222,14 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
 	if(nav.Firefox) {
-		this.txta.addEventListener('mouseup', function() {
-			saveCfg('textaWidth', parseInt(this.style.width, 10));
-			saveCfg('textaHeight', parseInt(this.style.height, 10));
+		this.txta.addEventListener('mouseup', ({ target }) => {
+			saveCfg('textaWidth', parseInt(target.style.width, 10));
+			saveCfg('textaHeight', parseInt(target.style.height, 10));
 		});
 	} else {
 		$aEnd(this.txta, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
-			_el: this.txta,
-			_elStyle: this.txta.style,
+			_el      : this.txta,
+			_elStyle : this.txta.style,
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
@@ -8201,11 +8237,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 					docBody.addEventListener('mouseup', this);
 					$pd(e);
 					return;
-				case 'mousemove':
+				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
 					this._elStyle.width = (e.clientX - cr.left) + 'px';
 					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
+				}
 				default: // mouseup
 					docBody.removeEventListener('mousemove', this);
 					docBody.removeEventListener('mouseup', this);
@@ -8358,13 +8395,13 @@ PostForm.setUserPassw = function() {
 	}
 };
 PostForm.prototype = {
-	isHidden: false,
-	isQuick: false,
-	isBottom: false,
-	lastQuickPNum: -1,
-	pForm: null,
-	pArea: [],
-	qArea: null,
+	isBottom      : false,
+	isHidden      : false,
+	isQuick       : false,
+	lastQuickPNum : -1,
+	pArea         : [],
+	pForm         : null,
+	qArea         : null,
 	addTextPanel() {
 		var id, val, btns, html = '', tPanel = $id('de-txt-panel');
 		if(!Cfg.addTextBtns || (aib.fch && !$q('input[type="checkbox"][name="spoiler"]', this.form))) {
@@ -8386,10 +8423,10 @@ PostForm.prototype = {
 				continue;
 			}
 			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
-				Cfg.addTextBtns === 2 ?
-					(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
-				Cfg.addTextBtns === 3 ?
-					'<button type="button" style="font-weight: bold;">' + val[i] + '</button>' :
+				Cfg.addTextBtns === 2 ? (html === '' ? '[ ' : '') +
+					'<a class="de-abtn" href="#">' + val[i] + '</a> / ' :
+				Cfg.addTextBtns === 3 ? '<button type="button" style="font-weight: bold;">' +
+					val[i] + '</button>' :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
 			}</div>`;
 		}
@@ -8500,10 +8537,10 @@ PostForm.prototype = {
 			var isOnNewLine = temp === '' || temp.slice(-1) === '\n';
 			$txtInsert(this.txta, (
 				isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') :
-					(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
-				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-				.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n': ''));
+				(isOnNewLine ? '' : '\n') +
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')
+			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
+					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
@@ -8656,10 +8693,10 @@ PostForm.prototype = {
 	}
 };
 
-/*==[ FormSubmit.js ]=========================================================================================
+/* ==[ FormSubmit.js ]========================================================================================
                                                     SUBMIT
     postform/delform html5/iframe submit, images and webms parsing, duplicate files posting, EXIF clearing
-============================================================================================================*/
+=========================================================================================================== */
 
 function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
@@ -8670,7 +8707,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|post deleted|обновл|удален[о\.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|post deleted|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -8694,7 +8731,7 @@ function getUploadFunc() {
 		progress.value = data.loaded;
 		counterEl.textContent = prettifySize(data.loaded);
 		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
-										   '/' + Lng.second[lang];
+			'/' + Lng.second[lang];
 	};
 }
 
@@ -8836,13 +8873,14 @@ async function html5Submit(form, submitter, needProgress = false) {
 			const fileName = value.name;
 			const newFileName = Cfg.removeFName ?
 				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
-			if((Cfg.postSameImg || Cfg.removeEXIF) &&
-			   (value.type === 'image/jpeg' || value.type === 'image/png' ||
-				value.type === 'video/webm' && !aib.mak))
-			{
+			if((Cfg.postSameImg || Cfg.removeEXIF) && (
+				value.type === 'image/jpeg' ||
+				value.type === 'image/png' ||
+				value.type === 'video/webm' && !aib.mak)
+			) {
 				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!data) {
-					return Promise.reject(Lng.fileCorrupt[lang] + ': ' + fileName);
+					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
 				value = new File(data, newFileName);
 			} else if(Cfg.removeFName) {
@@ -8864,7 +8902,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 }
 
 async function readFile(file, asText = false) {
-	return new Promise((resolve, reject) => {
+	return new Promise(resolve => {
 		var fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
@@ -8889,15 +8927,15 @@ function cleanFile(data, extraData) {
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
 		var deep = 1;
-		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
 					if(!jpgDat && deep === 1) {
 						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 						} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
-						         (img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF))
-						{
+							(img[i + 2] !== 0 || img[i + 3] >= 0x0E || img[i + 15] !== 0xFF)
+						) {
 							jpgDat = subarray(i + 11, i + 16);
 						}
 					}
@@ -8943,8 +8981,12 @@ function cleanFile(data, extraData) {
 	}
 	// PNG
 	if(img[0] === 0x89 && img[1] === 0x50) {
-		for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
-			img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
+		for(i = 0, len = img.length - 7; i < len && (
+			img[i] !== 0x49 ||
+			img[i + 1] !== 0x45 ||
+			img[i + 2] !== 0x4E ||
+			img[i + 3] !== 0x44
+		); i++) /* empty */;
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -9039,8 +9081,8 @@ var WebmParser = function(data) {
 		this.size = size;
 	}
 	WebmElement.prototype = {
-		error: false,
-		id: 0
+		error : false,
+		id    : 0
 	};
 
 	function Parser(data) {
@@ -9105,10 +9147,10 @@ var WebmParser = function(data) {
 	return new Parser(data);
 };
 
-/*==[ FormFile.js ]===========================================================================================
+/* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
                  image/webm files in postform: preview, adding by url, drag-n-drop, deleting
-============================================================================================================*/
+=========================================================================================================== */
 
 class Files {
 	constructor(form, fileEl) {
@@ -9122,7 +9164,7 @@ class Files {
 			inputs.push(new FileInput(this, els[i]));
 		}
 		this._inputs = inputs;
-		this._files  = [];
+		this._files = [];
 		this.hide();
 	}
 	get rarInput() {
@@ -9184,17 +9226,18 @@ class FileInput {
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
-			<input class="de-file-spoil" type="checkbox" title="${ Lng.spoilFile[lang] }" style="display: none;">
+			<input class="de-file-spoil" type="checkbox" title="` +
+				`${ Lng.spoilFile[lang] }" style="display: none;">
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
 		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = Array.from(this._utils.children);
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
-			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="${
-				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
-			<input type="button" class="de-file-txt-add" value="+" title="${
-				Lng.add[lang] }" style="display: none;"></span>`);
+			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
+				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
+			<input type="button" class="de-file-txt-add" value="+" title="` +
+				`${ Lng.add[lang] }" style="display: none;"></span>`);
 		[this._txtInput, this._txtAddBtn] = Array.from(this._txtWrap.children);
 		this._txtWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._txtWrap, true);
@@ -9269,7 +9312,7 @@ class FileInput {
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
-		case 'change':
+		case 'change': {
 			setTimeout(() => this._onFileChange(false), 20);
 			const index = this._parent._inputs.indexOf(this);
 			if(el.files.length > 0) {
@@ -9279,6 +9322,7 @@ class FileInput {
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
+		}
 		case 'click':
 			if(isThumb) {
 				this._input.click();
@@ -9320,7 +9364,7 @@ class FileInput {
 				this._thumb.classList.remove('de-file-drag');
 			}
 			return;
-		case 'drop':
+		case 'drop': {
 			const dt = e.dataTransfer;
 			if(!isThumb && el !== this._txtInput) {
 				return;
@@ -9340,6 +9384,7 @@ class FileInput {
 			setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
 			e.stopPropagation();
 			$pd(e);
+		}
 		}
 	}
 	hide() {
@@ -9499,8 +9544,8 @@ class FileInput {
 		}
 		this._parent.hide();
 		if(!nav.Presto && !aib.fch &&
-		   /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type))
-		{
+			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
+		) {
 			$del(this._rarMsg);
 			$show(this._btnRarJpg);
 		}
@@ -9544,9 +9589,9 @@ class FileInput {
 	}
 }
 
-/*==[ FormCaptcha.js ]========================================================================================
+/* ==[ FormCaptcha.js ]=======================================================================================
                                                     CAPTCHA
-============================================================================================================*/
+=========================================================================================================== */
 
 class Captcha {
 	constructor(el, initNum) {
@@ -9593,12 +9638,12 @@ class Captcha {
 	}
 	handleEvent(e) {
 		switch(e.type) {
-		case 'keypress':
+		case 'keypress': {
 			if(!Cfg.captchaLang || e.which === 0) {
 				return;
 			}
 			const ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
-			const en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
+			const en = "qwertyuiop[]]assdfghjkl;''zxcvbnm,.`\\";
 			const code = e.charCode || e.keyCode;
 			let i, chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
@@ -9614,6 +9659,7 @@ class Captcha {
 			}
 			$txtInsert(e.target, chr);
 			break;
+		}
 		case 'focus': this.updOutdated();
 		}
 		$pd(e);
@@ -9712,7 +9758,7 @@ class Captcha {
 				aib._capUpdPromise = null;
 				return CancelablePromise.reject(e);
 			}
-		}))
+		}));
 	}
 	updOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
@@ -9755,9 +9801,9 @@ class Captcha {
 	}
 }
 
-/*==[ Posts.js ]==============================================================================================
+/* ==[ Posts.js ]=============================================================================================
                                                     POSTS
-============================================================================================================*/
+=========================================================================================================== */
 
 class AbstractPost {
 	constructor(thr, num, isOp) {
@@ -9818,11 +9864,10 @@ class AbstractPost {
 			isPview = this instanceof Pview;
 		if(type === 'click') {
 			switch(e.button) {
-				case 0: break;
-				case 1:
-					e.stopPropagation();
-					/* falls through */
-				default: return;
+			case 0: break;
+			case 1: e.stopPropagation();
+				/* falls through */
+			default: return;
 			}
 			if(this._menu) {
 				this._menu.remove();
@@ -9843,9 +9888,10 @@ class AbstractPost {
 						this._getFullMsg(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && (aib.tiny ? el : temp) === this._pref &&
-					          !/Reply|Ответ/.test(el.textContent))
-					{
+					} else if(Cfg.insertNum && pr.form &&
+						this._pref === (aib.tiny ? el : temp) &&
+						!/Reply|Ответ/.test(el.textContent)
+					) {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
@@ -9861,9 +9907,9 @@ class AbstractPost {
 						} else {
 							window.location = el.href.replace(/#i/, '#');
 						}
-					} else if((temp = el.textContent)[0] === '>' && temp[1] === '>' &&
-					          !temp[2].includes('\/'))
-					{
+					} else if((temp = el.textContent)[0] === '>' &&
+						temp[1] === '>' && !temp[2].includes('/')
+					) {
 						var post = pByNum.get(+temp.match(/\d+/));
 						if(post) {
 							post.selectAndScrollTo();
@@ -9886,9 +9932,10 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl &&
-				   e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
-				{
+				if(Cfg.expandImgs !== 0 && !(
+					Cfg.webmControl &&
+					e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)
+				)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -9921,9 +9968,11 @@ class AbstractPost {
 			return;
 		}
 		if(!isOutEvent && Cfg.expandImgs &&
-		   el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
-		   (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo))
-		{
+			el.tagName === 'IMG' &&
+			!el.classList.contains('de-fullimg') &&
+			(temp = this.images.getImageByEl(el)) &&
+			(temp.isImage || temp.isVideo)
+		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
 		if(!this._hasEvents) {
@@ -9982,7 +10031,7 @@ class AbstractPost {
 						this.kid.markToDel(); // If cursor is over any preview - delete its kids
 					}
 				} else { // We need to show a preview for this link
-					this._linkDelay = setTimeout(() => this.kid = Pview.show(this, el), Cfg.linksOver);
+					this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -10003,10 +10052,10 @@ class AbstractPost {
 		}
 		$replace(origMsg, newMsg);
 		Object.defineProperties(this, {
-			'msg': { configurable: true, value: newMsg },
-			'trunc': { configurable: true, value: null }
+			msg   : { configurable: true, value: newMsg },
+			trunc : { configurable: true, value: null }
 		});
-		Post.content.remove(this);
+		Post.Сontent.remove(this);
 		if(Cfg.addYouTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -10054,7 +10103,9 @@ class AbstractPost {
 				const els = $Q(aib.qRPost, form);
 				for(let i = 0, len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
+						this.updateMsg(
+							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
+							maybeSpells.value);
 						$del(el);
 						break;
 					}
@@ -10064,21 +10115,25 @@ class AbstractPost {
 		}, emptyFn);
 	}
 	_getMenuImgSrc(el) {
-		var link = el.nextSibling,
-			p = encodeURIComponent(link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
-		return '<a class="de-menu-item de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-menu-item de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
-			'<a class="de-menu-item de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-menu-item de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
-			'<a class="de-menu-item de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="de-menu-item de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' + p : p) + 'WhatAnime</a>';
+		const link = el.nextSibling;
+		let p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
+			'" target="_blank">' + Lng.searchIn[lang];
+		return `<a class="de-menu-item ${ [
+			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
+			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
+				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+		].join('</a><a class="de-menu-item ') }</a>`;
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
 			this._menu.remove();
 		}
 		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
-		this._menu.onremove = () => this._menu = null;
+		this._menu.onremove = () => (this._menu = null);
 	}
 }
 
@@ -10114,7 +10169,8 @@ class Post extends AbstractPost {
 			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode), el => el.classList.remove('de-post-hiddencontent'));
+			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+				el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
 	constructor(el, thr, num, count, isOp, prev) {
@@ -10140,8 +10196,8 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-mypost');
 		}
 		var refEl = $q(aib.qPostRef, el),
-			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
-				'"><svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '">' +
+				'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
 		this._pref = refEl;
@@ -10171,10 +10227,10 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
-		return new Post.content(this).headerEl;
+		return new Post.Сontent(this).headerEl;
 	}
 	get html() {
-		return new Post.content(this).html;
+		return new Post.Сontent(this).html;
 	}
 	get nextInThread() {
 		var post = this.next;
@@ -10188,24 +10244,24 @@ class Post extends AbstractPost {
 		return post;
 	}
 	get note() {
-		var value = new Post.note(this);
+		var value = new Post.Note(this);
 		Object.defineProperty(this, 'note', { value });
 		return value;
 	}
 	get posterName() {
-		return new Post.content(this).posterName;
+		return new Post.Сontent(this).posterName;
 	}
 	get posterTrip() {
-		return new Post.content(this).posterTrip;
+		return new Post.Сontent(this).posterTrip;
 	}
 	get subj() {
-		return new Post.content(this).subj;
+		return new Post.Сontent(this).subj;
 	}
 	get text() {
-		return new Post.content(this).text;
+		return new Post.Сontent(this).text;
 	}
 	get title() {
-		return new Post.content(this).title;
+		return new Post.Сontent(this).title;
 	}
 	get tNum() {
 		return this.thr.thrId;
@@ -10215,7 +10271,7 @@ class Post extends AbstractPost {
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
-		return new Post.content(this).wrap;
+		return new Post.Сontent(this).wrap;
 	}
 	addFuncs() {
 		super.addFuncs();
@@ -10309,11 +10365,11 @@ class Post extends AbstractPost {
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
-				'brd': aib.b,
-				'num': this.num,
-				'thrNum': this.thr.num,
-				'hide': hide,
-				'title': this.isOp ? this.title : ''
+				brd    : aib.b,
+				hide   : hide,
+				num    : this.num,
+				thrNum : this.thr.num,
+				title  : this.isOp ? this.title : ''
 			});
 			locStorage.removeItem('__de-post');
 		}
@@ -10395,7 +10451,7 @@ class Post extends AbstractPost {
 		}
 	}
 
-	_getMenuHide(el) {
+	_getMenuHide() {
 		var str = '', sel = window.getSelection(),
 			ssel = sel.toString().trim(),
 			getItem = name => '<span info="hide-' + name + '" class="de-menu-item">' +
@@ -10441,10 +10497,10 @@ class Post extends AbstractPost {
 				end = end.parentNode;
 			}
 			var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) ||
-			   (nav.matchesSelector(start, aib.qPostSubj) &&
-			    nav.matchesSelector(end, aib.qPostSubj)))
-			{
+			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
+				nav.matchesSelector(start, aib.qPostSubj) &&
+				nav.matchesSelector(end, aib.qPostSubj)
+			)) {
 				if(this._selText.includes('\n')) {
 					Spells.add(1 /* #exp */, '/' +
 						quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
@@ -10521,7 +10577,7 @@ class Post extends AbstractPost {
 		});
 	}
 }
-Post.content = class PostContent extends TemporaryContent {
+Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
 		if(this._inited) {
@@ -10559,8 +10615,8 @@ Post.content = class PostContent extends TemporaryContent {
 	}
 	get text() {
 		var value = this.post.msg.innerHTML
-			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-			.replace(/<[^>]+?>/g,'')
+			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
+			.replace(/<[^>]+?>/g, '')
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
 			.replace(/&nbsp;/g, '\u00A0').trim();
@@ -10580,7 +10636,7 @@ Post.content = class PostContent extends TemporaryContent {
 };
 Post.hasNew = false;
 Post.hiddenNums = new Set();
-Post.note = class PostNote {
+Post.Note = class PostNote {
 	constructor(post) {
 		this.text = null;
 		this._post = post;
@@ -10660,7 +10716,7 @@ Post.findSameText = function(oNum, oHid, oWords, post) {
 	}
 	if(oHid) {
 		if(post.spellHidden) {
-			post.note.reset();
+			Post.Note.reset();
 		} else {
 			post.setVisib(false);
 		}
@@ -10686,8 +10742,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: nav.viewportWidth() },
-			'wHeight': { writable: true, configurable: true, value: val }
+			wHeight : { writable: true, configurable: true, value: val },
+			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
 		return val;
 	},
@@ -10698,8 +10754,8 @@ Post.sizing = {
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: nav.viewportHeight() }
+			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
+			wWidth  : { writable: true, configurable: true, value: val }
 		});
 		return val;
 	},
@@ -10770,16 +10826,16 @@ PostImages.prototype = {
 	}
 };
 
-/*==[ PostPreviews.js ]=======================================================================================
+/* ==[ PostPreviews.js ]======================================================================================
                                                 POST PREVIEWS
-============================================================================================================*/
+=========================================================================================================== */
 
 class Pview extends AbstractPost {
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static show(parent, link) {
-		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostOfEl(link).tNum])[1];
+		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
@@ -10836,8 +10892,9 @@ class Pview extends AbstractPost {
 			}
 		}
 		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
-		const diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom
-		                       : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+		const diff = pv._isTop ?
+			pv._offsetTop - window.pageYOffset - cr.bottom :
+			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
 		if(Math.abs(diff) > 1) {
 			if(scroll) {
 				scrollTo(window.pageXOffset, window.pageYOffset - diff);
@@ -10890,7 +10947,7 @@ class Pview extends AbstractPost {
 		// Get post preview via ajax. Uses json if available.
 		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
 			pBuilder => {
-				if(aib.jsonBuilder) {
+				if(aib.JsonBuilder) {
 					const html = [];
 					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
 						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
@@ -10929,7 +10986,9 @@ class Pview extends AbstractPost {
 			pByEl.delete(el);
 			if(Cfg.animation) {
 				$animate(el, 'de-pview-anim', true);
-				el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+				el.style.animationName = 'de-post-close-' +
+					(this._isTop ? 't' : 'b') +
+					(this._isLeft ? 'l' : 'r');
 			} else {
 				el.remove();
 			}
@@ -10966,7 +11025,10 @@ class Pview extends AbstractPost {
 			default: break checkMouse;
 			}
 			var el = fixEventEl(e.relatedTarget);
-			if(!el || (isOverEvent && (el.tagName !== 'A' || el.lchecked)) || (el !== this.el && !this.el.contains(el))) {
+			if(!el ||
+				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
+				el !== this.el && !this.el.contains(el)
+			) {
 				if(isOverEvent) {
 					this.mouseEnter();
 				} else if(Pview.top) {
@@ -11241,10 +11303,10 @@ class PviewsCache extends TemporaryContent {
 }
 PviewsCache.purgeSecs = 3e5;
 
-/*==[ PostImages.js ]=========================================================================================
+/* ==[ PostImages.js ]========================================================================================
                                                     IMAGES
                images expanding (in post / by center), navigate buttons, image-links embedding
-============================================================================================================*/
+=========================================================================================================== */
 
 function ImgBtnsShowHider(nextFn, prevFn) {
 	var btns = $bEnd(docBody, '<div style="display: none;">' +
@@ -11307,11 +11369,11 @@ ImgBtnsShowHider.prototype = {
 		}
 	},
 
-	_hasEvents: false,
-	_hideTmt: 0,
-	_hidden: true,
-	_oldX: -1,
-	_oldY: -1,
+	_hasEvents : false,
+	_hidden    : true,
+	_hideTmt   : 0,
+	_oldX      : -1,
+	_oldY      : -1,
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
 		this._hideTmt = setTimeout(() => this.hide(), 2e3);
@@ -11344,8 +11406,10 @@ AttachmentViewer.prototype = {
 			var curX = e.clientX,
 				curY = e.clientY;
 			if(curX !== this._oldX || curY !== this._oldY) {
-				this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
-				this._elStyle.top = (this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY) + 'px';
+				this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
+				this._elStyle.left = this._oldL + 'px';
+				this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
+				this._elStyle.top = this._oldT + 'px';
 				this._oldX = curX;
 				this._oldY = curY;
 				this._moved = true;
@@ -11355,12 +11419,14 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mousemove', this, true);
 			docBody.removeEventListener('mouseup', this, true);
 			return;
-		case 'click':
+		case 'click': {
 			const el = e.target;
 			if(this.data.isVideo && this.data.isControlClick(e) ||
-			   el.tagName !== 'IMG' && el.tagName !== 'VIDEO' &&
-			   !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load')
-			{
+				el.tagName !== 'IMG' &&
+				el.tagName !== 'VIDEO' &&
+				!el.classList.contains('de-fullimg-wrap') &&
+				el.target.className !== 'de-fullimg-load'
+			) {
 				return;
 			}
 			if(e.button === 0) {
@@ -11374,9 +11440,10 @@ AttachmentViewer.prototype = {
 				break;
 			}
 			return;
+		}
 		case 'mousewheel':
 			this._handleWheelEvent(e.clientX, e.clientY,
-				-1/40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
+				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
 			break;
 		default: // 'wheel' event
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
@@ -11399,18 +11466,18 @@ AttachmentViewer.prototype = {
 		this._show(data, showButtons);
 	},
 
-	_data: null,
-	_elStyle: null,
-	_fullEl: null,
-	_obj: null,
-	_oldL: 0,
-	_oldT: 0,
-	_height: 0,
-	_width: 0,
-	_oldX: 0,
-	_oldY: 0,
-	_minSize: 0,
-	_moved: false,
+	_data    : null,
+	_elStyle : null,
+	_fullEl  : null,
+	_height  : 0,
+	_minSize : 0,
+	_moved   : false,
+	_obj     : null,
+	_oldL    : 0,
+	_oldT    : 0,
+	_oldX    : 0,
+	_oldY    : 0,
+	_width   : 0,
 	get _btns() {
 		var val = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
 		Object.defineProperty(this, '_btns', { value: val });
@@ -11441,8 +11508,10 @@ AttachmentViewer.prototype = {
 		this._height = height;
 		this._elStyle.width = width + 'px';
 		this._elStyle.height = height + 'px';
-		this._elStyle.left = (this._oldL = parseInt(clientX - (width / oldW) * (clientX - this._oldL), 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10)) + 'px';
+		this._oldL = parseInt(clientX - (width / oldW) * (clientX - this._oldL), 10);
+		this._elStyle.left = this._oldL + 'px';
+		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
+		this._elStyle.top = this._oldT + 'px';
 	},
 	_show(data) {
 		var [width, height, minSize] = data.computeFullSize();
@@ -11459,7 +11528,8 @@ AttachmentViewer.prototype = {
 			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
-			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`).appendChild(this._fullEl);
+			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
+				.appendChild(this._fullEl);
 		} else {
 			obj.appendChild(this._fullEl);
 		}
@@ -11497,8 +11567,8 @@ AttachmentViewer.prototype = {
 		var [width, height, minSize] = this.data.computeFullSize();
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
-		   Post.sizing.wHeight - this._oldT - this._height < 5)
-		{
+			Post.sizing.wHeight - this._oldT - this._height < 5
+		) {
 			return;
 		}
 		var cPointX = this._oldL + this._width / 2,
@@ -11709,18 +11779,18 @@ class ExpandableMedia {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
+		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
+			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-fullimg-wrap${
-					inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' +
-					(!this._size ? ' de-fullimg-wrap-nosize' : '') }">
-				${ !inPost && !this._size ?
-					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+			const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
+				' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
+			const waitEl = inPost || this._size ? '' :
+				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
+			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">
-					<a class="de-fullimg-src" target="_blank" title="${
-						Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
-				</div>
+				<div class="de-fullimg-info">${ imgNameEl }</div>
 			</div>`);
 			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
@@ -11762,21 +11832,20 @@ class ExpandableMedia {
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		wrapEl = $add(`<div class="de-fullimg-wrap">
-			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
-				Cfg.webmControl ? 'controls ' : ''}${
-				Cfg.webmVolume === 0 ? 'muted ' : ''}></video>
+			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
+				(Cfg.webmControl ? 'controls ' : '') +
+				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
 			<div class="de-fullimg-info">
-				<a class="de-fullimg-src" target="_blank" title="${
-					Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+				${ imgNameEl }
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
 		</div>`);
 		const videoEl = $q('video', wrapEl);
 		videoEl.volume = Cfg.webmVolume / 100;
-		videoEl.addEventListener('error', function() {
-			if(!this.onceLoaded) {
-				this.load();
-				this.onceLoaded = true;
+		videoEl.addEventListener('error', ({ target }) => {
+			if(!target.onceLoaded) {
+				target.load();
+				target.onceLoaded = true;
 			}
 		});
 		// Sync webm volume on all browser tabs
@@ -11809,9 +11878,12 @@ class ExpandableMedia {
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; i++) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-					   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
-					{
+					if(d[i] === 0x49 &&
+						d[i + 1] === 0xA9 &&
+						d[i + 2] === 0x66 &&
+						d[i + 18] === 0x7B &&
+						d[i + 19] === 0xA9
+					) {
 						i += 20;
 						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
 							title += String.fromCharCode(d[i]);
@@ -11887,7 +11959,7 @@ class Attachment extends ExpandableMedia {
 	get weight() {
 		let val = 0;
 		if(this.info) {
-			const w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mмkк])?i?[bб]/i);
+			const w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
 			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
@@ -11905,7 +11977,7 @@ class Attachment extends ExpandableMedia {
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[\)\s,]|$)/);
+			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;
@@ -12071,9 +12143,9 @@ function genImgHash(data) {
 	return { hash: hash };
 }
 
-/*==[ PostBuilders.js ]=======================================================================================
+/* ==[ PostBuilders.js ]======================================================================================
                                           BUILDERS FOR LOADED POSTS
-============================================================================================================*/
+=========================================================================================================== */
 
 class DOMPostsBuilder {
 	constructor(form, isArchived) {
@@ -12106,19 +12178,19 @@ class DOMPostsBuilder {
 }
 DOMPostsBuilder.fixFileName = function(name, maxLength) {
 	const decodedName = name.replace(/&amp;/g, '&')
-			.replace(/&quot;/g, '"')
-			.replace(/&#039;/g, "'")
-			.replace(/&lt;/g, '<')
-			.replace(/&gt;/g, '>');
+		.replace(/&quot;/g, '"')
+		.replace(/&#039;/g, "'")
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>');
 	if(decodedName.length > maxLength) {
 		return {
-			isFixed: true,
-			name: decodedName.slice(0, 25)
-			                 .replace(/&/g, '&amp;')
-			                 .replace(/"/g, '&quot;')
-			                 .replace(/'/g, '&#039;')
-			                 .replace(/</g, '&lt;')
-			                 .replace(/>/g, '&gt;')
+			isFixed : true,
+			name    : decodedName.slice(0, 25)
+				.replace(/&/g, '&amp;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
 		};
 	}
 	return { isFixed: false, name };
@@ -12150,7 +12222,8 @@ class _4chanPostsBuilder {
 	}
 	getOpMessage() {
 		const data = this._posts[0];
-		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ data.no }"> ${ data.com }</blockquote>`));
+		return $add(aib.fixHTML('<blockquote class="postMessage" id="' +
+			`m${ data.no }"> ${ data.com }</blockquote>`));
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -12159,7 +12232,8 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif'}`;
+		const _icon =
+			id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -12168,7 +12242,7 @@ class _4chanPostsBuilder {
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
 		} else if(typeof data.filename === 'string') {
-			let { name, isFixed: needTitle} = DOMPostsBuilder.fixFileName(data.filename, 30);
+			let { name, isFixed: needTitle } = DOMPostsBuilder.fixFileName(data.filename, 30);
 			name += data.ext;
 			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
@@ -12181,20 +12255,24 @@ class _4chanPostsBuilder {
 				needTitle = false;
 			}
 			const size = prettifySize(data.fsize);
+			const fileTextTitle = isSpoiler ? ` title="${ data.filename + data.ext }"` : '';
+			const aHref = needTitle ? `title="${ data.filename + data.ext }"` : '';
+			const imgSrc = isSpoiler ?
+				`//s.4cdn.org/image/spoiler${ _4chanPostsBuilder._customSpoiler.get(brd) || '' }.png` :
+				`//i.4cdn.org/${ brd }/${ data.tim }s.jpg`;
 			fileHTML = `<div class="file" id="f${ num }">
-				<div class="fileText" id="fT${ num }" ${
-					isSpoiler ? `title="${ data.filename + data.ext }"` : ''
-				}>File: <a href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" ${
-					needTitle ? `title="${ data.filename + data.ext }"` : ''
-				} target="_blank">${ name }</a> (${ size }, ${
-					data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h
-				})</div>
-				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/${ data.tim + data.ext }" target="_blank">
-					<img src="${ isSpoiler ?
-						'//s.4cdn.org/image/spoiler' + _4chanPostsBuilder._customSpoiler.get(brd) || '' + '.png' :
-						'//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg'
-					}" alt="${ size }" data-md5="${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
-					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">${ size } ${ data.ext.substr(1).toUpperCase() }</div>
+				<div class="fileText" id="fT${ num }"${ fileTextTitle }>File:
+					<a href="//i.4cdn.org/${ brd }/${ data.tim +
+						data.ext }" ${ aHref } target="_blank">${ name }</a>
+					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
+				</div>
+				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
+					data.tim + data.ext + `" target="_blank">
+					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
+						data.md5 + `" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">
+						${ size } ${ data.ext.substr(1).toUpperCase() }
+					</div>
 				</a>
 			</div>`;
 		}
@@ -12206,68 +12284,87 @@ class _4chanPostsBuilder {
 			highlight = ' highlightPost';
 			/* falls through */
 		case 'admin':
-			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by Administrators">## Admin</strong>';
+			capcodeText = '<strong class="capcode hand id_admin" ' +
+				'title="Highlight posts by Administrators">## Admin</strong>';
 			capcodeClass = 'capcodeAdmin';
-			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." title="This user is a 4chan Administrator." class="identityIcon">`;
+			capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." ' +
+				'title="This user is a 4chan Administrator." class="identityIcon">';
 			break;
 		case 'mod':
-			capcodeText = '<strong class="capcode hand id_mod" title="Highlight posts by Moderators">## Mod</strong>';
+			capcodeText = '<strong class="capcode hand id_mod" ' +
+				'title="Highlight posts by Moderators">## Mod</strong>';
 			capcodeClass = 'capcodeMod';
-			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." title="This user is a 4chan Moderator." class="identityIcon">`;
+			capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." ' +
+				'title="This user is a 4chan Moderator." class="identityIcon">';
 			break;
 		case 'developer':
-			capcodeText = '<strong class="capcode hand id_developer" title="Highlight posts by Developers">## Developer</strong>';
+			capcodeText = '<strong class="capcode hand id_developer" ' +
+				'title="Highlight posts by Developers">## Developer</strong>';
 			capcodeClass = 'capcodeDeveloper';
-			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." title="This user is a 4chan Developer." class="identityIcon">`;
+			capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." ' +
+				'title="This user is a 4chan Developer." class="identityIcon">';
 			break;
 		case 'manager':
-			capcodeText = '<strong class="capcode hand id_manager" title="Highlight posts by Managers">## Manager</strong>';
+			capcodeText = '<strong class="capcode hand id_manager" ' +
+				'title="Highlight posts by Managers">## Manager</strong>';
 			capcodeClass = 'capcodeManager';
-			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." title="This user is a 4chan Manager." class="identityIcon">`;
+			capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." ' +
+				'title="This user is a 4chan Manager." class="identityIcon">';
 			break;
 		case 'founder':
-			capcodeText = '<strong class="capcode hand id_admin" title="Highlight posts by the Founder">## Founder</strong>';
+			capcodeText = '<strong class="capcode hand id_admin" ' +
+				'title="Highlight posts by the Founder">## Founder</strong>';
 			capcodeClass = ' capcodeAdmin';
-			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan\'s Founder." title="This user is 4chan\'s Founder." class="identityIcon">`;
+			capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." ' +
+				'title="This user is 4chan\'s Founder." class="identityIcon">';
 			break;
 		}
 
+		// --- POST ---
 		const name = data.name || '';
-
+		const nameEl = `<span class="name">${ name }</span>`;
+		const mobNameEl = name.length <= 30 ? nameEl :
+			`<span class="name" data-tip data-tip-cb="mShowFull">${ name.substring(30) }(…)</span>`;
+		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
+		const posteruidEl = data.id && !data.capcode ? '<span class="posteruid id_' + data.id +
+			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
+		const flagEl = data.country ? `<span title="${ data.country_name }" class="flag flag-${
+			data.country.toLowerCase() }"></span>` : '';
+		const emailEl = data.email ? `<a href="mailto:${
+			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
+		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('` +
+			num + `');" title="Reply to this post">${ num }</a>`;
+		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
 		return `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
 			<div id="p${ num }" class="post ${ i === -1 ? 'op' : 'reply' } ${ highlight }">
 				<div class="postInfoM mobile" id="pim${ num }">
 					<span class="nameBlock ${ capcodeClass }">
-						${ name.length > 30 ?
-							'<span class="name" data-tip data-tip-cb="mShowFull">' + name.substring(30) + '(…)</span>' :
-							'<span class="name">' + name + '</span>'
-						}
-						${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+						${ mobNameEl }
+						${ tripEl }
 						${ capcodeText }
 						${ capcodeImg }
-						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
-						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
-						<br>
-						<span class="subject">${ data.sub || '' }</span>
+						${ posteruidEl }
+						${ flagEl }<br>
+						${ subjEl }
 					</span>
-					<span class="dateTime postNum" data-utc="${ data.time }">${ data.now } <a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+					<span class="dateTime postNum" data-utc="${ data.time }">${ data.now } ${ replyEl }</span>
 				</div>
 				<div class="postInfo desktop" id="pi${ num }">
 					<input name="${ num }" value="delete" type="checkbox">
-					<span class="subject">${ data.sub || '' }</span>
+					${ subjEl }
 					<span class="nameBlock ${ capcodeClass }">
-						${ data.email? `<a href="mailto:${ data.email.replace(/ /g, '%20') }" class="useremail">` : '' }
-							<span class="name">${ name }</span>
-							${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }
+						${ emailEl }
+							${ nameEl }
+							${ tripEl }
 							${ capcodeText }
 						${ data.email ? '</a>' : '' }
 						${ capcodeImg }
-						${ data.id && !data.capcode ? `<span class="posteruid id_${ data.id }">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '' }
-						${ data.country ? `<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` : '' }
+						${ posteruidEl }
+						${ flagEl }
 					</span>
 					<span class="dateTime" data-utc="${ data.time }">${ data.now }</span>
-					<span class="postNum desktop"><a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${ num }');" title="Reply to this post">${ num }</a></span>
+					<span class="postNum desktop">${ replyEl }</span>
 				</div>
 				${ fileHTML }
 				<blockquote class="postMessage" id="m${ num }"> ${ data.com || '' }</blockquote>
@@ -12307,12 +12404,13 @@ class DobrochanPostsBuilder {
 		const brd = this._brd;
 		const multiFile = data.files.length > 1;
 
+		// --- FILE ---
 		let filesHTML = '';
 		for(let file of data.files) {
 			let fileName, fullFileName;
 			let thumb = file.thumb;
-			let thumb_w = 200;
-			let thumb_h = 200;
+			let thumbW = 200;
+			let thumbH = 200;
 			const ext = file.src.split('.').pop();
 			if(brd === 'b' || brd === 'rf') {
 				fileName = fullFileName = thumb.split('/').pop();
@@ -12322,24 +12420,23 @@ class DobrochanPostsBuilder {
 					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
 			}
-			const max_rating = 'r15'; // FIXME: read from settings
-			if(file.rating === 'r-18g' && max_rating !== 'r-18g') {
-				thumb = "images/r-18g.png";
-			} else if(file.rating === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
-				thumb = "images/r-18.png";
-			} else if(file.rating === 'r-15' && max_rating === 'sfw') {
-				thumb = "images/r-15.png";
+			const maxRating = 'r15'; // FIXME: read from settings
+			if(file.rating === 'r-18g' && maxRating !== 'r-18g') {
+				thumb = 'images/r-18g.png';
+			} else if(file.rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
+				thumb = 'images/r-18.png';
+			} else if(file.rating === 'r-15' && maxRating === 'sfw') {
+				thumb = 'images/r-15.png';
 			} else if(file.rating === 'illegal') {
-				thumb = "images/illegal.png";
+				thumb = 'images/illegal.png';
 			} else {
-				thumb_w = file.thumb_width;
-				thumb_h = file.thumb_height;
+				thumbW = file.thumb_width;
+				thumbH = file.thumb_height;
 			}
 			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
 				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a><br>
-				<em>${ ext }, ${ prettifySize(file.size) }, ${
-					file.metadata.width }x${ file.metadata.height
-				}</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }<br>
+				<em>${ ext }, ${ prettifySize(file.size) }, ${ file.metadata.width }x${ file.metadata.height }
+				</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }<br>
 				<a class="edit_ icon" href="/utils/image/edit/${ file.file_id }/${ num }">
 					<img title="edit" alt="edit" src="/images/blank.png">
 				</a>
@@ -12347,27 +12444,27 @@ class DobrochanPostsBuilder {
 			filesHTML += `${ multiFile ? '' : fileInfo }
 			<div id="file_${ num }_${ file.file_id }" class="file">${ multiFile ? fileInfo : '' }
 				<a href="/${ file.src }" target="_blank">
-					<img class="thumb" src="/${ thumb }" width="${ thumb_w }" height="${ thumb_h }">
+					<img class="thumb" src="/${ thumb }" width="${ thumbW }" height="${ thumbH }">
 				</a>
 			</div>`;
 		}
 
+		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 			(_, y, mo, d, h, m, s) => {
 				let dt = new Date(y, +mo - 1, d, h, m, s);
-				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()]} ${ dt.getFullYear()
-					} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
+				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
+				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
-
 		const isOp = i === -1;
-		return `${ isOp ? `<div id="post_${ num }" class="oppost post">` :
-		`<table id="post_${ num }" class="replypost post"><tbody><tr>
+		return (isOp ? `<div id="post_${ num }" class="oppost post">` :
+			`<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
-			<td class="reply" id="reply${ num }">` }
-				<a name="i${ num }"></a>
+			<td class="reply" id="reply${ num }">`) +
+				`<a name="i${ num }"></a>
 				<label>
-					<input name="${ num }" value="${ data.thread_id
-						}" class="delete_checkbox" id="delbox_${ num }" type="checkbox">
+					<input name="${ num }" value="${ data.thread_id }" ` +
+						`class="delete_checkbox" id="delbox_${ num }" type="checkbox">
 					${ data.subject ? `<span class="replytitle">${ data.subject }</span>` : '' }
 					<span class="postername">${ data.name || 'Анонимус' }</span> ${ date }
 				</label>
@@ -12376,8 +12473,8 @@ class DobrochanPostsBuilder {
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
-				<div class="postbody"> ${ data.message_html }</div>
-			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
+				<div class="postbody"> ${ data.message_html }</div>` +
+			(isOp ? '</div>' : '</td></tr></tbody></table>');
 	}
 	getPNum(i) {
 		return this._posts[i + 1].display_id;
@@ -12409,12 +12506,13 @@ class MakabaPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.num;
 		const brd = this._brd;
-
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
+		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images ${ data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
+			filesHTML = `<div class="images ${
+				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
 			for(let file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const fullName = file.fullname || file.name;
@@ -12422,15 +12520,16 @@ class MakabaPostsBuilder {
 				const isWebm = fullName.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"${
-							dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }${
-							isWebm ? ', ' + file.duration : '' })</span>
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
+							`${	dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
+						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
+							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }" class="image-link">
 						<a href="${ file.path }">
-							<img src="${ file.thumbnail }" width="${ file.tn_width }" height="${ file.tn_height
-								}" alt="${ file.size }" class="img preview${ isWebm ? ' webm-file' : '' }">
+							<img class="img preview${ isWebm ? ' webm-file' : '' }" src="` +
+								`${ file.thumbnail }" alt="${ file.size }" width="` +
+								`${ file.tn_width }" height="${ file.tn_height }">
 						</a>
 					</div>
 				</figure>`;
@@ -12438,38 +12537,40 @@ class MakabaPostsBuilder {
 			filesHTML += '</div>';
 		} else if(data.video) {
 			filesHTML = `<div class="images">
-				<div style="float: left; margin: 5px; margin-right:10px">
-					${ post.video }
-				</div>
+				<div style="float: left; margin: 5px; margin-right:10px">${ data.video }</div>
 			</div>`;
 		}
 
+		// --- POST ---
+		const emailEl = data.email ?
+			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
+			`<span class="ananimas">${ data.name }</span>`;
+		const tripEl = !data.trip ? '' : _switch(data.trip, {
+			'!!%adm%!!'        : 'adm">## Abu ##',
+			'!!%mod%!!'        : 'mod">## Mod ##',
+			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
+			'!!%coder%!!'      : 'mod">## Кодер ##',
+			'@@default'        : 'postertrip">' + data.trip
+		});
+		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		return `<div id="post-${ num }" class="post-wrapper">
 			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
-					${ !data.subject ? '' :
-						`<span class="post-title">${ data.subject + ( data.tags ? ' /' + data.tags + '/' : '') }</span>` }
-					${ data.email ?
-						`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
-						`<span class="ananimas">${ data.name }</span>` }
+					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
+						(data.tags ? ' /' + data.tags + '/' : '') }</span>` }
+					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					<span class="${ !data.trip ? '' : _switch(data.trip, {
-					   '!!%adm%!!':        'adm">## Abu ##',
-					   '!!%mod%!!':        'mod">## Mod ##',
-					   '!!%Inquisitor%!!': 'inquisitor">## Applejack ##',
-					   '!!%coder%!!':      'mod">## Кодер ##',
-					   '@@default':        'postertrip">' + data.trip
-					}) }<\/span>
+					<span class="${ tripEl }</span>
 					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>
 						<span class="reflink">
-							<a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }">№</a><a href="/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }" class="postbtn-reply-href" name="${ num }">${ num }</a>
+							<a href="${ refHref }">№</a>` +
+							`<a href="${ refHref }" class="postbtn-reply-href" name="${ num }">${ num }</a>
 						</span>
 					</span>
-					${ this._brd === 'po' ?
-						`<div id="like-div${ num }" class="like-div">
+					${ this._brd === 'po' ? `<div id="like-div${ num }" class="like-div">
 							<span class="like-icon"><i class="fa fa-bolt"></i></span>
 							<span class="like-caption">Двачую</span>
 							<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
@@ -12477,7 +12578,8 @@ class MakabaPostsBuilder {
 						<div id="dislike-div${ num }" class="dislike-div">
 							<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>
 							<span class="dislike-caption">RRRAGE!</span>
-							<span id="dislike-count${ num }" class="dislike-count">${ data.dislikes || '' }</span>
+							<span id="dislike-count${ num }" class="dislike-count">
+								${ data.dislikes || '' }</span>
 						</div>` : '' }
 				</div>
 				${ filesHTML }
@@ -12492,10 +12594,12 @@ class MakabaPostsBuilder {
 		for(let post of this._posts) {
 			switch(post.banned) {
 			case 1:
-				yield [1, post.num, $add('<span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>')];
+				yield [1, post.num, $add('<span class="pomyanem">' +
+					'(Автор этого поста был забанен. Помянем.)</span>')];
 				break;
 			case 2:
-				yield [2, post.num, $add('<span class="pomyanem">(Автор этого поста был предупрежден.)</span>')];
+				yield [2, post.num, $add('<span class="pomyanem">' +
+					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
 		}
@@ -12505,19 +12609,18 @@ class MakabaPostsBuilder {
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
 			.replace(/<\/script>/ig, '</textarea>-->');
-		return `<blockquote id="m${ data.num }" class="post-message">
-			${ comment }
-			${ _switch(data.banned, {
-			   1:           '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-			   2:           '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
-			   '@@default': ''
+		return `<blockquote id="m${ data.num }" class="post-message">${ comment }${ _switch(
+			data.banned, {
+				1           : '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
+				2           : '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+				'@@default' : ''
 			}) }
 		</blockquote>`;
 	}
 }
 
 class _0chanPostsBuilder {
-	constructor(json, brd) {
+	constructor(json) {
 		if(json.error) {
 			throw new AjaxError(0, `API error: ${ json.message }`);
 		}
@@ -12527,7 +12630,8 @@ class _0chanPostsBuilder {
 		this.postersCount = '';
 	}
 	getOpMessage() {
-		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${ this._posts[0].message }</div></div>`));
+		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${
+			this._posts[0].message }</div></div>`));
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
@@ -12542,7 +12646,6 @@ class _0chanPostsBuilder {
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
 			for(let file of data.attachments) {
-				const id = file.id;
 				const img = file.images;
 				const orig = img.original;
 				const thumb200 = img.thumb_200px;
@@ -12551,17 +12654,21 @@ class _0chanPostsBuilder {
 					<figcaption>
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
 					</figcaption>
-					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url
-						}" srcset="${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ${
-						thumb200.width }px; height: ${ thumb200.height }px;"></a>
+					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url }" srcset="` +
+						thumb400.url + ' 2x" class="post-img-thumbnail" style="width: ' +
+						thumb200.width + `px; height: ${ thumb200.height }px;"></a>
 				</span></figure>`;
 			}
 			filesHTML += '</div>';
 		}
 
+		// --- POST ---
 		const d = new Date(data.date * 1e3);
 		const date = `${ d.getFullYear() }-${ pad2(d.getMonth() + 1) }-${ pad2(d.getDate()) } ${
 			pad2(d.getHours()) }:${ pad2(d.getMinutes()) }:${ pad2(d.getSeconds()) }`;
+		const postParentEl = parId === this._json.posts[0].id ? '' :
+			`<div class="post-parent"><a data-post="${ parId }" href="/${ brd }/${
+				data.threadId }#${ parId }">&gt;&gt;${ parId }</a></div>`;
 		return `<div><div class="block post${ isOp ? ' post-op' : '' }">
 			<div class="post-header">
 				<a name="${ num }"></a>
@@ -12578,7 +12685,7 @@ class _0chanPostsBuilder {
 			<div class="post-body${ data.attachments.length > 1 ? '' : ' post-inline-attachment' }">
 				${ filesHTML }
 				<div class="post-body-message">
-					${ parId === this._json.posts[0].id ? '' : `<div class="post-parent"><a data-post="${ parId }" href="/${ brd }/${ data.threadId }#${ parId}">&gt;&gt;${ parId }</a></div>` }
+					${ postParentEl }
 					<div> ${ data.messageHtml || '' }</div>
 				</div>
 			</div>
@@ -12590,9 +12697,9 @@ class _0chanPostsBuilder {
 	}
 }
 
-/*==[ RefMap.js ]=============================================================================================
+/* ==[ RefMap.js ]============================================================================================
                                              REFERENCE LINKS MAP
-============================================================================================================*/
+=========================================================================================================== */
 
 class RefMap {
 	static gen(posts, thrURL) {
@@ -12782,7 +12889,7 @@ class RefMap {
 	}
 	_createEl(innerHTML, isHidden) {
 		var el, msg = this._post.msg,
-			html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+			html = `<div class="de-refmap${ isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
 		if(aib.dobr && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
 		} else {
@@ -12797,9 +12904,9 @@ class RefMap {
 	}
 }
 
-/*==[ Threads.js ]============================================================================================
+/* ==[ Threads.js ]===========================================================================================
                                                    THREADS
-============================================================================================================*/
+=========================================================================================================== */
 
 class Thread {
 	static get first() {
@@ -12808,7 +12915,7 @@ class Thread {
 	static get last() {
 		return DelForm.last.lastThr;
 	}
-	static removeSavedData(brd, num) {
+	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	constructor(el, num, prev, form) {
@@ -12860,10 +12967,10 @@ class Thread {
 					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 				repBtn.onclick = e => {
 					$pd(e);
-					var nextCoord = !this.next || this.last.omitted ? null :this.next.top;
+					var nextCoord = !this.next || this.last.omitted ? null : this.next.top;
 					this._toggleReplies(repBtn, updBtn);
 					if(nextCoord) {
-						scrollTo(window.pageXOffset, windows.pageYOffset + this.next.top - nextCoord);
+						scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
 					}
 				};
 				this._toggleReplies(repBtn, updBtn);
@@ -12881,11 +12988,11 @@ class Thread {
 		return post;
 	}
 	get nextNotHidden() {
-		for(var thr = this.next; thr && thr.hidden; thr = thr.next) {}
+		for(var thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
-		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
+		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get userTouched() {
@@ -12898,8 +13005,7 @@ class Thread {
 	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
-		var count = 0,
-			idx = post.count;
+		let count = 0;
 		do {
 			if(removePost && this.last === post) {
 				this.last = post.prev;
@@ -12914,7 +13020,7 @@ class Thread {
 		this.pcount -= count;
 		return post;
 	}
-	/**
+	/*
 	* Thread loading via ajax.
 	*   Calls from the list of threads, not in a thread.
 	*   Adds posts to current thread accoring to task:
@@ -12935,7 +13041,7 @@ class Thread {
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
 			e => $popup('load-thr', getErrorMessage(e)));
 	}
-	/**
+	/*
 	* New posts loading via ajax.
 	*  Calls by thread updater, by clicking on >>[Get new posts] button, and after sending a reply.
 	*  Adds new posts to the end of current thread.
@@ -12960,13 +13066,13 @@ class Thread {
 				}
 				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
 				fav[h][b][num] = {
-					'cnt': this.pcount,
-					'new': 0,
-					'you': 0,
-					'txt': this.op.title,
-					'url': aib.getThrUrl(b, num),
-					'last': aib.anchor + this.last.num,
-					'type': type
+					cnt  : this.pcount,
+					new  : 0,
+					you  : 0,
+					txt  : this.op.title,
+					url  : aib.getThrUrl(b, num),
+					last : aib.anchor + this.last.num,
+					type : type
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, num);
@@ -13053,7 +13159,7 @@ class Thread {
 		var fragm, newCount = end - begin,
 			newVisCount = newCount,
 			nums = [];
-		if(aib.jsonBuilder && nav.hasTemplate) {
+		if(aib.JsonBuilder && nav.hasTemplate) {
 			let temp = document.createElement('template');
 			let html = [];
 			for(let i = begin; i < end; ++i) {
@@ -13131,13 +13237,12 @@ class Thread {
 		} else {
 			let nonExisted = pBuilder.length - existed,
 				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
-				iprv = this._importPosts(op,
-				                         pBuilder,
-				                         Math.max(0, nonExisted + existed - needToShow),
-				                         nonExisted,
-				                         maybeVParser,
-				                         maybeSpells);
-			let [,,fragm,last,nums] = iprv;
+				iprv = this._importPosts(op, pBuilder,
+					Math.max(0, nonExisted + existed - needToShow),
+					nonExisted,
+					maybeVParser,
+					maybeSpells);
+			let [,, fragm, last, nums] = iprv;
 			maybeVParser.end();
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
@@ -13225,12 +13330,12 @@ class Thread {
 			len = pBuilder.length,
 			post = this.lastNotDeleted,
 			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 &&
-		   (aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num))
-		{
+		if(post.count !== 0 && (
+			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
+		)) {
 			post = this.op.nextNotDeleted;
 			var i, firstChangedPost = null;
-			for(i = post.count - 1; i < len && post; ) {
+			for(i = post.count - 1; i < len && post;) {
 				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
@@ -13278,7 +13383,8 @@ class Thread {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
+			const res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count,
+				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -13359,11 +13465,11 @@ var navPanel = {
 		}
 	},
 
-	_el: null,
-	_showhideTO: 0,
-	_thrs: null,
-	_currentThr: null,
-	_visible: false,
+	_currentThr : null,
+	_el         : null,
+	_showhideTO : 0,
+	_thrs       : null,
+	_visible    : false,
 	_checkThreads() {
 		var el = this._findCurrentThread();
 		if(el) {
@@ -13415,8 +13521,8 @@ var navPanel = {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 			clearTimeout(this._showhideTO);
 			this._showhideTO = setTimeout(
-				expand ? (() => this._el.classList.remove('de-thr-navpanel-hidden')) :
-				         (() => this._el.classList.add('de-thr-navpanel-hidden')),
+				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+				() => this._el.classList.add('de-thr-navpanel-hidden'),
 				Cfg.linksOver);
 		}
 	},
@@ -13426,9 +13532,9 @@ var navPanel = {
 	}
 };
 
-/*==[ ThreadUpdater.js ]======================================================================================
+/* ==[ ThreadUpdater.js ]=====================================================================================
                                                 THREAD UPDATER
-============================================================================================================*/
+=========================================================================================================== */
 
 function initThreadUpdater(title, enableUpdate) {
 	var focusLoadTime, paused = false,
@@ -13441,8 +13547,8 @@ function initThreadUpdater(title, enableUpdate) {
 		storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
 	var audio = {
-		enabled: false,
-		repeatMS: 0,
+		enabled  : false,
+		repeatMS : 0,
 		disable() {
 			this.stop();
 			this.enabled = false;
@@ -13512,9 +13618,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_countingIV: null,
-		_countingTO: null,
-		_enabled: false,
+		_countingTO : null,
+		_countingIV : null,
+		_enabled    : false,
 		get _el() {
 			var value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
@@ -13584,32 +13690,32 @@ function initThreadUpdater(title, enableUpdate) {
 			this._startBlink(this._hasIcons ? this._iconError : this._emptyIcon);
 		},
 		stopBlink() {
-			if(this._blinkInterval) {
-				clearInterval(this._blinkInterval);
-				this._blinkInterval = null;
+			if(this._blinkInterv) {
+				clearInterval(this._blinkInterv);
+				this._blinkInterv = null;
 			}
-			if(!this._isOriginalIcon) {
+			if(!this._isOrigIcon) {
 				this._setIcon(this.originalIcon);
-				this._isOriginalIcon = true;
+				this._isOrigIcon = true;
 			}
 		},
 
-		_blinkInterval: null,
-		_blinkMS: 800,
-		_currentIcon: null,
-		_emptyIcon: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_hasIcons: false,
-		_iconError: null,
-		_iconNew: null,
-		_iconYou: null,
-		_isInited: false,
-		_isOriginalIcon: true,
+		_blinkInterv : null,
+		_blinkMS     : 800,
+		_currentIcon : null,
+		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_hasIcons    : false,
+		_iconError   : null,
+		_iconNew     : null,
+		_iconYou     : null,
+		_isInited    : false,
+		_isOrigIcon  : true,
 		get _iconEl() {
 			var el = $q('link[rel="shortcut icon"]', doc.head) ||
 				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
-				'_iconEl': { value: el, writable: true },
-				'originalIcon': { value: el.href }
+				_iconEl      : { value: el, writable: true },
+				originalIcon : { value: el.href }
 			});
 			return el;
 		},
@@ -13649,16 +13755,16 @@ function initThreadUpdater(title, enableUpdate) {
 			this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 		},
 		_startBlink(iconUrl) {
-			if(this._blinkInterval) {
+			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
 				}
-				clearInterval(this._blinkInterval);
+				clearInterval(this._blinkInterv);
 			}
 			this._currentIcon = iconUrl;
-			this._blinkInterval = setInterval(() => {
-				this._setIcon(this._isOriginalIcon ? this._currentIcon : this.originalIcon);
-				this._isOriginalIcon = !this._isOriginalIcon;
+			this._blinkInterv = setInterval(() => {
+				this._setIcon(this._isOrigIcon ? this._currentIcon : this.originalIcon);
+				this._isOrigIcon = !this._isOrigIcon;
 			}, this._blinkMS);
 		}
 	};
@@ -13677,19 +13783,18 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		show() {
-			var post = Thread.first.last,
-				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' +
-					Lng.newPost[lang][
-						lang !== 0 ? +(newPosts !== 1) :
-						(newPosts % 10) > 4 || (newPosts % 10) === 0 ||
-						(((newPosts % 100) / 10) | 0) === 1 ? 2 :
-						(newPosts % 10) === 1 ? 0 : 1
-					] + '. ' + Lng.newPost[lang][3] + ':',
-				{
-					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
-					'tag': aib.dm + aib.b + aib.t,
-					'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
-				});
+			const new10 = newPosts % 10;
+			const quantity = lang !== 0 ? +(newPosts !== 1) :
+				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+				new10 === 1 ? 0 : 1;
+			const post = Thread.first.last;
+			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
+				Lng.newPost[lang][quantity] }. ${ Lng.newPost[lang][3] }:`,
+			{
+				body : post.text.substring(0, 250).replace(/\s+/g, ' '),
+				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
+				tag  : aib.dm + aib.b + aib.t
+			});
 			notif.onshow = () => setTimeout(() => {
 				if(notif === this._notifEl) {
 					this.close();
@@ -13709,9 +13814,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_granted: true,
-		_closeTO: null,
-		_notifEl: null,
+		_closeTO : null,
+		_granted : true,
+		_notifEl : null,
 
 		_requestPermission() {
 			this._granted = false;
@@ -13752,12 +13857,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_delay: 0,
-		_initDelay: 0,
-		_loadPromise: null,
-		_loadOnce: false,
-		_seconds: 0,
-		_state: -1,
+		_delay       : 0,
+		_initDelay   : 0,
+		_loadOnce    : false,
+		_loadPromise : null,
+		_seconds     : 0,
+		_state       : -1,
 		get _panelButton() {
 			var value = $q('a[id^="de-panel-upd"]');
 			if(value) {
@@ -13820,33 +13925,35 @@ function initThreadUpdater(title, enableUpdate) {
 			this._makeStep();
 		},
 		_makeStep(needSleep = true) {
-			while(true) switch(this._state) {
-			case 0:
-				if(needSleep) {
-					this._state = 1;
-					counter.count(this._delay, !doc.hidden, () => this._makeStep());
+			while(true) {
+				switch(this._state) {
+				case 0:
+					if(needSleep) {
+						this._state = 1;
+						counter.count(this._delay, !doc.hidden, () => this._makeStep());
+						return;
+					}
+					/* falls through */
+				case 1:
+					counter.setWait();
+					this._state = 2;
+					this._loadPromise = Thread.first.loadNewPosts().then(
+						({ newCount, locked }) =>
+							this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
+						e => this._handleNewPosts(0, e));
+					return;
+				case 2:
+					this._loadPromise = null;
+					if(this._loadOnce) {
+						this._state = -1;
+						return;
+					}
+					this._state = 0;
+					break;
+				default:
+					console.error('Invalid thread updater state:', this._state, new Error().stack);
 					return;
 				}
-				/* falls through */
-			case 1:
-				counter.setWait();
-				this._state = 2;
-				this._loadPromise = Thread.first.loadNewPosts().then(
-					({ newCount, locked }) =>
-						this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
-					e => this._handleNewPosts(0, e));
-				return;
-			case 2:
-				this._loadPromise = null;
-				if(this._loadOnce) {
-					this._state = -1;
-					return;
-				}
-				this._state = 0;
-				break;
-			default:
-				console.error('Invalid thread updater state:', this._state, new Error().stack);
-				return;
 			}
 		},
 		_setUpdateStatus(status) {
@@ -13854,7 +13961,8 @@ function initThreadUpdater(title, enableUpdate) {
 				this._panelButton.id = 'de-panel-upd-' + status;
 				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
 				if(nav.Presto) {
-					this._panelButton.innerHTML = '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
+					this._panelButton.innerHTML =
+						'<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
 				}
 			}
 		}
@@ -13995,9 +14103,9 @@ function initThreadUpdater(title, enableUpdate) {
 	};
 }
 
-/*==[ DelForm.js ]============================================================================================
+/* ==[ DelForm.js ]===========================================================================================
                                                    DELFORM
-============================================================================================================*/
+=========================================================================================================== */
 
 class DelForm {
 	static [Symbol.iterator]() {
@@ -14116,7 +14224,8 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					html5Submit(el, e.target).then(checkDelete).catch(e => $popup('delete', getErrorMessage(e)));
+					html5Submit(el, e.target).then(checkDelete).catch(
+						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
 		}
@@ -14141,9 +14250,9 @@ class DelForm {
 }
 DelForm.tNums = new Set();
 
-/*==[ Browser.js ]============================================================================================
+/* ==[ Browser.js ]===========================================================================================
                                       BROWSER DETECTORS AND DEPENDENCIES
-============================================================================================================*/
+=========================================================================================================== */
 
 function checkStorage() {
 	try {
@@ -14173,7 +14282,7 @@ function initNavFuncs() {
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
-	let isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -14202,10 +14311,10 @@ function initNavFuncs() {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
-		const origFormData = FormData;
+		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
-			const rv = form ? new origFormData(form) : new origFormData();
+			const rv = form ? new OrigFormData(form) : new OrigFormData();
 			rv.append = function append(name, value, fileName = null) {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
@@ -14227,21 +14336,22 @@ function initNavFuncs() {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		Firefox: firefox,
-		WebKit: webkit,
-		Chrome: chrome,
-		Safari: safari,
-		Presto: !!window.opera,
-		MsEdge: ua.includes('Edge/'),
-		isGM: isGM,
-		isNewGM: isNewGM,
+		Firefox         : firefox,
+		WebKit          : webkit,
+		Chrome          : chrome,
+		Safari          : safari,
+		Presto          : !!window.opera,
+		MsEdge          : ua.includes('Edge/'),
+		isGM            : isGM,
+		isNewGM         : isNewGM,
+		isChromeStorage : isChromeStorage,
+		isScriptStorage : isScriptStorage,
+		isGlobal        : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
+			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get isESNext() {
-			return typeof de_main_func_outer === 'undefined';
+			return typeof deMainFuncOuter === 'undefined';
 		},
-		isChromeStorage: isChromeStorage,
-		isScriptStorage: isScriptStorage,
-		isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
-		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') || (isNewGM && (typeof GM.xmlHttpRequest === 'function')),
 		get scriptInstall() {
 			if(this.Firefox) {
 				if(this.isNewGM) {
@@ -14290,46 +14400,47 @@ function initNavFuncs() {
 			return value;
 		},
 		get viewportHeight() {
-			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
-			const value = document.compatMode && document.compatMode == 'CSS1Compat' ?
+			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
-			let ctor = Uint8Array;
+			let Ctor = Uint8Array;
 			if(!nav.isNewGM && nav.Firefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
-						ctor = unsafeWindow.Uint8Array;
+						Ctor = unsafeWindow.Uint8Array;
 					}
 				} catch(e) {
-					ctor = unsafeWindow.Uint8Array;
+					Ctor = unsafeWindow.Uint8Array;
 				}
 			}
 			switch(arguments.length) {
-				case 1: return new ctor(data);
-				case 2: return new ctor(data, i);
-				case 3: return new ctor(data, i, len);
+			case 1: return new Ctor(data);
+			case 2: return new Ctor(data, i);
+			case 3: return new Ctor(data, i, len);
 			}
 			throw new Error();
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ? rv : new unsafeWindow.DataView(data, offset || 0);
+			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ?
+				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
 
-/*==[ BoardDefaults.js ]======================================================================================
+/* ==[ BoardDefaults.js ]=====================================================================================
                                              IMAGEBOARD DEFAULTS
-============================================================================================================*/
+=========================================================================================================== */
 
 class BaseBoard {
 	constructor(prot, dm) {
@@ -14370,7 +14481,7 @@ class BaseBoard {
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
-		this.jsonBuilder = null;
+		this.JsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
 		this.multiFile = false;
@@ -14396,8 +14507,9 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]',
-			'[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+		var value = nav.cssMatches(this.qImgInfo + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
+			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -14475,8 +14587,8 @@ class BaseBoard {
 	}
 	fixHTML(data, isForm = false) {
 		if(!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks ||
-			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks))
-		{
+			this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)
+		) {
 			return data;
 		}
 		var str;
@@ -14552,7 +14664,7 @@ class BaseBoard {
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
-					   .replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
 		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
@@ -14568,8 +14680,8 @@ class BaseBoard {
 	getImgWrap(img) {
 		return $parent(img, 'A').parentNode;
 	}
-	getJsonApiUrl(brd, tNum) {}
-	getOmitted(el, len) {
+	getJsonApiUrl() {}
+	getOmitted(el) {
 		var txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
@@ -14614,11 +14726,11 @@ class BaseBoard {
 		if(el.tagName === 'TD') {
 			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
 				return isOp ? el : $parent(el, 'TABLE');
-			}});
+			} });
 		} else {
-			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
+			Object.defineProperty(this, 'getPostWrap', { value(el) {
 				return el;
-			}});
+			} });
 		}
 		return this.getPostWrap(el, isOp);
 	}
@@ -14643,9 +14755,9 @@ class BaseBoard {
 			this.t = +temp[1].match(/^\d+/)[0];
 			this.page = this.firstPage;
 		} else { // We are on board
-			const temp = url.match(/\/?(\d+)[^\/]*?$/);
+			const temp = url.match(/\/?(\d+)[^/]*?$/);
 			this.page = temp && +temp[1] || this.firstPage;
-			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^\/]+\.[a-z]+)?$/, '');
+			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
 		}
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
@@ -14653,9 +14765,9 @@ class BaseBoard {
 	}
 }
 
-/*==[ BoardDetector.js ]======================================================================================
+/* ==[ BoardDetector.js ]=====================================================================================
                                              IMAGEBOARD DETECTOR
-============================================================================================================*/
+=========================================================================================================== */
 
 function getImageBoard(checkDomains, checkEngines) {
 	var ibDomains = {};
@@ -14687,7 +14799,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
-			this.jsonBuilder = MakabaPostsBuilder;
+			this.JsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
 			this.multiFile = true;
@@ -14699,7 +14811,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop';
 		}
 		get css() {
-			return `.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .kupi-passcode-suka, .fa-media-icon, .logo + hr, .media-expand-button, .nav-arrows, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .prerekl-hr, .posts > hr, .reflink::before, .thread-nav, .toolbar-area, #ABU-alert-wait, #media-thumbnail { display: none !important; }
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
+					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
+					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
+					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
+					.toolbar-area { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
@@ -14707,10 +14823,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				.post.reply .post-message { max-height: initial !important; }
 				.tmp_postform { width: auto; }
 				.de-win-inpost { position: static !important; }
-				${ Cfg.expandTrunc ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; } div[id^="original-post"] { display: block !important; }' : '' }
-				${ Cfg.delImgNames ? '.filesize { display: inline !important; } .file-attr { margin-bottom: 1px; }' : '' }
+				${ Cfg.expandTrunc ? `.expand-large-comment,
+					div[id^="shrinked-post"] { display: none !important; }
+					div[id^="original-post"] { display: block !important; }` : '' }
+				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
+					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }
-				${ Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview { bottom: 25px !important; }' : '' }`;
+				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
+					bottom: 25px !important; }` : '' }`;
 		}
 		get lastPage() {
 			var els = $Q('.pager > a:not([class])'),
@@ -14721,7 +14841,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		delTruncMsg(post, el, isInit) {
+		delTruncMsg(post, el) {
 			$del(el.previousSibling);
 			$show(el.previousSibling);
 			$del(el);
@@ -14730,7 +14850,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			let str = '';
 			for(let i = 0; i < 8; ++i) {
 				str += `<div${ i ? ' style="display: none;"' : ''
-					}><input type="file" name="image${ i + 1 }"></div>`;
+				}><input type="file" name="image${ i + 1 }"></div>`;
 			}
 			el.innerHTML = str;
 		}
@@ -14750,7 +14870,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
-		getPostWrap(el, isOp) {
+		getPostWrap(el) {
 			return el.parentNode;
 		}
 		getSage(post) {
@@ -14779,7 +14899,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script(`(function() {
 				var emptyFn = function() {};
 				function fixGlobalFunc(name) {
-					Object.defineProperty(window, name, { value: emptyFn, writable: false, configurable: false });
+					Object.defineProperty(window, name,
+						{ value: emptyFn, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
 				fixGlobalFunc("autorefresh_start");
@@ -14809,7 +14930,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			cap.textEl.tabIndex = 999;
 			return this.updateCaptcha(cap);
 		}
-		updateCaptcha(cap, isErr) {
+		updateCaptcha(cap) {
 			let type;
 			try {
 				type = JSON.parse(locStorage.store).other.captcha_provider || '2chaptcha';
@@ -14846,6 +14967,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						$q('input[name="2chaptcha_id"]', cap.parentEl).value = data.id;
 						break;
 					}
+					/* falls through */
 				default: box.innerHTML = data;
 				}
 			});
@@ -14889,8 +15011,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get css() {
-			return `.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned, .post-hover { display: none !important; }
-				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) { float: left !important; clear: left; display: block; }`;
+			return `.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned,
+					.post-hover { display: none !important; }
+				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
+					float: left !important; clear: left; display: block; }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
@@ -14943,13 +15067,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				#expand-all-images, #expand-all-images + .unimportant, .post-btn, small { display: none !important; }`;
+				#expand-all-images, #expand-all-images + .unimportant, .post-btn, small {
+					display: none !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
 			for(let i = 0; i < 5; ++i) {
 				str += `<div${ i ? ' style="display: none;"' : ''
-					}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
+				}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
 			}
 			el.innerHTML = str;
 		}
@@ -14988,10 +15113,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }
-				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }`;
+			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
+					.ui-resizable-handle, blockquote + a { display: none !important; }
+				.ui-wrapper { display: inline-block; width: auto !important;
+					height: auto !important; padding: 0 !important; }`;
 		}
-		getCaptchaSrc(src, tNum) {
+		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 		}
 		init() {
@@ -15022,7 +15149,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$each($Q('.message > .omittedposts'),
-			      el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
+				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
 	}
@@ -15046,7 +15173,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.block.post:not(.post-op)';
 
 			this.docExt = '';
-			this.jsonBuilder = _0chanPostsBuilder;
+			this.JsonBuilder = _0chanPostsBuilder;
 			this.res = '';
 		}
 		get qThread() {
@@ -15070,7 +15197,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +$q('a[name]', post).name;
 		}
-		getPostWrap(el, isOp) {
+		getPostWrap(el) {
 			return el.parentNode;
 		}
 		getTNum(op) {
@@ -15079,9 +15206,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.postBtnsCSS = 0;
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
-			$each($Q('a[data-post]'), el => el.href =
+			$each($Q('a[data-post]'), el => (el.href =
 				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
-				.href.split('#')[0] + '#' + el.getAttribute('data-post'));
+					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
 			return false;
 		}
 		observeContent(checkDomains, dataPromise) {
@@ -15097,7 +15224,8 @@ function getImageBoard(checkDomains, checkEngines) {
 							updater.disable();
 						}
 						DelForm.tNums = new Set();
-						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
+						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel',
+							doc), $del);
 						runMain(checkDomains, dataPromise);
 					});
 					$script(`window.app.$bus.on('refreshContentDone',
@@ -15262,7 +15390,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/data-original="\//g, 'src="/');
 		}
-		getCaptchaSrc(src, tNum) {
+		getCaptchaSrc() {
 			return '/' + this.b + '/captcha.fpl?' + Math.random();
 		}
 		getImgWrap(img) {
@@ -15346,7 +15474,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el;
 		}
-		getCaptchaSrc(src, tNum) {
+		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
 		getSage(post) {
@@ -15364,7 +15492,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
 				if(xhr.responseText === '1') {
 					cap.textEl.disabled = true;
-					setTimeout(() => cap.textEl.value = 'проезд оплачен', 0);
+					setTimeout(() => (cap.textEl.value = 'проезд оплачен'), 0);
 				} else {
 					cap.textEl.disabled = false;
 					cap.textEl.value = '';
@@ -15406,7 +15534,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.formParent = 'resto';
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
-			this.jsonBuilder = _4chanPostsBuilder;
+			this.JsonBuilder = _4chanPostsBuilder;
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
@@ -15419,7 +15547,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.fileText > a';
 		}
 		get css() {
-			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }
+			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,
+					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				.postForm { display: table !important; width: auto !important; }
 				textarea { margin-right: 0 !important; }`;
@@ -15431,8 +15560,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			const tr = $id('captchaFormPart');
 			if(tr) {
-				const capClick = $bEnd(docBody, `<div onclick="initRecaptcha();"></div>`);
-				const altCapClick = $bEnd(docBody, `<div onclick="QR.initCaptchaAlt();"></div>`);
+				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
+				const altCapClick = $bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>');
 				const waitForReload = () => setTimeout(function() {
 					const input = $id('recaptcha_response_field');
 					if(input) {
@@ -15455,7 +15584,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
 					altCapClick.click();
-					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') { Recaptcha.reload(); }");
+					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') Recaptcha.reload();");
 					waitForReload();
 					return null;
 				};
@@ -15465,7 +15594,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
-					'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
+				'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
@@ -15483,7 +15612,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? p : '');
 		}
-		getPostWrap(el, isOp) {
+		getPostWrap(el) {
 			return el.parentNode;
 		}
 		getSage(post) {
@@ -15525,23 +15654,26 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.css + '#post-moderation-fields { display: initial !important; }';
 		}
 		initCaptcha(cap) {
-			$q('td', cap.parentEl).innerHTML = `
-			<input placeholder="{ Lng.cap[lang] }" class="captcha_text" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
-			<input class="captcha_cookie" name="captcha_cookie" type="hidden">
-			<div class="captcha_html"></div>`;
+			$q('td', cap.parentEl).innerHTML =
+				'<input placeholder="' + Lng.cap[lang] + '" class="captcha_text" type="text" ' +
+					'name="captcha_text" size="25" maxlength="8" autocomplete="off">' +
+				'<input class="captcha_cookie" name="captcha_cookie" type="hidden">' +
+				'<div class="captcha_html"></div>';
 			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);
 		}
 		updateCaptcha(cap) {
-			return cap.updateHelper('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz', xhr => {
-				const obj = JSON.parse(xhr.responseText);
-				$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
-				$q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
-				const img = $q('img', cap.parentEl);
-				if(img) {
-					cap.initImage(img);
-				}
-			});
+			return cap.updateHelper(
+				'/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz',
+				xhr => {
+					const obj = JSON.parse(xhr.responseText);
+					$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
+					$q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
+					const img = $q('img', cap.parentEl);
+					if(img) {
+						cap.initImage(img);
+					}
+				});
 		}
 	}
 	ibDomains['8ch.net'] = _8chNet;
@@ -15561,7 +15693,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['55chan.org'] = _55chan;
 
 	class _7chanOrg extends BaseBoard {
-		init() { return true; }
+		init() {
+			return true;
+		}
 	}
 	ibDomains['7chan.org'] = _7chanOrg;
 
@@ -15588,7 +15722,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_inner';
 		}
 		get css() {
-			return `.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
+			return `.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
+					height: auto !important; font: 13px/15px arial !important; }
 				.de-cfg-label.de-block { display: block; }
 				.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }
 				.post { overflow-x: auto !important; }`;
@@ -15608,7 +15743,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgInfo(wrap) {
 			const data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
-			return data ? `${ data[1] }x${ data[2] }, 0Kb`  : null;
+			return data ? `${ data[1] }x${ data[2] }, 0Kb` : null;
 		}
 		getImgWrap(img) {
 			return $parent(img, 'A').parentNode;
@@ -15622,7 +15757,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.poster_sage', post);
 		}
-		getThrUrl(b, tNum) {
+		getThrUrl() {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
 		getTNum(el) {
@@ -15727,7 +15862,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.anchor = '#i';
 			this.formParent = 'thread_id';
 			this.hasPicWrap = true;
-			this.jsonBuilder = DobrochanPostsBuilder;
+			this.JsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
 			this.ru = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
@@ -15770,7 +15905,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getJsonApiUrl(brd, tNum) {
 			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
 		}
-		getOmitted(el, len) {
+		getOmitted(el) {
 			while(el) {
 				let m = el.textContent.match(/(\d+) posts are omitted/);
 				if(m) {
@@ -15816,7 +15951,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			if(cap.textEl) {
-				const src = img.getAttribute('src').split('/').slice(0, -1).join('/') + '/' + Date.now() + '.png';
+				const src = img.getAttribute('src').split('/').slice(0, -1).join('/') +
+					`/${ Date.now() }.png`;
 				img.src = '';
 				img.src = src;
 				cap.textEl.value = '';
@@ -15893,9 +16029,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Nulldvachin extends Ernstchan {
 		fixFileInputs(el) {
-			var _maxfiles = typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3;
 			const str = '><input name="file" type="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(_maxfiles);
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(
+				/* global maxfiles */ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
@@ -15956,7 +16092,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
 		}
 		get css() {
-			return `${ !this.t ? '' : `#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }`}
+			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
 			.iichan-hide-thread-btn { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
@@ -16017,7 +16153,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.prot + '//' + this.host + '/catalog/' + this.b;
 		}
 		get css() {
-			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none; }
+			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr,
+					form > div:first-of-type > hr, h2, .sage { display: none; }
 				.de-thr-hid { float: none; }
 				.de-video-obj-inline { margin-left: 5px; }\
 				div[id^="Wz"] { z-index: 10000 !important; }
@@ -16029,13 +16166,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
-					'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
+				'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 		fixFileInputs(el) {
 			let str = '';
 			for(let i = 0; i < 4; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-					}><input type="file" name="file_${ i }" tabindex="7"></div>`;
+				str += `<div${ i ? ' style="display: none;"' : '' }>` +
+					`<input type="file" name="file_${ i }" tabindex="7"></div>`;
 			}
 			el.innerHTML = str;
 			el.removeAttribute('id');
@@ -16289,9 +16426,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	return null;
 }
 
-/*==[ Misc.js ]===============================================================================================
+/* ==[ Misc.js ]==============================================================================================
                                                 MISCELLANEOUS
-============================================================================================================*/
+=========================================================================================================== */
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
@@ -16384,8 +16521,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			}
 		}
 		return Promise.reject();
-	}, () => isManual ? '<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>' :
-	                    Promise.reject()
+	}, () => !isManual ? Promise.reject() :
+		`<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
 	);
 }
 
@@ -16406,7 +16543,7 @@ function initPage() {
 	} else {
 		navPanel.init();
 	}
-	if(!localData){
+	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
 		if(aib.t) {
 			Thread.first.el.nextSibling.firstChild.firstElementChild
@@ -16432,17 +16569,20 @@ function scrollPage() {
 			scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
 		} else if((hash = window.location.hash) &&
-		          (num = hash.match(/#[ip]?(\d+)$/)) &&
-		          (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp)
-		{
+			(num = hash.match(/#[ip]?(\d+)$/)) &&
+			(num = +num[1]) &&
+			(post = pByNum.get(num)) && !post.isOp
+		) {
 			post.selectAndScrollTo();
 		}
 	}, 0);
 }
 
-/*==[ SvgIcons.js ]===========================================================================================
+/* ==[ SvgIcons.js ]==========================================================================================
                                                   SVG ICONS
-============================================================================================================*/
+=========================================================================================================== */
+
+/* eslint-disable max-len */
 
 function addSVGIcons() {
 	docBody.insertAdjacentHTML('beforeend', `
@@ -16648,9 +16788,13 @@ function addSVGIcons() {
 	</div>`);
 }
 
-/*==[ Css.js ]================================================================================================
+/* eslint-enable max-len */
+
+/* ==[ Css.js ]===============================================================================================
                                                      CSS
-============================================================================================================*/
+=========================================================================================================== */
+
+/* eslint-disable max-len */
 
 function scriptCSS() {
 	const cont = (id, src) => id + `::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
@@ -16976,7 +17120,7 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}
+	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
@@ -17006,68 +17150,69 @@ function scriptCSS() {
 
 function updateCSS() {
 	const str = `.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
-	.de-new-post { ${
-		nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' }; }
-	.de-selected, .de-error-input { ${
-		nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' }; }
-	${ Cfg.markMyPosts ? `.de-mypost { ${
-		nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' }; }
+	.de-new-post { ${ nav.Presto ?
+		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' }; }
+	.de-selected, .de-error-input { ${ nav.Presto ?
+		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' }; }
+	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.Presto ?
+		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' }; }
 		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }
 		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
 	${ Cfg.postBtnsCSS === 0 ?
-	   `.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
+		`.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :
-	   `.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }
+		`.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }
 		.de-btn-hide-user { color: #BFFFBF; }
 		.de-btn-unhide-user { color: #FFBFBF; }
 		.de-btn-fav-sel { color: #FFE100; }
 		.de-btn-stick-on { color: #BFFFBF; }
 		.de-btn-sage { fill: #4B4B4B; }
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
+		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
+		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
-	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; } ${
-		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
+	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
+		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : ''}
+	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
 	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
-	   `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
+		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
 		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` :
-	   Cfg.noSpoilers === 2 ?
-	   `.spoiler, s { color: inherit !important; }
-		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+		Cfg.noSpoilers === 2 ?
+			`.spoiler, s { color: inherit !important; }
+			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
-	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
-		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
-		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
-		!Cfg.imgInfoLink ? '.de-fullimg-info, ' : '' }${
-		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
-		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
-		!Cfg.panelCounter ? '#de-panel-info, ' : '' }${
-		 Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }${
-		!Cfg.showHideBtn ? '.de-btn-hide, ' : '' }${
-		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
-		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
-		!Cfg.ajaxPosting ? '.de-file-btn-rar, .de-file-btn-txt, ' : '' }${
-		!Cfg.fileInputs ? '.de-file-txt-wrap, .de-file-btn-txt, ' : '' }${
-		!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ?
-			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
-	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
+	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
+	${ Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ' }
+	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
+	${ Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }
+	${ Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }
+	${ Cfg.panelCounter ? '' : '#de-panel-info, ' }
+	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
+	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
+	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
+	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
+	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
+	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
+	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }
+		body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
 	$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
 
-/*==[ Main.js ]===============================================================================================
+/* ==[ Main.js ]==============================================================================================
                                                      MAIN
-============================================================================================================*/
+=========================================================================================================== */
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.init();
@@ -17125,12 +17270,12 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload',
-			e => sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset);
+			() => (sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset));
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
-		                     rp => saveCfg('timeRPattern', rp));
+			rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
 	MyPosts.read();
@@ -17144,7 +17289,7 @@ async function runMain(checkDomains, dataPromise) {
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 		if(!Thread.first) {
-			throw 'No threads detected!';
+			throw new Error('No threads detected!');
 		}
 	} catch(e) {
 		console.error('Delform parsing error:', getErrorMessage(e));
@@ -17220,6 +17365,10 @@ if(doc.readyState !== 'loading') {
 	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 }
 
-/*==[ Tail ]==*/
-
-})(window.opera && window.opera.scriptStorage, window.FormData, (x, y) => window.scrollTo(x, y), typeof localData === 'object' ? localData : null);
+/* ==[ Tail ]== */
+}(
+	window.opera && window.opera.scriptStorage,
+	window.FormData,
+	(x, y) => window.scrollTo(x, y),
+	/* global localData */ typeof localData === 'object' ? localData : null
+));

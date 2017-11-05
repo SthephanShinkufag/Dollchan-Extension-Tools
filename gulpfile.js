@@ -29,7 +29,7 @@ gulp.task('updatecommit', function(cb) {
 	});
 	git.on('close', function(code) {
 		if(code !== 0) {
-			throw 'Git error:\n' + (stdout ? stdout + '\n' : '') + stderr;
+			throw new Error('Git error:\n' + (stdout ? stdout + '\n' : '') + stderr);
 		}
 		gulp.src('src/modules/Wrap.js')
 			.pipe(replace(/^const commit = '[^']*';$/m, 'const commit = \'' + stdout.trim().substr(0, 7) + '\';'))
@@ -42,16 +42,17 @@ gulp.task('updatecommit', function(cb) {
 gulp.task('make:es6', ['updatecommit'], function() {
 	gulp.src('src/modules/Wrap.js').pipe(tap(function(wrapFile) {
 		var str = wrapFile.contents.toString();
-		var arr = str.match(/\/\*==\[ .*? \]==\*\//g);
+		var arr = str.match(/\/\* ==\[ .*? \]== \*\//g);
 		for(var i = 0, count = 0, len = arr.length - 1; i < len; ++i) {
 			var match = arr[i];
-			gulp.src('src/modules/' + match.replace(/\/\*==\[ | \]==\*\//g, '')).pipe(tap(function(moduleFile) {
-				str = str.replace(this, moduleFile.contents.toString());
-				count++;
-				if(count === len) {
-					newfile('src/Dollchan_Extension_Tools.es6.user.js', str).pipe(gulp.dest('.'));
-				}
-			}.bind(match)));
+			gulp.src('src/modules/' + match.replace(/\/\* ==\[ | \]== \*\//g, ''))
+				.pipe(tap(function(moduleFile) {
+					str = str.replace(this, moduleFile.contents.toString());
+					count++;
+					if(count === len) {
+						newfile('src/Dollchan_Extension_Tools.es6.user.js', str).pipe(gulp.dest('.'));
+					}
+				}.bind(match)));
 		}
 	}));
 });
@@ -73,19 +74,19 @@ gulp.task('make', ['make:es5']);
 // Split es6-script into separate module files
 gulp.task('make:modules', function() {
 	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(function(file) {
-		var arr = file.contents.toString().split('/*==[ ');
+		var arr = file.contents.toString().split('/* ==[ ');
 		var wrapStr = arr[0].slice(0, -2) + '\r\n';
 		for(var i = 1, len = arr.length; i < len; ++i) {
 			var str = arr[i];
 			if(i !== len - 1) {
 				str = str.slice(0, -2); // Remove last \r\n
-				wrapStr += '/*==[ ' + str.split(' ]==')[0] + ' ]==*/\r\n';
+				wrapStr += '/* ==[ ' + str.split(' ]==')[0] + ' ]== */\r\n';
 			} else {
-				wrapStr += '/*==[ ' + str;
+				wrapStr += '/* ==[ ' + str;
 				break;
 			}
 			var fileName = str.slice(0, str.indexOf(' ]'));
-			newfile('src/modules/' + fileName, '/*==[ ' + str).pipe(gulp.dest(''));
+			newfile('src/modules/' + fileName, '/* ==[ ' + str).pipe(gulp.dest(''));
 		}
 		newfile('src/modules/Wrap.js', wrapStr).pipe(gulp.dest(''));
 	}));

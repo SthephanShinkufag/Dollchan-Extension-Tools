@@ -1,6 +1,8 @@
-/*==[ Css.js ]================================================================================================
+/* ==[ Css.js ]===============================================================================================
                                                      CSS
-============================================================================================================*/
+=========================================================================================================== */
+
+/* eslint-disable max-len */
 
 function scriptCSS() {
 	const cont = (id, src) => id + `::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
@@ -326,7 +328,7 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important;}
+	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
@@ -356,61 +358,62 @@ function scriptCSS() {
 
 function updateCSS() {
 	const str = `.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
-	.de-new-post { ${
-		nav.Presto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' }; }
-	.de-selected, .de-error-input { ${
-		nav.Presto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' }; }
-	${ Cfg.markMyPosts ? `.de-mypost { ${
-		nav.Presto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
-		             'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' }; }
+	.de-new-post { ${ nav.Presto ?
+		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' }; }
+	.de-selected, .de-error-input { ${ nav.Presto ?
+		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' }; }
+	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.Presto ?
+		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
+		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' }; }
 		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }
 		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
 	${ Cfg.postBtnsCSS === 0 ?
-	   `.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
+		`.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :
-	   `.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }
+		`.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }
 		.de-btn-hide-user { color: #BFFFBF; }
 		.de-btn-unhide-user { color: #FFBFBF; }
 		.de-btn-fav-sel { color: #FFE100; }
 		.de-btn-stick-on { color: #BFFFBF; }
 		.de-btn-sage { fill: #4B4B4B; }
-		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick, .de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
+		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
+		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.Presto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
-	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; } ${
-		aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
+	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
+		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : ''}
+	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
 	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
-	   `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
+		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
 		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` :
-	   Cfg.noSpoilers === 2 ?
-	   `.spoiler, s { color: inherit !important; }
-		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+		Cfg.noSpoilers === 2 ?
+			`.spoiler, s { color: inherit !important; }
+			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
-	${  !Cfg.addSageBtn ? '#de-sagebtn, ' : '' }${
-		 Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '' }${
-		!Cfg.imgNavBtns ? '#de-img-btn-next, #de-img-btn-prev, ' : '' }${
-		!Cfg.imgInfoLink ? '.de-fullimg-info, ' : '' }${
-		 Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }${
-		 Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }${
-		!Cfg.panelCounter ? '#de-panel-info, ' : '' }${
-		 Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }${
-		!Cfg.showHideBtn ? '.de-btn-hide, ' : '' }${
-		!Cfg.showRepBtn ? '.de-btn-rep, ' : '' }${
-		!Cfg.updThrBtns && !aib.t ? '.de-thread-updater, ' : '' }${
-		!Cfg.ajaxPosting ? '.de-file-btn-rar, .de-file-btn-txt, ' : '' }${
-		!Cfg.fileInputs ? '.de-file-txt-wrap, .de-file-btn-txt, ' : '' }${
-		!aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ?
-			'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
-	} body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
+	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
+	${ Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ' }
+	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
+	${ Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }
+	${ Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }
+	${ Cfg.panelCounter ? '' : '#de-panel-info, ' }
+	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
+	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
+	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
+	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
+	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
+	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
+	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }
+		body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
 	$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }

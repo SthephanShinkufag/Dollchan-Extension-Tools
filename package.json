@@ -84,6 +84,12 @@
 	"devDependencies": {
 		"babelify": "=7.3.0",
 		"browserify": "=14.0.0",
+		"eslint": "^4.10.0",
+		"eslint-config-standard": "^10.2.1",
+		"eslint-plugin-import": "^2.8.0",
+		"eslint-plugin-node": "^5.2.1",
+		"eslint-plugin-promise": "^3.6.0",
+		"eslint-plugin-standard": "^3.0.1",
 		"gulp": "=3.9.1",
 		"gulp-babel": "=6.1.2",
 		"gulp-concat": "=2.6.1",
@@ -95,10 +101,5 @@
 		"gulp-strip-comments": "=2.4.3",
 		"gulp-tap": "=0.4.2",
 		"vinyl-source-stream": "=1.1.0"
-	},
-	"jshintConfig": {
-		"esversion": 6,
-		"elision": true,
-		"noyield": true
 	}
 }

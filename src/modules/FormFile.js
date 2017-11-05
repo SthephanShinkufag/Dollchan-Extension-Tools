@@ -1,7 +1,7 @@
-/*==[ FormFile.js ]===========================================================================================
+/* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
                  image/webm files in postform: preview, adding by url, drag-n-drop, deleting
-============================================================================================================*/
+=========================================================================================================== */
 
 class Files {
 	constructor(form, fileEl) {
@@ -15,7 +15,7 @@ class Files {
 			inputs.push(new FileInput(this, els[i]));
 		}
 		this._inputs = inputs;
-		this._files  = [];
+		this._files = [];
 		this.hide();
 	}
 	get rarInput() {
@@ -77,17 +77,18 @@ class FileInput {
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
-			<input class="de-file-spoil" type="checkbox" title="${ Lng.spoilFile[lang] }" style="display: none;">
+			<input class="de-file-spoil" type="checkbox" title="` +
+				`${ Lng.spoilFile[lang] }" style="display: none;">
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
 		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = Array.from(this._utils.children);
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
-			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="${
-				Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
-			<input type="button" class="de-file-txt-add" value="+" title="${
-				Lng.add[lang] }" style="display: none;"></span>`);
+			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
+				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
+			<input type="button" class="de-file-txt-add" value="+" title="` +
+				`${ Lng.add[lang] }" style="display: none;"></span>`);
 		[this._txtInput, this._txtAddBtn] = Array.from(this._txtWrap.children);
 		this._txtWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._txtWrap, true);
@@ -162,7 +163,7 @@ class FileInput {
 		const el = e.target;
 		const isThumb = el === this._thumb || el.className === 'de-file-img';
 		switch(e.type) {
-		case 'change':
+		case 'change': {
 			setTimeout(() => this._onFileChange(false), 20);
 			const index = this._parent._inputs.indexOf(this);
 			if(el.files.length > 0) {
@@ -172,6 +173,7 @@ class FileInput {
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
+		}
 		case 'click':
 			if(isThumb) {
 				this._input.click();
@@ -213,7 +215,7 @@ class FileInput {
 				this._thumb.classList.remove('de-file-drag');
 			}
 			return;
-		case 'drop':
+		case 'drop': {
 			const dt = e.dataTransfer;
 			if(!isThumb && el !== this._txtInput) {
 				return;
@@ -233,6 +235,7 @@ class FileInput {
 			setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
 			e.stopPropagation();
 			$pd(e);
+		}
 		}
 	}
 	hide() {
@@ -392,8 +395,8 @@ class FileInput {
 		}
 		this._parent.hide();
 		if(!nav.Presto && !aib.fch &&
-		   /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type))
-		{
+			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
+		) {
 			$del(this._rarMsg);
 			$show(this._btnRarJpg);
 		}

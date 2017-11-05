@@ -1,6 +1,6 @@
-/*==[ ThreadUpdater.js ]======================================================================================
+/* ==[ ThreadUpdater.js ]=====================================================================================
                                                 THREAD UPDATER
-============================================================================================================*/
+=========================================================================================================== */
 
 function initThreadUpdater(title, enableUpdate) {
 	var focusLoadTime, paused = false,
@@ -13,8 +13,8 @@ function initThreadUpdater(title, enableUpdate) {
 		storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
 	var audio = {
-		enabled: false,
-		repeatMS: 0,
+		enabled  : false,
+		repeatMS : 0,
 		disable() {
 			this.stop();
 			this.enabled = false;
@@ -84,9 +84,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_countingIV: null,
-		_countingTO: null,
-		_enabled: false,
+		_countingTO : null,
+		_countingIV : null,
+		_enabled    : false,
 		get _el() {
 			var value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
@@ -156,32 +156,32 @@ function initThreadUpdater(title, enableUpdate) {
 			this._startBlink(this._hasIcons ? this._iconError : this._emptyIcon);
 		},
 		stopBlink() {
-			if(this._blinkInterval) {
-				clearInterval(this._blinkInterval);
-				this._blinkInterval = null;
+			if(this._blinkInterv) {
+				clearInterval(this._blinkInterv);
+				this._blinkInterv = null;
 			}
-			if(!this._isOriginalIcon) {
+			if(!this._isOrigIcon) {
 				this._setIcon(this.originalIcon);
-				this._isOriginalIcon = true;
+				this._isOrigIcon = true;
 			}
 		},
 
-		_blinkInterval: null,
-		_blinkMS: 800,
-		_currentIcon: null,
-		_emptyIcon: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_hasIcons: false,
-		_iconError: null,
-		_iconNew: null,
-		_iconYou: null,
-		_isInited: false,
-		_isOriginalIcon: true,
+		_blinkInterv : null,
+		_blinkMS     : 800,
+		_currentIcon : null,
+		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_hasIcons    : false,
+		_iconError   : null,
+		_iconNew     : null,
+		_iconYou     : null,
+		_isInited    : false,
+		_isOrigIcon  : true,
 		get _iconEl() {
 			var el = $q('link[rel="shortcut icon"]', doc.head) ||
 				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
-				'_iconEl': { value: el, writable: true },
-				'originalIcon': { value: el.href }
+				_iconEl      : { value: el, writable: true },
+				originalIcon : { value: el.href }
 			});
 			return el;
 		},
@@ -221,16 +221,16 @@ function initThreadUpdater(title, enableUpdate) {
 			this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 		},
 		_startBlink(iconUrl) {
-			if(this._blinkInterval) {
+			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
 				}
-				clearInterval(this._blinkInterval);
+				clearInterval(this._blinkInterv);
 			}
 			this._currentIcon = iconUrl;
-			this._blinkInterval = setInterval(() => {
-				this._setIcon(this._isOriginalIcon ? this._currentIcon : this.originalIcon);
-				this._isOriginalIcon = !this._isOriginalIcon;
+			this._blinkInterv = setInterval(() => {
+				this._setIcon(this._isOrigIcon ? this._currentIcon : this.originalIcon);
+				this._isOrigIcon = !this._isOrigIcon;
 			}, this._blinkMS);
 		}
 	};
@@ -249,19 +249,18 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		show() {
-			var post = Thread.first.last,
-				notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' +
-					Lng.newPost[lang][
-						lang !== 0 ? +(newPosts !== 1) :
-						(newPosts % 10) > 4 || (newPosts % 10) === 0 ||
-						(((newPosts % 100) / 10) | 0) === 1 ? 2 :
-						(newPosts % 10) === 1 ? 0 : 1
-					] + '. ' + Lng.newPost[lang][3] + ':',
-				{
-					'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
-					'tag': aib.dm + aib.b + aib.t,
-					'icon': post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon
-				});
+			const new10 = newPosts % 10;
+			const quantity = lang !== 0 ? +(newPosts !== 1) :
+				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+				new10 === 1 ? 0 : 1;
+			const post = Thread.first.last;
+			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
+				Lng.newPost[lang][quantity] }. ${ Lng.newPost[lang][3] }:`,
+			{
+				body : post.text.substring(0, 250).replace(/\s+/g, ' '),
+				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
+				tag  : aib.dm + aib.b + aib.t
+			});
 			notif.onshow = () => setTimeout(() => {
 				if(notif === this._notifEl) {
 					this.close();
@@ -281,9 +280,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_granted: true,
-		_closeTO: null,
-		_notifEl: null,
+		_closeTO : null,
+		_granted : true,
+		_notifEl : null,
 
 		_requestPermission() {
 			this._granted = false;
@@ -324,12 +323,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 
-		_delay: 0,
-		_initDelay: 0,
-		_loadPromise: null,
-		_loadOnce: false,
-		_seconds: 0,
-		_state: -1,
+		_delay       : 0,
+		_initDelay   : 0,
+		_loadOnce    : false,
+		_loadPromise : null,
+		_seconds     : 0,
+		_state       : -1,
 		get _panelButton() {
 			var value = $q('a[id^="de-panel-upd"]');
 			if(value) {
@@ -392,33 +391,35 @@ function initThreadUpdater(title, enableUpdate) {
 			this._makeStep();
 		},
 		_makeStep(needSleep = true) {
-			while(true) switch(this._state) {
-			case 0:
-				if(needSleep) {
-					this._state = 1;
-					counter.count(this._delay, !doc.hidden, () => this._makeStep());
+			while(true) {
+				switch(this._state) {
+				case 0:
+					if(needSleep) {
+						this._state = 1;
+						counter.count(this._delay, !doc.hidden, () => this._makeStep());
+						return;
+					}
+					/* falls through */
+				case 1:
+					counter.setWait();
+					this._state = 2;
+					this._loadPromise = Thread.first.loadNewPosts().then(
+						({ newCount, locked }) =>
+							this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
+						e => this._handleNewPosts(0, e));
+					return;
+				case 2:
+					this._loadPromise = null;
+					if(this._loadOnce) {
+						this._state = -1;
+						return;
+					}
+					this._state = 0;
+					break;
+				default:
+					console.error('Invalid thread updater state:', this._state, new Error().stack);
 					return;
 				}
-				/* falls through */
-			case 1:
-				counter.setWait();
-				this._state = 2;
-				this._loadPromise = Thread.first.loadNewPosts().then(
-					({ newCount, locked }) =>
-						this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
-					e => this._handleNewPosts(0, e));
-				return;
-			case 2:
-				this._loadPromise = null;
-				if(this._loadOnce) {
-					this._state = -1;
-					return;
-				}
-				this._state = 0;
-				break;
-			default:
-				console.error('Invalid thread updater state:', this._state, new Error().stack);
-				return;
 			}
 		},
 		_setUpdateStatus(status) {
@@ -426,7 +427,8 @@ function initThreadUpdater(title, enableUpdate) {
 				this._panelButton.id = 'de-panel-upd-' + status;
 				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
 				if(nav.Presto) {
-					this._panelButton.innerHTML = '<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
+					this._panelButton.innerHTML =
+						'<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
 				}
 			}
 		}

@@ -1,6 +1,6 @@
-/*==[ Ajax.js ]===============================================================================================
+/* ==[ Ajax.js ]==============================================================================================
                                                 AJAX FUNCTIONS
-============================================================================================================*/
+=========================================================================================================== */
 
 // Main AJAX util
 function $ajax(url, params = null, useNative = nativeXHRworks) {
@@ -16,9 +16,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		};
 		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		const obj = {
-			'method': (params && params.method) || 'GET',
-			'url': nav.fixLink(url),
-			'onreadystatechange'(e) {
+			method : (params && params.method) || 'GET',
+			url    : nav.fixLink(url),
+			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
@@ -72,9 +72,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 			if(target.readyState === 4) {
 				if(target.status === 200 ||
-				   (aib.tiny && target.status === 400) ||
-				   (target.status === 0 && target.responseType === 'arraybuffer'))
-				{
+					(aib.tiny && target.status === 400) ||
+					(target.status === 0 && target.responseType === 'arraybuffer')
+				) {
 					resolve(target);
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
@@ -123,13 +123,18 @@ class AjaxError {
 		this.message = message;
 	}
 	toString() {
-		return this.code <= 0 ? String(this.message || Lng.noConnect[lang])
-		                      : 'HTTP [' + this.code + '] ' + this.message;
+		return this.code <= 0 ?
+			String(this.message || Lng.noConnect[lang]) :
+			'HTTP [' + this.code + '] ' + this.message;
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, { toString() { return Lng.thrClosed[lang]; } });
-AjaxError.Timeout = new AjaxError(0, { toString() { return Lng.noConnect[lang] + ' (timeout)'; } });
+AjaxError.Locked = new AjaxError(-1, { toString() {
+	return Lng.thrClosed[lang];
+} });
+AjaxError.Timeout = new AjaxError(0, { toString() {
+	return Lng.noConnect[lang] + ' (timeout)';
+} });
 
 class AjaxCache extends null {
 	static clear() {
@@ -148,8 +153,9 @@ class AjaxCache extends null {
 	static saveData(url, xhr) {
 		var ETag = null, LastModified = null, i = 0,
 			hasCacheControl = false,
-			ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders()
-			                                             : xhr.responseHeaders;
+			ajaxHeaders = 'getAllResponseHeaders' in xhr ?
+				xhr.getAllResponseHeaders() :
+				xhr.responseHeaders;
 		for(var header of ajaxHeaders.split('\r\n')) {
 			let lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
@@ -177,7 +183,9 @@ class AjaxCache extends null {
 			}
 		}
 		let hasUrl = AjaxCache._data.has(url);
-		AjaxCache._data.set(url, { hasCacheControl, params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+		AjaxCache._data.set(url, {
+			hasCacheControl,
+			params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
 		return hasUrl || hasCacheControl;
 	}
 }
@@ -195,16 +203,16 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 }
 
 function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.jsonBuilder) {
+	if(aib.JsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
-				return new aib.jsonBuilder(JSON.parse(xhr.responseText), brd);
+				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
 			} catch(e) {
 				if(e instanceof AjaxError) {
 					return CancelablePromise.reject(e);
 				}
 				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
-				aib.jsonBuilder = null;
+				aib.JsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
 		}, e => e.code === 304 ? null : CancelablePromise.reject(e));

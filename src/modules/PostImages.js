@@ -1,7 +1,7 @@
-/*==[ PostImages.js ]=========================================================================================
+/* ==[ PostImages.js ]========================================================================================
                                                     IMAGES
                images expanding (in post / by center), navigate buttons, image-links embedding
-============================================================================================================*/
+=========================================================================================================== */
 
 function ImgBtnsShowHider(nextFn, prevFn) {
 	var btns = $bEnd(docBody, '<div style="display: none;">' +
@@ -64,11 +64,11 @@ ImgBtnsShowHider.prototype = {
 		}
 	},
 
-	_hasEvents: false,
-	_hideTmt: 0,
-	_hidden: true,
-	_oldX: -1,
-	_oldY: -1,
+	_hasEvents : false,
+	_hidden    : true,
+	_hideTmt   : 0,
+	_oldX      : -1,
+	_oldY      : -1,
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
 		this._hideTmt = setTimeout(() => this.hide(), 2e3);
@@ -101,8 +101,10 @@ AttachmentViewer.prototype = {
 			var curX = e.clientX,
 				curY = e.clientY;
 			if(curX !== this._oldX || curY !== this._oldY) {
-				this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
-				this._elStyle.top = (this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY) + 'px';
+				this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
+				this._elStyle.left = this._oldL + 'px';
+				this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY;
+				this._elStyle.top = this._oldT + 'px';
 				this._oldX = curX;
 				this._oldY = curY;
 				this._moved = true;
@@ -112,12 +114,14 @@ AttachmentViewer.prototype = {
 			docBody.removeEventListener('mousemove', this, true);
 			docBody.removeEventListener('mouseup', this, true);
 			return;
-		case 'click':
+		case 'click': {
 			const el = e.target;
 			if(this.data.isVideo && this.data.isControlClick(e) ||
-			   el.tagName !== 'IMG' && el.tagName !== 'VIDEO' &&
-			   !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load')
-			{
+				el.tagName !== 'IMG' &&
+				el.tagName !== 'VIDEO' &&
+				!el.classList.contains('de-fullimg-wrap') &&
+				el.target.className !== 'de-fullimg-load'
+			) {
 				return;
 			}
 			if(e.button === 0) {
@@ -131,9 +135,10 @@ AttachmentViewer.prototype = {
 				break;
 			}
 			return;
+		}
 		case 'mousewheel':
 			this._handleWheelEvent(e.clientX, e.clientY,
-				-1/40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
+				-1 / 40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
 			break;
 		default: // 'wheel' event
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
@@ -156,18 +161,18 @@ AttachmentViewer.prototype = {
 		this._show(data, showButtons);
 	},
 
-	_data: null,
-	_elStyle: null,
-	_fullEl: null,
-	_obj: null,
-	_oldL: 0,
-	_oldT: 0,
-	_height: 0,
-	_width: 0,
-	_oldX: 0,
-	_oldY: 0,
-	_minSize: 0,
-	_moved: false,
+	_data    : null,
+	_elStyle : null,
+	_fullEl  : null,
+	_height  : 0,
+	_minSize : 0,
+	_moved   : false,
+	_obj     : null,
+	_oldL    : 0,
+	_oldT    : 0,
+	_oldX    : 0,
+	_oldY    : 0,
+	_width   : 0,
 	get _btns() {
 		var val = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
 		Object.defineProperty(this, '_btns', { value: val });
@@ -198,8 +203,10 @@ AttachmentViewer.prototype = {
 		this._height = height;
 		this._elStyle.width = width + 'px';
 		this._elStyle.height = height + 'px';
-		this._elStyle.left = (this._oldL = parseInt(clientX - (width / oldW) * (clientX - this._oldL), 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10)) + 'px';
+		this._oldL = parseInt(clientX - (width / oldW) * (clientX - this._oldL), 10);
+		this._elStyle.left = this._oldL + 'px';
+		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
+		this._elStyle.top = this._oldT + 'px';
 	},
 	_show(data) {
 		var [width, height, minSize] = data.computeFullSize();
@@ -216,7 +223,8 @@ AttachmentViewer.prototype = {
 			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
 			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
 		if(data.isImage) {
-			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`).appendChild(this._fullEl);
+			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
+				.appendChild(this._fullEl);
 		} else {
 			obj.appendChild(this._fullEl);
 		}
@@ -254,8 +262,8 @@ AttachmentViewer.prototype = {
 		var [width, height, minSize] = this.data.computeFullSize();
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
-		   Post.sizing.wHeight - this._oldT - this._height < 5)
-		{
+			Post.sizing.wHeight - this._oldT - this._height < 5
+		) {
 			return;
 		}
 		var cPointX = this._oldL + this._width / 2,
@@ -466,18 +474,18 @@ class ExpandableMedia {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
+		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
+			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			wrapEl = $add(`<div class="de-fullimg-wrap${
-					inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' +
-					(!this._size ? ' de-fullimg-wrap-nosize' : '') }">
-				${ !inPost && !this._size ?
-					'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+			const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
+				' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
+			const waitEl = inPost || this._size ? '' :
+				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
+			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">
-					<a class="de-fullimg-src" target="_blank" title="${
-						Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
-				</div>
+				<div class="de-fullimg-info">${ imgNameEl }</div>
 			</div>`);
 			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
@@ -519,21 +527,20 @@ class ExpandableMedia {
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		wrapEl = $add(`<div class="de-fullimg-wrap">
-			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ${
-				Cfg.webmControl ? 'controls ' : ''}${
-				Cfg.webmVolume === 0 ? 'muted ' : ''}></video>
+			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
+				(Cfg.webmControl ? 'controls ' : '') +
+				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
 			<div class="de-fullimg-info">
-				<a class="de-fullimg-src" target="_blank" title="${
-					Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>
+				${ imgNameEl }
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
 		</div>`);
 		const videoEl = $q('video', wrapEl);
 		videoEl.volume = Cfg.webmVolume / 100;
-		videoEl.addEventListener('error', function() {
-			if(!this.onceLoaded) {
-				this.load();
-				this.onceLoaded = true;
+		videoEl.addEventListener('error', ({ target }) => {
+			if(!target.onceLoaded) {
+				target.load();
+				target.onceLoaded = true;
 			}
 		});
 		// Sync webm volume on all browser tabs
@@ -566,9 +573,12 @@ class ExpandableMedia {
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; i++) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-					   d[i + 18] === 0x7B && d[i + 19] === 0xA9)
-					{
+					if(d[i] === 0x49 &&
+						d[i + 1] === 0xA9 &&
+						d[i + 2] === 0x66 &&
+						d[i + 18] === 0x7B &&
+						d[i + 19] === 0xA9
+					) {
 						i += 20;
 						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
 							title += String.fromCharCode(d[i]);
@@ -644,7 +654,7 @@ class Attachment extends ExpandableMedia {
 	get weight() {
 		let val = 0;
 		if(this.info) {
-			const w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mмkк])?i?[bб]/i);
+			const w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
 			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
@@ -662,7 +672,7 @@ class Attachment extends ExpandableMedia {
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[\)\s,]|$)/);
+			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;
