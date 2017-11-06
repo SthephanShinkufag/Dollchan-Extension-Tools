@@ -11857,7 +11857,7 @@ class ExpandableMedia {
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
 		videoEl.addEventListener('volumechange', e => {
-			const val = this.muted ? 0 : Math.round(this.volume * 100);
+			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				locStorage['__de-webmvolume'] = val;
