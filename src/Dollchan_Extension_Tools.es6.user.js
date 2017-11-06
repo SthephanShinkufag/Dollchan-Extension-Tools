@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '75e48b2';
+const commit = 'fc8d02c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1741,10 +1741,11 @@ const Logger = {
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
 	getData(full) {
-		let duration, i = 1;
 		const marks = this._marks;
 		const timeLog = [];
-		for(let len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+		let duration, i = 1;
+		let lastExtra = 0;
+		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 			// Ignore logs equal to 0ms
 			if(full || duration > 1) {
@@ -3433,7 +3434,8 @@ function showHiddenWindow(body) {
 	// "Clear" button. Allows to clear 404'd threads.
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, els = $Q('.de-entry[info]', e.target.parentNode), len = els.length; i < len; ++i) {
+		const els = $Q('.de-entry[info]', e.target.parentNode);
+		for(let i = 0, len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
@@ -3761,7 +3763,8 @@ function showFavoritesWindow(body, data) {
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
-		for(let page = 0, infoLoaded = 0; page < endPage; ++page) {
+		let infoLoaded = 0;
+		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
 				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
@@ -3809,7 +3812,9 @@ function showFavoritesWindow(body, data) {
 	// "Clear" button. Allows to clear 404'd threads.
 	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, last404 = false, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
+		let last404 = false;
+		const els = $Q('.de-entry'), len = els.length;
+		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
@@ -7966,7 +7971,8 @@ SpellsInterpreter.prototype = {
 			if((len = arr.length) > 3) {
 				arr.sort();
 				let keys = 0;
-				for(let i = 0, n = len / 4, pop = 0; i < len; keys++) {
+				let pop = 0;
+				for(let i = 0, n = len / 4; i < len; keys++) {
 					x = arr[i];
 					let j = 0;
 					while(arr[i++] === x) {

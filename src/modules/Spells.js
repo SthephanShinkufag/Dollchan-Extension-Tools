@@ -1168,7 +1168,8 @@ SpellsInterpreter.prototype = {
 			if((len = arr.length) > 3) {
 				arr.sort();
 				let keys = 0;
-				for(let i = 0, n = len / 4, pop = 0; i < len; keys++) {
+				let pop = 0;
+				for(let i = 0, n = len / 4; i < len; keys++) {
 					x = arr[i];
 					let j = 0;
 					while(arr[i++] === x) {

@@ -284,7 +284,8 @@ function showFavoritesWindow(body, data) {
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
-		for(let page = 0, infoLoaded = 0; page < endPage; ++page) {
+		let infoLoaded = 0;
+		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
 				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
@@ -332,7 +333,9 @@ function showFavoritesWindow(body, data) {
 	// "Clear" button. Allows to clear 404'd threads.
 	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, last404 = false, els = $Q('.de-entry'), len = els.length; i < len; ++i) {
+		let last404 = false;
+		const els = $Q('.de-entry'), len = els.length;
+		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;

@@ -1,16 +1,18 @@
-var babelify     = require('babelify');
-var browserify   = require('browserify');
-var spawn        = require('child_process').spawn;
-var gulp         = require('gulp');
-var newfile      = require('gulp-file');
-var headerfooter = require('gulp-headerfooter');
-var replace      = require('gulp-replace');
-var streamify    = require('gulp-streamify');
-var strip        = require('gulp-strip-comments');
-var tap          = require('gulp-tap');
-var source       = require('vinyl-source-stream');
+/* eslint no-var: "error", prefer-const: "error", prefer-template: "error" */
 
-var watchedPaths = [
+const babelify     = require('babelify');
+const browserify   = require('browserify');
+const spawn        = require('child_process').spawn;
+const gulp         = require('gulp');
+const newfile      = require('gulp-file');
+const headerfooter = require('gulp-headerfooter');
+const replace      = require('gulp-replace');
+const streamify    = require('gulp-streamify');
+const strip        = require('gulp-strip-comments');
+const tap          = require('gulp-tap');
+const source       = require('vinyl-source-stream');
+
+const watchedPaths = [
 	'src/modules/*',
 	'src/es5-polyfills.js',
 	'src/Dollchan_Extension_Tools.es6.user.js',
@@ -19,8 +21,8 @@ var watchedPaths = [
 
 // Updates commit version in Wrap.js module
 gulp.task('updatecommit', function(cb) {
-	var git = spawn('git', ['rev-parse', 'HEAD']);
-	var stdout, stderr;
+	let stdout, stderr;
+	const git = spawn('git', ['rev-parse', 'HEAD']);
 	git.stdout.on('data', function(data) {
 		stdout = String(data);
 	});
@@ -29,10 +31,10 @@ gulp.task('updatecommit', function(cb) {
 	});
 	git.on('close', function(code) {
 		if(code !== 0) {
-			throw new Error('Git error:\n' + (stdout ? stdout + '\n' : '') + stderr);
+			throw new Error(`Git error:\n${ stdout ? `${ stdout }\n` : '' }${ stderr }`);
 		}
 		gulp.src('src/modules/Wrap.js')
-			.pipe(replace(/^const commit = '[^']*';$/m, 'const commit = \'' + stdout.trim().substr(0, 7) + '\';'))
+			.pipe(replace(/^const commit = '[^']*';$/m, `const commit = '${ stdout.trim().substr(0, 7) }';`))
 			.pipe(gulp.dest('src/modules'))
 			.on('end', cb);
 	});
@@ -41,18 +43,17 @@ gulp.task('updatecommit', function(cb) {
 // Makes es6-script from module files
 gulp.task('make:es6', ['updatecommit'], function() {
 	gulp.src('src/modules/Wrap.js').pipe(tap(function(wrapFile) {
-		var str = wrapFile.contents.toString();
-		var arr = str.match(/\/\* ==\[ .*? \]== \*\//g);
-		for(var i = 0, count = 0, len = arr.length - 1; i < len; ++i) {
-			var match = arr[i];
-			gulp.src('src/modules/' + match.replace(/\/\* ==\[ | \]== \*\//g, ''))
+		let count = 0;
+		let str = wrapFile.contents.toString();
+		const arr = str.match(/\/\* ==\[ .*? \]== \*\//g);
+		for(let i = 0, len = arr.length - 1; i < len; ++i) {
+			gulp.src(`src/modules/${ arr[i].replace(/\/\* ==\[ | \]== \*\//g, '') }`)
 				.pipe(tap(function(moduleFile) {
-					str = str.replace(this, moduleFile.contents.toString());
-					count++;
-					if(count === len) {
+					str = str.replace(arr[i], moduleFile.contents.toString());
+					if(++count === len) {
 						newfile('src/Dollchan_Extension_Tools.es6.user.js', str).pipe(gulp.dest('.'));
 					}
-				}.bind(match)));
+				}));
 		}
 	}));
 });
@@ -74,19 +75,19 @@ gulp.task('make', ['make:es5']);
 // Split es6-script into separate module files
 gulp.task('make:modules', function() {
 	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(function(file) {
-		var arr = file.contents.toString().split('/* ==[ ');
-		var wrapStr = arr[0].slice(0, -2) + '\r\n';
-		for(var i = 1, len = arr.length; i < len; ++i) {
-			var str = arr[i];
+		const arr = file.contents.toString().split('/* ==[ ');
+		let wrapStr = `${ arr[0].slice(0, -2) }\r\n`;
+		for(let i = 1, len = arr.length; i < len; ++i) {
+			let str = arr[i];
 			if(i !== len - 1) {
 				str = str.slice(0, -2); // Remove last \r\n
-				wrapStr += '/* ==[ ' + str.split(' ]==')[0] + ' ]== */\r\n';
+				wrapStr += `/* ==[ ${ str.split(' ]==')[0] } ]== */\r\n`;
 			} else {
-				wrapStr += '/* ==[ ' + str;
+				wrapStr += `/* ==[ ${ str }`;
 				break;
 			}
-			var fileName = str.slice(0, str.indexOf(' ]'));
-			newfile('src/modules/' + fileName, '/* ==[ ' + str).pipe(gulp.dest(''));
+			const fileName = str.slice(0, str.indexOf(' ]'));
+			newfile(`src/modules/${ fileName }`, `/* ==[ ${ str }`).pipe(gulp.dest(''));
 		}
 		newfile('src/modules/Wrap.js', wrapStr).pipe(gulp.dest(''));
 	}));

@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '75e48b2';
+	var commit = 'fc8d02c';
 
 
 	var defaultCfg = {
@@ -3780,11 +3780,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._marks.push(['LoggerFinish', Date.now()]);
 		},
 		getData: function getData(full) {
-			var duration = void 0,
-			    i = 1;
 			var marks = this._marks;
 			var timeLog = [];
-			for (var len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+			var duration = void 0,
+			    i = 1;
+			var lastExtra = 0;
+			for (var len = marks.length - 1; i < len; ++i) {
 				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 				if (full || duration > 1) {
 					lastExtra = 0;
@@ -5723,52 +5724,53 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function _callee(e) {
-			var i, els, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, _b, tNum;
+			var els, i, len, _els$i$getAttribute$s, _els$i$getAttribute$s2, _b, tNum;
 
 			return regeneratorRuntime.async(function _callee$(_context5) {
 				while (1) {
 					switch (_context5.prev = _context5.next) {
 						case 0:
-							i = 0, els = $Q('.de-entry[info]', e.target.parentNode), len = els.length;
+							els = $Q('.de-entry[info]', e.target.parentNode);
+							i = 0, len = els.length;
 
-						case 1:
+						case 2:
 							if (!(i < len)) {
-								_context5.next = 14;
+								_context5.next = 15;
 								break;
 							}
 
 							_els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), _b = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
-							_context5.prev = 3;
-							_context5.next = 6;
+							_context5.prev = 4;
+							_context5.next = 7;
 							return regeneratorRuntime.awrap($ajax(aib.getThrUrl(_b, tNum)));
 
-						case 6:
-							_context5.next = 11;
+						case 7:
+							_context5.next = 12;
 							break;
 
-						case 8:
-							_context5.prev = 8;
-							_context5.t0 = _context5['catch'](3);
+						case 9:
+							_context5.prev = 9;
+							_context5.t0 = _context5['catch'](4);
 
 							if (_context5.t0.code === 404) {
 								HiddenThreads.remove(tNum, _b); 
 								HiddenPosts.remove(tNum, _b); 
 							}
 
-						case 11:
+						case 12:
 							++i;
-							_context5.next = 1;
+							_context5.next = 2;
 							break;
 
-						case 14:
+						case 15:
 							toggleWindow('hid', true);
 
-						case 15:
+						case 16:
 						case 'end':
 							return _context5.stop();
 					}
 				}
-			}, null, this, [[3, 8]]);
+			}, null, this, [[4, 9]]);
 		}));
 
 		body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], function () {
@@ -6106,7 +6108,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], function _callee3() {
-			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, page, infoLoaded, tNums, form, _i3, pInfo, _i4, _thrInfo$_i, found, pageEl, iconClass, _iconEl, iconTitle, _titleEl;
+			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, page, tNums, form, _i3, pInfo, _i4, _thrInfo$_i, found, pageEl, iconClass, _iconEl, iconTitle, _titleEl;
 
 			return regeneratorRuntime.async(function _callee3$(_context7) {
 				while (1) {
@@ -6144,34 +6146,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							endPage = (aib.lastPage || 10) + 1; 
 
-							page = 0, infoLoaded = 0;
+							infoLoaded = 0;
+							page = 0;
 
-						case 9:
+						case 10:
 							if (!(page < endPage)) {
-								_context7.next = 27;
+								_context7.next = 28;
 								break;
 							}
 
 							tNums = void 0;
-							_context7.prev = 11;
-							_context7.next = 14;
+							_context7.prev = 12;
+							_context7.next = 15;
 							return regeneratorRuntime.awrap(ajaxLoad(aib.getPageUrl(aib.b, page)));
 
-						case 14:
+						case 15:
 							form = _context7.sent;
 
 							tNums = new Set(Array.from(DelForm.getThreads(form)).map(function (thrEl) {
 								return aib.getTNum(thrEl);
 							}));
-							_context7.next = 21;
+							_context7.next = 22;
 							break;
 
-						case 18:
-							_context7.prev = 18;
-							_context7.t0 = _context7['catch'](11);
-							return _context7.abrupt('continue', 24);
+						case 19:
+							_context7.prev = 19;
+							_context7.t0 = _context7['catch'](12);
+							return _context7.abrupt('continue', 25);
 
-						case 21:
+						case 22:
 							for (_i3 = 0; _i3 < len; ++_i3) {
 								pInfo = thrInfo[_i3];
 
@@ -6189,18 +6192,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 
 							if (!(infoLoaded === len)) {
-								_context7.next = 24;
+								_context7.next = 25;
 								break;
 							}
 
-							return _context7.abrupt('break', 27);
+							return _context7.abrupt('break', 28);
 
-						case 24:
+						case 25:
 							++page;
-							_context7.next = 9;
+							_context7.next = 10;
 							break;
 
-						case 27:
+						case 28:
 							for (_i4 = 0; _i4 < len; ++_i4) {
 								_thrInfo$_i = thrInfo[_i4], found = _thrInfo$_i.found, pageEl = _thrInfo$_i.pageEl, iconClass = _thrInfo$_i.iconClass, _iconEl = _thrInfo$_i.iconEl, iconTitle = _thrInfo$_i.iconTitle, _titleEl = _thrInfo$_i.titleEl;
 
@@ -6216,25 +6219,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							closePopup('load-pages');
 
-						case 29:
+						case 30:
 						case 'end':
 							return _context7.stop();
 					}
 				}
-			}, null, this, [[11, 18]]);
+			}, null, this, [[12, 19]]);
 		}));
 
 		div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function _callee4() {
-			var i, last404, els, len, el, iconEl, titleEl;
+			var last404, els, len, i, el, iconEl, titleEl;
 			return regeneratorRuntime.async(function _callee4$(_context8) {
 				while (1) {
 					switch (_context8.prev = _context8.next) {
 						case 0:
-							i = 0, last404 = false, els = $Q('.de-entry'), len = els.length;
+							last404 = false;
+							els = $Q('.de-entry'), len = els.length;
+							i = 0;
 
-						case 1:
+						case 3:
 							if (!(i < len)) {
-								_context8.next = 31;
+								_context8.next = 33;
 								break;
 							}
 
@@ -6244,62 +6249,62 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 							titleEl.title = Lng.updating[lang];
-							_context8.prev = 7;
-							_context8.next = 10;
+							_context8.prev = 9;
+							_context8.next = 12;
 							return regeneratorRuntime.awrap($ajax(el.getAttribute('de-url'), null, false));
 
-						case 10:
+						case 12:
 							iconEl.setAttribute('class', 'de-fav-inf-icon');
 							titleEl.removeAttribute('title');
-							_context8.next = 27;
+							_context8.next = 29;
 							break;
 
-						case 14:
-							_context8.prev = 14;
-							_context8.t0 = _context8['catch'](7);
+						case 16:
+							_context8.prev = 16;
+							_context8.t0 = _context8['catch'](9);
 
 							if (!(_context8.t0.code === 404)) {
-								_context8.next = 25;
+								_context8.next = 27;
 								break;
 							}
 
 							if (!last404) {
-								_context8.next = 22;
+								_context8.next = 24;
 								break;
 							}
 
 							Thread.removeSavedData(el.getAttribute('de-board'), 
 							+el.getAttribute('de-num'));
 							el.setAttribute('de-removed', ''); 
-							_context8.next = 25;
+							_context8.next = 27;
 							break;
 
-						case 22:
+						case 24:
 							last404 = true;
 							--i; 
-							return _context8.abrupt('continue', 28);
+							return _context8.abrupt('continue', 30);
 
-						case 25:
+						case 27:
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							titleEl.title = getErrorMessage(_context8.t0);
 
-						case 27:
+						case 29:
 							last404 = false;
 
-						case 28:
+						case 30:
 							++i;
-							_context8.next = 1;
+							_context8.next = 3;
 							break;
 
-						case 31:
+						case 33:
 							cleanFavorites(); 
 
-						case 32:
+						case 34:
 						case 'end':
 							return _context8.stop();
 					}
 				}
-			}, null, this, [[7, 14]]);
+			}, null, this, [[9, 16]]);
 		}));
 
 		div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], function () {
@@ -10751,7 +10756,8 @@ true, true],
 				if ((len = arr.length) > 3) {
 					arr.sort();
 					var keys = 0;
-					for (var _i25 = 0, _n = len / 4, pop = 0; _i25 < len; keys++) {
+					var pop = 0;
+					for (var _i25 = 0, _n = len / 4; _i25 < len; keys++) {
 						x = arr[_i25];
 						var _j2 = 0;
 						while (arr[_i25++] === x) {

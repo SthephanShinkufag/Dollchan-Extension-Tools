@@ -175,7 +175,8 @@ function showHiddenWindow(body) {
 	// "Clear" button. Allows to clear 404'd threads.
 	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
 		// Sequentially load threads, and remove inaccessible
-		for(let i = 0, els = $Q('.de-entry[info]', e.target.parentNode), len = els.length; i < len; ++i) {
+		const els = $Q('.de-entry[info]', e.target.parentNode);
+		for(let i = 0, len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));

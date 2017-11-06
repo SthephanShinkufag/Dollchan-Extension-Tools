@@ -226,10 +226,11 @@ const Logger = {
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
 	getData(full) {
-		let duration, i = 1;
 		const marks = this._marks;
 		const timeLog = [];
-		for(let len = marks.length - 1, lastExtra = 0; i < len; ++i) {
+		let duration, i = 1;
+		let lastExtra = 0;
+		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 			// Ignore logs equal to 0ms
 			if(full || duration > 1) {
