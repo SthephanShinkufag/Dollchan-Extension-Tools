@@ -23,10 +23,10 @@ function checkStorage() {
 // Browser identification and browser-specific hacks
 function initNavFuncs() {
 	const ua = navigator.userAgent;
-	const firefox = ua.includes('Gecko/');
-	const webkit = ua.includes('WebKit/');
-	const chrome = webkit && ua.includes('Chrome/');
-	const safari = webkit && !chrome;
+	const isFirefox = ua.includes('Gecko/');
+	const isWebkit = ua.includes('WebKit/');
+	const isChrome = isWebkit && ua.includes('Chrome/');
+	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
@@ -34,7 +34,7 @@ function initNavFuncs() {
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
-				(!chrome || !GM_setValue.toString().includes('not supported'));
+				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
@@ -52,7 +52,7 @@ function initNavFuncs() {
 	let needFileHack = false;
 	try {
 		new File([''], '');
-		if(firefox || safari) {
+		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
 	} catch(e) {
@@ -82,26 +82,26 @@ function initNavFuncs() {
 	}
 	nav = {
 		get ua() {
-			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
+			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		Firefox         : firefox,
-		WebKit          : webkit,
-		Chrome          : chrome,
-		Safari          : safari,
-		Presto          : !!window.opera,
-		MsEdge          : ua.includes('Edge/'),
-		isGM            : isGM,
-		isNewGM         : isNewGM,
-		isChromeStorage : isChromeStorage,
-		isScriptStorage : isScriptStorage,
-		isGlobal        : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
+		isFirefox,
+		isWebkit,
+		isChrome,
+		isSafari,
+		isGM,
+		isNewGM,
+		isChromeStorage,
+		isScriptStorage,
+		Presto   : !!window.opera,
+		MsEdge   : ua.includes('Edge/'),
+		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get isESNext() {
 			return typeof deMainFuncOuter === 'undefined';
 		},
 		get scriptInstall() {
-			if(this.Firefox) {
+			if(this.isFirefox) {
 				if(this.isNewGM) {
 					if(GM.info) {
 						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
@@ -115,7 +115,7 @@ function initNavFuncs() {
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
 		},
-		fixLink: safari ? getAbsLink : function fixLink(url) {
+		fixLink: isSafari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
 		get hasTemplate() {
@@ -128,7 +128,7 @@ function initNavFuncs() {
 			try {
 				val = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(val && this.Firefox) {
+			if(val && this.isFirefox) {
 				val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
@@ -162,7 +162,7 @@ function initNavFuncs() {
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(!nav.isNewGM && nav.Firefox) {
+			if(!nav.isNewGM && nav.isFirefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -180,7 +180,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ?
+			return nav.isNewGM || !nav.isFirefox || (rv instanceof DataView) ?
 				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};

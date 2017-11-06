@@ -87,7 +87,7 @@ function scriptCSS() {
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
 	.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
-	.de-cfg-button { padding: 0 ${ nav.Firefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
+	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.Presto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
@@ -98,7 +98,7 @@ function scriptCSS() {
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
-	.de-cfg-tab::${ nav.Firefox ? '-moz-' : '' }selection { background: transparent; }
+	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
 	.de-cfg-unvis { display: none; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
@@ -319,7 +319,7 @@ function scriptCSS() {
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
-	.de-button { flex: none; padding: 0 ${ nav.Firefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
+	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }

@@ -116,7 +116,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.updateLanguage();
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
-	if(nav.Firefox) {
+	if(nav.isFirefox) {
 		this.txta.addEventListener('mouseup', ({ target }) => {
 			saveCfg('textaWidth', parseInt(target.style.width, 10));
 			saveCfg('textaHeight', parseInt(target.style.height, 10));

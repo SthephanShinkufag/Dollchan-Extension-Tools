@@ -96,7 +96,7 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.Safari && !('flex' in docBody.style)) {
+	if(nav.isSafari && !('flex' in docBody.style)) {
 		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
 	}
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
@@ -524,8 +524,8 @@ function getErrorMessage(e) {
 	}
 	return Lng.internalError[lang] + (
 		!e.stack ? e.name + ': ' + e.message :
-		nav.WebKit ? e.stack :
-		e.name + ': ' + e.message + '\n' + (!nav.Firefox ? e.stack : e.stack.replace(
+		nav.isWebkit ? e.stack :
+		e.name + ': ' + e.message + '\n' + (!nav.isFirefox ? e.stack : e.stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
 			(str, fName, line) => '    at ' + (fName ? fName + ' (' + line + ')' : line)
 		))
@@ -562,12 +562,7 @@ function* getFormElements(form, submitter) {
 			for(let j = 0, jlen = options.length; j < jlen; ++j) {
 				const option = options[j];
 				if(option.selected && !isFormElDisabled(option)) {
-					yield {
-						el    : field,
-						name  : fixName(name),
-						type  : type,
-						value : option.value
-					};
+					yield { type, el: field, name: fixName(name), value: option.value };
 				}
 			}
 		} else if(tagName === 'input') {
@@ -575,30 +570,20 @@ function* getFormElements(form, submitter) {
 			case 'image': throw new Error('input[type="image"] is not supported');
 			case 'checkbox':
 			case 'radio':
-				yield {
-					el    : field,
-					name  : fixName(name),
-					type  : type,
-					value : field.value || 'on'
-				};
+				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
 				continue constructSet;
 			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
-						yield {
-							el    : field,
-							name  : name,
-							type  : type,
-							value : files[j]
-						};
+						yield { name, type, el: field, value: files[j] };
 					}
 				} else if(field.obj && (imgFile = field.obj.imgFile)) {
 					yield {
+						name,
+						type,
 						el    : field,
-						name  : name,
-						type  : type,
 						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
 					};
 				} else {
@@ -614,19 +599,9 @@ function* getFormElements(form, submitter) {
 			}
 		}
 		if(type === 'textarea') {
-			yield {
-				el    : field,
-				name  : name || '',
-				type  : type,
-				value : field.value
-			};
+			yield { type, el: field, name: name || '', value: field.value };
 		} else {
-			yield {
-				el    : field,
-				name  : fixName(name),
-				type  : type,
-				value : field.value
-			};
+			yield { type, el: field, name: fixName(name), value: field.value };
 		}
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {

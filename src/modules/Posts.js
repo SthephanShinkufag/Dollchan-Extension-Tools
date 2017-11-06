@@ -562,8 +562,8 @@ class Post extends AbstractPost {
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
+				hide,
 				brd    : aib.b,
-				hide   : hide,
 				num    : this.num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''

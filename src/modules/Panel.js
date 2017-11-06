@@ -207,7 +207,7 @@ var panel = Object.create({
 						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localData ? '' :
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.Safari ? '' : this._getButton('audio-off'))) +
+						(nav.isSafari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : '<span id="de-panel-info">' +

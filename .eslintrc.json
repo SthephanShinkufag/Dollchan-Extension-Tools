@@ -47,7 +47,7 @@
 		"no-tabs": "off",
 		"no-unsafe-finally": "off",
 		"no-useless-concat": "error",
-		"object-property-newline": "off",
+		"object-shorthand": ["error", "always"],
 		"one-var": "off",
 		"operator-linebreak": ["error", "after"],
 		"prefer-promise-reject-errors": ["error", { "allowEmptyReject": true }],

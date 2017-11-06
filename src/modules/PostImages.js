@@ -701,7 +701,7 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 
-	_getHashHelper: async function(imgObj) {
+	async _getHashHelper(imgObj) {
 		var el = imgObj.el,
 			src = imgObj.src;
 		if(src in this._storage) {
@@ -835,5 +835,5 @@ function genImgHash(data) {
 			hash &= ~g;
 		}
 	}
-	return { hash: hash };
+	return { hash };
 }

@@ -450,10 +450,10 @@ const cfgWindow = Object.create({
 				$popup('cfg-debug',
 					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
-					version  : version,
+					version,
 					location : String(window.location),
-					nav      : nav,
-					cfg      : Cfg,
+					nav,
+					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage['de-spells-' + aib.b + (aib.t || '')],
 					perf     : Logger.getData(true)

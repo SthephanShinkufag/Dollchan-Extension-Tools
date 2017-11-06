@@ -27,7 +27,7 @@ var Pages = {
 			}
 		});
 	},
-	load: async function(count) {
+	async load(count) {
 		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addPromise) {
 			this._addPromise.cancel();
@@ -96,7 +96,7 @@ var Pages = {
 		this._adding = false;
 		this._addPromise = null;
 	},
-	_updateForms: async function(newForm) {
+	async _updateForms(newForm) {
 		let fav = await getStoredObj('DESU_Favorites');
 		readPostsData(newForm.firstThr.op, fav);
 		if(pr.passw) {

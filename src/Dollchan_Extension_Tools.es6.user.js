@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'cd5bf81';
+const commit = 'e838d08';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1012,12 +1012,11 @@ const Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 	monthDict: {
-		янв : 0, фев : 1, мар : 2, апр : 3, май : 4, мая : 4, июн : 5, июл : 6, авг : 7, сен : 8, окт : 9,
-		ноя : 10, дек : 11,
-		jan : 0, feb : 1, mar : 2, apr : 3, may : 4, jun : 5, jul : 6, aug : 7, sep : 8, oct : 9,
-		nov : 10, dec : 11,
-		січ : 0, лют : 1, бер : 2, кві : 3, тра : 4, чер : 5, лип : 6, сер : 7, вер : 8, жов : 9,
-		лис : 10, гру : 11
+		/* eslint-disable */
+		янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11,
+		jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+		січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9, лис: 10, гру: 11
+		/* eslint-enable */
 	},
 
 	// Spells: popups
@@ -1611,7 +1610,7 @@ function $script(text) {
 }
 
 function $css(text) {
-	if(nav.Safari && !('flex' in docBody.style)) {
+	if(nav.isSafari && !('flex' in docBody.style)) {
 		text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
 	}
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
@@ -2039,8 +2038,8 @@ function getErrorMessage(e) {
 	}
 	return Lng.internalError[lang] + (
 		!e.stack ? e.name + ': ' + e.message :
-		nav.WebKit ? e.stack :
-		e.name + ': ' + e.message + '\n' + (!nav.Firefox ? e.stack : e.stack.replace(
+		nav.isWebkit ? e.stack :
+		e.name + ': ' + e.message + '\n' + (!nav.isFirefox ? e.stack : e.stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
 			(str, fName, line) => '    at ' + (fName ? fName + ' (' + line + ')' : line)
 		))
@@ -2077,12 +2076,7 @@ function* getFormElements(form, submitter) {
 			for(let j = 0, jlen = options.length; j < jlen; ++j) {
 				const option = options[j];
 				if(option.selected && !isFormElDisabled(option)) {
-					yield {
-						el    : field,
-						name  : fixName(name),
-						type  : type,
-						value : option.value
-					};
+					yield { type, el: field, name: fixName(name), value: option.value };
 				}
 			}
 		} else if(tagName === 'input') {
@@ -2090,30 +2084,20 @@ function* getFormElements(form, submitter) {
 			case 'image': throw new Error('input[type="image"] is not supported');
 			case 'checkbox':
 			case 'radio':
-				yield {
-					el    : field,
-					name  : fixName(name),
-					type  : type,
-					value : field.value || 'on'
-				};
+				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
 				continue constructSet;
 			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
 					const files = field.files;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
-						yield {
-							el    : field,
-							name  : name,
-							type  : type,
-							value : files[j]
-						};
+						yield { name, type, el: field, value: files[j] };
 					}
 				} else if(field.obj && (imgFile = field.obj.imgFile)) {
 					yield {
+						name,
+						type,
 						el    : field,
-						name  : name,
-						type  : type,
 						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
 					};
 				} else {
@@ -2129,19 +2113,9 @@ function* getFormElements(form, submitter) {
 			}
 		}
 		if(type === 'textarea') {
-			yield {
-				el    : field,
-				name  : name || '',
-				type  : type,
-				value : field.value
-			};
+			yield { type, el: field, name: name || '', value: field.value };
 		} else {
-			yield {
-				el    : field,
-				name  : fixName(name),
-				type  : type,
-				value : field.value
-			};
+			yield { type, el: field, name: fixName(name), value: field.value };
 		}
 		const dirname = field.getAttribute('dirname');
 		if(dirname) {
@@ -2950,7 +2924,7 @@ var panel = Object.create({
 						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localData ? '' :
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.Safari ? '' : this._getButton('audio-off'))) +
+						(nav.isSafari ? '' : this._getButton('audio-off'))) +
 					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
 					this._getButton('enable') +
 					(!isThr ? '' : '<span id="de-panel-info">' +
@@ -3326,9 +3300,9 @@ function showVideosWindow(body) {
 
 	// Events for control buttons
 	body.addEventListener('click', {
+		linkList,
 		currentLink : null,
 		listHidden  : false,
-		linkList    : linkList,
 		player      : body.firstElementChild,
 		playerInfo  : null,
 		handleEvent(e) {
@@ -3455,22 +3429,17 @@ function showHiddenWindow(body) {
 			if(!$q('input', el).checked) {
 				return;
 			}
-			const [b, tNum] = el.getAttribute('info').split(';');
+			const [brd, tNum] = el.getAttribute('info').split(';');
 			const num = +tNum;
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
 				// Synchronize current hidden thread in other tabs
 				// Storage event listeners are loacted at initStorageEvent()
-				locStorage['__de-post'] = JSON.stringify({
-					brd    : b,
-					hide   : false,
-					num    : num,
-					thrNum : num
-				});
+				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
 				locStorage.removeItem('__de-post');
 			}
-			HiddenThreads.remove(num, b); // Remove thread from hidden threads storage
+			HiddenThreads.remove(num, brd); // Remove thread from hidden threads storage
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);
@@ -4318,10 +4287,10 @@ const cfgWindow = Object.create({
 				$popup('cfg-debug',
 					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
-					version  : version,
+					version,
 					location : String(window.location),
-					nav      : nav,
-					cfg      : Cfg,
+					nav,
+					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage['de-spells-' + aib.b + (aib.t || '')],
 					perf     : Logger.getData(true)
@@ -5018,7 +4987,7 @@ var HotKeys = {
 		var thrKeys = [
 			/* Update thread  */ 0x0055 /* = U */
 		];
-		return [HotKeys.version, nav.Firefox, globKeys, nonThrKeys, thrKeys];
+		return [HotKeys.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
 	},
 	clear() {
 		this.cPost = null;
@@ -5239,7 +5208,7 @@ var HotKeys = {
 		this.tKeys = keys[4];
 		this._paused = false;
 	},
-	readKeys: async function() {
+	async readKeys() {
 		var keys, str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
@@ -5276,8 +5245,8 @@ var HotKeys = {
 				keys[0] = this.version;
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
-			if(keys[1] ^ nav.Firefox) {
-				var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+			if(keys[1] ^ nav.isFirefox) {
+				const mapFunc = nav.isFirefox ? function mapFuncFF(key) {
 					switch(key) {
 					case 189: return 173;
 					case 187: return 61;
@@ -5292,7 +5261,7 @@ var HotKeys = {
 					default: return key;
 					}
 				};
-				keys[1] = nav.Firefox;
+				keys[1] = nav.isFirefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);
 				setStored('DESU_keys', JSON.stringify(keys));
@@ -5994,9 +5963,9 @@ DateTime.checkPattern = function(val) {
 		/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 DateTime.prototype = {
+	pad2,
 	genDateTime : null,
 	onRPat      : null,
-	pad2        : pad2,
 	genRFunc(rPattern) {
 		return new Function('dtime', "return '" +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
@@ -6700,7 +6669,7 @@ var Pages = {
 			}
 		});
 	},
-	load: async function(count) {
+	async load(count) {
 		$popup('load-pages', Lng.loading[lang], true);
 		if(this._addPromise) {
 			this._addPromise.cancel();
@@ -6769,7 +6738,7 @@ var Pages = {
 		this._adding = false;
 		this._addPromise = null;
 	},
-	_updateForms: async function(newForm) {
+	async _updateForms(newForm) {
 		let fav = await getStoredObj('DESU_Favorites');
 		readPostsData(newForm.firstThr.op, fav);
 		if(pr.passw) {
@@ -7273,9 +7242,7 @@ var Spells = Object.create({
 		}
 	},
 	_sync(data) {
-		locStorage['__de-spells'] = JSON.stringify({
-			hide : !!Cfg.hideBySpell,
-			data : data });
+		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
 });
@@ -7726,7 +7693,7 @@ class SpellsRunner {
 					hash      : Cfg.hideBySpell ? Spells.hash : 0,
 					lastCount : lPost.count,
 					lastNum   : lPost.num,
-					data      : data });
+					data });
 			}
 			toggleWindow('hid', true);
 		}
@@ -7858,7 +7825,7 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async function(val) {
+	async _ihash(val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;
@@ -8228,7 +8195,7 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	this.updateLanguage();
 	this.form.style.display = 'inline-block';
 	this.form.style.textAlign = 'left';
-	if(nav.Firefox) {
+	if(nav.isFirefox) {
 		this.txta.addEventListener('mouseup', ({ target }) => {
 			saveCfg('textaWidth', parseInt(target.style.width, 10));
 			saveCfg('textaHeight', parseInt(target.style.height, 10));
@@ -8796,7 +8763,7 @@ function checkUpload(data) {
 		$popup('upload', error);
 		updater.sendErrNotif();
 		updater.continue();
-		DollchanAPI.notify('submitform', { success: false, error: error });
+		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
 	const tNum = pr.tNum;
@@ -10372,8 +10339,8 @@ class Post extends AbstractPost {
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
+				hide,
 				brd    : aib.b,
-				hide   : hide,
 				num    : this.num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
@@ -12013,7 +11980,7 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 
-	_getHashHelper: async function(imgObj) {
+	async _getHashHelper(imgObj) {
 		var el = imgObj.el,
 			src = imgObj.src;
 		if(src in this._storage) {
@@ -12147,7 +12114,7 @@ function genImgHash(data) {
 			hash &= ~g;
 		}
 	}
-	return { hash: hash };
+	return { hash };
 }
 
 /* ==[ PostBuilders.js ]======================================================================================
@@ -13079,7 +13046,7 @@ class Thread {
 					txt  : this.op.title,
 					url  : aib.getThrUrl(b, num),
 					last : aib.anchor + this.last.num,
-					type : type
+					type
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, num);
@@ -14282,10 +14249,10 @@ function checkStorage() {
 // Browser identification and browser-specific hacks
 function initNavFuncs() {
 	const ua = navigator.userAgent;
-	const firefox = ua.includes('Gecko/');
-	const webkit = ua.includes('WebKit/');
-	const chrome = webkit && ua.includes('Chrome/');
-	const safari = webkit && !chrome;
+	const isFirefox = ua.includes('Gecko/');
+	const isWebkit = ua.includes('WebKit/');
+	const isChrome = isWebkit && ua.includes('Chrome/');
+	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	let isGM = false;
@@ -14293,7 +14260,7 @@ function initNavFuncs() {
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
-				(!chrome || !GM_setValue.toString().includes('not supported'));
+				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
@@ -14311,7 +14278,7 @@ function initNavFuncs() {
 	let needFileHack = false;
 	try {
 		new File([''], '');
-		if(firefox || safari) {
+		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
 	} catch(e) {
@@ -14341,26 +14308,26 @@ function initNavFuncs() {
 	}
 	nav = {
 		get ua() {
-			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
+			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		Firefox         : firefox,
-		WebKit          : webkit,
-		Chrome          : chrome,
-		Safari          : safari,
-		Presto          : !!window.opera,
-		MsEdge          : ua.includes('Edge/'),
-		isGM            : isGM,
-		isNewGM         : isNewGM,
-		isChromeStorage : isChromeStorage,
-		isScriptStorage : isScriptStorage,
-		isGlobal        : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
+		isFirefox,
+		isWebkit,
+		isChrome,
+		isSafari,
+		isGM,
+		isNewGM,
+		isChromeStorage,
+		isScriptStorage,
+		Presto   : !!window.opera,
+		MsEdge   : ua.includes('Edge/'),
+		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get isESNext() {
 			return typeof deMainFuncOuter === 'undefined';
 		},
 		get scriptInstall() {
-			if(this.Firefox) {
+			if(this.isFirefox) {
 				if(this.isNewGM) {
 					if(GM.info) {
 						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
@@ -14374,7 +14341,7 @@ function initNavFuncs() {
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
 		},
-		fixLink: safari ? getAbsLink : function fixLink(url) {
+		fixLink: isSafari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
 		get hasTemplate() {
@@ -14387,7 +14354,7 @@ function initNavFuncs() {
 			try {
 				val = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(val && this.Firefox) {
+			if(val && this.isFirefox) {
 				val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
@@ -14421,7 +14388,7 @@ function initNavFuncs() {
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(!nav.isNewGM && nav.Firefox) {
+			if(!nav.isNewGM && nav.isFirefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -14439,7 +14406,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || !nav.Firefox || (rv instanceof DataView) ?
+			return nav.isNewGM || !nav.isFirefox || (rv instanceof DataView) ?
 				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
@@ -16462,7 +16429,7 @@ class DollchanAPI {
 	}
 	static notify(name, data) {
 		if(DollchanAPI.hasListener(name)) {
-			DollchanAPI.port.postMessage({ name: name, data: data });
+			DollchanAPI.port.postMessage({ name, data });
 		}
 	}
 
@@ -16886,7 +16853,7 @@ function scriptCSS() {
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
 	.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
-	.de-cfg-button { padding: 0 ${ nav.Firefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
+	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.Presto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
@@ -16897,7 +16864,7 @@ function scriptCSS() {
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
-	.de-cfg-tab::${ nav.Firefox ? '-moz-' : '' }selection { background: transparent; }
+	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
 	.de-cfg-unvis { display: none; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
@@ -17118,7 +17085,7 @@ function scriptCSS() {
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
-	.de-button { flex: none; padding: 0 ${ nav.Firefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
+	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }

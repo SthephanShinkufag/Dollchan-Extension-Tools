@@ -41,7 +41,7 @@ var HotKeys = {
 		var thrKeys = [
 			/* Update thread  */ 0x0055 /* = U */
 		];
-		return [HotKeys.version, nav.Firefox, globKeys, nonThrKeys, thrKeys];
+		return [HotKeys.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
 	},
 	clear() {
 		this.cPost = null;
@@ -262,7 +262,7 @@ var HotKeys = {
 		this.tKeys = keys[4];
 		this._paused = false;
 	},
-	readKeys: async function() {
+	async readKeys() {
 		var keys, str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
@@ -299,8 +299,8 @@ var HotKeys = {
 				keys[0] = this.version;
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
-			if(keys[1] ^ nav.Firefox) {
-				var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+			if(keys[1] ^ nav.isFirefox) {
+				const mapFunc = nav.isFirefox ? function mapFuncFF(key) {
 					switch(key) {
 					case 189: return 173;
 					case 187: return 61;
@@ -315,7 +315,7 @@ var HotKeys = {
 					default: return key;
 					}
 				};
-				keys[1] = nav.Firefox;
+				keys[1] = nav.isFirefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);
 				setStored('DESU_keys', JSON.stringify(keys));

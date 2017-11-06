@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'cd5bf81';
+	var commit = 'e838d08';
 
 
 	var defaultCfg = {
@@ -3348,12 +3348,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		fullMonth: [['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']],
 		week: [['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'], ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], ['Нед', 'Пон', 'Вів', 'Сер', 'Чет', 'Птн', 'Сбт']],
 		monthDict: {
-			янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9,
-			ноя: 10, дек: 11,
-			jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9,
-			nov: 10, dec: 11,
-			січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9,
-			лис: 10, гру: 11
+			янв: 0, фев: 1, мар: 2, апр: 3, май: 4, мая: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11,
+			jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+			січ: 0, лют: 1, бер: 2, кві: 3, тра: 4, чер: 5, лип: 6, сер: 7, вер: 8, жов: 9, лис: 10, гру: 11
 		},
 
 		seSyntaxErr: ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s', 'синтаксична помилка в аргументі спеллу: %s'],
@@ -3646,7 +3643,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $css(text) {
-		if (nav.Safari && !('flex' in docBody.style)) {
+		if (nav.isSafari && !('flex' in docBody.style)) {
 			text = text.replace(/(transform|transition|flex|align-items)/g, ' -webkit-$1');
 		}
 		return $bEnd(doc.head, '<style type="text/css">' + text + '</style>');
@@ -4137,7 +4134,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (typeof e === 'string') {
 			return e;
 		}
-		return Lng.internalError[lang] + (!e.stack ? e.name + ': ' + e.message : nav.WebKit ? e.stack : e.name + ': ' + e.message + '\n' + (!nav.Firefox ? e.stack : e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
+		return Lng.internalError[lang] + (!e.stack ? e.name + ': ' + e.message : nav.isWebkit ? e.stack : e.name + ': ' + e.message + '\n' + (!nav.isFirefox ? e.stack : e.stack.replace(/^([^@]*).*\/(.+)$/gm, function (str, fName, line) {
 			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 		})));
 	}
@@ -4198,12 +4195,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 
 						_context.next = 18;
-						return {
-							el: field,
-							name: fixName(name),
-							type: type,
-							value: option.value
-						};
+						return { type: type, el: field, name: fixName(name), value: option.value };
 
 					case 18:
 						++j;
@@ -4229,12 +4221,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 28:
 						_context.next = 30;
-						return {
-							el: field,
-							name: fixName(name),
-							type: type,
-							value: field.value || 'on'
-						};
+						return { type: type, el: field, name: fixName(name), value: field.value || 'on' };
 
 					case 30:
 						return _context.abrupt('continue', 62);
@@ -4257,12 +4244,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 
 						_context.next = 38;
-						return {
-							el: field,
-							name: name,
-							type: type,
-							value: files[_j]
-						};
+						return { name: name, type: type, el: field, value: files[_j] };
 
 					case 38:
 						++_j;
@@ -4281,9 +4263,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						_context.next = 46;
 						return {
-							el: field,
 							name: name,
 							type: type,
+							el: field,
 							value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
 						};
 
@@ -4310,12 +4292,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 
 						_context.next = 54;
-						return {
-							el: field,
-							name: name || '',
-							type: type,
-							value: field.value
-						};
+						return { type: type, el: field, name: name || '', value: field.value };
 
 					case 54:
 						_context.next = 58;
@@ -4323,12 +4300,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					case 56:
 						_context.next = 58;
-						return {
-							el: field,
-							name: fixName(name),
-							type: type,
-							value: field.value
-						};
+						return { type: type, el: field, name: fixName(name), value: field.value };
 
 					case 58:
 						dirname = field.getAttribute('dirname');
@@ -5323,7 +5295,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		init: function init(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length,
 			    isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.Safari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' + Thread.first.pcount + '</span>' + ('<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">') + (imgLen + '</span>') + ('<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>') + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '\n\t\t<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.Presto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.isSafari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">' + '<span id="de-panel-info-pcount" title="' + Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' + Thread.first.pcount + '</span>' + ('<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">') + (imgLen + '</span>') + ('<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>') + '</span>')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -5620,9 +5592,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		body.appendChild(script);
 
 		body.addEventListener('click', {
+			linkList: linkList,
 			currentLink: null,
 			listHidden: false,
-			linkList: linkList,
 			player: body.firstElementChild,
 			playerInfo: null,
 			handleEvent: function handleEvent(e) {
@@ -5781,22 +5753,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var _el$getAttribute$spli = el.getAttribute('info').split(';'),
 				    _el$getAttribute$spli2 = _slicedToArray(_el$getAttribute$spli, 2),
-				    b = _el$getAttribute$spli2[0],
+				    brd = _el$getAttribute$spli2[0],
 				    tNum = _el$getAttribute$spli2[1];
 
 				var num = +tNum;
 				if (pByNum.has(num)) {
 					pByNum.get(num).setUserVisib(false);
 				} else {
-					locStorage['__de-post'] = JSON.stringify({
-						brd: b,
-						hide: false,
-						num: num,
-						thrNum: num
-					});
+					locStorage['__de-post'] = JSON.stringify({ brd: brd, num: num, hide: false, thrNum: num });
 					locStorage.removeItem('__de-post');
 				}
-				HiddenThreads.remove(num, b); 
+				HiddenThreads.remove(num, brd); 
 				HiddenPosts.set(num, num, false); 
 			});
 			toggleWindow('hid', true);
@@ -6855,7 +6822,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							version: version,
 							location: String(window.location),
 							nav: nav,
-							cfg: Cfg,
+							Cfg: Cfg,
 							sSpells: Spells.list.split('\n'),
 							oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
 							perf: Logger.getData(true)
@@ -7360,7 +7327,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var thrKeys = [
 0x0055 
 			];
-			return [HotKeys.version, nav.Firefox, globKeys, nonThrKeys, thrKeys];
+			return [HotKeys.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
 		},
 		clear: function clear() {
 			this.cPost = null;
@@ -7581,7 +7548,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.tKeys = keys[4];
 			this._paused = false;
 		},
-
 		readKeys: function readKeys() {
 			var keys, str, tKeys, mapFunc;
 			return regeneratorRuntime.async(function readKeys$(_context10) {
@@ -7641,8 +7607,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								keys[0] = this.version;
 								setStored('DESU_keys', JSON.stringify(keys));
 							}
-							if (keys[1] ^ nav.Firefox) {
-								mapFunc = nav.Firefox ? function mapFuncFF(key) {
+							if (keys[1] ^ nav.isFirefox) {
+								mapFunc = nav.isFirefox ? function mapFuncFF(key) {
 									switch (key) {
 										case 189:
 											return 173;
@@ -7666,7 +7632,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								};
 
-								keys[1] = nav.Firefox;
+								keys[1] = nav.isFirefox;
 								keys[2] = keys[2].map(mapFunc);
 								keys[3] = keys[3].map(mapFunc);
 								setStored('DESU_keys', JSON.stringify(keys));
@@ -7680,6 +7646,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}, null, this, [[5,, 7, 14]]);
 		},
+
 
 		_paused: false,
 		_getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
@@ -8355,9 +8322,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') || !(val.includes('n') || val.includes('m')) || /[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	};
 	DateTime.prototype = {
+		pad2: pad2,
 		genDateTime: null,
 		onRPat: null,
-		pad2: pad2,
 		genRFunc: function genRFunc(rPattern) {
 			return new Function('dtime', "return '" + rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff).replace('_s', "' + this.pad2(dtime.getSeconds()) + '").replace('_i', "' + this.pad2(dtime.getMinutes()) + '").replace('_h', "' + this.pad2(dtime.getHours()) + '").replace('_d', "' + this.pad2(dtime.getDate()) + '").replace('_w', "' + this.arrW[dtime.getDay()] + '").replace('_n', "' + this.pad2(dtime.getMonth() + 1) + '").replace('_m', "' + this.arrM[dtime.getMonth()] + '").replace('_M', "' + this.arrFM[dtime.getMonth()] + '").replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '").replace('_Y', "' + dtime.getFullYear() + '") + "';");
 		},
@@ -9107,7 +9074,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		},
-
 		load: function load(count) {
 			var _iterator6, _isArray6, _i11, _ref19, form, len, i, el, first;
 
@@ -9245,6 +9211,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, null, this, [[33, 40]]);
 		},
 
+
 		_adding: false,
 		_addPromise: null,
 		_addForm: function _addForm(formEl, pageNum) {
@@ -9265,7 +9232,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._adding = false;
 			this._addPromise = null;
 		},
-
 		_updateForms: function _updateForms(newForm) {
 			var fav;
 			return regeneratorRuntime.async(function _updateForms$(_context12) {
@@ -9856,9 +9822,7 @@ true, true],
 			}
 		},
 		_sync: function _sync(data) {
-			locStorage['__de-spells'] = JSON.stringify({
-				hide: !!Cfg.hideBySpell,
-				data: data });
+			locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data: data });
 			locStorage.removeItem('__de-spells');
 		}
 	});
@@ -10554,7 +10518,6 @@ true, true],
 			}
 			return false;
 		},
-
 		_ihash: function _ihash(val) {
 			var _iterator17, _isArray17, _i23, _ref36, image, hash;
 
@@ -11031,7 +10994,7 @@ true, true],
 		this.updateLanguage();
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
-		if (nav.Firefox) {
+		if (nav.isFirefox) {
 			this.txta.addEventListener('mouseup', function (_ref41) {
 				var target = _ref41.target;
 
@@ -13520,8 +13483,8 @@ true, true],
 						}
 					}
 					locStorage['__de-post'] = JSON.stringify({
-						brd: aib.b,
 						hide: hide,
+						brd: aib.b,
 						num: this.num,
 						thrNum: this.thr.num,
 						title: this.isOp ? this.title : ''
@@ -15559,6 +15522,7 @@ true, true],
 				}
 			}, null, this);
 		},
+
 		get _canvas() {
 			var val = doc.createElement('canvas');
 			Object.defineProperty(this, '_canvas', { value: val });
@@ -18037,17 +18001,17 @@ true, true],
 
 	function initNavFuncs() {
 		var ua = navigator.userAgent;
-		var firefox = ua.includes('Gecko/');
-		var webkit = ua.includes('WebKit/');
-		var chrome = webkit && ua.includes('Chrome/');
-		var safari = webkit && !chrome;
+		var isFirefox = ua.includes('Gecko/');
+		var isWebkit = ua.includes('WebKit/');
+		var isChrome = isWebkit && ua.includes('Chrome/');
+		var isSafari = isWebkit && !isChrome;
 		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isGM = false;
 		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		if (!isNewGM) {
 			try {
-				isGM = typeof GM_setValue === 'function' && (!chrome || !GM_setValue.toString().includes('not supported'));
+				isGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
 			} catch (e) {
 				isGM = e.message === 'Permission denied to access property "toString"';
 			}
@@ -18067,7 +18031,7 @@ true, true],
 		var needFileHack = false;
 		try {
 			new File([''], '');
-			if (firefox || safari) {
+			if (isFirefox || isSafari) {
 				needFileHack = !FormData.prototype.get;
 			}
 		} catch (e) {
@@ -18101,25 +18065,25 @@ true, true],
 		}
 		nav = {
 			get ua() {
-				return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
+				return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
 			},
-			Firefox: firefox,
-			WebKit: webkit,
-			Chrome: chrome,
-			Safari: safari,
-			Presto: !!window.opera,
-			MsEdge: ua.includes('Edge/'),
+			isFirefox: isFirefox,
+			isWebkit: isWebkit,
+			isChrome: isChrome,
+			isSafari: isSafari,
 			isGM: isGM,
 			isNewGM: isNewGM,
 			isChromeStorage: isChromeStorage,
 			isScriptStorage: isScriptStorage,
+			Presto: !!window.opera,
+			MsEdge: ua.includes('Edge/'),
 			isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
 			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || isNewGM && typeof GM.xmlHttpRequest === 'function',
 			get isESNext() {
 				return typeof deMainFuncOuter === 'undefined';
 			},
 			get scriptInstall() {
-				if (this.Firefox) {
+				if (this.isFirefox) {
 					if (this.isNewGM) {
 						if (GM.info) {
 							return GM.info.scriptHandler + ' ' + GM.info.version;
@@ -18138,7 +18102,7 @@ true, true],
 				return leftSel + rules.join(', ' + leftSel);
 			},
 
-			fixLink: safari ? getAbsLink : function fixLink(url) {
+			fixLink: isSafari ? getAbsLink : function fixLink(url) {
 				return url;
 			},
 			get hasTemplate() {
@@ -18151,7 +18115,7 @@ true, true],
 				try {
 					val = 'Worker' in window && 'URL' in window;
 				} catch (e) {}
-				if (val && this.Firefox) {
+				if (val && this.isFirefox) {
 					val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 				}
 				Object.defineProperty(this, 'hasWorker', { value: val });
@@ -18191,7 +18155,7 @@ true, true],
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var Ctor = Uint8Array;
-				if (!nav.isNewGM && nav.Firefox) {
+				if (!nav.isNewGM && nav.isFirefox) {
 					try {
 						if (!(new Uint8Array(data) instanceof Uint8Array)) {
 							Ctor = unsafeWindow.Uint8Array;
@@ -18212,7 +18176,7 @@ true, true],
 			},
 			getUnsafeDataView: function getUnsafeDataView(data, offset) {
 				var rv = new DataView(data, offset || 0);
-				return nav.isNewGM || !nav.Firefox || rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
+				return nav.isNewGM || !nav.isFirefox || rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 			}
 		};
 	}
@@ -21164,7 +21128,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 		x += '.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }' + (
 
-		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.Firefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
+		'.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.Presto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; height: 267px; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }');
 
 		switch (Cfg.scriptStyle) {
 			case 0:
@@ -21210,7 +21174,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 		'#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }' + (
 
-		'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-button { flex: none; padding: 0 ' + (nav.Firefox ? 2 : 4) + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-link-ref { text-decoration: none; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-op::after { content: " (OP)"; }\n\t.de-ref-del::after { content: " (Del)"; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\n\t.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\n\t.de-thread-buttons { clear: left; margin-top: 5px; }\n\t.de-thread-collapse > a::after { content: "' + Lng.collapseThr[lang] + '"; }\n\t.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\n\t#de-updater-count::before { content: ": "; }\n\t.de-viewed { color: #747488 !important; }\n\tform > hr { clear: both }');
+		'@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-button { flex: none; padding: 0 ' + (nav.isFirefox ? 2 : 4) + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-link-ref { text-decoration: none; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-op::after { content: " (OP)"; }\n\t.de-ref-del::after { content: " (Del)"; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\n\t.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\n\t.de-thread-buttons { clear: left; margin-top: 5px; }\n\t.de-thread-collapse > a::after { content: "' + Lng.collapseThr[lang] + '"; }\n\t.de-thread-updater > a::after { content: "' + Lng.getNewPosts[lang] + '"; }\n\t#de-updater-count::before { content: ": "; }\n\t.de-viewed { color: #747488 !important; }\n\tform > hr { clear: both }');
 
 		$css(x).id = 'de-css';
 		$css('').id = 'de-css-dynamic';

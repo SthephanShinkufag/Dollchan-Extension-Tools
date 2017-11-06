@@ -67,9 +67,9 @@ function showVideosWindow(body) {
 
 	// Events for control buttons
 	body.addEventListener('click', {
+		linkList,
 		currentLink : null,
 		listHidden  : false,
-		linkList    : linkList,
 		player      : body.firstElementChild,
 		playerInfo  : null,
 		handleEvent(e) {
@@ -196,22 +196,17 @@ function showHiddenWindow(body) {
 			if(!$q('input', el).checked) {
 				return;
 			}
-			const [b, tNum] = el.getAttribute('info').split(';');
+			const [brd, tNum] = el.getAttribute('info').split(';');
 			const num = +tNum;
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
 				// Synchronize current hidden thread in other tabs
 				// Storage event listeners are loacted at initStorageEvent()
-				locStorage['__de-post'] = JSON.stringify({
-					brd    : b,
-					hide   : false,
-					num    : num,
-					thrNum : num
-				});
+				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
 				locStorage.removeItem('__de-post');
 			}
-			HiddenThreads.remove(num, b); // Remove thread from hidden threads storage
+			HiddenThreads.remove(num, brd); // Remove thread from hidden threads storage
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);

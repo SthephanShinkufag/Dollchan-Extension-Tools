@@ -27,7 +27,7 @@ class DollchanAPI {
 	}
 	static notify(name, data) {
 		if(DollchanAPI.hasListener(name)) {
-			DollchanAPI.port.postMessage({ name: name, data: data });
+			DollchanAPI.port.postMessage({ name, data });
 		}
 	}
 

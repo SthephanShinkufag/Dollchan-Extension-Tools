@@ -38,9 +38,9 @@ DateTime.checkPattern = function(val) {
 		/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 DateTime.prototype = {
+	pad2,
 	genDateTime : null,
 	onRPat      : null,
-	pad2        : pad2,
 	genRFunc(rPattern) {
 		return new Function('dtime', "return '" +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)

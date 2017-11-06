@@ -470,9 +470,7 @@ var Spells = Object.create({
 		}
 	},
 	_sync(data) {
-		locStorage['__de-spells'] = JSON.stringify({
-			hide : !!Cfg.hideBySpell,
-			data : data });
+		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
 });
@@ -923,7 +921,7 @@ class SpellsRunner {
 					hash      : Cfg.hideBySpell ? Spells.hash : 0,
 					lastCount : lPost.count,
 					lastNum   : lPost.num,
-					data      : data });
+					data });
 			}
 			toggleWindow('hid', true);
 		}
@@ -1055,7 +1053,7 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async function(val) {
+	async _ihash(val) {
 		for(var image of this._post.images) {
 			if(!(image instanceof Attachment)) {
 				continue;

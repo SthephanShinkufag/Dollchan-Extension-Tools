@@ -94,7 +94,7 @@ function checkUpload(data) {
 		$popup('upload', error);
 		updater.sendErrNotif();
 		updater.continue();
-		DollchanAPI.notify('submitform', { success: false, error: error });
+		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
 	const tNum = pr.tNum;

@@ -166,7 +166,7 @@ class Thread {
 					txt  : this.op.title,
 					url  : aib.getThrUrl(b, num),
 					last : aib.anchor + this.last.num,
-					type : type
+					type
 				};
 			} else {
 				removeFavoriteEntry(fav, h, b, num);
