@@ -74,11 +74,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
 	let el = $q('.de-win-buttons', this.qArea);
-	el.onmouseover = e => {
-		switch(fixEventEl(e.target).classList[0]) {
-		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
-		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
-		case 'de-btn-toggle': this.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
+	el.onmouseover = ({ target }) => {
+		const el = target.parentNode;
+		switch(fixEventEl(target).classList[0]) {
+		case 'de-btn-clear': el.title = Lng.clearForm[lang]; break;
+		case 'de-btn-close': el.title = Lng.closeReply[lang]; break;
+		case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 		}
 	};
 	(el = el.firstElementChild).onclick = () => {

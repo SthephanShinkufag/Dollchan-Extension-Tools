@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'fc8d02c';
+const commit = 'cd5bf81';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8186,11 +8186,12 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	<div class="de-resizer de-resizer-right"></div>
 	<div class="de-resizer de-resizer-bottom"></div>`));
 	let el = $q('.de-win-buttons', this.qArea);
-	el.onmouseover = e => {
-		switch(fixEventEl(e.target).classList[0]) {
-		case 'de-btn-clear': this.title = Lng.clearForm[lang]; break;
-		case 'de-btn-close': this.title = Lng.closeReply[lang]; break;
-		case 'de-btn-toggle': this.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
+	el.onmouseover = ({ target }) => {
+		const el = target.parentNode;
+		switch(fixEventEl(target).classList[0]) {
+		case 'de-btn-clear': el.title = Lng.clearForm[lang]; break;
+		case 'de-btn-close': el.title = Lng.closeReply[lang]; break;
+		case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 		}
 	};
 	(el = el.firstElementChild).onclick = () => {
@@ -11787,10 +11788,10 @@ class ExpandableMedia {
 		}
 		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
 			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
+		const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
+			' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
-				' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 			const waitEl = inPost || this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
@@ -11837,7 +11838,7 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-fullimg-wrap">
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
 				(Cfg.webmControl ? 'controls ' : '') +
 				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>

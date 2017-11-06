@@ -476,10 +476,10 @@ class ExpandableMedia {
 		}
 		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
 			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
+		const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
+			' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
-				' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 			const waitEl = inPost || this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
@@ -526,7 +526,7 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-fullimg-wrap">
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
 				(Cfg.webmControl ? 'controls ' : '') +
 				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
@@ -546,7 +546,7 @@ class ExpandableMedia {
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
 		videoEl.addEventListener('volumechange', e => {
-			const val = this.muted ? 0 : Math.round(this.volume * 100);
+			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				locStorage['__de-webmvolume'] = val;

@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'fc8d02c';
+	var commit = 'cd5bf81';
 
 
 	var defaultCfg = {
@@ -10983,14 +10983,17 @@ true, true],
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t<span class="de-win-title"></span>\n\t\t<span class="de-win-buttons">\n\t\t\t<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>\n\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t</span>\n\t</div>\n\t<div class="de-resizer de-resizer-top"></div>\n\t<div class="de-resizer de-resizer-left"></div>\n\t<div class="de-resizer de-resizer-right"></div>\n\t<div class="de-resizer de-resizer-bottom"></div>'));
 		var el = $q('.de-win-buttons', this.qArea);
-		el.onmouseover = function (e) {
-			switch (fixEventEl(e.target).classList[0]) {
+		el.onmouseover = function (_ref40) {
+			var target = _ref40.target;
+
+			var el = target.parentNode;
+			switch (fixEventEl(target).classList[0]) {
 				case 'de-btn-clear':
-					_this22.title = Lng.clearForm[lang];break;
+					el.title = Lng.clearForm[lang];break;
 				case 'de-btn-close':
-					_this22.title = Lng.closeReply[lang];break;
+					el.title = Lng.closeReply[lang];break;
 				case 'de-btn-toggle':
-					_this22.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
+					el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
 		(el = el.firstElementChild).onclick = function () {
@@ -11029,8 +11032,8 @@ true, true],
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if (nav.Firefox) {
-			this.txta.addEventListener('mouseup', function (_ref40) {
-				var target = _ref40.target;
+			this.txta.addEventListener('mouseup', function (_ref41) {
+				var target = _ref41.target;
 
 				saveCfg('textaWidth', parseInt(target.style.width, 10));
 				saveCfg('textaHeight', parseInt(target.style.height, 10));
@@ -11086,18 +11089,18 @@ true, true],
 		this.txta.addEventListener('paste', function (e) {
 			if ('clipboardData' in e) {
 				for (var _iterator21 = e.clipboardData.items, _isArray21 = Array.isArray(_iterator21), _i29 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref41;
+					var _ref42;
 
 					if (_isArray21) {
 						if (_i29 >= _iterator21.length) break;
-						_ref41 = _iterator21[_i29++];
+						_ref42 = _iterator21[_i29++];
 					} else {
 						_i29 = _iterator21.next();
 						if (_i29.done) break;
-						_ref41 = _i29.value;
+						_ref42 = _i29.value;
 					}
 
-					var item = _ref41;
+					var item = _ref42;
 
 					if (item.kind === 'file') {
 						var inputs = _this22.files._inputs;
@@ -11211,18 +11214,18 @@ true, true],
 		}
 		var value = pr.passw.value = Cfg.passwValue;
 		for (var _iterator22 = DelForm, _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-			var _ref42;
+			var _ref43;
 
 			if (_isArray22) {
 				if (_i30 >= _iterator22.length) break;
-				_ref42 = _iterator22[_i30++];
+				_ref43 = _iterator22[_i30++];
 			} else {
 				_i30 = _iterator22.next();
 				if (_i30.done) break;
-				_ref42 = _i30.value;
+				_ref43 = _i30.value;
 			}
 
-			var form = _ref42;
+			var form = _ref43;
 
 			(form.passEl || {}).value = value;
 		}
@@ -11741,7 +11744,7 @@ true, true],
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref43, _ref44, name, value, type, el, fileName, newFileName, _data5, ajaxParams, xhr;
+		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref44, _ref45, name, value, type, el, fileName, newFileName, _data5, ajaxParams, xhr;
 
 		return regeneratorRuntime.async(function html5Submit$(_context15) {
 			while (1) {
@@ -11765,7 +11768,7 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 6:
-						_ref43 = _iterator23[_i31++];
+						_ref44 = _iterator23[_i31++];
 						_context15.next = 13;
 						break;
 
@@ -11780,10 +11783,10 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 12:
-						_ref43 = _i31.value;
+						_ref44 = _i31.value;
 
 					case 13:
-						_ref44 = _ref43, name = _ref44.name, value = _ref44.value, type = _ref44.type, el = _ref44.el;
+						_ref45 = _ref44, name = _ref45.name, value = _ref45.value, type = _ref45.type, el = _ref45.el;
 
 						if (!(name === 'de-file-txt')) {
 							_context15.next = 16;
@@ -12146,18 +12149,18 @@ true, true],
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref45;
+					var _ref46;
 
 					if (_isArray24) {
 						if (_i32 >= _iterator24.length) break;
-						_ref45 = _iterator24[_i32++];
+						_ref46 = _iterator24[_i32++];
 					} else {
 						_i32 = _iterator24.next();
 						if (_i32.done) break;
-						_ref45 = _i32.value;
+						_ref46 = _i32.value;
 					}
 
-					var inp = _ref45;
+					var inp = _ref46;
 
 					inp.changeMode(cfg);
 				}
@@ -12167,18 +12170,18 @@ true, true],
 			key: 'clear',
 			value: function clear() {
 				for (var _iterator25 = this._inputs, _isArray25 = Array.isArray(_iterator25), _i33 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-					var _ref46;
+					var _ref47;
 
 					if (_isArray25) {
 						if (_i33 >= _iterator25.length) break;
-						_ref46 = _iterator25[_i33++];
+						_ref47 = _iterator25[_i33++];
 					} else {
 						_i33 = _iterator25.next();
 						if (_i33.done) break;
-						_ref46 = _i33.value;
+						_ref47 = _i33.value;
 					}
 
-					var inp = _ref46;
+					var inp = _ref47;
 
 					inp.clear();
 				}
@@ -12465,8 +12468,8 @@ true, true],
 					$hide(_this24._btnRarJpg);
 					var myBtn = _this24._rarMsg = $aBegin(_this24._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref47) {
-						var data = _ref47.data;
+					readFile(file).then(function (_ref48) {
+						var data = _ref48.data;
 
 						if (_this24._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
@@ -12622,8 +12625,8 @@ true, true],
 					(function () {
 						var file = _this26._input.files[0];
 						if (file) {
-							readFile(file).then(function (_ref48) {
-								var data = _ref48.data;
+							readFile(file).then(function (_ref49) {
+								var data = _ref49.data;
 
 								if (_this26._input.files[0] === file) {
 									_this26._addNewThumb(data, file.name, file.size, file.type);
@@ -12661,8 +12664,8 @@ true, true],
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				readFile(file).then(function (_ref49) {
-					var data = _ref49.data;
+				readFile(file).then(function (_ref50) {
+					var data = _ref50.data;
 
 					input.imgFile = [data, file.name, file.type];
 					input.show();
@@ -13598,18 +13601,18 @@ true, true],
 				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i34 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref50;
+					var _ref51;
 
 					if (_isArray26) {
 						if (_i34 >= _iterator26.length) break;
-						_ref50 = _iterator26[_i34++];
+						_ref51 = _iterator26[_i34++];
 					} else {
 						_i34 = _iterator26.next();
 						if (_i34.done) break;
-						_ref50 = _i34.value;
+						_ref51 = _i34.value;
 					}
 
-					var image = _ref50;
+					var image = _ref51;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -15166,13 +15169,13 @@ true, true],
 					name = origSrc.split('/').pop();
 				}
 				var imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' + Lng.openOriginal[lang] + ('" href="' + origSrc + '">' + name + '</a>');
+				var wrapClass = inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 				if (!this.isVideo) {
-					var wrapClass = inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
 					var waitEl = inPost || this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</div>\n\t\t\t</div>');
 					var img = $q('.de-fullimg', wrapEl);
-					img.onload = img.onerror = function (_ref51) {
-						var target = _ref51.target;
+					img.onload = img.onerror = function (_ref52) {
+						var target = _ref52.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -15209,11 +15212,11 @@ true, true],
 				}
 				var isWebm = src.split('.').pop() === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
-				wrapEl = $add('<div class="de-fullimg-wrap">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + ('></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
+				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + ('></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
 				var videoEl = $q('video', wrapEl);
 				videoEl.volume = Cfg.webmVolume / 100;
-				videoEl.addEventListener('error', function (_ref52) {
-					var target = _ref52.target;
+				videoEl.addEventListener('error', function (_ref53) {
+					var target = _ref53.target;
 
 					if (!target.onceLoaded) {
 						target.load();
@@ -15224,7 +15227,7 @@ true, true],
 					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
 				videoEl.addEventListener('volumechange', function (e) {
-					var val = _this47.muted ? 0 : Math.round(_this47.volume * 100);
+					var val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 					if (e.isTrusted && val !== Cfg.webmVolume) {
 						saveCfg('webmVolume', val);
 						locStorage['__de-webmvolume'] = val;
@@ -15919,18 +15922,18 @@ true, true],
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref53;
+					var _ref54;
 
 					if (_isArray27) {
 						if (_i37 >= _iterator27.length) break;
-						_ref53 = _iterator27[_i37++];
+						_ref54 = _iterator27[_i37++];
 					} else {
 						_i37 = _iterator27.next();
 						if (_i37.done) break;
-						_ref53 = _i37.value;
+						_ref54 = _i37.value;
 					}
 
-					var file = _ref53;
+					var file = _ref54;
 
 					var fileName = void 0,
 					    fullFileName = void 0;
@@ -16036,18 +16039,18 @@ true, true],
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref54;
+						var _ref55;
 
 						if (_isArray28) {
 							if (_i38 >= _iterator28.length) break;
-							_ref54 = _iterator28[_i38++];
+							_ref55 = _iterator28[_i38++];
 						} else {
 							_i38 = _iterator28.next();
 							if (_i38.done) break;
-							_ref54 = _i38.value;
+							_ref55 = _i38.value;
 						}
 
-						var file = _ref54;
+						var file = _ref55;
 
 						var imgId = num + '-' + file.md5;
 						var fullName = file.fullname || file.name;
@@ -16079,7 +16082,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i39, _ref55, post;
+				var _iterator29, _isArray29, _i39, _ref56, post;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -16101,7 +16104,7 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref55 = _iterator29[_i39++];
+								_ref56 = _iterator29[_i39++];
 								_context21.next = 11;
 								break;
 
@@ -16116,10 +16119,10 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref55 = _i39.value;
+								_ref56 = _i39.value;
 
 							case 11:
-								post = _ref55;
+								post = _ref56;
 								_context21.t0 = post.banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -16207,18 +16210,18 @@ true, true],
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref56;
+						var _ref57;
 
 						if (_isArray30) {
 							if (_i40 >= _iterator30.length) break;
-							_ref56 = _iterator30[_i40++];
+							_ref57 = _iterator30[_i40++];
 						} else {
 							_i40 = _iterator30.next();
 							if (_i40.done) break;
-							_ref56 = _i40.value;
+							_ref57 = _i40.value;
 						}
 
-						var file = _ref56;
+						var file = _ref57;
 
 						var img = file.images;
 						var orig = img.original;
@@ -16251,21 +16254,21 @@ true, true],
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator31 = posts, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref57;
+					var _ref58;
 
 					if (_isArray31) {
 						if (_i41 >= _iterator31.length) break;
-						_ref57 = _iterator31[_i41++];
+						_ref58 = _iterator31[_i41++];
 					} else {
 						_i41 = _iterator31.next();
 						if (_i41.done) break;
-						_ref57 = _i41.value;
+						_ref58 = _i41.value;
 					}
 
-					var _ref58 = _ref57,
-					    _ref59 = _slicedToArray(_ref58, 2),
-					    pNum = _ref59[0],
-					    post = _ref59[1];
+					var _ref59 = _ref58,
+					    _ref60 = _slicedToArray(_ref59, 2),
+					    pNum = _ref60[0],
+					    post = _ref60[1];
 
 					var links = $Q('a', post.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -16401,18 +16404,18 @@ true, true],
 				}
 				this._hidden = true;
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref60;
+					var _ref61;
 
 					if (_isArray32) {
 						if (_i42 >= _iterator32.length) break;
-						_ref60 = _iterator32[_i42++];
+						_ref61 = _iterator32[_i42++];
 					} else {
 						_i42 = _iterator32.next();
 						if (_i42.done) break;
-						_ref60 = _i42.value;
+						_ref61 = _i42.value;
 					}
 
-					var num = _ref60;
+					var num = _ref61;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.hidden) {
@@ -16431,18 +16434,18 @@ true, true],
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref61;
+					var _ref62;
 
 					if (_isArray33) {
 						if (_i43 >= _iterator33.length) break;
-						_ref61 = _iterator33[_i43++];
+						_ref62 = _iterator33[_i43++];
 					} else {
 						_i43 = _iterator33.next();
 						if (_i43.done) break;
-						_ref61 = _i43.value;
+						_ref62 = _i43.value;
 					}
 
-					var num = _ref61;
+					var num = _ref62;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -16488,18 +16491,18 @@ true, true],
 				}
 				this._hidden = false;
 				for (var _iterator34 = this._set, _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref62;
+					var _ref63;
 
 					if (_isArray34) {
 						if (_i44 >= _iterator34.length) break;
-						_ref62 = _iterator34[_i44++];
+						_ref63 = _iterator34[_i44++];
 					} else {
 						_i44 = _iterator34.next();
 						if (_i44.done) break;
-						_ref62 = _i44.value;
+						_ref63 = _i44.value;
 					}
 
-					var num = _ref62;
+					var num = _ref63;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.spellHidden) {
@@ -16755,22 +16758,22 @@ true, true],
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i45 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref63;
+					var _ref64;
 
 					if (_isArray35) {
 						if (_i45 >= _iterator35.length) break;
-						_ref63 = _iterator35[_i45++];
+						_ref64 = _iterator35[_i45++];
 					} else {
 						_i45 = _iterator35.next();
 						if (_i45.done) break;
-						_ref63 = _i45.value;
+						_ref64 = _i45.value;
 					}
 
-					var _ref64 = _ref63,
-					    _ref65 = _slicedToArray(_ref64, 3),
-					    banId = _ref65[0],
-					    bNum = _ref65[1],
-					    bEl = _ref65[2];
+					var _ref65 = _ref64,
+					    _ref66 = _slicedToArray(_ref65, 3),
+					    banId = _ref66[0],
+					    bNum = _ref66[1],
+					    bEl = _ref66[2];
 
 					var post = bNum ? pByNum.get(bNum) : this.op;
 					if (post && post.banned !== banId) {
@@ -17676,9 +17679,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref66) {
-								var newCount = _ref66.newCount,
-								    locked = _ref66.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
+								var newCount = _ref67.newCount,
+								    locked = _ref67.locked;
 								return _this66._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this66._handleNewPosts(0, e);
@@ -19171,8 +19174,8 @@ true, true],
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref67) {
-								var data = _ref67.data;
+							doc.defaultView.addEventListener('message', function (_ref68) {
+								var data = _ref68.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -20580,18 +20583,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 					var cookie = doc.cookie;
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref68;
+							var _ref69;
 
 							if (_isArray36) {
 								if (_i52 >= _iterator36.length) break;
-								_ref68 = _iterator36[_i52++];
+								_ref69 = _iterator36[_i52++];
 							} else {
 								_i52 = _iterator36.next();
 								if (_i52.done) break;
-								_ref68 = _i52.value;
+								_ref69 = _i52.value;
 							}
 
-							var c = _ref68;
+							var c = _ref69;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -20958,8 +20961,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref69) {
-					var data = _ref69.data;
+				doc.defaultView.addEventListener('message', function (_ref70) {
+					var data = _ref70.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -20981,8 +20984,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref70) {
-				var arg = _ref70.data;
+			value: function _handleMessage(_ref71) {
+				var arg = _ref71.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -20995,18 +20998,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						if (data) {
 							rv = {};
 							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i54 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-								var _ref71;
+								var _ref72;
 
 								if (_isArray37) {
 									if (_i54 >= _iterator37.length) break;
-									_ref71 = _iterator37[_i54++];
+									_ref72 = _iterator37[_i54++];
 								} else {
 									_i54 = _iterator37.next();
 									if (_i54.done) break;
-									_ref71 = _i54.value;
+									_ref72 = _i54.value;
 								}
 
-								var aName = _ref71;
+								var aName = _ref72;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -21223,7 +21226,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 
 	function runMain(checkDomains, dataPromise) {
-		var formEl, eList, fav, _ref72, _ref73, _ref74, _ref75, storageName, firstThr;
+		var formEl, eList, fav, _ref73, _ref74, _ref75, _ref76, storageName, firstThr;
 
 		return regeneratorRuntime.async(function runMain$(_context22) {
 			while (1) {
@@ -21285,10 +21288,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(dataPromise);
 
 					case 18:
-						_ref72 = _context22.sent;
-						_ref73 = _slicedToArray(_ref72, 2);
-						eList = _ref73[0];
-						fav = _ref73[1];
+						_ref73 = _context22.sent;
+						_ref74 = _slicedToArray(_ref73, 2);
+						eList = _ref74[0];
+						fav = _ref74[1];
 						_context22.next = 30;
 						break;
 
@@ -21297,10 +21300,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(readData());
 
 					case 26:
-						_ref74 = _context22.sent;
-						_ref75 = _slicedToArray(_ref74, 2);
-						eList = _ref75[0];
-						fav = _ref75[1];
+						_ref75 = _context22.sent;
+						_ref76 = _slicedToArray(_ref75, 2);
+						eList = _ref76[0];
+						fav = _ref76[1];
 
 					case 30:
 						if (!(eList && eList.includes(aib.dm))) {
