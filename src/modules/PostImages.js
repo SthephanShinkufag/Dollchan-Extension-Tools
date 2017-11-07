@@ -700,8 +700,7 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 
-	async _getHashHelper(imgObj) {
-		const { el, src } = imgObj;
+	async _getHashHelper({ el, src }) {
 		if(src in this._storage) {
 			return this._storage[src];
 		}
@@ -800,9 +799,8 @@ function embedImagesLinks(el) {
 	}
 }
 
-function genImgHash(data) {
-	const buf = new Uint8Array(data[0]);
-	const [, oldw, oldh] = data;
+function genImgHash([arrBuf, oldw, oldh]) {
+	const buf = new Uint8Array(arrBuf);
 	const size = oldw * oldh;
 	for(let i = 0, j = 0; i < size; i++, j += 4) {
 		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;

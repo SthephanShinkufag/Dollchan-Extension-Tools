@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '2a1e006';
+	var commit = '8508d18';
 
 
 	var defaultCfg = {
@@ -15487,65 +15487,65 @@ true, true],
 			return val;
 		},
 
-		_getHashHelper: function _getHashHelper(imgObj) {
+		_getHashHelper: function _getHashHelper(_ref54) {
 			var _this50 = this;
 
-			var el, src, data, buffer, val, w, h, imgData, cnv, ctx;
+			var el = _ref54.el,
+			    src = _ref54.src;
+			var data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.async(function _getHashHelper$(_context17) {
 				while (1) {
 					switch (_context17.prev = _context17.next) {
 						case 0:
-							el = imgObj.el, src = imgObj.src;
-
 							if (!(src in this._storage)) {
-								_context17.next = 3;
+								_context17.next = 2;
 								break;
 							}
 
 							return _context17.abrupt('return', this._storage[src]);
 
-						case 3:
+						case 2:
 							if (el.complete) {
-								_context17.next = 6;
+								_context17.next = 5;
 								break;
 							}
 
-							_context17.next = 6;
+							_context17.next = 5;
 							return regeneratorRuntime.awrap(new Promise(function (resolve) {
 								return el.addEventListener('load', function () {
 									return resolve();
 								});
 							}));
 
-						case 6:
+						case 5:
 							if (!(el.naturalWidth + el.naturalHeight === 0)) {
-								_context17.next = 8;
+								_context17.next = 7;
 								break;
 							}
 
 							return _context17.abrupt('return', -1);
 
-						case 8:
+						case 7:
 							val = -1, w = el.naturalWidth, h = el.naturalHeight;
 
 							if (!aib.fch) {
-								_context17.next = 16;
+								_context17.next = 15;
 								break;
 							}
 
-							_context17.next = 12;
+							_context17.next = 11;
 							return regeneratorRuntime.awrap(downloadImgData(el.src));
 
-						case 12:
+						case 11:
 							imgData = _context17.sent;
 
 							if (imgData) {
 								buffer = imgData.buffer;
 							}
-							_context17.next = 22;
+							_context17.next = 21;
 							break;
 
-						case 16:
+						case 15:
 							cnv = this._canvas;
 
 							cnv.width = w;
@@ -15555,31 +15555,31 @@ true, true],
 							ctx.drawImage(el, 0, 0);
 							buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
-						case 22:
+						case 21:
 							if (!buffer) {
-								_context17.next = 27;
+								_context17.next = 26;
 								break;
 							}
 
-							_context17.next = 25;
+							_context17.next = 24;
 							return regeneratorRuntime.awrap(new Promise(function (resolve) {
 								return _this50._workers.run([buffer, w, h], [buffer], function (val) {
 									return resolve(val);
 								});
 							}));
 
-						case 25:
+						case 24:
 							data = _context17.sent;
 
 							if (data && 'hash' in data) {
 								val = data.hash;
 							}
 
-						case 27:
+						case 26:
 							this._storage[src] = val;
 							return _context17.abrupt('return', val);
 
-						case 29:
+						case 28:
 						case 'end':
 							return _context17.stop();
 					}
@@ -15653,13 +15653,13 @@ true, true],
 		}
 	}
 
-	function genImgHash(data) {
-		var buf = new Uint8Array(data[0]);
+	function genImgHash(_ref55) {
+		var _ref56 = _slicedToArray(_ref55, 3),
+		    arrBuf = _ref56[0],
+		    oldw = _ref56[1],
+		    oldh = _ref56[2];
 
-		var _data9 = _slicedToArray(data, 3),
-		    oldw = _data9[1],
-		    oldh = _data9[2];
-
+		var buf = new Uint8Array(arrBuf);
 		var size = oldw * oldh;
 		for (var i = 0, j = 0; i < size; i++, j += 4) {
 			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
@@ -15953,18 +15953,18 @@ true, true],
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref54;
+					var _ref57;
 
 					if (_isArray27) {
 						if (_i37 >= _iterator27.length) break;
-						_ref54 = _iterator27[_i37++];
+						_ref57 = _iterator27[_i37++];
 					} else {
 						_i37 = _iterator27.next();
 						if (_i37.done) break;
-						_ref54 = _i37.value;
+						_ref57 = _i37.value;
 					}
 
-					var file = _ref54;
+					var file = _ref57;
 
 					var fileName = void 0,
 					    fullFileName = void 0;
@@ -16072,18 +16072,18 @@ true, true],
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref55;
+						var _ref58;
 
 						if (_isArray28) {
 							if (_i38 >= _iterator28.length) break;
-							_ref55 = _iterator28[_i38++];
+							_ref58 = _iterator28[_i38++];
 						} else {
 							_i38 = _iterator28.next();
 							if (_i38.done) break;
-							_ref55 = _i38.value;
+							_ref58 = _i38.value;
 						}
 
-						var file = _ref55;
+						var file = _ref58;
 
 						var imgId = num + '-' + file.md5;
 						var fullName = file.fullname || file.name;
@@ -16115,7 +16115,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i39, _ref56, post;
+				var _iterator29, _isArray29, _i39, _ref59, post;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -16137,7 +16137,7 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref56 = _iterator29[_i39++];
+								_ref59 = _iterator29[_i39++];
 								_context21.next = 11;
 								break;
 
@@ -16152,10 +16152,10 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref56 = _i39.value;
+								_ref59 = _i39.value;
 
 							case 11:
-								post = _ref56;
+								post = _ref59;
 								_context21.t0 = post.banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -16243,18 +16243,18 @@ true, true],
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref57;
+						var _ref60;
 
 						if (_isArray30) {
 							if (_i40 >= _iterator30.length) break;
-							_ref57 = _iterator30[_i40++];
+							_ref60 = _iterator30[_i40++];
 						} else {
 							_i40 = _iterator30.next();
 							if (_i40.done) break;
-							_ref57 = _i40.value;
+							_ref60 = _i40.value;
 						}
 
-						var file = _ref57;
+						var file = _ref60;
 
 						var img = file.images;
 						var orig = img.original;
@@ -16287,21 +16287,21 @@ true, true],
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator31 = posts, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref58;
+					var _ref61;
 
 					if (_isArray31) {
 						if (_i41 >= _iterator31.length) break;
-						_ref58 = _iterator31[_i41++];
+						_ref61 = _iterator31[_i41++];
 					} else {
 						_i41 = _iterator31.next();
 						if (_i41.done) break;
-						_ref58 = _i41.value;
+						_ref61 = _i41.value;
 					}
 
-					var _ref59 = _ref58,
-					    _ref60 = _slicedToArray(_ref59, 2),
-					    pNum = _ref60[0],
-					    post = _ref60[1];
+					var _ref62 = _ref61,
+					    _ref63 = _slicedToArray(_ref62, 2),
+					    pNum = _ref63[0],
+					    post = _ref63[1];
 
 					var links = $Q('a', post.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -16440,18 +16440,18 @@ true, true],
 				}
 				this._hidden = true;
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref61;
+					var _ref64;
 
 					if (_isArray32) {
 						if (_i42 >= _iterator32.length) break;
-						_ref61 = _iterator32[_i42++];
+						_ref64 = _iterator32[_i42++];
 					} else {
 						_i42 = _iterator32.next();
 						if (_i42.done) break;
-						_ref61 = _i42.value;
+						_ref64 = _i42.value;
 					}
 
-					var num = _ref61;
+					var num = _ref64;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.hidden) {
@@ -16470,18 +16470,18 @@ true, true],
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref62;
+					var _ref65;
 
 					if (_isArray33) {
 						if (_i43 >= _iterator33.length) break;
-						_ref62 = _iterator33[_i43++];
+						_ref65 = _iterator33[_i43++];
 					} else {
 						_i43 = _iterator33.next();
 						if (_i43.done) break;
-						_ref62 = _i43.value;
+						_ref65 = _i43.value;
 					}
 
-					var num = _ref62;
+					var num = _ref65;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -16527,18 +16527,18 @@ true, true],
 				}
 				this._hidden = false;
 				for (var _iterator34 = this._set, _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref63;
+					var _ref66;
 
 					if (_isArray34) {
 						if (_i44 >= _iterator34.length) break;
-						_ref63 = _iterator34[_i44++];
+						_ref66 = _iterator34[_i44++];
 					} else {
 						_i44 = _iterator34.next();
 						if (_i44.done) break;
-						_ref63 = _i44.value;
+						_ref66 = _i44.value;
 					}
 
-					var num = _ref63;
+					var num = _ref66;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.spellHidden) {
@@ -16797,22 +16797,22 @@ true, true],
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i45 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref64;
+					var _ref67;
 
 					if (_isArray35) {
 						if (_i45 >= _iterator35.length) break;
-						_ref64 = _iterator35[_i45++];
+						_ref67 = _iterator35[_i45++];
 					} else {
 						_i45 = _iterator35.next();
 						if (_i45.done) break;
-						_ref64 = _i45.value;
+						_ref67 = _i45.value;
 					}
 
-					var _ref65 = _ref64,
-					    _ref66 = _slicedToArray(_ref65, 3),
-					    banId = _ref66[0],
-					    bNum = _ref66[1],
-					    bEl = _ref66[2];
+					var _ref68 = _ref67,
+					    _ref69 = _slicedToArray(_ref68, 3),
+					    banId = _ref69[0],
+					    bNum = _ref69[1],
+					    bEl = _ref69[2];
 
 					var post = bNum ? pByNum.get(bNum) : this.op;
 					if (post && post.banned !== banId) {
@@ -17719,9 +17719,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
-								var newCount = _ref67.newCount,
-								    locked = _ref67.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref70) {
+								var newCount = _ref70.newCount,
+								    locked = _ref70.locked;
 								return _this66._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this66._handleNewPosts(0, e);
@@ -19215,8 +19215,8 @@ true, true],
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref68) {
-								var data = _ref68.data;
+							doc.defaultView.addEventListener('message', function (_ref71) {
+								var data = _ref71.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -20625,18 +20625,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref69;
+							var _ref72;
 
 							if (_isArray36) {
 								if (_i52 >= _iterator36.length) break;
-								_ref69 = _iterator36[_i52++];
+								_ref72 = _iterator36[_i52++];
 							} else {
 								_i52 = _iterator36.next();
 								if (_i52.done) break;
-								_ref69 = _i52.value;
+								_ref72 = _i52.value;
 							}
 
-							var c = _ref69;
+							var c = _ref72;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -21003,8 +21003,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref70) {
-					var data = _ref70.data;
+				doc.defaultView.addEventListener('message', function (_ref73) {
+					var data = _ref73.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -21026,8 +21026,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref71) {
-				var arg = _ref71.data;
+			value: function _handleMessage(_ref74) {
+				var arg = _ref74.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -21041,18 +21041,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						if (data) {
 							rv = {};
 							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i54 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-								var _ref72;
+								var _ref75;
 
 								if (_isArray37) {
 									if (_i54 >= _iterator37.length) break;
-									_ref72 = _iterator37[_i54++];
+									_ref75 = _iterator37[_i54++];
 								} else {
 									_i54 = _iterator37.next();
 									if (_i54.done) break;
-									_ref72 = _i54.value;
+									_ref75 = _i54.value;
 								}
 
-								var aName = _ref72;
+								var aName = _ref75;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -21272,7 +21272,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 
 	function runMain(checkDomains, dataPromise) {
-		var formEl, eList, fav, _ref73, _ref74, _ref75, _ref76, storageName, firstThr;
+		var formEl, eList, fav, _ref76, _ref77, _ref78, _ref79, storageName, firstThr;
 
 		return regeneratorRuntime.async(function runMain$(_context22) {
 			while (1) {
@@ -21334,10 +21334,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(dataPromise);
 
 					case 18:
-						_ref73 = _context22.sent;
-						_ref74 = _slicedToArray(_ref73, 2);
-						eList = _ref74[0];
-						fav = _ref74[1];
+						_ref76 = _context22.sent;
+						_ref77 = _slicedToArray(_ref76, 2);
+						eList = _ref77[0];
+						fav = _ref77[1];
 						_context22.next = 30;
 						break;
 
@@ -21346,10 +21346,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(readData());
 
 					case 26:
-						_ref75 = _context22.sent;
-						_ref76 = _slicedToArray(_ref75, 2);
-						eList = _ref76[0];
-						fav = _ref76[1];
+						_ref78 = _context22.sent;
+						_ref79 = _slicedToArray(_ref78, 2);
+						eList = _ref79[0];
+						fav = _ref79[1];
 
 					case 30:
 						if (!(eList && eList.includes(aib.dm))) {
