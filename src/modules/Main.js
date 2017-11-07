@@ -110,7 +110,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
-	const firstThr = DelForm.first.firstThr;
+	const { firstThr } = DelForm.first;
 	if(firstThr) {
 		readPostsData(firstThr.op, fav);
 	}

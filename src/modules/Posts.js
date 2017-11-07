@@ -55,10 +55,10 @@ class AbstractPost {
 		}
 	}
 	handleEvent(e) {
-		var temp, el = fixEventEl(e.target),
-			type = e.type,
-			isOutEvent = type === 'mouseout',
-			isPview = this instanceof Pview;
+		let temp, el = fixEventEl(e.target);
+		const { type } = e;
+		const isOutEvent = type === 'mouseout';
+		const isPview = this instanceof Pview;
 		if(type === 'click') {
 			switch(e.button) {
 			case 0: break;
@@ -682,7 +682,7 @@ class Post extends AbstractPost {
 		return str;
 	}
 	_clickMenu(el) {
-		var hidden = this.hidden;
+		const { hidden } = this;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel':
 			var start = this._selRange.startContainer,
@@ -732,9 +732,9 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text':
-			var num = this.num,
-				wrds = Post.getWrds(this.text);
-			for(var post = Thread.first.op; post; post = post.next) {
+			const { num } = this;
+			const wrds = Post.getWrds(this.text);
+			for(let post = Thread.first.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, post);
 			}
 			return;
@@ -749,12 +749,8 @@ class Post extends AbstractPost {
 		}
 	}
 	_strikePostNum(isHide) {
-		var num = this.num;
-		if(isHide) {
-			Post.hiddenNums.add(+num);
-		} else {
-			Post.hiddenNums.delete(+num);
-		}
+		const { num } = this;
+		Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
 		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {

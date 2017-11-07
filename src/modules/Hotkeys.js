@@ -64,9 +64,7 @@ var HotKeys = {
 			this._paused = false;
 			Promise.resolve(this.readKeys()).then(keys => {
 				if(this.enabled) {
-					this.gKeys = keys[2];
-					this.ntKeys = keys[3];
-					this.tKeys = keys[4];
+					[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
 					doc.addEventListener('keydown', this, true);
 				}
 			});
@@ -257,9 +255,7 @@ var HotKeys = {
 		this._paused = true;
 	},
 	resume(keys) {
-		this.gKeys = keys[2];
-		this.ntKeys = keys[3];
-		this.tKeys = keys[4];
+		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
 		this._paused = false;
 	},
 	async readKeys() {
@@ -483,15 +479,13 @@ KeyEditListener.prototype = {
 				if(HotKeys.enabled) {
 					HotKeys.resume(this.keys);
 				}
-				var temp = KeyEditListener.getEditMarkup(this.keys);
-				this.allKeys = temp[0];
-				this.popupEl.innerHTML = temp[1];
+				[this.allKeys, this.popupEl.innerHTML] = KeyEditListener.getEditMarkup(this.keys);
 				this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
 				this.errCount = 0;
 				delete this.saveButton;
 				break;
 			} else if(el.id === 'de-keys-save') {
-				keys = this.keys;
+				({ keys } = this);
 				setStored('DESU_keys', JSON.stringify(keys));
 			} else if(el.className === 'de-popup-btn') {
 				keys = this.initKeys;

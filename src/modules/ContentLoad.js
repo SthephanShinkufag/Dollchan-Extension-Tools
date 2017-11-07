@@ -57,7 +57,8 @@ function detectImgFile(ab) {
 }
 
 function addImgFileIcon(nameLink, fName, info) {
-	var app, ext, type = info.type;
+	let app, ext;
+	const { type } = info;
 	if(typeof type === 'undefined') {
 		return;
 	}

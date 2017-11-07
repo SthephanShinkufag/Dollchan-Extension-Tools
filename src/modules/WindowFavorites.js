@@ -106,7 +106,7 @@ function showFavoritesWindow(body, data) {
 				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 				break;
 			case 'de-fav-header-switch': {
-				const checked = el.checked;
+				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
 				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));

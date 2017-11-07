@@ -27,7 +27,7 @@ var Spells = Object.create({
 		return this.outreps;
 	},
 	get list() {
-		var str, reps, oreps, data;
+		let data;
 		if(Cfg.spells === null) {
 			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
@@ -36,9 +36,8 @@ var Spells = Object.create({
 		} catch(e) {
 			return '';
 		}
-		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
-		reps = data[2];
-		oreps = data[3];
+		const [, s, reps, oreps] = data;
+		let str = s ? this._decompileScope(s, '')[0].join('\n') : '';
 		if(reps || oreps) {
 			if(str) {
 				str += '\n\n';
@@ -1078,7 +1077,7 @@ SpellsInterpreter.prototype = {
 		return pTrip ? !val || pTrip.includes(val) : false;
 	},
 	_img(val) {
-		const images = this._post.images;
+		const { images } = this._post;
 		const [compareRule, weightVals, sizeVals] = val;
 		if(!val) {
 			return images.hasAttachments;
@@ -1273,7 +1272,7 @@ SpellsInterpreter.prototype = {
 		return this._videoVauthor(val, true);
 	},
 	_videoVauthor(val, isAuthorSpell) {
-		var videos = this._post.videos;
+		const { videos } = this._post;
 		if(!val) {
 			return !!videos.hasLinks;
 		}

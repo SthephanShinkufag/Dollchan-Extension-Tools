@@ -35,9 +35,8 @@ class DollchanAPI {
 		if(!arg || !arg.name) {
 			return;
 		}
-		const name = arg.name;
-		const data = arg.data;
 		let rv = null;
+		const { name, data } = arg;
 		switch(arg.name.toLowerCase()) {
 		case 'registerapi':
 			if(data) {
@@ -135,17 +134,18 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(function() {
-		var post, num, hash,
-			val = +sesStorage['de-scroll-' + aib.b + aib.t];
+		const val = +sesStorage['de-scroll-' + aib.b + aib.t];
 		if(val) {
 			scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-		} else if((hash = window.location.hash) &&
-			(num = hash.match(/#[ip]?(\d+)$/)) &&
-			(num = +num[1]) &&
-			(post = pByNum.get(num)) && !post.isOp
-		) {
-			post.selectAndScrollTo();
+		} else {
+			let post, num;
+			const { hash } = window.location;
+			if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
+				(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
+			) {
+				post.selectAndScrollTo();
+			}
 		}
 	}, 0);
 }

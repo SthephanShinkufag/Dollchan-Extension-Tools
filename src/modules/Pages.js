@@ -64,7 +64,7 @@ var Pages = {
 				$popup('load-pages', getErrorMessage(e));
 			}
 		}
-		var first = DelForm.first;
+		const { first } = DelForm;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
 			$del(first.el);

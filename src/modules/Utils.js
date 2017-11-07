@@ -625,11 +625,11 @@ function* getFormElements(form, submitter) {
 			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
-					const files = field.files;
+					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
 					}
-				} else if(field.obj && (imgFile = field.obj.imgFile)) {
+				} else if(({ imgFile } = field.obj) && imgFile) {
 					yield {
 						name,
 						type,

@@ -146,7 +146,7 @@ AttachmentViewer.prototype = {
 		$pd(e);
 	},
 	navigate(isForward) {
-		var data = this.data;
+		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
 			data = data.getFollow(isForward);
@@ -245,7 +245,7 @@ AttachmentViewer.prototype = {
 		data.post.thr.form.el.appendChild(obj);
 	},
 	_remove(e) {
-		const data = this.data;
+		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
 			data.post.setSticky(false);
@@ -380,8 +380,7 @@ class ExpandableMedia {
 		if(!this._size) {
 			return this._getThumbSize();
 		}
-		let width = this._size[0];
-		let height = this._size[1];
+		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
@@ -434,7 +433,7 @@ class ExpandableMedia {
 			return;
 		}
 		this.expanded = true;
-		var el = this.el;
+		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
@@ -443,11 +442,11 @@ class ExpandableMedia {
 		$after(el.parentNode, this._fullEl);
 	}
 	getFollow(isForward) {
-		var nImage = isForward ? this.next : this.prev;
+		const nImage = isForward ? this.next : this.prev;
 		if(nImage) {
 			return nImage;
 		}
-		var imgs, post = this.post;
+		let imgs, { post } = this;
 		do {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
@@ -464,12 +463,12 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let wrapEl, name, origSrc, src = this.src;
+		let wrapEl, name, origSrc, { src } = this;
 		const parent = this._getImageParent();
 		if(this.el.className !== 'de-img-pre') {
 			const nameEl = $q(aib.qImgNameLink, parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
-			name = this.name;
+			({ name } = this);
 		} else {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
@@ -702,8 +701,7 @@ var ImagesHashStorage = Object.create({
 	},
 
 	async _getHashHelper(imgObj) {
-		var el = imgObj.el,
-			src = imgObj.src;
+		const { el, src } = imgObj;
 		if(src in this._storage) {
 			return this._storage[src];
 		}
@@ -719,7 +717,7 @@ var ImagesHashStorage = Object.create({
 		if(aib.fch) {
 			var imgData = await downloadImgData(el.src);
 			if(imgData) {
-				buffer = imgData.buffer;
+				({ buffer } = imgData);
 			}
 		} else {
 			var cnv = this._canvas;
@@ -727,7 +725,7 @@ var ImagesHashStorage = Object.create({
 			cnv.height = h;
 			var ctx = cnv.getContext('2d');
 			ctx.drawImage(el, 0, 0);
-			buffer = ctx.getImageData(0, 0, w, h).data.buffer;
+			({ buffer } = ctx.getImageData(0, 0, w, h).data);
 		}
 		if(buffer) {
 			data = await new Promise(resolve =>
@@ -804,8 +802,7 @@ function embedImagesLinks(el) {
 
 function genImgHash(data) {
 	const buf = new Uint8Array(data[0]);
-	const oldw = data[1];
-	const oldh = data[2];
+	const [, oldw, oldh] = data;
 	const size = oldw * oldh;
 	for(let i = 0, j = 0; i < size; i++, j += 4) {
 		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;

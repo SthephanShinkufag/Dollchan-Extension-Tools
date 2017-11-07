@@ -222,8 +222,7 @@ const cfgWindow = Object.create({
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
-		const type = e.type;
-		const el = e.target;
+		const { type, target: el } = e;
 		const tag = el.tagName;
 		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');

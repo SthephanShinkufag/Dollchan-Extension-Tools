@@ -1457,7 +1457,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				cap.showCaptcha();
 			}
 			let sessionId = null;
-			const cookie = doc.cookie;
+			const { cookie } = doc;
 			if(cookie.includes('desuchan.session')) {
 				for(let c of cookie.split(';')) {
 					const m = c.match(/^\s*desuchan\.session=(.*)$/);

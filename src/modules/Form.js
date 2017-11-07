@@ -344,11 +344,11 @@ PostForm.prototype = {
 		}
 	},
 	handleEvent(e) {
-		var id, el = e.target;
+		let el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
-		id = el.id;
+		const { id } = el;
 		if(id.startsWith('de-btn')) {
 			var x;
 			if(e.type === 'mouseover') {

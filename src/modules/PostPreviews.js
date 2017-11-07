@@ -49,7 +49,7 @@ class Pview extends AbstractPost {
 		if(!pv) {
 			return;
 		}
-		const parent = pv.parent;
+		const { parent } = pv;
 		if(parent.omitted) {
 			pv.delete();
 			return;
@@ -154,7 +154,7 @@ class Pview extends AbstractPost {
 				Attachment.viewer.close(null);
 				Attachment.viewer = vPost = null;
 			}
-			var el = pv.el;
+			const { el } = pv;
 			pByEl.delete(el);
 			if(Cfg.animation) {
 				$animate(el, 'de-pview-anim', true);

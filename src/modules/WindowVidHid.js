@@ -129,7 +129,7 @@ function showVideosWindow(body) {
 	// Copy all video links into videos list
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const el = els[i].cloneNode(true);
-		const num = aib.getPostOfEl(els[i]).num;
+		const { num } = aib.getPostOfEl(els[i]);
 		el.videoInfo = els[i].videoInfo;
 		$bEnd(linkList, `<div class="de-entry ${ aib.cReply }">
 			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>

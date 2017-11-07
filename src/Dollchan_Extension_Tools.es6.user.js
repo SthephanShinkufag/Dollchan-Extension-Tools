@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'd0441ed';
+const commit = '2a1e006';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2139,11 +2139,11 @@ function* getFormElements(form, submitter) {
 			case 'file': {
 				let imgFile;
 				if(field.files.length > 0) {
-					const files = field.files;
+					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
 					}
-				} else if(field.obj && (imgFile = field.obj.imgFile)) {
+				} else if(({ imgFile } = field.obj) && imgFile) {
 					yield {
 						name,
 						type,
@@ -2432,11 +2432,11 @@ function readPostsData(firstPost, fav) {
 
 	// Search existed posts in stored data
 	for(let post = firstPost; post; post = post.next) {
-		const num = post.num;
+		const { num } = post;
 		// Mark favorite threads, update favorites data
 		if(post.isOp && (num in favBrd)) {
 			const f = favBrd[num];
-			const thr = post.thr;
+			const { thr } = post;
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;
@@ -3063,7 +3063,7 @@ function makeDraggable(name, win, head) {
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
 					'top: ' + y + 'px';
-				var width = this._wStyle.width;
+				const { width } = this._wStyle;
 				this._win.setAttribute('style', this._X + '; ' + this._Y +
 					'; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
 				this._oldX = curX;
@@ -3091,11 +3091,11 @@ function WinResizer(name, dir, cfgName, win, target) {
 }
 WinResizer.prototype = {
 	handleEvent(e) {
-		var val, x, y, cr = this.win.getBoundingClientRect(),
-			maxX = Post.sizing.wWidth,
-			maxY = Post.sizing.wHeight,
-			width = this.wStyle.width,
-			z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+		let val, x, y;
+		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
+		const { width } = this.wStyle;
+		const cr = this.win.getBoundingClientRect();
+		const z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -3200,7 +3200,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = () => {
-			const width = win.style.width;
+			const { width } = win.style;
 			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
 			if(Cfg[name + 'WinDrag']) {
@@ -3412,7 +3412,7 @@ function showVideosWindow(body) {
 	// Copy all video links into videos list
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const el = els[i].cloneNode(true);
-		const num = aib.getPostOfEl(els[i]).num;
+		const { num } = aib.getPostOfEl(els[i]);
 		el.videoInfo = els[i].videoInfo;
 		$bEnd(linkList, `<div class="de-entry ${ aib.cReply }">
 			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
@@ -3604,7 +3604,7 @@ function showFavoritesWindow(body, data) {
 				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
 				break;
 			case 'de-fav-header-switch': {
-				const checked = el.checked;
+				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
 				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
@@ -4109,8 +4109,7 @@ const cfgWindow = Object.create({
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
-		const type = e.type;
-		const el = e.target;
+		const { type, target: el } = e;
 		const tag = el.tagName;
 		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
@@ -5060,9 +5059,7 @@ var HotKeys = {
 			this._paused = false;
 			Promise.resolve(this.readKeys()).then(keys => {
 				if(this.enabled) {
-					this.gKeys = keys[2];
-					this.ntKeys = keys[3];
-					this.tKeys = keys[4];
+					[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
 					doc.addEventListener('keydown', this, true);
 				}
 			});
@@ -5253,9 +5250,7 @@ var HotKeys = {
 		this._paused = true;
 	},
 	resume(keys) {
-		this.gKeys = keys[2];
-		this.ntKeys = keys[3];
-		this.tKeys = keys[4];
+		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
 		this._paused = false;
 	},
 	async readKeys() {
@@ -5479,15 +5474,13 @@ KeyEditListener.prototype = {
 				if(HotKeys.enabled) {
 					HotKeys.resume(this.keys);
 				}
-				var temp = KeyEditListener.getEditMarkup(this.keys);
-				this.allKeys = temp[0];
-				this.popupEl.innerHTML = temp[1];
+				[this.allKeys, this.popupEl.innerHTML] = KeyEditListener.getEditMarkup(this.keys);
 				this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
 				this.errCount = 0;
 				delete this.saveButton;
 				break;
 			} else if(el.id === 'de-keys-save') {
-				keys = this.keys;
+				({ keys } = this);
 				setStored('DESU_keys', JSON.stringify(keys));
 			} else if(el.className === 'de-popup-btn') {
 				keys = this.initKeys;
@@ -5651,7 +5644,8 @@ function detectImgFile(ab) {
 }
 
 function addImgFileIcon(nameLink, fName, info) {
-	var app, ext, type = info.type;
+	let app, ext;
+	const { type } = info;
 	if(typeof type === 'undefined') {
 		return;
 	}
@@ -6185,7 +6179,7 @@ Videos.prototype = {
 	playerInfo       : null,
 	titleLoadFn      : null,
 	get player() {
-		const post = this.post;
+		const { post } = this;
 		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
 			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
 		Object.defineProperty(this, 'player', { value: val });
@@ -6492,7 +6486,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
 				}
-				const headers = params.headers;
+				const { headers } = params;
 				if(headers) {
 					for(let h in headers) {
 						if(headers.hasOwnProperty(h)) {
@@ -6708,7 +6702,7 @@ var Pages = {
 				$popup('load-pages', getErrorMessage(e));
 			}
 		}
-		var first = DelForm.first;
+		const { first } = DelForm;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
 			$del(first.el);
@@ -6801,7 +6795,7 @@ var Spells = Object.create({
 		return this.outreps;
 	},
 	get list() {
-		var str, reps, oreps, data;
+		let data;
 		if(Cfg.spells === null) {
 			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
@@ -6810,9 +6804,8 @@ var Spells = Object.create({
 		} catch(e) {
 			return '';
 		}
-		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
-		reps = data[2];
-		oreps = data[3];
+		const [, s, reps, oreps] = data;
+		let str = s ? this._decompileScope(s, '')[0].join('\n') : '';
 		if(reps || oreps) {
 			if(str) {
 				str += '\n\n';
@@ -7852,7 +7845,7 @@ SpellsInterpreter.prototype = {
 		return pTrip ? !val || pTrip.includes(val) : false;
 	},
 	_img(val) {
-		const images = this._post.images;
+		const { images } = this._post;
 		const [compareRule, weightVals, sizeVals] = val;
 		if(!val) {
 			return images.hasAttachments;
@@ -8047,7 +8040,7 @@ SpellsInterpreter.prototype = {
 		return this._videoVauthor(val, true);
 	},
 	_videoVauthor(val, isAuthorSpell) {
-		var videos = this._post.videos;
+		const { videos } = this._post;
 		if(!val) {
 			return !!videos.hasLinks;
 		}
@@ -8425,11 +8418,11 @@ PostForm.prototype = {
 		}
 	},
 	handleEvent(e) {
-		var id, el = e.target;
+		let el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
-		id = el.id;
+		const { id } = el;
 		if(id.startsWith('de-btn')) {
 			var x;
 			if(e.type === 'mouseover') {
@@ -8768,7 +8761,7 @@ function checkUpload(data) {
 		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
-	const tNum = pr.tNum;
+	const { tNum } = pr;
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
@@ -8895,8 +8888,9 @@ function cleanFile(data, extraData) {
 	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		rExif = !!Cfg.removeEXIF,
-		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
-			[img, rand] : [img];
+		rv = extraData ?
+			(rand ? [img, extraData, rand] : [img, extraData]) :
+			(rand ? [img, rand] : [img]);
 	if(!rand && !rExif && !extraData) {
 		return rv;
 	}
@@ -9834,10 +9828,10 @@ class AbstractPost {
 		}
 	}
 	handleEvent(e) {
-		var temp, el = fixEventEl(e.target),
-			type = e.type,
-			isOutEvent = type === 'mouseout',
-			isPview = this instanceof Pview;
+		let temp, el = fixEventEl(e.target);
+		const { type } = e;
+		const isOutEvent = type === 'mouseout';
+		const isPview = this instanceof Pview;
 		if(type === 'click') {
 			switch(e.button) {
 			case 0: break;
@@ -10461,7 +10455,7 @@ class Post extends AbstractPost {
 		return str;
 	}
 	_clickMenu(el) {
-		var hidden = this.hidden;
+		const { hidden } = this;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel':
 			var start = this._selRange.startContainer,
@@ -10511,9 +10505,9 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text':
-			var num = this.num,
-				wrds = Post.getWrds(this.text);
-			for(var post = Thread.first.op; post; post = post.next) {
+			const { num } = this;
+			const wrds = Post.getWrds(this.text);
+			for(let post = Thread.first.op; post; post = post.next) {
 				Post.findSameText(num, hidden, wrds, post);
 			}
 			return;
@@ -10528,12 +10522,8 @@ class Post extends AbstractPost {
 		}
 	}
 	_strikePostNum(isHide) {
-		var num = this.num;
-		if(isHide) {
-			Post.hiddenNums.add(+num);
-		} else {
-			Post.hiddenNums.delete(+num);
-		}
+		const { num } = this;
+		Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
 		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
@@ -10853,7 +10843,7 @@ class Pview extends AbstractPost {
 		if(!pv) {
 			return;
 		}
-		const parent = pv.parent;
+		const { parent } = pv;
 		if(parent.omitted) {
 			pv.delete();
 			return;
@@ -10958,7 +10948,7 @@ class Pview extends AbstractPost {
 				Attachment.viewer.close(null);
 				Attachment.viewer = vPost = null;
 			}
-			var el = pv.el;
+			const { el } = pv;
 			pByEl.delete(el);
 			if(Cfg.animation) {
 				$animate(el, 'de-pview-anim', true);
@@ -11427,7 +11417,7 @@ AttachmentViewer.prototype = {
 		$pd(e);
 	},
 	navigate(isForward) {
-		var data = this.data;
+		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
 			data = data.getFollow(isForward);
@@ -11526,7 +11516,7 @@ AttachmentViewer.prototype = {
 		data.post.thr.form.el.appendChild(obj);
 	},
 	_remove(e) {
-		const data = this.data;
+		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
 			data.post.setSticky(false);
@@ -11661,8 +11651,7 @@ class ExpandableMedia {
 		if(!this._size) {
 			return this._getThumbSize();
 		}
-		let width = this._size[0];
-		let height = this._size[1];
+		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
@@ -11715,7 +11704,7 @@ class ExpandableMedia {
 			return;
 		}
 		this.expanded = true;
-		var el = this.el;
+		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
@@ -11724,11 +11713,11 @@ class ExpandableMedia {
 		$after(el.parentNode, this._fullEl);
 	}
 	getFollow(isForward) {
-		var nImage = isForward ? this.next : this.prev;
+		const nImage = isForward ? this.next : this.prev;
 		if(nImage) {
 			return nImage;
 		}
-		var imgs, post = this.post;
+		let imgs, { post } = this;
 		do {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
@@ -11745,12 +11734,12 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let wrapEl, name, origSrc, src = this.src;
+		let wrapEl, name, origSrc, { src } = this;
 		const parent = this._getImageParent();
 		if(this.el.className !== 'de-img-pre') {
 			const nameEl = $q(aib.qImgNameLink, parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
-			name = this.name;
+			({ name } = this);
 		} else {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
@@ -11983,8 +11972,7 @@ var ImagesHashStorage = Object.create({
 	},
 
 	async _getHashHelper(imgObj) {
-		var el = imgObj.el,
-			src = imgObj.src;
+		const { el, src } = imgObj;
 		if(src in this._storage) {
 			return this._storage[src];
 		}
@@ -12000,7 +11988,7 @@ var ImagesHashStorage = Object.create({
 		if(aib.fch) {
 			var imgData = await downloadImgData(el.src);
 			if(imgData) {
-				buffer = imgData.buffer;
+				({ buffer } = imgData);
 			}
 		} else {
 			var cnv = this._canvas;
@@ -12008,7 +11996,7 @@ var ImagesHashStorage = Object.create({
 			cnv.height = h;
 			var ctx = cnv.getContext('2d');
 			ctx.drawImage(el, 0, 0);
-			buffer = ctx.getImageData(0, 0, w, h).data.buffer;
+			({ buffer } = ctx.getImageData(0, 0, w, h).data);
 		}
 		if(buffer) {
 			data = await new Promise(resolve =>
@@ -12085,8 +12073,7 @@ function embedImagesLinks(el) {
 
 function genImgHash(data) {
 	const buf = new Uint8Array(data[0]);
-	const oldw = data[1];
-	const oldh = data[2];
+	const [, oldw, oldh] = data;
 	const size = oldw * oldh;
 	for(let i = 0, j = 0; i < size; i++, j += 4) {
 		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
@@ -12384,7 +12371,7 @@ class DobrochanPostsBuilder {
 		let filesHTML = '';
 		for(let file of data.files) {
 			let fileName, fullFileName;
-			let thumb = file.thumb;
+			let { thumb } = file;
 			let thumbW = 200;
 			let thumbH = 200;
 			const ext = file.src.split('.').pop();
@@ -12480,7 +12467,7 @@ class MakabaPostsBuilder {
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
-		const num = data.num;
+		const { num } = data;
 		const brd = this._brd;
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
@@ -12695,7 +12682,7 @@ class RefMap {
 				if(!posts.has(lNum)) {
 					continue;
 				}
-				const ref = posts.get(lNum).ref;
+				const { ref } = posts.get(lNum);
 				if(ref._inited) {
 					ref.add(post, pNum);
 				} else {
@@ -12864,8 +12851,10 @@ class RefMap {
 		return value;
 	}
 	_createEl(innerHTML, isHidden) {
-		var el, msg = this._post.msg,
-			html = `<div class="de-refmap${ isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
+		let el;
+		const { msg } = this._post;
+		const html = `<div class="de-refmap${
+			isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
 		if(aib.dobr && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
 		} else {
@@ -13030,8 +13019,7 @@ class Thread {
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
 		readFavorites().then(fav => {
-			const b = aib.b;
-			const h = aib.host;
+			const { b, host: h } = aib;
 			const num = this.thrId;
 			if(val) {
 				if(!fav[h]) {
@@ -13160,9 +13148,9 @@ class Thread {
 		return [newCount, newVisCount, fragm, last, nums];
 	}
 	_loadFromBuilder(last, smartScroll, pBuilder) {
-		var nextCoord, maybeSpells = new Maybe(SpellsRunner),
-			op = this.op,
-			thrEl = this.el;
+		let nextCoord;
+		const maybeSpells = new Maybe(SpellsRunner);
+		const { op, el: thrEl } = this;
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.top;
@@ -14191,7 +14179,7 @@ class DelForm {
 		return value;
 	}
 	addStuff() {
-		const el = this.el;
+		const { el } = this;
 		if(!localData && Cfg.ajaxPosting) {
 			el.onsubmit = $pd;
 			const btn = $q(aib.qDelBut, el);
@@ -16200,7 +16188,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				cap.showCaptcha();
 			}
 			let sessionId = null;
-			const cookie = doc.cookie;
+			const { cookie } = doc;
 			if(cookie.includes('desuchan.session')) {
 				for(let c of cookie.split(';')) {
 					const m = c.match(/^\s*desuchan\.session=(.*)$/);
@@ -16439,9 +16427,8 @@ class DollchanAPI {
 		if(!arg || !arg.name) {
 			return;
 		}
-		const name = arg.name;
-		const data = arg.data;
 		let rv = null;
+		const { name, data } = arg;
 		switch(arg.name.toLowerCase()) {
 		case 'registerapi':
 			if(data) {
@@ -16539,17 +16526,18 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(function() {
-		var post, num, hash,
-			val = +sesStorage['de-scroll-' + aib.b + aib.t];
+		const val = +sesStorage['de-scroll-' + aib.b + aib.t];
 		if(val) {
 			scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-		} else if((hash = window.location.hash) &&
-			(num = hash.match(/#[ip]?(\d+)$/)) &&
-			(num = +num[1]) &&
-			(post = pByNum.get(num)) && !post.isOp
-		) {
-			post.selectAndScrollTo();
+		} else {
+			let post, num;
+			const { hash } = window.location;
+			if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
+				(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
+			) {
+				post.selectAndScrollTo();
+			}
 		}
 	}, 0);
 }
@@ -17298,7 +17286,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Display page');
 	toggleInfinityScroll();
 	Logger.log('Infinity scroll');
-	const firstThr = DelForm.first.firstThr;
+	const { firstThr } = DelForm.first;
 	if(firstThr) {
 		readPostsData(firstThr.op, fav);
 	}

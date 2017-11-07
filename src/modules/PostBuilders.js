@@ -263,7 +263,7 @@ class DobrochanPostsBuilder {
 		let filesHTML = '';
 		for(let file of data.files) {
 			let fileName, fullFileName;
-			let thumb = file.thumb;
+			let { thumb } = file;
 			let thumbW = 200;
 			let thumbH = 200;
 			const ext = file.src.split('.').pop();
@@ -359,7 +359,7 @@ class MakabaPostsBuilder {
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
-		const num = data.num;
+		const { num } = data;
 		const brd = this._brd;
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 

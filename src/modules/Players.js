@@ -152,7 +152,7 @@ Videos.prototype = {
 	playerInfo       : null,
 	titleLoadFn      : null,
 	get player() {
-		const post = this.post;
+		const { post } = this;
 		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
 			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
 		Object.defineProperty(this, 'player', { value: val });

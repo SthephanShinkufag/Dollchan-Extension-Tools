@@ -48,7 +48,7 @@ function makeDraggable(name, win, head) {
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
 					'top: ' + y + 'px';
-				var width = this._wStyle.width;
+				const { width } = this._wStyle;
 				this._win.setAttribute('style', this._X + '; ' + this._Y +
 					'; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
 				this._oldX = curX;
@@ -76,11 +76,11 @@ function WinResizer(name, dir, cfgName, win, target) {
 }
 WinResizer.prototype = {
 	handleEvent(e) {
-		var val, x, y, cr = this.win.getBoundingClientRect(),
-			maxX = Post.sizing.wWidth,
-			maxY = Post.sizing.wHeight,
-			width = this.wStyle.width,
-			z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+		let val, x, y;
+		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
+		const { width } = this.wStyle;
+		const cr = this.win.getBoundingClientRect();
+		const z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -185,7 +185,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = () => {
-			const width = win.style.width;
+			const { width } = win.style;
 			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
 			if(Cfg[name + 'WinDrag']) {

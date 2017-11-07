@@ -202,11 +202,11 @@ function readPostsData(firstPost, fav) {
 
 	// Search existed posts in stored data
 	for(let post = firstPost; post; post = post.next) {
-		const num = post.num;
+		const { num } = post;
 		// Mark favorite threads, update favorites data
 		if(post.isOp && (num in favBrd)) {
 			const f = favBrd[num];
-			const thr = post.thr;
+			const { thr } = post;
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;

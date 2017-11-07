@@ -89,7 +89,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
 				}
-				const headers = params.headers;
+				const { headers } = params;
 				if(headers) {
 					for(let h in headers) {
 						if(headers.hasOwnProperty(h)) {

@@ -20,7 +20,7 @@ class RefMap {
 				if(!posts.has(lNum)) {
 					continue;
 				}
-				const ref = posts.get(lNum).ref;
+				const { ref } = posts.get(lNum);
 				if(ref._inited) {
 					ref.add(post, pNum);
 				} else {
@@ -189,8 +189,10 @@ class RefMap {
 		return value;
 	}
 	_createEl(innerHTML, isHidden) {
-		var el, msg = this._post.msg,
-			html = `<div class="de-refmap${ isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
+		let el;
+		const { msg } = this._post;
+		const html = `<div class="de-refmap${
+			isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
 		if(aib.dobr && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
 		} else {

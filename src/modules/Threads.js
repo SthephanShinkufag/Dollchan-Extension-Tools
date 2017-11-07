@@ -148,8 +148,7 @@ class Thread {
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
 		readFavorites().then(fav => {
-			const b = aib.b;
-			const h = aib.host;
+			const { b, host: h } = aib;
 			const num = this.thrId;
 			if(val) {
 				if(!fav[h]) {
@@ -278,9 +277,9 @@ class Thread {
 		return [newCount, newVisCount, fragm, last, nums];
 	}
 	_loadFromBuilder(last, smartScroll, pBuilder) {
-		var nextCoord, maybeSpells = new Maybe(SpellsRunner),
-			op = this.op,
-			thrEl = this.el;
+		let nextCoord;
+		const maybeSpells = new Maybe(SpellsRunner);
+		const { op, el: thrEl } = this;
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.top;

@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = 'd0441ed';
+	var commit = '2a1e006';
 
 
 	var defaultCfg = {
@@ -4209,7 +4209,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getFormElements(form, submitter) {
-		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, imgFile, files, _j, _jlen, dirname;
+		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, _field$obj, imgFile, files, _j, _jlen, dirname;
 
 		return regeneratorRuntime.wrap(function getFormElements$(_context) {
 			while (1) {
@@ -4325,7 +4325,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 43:
-						if (!(field.obj && (imgFile = field.obj.imgFile))) {
+						if (!((_field$obj = field.obj, imgFile = _field$obj.imgFile, _field$obj) && imgFile)) {
 							_context.next = 48;
 							break;
 						}
@@ -4734,10 +4734,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var maybeSpells = new Maybe(SpellsRunner);
 
 		for (var post = firstPost; post; post = post.next) {
-			var num = post.num;
+			var _post = post,
+			    num = _post.num;
+
 			if (post.isOp && num in favBrd) {
 				var f = favBrd[num];
-				var thr = post.thr;
+				var _post2 = post,
+				    thr = _post2.thr;
+
 				post.setFavBtn(true);
 				if (aib.t) {
 					f.cnt = thr.pcount;
@@ -5433,6 +5437,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' : x < 0 || curX < this._oldX && x < 20 ? 'left: 0' : 'left: ' + x + 'px';
 						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' : y < 0 || curY < this._oldY && y < 20 ? 'top: 0' : 'top: ' + y + 'px';
 						var width = this._wStyle.width;
+
 						this._win.setAttribute('style', this._X + '; ' + this._Y + '; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
 						this._oldX = curX;
 						this._oldY = curY;
@@ -5459,14 +5464,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 	WinResizer.prototype = {
 		handleEvent: function handleEvent(e) {
-			var val,
-			    x,
-			    y,
-			    cr = this.win.getBoundingClientRect(),
-			    maxX = Post.sizing.wWidth,
-			    maxY = Post.sizing.wHeight,
-			    width = this.wStyle.width,
-			    z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+			var val = void 0,
+			    x = void 0,
+			    y = void 0;
+			var _Post$sizing = Post.sizing,
+			    maxX = _Post$sizing.wWidth,
+			    maxY = _Post$sizing.wHeight;
+			var width = this.wStyle.width;
+
+			var cr = this.win.getBoundingClientRect();
+			var z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
 			switch (e.type) {
 				case 'mousedown':
 					if (this.win.classList.contains('de-win-fixed')) {
@@ -5558,6 +5565,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			};
 			el.firstElementChild.onclick = function () {
 				var width = win.style.width;
+
 				var w = width ? '; width: ' + width : '';
 				toggleCfg(name + 'WinDrag');
 				if (Cfg[name + 'WinDrag']) {
@@ -5720,7 +5728,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		for (var i = 0, len = els.length; i < len; ++i) {
 			var el = els[i].cloneNode(true);
-			var num = aib.getPostOfEl(els[i]).num;
+
+			var _aib$getPostOfEl = aib.getPostOfEl(els[i]),
+			    num = _aib$getPostOfEl.num;
+
 			el.videoInfo = els[i].videoInfo;
 			$bEnd(linkList, '<div class="de-entry ' + aib.cReply + '">\n\t\t\t<a class="de-video-refpost" title=">>' + num + '" de-num="' + num + '">&gt;</a>\n\t\t</div>').appendChild(el).classList.remove('de-current');
 			el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
@@ -5902,7 +5913,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-fav-header-switch':
 						{
 							var _ret3 = function () {
-								var checked = el.checked;
+								var _el = el,
+								    checked = _el.checked;
+
 								el = el.parentNode.nextElementSibling;
 								$each($Q('.de-entry > input', el), function (checkBox) {
 									return checkBox.checked = checked;
@@ -6613,8 +6626,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		handleEvent: function handleEvent(e) {
-			var type = e.type;
-			var el = e.target;
+			var type = e.type,
+			    el = e.target;
+
 			var tag = el.tagName;
 			if (type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 				var info = el.getAttribute('info');
@@ -6716,11 +6730,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						break;
 					case 'hideRefPsts':
-						for (var _post = Thread.first.op; _post; _post = _post.next) {
+						for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
 							if (!Cfg.hideRefPsts) {
-								_post.ref.unhide();
-							} else if (_post.hidden) {
-								_post.ref.hide();
+								_post3.ref.unhide();
+							} else if (_post3.hidden) {
+								_post3.ref.hide();
 							}
 						}
 						break;
@@ -7026,16 +7040,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var _el = els[i];
-				var _info4 = _el.getAttribute('info');
-				if (_el.tagName === 'INPUT') {
-					if (_el.type === 'checkbox') {
-						_el.checked = !!Cfg[_info4];
+				var _el2 = els[i];
+				var _info4 = _el2.getAttribute('info');
+				if (_el2.tagName === 'INPUT') {
+					if (_el2.type === 'checkbox') {
+						_el2.checked = !!Cfg[_info4];
 					} else {
-						_el.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
+						_el2.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
 					}
 				} else {
-					_el.selectedIndex = Cfg[_info4];
+					_el2.selectedIndex = Cfg[_info4];
 				}
 			}
 		},
@@ -7421,9 +7435,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._paused = false;
 				Promise.resolve(this.readKeys()).then(function (keys) {
 					if (_this15.enabled) {
-						_this15.gKeys = keys[2];
-						_this15.ntKeys = keys[3];
-						_this15.tKeys = keys[4];
+						var _keys = _slicedToArray(keys, 5);
+
+						_this15.gKeys = _keys[2];
+						_this15.ntKeys = _keys[3];
+						_this15.tKeys = _keys[4];
+
 						doc.addEventListener('keydown', _this15, true);
 					}
 				});
@@ -7612,9 +7629,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._paused = true;
 		},
 		resume: function resume(keys) {
-			this.gKeys = keys[2];
-			this.ntKeys = keys[3];
-			this.tKeys = keys[4];
+			var _keys2 = _slicedToArray(keys, 5);
+
+			this.gKeys = _keys2[2];
+			this.ntKeys = _keys2[3];
+			this.tKeys = _keys2[4];
+
 			this._paused = false;
 		},
 		readKeys: function readKeys() {
@@ -7853,15 +7873,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (HotKeys.enabled) {
 							HotKeys.resume(this.keys);
 						}
-						var temp = KeyEditListener.getEditMarkup(this.keys);
-						this.allKeys = temp[0];
-						this.popupEl.innerHTML = temp[1];
+
+						var _KeyEditListener$getE = KeyEditListener.getEditMarkup(this.keys);
+
+						var _KeyEditListener$getE2 = _slicedToArray(_KeyEditListener$getE, 2);
+
+						this.allKeys = _KeyEditListener$getE2[0];
+						this.popupEl.innerHTML = _KeyEditListener$getE2[1];
+
 						this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
 						this.errCount = 0;
 						delete this.saveButton;
 						break;
 					} else if (el.id === 'de-keys-save') {
 						keys = this.keys;
+
 						setStored('DESU_keys', JSON.stringify(keys));
 					} else if (el.className === 'de-popup-btn') {
 						keys = this.initKeys;
@@ -8012,9 +8038,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function addImgFileIcon(nameLink, fName, info) {
-		var app,
-		    ext,
-		    type = info.type;
+		var app = void 0,
+		    ext = void 0;
+		var type = info.type;
+
 		if (typeof type === 'undefined') {
 			return;
 		}
@@ -8549,6 +8576,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		titleLoadFn: null,
 		get player() {
 			var post = this.post;
+
 			var val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' + (post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
 			Object.defineProperty(this, 'player', { value: val });
 			return val;
@@ -8748,8 +8776,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i9 = 0, _len6 = _els.length; _i9 < _len6; ++_i9) {
 				var _link2 = _els[_i9];
-				var _el2 = _link2.previousSibling;
-				if (!_el2 || _el2.className !== 'de-vocaroo') {
+				var _el3 = _link2.previousSibling;
+				if (!_el3 || _el3.className !== 'de-vocaroo') {
 					_link2.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link2.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
@@ -8850,6 +8878,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							xhr.responseType = params.responseType;
 						}
 						var headers = params.headers;
+
 						if (headers) {
 							for (var h in headers) {
 								if (headers.hasOwnProperty(h)) {
@@ -9319,7 +9348,7 @@ true, true],
 			return this.outreps;
 		},
 		get list() {
-			var str, reps, oreps, data;
+			var data = void 0;
 			if (Cfg.spells === null) {
 				return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 			}
@@ -9328,9 +9357,14 @@ true, true],
 			} catch (e) {
 				return '';
 			}
-			str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
-			reps = data[2];
-			oreps = data[3];
+
+			var _data5 = data,
+			    _data6 = _slicedToArray(_data5, 4),
+			    s = _data6[1],
+			    reps = _data6[2],
+			    oreps = _data6[3];
+
+			var str = s ? this._decompileScope(s, '')[0].join('\n') : '';
 			if (reps || oreps) {
 				if (str) {
 					str += '\n\n';
@@ -10838,6 +10872,7 @@ true, true],
 		},
 		_videoVauthor: function _videoVauthor(val, isAuthorSpell) {
 			var videos = this._post.videos;
+
 			if (!val) {
 				return !!videos.hasLinks;
 			}
@@ -11257,12 +11292,13 @@ true, true],
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var id,
-			    el = e.target;
+			var el = e.target;
 			if (el.tagName !== 'SPAN') {
 				el = el.parentNode;
 			}
-			id = el.id;
+			var _el4 = el,
+			    id = _el4.id;
+
 			if (id.startsWith('de-btn')) {
 				var x;
 				if (e.type === 'mouseover') {
@@ -11603,7 +11639,9 @@ true, true],
 			DollchanAPI.notify('submitform', { success: false, error: error });
 			return;
 		}
-		var tNum = pr.tNum;
+		var _pr = pr,
+		    tNum = _pr.tNum;
+
 		if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 			MyPosts.set(postNum, tNum || postNum);
 		}
@@ -11723,7 +11761,7 @@ true, true],
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref44, _ref45, name, value, type, el, fileName, newFileName, _data5, ajaxParams, xhr;
+		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref44, _ref45, name, value, type, el, fileName, newFileName, _data7, ajaxParams, xhr;
 
 		return regeneratorRuntime.async(function html5Submit$(_context15) {
 			while (1) {
@@ -11795,9 +11833,9 @@ true, true],
 					case 23:
 						_context15.t0 = _context15.sent.data;
 						_context15.t1 = el.obj ? el.obj.extraFile : null;
-						_data5 = cleanFile(_context15.t0, _context15.t1);
+						_data7 = cleanFile(_context15.t0, _context15.t1);
 
-						if (_data5) {
+						if (_data7) {
 							_context15.next = 28;
 							break;
 						}
@@ -11805,7 +11843,7 @@ true, true],
 						return _context15.abrupt('return', Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
 					case 28:
-						value = new File(_data5, newFileName);
+						value = new File(_data7, newFileName);
 						_context15.next = 32;
 						break;
 
@@ -12595,11 +12633,11 @@ true, true],
 
 				if (this.imgFile) {
 					var _imgFile = _slicedToArray(this.imgFile, 3),
-					    _data6 = _imgFile[0],
+					    _data8 = _imgFile[0],
 					    fileName = _imgFile[1],
 					    fileType = _imgFile[2];
 
-					this._addNewThumb(_data6, fileName, _data6.byteLength, fileType);
+					this._addNewThumb(_data8, fileName, _data8.byteLength, fileType);
 				} else {
 					(function () {
 						var file = _this26._input.files[0];
@@ -12690,8 +12728,8 @@ true, true],
 				} else if (this._isOldRecap()) {
 					this.textEl = $id('recaptcha_response_field');
 				} else {
-					var _el3 = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
-					$replace(_el3, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el3.getAttribute('data-sitekey') + '"></div>');
+					var _el5 = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
+					$replace(_el5, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el5.getAttribute('data-sitekey') + '"></div>');
 				}
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
@@ -12951,11 +12989,12 @@ true, true],
 			value: function handleEvent(e) {
 				var _this31 = this;
 
-				var temp,
-				    el = fixEventEl(e.target),
-				    type = e.type,
-				    isOutEvent = type === 'mouseout',
-				    isPview = this instanceof Pview;
+				var temp = void 0,
+				    el = fixEventEl(e.target);
+				var type = e.type;
+
+				var isOutEvent = type === 'mouseout';
+				var isPview = this instanceof Pview;
 				if (type === 'click') {
 					switch (e.button) {
 						case 0:
@@ -13656,6 +13695,7 @@ true, true],
 			key: '_clickMenu',
 			value: function _clickMenu(el) {
 				var hidden = this.hidden;
+
 				switch (el.getAttribute('info')) {
 					case 'hide-sel':
 						var start = this._selRange.startContainer,
@@ -13703,8 +13743,9 @@ true, true],
 					case 'hide-noimg':
 						Spells.add(0x108 , '', true);return;
 					case 'hide-text':
-						var num = this.num,
-						    wrds = Post.getWrds(this.text);
+						var num = this.num;
+
+						var wrds = Post.getWrds(this.text);
 						for (var post = Thread.first.op; post; post = post.next) {
 							Post.findSameText(num, hidden, wrds, post);
 						}
@@ -13724,11 +13765,8 @@ true, true],
 			key: '_strikePostNum',
 			value: function _strikePostNum(isHide) {
 				var num = this.num;
-				if (isHide) {
-					Post.hiddenNums.add(+num);
-				} else {
-					Post.hiddenNums['delete'](+num);
-				}
+
+				Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
 				$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function (el) {
 					el.classList.add('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
@@ -14067,9 +14105,9 @@ true, true],
 		var hasAttachments = false;
 		var filesMap = new Map();
 		for (var i = 0, len = els.length; i < len; ++i) {
-			var _el4 = els[i];
-			last = new Attachment(post, _el4, last);
-			filesMap.set(_el4, last);
+			var _el6 = els[i];
+			last = new Attachment(post, _el6, last);
+			filesMap.set(_el6, last);
 			hasAttachments = true;
 			if (!first) {
 				first = last;
@@ -14078,9 +14116,9 @@ true, true],
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
 			for (var _i35 = 0, _len8 = els.length; _i35 < _len8; ++_i35) {
-				var _el5 = els[_i35];
-				last = new EmbeddedImage(post, _el5, last);
-				filesMap.set(_el5, last);
+				var _el7 = els[_i35];
+				last = new EmbeddedImage(post, _el7, last);
+				filesMap.set(_el7, last);
 				if (!first) {
 					first = last;
 				}
@@ -14169,15 +14207,17 @@ true, true],
 				if (!pv) {
 					return;
 				}
-				var parent = pv.parent;
+				var _pv = pv,
+				    parent = _pv.parent;
+
 				if (parent.omitted) {
 					pv['delete']();
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-					var _el6 = parent.ref.getElByNum(pv.num);
-					if (_el6) {
-						pv._link = _el6;
+					var _el8 = parent.ref.getElByNum(pv.num);
+					if (_el8) {
+						pv._link = _el8;
 					} else {
 						pv['delete']();
 						return;
@@ -14280,13 +14320,15 @@ true, true],
 						Attachment.viewer.close(null);
 						Attachment.viewer = vPost = null;
 					}
-					var el = pv.el;
-					pByEl['delete'](el);
+					var _pv2 = pv,
+					    _el9 = _pv2.el;
+
+					pByEl['delete'](_el9);
 					if (Cfg.animation) {
-						$animate(el, 'de-pview-anim', true);
-						el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+						$animate(_el9, 'de-pview-anim', true);
+						_el9.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
-						el.remove();
+						_el9.remove();
 					}
 				} while (pv = pv.kid);
 			}
@@ -14777,8 +14819,8 @@ true, true],
 					return;
 				case 'click':
 					{
-						var _el7 = e.target;
-						if (this.data.isVideo && this.data.isControlClick(e) || _el7.tagName !== 'IMG' && _el7.tagName !== 'VIDEO' && !_el7.classList.contains('de-fullimg-wrap') && _el7.target.className !== 'de-fullimg-load') {
+						var _el10 = e.target;
+						if (this.data.isVideo && this.data.isControlClick(e) || _el10.tagName !== 'IMG' && _el10.tagName !== 'VIDEO' && !_el10.classList.contains('de-fullimg-wrap') && _el10.target.className !== 'de-fullimg-load') {
 							return;
 						}
 						if (e.button === 0) {
@@ -14803,6 +14845,7 @@ true, true],
 		},
 		navigate: function navigate(isForward) {
 			var data = this.data;
+
 			data.cancelWebmLoad(this._fullEl);
 			do {
 				data = data.getFollow(isForward);
@@ -14919,6 +14962,7 @@ true, true],
 		},
 		_remove: function _remove(e) {
 			var data = this.data;
+
 			data.cancelWebmLoad(this._fullEl);
 			if (data.inPview && data.post.isSticky) {
 				data.post.setSticky(false);
@@ -15038,8 +15082,11 @@ true, true],
 				if (!this._size) {
 					return this._getThumbSize();
 				}
-				var width = this._size[0];
-				var height = this._size[1];
+
+				var _size = _slicedToArray(this._size, 2),
+				    width = _size[0],
+				    height = _size[1];
+
 				if (Cfg.resizeDPI) {
 					width /= Post.sizing.dPxRatio;
 					height /= Post.sizing.dPxRatio;
@@ -15097,6 +15144,7 @@ true, true],
 				}
 				this.expanded = true;
 				var el = this.el;
+
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullObject(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
@@ -15112,7 +15160,7 @@ true, true],
 				if (nImage) {
 					return nImage;
 				}
-				var imgs,
+				var imgs = void 0,
 				    post = this.post;
 				do {
 					post = post.getAdjacentVisPost(!isForward);
@@ -15607,8 +15655,11 @@ true, true],
 
 	function genImgHash(data) {
 		var buf = new Uint8Array(data[0]);
-		var oldw = data[1];
-		var oldh = data[2];
+
+		var _data9 = _slicedToArray(data, 3),
+		    oldw = _data9[1],
+		    oldh = _data9[2];
+
 		var size = oldw * oldh;
 		for (var i = 0, j = 0; i < size; i++, j += 4) {
 			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
@@ -15918,6 +15969,7 @@ true, true],
 					var fileName = void 0,
 					    fullFileName = void 0;
 					var thumb = file.thumb;
+
 					var thumbW = 200;
 					var thumbH = 200;
 					var ext = file.src.split('.').pop();
@@ -16010,6 +16062,7 @@ true, true],
 			value: function getPostHTML(i) {
 				var data = this._posts[i + 1];
 				var num = data.num;
+
 				var brd = this._brd;
 				var _switch = function _switch(val, obj) {
 					return val in obj ? obj[val] : obj['@@default'];
@@ -16264,7 +16317,10 @@ true, true],
 						if (!posts.has(lNum)) {
 							continue;
 						}
-						var ref = posts.get(lNum).ref;
+
+						var _posts$get = posts.get(lNum),
+						    ref = _posts$get.ref;
+
 						if (ref._inited) {
 							ref.add(post, pNum);
 						} else {
@@ -16499,9 +16555,10 @@ true, true],
 		}, {
 			key: '_createEl',
 			value: function _createEl(innerHTML, isHidden) {
-				var el,
-				    msg = this._post.msg,
-				    html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
+				var el = void 0;
+				var msg = this._post.msg;
+
+				var html = '<div class="de-refmap' + (isHidden ? ' de-post-hiddencontent' : '') + '">' + innerHTML + '</div>';
 				if (aib.dobr && (el = msg.nextElementSibling)) {
 					el.insertAdjacentHTML('beforeend', html);
 				} else {
@@ -16663,8 +16720,10 @@ true, true],
 
 				this.op.setFavBtn(val);
 				readFavorites().then(function (fav) {
-					var b = aib.b;
-					var h = aib.host;
+					var _aib = aib,
+					    b = _aib.b,
+					    h = _aib.host;
+
 					var num = _this54.thrId;
 					if (val) {
 						if (!fav[h]) {
@@ -16825,10 +16884,11 @@ true, true],
 			value: function _loadFromBuilder(last, smartScroll, pBuilder) {
 				var _this55 = this;
 
-				var nextCoord,
-				    maybeSpells = new Maybe(SpellsRunner),
-				    op = this.op,
+				var nextCoord = void 0;
+				var maybeSpells = new Maybe(SpellsRunner);
+				var op = this.op,
 				    thrEl = this.el;
+
 				if (smartScroll) {
 					if (this.next) {
 						nextCoord = this.next.top;
@@ -17950,6 +18010,7 @@ true, true],
 			key: 'addStuff',
 			value: function addStuff() {
 				var el = this.el;
+
 				if (!localData && Cfg.ajaxPosting) {
 					el.onsubmit = $pd;
 					var btn = $q(aib.qDelBut, el);
@@ -20207,9 +20268,9 @@ true, true],
 						img.src = src;
 						cap.textEl.value = '';
 					} else if (isErr) {
-						var _el8 = img.parentNode;
-						_el8.innerHTML = '';
-						_el8.appendChild(img);
+						var _el11 = img.parentNode;
+						_el11.innerHTML = '';
+						_el11.appendChild(img);
 						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
 						$show(img);
 						cap.isAdded = false;
@@ -20561,6 +20622,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 					}
 					var sessionId = null;
 					var cookie = doc.cookie;
+
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 							var _ref69;
@@ -20970,9 +21032,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				if (!arg || !arg.name) {
 					return;
 				}
-				var name = arg.name;
-				var data = arg.data;
 				var rv = null;
+				var name = arg.name,
+				    data = arg.data;
+
 				switch (arg.name.toLowerCase()) {
 					case 'registerapi':
 						if (data) {
@@ -21082,15 +21145,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			return;
 		}
 		setTimeout(function () {
-			var post,
-			    num,
-			    hash,
-			    val = +sesStorage['de-scroll-' + aib.b + aib.t];
+			var val = +sesStorage['de-scroll-' + aib.b + aib.t];
 			if (val) {
 				scrollTo(0, val);
 				sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-			} else if ((hash = window.location.hash) && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
-				post.selectAndScrollTo();
+			} else {
+				var post = void 0,
+				    num = void 0;
+				var hash = window.location.hash;
+
+				if (hash && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
+					post.selectAndScrollTo();
+				}
 			}
 		}, 0);
 	}

@@ -97,7 +97,7 @@ function checkUpload(data) {
 		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
-	const tNum = pr.tNum;
+	const { tNum } = pr;
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
@@ -224,8 +224,9 @@ function cleanFile(data, extraData) {
 	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		rExif = !!Cfg.removeEXIF,
-		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
-			[img, rand] : [img];
+		rv = extraData ?
+			(rand ? [img, extraData, rand] : [img, extraData]) :
+			(rand ? [img, rand] : [img]);
 	if(!rand && !rExif && !extraData) {
 		return rv;
 	}
