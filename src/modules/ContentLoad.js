@@ -56,54 +56,6 @@ function detectImgFile(ab) {
 	return {};
 }
 
-function WorkerPool(mReqs, wrkFn, errFn) {
-	if(!nav.hasWorker) {
-		this.run = (data, transferObjs, fn) => fn(wrkFn(data));
-		return;
-	}
-	var url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
-		var info = (${ String(wrkFn) })(e.data);
-		if(info.data) {
-			self.postMessage(info, [info.data]);
-		} else {
-			self.postMessage(info);
-		}
-	}`], { type: 'text/javascript' }));
-	this._pool = new TasksPool(mReqs, (num, data) => this._createWorker(num, data), null);
-	this._freeWorkers = [];
-	this._url = url;
-	this._errFn = errFn;
-	while(mReqs--) {
-		this._freeWorkers.push(new Worker(url));
-	}
-}
-WorkerPool.prototype = {
-	run(data, transferObjs, fn) {
-		this._pool.run([data, transferObjs, fn]);
-	},
-	_createWorker(num, data) {
-		return new Promise(resolve => {
-			var w = this._freeWorkers.pop(),
-				[sendData, transferObjs, fn] = data;
-			w.onmessage = e => {
-				fn(e.data);
-				this._freeWorkers.push(w);
-				resolve();
-			};
-			w.onerror = err => {
-				resolve();
-				this._freeWorkers.push(w);
-				this._errFn(err);
-			};
-			w.postMessage(sendData, transferObjs);
-		});
-	},
-	clear() {
-		window.URL.revokeObjectURL(this._url);
-		this._freeWorkers = [];
-	}
-};
-
 function addImgFileIcon(nameLink, fName, info) {
 	var app, ext, type = info.type;
 	if(typeof type === 'undefined') {
