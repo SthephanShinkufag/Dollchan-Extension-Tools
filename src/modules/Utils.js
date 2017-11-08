@@ -315,25 +315,25 @@ class CancelablePromise {
 	}
 }
 
-function Maybe(Ctor/* , ...args */) {
-	this._ctor = Ctor;
-	// this._args = args;
-	this.hasValue = false;
-}
-Maybe.prototype = {
+class Maybe {
+	constructor(Ctor/* , ...args */) {
+		this._ctor = Ctor;
+		// this._args = args;
+		this.hasValue = false;
+	}
 	get value() {
 		const Ctor = this._ctor;
 		this.hasValue = !!Ctor;
 		const val = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
-	},
+	}
 	end() {
 		if(this.hasValue) {
 			this.value.end();
 		}
 	}
-};
+}
 
 class TemporaryContent {
 	constructor(key) {
@@ -373,20 +373,16 @@ class TemporaryContent {
 }
 TemporaryContent.purgeSecs = 6e4;
 
-function TasksPool(tasksCount, taskFunc, endFn) {
-	this.array = [];
-	this.running = 0;
-	this.num = 1;
-	this.func = taskFunc;
-	this.endFn = endFn;
-	this.max = tasksCount;
-	this.completed = this.paused = this.stopped = false;
-}
-TasksPool.PauseError = function(duration) {
-	this.name = 'TasksPool.PauseError';
-	this.duration = duration;
-};
-TasksPool.prototype = {
+class TasksPool {
+	constructor(tasksCount, taskFunc, endFn) {
+		this.array = [];
+		this.running = 0;
+		this.num = 1;
+		this.func = taskFunc;
+		this.endFn = endFn;
+		this.max = tasksCount;
+		this.completed = this.paused = this.stopped = false;
+	}
 	complete() {
 		if(!this.stopped) {
 			if(this.array.length === 0 && this.running === 0) {
@@ -395,7 +391,7 @@ TasksPool.prototype = {
 				this.completed = true;
 			}
 		}
-	},
+	}
 	'continue'() {
 		if(!this.stopped) {
 			this.paused = false;
@@ -410,10 +406,10 @@ TasksPool.prototype = {
 				this.running++;
 			}
 		}
-	},
+	}
 	pause() {
 		this.paused = true;
-	},
+	}
 	run(data) {
 		if(!this.stopped) {
 			if(this.paused || this.running === this.max) {
@@ -423,11 +419,11 @@ TasksPool.prototype = {
 				this.running++;
 			}
 		}
-	},
+	}
 	stop() {
 		this.stopped = true;
 		this.endFn();
-	},
+	}
 
 	_end() {
 		if(!this.stopped) {
@@ -440,7 +436,7 @@ TasksPool.prototype = {
 				this.endFn();
 			}
 		}
-	},
+	}
 	_run(data) {
 		this.func(this.num++, data).then(() => this._end(), e => {
 			if(e instanceof TasksPool.PauseError) {
@@ -454,6 +450,10 @@ TasksPool.prototype = {
 			}
 		});
 	}
+}
+TasksPool.PauseError = function(duration) {
+	this.name = 'TasksPool.PauseError';
+	this.duration = duration;
 };
 
 class WorkerPool {
@@ -506,10 +506,10 @@ class WorkerPool {
 	}
 }
 
-function TarBuilder() {
-	this._data = [];
-}
-TarBuilder.prototype = {
+class TarBuilder {
+	constructor() {
+		this._data = [];
+	}
 	addFile(filepath, input) {
 		let i, checksum = 0;
 		const fileSize = input.length;
@@ -535,7 +535,7 @@ TarBuilder.prototype = {
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 			this._data.push(new Uint8Array(i));
 		}
-	},
+	}
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
 		const len = sDat.length;
@@ -544,11 +544,11 @@ TarBuilder.prototype = {
 			data[i] = sDat.charCodeAt(i) & 0xFF;
 		}
 		this.addFile(filepath, data);
-	},
+	}
 	get() {
 		this._data.push(new Uint8Array(1024));
 		return new Blob(this._data, { type: 'application/x-tar' });
-	},
+	}
 
 	_padSet(data, offset, num, len) {
 		let i = 0;
@@ -563,7 +563,7 @@ TarBuilder.prototype = {
 		}
 		data[offset] = 0x20; // ' '
 	}
-};
+}
 
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {

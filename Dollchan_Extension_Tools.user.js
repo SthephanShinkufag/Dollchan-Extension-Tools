@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '8508d18';
+	var commit = 'f7c62bf';
 
 
 	var defaultCfg = {
@@ -3908,24 +3908,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return CancelablePromise;
 	}();
 
-	function Maybe(Ctor ) {
-		this._ctor = Ctor;
-		this.hasValue = false;
-	}
-	Maybe.prototype = {
-		get value() {
-			var Ctor = this._ctor;
-			this.hasValue = !!Ctor;
-			var val = Ctor ? new Ctor() : null;
-			Object.defineProperty(this, 'value', { value: val });
-			return val;
-		},
-		end: function end() {
-			if (this.hasValue) {
-				this.value.end();
-			}
+	var Maybe = function () {
+		function Maybe(Ctor ) {
+			_classCallCheck(this, Maybe);
+
+			this._ctor = Ctor;
+			this.hasValue = false;
 		}
-	};
+
+		_createClass(Maybe, [{
+			key: 'end',
+			value: function end() {
+				if (this.hasValue) {
+					this.value.end();
+				}
+			}
+		}, {
+			key: 'value',
+			get: function get() {
+				var Ctor = this._ctor;
+				this.hasValue = !!Ctor;
+				var val = Ctor ? new Ctor() : null;
+				Object.defineProperty(this, 'value', { value: val });
+				return val;
+			}
+		}]);
+
+		return Maybe;
+	}();
 
 	var TemporaryContent = function () {
 		function TemporaryContent(key) {
@@ -3982,92 +3992,113 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	TemporaryContent.purgeSecs = 6e4;
 
-	function TasksPool(tasksCount, taskFunc, endFn) {
-		this.array = [];
-		this.running = 0;
-		this.num = 1;
-		this.func = taskFunc;
-		this.endFn = endFn;
-		this.max = tasksCount;
-		this.completed = this.paused = this.stopped = false;
-	}
+	var TasksPool = function () {
+		function TasksPool(tasksCount, taskFunc, endFn) {
+			_classCallCheck(this, TasksPool);
+
+			this.array = [];
+			this.running = 0;
+			this.num = 1;
+			this.func = taskFunc;
+			this.endFn = endFn;
+			this.max = tasksCount;
+			this.completed = this.paused = this.stopped = false;
+		}
+
+		_createClass(TasksPool, [{
+			key: 'complete',
+			value: function complete() {
+				if (!this.stopped) {
+					if (this.array.length === 0 && this.running === 0) {
+						this.endFn();
+					} else {
+						this.completed = true;
+					}
+				}
+			}
+		}, {
+			key: 'continue',
+			value: function _continue() {
+				if (!this.stopped) {
+					this.paused = false;
+					if (this.array.length === 0) {
+						if (this.completed) {
+							this.endFn();
+						}
+						return;
+					}
+					while (this.array.length !== 0 && this.running !== this.max) {
+						this._run(this.array.shift());
+						this.running++;
+					}
+				}
+			}
+		}, {
+			key: 'pause',
+			value: function pause() {
+				this.paused = true;
+			}
+		}, {
+			key: 'run',
+			value: function run(data) {
+				if (!this.stopped) {
+					if (this.paused || this.running === this.max) {
+						this.array.push(data);
+					} else {
+						this._run(data);
+						this.running++;
+					}
+				}
+			}
+		}, {
+			key: 'stop',
+			value: function stop() {
+				this.stopped = true;
+				this.endFn();
+			}
+		}, {
+			key: '_end',
+			value: function _end() {
+				if (!this.stopped) {
+					if (!this.paused && this.array.length !== 0) {
+						this._run(this.array.shift());
+						return;
+					}
+					this.running--;
+					if (!this.paused && this.completed && this.running === 0) {
+						this.endFn();
+					}
+				}
+			}
+		}, {
+			key: '_run',
+			value: function _run(data) {
+				var _this3 = this;
+
+				this.func(this.num++, data).then(function () {
+					return _this3._end();
+				}, function (e) {
+					if (e instanceof TasksPool.PauseError) {
+						_this3.pause();
+						if (e.duration !== -1) {
+							setTimeout(function () {
+								return _this3['continue']();
+							}, e.duration);
+						}
+					} else {
+						_this3._end();
+						throw e;
+					}
+				});
+			}
+		}]);
+
+		return TasksPool;
+	}();
+
 	TasksPool.PauseError = function (duration) {
 		this.name = 'TasksPool.PauseError';
 		this.duration = duration;
-	};
-	TasksPool.prototype = {
-		complete: function complete() {
-			if (!this.stopped) {
-				if (this.array.length === 0 && this.running === 0) {
-					this.endFn();
-				} else {
-					this.completed = true;
-				}
-			}
-		},
-		'continue': function _continue() {
-			if (!this.stopped) {
-				this.paused = false;
-				if (this.array.length === 0) {
-					if (this.completed) {
-						this.endFn();
-					}
-					return;
-				}
-				while (this.array.length !== 0 && this.running !== this.max) {
-					this._run(this.array.shift());
-					this.running++;
-				}
-			}
-		},
-		pause: function pause() {
-			this.paused = true;
-		},
-		run: function run(data) {
-			if (!this.stopped) {
-				if (this.paused || this.running === this.max) {
-					this.array.push(data);
-				} else {
-					this._run(data);
-					this.running++;
-				}
-			}
-		},
-		stop: function stop() {
-			this.stopped = true;
-			this.endFn();
-		},
-		_end: function _end() {
-			if (!this.stopped) {
-				if (!this.paused && this.array.length !== 0) {
-					this._run(this.array.shift());
-					return;
-				}
-				this.running--;
-				if (!this.paused && this.completed && this.running === 0) {
-					this.endFn();
-				}
-			}
-		},
-		_run: function _run(data) {
-			var _this3 = this;
-
-			this.func(this.num++, data).then(function () {
-				return _this3._end();
-			}, function (e) {
-				if (e instanceof TasksPool.PauseError) {
-					_this3.pause();
-					if (e.duration !== -1) {
-						setTimeout(function () {
-							return _this3['continue']();
-						}, e.duration);
-					}
-				} else {
-					_this3._end();
-					throw e;
-				}
-			});
-		}
 	};
 
 	var WorkerPool = function () {
@@ -4139,62 +4170,76 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return WorkerPool;
 	}();
 
-	function TarBuilder() {
-		this._data = [];
-	}
-	TarBuilder.prototype = {
-		addFile: function addFile(filepath, input) {
-			var i = void 0,
-			    checksum = 0;
-			var fileSize = input.length;
-			var header = new Uint8Array(512);
-			var nameLen = Math.min(filepath.length, 100);
-			for (i = 0; i < nameLen; ++i) {
-				header[i] = filepath.charCodeAt(i) & 0xFF;
-			}
-			this._padSet(header, 100, '100777', 8); 
-			this._padSet(header, 108, '0', 8); 
-			this._padSet(header, 116, '0', 8); 
-			this._padSet(header, 124, fileSize.toString(8), 13); 
-			this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); 
-			this._padSet(header, 148, '        ', 8); 
-			header[156] = 0x30;
-			for (i = 0; i < 157; i++) {
-				checksum += header[i];
-			}
-			this._padSet(header, 148, checksum.toString(8), 8);
-			this._data.push(header, input);
-			if ((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
-				this._data.push(new Uint8Array(i));
-			}
-		},
-		addString: function addString(filepath, str) {
-			var sDat = unescape(encodeURIComponent(str));
-			var len = sDat.length;
-			var data = new Uint8Array(len);
-			for (var i = 0; i < len; ++i) {
-				data[i] = sDat.charCodeAt(i) & 0xFF;
-			}
-			this.addFile(filepath, data);
-		},
-		get: function get() {
-			this._data.push(new Uint8Array(1024));
-			return new Blob(this._data, { type: 'application/x-tar' });
-		},
-		_padSet: function _padSet(data, offset, num, len) {
-			var i = 0;
-			var nLen = num.length;
-			len -= 2;
-			while (nLen < len) {
-				data[offset++] = 0x20; 
-				len--;
-			}
-			while (i < nLen) {
-				data[offset++] = num.charCodeAt(i++);
-			}
-			data[offset] = 0x20; 
+	var TarBuilder = function () {
+		function TarBuilder() {
+			_classCallCheck(this, TarBuilder);
+
+			this._data = [];
 		}
-	};
+
+		_createClass(TarBuilder, [{
+			key: 'addFile',
+			value: function addFile(filepath, input) {
+				var i = void 0,
+				    checksum = 0;
+				var fileSize = input.length;
+				var header = new Uint8Array(512);
+				var nameLen = Math.min(filepath.length, 100);
+				for (i = 0; i < nameLen; ++i) {
+					header[i] = filepath.charCodeAt(i) & 0xFF;
+				}
+				this._padSet(header, 100, '100777', 8); 
+				this._padSet(header, 108, '0', 8); 
+				this._padSet(header, 116, '0', 8); 
+				this._padSet(header, 124, fileSize.toString(8), 13); 
+				this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); 
+				this._padSet(header, 148, '        ', 8); 
+				header[156] = 0x30;
+				for (i = 0; i < 157; i++) {
+					checksum += header[i];
+				}
+				this._padSet(header, 148, checksum.toString(8), 8);
+				this._data.push(header, input);
+				if ((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
+					this._data.push(new Uint8Array(i));
+				}
+			}
+		}, {
+			key: 'addString',
+			value: function addString(filepath, str) {
+				var sDat = unescape(encodeURIComponent(str));
+				var len = sDat.length;
+				var data = new Uint8Array(len);
+				for (var i = 0; i < len; ++i) {
+					data[i] = sDat.charCodeAt(i) & 0xFF;
+				}
+				this.addFile(filepath, data);
+			}
+		}, {
+			key: 'get',
+			value: function get() {
+				this._data.push(new Uint8Array(1024));
+				return new Blob(this._data, { type: 'application/x-tar' });
+			}
+		}, {
+			key: '_padSet',
+			value: function _padSet(data, offset, num, len) {
+				var i = 0;
+				var nLen = num.length;
+				len -= 2;
+				while (nLen < len) {
+					data[offset++] = 0x20; 
+					len--;
+				}
+				while (i < nLen) {
+					data[offset++] = num.charCodeAt(i++);
+				}
+				data[offset] = 0x20; 
+			}
+		}]);
+
+		return TarBuilder;
+	}();
 
 	function getErrorMessage(e) {
 		if (e instanceof AjaxError) {
@@ -5429,11 +5474,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$pd(e);
 						return;
 					case 'mousemove':
-						var maxX = Post.sizing.wWidth - this._win.offsetWidth,
-						    maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
-						    cr = this._win.getBoundingClientRect(),
-						    x = cr.left + curX - this._oldX,
-						    y = cr.top + curY - this._oldY;
+						var maxX = Post.sizing.wWidth - this._win.offsetWidth;
+						var maxY = Post.sizing.wHeight - this._win.offsetHeight - 25;
+						var cr = this._win.getBoundingClientRect();
+						var x = cr.left + curX - this._oldX;
+						var y = cr.top + curY - this._oldY;
 						this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' : x < 0 || curX < this._oldX && x < 20 ? 'left: 0' : 'left: ' + x + 'px';
 						this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' : y < 0 || curY < this._oldY && y < 20 ? 'top: 0' : 'top: ' + y + 'px';
 						var width = this._wStyle.width;
@@ -5452,78 +5497,86 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 	}
 
-	function WinResizer(name, dir, cfgName, win, target) {
-		this.name = name;
-		this.dir = dir;
-		this.cfgName = cfgName;
-		this.vertical = dir === 'top' || dir === 'bottom';
-		this.win = win;
-		this.wStyle = this.win.style;
-		this.tStyle = target.style;
-		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
-	}
-	WinResizer.prototype = {
-		handleEvent: function handleEvent(e) {
-			var val = void 0,
-			    x = void 0,
-			    y = void 0;
-			var _Post$sizing = Post.sizing,
-			    maxX = _Post$sizing.wWidth,
-			    maxY = _Post$sizing.wHeight;
-			var width = this.wStyle.width;
+	var WinResizer = function () {
+		function WinResizer(name, dir, cfgName, win, target) {
+			_classCallCheck(this, WinResizer);
 
-			var cr = this.win.getBoundingClientRect();
-			var z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
-			switch (e.type) {
-				case 'mousedown':
-					if (this.win.classList.contains('de-win-fixed')) {
-						x = 'right: 0';
-						y = 'bottom: 25px';
-					} else {
-						x = Cfg[this.name + 'WinX'];
-						y = Cfg[this.name + 'WinY'];
-					}
-					switch (this.dir) {
-						case 'top':
-							val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z;break;
-						case 'bottom':
-							val = x + '; top: ' + cr.top + 'px' + z;break;
-						case 'left':
-							val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z;break;
-						case 'right':
-							val = 'left: ' + cr.left + 'px; ' + y + z;
-					}
-					this.win.setAttribute('style', val);
-					docBody.addEventListener('mousemove', this);
-					docBody.addEventListener('mouseup', this);
-					$pd(e);
-					return;
-				case 'mousemove':
-					if (this.vertical) {
-						val = e.clientY;
-						this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px';
-					} else {
-						val = e.clientX;
-						this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px';
-					}
-					return;
-				default:
-					docBody.removeEventListener('mousemove', this);
-					docBody.removeEventListener('mouseup', this);
-					saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
-					if (this.win.classList.contains('de-win-fixed')) {
-						this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
-						return;
-					}
-					if (this.vertical) {
-						saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
-					} else {
-						saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
-					}
-					this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
-			}
+			this.name = name;
+			this.dir = dir;
+			this.cfgName = cfgName;
+			this.vertical = dir === 'top' || dir === 'bottom';
+			this.win = win;
+			this.wStyle = this.win.style;
+			this.tStyle = target.style;
+			$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
 		}
-	};
+
+		_createClass(WinResizer, [{
+			key: 'handleEvent',
+			value: function handleEvent(e) {
+				var val = void 0,
+				    x = void 0,
+				    y = void 0;
+				var _Post$sizing = Post.sizing,
+				    maxX = _Post$sizing.wWidth,
+				    maxY = _Post$sizing.wHeight;
+				var width = this.wStyle.width;
+
+				var cr = this.win.getBoundingClientRect();
+				var z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+				switch (e.type) {
+					case 'mousedown':
+						if (this.win.classList.contains('de-win-fixed')) {
+							x = 'right: 0';
+							y = 'bottom: 25px';
+						} else {
+							x = Cfg[this.name + 'WinX'];
+							y = Cfg[this.name + 'WinY'];
+						}
+						switch (this.dir) {
+							case 'top':
+								val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z;break;
+							case 'bottom':
+								val = x + '; top: ' + cr.top + 'px' + z;break;
+							case 'left':
+								val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z;break;
+							case 'right':
+								val = 'left: ' + cr.left + 'px; ' + y + z;
+						}
+						this.win.setAttribute('style', val);
+						docBody.addEventListener('mousemove', this);
+						docBody.addEventListener('mouseup', this);
+						$pd(e);
+						return;
+					case 'mousemove':
+						if (this.vertical) {
+							val = e.clientY;
+							this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px';
+						} else {
+							val = e.clientX;
+							this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px';
+						}
+						return;
+					default:
+						docBody.removeEventListener('mousemove', this);
+						docBody.removeEventListener('mouseup', this);
+						saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+						if (this.win.classList.contains('de-win-fixed')) {
+							this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
+							return;
+						}
+						if (this.vertical) {
+							saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
+						} else {
+							saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
+						}
+						this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
+				}
+			}
+		}]);
+
+		return WinResizer;
+	}();
 
 	function toggleWindow(name, isUpd, data, noAnim) {
 		var el = void 0,
@@ -7244,92 +7297,93 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, className);
 	}
 
-	function Menu(parentEl, html, clickFn) {
-		var isFixed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+	var Menu = function () {
+		function Menu(parentEl, html, clickFn) {
+			var isFixed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
-		var el = $bEnd(docBody, '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
-		var mStyle = el.style,
-		    cr = parentEl.getBoundingClientRect(),
-		    width = el.offsetWidth,
-		    xOffset = isFixed ? 0 : window.pageXOffset;
-		if (cr.left + width < Post.sizing.wWidth) {
-			mStyle.left = xOffset + cr.left + 'px';
-		} else {
-			mStyle.left = xOffset + cr.right - width + 'px';
-		}
-		var height = el.offsetHeight;
-		var yOffset = isFixed ? 0 : window.pageYOffset;
-		if (cr.bottom + height < Post.sizing.wHeight) {
-			mStyle.top = yOffset + cr.bottom - 0.5 + 'px';
-		} else {
-			mStyle.top = yOffset + cr.top - height + 0.5 + 'px';
-		}
-		mStyle.removeProperty('visibility');
-		this._clickFn = clickFn;
-		this._el = el;
-		this.parentEl = parentEl;
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
-		parentEl.addEventListener('mouseout', this);
-		el.addEventListener('click', this);
-	}
-	Menu.prototype = {
-		onout: null,
-		onover: null,
-		onremove: null,
-		_closeTO: 0,
-		remove: function remove() {
-			if (!this._el) {
-				return;
-			}
-			if (this.onremove) {
-				this.onremove();
-			}
-			this._el.removeEventListener('mouseover', this, true);
-			this._el.removeEventListener('mouseout', this, true);
-			this.parentEl.removeEventListener('mouseout', this);
-			this._el.removeEventListener('click', this);
-			$del(this._el);
-			this._el = null;
-		},
-		handleEvent: function handleEvent(e) {
-			var _this14 = this;
+			_classCallCheck(this, Menu);
 
-			var isOverEvent = false,
-			    el = e.target;
-			switch (e.type) {
-				case 'click':
-					if (el.className === 'de-menu-item') {
-						this.remove();
-						this._clickFn(el);
-						if (!Cfg.expandPanel && !$q('.de-win-active')) {
-							$hide($id('de-panel-buttons'));
-						}
-					}
-					break;
-				case 'mouseover':
-					isOverEvent = true;
-				case 'mouseout':
-					clearTimeout(this._closeTO);
-					var rt = fixEventEl(e.relatedTarget);
-					rt = rt && rt.farthestViewportElement || rt;
-					if (!rt || rt !== this._el && !this._el.contains(rt)) {
-						if (isOverEvent) {
-							if (this.onover) {
-								this.onover();
-							}
-						} else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
-							this._closeTO = setTimeout(function () {
-								return _this14.remove();
-							}, 75);
-							if (this.onout) {
-								this.onout();
+			this.onout = null;
+			this.onover = null;
+			this.onremove = null;
+			this._closeTO = 0;
+			var el = $bEnd(docBody, '<div class="' + aib.cReply + ' de-menu" style="position: ' + (isFixed ? 'fixed' : 'absolute') + '; left: 0px; top: 0px; visibility: hidden;">' + html + '</div>');
+			var cr = parentEl.getBoundingClientRect();
+			var style = el.style,
+			    w = el.offsetWidth,
+			    h = el.offsetHeight;
+
+			style.left = (isFixed ? 0 : window.pageXOffset) + (cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+			style.top = (isFixed ? 0 : window.pageYOffset) + (cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
+			style.removeProperty('visibility');
+			this._clickFn = clickFn;
+			this._el = el;
+			this.parentEl = parentEl;
+			el.addEventListener('mouseover', this, true);
+			el.addEventListener('mouseout', this, true);
+			el.addEventListener('click', this);
+			parentEl.addEventListener('mouseout', this);
+		}
+
+		_createClass(Menu, [{
+			key: 'remove',
+			value: function remove() {
+				if (!this._el) {
+					return;
+				}
+				if (this.onremove) {
+					this.onremove();
+				}
+				this._el.removeEventListener('mouseover', this, true);
+				this._el.removeEventListener('mouseout', this, true);
+				this.parentEl.removeEventListener('mouseout', this);
+				this._el.removeEventListener('click', this);
+				$del(this._el);
+				this._el = null;
+			}
+		}, {
+			key: 'handleEvent',
+			value: function handleEvent(e) {
+				var _this14 = this;
+
+				var isOverEvent = false;
+				var el = e.target;
+				switch (e.type) {
+					case 'click':
+						if (el.className === 'de-menu-item') {
+							this.remove();
+							this._clickFn(el);
+							if (!Cfg.expandPanel && !$q('.de-win-active')) {
+								$hide($id('de-panel-buttons'));
 							}
 						}
-					}
+						break;
+					case 'mouseover':
+						isOverEvent = true;
+					case 'mouseout':
+						clearTimeout(this._closeTO);
+						var rt = fixEventEl(e.relatedTarget);
+						rt = rt && rt.farthestViewportElement || rt;
+						if (!rt || rt !== this._el && !this._el.contains(rt)) {
+							if (isOverEvent) {
+								if (this.onover) {
+									this.onover();
+								}
+							} else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
+								this._closeTO = setTimeout(function () {
+									return _this14.remove();
+								}, 75);
+								if (this.onout) {
+									this.onout();
+								}
+							}
+						}
+				}
 			}
-		}
-	};
+		}]);
+
+		return Menu;
+	}();
 
 	function addMenu(el) {
 		var fn = function fn(a) {
@@ -7348,16 +7402,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			case 'de-panel-savethr':
 				return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
 					if (!$id('de-popup-savethr')) {
-						var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-						if (Images_.preloading) {
-							$popup('savethr', Lng.loading[lang], true);
-							Images_.afterpreload = function () {
-								return loadDocFiles(imgOnly);
-							};
-							Images_.progressId = 'savethr';
-						} else {
-							loadDocFiles(imgOnly);
-						}
+						(function () {
+							var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+							if (Images_.preloading) {
+								$popup('savethr', Lng.loading[lang], true);
+								Images_.afterpreload = function () {
+									return loadDocFiles(imgOnly);
+								};
+								Images_.progressId = 'savethr';
+							} else {
+								loadDocFiles(imgOnly);
+							}
+						})();
 					}
 				});
 			case 'de-panel-audio-off':
@@ -7788,209 +7844,226 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	};
 
-	function KeyEditListener(popupEl, keys, allKeys) {
-		var aInputs = Array.from($Q('.de-input-key', popupEl));
-		for (var i = 0, len = allKeys.length; i < len; ++i) {
-			var k = allKeys[i];
-			if (k !== 0) {
-				for (var j = i + 1; j < len; ++j) {
-					if (k === allKeys[j]) {
-						aInputs[i].classList.add('de-error-input');
-						aInputs[j].classList.add('de-error-input');
-						break;
+	var KeyEditListener = function () {
+		function KeyEditListener(popupEl, keys, allKeys) {
+			_classCallCheck(this, KeyEditListener);
+
+			this.cEl = null;
+			this.cKey = -1;
+			this.errorInput = false;
+			var aInputs = Array.from($Q('.de-input-key', popupEl));
+			for (var i = 0, len = allKeys.length; i < len; ++i) {
+				var k = allKeys[i];
+				if (k !== 0) {
+					for (var j = i + 1; j < len; ++j) {
+						if (k === allKeys[j]) {
+							aInputs[i].classList.add('de-error-input');
+							aInputs[j].classList.add('de-error-input');
+							break;
+						}
 					}
 				}
 			}
+			this.popupEl = popupEl;
+			this.keys = keys;
+			this.initKeys = JSON.parse(JSON.stringify(keys));
+			this.allKeys = allKeys;
+			this.allInputs = aInputs;
+			this.errCount = $Q('.de-error-input', popupEl).length;
+			if (this.errCount !== 0) {
+				this.saveButton.disabled = true;
+			}
 		}
-		this.popupEl = popupEl;
-		this.keys = keys;
-		this.initKeys = JSON.parse(JSON.stringify(keys));
-		this.allKeys = allKeys;
-		this.allInputs = aInputs;
-		this.errCount = $Q('.de-error-input', popupEl).length;
-		if (this.errCount !== 0) {
-			this.saveButton.disabled = true;
-		}
-	}
+
+		_createClass(KeyEditListener, [{
+			key: 'handleEvent',
+			value: function handleEvent(e) {
+				var key = void 0,
+				    el = e.target;
+				switch (e.type) {
+					case 'blur':
+						if (HotKeys.enabled && this.errCount === 0) {
+							HotKeys.resume(this.keys);
+						}
+						this.cEl = null;
+						return;
+					case 'focus':
+						if (HotKeys.enabled) {
+							HotKeys.pause();
+						}
+						this.cEl = el;
+						return;
+					case 'click':
+						var keys = void 0;
+						if (el.id === 'de-keys-reset') {
+							this.keys = HotKeys.getDefaultKeys();
+							this.initKeys = HotKeys.getDefaultKeys();
+							if (HotKeys.enabled) {
+								HotKeys.resume(this.keys);
+							}
+
+							var _KeyEditListener$getE = KeyEditListener.getEditMarkup(this.keys);
+
+							var _KeyEditListener$getE2 = _slicedToArray(_KeyEditListener$getE, 2);
+
+							this.allKeys = _KeyEditListener$getE2[0];
+							this.popupEl.innerHTML = _KeyEditListener$getE2[1];
+
+							this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
+							this.errCount = 0;
+							delete this.saveButton;
+							break;
+						} else if (el.id === 'de-keys-save') {
+							keys = this.keys;
+
+							setStored('DESU_keys', JSON.stringify(keys));
+						} else if (el.className === 'de-popup-btn') {
+							keys = this.initKeys;
+						} else {
+							return;
+						}
+						if (HotKeys.enabled) {
+							HotKeys.resume(keys);
+						}
+						closePopup('edit-hotkeys');
+						break;
+					case 'keydown':
+						if (!this.cEl) {
+							return;
+						}
+						key = e.keyCode;
+						if (key === 0x1B || key === 0x2E) {
+							this.cEl.value = '';
+							this.cKey = 0;
+							this.errorInput = false;
+							break;
+						}
+						var keyStr = KeyEditListener.keyCodes[key];
+						if (keyStr === undefined) {
+							this.cKey = -1;
+							return;
+						}
+						var str = '';
+						if (e.ctrlKey) {
+							str += 'Ctrl+';
+						}
+						if (e.shiftKey) {
+							str += 'Shift+';
+						}
+						if (e.altKey) {
+							str += 'Alt+';
+						}
+						if (key === 16 || key === 17 || key === 18) {
+							this.errorInput = true;
+							this.cKey = 0;
+						} else {
+							this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x8000 : 0);
+							this.errorInput = false;
+							str += keyStr;
+						}
+						this.cEl.value = str;
+						break;
+					case 'keyup':
+						el = this.cEl;
+						key = this.cKey;
+						if (!el || key === -1) {
+							return;
+						}
+						var rEl = void 0;
+						var isError = el.classList.contains('de-error-input');
+						if (!this.errorInput && key !== -1) {
+							var idx = this.allInputs.indexOf(el);
+							var oKey = this.allKeys[idx];
+							if (oKey === key) {
+								this.errorInput = false;
+								break;
+							}
+							var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+							this.allKeys[idx] = key;
+							if (isError) {
+								idx = this.allKeys.indexOf(oKey);
+								if (idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
+									rEl = this.allInputs[idx];
+									if (rEl.classList.contains('de-error-input')) {
+										this.errCount--;
+										rEl.classList.remove('de-error-input');
+									}
+								}
+								if (rIdx === -1) {
+									this.errCount--;
+									el.classList.remove('de-error-input');
+								}
+							}
+							if (rIdx === -1) {
+								this.keys[+el.getAttribute('de-id1')][+el.getAttribute('de-id2')] = key;
+								if (this.errCount === 0) {
+									this.saveButton.disabled = false;
+								}
+								this.errorInput = false;
+								break;
+							}
+							rEl = this.allInputs[rIdx];
+							if (!rEl.classList.contains('de-error-input')) {
+								this.errCount++;
+								rEl.classList.add('de-error-input');
+							}
+						}
+						if (!isError) {
+							this.errCount++;
+							el.classList.add('de-error-input');
+						}
+						if (this.errCount !== 0) {
+							this.saveButton.disabled = true;
+						}
+				}
+				$pd(e);
+			}
+		}, {
+			key: 'saveButton',
+			get: function get() {
+				var val = $id('de-keys-save');
+				Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
+				return val;
+			}
+		}], [{
+			key: 'getEditMarkup',
+			value: function getEditMarkup(keys) {
+				var allKeys = [];
+				return [allKeys, Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, function (all, id1, id2, isText) {
+					var key = keys[+id1][+id2];
+					allKeys.push(key);
+					return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + ('" size="16" value="' + (KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"')) + ' readonly>');
+				}) + ('<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">') + ('<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">')];
+			}
+		}, {
+			key: 'getStrKey',
+			value: function getStrKey(key) {
+				return (key & 0x1000 ? 'Ctrl+' : '') + (key & 0x2000 ? 'Shift+' : '') + (key & 0x4000 ? 'Alt+' : '') + KeyEditListener.keyCodes[key & 0xFFF];
+			}
+		}, {
+			key: 'setTitle',
+			value: function setTitle(el, idx) {
+				var title = el.getAttribute('de-title');
+				if (!title) {
+					title = el.getAttribute('title');
+					el.setAttribute('de-title', title);
+				}
+				if (HotKeys.enabled && idx !== -1) {
+					title += ' [' + KeyEditListener.getStrKey(HotKeys.gKeys[idx]) + ']';
+				}
+				el.title = title;
+			}
+		}]);
+
+		return KeyEditListener;
+	}();
+
+
 	KeyEditListener.keyCodes = ['',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,,  
 'Space',,,,,    '←', '↑', '→', '↓',,,,,,,,
 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,, 
 'Numpad 0', 'Numpad 1', 'Numpad 2', 'Numpad 3', 'Numpad 4', 'Numpad 5', 'Numpad 6', 'Numpad 7', 'Numpad 8', 'Numpad 9', 'Numpad *', 'Numpad +',, 'Numpad -', 'Numpad .', 'Numpad /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', "'"];
-	KeyEditListener.getStrKey = function (key) {
-		return (key & 0x1000 ? 'Ctrl+' : '') + (key & 0x2000 ? 'Shift+' : '') + (key & 0x4000 ? 'Alt+' : '') + KeyEditListener.keyCodes[key & 0xFFF];
-	};
-	KeyEditListener.getEditMarkup = function (keys) {
-		var allKeys = [];
-		var html = Lng.hotKeyEdit[lang].join('').replace(/%l/g, '<label class="de-block">').replace(/%\/l/g, '</label>').replace(/%i([2-4])([0-9]+)(t)?/g, function (all, id1, id2, isText) {
-			var key = keys[+id1][+id2];
-			allKeys.push(key);
-			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 + '" size="16" value="' + KeyEditListener.getStrKey(key) + (isText ? '" de-text' : '"') + ' readonly>';
-		}) + '<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">' + '<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">';
-		return [allKeys, html];
-	};
-	KeyEditListener.setTitle = function (el, idx) {
-		var title = el.getAttribute('de-title');
-		if (!title) {
-			title = el.getAttribute('title');
-			el.setAttribute('de-title', title);
-		}
-		if (HotKeys.enabled && idx !== -1) {
-			title += ' [' + KeyEditListener.getStrKey(HotKeys.gKeys[idx]) + ']';
-		}
-		el.title = title;
-	};
-	KeyEditListener.prototype = {
-		cEl: null,
-		cKey: -1,
-		errorInput: false,
-		get saveButton() {
-			var val = $id('de-keys-save');
-			Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
-			return val;
-		},
-		handleEvent: function handleEvent(e) {
-			var key,
-			    el = e.target;
-			switch (e.type) {
-				case 'blur':
-					if (HotKeys.enabled && this.errCount === 0) {
-						HotKeys.resume(this.keys);
-					}
-					this.cEl = null;
-					return;
-				case 'focus':
-					if (HotKeys.enabled) {
-						HotKeys.pause();
-					}
-					this.cEl = el;
-					return;
-				case 'click':
-					var keys;
-					if (el.id === 'de-keys-reset') {
-						this.keys = HotKeys.getDefaultKeys();
-						this.initKeys = HotKeys.getDefaultKeys();
-						if (HotKeys.enabled) {
-							HotKeys.resume(this.keys);
-						}
-
-						var _KeyEditListener$getE = KeyEditListener.getEditMarkup(this.keys);
-
-						var _KeyEditListener$getE2 = _slicedToArray(_KeyEditListener$getE, 2);
-
-						this.allKeys = _KeyEditListener$getE2[0];
-						this.popupEl.innerHTML = _KeyEditListener$getE2[1];
-
-						this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
-						this.errCount = 0;
-						delete this.saveButton;
-						break;
-					} else if (el.id === 'de-keys-save') {
-						keys = this.keys;
-
-						setStored('DESU_keys', JSON.stringify(keys));
-					} else if (el.className === 'de-popup-btn') {
-						keys = this.initKeys;
-					} else {
-						return;
-					}
-					if (HotKeys.enabled) {
-						HotKeys.resume(keys);
-					}
-					closePopup('edit-hotkeys');
-					break;
-				case 'keydown':
-					if (!this.cEl) {
-						return;
-					}
-					key = e.keyCode;
-					if (key === 0x1B || key === 0x2E) {
-						this.cEl.value = '';
-						this.cKey = 0;
-						this.errorInput = false;
-						break;
-					}
-					var keyStr = KeyEditListener.keyCodes[key];
-					if (keyStr === undefined) {
-						this.cKey = -1;
-						return;
-					}
-					var str = '';
-					if (e.ctrlKey) {
-						str += 'Ctrl+';
-					}
-					if (e.shiftKey) {
-						str += 'Shift+';
-					}
-					if (e.altKey) {
-						str += 'Alt+';
-					}
-					if (key === 16 || key === 17 || key === 18) {
-						this.errorInput = true;
-						this.cKey = 0;
-					} else {
-						this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x8000 : 0);
-						this.errorInput = false;
-						str += keyStr;
-					}
-					this.cEl.value = str;
-					break;
-				case 'keyup':
-					el = this.cEl;
-					key = this.cKey;
-					if (!el || key === -1) {
-						return;
-					}
-					var rEl,
-					    isError = el.classList.contains('de-error-input');
-					if (!this.errorInput && key !== -1) {
-						var idx = this.allInputs.indexOf(el),
-						    oKey = this.allKeys[idx];
-						if (oKey === key) {
-							this.errorInput = false;
-							break;
-						}
-						var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
-						this.allKeys[idx] = key;
-						if (isError) {
-							idx = this.allKeys.indexOf(oKey);
-							if (idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
-								rEl = this.allInputs[idx];
-								if (rEl.classList.contains('de-error-input')) {
-									this.errCount--;
-									rEl.classList.remove('de-error-input');
-								}
-							}
-							if (rIdx === -1) {
-								this.errCount--;
-								el.classList.remove('de-error-input');
-							}
-						}
-						if (rIdx === -1) {
-							this.keys[+el.getAttribute('de-id1')][+el.getAttribute('de-id2')] = key;
-							if (this.errCount === 0) {
-								this.saveButton.disabled = false;
-							}
-							this.errorInput = false;
-							break;
-						}
-						rEl = this.allInputs[rIdx];
-						if (!rEl.classList.contains('de-error-input')) {
-							this.errCount++;
-							rEl.classList.add('de-error-input');
-						}
-					}
-					if (!isError) {
-						this.errCount++;
-						el.classList.add('de-error-input');
-					}
-					if (this.errCount !== 0) {
-						this.saveButton.disabled = true;
-					}
-			}
-			$pd(e);
-		}
-	};
 
 
 	function detectImgFile(ab) {
@@ -8335,118 +8408,418 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
-		if (DateTime.checkPattern(pattern)) {
-			this.disabled = true;
-			return;
-		}
-		this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function (str) {
-			return '(?:' + str.replace(/\?/g, '') + ')?';
-		}).replace(/-/g, '[^<]').replace(/\+/g, '[^0-9<]').replace(/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-		this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
-		this.diff = parseInt(diff, 10);
-		this.arrW = Lng.week[dtLang];
-		this.arrM = Lng.month[dtLang];
-		this.arrFM = Lng.fullMonth[dtLang];
-		if (rPattern) {
-			this.genDateTime = this.genRFunc(rPattern);
-		} else {
-			this.onRPat = onRPat;
-		}
-	}
-	DateTime.toggleSettings = function (el) {
-		if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-			$popup('err-correcttime', Lng.cTimeError[lang]);
-			saveCfg('correctTime', 0);
-			el.checked = false;
-		}
-	};
-	DateTime.checkPattern = function (val) {
-		return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') || !(val.includes('n') || val.includes('m')) || /[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
-	};
-	DateTime.prototype = {
-		pad2: pad2,
-		genDateTime: null,
-		onRPat: null,
-		genRFunc: function genRFunc(rPattern) {
-			return new Function('dtime', "return '" + rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff).replace('_s', "' + this.pad2(dtime.getSeconds()) + '").replace('_i', "' + this.pad2(dtime.getMinutes()) + '").replace('_h', "' + this.pad2(dtime.getHours()) + '").replace('_d', "' + this.pad2(dtime.getDate()) + '").replace('_w', "' + this.arrW[dtime.getDay()] + '").replace('_n', "' + this.pad2(dtime.getMonth() + 1) + '").replace('_m', "' + this.arrM[dtime.getMonth()] + '").replace('_M', "' + this.arrFM[dtime.getMonth()] + '").replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '").replace('_Y', "' + dtime.getFullYear() + '") + "';");
-		},
-		getRPattern: function getRPattern(txt) {
-			var m = txt.match(new RegExp(this.regex));
-			if (!m) {
+	var DateTime = function () {
+		function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
+			_classCallCheck(this, DateTime);
+
+			this.pad2 = pad2;
+			this.genDateTime = null;
+			this.onRPat = null;
+			if (DateTime.checkPattern(pattern)) {
 				this.disabled = true;
-				return false;
+				return;
 			}
-			var rPattern = '';
-			for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
-				var a = m[i++],
-				    p = this.pattern[i - 2];
-				if ((p === 'm' || p === 'y') && a.length > 3) {
-					p = p.toUpperCase();
-				}
-				var k = str.indexOf(a, j);
-				rPattern += str.substring(j, k) + '_' + p;
-				j = k + a.length;
+			this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function (str) {
+				return '(?:' + str.replace(/\?/g, '') + ')?';
+			}).replace(/-/g, '[^<]').replace(/\+/g, '[^0-9<]').replace(/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
+			this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
+			this.diff = parseInt(diff, 10);
+			this.arrW = Lng.week[dtLang];
+			this.arrM = Lng.month[dtLang];
+			this.arrFM = Lng.fullMonth[dtLang];
+			if (rPattern) {
+				this.genDateTime = this.genRFunc(rPattern);
+			} else {
+				this.onRPat = onRPat;
 			}
-			if (this.onRPat) {
-				this.onRPat(rPattern);
-			}
-			this.genDateTime = this.genRFunc(rPattern);
-			return true;
-		},
-		fix: function fix(txt) {
-			var _this16 = this;
+		}
 
-			if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
-				return txt;
+		_createClass(DateTime, [{
+			key: 'genRFunc',
+			value: function genRFunc(rPattern) {
+				return new Function('dtime', "return '" + rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff).replace('_s', "' + this.pad2(dtime.getSeconds()) + '").replace('_i', "' + this.pad2(dtime.getMinutes()) + '").replace('_h', "' + this.pad2(dtime.getHours()) + '").replace('_d', "' + this.pad2(dtime.getDate()) + '").replace('_w', "' + this.arrW[dtime.getDay()] + '").replace('_n', "' + this.pad2(dtime.getMonth() + 1) + '").replace('_m', "' + this.arrM[dtime.getMonth()] + '").replace('_M', "' + this.arrFM[dtime.getMonth()] + '").replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '").replace('_Y', "' + dtime.getFullYear() + '") + "';");
 			}
-			return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-				for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key = 1; _key < _len2; _key++) {
-					args[_key - 1] = arguments[_key];
+		}, {
+			key: 'getRPattern',
+			value: function getRPattern(txt) {
+				var m = txt.match(new RegExp(this.regex));
+				if (!m) {
+					this.disabled = true;
+					return false;
 				}
+				var rPattern = '';
+				for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
+					var a = m[i++];
+					var p = this.pattern[i - 2];
+					if ((p === 'm' || p === 'y') && a.length > 3) {
+						p = p.toUpperCase();
+					}
+					var k = str.indexOf(a, j);
+					rPattern += str.substring(j, k) + '_' + p;
+					j = k + a.length;
+				}
+				if (this.onRPat) {
+					this.onRPat(rPattern);
+				}
+				this.genDateTime = this.genRFunc(rPattern);
+				return true;
+			}
+		}, {
+			key: 'fix',
+			value: function fix(txt) {
+				var _this16 = this;
 
-				var second, minute, hour, day, month, year;
-				for (var i = 0; i < 7; ++i) {
-					var a = args[i];
-					switch (_this16.pattern[i]) {
-						case 's':
-							second = a;break;
-						case 'i':
-							minute = a;break;
-						case 'h':
-							hour = a;break;
-						case 'd':
-							day = a;break;
-						case 'n':
-							month = a - 1;break;
-						case 'y':
-							year = a;break;
-						case 'm':
-							month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0;break;
+				if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
+					return txt;
+				}
+				return txt.replace(new RegExp(this.regex, 'g'), function (str) {
+					for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key = 1; _key < _len2; _key++) {
+						args[_key - 1] = arguments[_key];
+					}
+
+					var second = void 0,
+					    minute = void 0,
+					    hour = void 0,
+					    day = void 0,
+					    month = void 0,
+					    year = void 0;
+					for (var i = 0; i < 7; ++i) {
+						var a = args[i];
+						switch (_this16.pattern[i]) {
+							case 's':
+								second = a;break;
+							case 'i':
+								minute = a;break;
+							case 'h':
+								hour = a;break;
+							case 'd':
+								day = a;break;
+							case 'n':
+								month = a - 1;break;
+							case 'y':
+								year = a;break;
+							case 'm':
+								month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0;break;
+						}
+					}
+					var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+					dtime.setHours(dtime.getHours() + _this16.diff);
+					return _this16.genDateTime(dtime);
+				});
+			}
+		}], [{
+			key: 'toggleSettings',
+			value: function toggleSettings(el) {
+				if (el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
+					$popup('err-correcttime', Lng.cTimeError[lang]);
+					saveCfg('correctTime', 0);
+					el.checked = false;
+				}
+			}
+		}, {
+			key: 'checkPattern',
+			value: function checkPattern(val) {
+				return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') || !(val.includes('n') || val.includes('m')) || /[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+			}
+		}]);
+
+		return DateTime;
+	}();
+
+
+	var Videos = function () {
+		function Videos(post) {
+			var player = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+			var playerInfo = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+			_classCallCheck(this, Videos);
+
+			this.currentLink = null;
+			this.hasLinks = false;
+			this.linksCount = 0;
+			this.loadedLinksCount = 0;
+			this.playerInfo = null;
+			this.post = post;
+			this.titleLoadFn = null;
+			this.vData = [[], []];
+			if (player && playerInfo) {
+				Object.defineProperty(this, 'player', { value: player });
+				this.playerInfo = playerInfo;
+			}
+		}
+
+		_createClass(Videos, [{
+			key: 'addLink',
+			value: function addLink(m, loader, link, isYtube) {
+				this.hasLinks = true;
+				this.linksCount++;
+				if (this.playerInfo === null) {
+					if (Cfg.addYouTube === 2) {
+						this.addPlayer(m, isYtube);
+					} else if (Cfg.addYouTube > 2) {
+						this._addThumb(m, isYtube);
+					}
+				} else if (!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
+					return;
+				}
+				var dataObj = void 0;
+				if (loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
+					this.vData[isYtube ? 0 : 1].push(dataObj);
+				}
+				var time = void 0;
+
+				var _Videos$_fixTime = Videos._fixTime(m[4], m[3], m[2]);
+
+				var _Videos$_fixTime2 = _slicedToArray(_Videos$_fixTime, 4);
+
+				time = _Videos$_fixTime2[0];
+				m[2] = _Videos$_fixTime2[1];
+				m[3] = _Videos$_fixTime2[2];
+				m[4] = _Videos$_fixTime2[3];
+
+				if (link) {
+					link.href = link.href.replace(/^http:/, 'https:');
+					if (time) {
+						link.setAttribute('de-time', time);
+					}
+					link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
+				} else {
+					var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') : aib.prot + '//vimeo.com/' + m[1];
+					link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') + ('" href="' + src + '">' + (dataObj ? '' : src) + '</a></p>')).firstChild;
+				}
+				if (dataObj) {
+					Videos.setLinkData(link, dataObj);
+				}
+				if (this.playerInfo === null || this.playerInfo === m) {
+					this.currentLink = link;
+				}
+				link.videoInfo = m;
+				if (loader && !dataObj) {
+					loader.run([link, isYtube, this, m[1]]);
+				}
+			}
+		}, {
+			key: 'addPlayer',
+			value: function addPlayer(m, isYtube) {
+				this.playerInfo = m;
+				Videos.addPlayer(this.player, m, isYtube);
+			}
+		}, {
+			key: 'clickLink',
+			value: function clickLink(el, mode) {
+				var m = el.videoInfo;
+				if (this.playerInfo !== m) {
+					this.currentLink.classList.remove('de-current');
+					this.currentLink = el;
+					if (mode > 2) {
+						this._addThumb(m, el.classList.contains('de-ytube'));
+					} else {
+						el.classList.add('de-current');
+						this.addPlayer(m, el.classList.contains('de-ytube'));
+					}
+					return;
+				}
+				if (mode === 3) {
+					if ($q('.de-video-thumb', this.player)) {
+						el.classList.add('de-current');
+						this.addPlayer(m, el.classList.contains('de-ytube'));
+					} else {
+						el.classList.remove('de-current');
+						this._addThumb(m, el.classList.contains('de-ytube'));
+					}
+				} else {
+					el.classList.remove('de-current');
+					$hide(this.player);
+					this.player.innerHTML = '';
+					this.playerInfo = null;
+				}
+			}
+		}, {
+			key: 'updatePost',
+			value: function updatePost(oldLinks, newLinks, cloned) {
+				var loader = !cloned && Videos._getTitlesLoader();
+				var j = 0;
+				for (var i = 0, len = newLinks.length; i < len; ++i) {
+					var el = newLinks[i];
+					var link = oldLinks[j];
+					if (link && link.classList.contains('de-current')) {
+						this.currentLink = el;
+					}
+					if (cloned) {
+						el.videoInfo = link.videoInfo;
+						j++;
+					} else {
+						var m = el.href.match(Videos.ytReg);
+						if (m) {
+							this.addLink(m, loader, el, true);
+							j++;
+						}
 					}
 				}
-				var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-				dtime.setHours(dtime.getHours() + _this16.diff);
-				return _this16.genDateTime(dtime);
-			});
-		}
-	};
+				this.currentLink = this.currentLink || newLinks[0];
+				if (loader) {
+					loader.complete();
+				}
+			}
+		}, {
+			key: '_addThumb',
+			value: function _addThumb(m, isYtube) {
+				var el = this.player;
+				this.playerInfo = m;
+				$show(el);
+				var str = '<a class="de-video-player" href="' + aib.prot;
+				if (isYtube) {
+					el.innerHTML = str + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' + ('<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>');
+					return;
+				}
+				el.innerHTML = str + '//vimeo.com/' + m[1] + '" target="_blank">' + '<img class="de-video-thumb de-vimeo" src=""></a>';
+				$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(function (xhr) {
+					try {
+						el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
+					} catch (e) {}
+				});
+			}
+		}, {
+			key: 'player',
+			get: function get() {
+				var post = this.post;
 
+				var val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' + (post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
+				Object.defineProperty(this, 'player', { value: val });
+				return val;
+			}
+		}], [{
+			key: 'addPlayer',
+			value: function addPlayer(el, m, isYtube) {
+				var enableJsapi = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
-	function Videos(post) {
-		var player = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-		var playerInfo = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+				var txt = void 0;
+				if (isYtube) {
+					var list = m[0].match(/list=[^&#]+/);
+					txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
+				} else {
+					var id = m[1] + (m[2] ? m[2] : '');
+					txt = Cfg.YTubeType === 1 ? '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' : '<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') + '&server=vimeo.com&color=00adef&fullscreen=1" ' + 'allowscriptaccess="always" allowfullscreen="true"></embed>';
+				}
+				el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
+				$show(el);
+				if (!enableJsapi) {
+					el.lastChild.onclick = function (_ref11) {
+						var target = _ref11.target;
+						return target.parentNode.classList.toggle('de-video-expanded');
+					};
+				}
+			}
+		}, {
+			key: 'setLinkData',
+			value: function setLinkData(link, _ref12) {
+				var _ref13 = _slicedToArray(_ref12, 5),
+				    title = _ref13[0],
+				    author = _ref13[1],
+				    views = _ref13[2],
+				    publ = _ref13[3],
+				    duration = _ref13[4];
 
-		this.post = post;
-		this.vData = [[], []];
-		if (player && playerInfo) {
-			Object.defineProperty(this, 'player', { value: player });
-			this.playerInfo = playerInfo;
-		}
-	}
+				link.textContent = title;
+				link.classList.add('de-video-title');
+				link.setAttribute('de-author', author);
+				link.title = (duration ? Lng.duration[lang] + duration : '') + (publ ? ', ' + Lng.published[lang] + publ + '\n' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
+			}
+		}, {
+			key: '_fixTime',
+			value: function _fixTime() {
+				var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+				var minutes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+				var hours = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+				if (seconds >= 60) {
+					minutes += Math.floor(seconds / 60);
+					seconds %= 60;
+				}
+				if (minutes >= 60) {
+					hours += Math.floor(seconds / 60);
+					minutes %= 60;
+				}
+				return [(hours ? hours + 'h' : '') + (minutes ? minutes + 'm' : '') + (seconds ? seconds + 's' : ''), hours, minutes, seconds];
+			}
+		}, {
+			key: '_getYTInfoAPI',
+			value: function _getYTInfoAPI(info, num, id) {
+				return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' + 'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration', null, false).then(function (xhr) {
+					var items = JSON.parse(xhr.responseText).items[0];
+					return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10), items.contentDetails.duration.substr(2).toLowerCase());
+				})['catch'](function () {
+					return Videos._getYTInfoOembed(info, num, id);
+				});
+			}
+		}, {
+			key: '_getYTInfoOembed',
+			value: function _getYTInfoOembed(info, num, id) {
+				return (nav.isGM ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
+					var json = JSON.parse(xhr.responseText);
+					return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
+				})['catch'](function () {
+					return Videos._titlesLoaderHelper(info, num);
+				});
+			}
+		}, {
+			key: '_getTitlesLoader',
+			value: function _getTitlesLoader() {
+				return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
+					var _info5 = _slicedToArray(info, 4),
+					    isYtube = _info5[1],
+					    id = _info5[3];
+
+					if (isYtube) {
+						return Videos[Cfg.ytApiKey ? '_getYTInfoAPI' : '_getYTInfoOembed'](info, num, id);
+					}
+					return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
+						var entry = JSON.parse(xhr.responseText)[0];
+						return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1], Videos._fixTime(entry.duration)[0]);
+					})['catch'](function () {
+						return Videos._titlesLoaderHelper(info, num);
+					});
+				}, function () {
+					return sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
+				});
+			}
+		}, {
+			key: '_titlesLoaderHelper',
+			value: function _titlesLoaderHelper(_ref14, num) {
+				var _ref15 = _slicedToArray(_ref14, 4),
+				    link = _ref15[0],
+				    isYtube = _ref15[1],
+				    videoObj = _ref15[2],
+				    id = _ref15[3];
+
+				for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
+					data[_key2 - 2] = arguments[_key2];
+				}
+
+				if (data.length !== 0) {
+					Videos.setLinkData(link, data);
+					Videos._global.vData[isYtube ? 0 : 1][id] = data;
+					videoObj.vData[isYtube ? 0 : 1].push(data);
+					if (videoObj.titleLoadFn) {
+						videoObj.titleLoadFn(data);
+					}
+				}
+				videoObj.loadedLinksCount++;
+				if (num % 30 === 0) {
+					return Promise.reject(new TasksPool.PauseError(3e3));
+				}
+				return sleep(250);
+			}
+		}]);
+
+		return Videos;
+	}();
+
+	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos._global = {
 		get vData() {
-			var val;
+			var val = void 0;
 			try {
 				sesStorage.removeItem('de-videos-data1');
 				val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
@@ -8455,249 +8828,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			Object.defineProperty(this, 'vData', { value: val });
 			return val;
-		}
-	};
-	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
-	Videos.addPlayer = function (el, m, isYtube) {
-		var enableJsapi = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
-		var txt;
-		if (isYtube) {
-			var list = m[0].match(/list=[^&#]+/);
-			txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
-		} else {
-			var id = m[1] + (m[2] ? m[2] : '');
-			txt = Cfg.YTubeType === 1 ? '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' + 'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' : '<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') + '&server=vimeo.com&color=00adef&fullscreen=1" ' + 'allowscriptaccess="always" allowfullscreen="true"></embed>';
-		}
-		el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
-		$show(el);
-		if (!enableJsapi) {
-			el.lastChild.onclick = function () {
-				var node = this.parentNode;
-				node.className = 'de-video-obj' + (node.className === 'de-video-obj' ? ' de-video-expanded' : '');
-			};
-		}
-	};
-	Videos.setLinkData = function (link, _ref11) {
-		var _ref12 = _slicedToArray(_ref11, 5),
-		    title = _ref12[0],
-		    author = _ref12[1],
-		    views = _ref12[2],
-		    publ = _ref12[3],
-		    duration = _ref12[4];
-
-		link.textContent = title;
-		link.classList.add('de-video-title');
-		link.setAttribute('de-author', author);
-		link.title = (duration ? Lng.duration[lang] + duration : '') + (publ ? ', ' + Lng.published[lang] + publ + '\n' : '') + Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
-	};
-	Videos._fixTime = function () {
-		var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-		var minutes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-		var hours = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-
-		if (seconds >= 60) {
-			minutes += Math.floor(seconds / 60);
-			seconds %= 60;
-		}
-		if (minutes >= 60) {
-			hours += Math.floor(seconds / 60);
-			minutes %= 60;
-		}
-		return [(hours ? hours + 'h' : '') + (minutes ? minutes + 'm' : '') + (seconds ? seconds + 's' : ''), hours, minutes, seconds];
-	};
-	Videos._titlesLoaderHelper = function (_ref13, num) {
-		var _ref14 = _slicedToArray(_ref13, 4),
-		    link = _ref14[0],
-		    isYtube = _ref14[1],
-		    videoObj = _ref14[2],
-		    id = _ref14[3];
-
-		for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
-			data[_key2 - 2] = arguments[_key2];
-		}
-
-		if (data.length !== 0) {
-			Videos.setLinkData(link, data);
-			Videos._global.vData[isYtube ? 0 : 1][id] = data;
-			videoObj.vData[isYtube ? 0 : 1].push(data);
-			if (videoObj.titleLoadFn) {
-				videoObj.titleLoadFn(data);
-			}
-		}
-		videoObj.loadedLinksCount++;
-		if (num % 30 === 0) {
-			return Promise.reject(new TasksPool.PauseError(3e3));
-		}
-		return sleep(250);
-	};
-	Videos._getYTInfoAPI = function (info, num, id) {
-		return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' + 'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration', null, false).then(function (xhr) {
-			var items = JSON.parse(xhr.responseText).items[0];
-			return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10), items.contentDetails.duration.substr(2).toLowerCase());
-		})['catch'](function () {
-			return Videos._getYTInfoOembed(info, num, id);
-		});
-	};
-	Videos._getYTInfoOembed = function (info, num, id) {
-		return (nav.isGM ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
-			var json = JSON.parse(xhr.responseText);
-			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
-		})['catch'](function () {
-			return Videos._titlesLoaderHelper(info, num);
-		});
-	};
-	Videos._getTitlesLoader = function () {
-		return Cfg.YTubeTitles && new TasksPool(4, function (num, info) {
-			var _info5 = _slicedToArray(info, 4),
-			    isYtube = _info5[1],
-			    id = _info5[3];
-
-			if (isYtube) {
-				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
-			}
-			return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
-				var entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1], Videos._fixTime(entry.duration)[0]);
-			})['catch'](function () {
-				return Videos._titlesLoaderHelper(info, num);
-			});
-		}, function () {
-			sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
-		});
-	};
-	Videos.prototype = {
-		currentLink: null,
-		hasLinks: false,
-		linksCount: 0,
-		loadedLinksCount: 0,
-		playerInfo: null,
-		titleLoadFn: null,
-		get player() {
-			var post = this.post;
-
-			var val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' + (post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
-			Object.defineProperty(this, 'player', { value: val });
-			return val;
-		},
-		addLink: function addLink(m, loader, link, isYtube) {
-			var time, dataObj;
-			this.hasLinks = true;
-			this.linksCount++;
-			if (this.playerInfo === null) {
-				if (Cfg.addYouTube === 2) {
-					this.addPlayer(m, isYtube);
-				} else if (Cfg.addYouTube > 2) {
-					this._addThumb(m, isYtube);
-				}
-			} else if (!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
-				return;
-			}
-			if (loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
-				this.vData[isYtube ? 0 : 1].push(dataObj);
-			}
-
-			var _Videos$_fixTime = Videos._fixTime(m[4], m[3], m[2]);
-
-			var _Videos$_fixTime2 = _slicedToArray(_Videos$_fixTime, 4);
-
-			time = _Videos$_fixTime2[0];
-			m[2] = _Videos$_fixTime2[1];
-			m[3] = _Videos$_fixTime2[2];
-			m[4] = _Videos$_fixTime2[3];
-
-			if (link) {
-				link.href = link.href.replace(/^http:/, 'https:');
-				if (time) {
-					link.setAttribute('de-time', time);
-				}
-				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
-			} else {
-				var src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') : aib.prot + '//vimeo.com/' + m[1];
-				link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') + ('" href="' + src + '">' + (dataObj ? '' : src) + '</a></p>')).firstChild;
-			}
-			if (dataObj) {
-				Videos.setLinkData(link, dataObj);
-			}
-			if (this.playerInfo === null || this.playerInfo === m) {
-				this.currentLink = link;
-			}
-			link.videoInfo = m;
-			if (loader && !dataObj) {
-				loader.run([link, isYtube, this, m[1]]);
-			}
-		},
-		addPlayer: function addPlayer(m, isYtube) {
-			this.playerInfo = m;
-			Videos.addPlayer(this.player, m, isYtube);
-		},
-		clickLink: function clickLink(el, mode) {
-			var m = el.videoInfo;
-			if (this.playerInfo !== m) {
-				this.currentLink.classList.remove('de-current');
-				this.currentLink = el;
-				if (mode > 2) {
-					this._addThumb(m, el.classList.contains('de-ytube'));
-				} else {
-					el.classList.add('de-current');
-					this.addPlayer(m, el.classList.contains('de-ytube'));
-				}
-				return;
-			}
-			if (mode === 3) {
-				if ($q('.de-video-thumb', this.player)) {
-					el.classList.add('de-current');
-					this.addPlayer(m, el.classList.contains('de-ytube'));
-				} else {
-					el.classList.remove('de-current');
-					this._addThumb(m, el.classList.contains('de-ytube'));
-				}
-			} else {
-				el.classList.remove('de-current');
-				$hide(this.player);
-				this.player.innerHTML = '';
-				this.playerInfo = null;
-			}
-		},
-		updatePost: function updatePost(oldLinks, newLinks, cloned) {
-			var loader = !cloned && Videos._getTitlesLoader();
-			for (var i = 0, j = 0, len = newLinks.length; i < len; ++i) {
-				var el = newLinks[i],
-				    link = oldLinks[j];
-				if (link && link.classList.contains('de-current')) {
-					this.currentLink = el;
-				}
-				if (cloned) {
-					el.videoInfo = link.videoInfo;
-					j++;
-				} else {
-					var m = el.href.match(Videos.ytReg);
-					if (m) {
-						this.addLink(m, loader, el, true);
-						j++;
-					}
-				}
-			}
-			this.currentLink = this.currentLink || newLinks[0];
-			if (loader) {
-				loader.complete();
-			}
-		},
-		_addThumb: function _addThumb(m, isYtube) {
-			var el = this.player;
-			this.playerInfo = m;
-			$show(el);
-			if (isYtube) {
-				el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' + '<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>';
-				return;
-			}
-			el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank"><img class="de-video-thumb de-vimeo" src=""></a>';
-			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(function (xhr) {
-				try {
-					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-				} catch (e) {}
-			});
 		}
 	};
 
@@ -8845,7 +8975,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			})();
 		} else {
-			var _ret6 = function () {
+			var _ret7 = function () {
 				var xhr = new XMLHttpRequest();
 				var toFunc = function toFunc() {
 					reject(AjaxError.Timeout);
@@ -8855,8 +8985,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (params && params.onprogress) {
 					xhr.upload.onprogress = params.onprogress;
 				}
-				xhr.onreadystatechange = function (_ref15) {
-					var target = _ref15.target;
+				xhr.onreadystatechange = function (_ref16) {
+					var target = _ref16.target;
 
 					if (needTO) {
 						clearTimeout(loadTO);
@@ -8903,7 +9033,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}();
 
-			if ((typeof _ret6 === 'undefined' ? 'undefined' : _typeof(_ret6)) === "object") return _ret6.v;
+			if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
 		}
 		return new CancelablePromise(function (res, rej) {
 			resolve = res;
@@ -8941,8 +9071,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	});
 
-	var AjaxCache = function (_ref16) {
-		_inherits(AjaxCache, _ref16);
+	var AjaxCache = function (_ref17) {
+		_inherits(AjaxCache, _ref17);
 
 		function AjaxCache() {
 			_classCallCheck(this, AjaxCache);
@@ -8963,9 +9093,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'runCachedAjax',
 			value: function runCachedAjax(url, useCache) {
-				var _ref17 = AjaxCache._data.get(url) || {},
-				    hasCacheControl = _ref17.hasCacheControl,
-				    params = _ref17.params;
+				var _ref18 = AjaxCache._data.get(url) || {},
+				    hasCacheControl = _ref18.hasCacheControl,
+				    params = _ref18.params;
 
 				var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
 				return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
@@ -8981,18 +9111,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    hasCacheControl = false,
 				    ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 				for (var _iterator5 = ajaxHeaders.split('\r\n'), _isArray5 = Array.isArray(_iterator5), _i10 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-					var _ref18;
+					var _ref19;
 
 					if (_isArray5) {
 						if (_i10 >= _iterator5.length) break;
-						_ref18 = _iterator5[_i10++];
+						_ref19 = _iterator5[_i10++];
 					} else {
 						_i10 = _iterator5.next();
 						if (_i10.done) break;
-						_ref18 = _i10.value;
+						_ref19 = _i10.value;
 					}
 
-					var header = _ref18;
+					var header = _ref19;
 
 					var lHeader = header.toLowerCase();
 					if (lHeader.startsWith('cache-control: ')) {
@@ -9120,7 +9250,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		},
 		load: function load(count) {
-			var _iterator6, _isArray6, _i11, _ref19, form, len, i, el, first;
+			var _iterator6, _isArray6, _i11, _ref20, form, len, i, el, first;
 
 			return regeneratorRuntime.async(function load$(_context11) {
 				while (1) {
@@ -9160,7 +9290,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context11.abrupt('break', 29);
 
 						case 14:
-							_ref19 = _iterator6[_i11++];
+							_ref20 = _iterator6[_i11++];
 							_context11.next = 21;
 							break;
 
@@ -9175,10 +9305,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context11.abrupt('break', 29);
 
 						case 20:
-							_ref19 = _i11.value;
+							_ref20 = _i11.value;
 
 						case 21:
-							form = _ref19;
+							form = _ref20;
 
 							$each($Q('a[href^="blob:"]', form.el), function (a) {
 								return URL.revokeObjectURL(a.href);
@@ -9371,36 +9501,36 @@ true, true],
 				}
 				if (reps) {
 					for (var _iterator7 = reps, _isArray7 = Array.isArray(_iterator7), _i12 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
-						var _ref20;
+						var _ref21;
 
 						if (_isArray7) {
 							if (_i12 >= _iterator7.length) break;
-							_ref20 = _iterator7[_i12++];
+							_ref21 = _iterator7[_i12++];
 						} else {
 							_i12 = _iterator7.next();
 							if (_i12.done) break;
-							_ref20 = _i12.value;
+							_ref21 = _i12.value;
 						}
 
-						var rep = _ref20;
+						var rep = _ref21;
 
 						str += this._decompileRep(rep, false) + '\n';
 					}
 				}
 				if (oreps) {
 					for (var _iterator8 = oreps, _isArray8 = Array.isArray(_iterator8), _i13 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-						var _ref21;
+						var _ref22;
 
 						if (_isArray8) {
 							if (_i13 >= _iterator8.length) break;
-							_ref21 = _iterator8[_i13++];
+							_ref22 = _iterator8[_i13++];
 						} else {
 							_i13 = _iterator8.next();
 							if (_i13.done) break;
-							_ref21 = _i13.value;
+							_ref22 = _i13.value;
 						}
 
-						var orep = _ref21;
+						var orep = _ref22;
 
 						str += this._decompileRep(orep, true) + '\n';
 					}
@@ -9495,10 +9625,10 @@ true, true],
 					return spell;
 				}
 
-				var _ref22 = wipeMsg || [],
-				    _ref23 = _slicedToArray(_ref22, 2),
-				    msgBit = _ref23[0],
-				    msgData = _ref23[1],
+				var _ref23 = wipeMsg || [],
+				    _ref24 = _slicedToArray(_ref23, 2),
+				    msgBit = _ref24[0],
+				    msgData = _ref24[1],
 				    names = [],
 				    bits = {
 					1: 'samelines',
@@ -9554,18 +9684,18 @@ true, true],
 		},
 		outReplace: function outReplace(txt) {
 			for (var _iterator9 = this.outreps, _isArray9 = Array.isArray(_iterator9), _i14 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
-				var _ref24;
+				var _ref25;
 
 				if (_isArray9) {
 					if (_i14 >= _iterator9.length) break;
-					_ref24 = _iterator9[_i14++];
+					_ref25 = _iterator9[_i14++];
 				} else {
 					_i14 = _iterator9.next();
 					if (_i14.done) break;
-					_ref24 = _i14.value;
+					_ref25 = _i14.value;
 				}
 
-				var orep = _ref24;
+				var orep = _ref25;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -9606,18 +9736,18 @@ true, true],
 		},
 		replace: function replace(txt) {
 			for (var _iterator10 = this.reps, _isArray10 = Array.isArray(_iterator10), _i15 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-				var _ref25;
+				var _ref26;
 
 				if (_isArray10) {
 					if (_i15 >= _iterator10.length) break;
-					_ref25 = _iterator10[_i15++];
+					_ref26 = _iterator10[_i15++];
 				} else {
 					_i15 = _iterator10.next();
 					if (_i15.done) break;
-					_ref25 = _i15.value;
+					_ref26 = _i15.value;
 				}
 
-				var orep = _ref25;
+				var orep = _ref26;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -9704,18 +9834,18 @@ true, true],
 		_initHiders: function _initHiders(data) {
 			if (data) {
 				for (var _iterator11 = data, _isArray11 = Array.isArray(_iterator11), _i16 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
-					var _ref26;
+					var _ref27;
 
 					if (_isArray11) {
 						if (_i16 >= _iterator11.length) break;
-						_ref26 = _iterator11[_i16++];
+						_ref27 = _iterator11[_i16++];
 					} else {
 						_i16 = _iterator11.next();
 						if (_i16.done) break;
-						_ref26 = _i16.value;
+						_ref27 = _i16.value;
 					}
 
-					var item = _ref26;
+					var item = _ref27;
 
 					var val = item[1];
 					if (val) {
@@ -9737,18 +9867,18 @@ true, true],
 		_initReps: function _initReps(data) {
 			if (data) {
 				for (var _iterator12 = data, _isArray12 = Array.isArray(_iterator12), _i17 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
-					var _ref27;
+					var _ref28;
 
 					if (_isArray12) {
 						if (_i17 >= _iterator12.length) break;
-						_ref27 = _iterator12[_i17++];
+						_ref28 = _iterator12[_i17++];
 					} else {
 						_i17 = _iterator12.next();
 						if (_i17.done) break;
-						_ref27 = _i17.value;
+						_ref28 = _i17.value;
 					}
 
-					var item = _ref27;
+					var item = _ref28;
 
 					item[0] = toRegExp(item[0], false);
 				}
@@ -9766,18 +9896,18 @@ true, true],
 		_optimizeReps: function _optimizeReps(data) {
 			var rv = [];
 			for (var _iterator13 = data, _isArray13 = Array.isArray(_iterator13), _i18 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
-				var _ref28;
+				var _ref29;
 
 				if (_isArray13) {
 					if (_i18 >= _iterator13.length) break;
-					_ref28 = _iterator13[_i18++];
+					_ref29 = _iterator13[_i18++];
 				} else {
 					_i18 = _iterator13.next();
 					if (_i18.done) break;
-					_ref28 = _i18.value;
+					_ref29 = _i18.value;
 				}
 
-				var rep = _ref28;
+				var rep = _ref29;
 
 				if (!rep[0] || rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t)) {
 					rv.push([rep[2], rep[3]]);
@@ -10304,11 +10434,11 @@ true, true],
 			}
 		}, {
 			key: '_checkRes',
-			value: function _checkRes(post, _ref29) {
-				var _ref30 = _slicedToArray(_ref29, 3),
-				    hasNumSpell = _ref30[0],
-				    val = _ref30[1],
-				    msg = _ref30[2];
+			value: function _checkRes(post, _ref30) {
+				var _ref31 = _slicedToArray(_ref30, 3),
+				    hasNumSpell = _ref31[0],
+				    val = _ref31[1],
+				    msg = _ref31[2];
 
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
@@ -10463,36 +10593,36 @@ true, true],
 		_getMsg: function _getMsg() {
 			var rv = [];
 			for (var _iterator14 = this._triggeredSpellsStack, _isArray14 = Array.isArray(_iterator14), _i20 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-				var _ref31;
+				var _ref32;
 
 				if (_isArray14) {
 					if (_i20 >= _iterator14.length) break;
-					_ref31 = _iterator14[_i20++];
+					_ref32 = _iterator14[_i20++];
 				} else {
 					_i20 = _iterator14.next();
 					if (_i20.done) break;
-					_ref31 = _i20.value;
+					_ref32 = _i20.value;
 				}
 
-				var spellEls = _ref31;
+				var spellEls = _ref32;
 
 				for (var _iterator15 = spellEls, _isArray15 = Array.isArray(_iterator15), _i21 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-					var _ref32;
+					var _ref33;
 
 					if (_isArray15) {
 						if (_i21 >= _iterator15.length) break;
-						_ref32 = _iterator15[_i21++];
+						_ref33 = _iterator15[_i21++];
 					} else {
 						_i21 = _iterator15.next();
 						if (_i21.done) break;
-						_ref32 = _i21.value;
+						_ref33 = _i21.value;
 					}
 
-					var _ref33 = _ref32,
-					    _ref34 = _slicedToArray(_ref33, 3),
-					    isNeg = _ref34[0],
-					    spell = _ref34[1],
-					    wipeMsg = _ref34[2];
+					var _ref34 = _ref33,
+					    _ref35 = _slicedToArray(_ref34, 3),
+					    isNeg = _ref35[0],
+					    spell = _ref35[1],
+					    wipeMsg = _ref35[2];
 
 					rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 				}
@@ -10549,18 +10679,18 @@ true, true],
 		},
 		_imgn: function _imgn(val) {
 			for (var _iterator16 = this._post.images, _isArray16 = Array.isArray(_iterator16), _i22 = 0, _iterator16 = _isArray16 ? _iterator16 : _iterator16[Symbol.iterator]();;) {
-				var _ref35;
+				var _ref36;
 
 				if (_isArray16) {
 					if (_i22 >= _iterator16.length) break;
-					_ref35 = _iterator16[_i22++];
+					_ref36 = _iterator16[_i22++];
 				} else {
 					_i22 = _iterator16.next();
 					if (_i22.done) break;
-					_ref35 = _i22.value;
+					_ref36 = _i22.value;
 				}
 
-				var image = _ref35;
+				var image = _ref36;
 
 				if (image instanceof Attachment && val.test(image.name)) {
 					return true;
@@ -10569,7 +10699,7 @@ true, true],
 			return false;
 		},
 		_ihash: function _ihash(val) {
-			var _iterator17, _isArray17, _i23, _ref36, image, hash;
+			var _iterator17, _isArray17, _i23, _ref37, image, hash;
 
 			return regeneratorRuntime.async(function _ihash$(_context13) {
 				while (1) {
@@ -10591,7 +10721,7 @@ true, true],
 							return _context13.abrupt('break', 21);
 
 						case 4:
-							_ref36 = _iterator17[_i23++];
+							_ref37 = _iterator17[_i23++];
 							_context13.next = 11;
 							break;
 
@@ -10606,10 +10736,10 @@ true, true],
 							return _context13.abrupt('break', 21);
 
 						case 10:
-							_ref36 = _i23.value;
+							_ref37 = _i23.value;
 
 						case 11:
-							image = _ref36;
+							image = _ref37;
 
 							if (image instanceof Attachment) {
 								_context13.next = 14;
@@ -10670,18 +10800,18 @@ true, true],
 				return images.hasAttachments;
 			}
 			for (var _iterator18 = images, _isArray18 = Array.isArray(_iterator18), _i24 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
-				var _ref37;
+				var _ref38;
 
 				if (_isArray18) {
 					if (_i24 >= _iterator18.length) break;
-					_ref37 = _iterator18[_i24++];
+					_ref38 = _iterator18[_i24++];
 				} else {
 					_i24 = _iterator18.next();
 					if (_i24.done) break;
-					_ref37 = _i24.value;
+					_ref38 = _i24.value;
 				}
 
-				var image = _ref37;
+				var image = _ref38;
 
 				if (!(image instanceof Attachment)) {
 					continue;
@@ -10880,32 +11010,32 @@ true, true],
 				return false;
 			}
 			for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i27 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
-				var _ref38;
+				var _ref39;
 
 				if (_isArray19) {
 					if (_i27 >= _iterator19.length) break;
-					_ref38 = _iterator19[_i27++];
+					_ref39 = _iterator19[_i27++];
 				} else {
 					_i27 = _iterator19.next();
 					if (_i27.done) break;
-					_ref38 = _i27.value;
+					_ref39 = _i27.value;
 				}
 
-				var siteData = _ref38;
+				var siteData = _ref39;
 
 				for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i28 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-					var _ref39;
+					var _ref40;
 
 					if (_isArray20) {
 						if (_i28 >= _iterator20.length) break;
-						_ref39 = _iterator20[_i28++];
+						_ref40 = _iterator20[_i28++];
 					} else {
 						_i28 = _iterator20.next();
 						if (_i28.done) break;
-						_ref39 = _i28.value;
+						_ref40 = _i28.value;
 					}
 
-					var data = _ref39;
+					var data = _ref40;
 
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						return true;
@@ -10997,8 +11127,8 @@ true, true],
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t<span class="de-win-title"></span>\n\t\t<span class="de-win-buttons">\n\t\t\t<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>\n\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t</span>\n\t</div>\n\t<div class="de-resizer de-resizer-top"></div>\n\t<div class="de-resizer de-resizer-left"></div>\n\t<div class="de-resizer de-resizer-right"></div>\n\t<div class="de-resizer de-resizer-bottom"></div>'));
 		var el = $q('.de-win-buttons', this.qArea);
-		el.onmouseover = function (_ref40) {
-			var target = _ref40.target;
+		el.onmouseover = function (_ref41) {
+			var target = _ref41.target;
 
 			var el = target.parentNode;
 			switch (fixEventEl(target).classList[0]) {
@@ -11046,8 +11176,8 @@ true, true],
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if (nav.isFirefox) {
-			this.txta.addEventListener('mouseup', function (_ref41) {
-				var target = _ref41.target;
+			this.txta.addEventListener('mouseup', function (_ref42) {
+				var target = _ref42.target;
 
 				saveCfg('textaWidth', parseInt(target.style.width, 10));
 				saveCfg('textaHeight', parseInt(target.style.height, 10));
@@ -11103,18 +11233,18 @@ true, true],
 		this.txta.addEventListener('paste', function (e) {
 			if ('clipboardData' in e) {
 				for (var _iterator21 = e.clipboardData.items, _isArray21 = Array.isArray(_iterator21), _i29 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-					var _ref42;
+					var _ref43;
 
 					if (_isArray21) {
 						if (_i29 >= _iterator21.length) break;
-						_ref42 = _iterator21[_i29++];
+						_ref43 = _iterator21[_i29++];
 					} else {
 						_i29 = _iterator21.next();
 						if (_i29.done) break;
-						_ref42 = _i29.value;
+						_ref43 = _i29.value;
 					}
 
-					var item = _ref42;
+					var item = _ref43;
 
 					if (item.kind === 'file') {
 						var inputs = _this22.files._inputs;
@@ -11228,18 +11358,18 @@ true, true],
 		}
 		var value = pr.passw.value = Cfg.passwValue;
 		for (var _iterator22 = DelForm, _isArray22 = Array.isArray(_iterator22), _i30 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-			var _ref43;
+			var _ref44;
 
 			if (_isArray22) {
 				if (_i30 >= _iterator22.length) break;
-				_ref43 = _iterator22[_i30++];
+				_ref44 = _iterator22[_i30++];
 			} else {
 				_i30 = _iterator22.next();
 				if (_i30.done) break;
-				_ref43 = _i30.value;
+				_ref44 = _i30.value;
 			}
 
-			var form = _ref43;
+			var form = _ref44;
 
 			(form.passEl || {}).value = value;
 		}
@@ -11761,7 +11891,7 @@ true, true],
 	function html5Submit(form, submitter) {
 		var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref44, _ref45, name, value, type, el, fileName, newFileName, _data7, ajaxParams, xhr;
+		var formData, hasFiles, _iterator23, _isArray23, _i31, _ref45, _ref46, name, value, type, el, fileName, newFileName, data, ajaxParams, xhr;
 
 		return regeneratorRuntime.async(function html5Submit$(_context15) {
 			while (1) {
@@ -11785,7 +11915,7 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 6:
-						_ref44 = _iterator23[_i31++];
+						_ref45 = _iterator23[_i31++];
 						_context15.next = 13;
 						break;
 
@@ -11800,10 +11930,10 @@ true, true],
 						return _context15.abrupt('break', 35);
 
 					case 12:
-						_ref44 = _i31.value;
+						_ref45 = _i31.value;
 
 					case 13:
-						_ref45 = _ref44, name = _ref45.name, value = _ref45.value, type = _ref45.type, el = _ref45.el;
+						_ref46 = _ref45, name = _ref46.name, value = _ref46.value, type = _ref46.type, el = _ref46.el;
 
 						if (!(name === 'de-file-txt')) {
 							_context15.next = 16;
@@ -11833,9 +11963,9 @@ true, true],
 					case 23:
 						_context15.t0 = _context15.sent.data;
 						_context15.t1 = el.obj ? el.obj.extraFile : null;
-						_data7 = cleanFile(_context15.t0, _context15.t1);
+						data = cleanFile(_context15.t0, _context15.t1);
 
-						if (_data7) {
+						if (data) {
 							_context15.next = 28;
 							break;
 						}
@@ -11843,7 +11973,7 @@ true, true],
 						return _context15.abrupt('return', Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
 					case 28:
-						value = new File(_data7, newFileName);
+						value = new File(data, newFileName);
 						_context15.next = 32;
 						break;
 
@@ -12166,18 +12296,18 @@ true, true],
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i32 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref46;
+					var _ref47;
 
 					if (_isArray24) {
 						if (_i32 >= _iterator24.length) break;
-						_ref46 = _iterator24[_i32++];
+						_ref47 = _iterator24[_i32++];
 					} else {
 						_i32 = _iterator24.next();
 						if (_i32.done) break;
-						_ref46 = _i32.value;
+						_ref47 = _i32.value;
 					}
 
-					var inp = _ref46;
+					var inp = _ref47;
 
 					inp.changeMode(cfg);
 				}
@@ -12187,18 +12317,18 @@ true, true],
 			key: 'clear',
 			value: function clear() {
 				for (var _iterator25 = this._inputs, _isArray25 = Array.isArray(_iterator25), _i33 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-					var _ref47;
+					var _ref48;
 
 					if (_isArray25) {
 						if (_i33 >= _iterator25.length) break;
-						_ref47 = _iterator25[_i33++];
+						_ref48 = _iterator25[_i33++];
 					} else {
 						_i33 = _iterator25.next();
 						if (_i33.done) break;
-						_ref47 = _i33.value;
+						_ref48 = _i33.value;
 					}
 
-					var inp = _ref47;
+					var inp = _ref48;
 
 					inp.clear();
 				}
@@ -12485,8 +12615,8 @@ true, true],
 					$hide(_this24._btnRarJpg);
 					var myBtn = _this24._rarMsg = $aBegin(_this24._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref48) {
-						var data = _ref48.data;
+					readFile(file).then(function (_ref49) {
+						var data = _ref49.data;
 
 						if (_this24._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
@@ -12633,17 +12763,17 @@ true, true],
 
 				if (this.imgFile) {
 					var _imgFile = _slicedToArray(this.imgFile, 3),
-					    _data8 = _imgFile[0],
+					    data = _imgFile[0],
 					    fileName = _imgFile[1],
 					    fileType = _imgFile[2];
 
-					this._addNewThumb(_data8, fileName, _data8.byteLength, fileType);
+					this._addNewThumb(data, fileName, data.byteLength, fileType);
 				} else {
 					(function () {
 						var file = _this26._input.files[0];
 						if (file) {
-							readFile(file).then(function (_ref49) {
-								var data = _ref49.data;
+							readFile(file).then(function (_ref50) {
+								var data = _ref50.data;
 
 								if (_this26._input.files[0] === file) {
 									_this26._addNewThumb(data, file.name, file.size, file.type);
@@ -12681,8 +12811,8 @@ true, true],
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				readFile(file).then(function (_ref50) {
-					var data = _ref50.data;
+				readFile(file).then(function (_ref51) {
+					var data = _ref51.data;
 
 					input.imgFile = [data, file.name, file.type];
 					input.show();
@@ -13619,18 +13749,18 @@ true, true],
 				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i34 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref51;
+					var _ref52;
 
 					if (_isArray26) {
 						if (_i34 >= _iterator26.length) break;
-						_ref51 = _iterator26[_i34++];
+						_ref52 = _iterator26[_i34++];
 					} else {
 						_i34 = _iterator26.next();
 						if (_i34.done) break;
-						_ref51 = _i34.value;
+						_ref52 = _i34.value;
 					}
 
-					var image = _ref51;
+					var image = _ref52;
 
 					if (image.isImage && image.expanded ^ expand) {
 						if (expand) {
@@ -15201,8 +15331,8 @@ true, true],
 					var waitEl = inPost || this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</div>\n\t\t\t</div>');
 					var img = $q('.de-fullimg', wrapEl);
-					img.onload = img.onerror = function (_ref52) {
-						var target = _ref52.target;
+					img.onload = img.onerror = function (_ref53) {
+						var target = _ref53.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -15242,8 +15372,8 @@ true, true],
 				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + ('></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
 				var videoEl = $q('video', wrapEl);
 				videoEl.volume = Cfg.webmVolume / 100;
-				videoEl.addEventListener('error', function (_ref53) {
-					var target = _ref53.target;
+				videoEl.addEventListener('error', function (_ref54) {
+					var target = _ref54.target;
 
 					if (!target.onceLoaded) {
 						target.load();
@@ -15487,11 +15617,11 @@ true, true],
 			return val;
 		},
 
-		_getHashHelper: function _getHashHelper(_ref54) {
+		_getHashHelper: function _getHashHelper(_ref55) {
 			var _this50 = this;
 
-			var el = _ref54.el,
-			    src = _ref54.src;
+			var el = _ref55.el,
+			    src = _ref55.src;
 			var data, buffer, val, w, h, imgData, cnv, ctx;
 			return regeneratorRuntime.async(function _getHashHelper$(_context17) {
 				while (1) {
@@ -15653,11 +15783,11 @@ true, true],
 		}
 	}
 
-	function genImgHash(_ref55) {
-		var _ref56 = _slicedToArray(_ref55, 3),
-		    arrBuf = _ref56[0],
-		    oldw = _ref56[1],
-		    oldh = _ref56[2];
+	function genImgHash(_ref56) {
+		var _ref57 = _slicedToArray(_ref56, 3),
+		    arrBuf = _ref57[0],
+		    oldw = _ref57[1],
+		    oldh = _ref57[2];
 
 		var buf = new Uint8Array(arrBuf);
 		var size = oldw * oldh;
@@ -15953,18 +16083,18 @@ true, true],
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i37 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref57;
+					var _ref58;
 
 					if (_isArray27) {
 						if (_i37 >= _iterator27.length) break;
-						_ref57 = _iterator27[_i37++];
+						_ref58 = _iterator27[_i37++];
 					} else {
 						_i37 = _iterator27.next();
 						if (_i37.done) break;
-						_ref57 = _i37.value;
+						_ref58 = _i37.value;
 					}
 
-					var file = _ref57;
+					var file = _ref58;
 
 					var fileName = void 0,
 					    fullFileName = void 0;
@@ -16072,18 +16202,18 @@ true, true],
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images ' + (data.files.length === 1 ? 'images-single' : 'images-multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i38 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref58;
+						var _ref59;
 
 						if (_isArray28) {
 							if (_i38 >= _iterator28.length) break;
-							_ref58 = _iterator28[_i38++];
+							_ref59 = _iterator28[_i38++];
 						} else {
 							_i38 = _iterator28.next();
 							if (_i38.done) break;
-							_ref58 = _i38.value;
+							_ref59 = _i38.value;
 						}
 
-						var file = _ref58;
+						var file = _ref59;
 
 						var imgId = num + '-' + file.md5;
 						var fullName = file.fullname || file.name;
@@ -16115,7 +16245,7 @@ true, true],
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i39, _ref59, post;
+				var _iterator29, _isArray29, _i39, _ref60, post;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -16137,7 +16267,7 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref59 = _iterator29[_i39++];
+								_ref60 = _iterator29[_i39++];
 								_context21.next = 11;
 								break;
 
@@ -16152,10 +16282,10 @@ true, true],
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref59 = _i39.value;
+								_ref60 = _i39.value;
 
 							case 11:
-								post = _ref59;
+								post = _ref60;
 								_context21.t0 = post.banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -16243,18 +16373,18 @@ true, true],
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i40 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref60;
+						var _ref61;
 
 						if (_isArray30) {
 							if (_i40 >= _iterator30.length) break;
-							_ref60 = _iterator30[_i40++];
+							_ref61 = _iterator30[_i40++];
 						} else {
 							_i40 = _iterator30.next();
 							if (_i40.done) break;
-							_ref60 = _i40.value;
+							_ref61 = _i40.value;
 						}
 
-						var file = _ref60;
+						var file = _ref61;
 
 						var img = file.images;
 						var orig = img.original;
@@ -16287,21 +16417,21 @@ true, true],
 			value: function gen(posts, thrURL) {
 				var opNums = DelForm.tNums;
 				for (var _iterator31 = posts, _isArray31 = Array.isArray(_iterator31), _i41 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref61;
+					var _ref62;
 
 					if (_isArray31) {
 						if (_i41 >= _iterator31.length) break;
-						_ref61 = _iterator31[_i41++];
+						_ref62 = _iterator31[_i41++];
 					} else {
 						_i41 = _iterator31.next();
 						if (_i41.done) break;
-						_ref61 = _i41.value;
+						_ref62 = _i41.value;
 					}
 
-					var _ref62 = _ref61,
-					    _ref63 = _slicedToArray(_ref62, 2),
-					    pNum = _ref63[0],
-					    post = _ref63[1];
+					var _ref63 = _ref62,
+					    _ref64 = _slicedToArray(_ref63, 2),
+					    pNum = _ref64[0],
+					    post = _ref64[1];
 
 					var links = $Q('a', post.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -16440,18 +16570,18 @@ true, true],
 				}
 				this._hidden = true;
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i42 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref64;
+					var _ref65;
 
 					if (_isArray32) {
 						if (_i42 >= _iterator32.length) break;
-						_ref64 = _iterator32[_i42++];
+						_ref65 = _iterator32[_i42++];
 					} else {
 						_i42 = _iterator32.next();
 						if (_i42.done) break;
-						_ref64 = _i42.value;
+						_ref65 = _i42.value;
 					}
 
-					var num = _ref64;
+					var num = _ref65;
 
 					var pst = pByNum.get(num);
 					if (pst && !pst.hidden) {
@@ -16470,18 +16600,18 @@ true, true],
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i43 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref65;
+					var _ref66;
 
 					if (_isArray33) {
 						if (_i43 >= _iterator33.length) break;
-						_ref65 = _iterator33[_i43++];
+						_ref66 = _iterator33[_i43++];
 					} else {
 						_i43 = _iterator33.next();
 						if (_i43.done) break;
-						_ref65 = _i43.value;
+						_ref66 = _i43.value;
 					}
 
-					var num = _ref65;
+					var num = _ref66;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -16527,18 +16657,18 @@ true, true],
 				}
 				this._hidden = false;
 				for (var _iterator34 = this._set, _isArray34 = Array.isArray(_iterator34), _i44 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref66;
+					var _ref67;
 
 					if (_isArray34) {
 						if (_i44 >= _iterator34.length) break;
-						_ref66 = _iterator34[_i44++];
+						_ref67 = _iterator34[_i44++];
 					} else {
 						_i44 = _iterator34.next();
 						if (_i44.done) break;
-						_ref66 = _i44.value;
+						_ref67 = _i44.value;
 					}
 
-					var num = _ref66;
+					var num = _ref67;
 
 					var pst = pByNum.get(num);
 					if (pst && pst.hidden && !pst.spellHidden) {
@@ -16797,22 +16927,22 @@ true, true],
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i45 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref67;
+					var _ref68;
 
 					if (_isArray35) {
 						if (_i45 >= _iterator35.length) break;
-						_ref67 = _iterator35[_i45++];
+						_ref68 = _iterator35[_i45++];
 					} else {
 						_i45 = _iterator35.next();
 						if (_i45.done) break;
-						_ref67 = _i45.value;
+						_ref68 = _i45.value;
 					}
 
-					var _ref68 = _ref67,
-					    _ref69 = _slicedToArray(_ref68, 3),
-					    banId = _ref69[0],
-					    bNum = _ref69[1],
-					    bEl = _ref69[2];
+					var _ref69 = _ref68,
+					    _ref70 = _slicedToArray(_ref69, 3),
+					    banId = _ref70[0],
+					    bNum = _ref70[1],
+					    bEl = _ref70[2];
 
 					var post = bNum ? pByNum.get(bNum) : this.op;
 					if (post && post.banned !== banId) {
@@ -17719,9 +17849,9 @@ true, true],
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref70) {
-								var newCount = _ref70.newCount,
-								    locked = _ref70.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref71) {
+								var newCount = _ref71.newCount,
+								    locked = _ref71.locked;
 								return _this66._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this66._handleNewPosts(0, e);
@@ -18798,7 +18928,7 @@ true, true],
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('(function() {\n\t\t\t\tvar emptyFn = function() {};\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
+					$script('(function() {\n\t\t\t\tvar emptyFn = Function.prototype;\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
@@ -19032,7 +19162,7 @@ true, true],
 						window.location.reload();
 						return true;
 					}
-					$script('highlightReply = function() {}');
+					$script('highlightReply = Function.prototype');
 					setTimeout(function () {
 						return $del($id('updater'));
 					}, 0);
@@ -19215,8 +19345,8 @@ true, true],
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref71) {
-								var data = _ref71.data;
+							doc.defaultView.addEventListener('message', function (_ref72) {
+								var data = _ref72.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -20233,7 +20363,7 @@ true, true],
 						});
 						return true;
 					}
-					$script('window.UploadProgress = function() {}');
+					$script('window.UploadProgress = Function.prototype');
 					var el = $id('postform');
 					if (el) {
 						el.appendChild($q('.rules'));
@@ -20464,7 +20594,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				key: 'init',
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
-					$script('highlight = function() {}');
+					$script('highlight = Function.prototype');
 					return false;
 				}
 			}, {
@@ -20579,7 +20709,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('highlightPost = function() {}');
+					$script('highlightPost = Function.prototype');
 					return false;
 				}
 			}, {
@@ -20625,18 +20755,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i52 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref72;
+							var _ref73;
 
 							if (_isArray36) {
 								if (_i52 >= _iterator36.length) break;
-								_ref72 = _iterator36[_i52++];
+								_ref73 = _iterator36[_i52++];
 							} else {
 								_i52 = _iterator36.next();
 								if (_i52.done) break;
-								_ref72 = _i52.value;
+								_ref73 = _i52.value;
 							}
 
-							var c = _ref72;
+							var c = _ref73;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -20784,7 +20914,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			_createClass(Nowere, [{
 				key: 'init',
 				value: function init() {
-					$script('highlight = function() {}');
+					$script('highlight = Function.prototype');
 					return false;
 				}
 			}, {
@@ -21003,8 +21133,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
 				DollchanAPI.activeListeners = new Set();
 				var port = channel.port2;
-				doc.defaultView.addEventListener('message', function (_ref73) {
-					var data = _ref73.data;
+				doc.defaultView.addEventListener('message', function (_ref74) {
+					var data = _ref74.data;
 
 					if (data === 'de-request-api-message') {
 						DollchanAPI.hasListeners = true;
@@ -21026,8 +21156,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			}
 		}, {
 			key: '_handleMessage',
-			value: function _handleMessage(_ref74) {
-				var arg = _ref74.data;
+			value: function _handleMessage(_ref75) {
+				var arg = _ref75.data;
 
 				if (!arg || !arg.name) {
 					return;
@@ -21041,18 +21171,18 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						if (data) {
 							rv = {};
 							for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i54 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-								var _ref75;
+								var _ref76;
 
 								if (_isArray37) {
 									if (_i54 >= _iterator37.length) break;
-									_ref75 = _iterator37[_i54++];
+									_ref76 = _iterator37[_i54++];
 								} else {
 									_i54 = _iterator37.next();
 									if (_i54.done) break;
-									_ref75 = _i54.value;
+									_ref76 = _i54.value;
 								}
 
-								var aName = _ref75;
+								var aName = _ref76;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
@@ -21272,7 +21402,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 
 
 	function runMain(checkDomains, dataPromise) {
-		var formEl, eList, fav, _ref76, _ref77, _ref78, _ref79, storageName, firstThr;
+		var formEl, eList, fav, _ref77, _ref78, _ref79, _ref80, storageName, firstThr;
 
 		return regeneratorRuntime.async(function runMain$(_context22) {
 			while (1) {
@@ -21334,10 +21464,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(dataPromise);
 
 					case 18:
-						_ref76 = _context22.sent;
-						_ref77 = _slicedToArray(_ref76, 2);
-						eList = _ref77[0];
-						fav = _ref77[1];
+						_ref77 = _context22.sent;
+						_ref78 = _slicedToArray(_ref77, 2);
+						eList = _ref78[0];
+						fav = _ref78[1];
 						_context22.next = 30;
 						break;
 
@@ -21346,10 +21476,10 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 						return regeneratorRuntime.awrap(readData());
 
 					case 26:
-						_ref78 = _context22.sent;
-						_ref79 = _slicedToArray(_ref78, 2);
-						eList = _ref79[0];
-						fav = _ref79[1];
+						_ref79 = _context22.sent;
+						_ref80 = _slicedToArray(_ref79, 2);
+						eList = _ref80[0];
+						fav = _ref80[1];
 
 					case 30:
 						if (!(eList && eList.includes(aib.dm))) {
@@ -21499,7 +21629,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 		needScroll = false;
 		runMain(true, null);
 	} else {
-		var _ret12 = function () {
+		var _ret13 = function () {
 			var dataPromise = null;
 			if (aib = getImageBoard(true, false)) {
 				if (!checkStorage()) {
@@ -21520,7 +21650,7 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 			});
 		}();
 
-		if ((typeof _ret12 === 'undefined' ? 'undefined' : _typeof(_ret12)) === "object") return _ret12.v;
+		if ((typeof _ret13 === 'undefined' ? 'undefined' : _typeof(_ret13)) === "object") return _ret13.v;
 	}
 
 })(window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {

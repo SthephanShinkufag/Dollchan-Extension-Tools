@@ -43,6 +43,7 @@
 			"ignoreEOLComments": true,
 			"exceptions": { "VariableDeclarator": true }
 		}],
+		"no-extra-semi": "error",
 		"no-new": "off",
 		"no-tabs": "off",
 		"no-unsafe-finally": "off",

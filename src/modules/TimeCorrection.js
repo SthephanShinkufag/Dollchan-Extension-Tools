@@ -2,45 +2,45 @@
                                                TIME CORRECTION
 =========================================================================================================== */
 
-function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
-	if(DateTime.checkPattern(pattern)) {
-		this.disabled = true;
-		return;
+class DateTime {
+	constructor(pattern, rPattern, diff, dtLang, onRPat) {
+		this.pad2 = pad2;
+		this.genDateTime = null;
+		this.onRPat = null;
+		if(DateTime.checkPattern(pattern)) {
+			this.disabled = true;
+			return;
+		}
+		this.regex = pattern
+			.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
+			.replace(/-/g, '[^<]')
+			.replace(/\+/g, '[^0-9<]')
+			.replace(/([sihdny]+)/g, '($1)')
+			.replace(/[sihdny]/g, '\\d')
+			.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
+		this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
+		this.diff = parseInt(diff, 10);
+		this.arrW = Lng.week[dtLang];
+		this.arrM = Lng.month[dtLang];
+		this.arrFM = Lng.fullMonth[dtLang];
+		if(rPattern) {
+			this.genDateTime = this.genRFunc(rPattern);
+		} else {
+			this.onRPat = onRPat;
+		}
 	}
-	this.regex = pattern
-		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
-		.replace(/-/g, '[^<]')
-		.replace(/\+/g, '[^0-9<]')
-		.replace(/([sihdny]+)/g, '($1)')
-		.replace(/[sihdny]/g, '\\d')
-		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-	this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
-	this.diff = parseInt(diff, 10);
-	this.arrW = Lng.week[dtLang];
-	this.arrM = Lng.month[dtLang];
-	this.arrFM = Lng.fullMonth[dtLang];
-	if(rPattern) {
-		this.genDateTime = this.genRFunc(rPattern);
-	} else {
-		this.onRPat = onRPat;
+	static toggleSettings(el) {
+		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
+			$popup('err-correcttime', Lng.cTimeError[lang]);
+			saveCfg('correctTime', 0);
+			el.checked = false;
+		}
 	}
-}
-DateTime.toggleSettings = function(el) {
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-		$popup('err-correcttime', Lng.cTimeError[lang]);
-		saveCfg('correctTime', 0);
-		el.checked = false;
+	static checkPattern(val) {
+		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
+			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
+			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	}
-};
-DateTime.checkPattern = function(val) {
-	return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') ||
-		!(val.includes('n') || val.includes('m')) ||
-		/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
-};
-DateTime.prototype = {
-	pad2,
-	genDateTime : null,
-	onRPat      : null,
 	genRFunc(rPattern) {
 		return new Function('dtime', "return '" +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
@@ -54,21 +54,21 @@ DateTime.prototype = {
 				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
 				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
 				.replace('_Y', "' + dtime.getFullYear() + '") + "';");
-	},
+	}
 	getRPattern(txt) {
-		var m = txt.match(new RegExp(this.regex));
+		const m = txt.match(new RegExp(this.regex));
 		if(!m) {
 			this.disabled = true;
 			return false;
 		}
-		var rPattern = '';
-		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
-			var a = m[i++],
-				p = this.pattern[i - 2];
+		let rPattern = '';
+		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
+			const a = m[i++];
+			let p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();
 			}
-			var k = str.indexOf(a, j);
+			const k = str.indexOf(a, j);
 			rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
@@ -77,15 +77,15 @@ DateTime.prototype = {
 		}
 		this.genDateTime = this.genRFunc(rPattern);
 		return true;
-	},
+	}
 	fix(txt) {
 		if(this.disabled || (!this.genDateTime && !this.getRPattern(txt))) {
 			return txt;
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (str, ...args) => {
-			var second, minute, hour, day, month, year;
-			for(var i = 0; i < 7; ++i) {
-				var a = args[i];
+			let second, minute, hour, day, month, year;
+			for(let i = 0; i < 7; ++i) {
+				const a = args[i];
 				switch(this.pattern[i]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;
@@ -96,10 +96,10 @@ DateTime.prototype = {
 				case 'm': month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0; break;
 				}
 			}
-			var dtime = new Date(year.length === 2 ? '20' + year :
+			const dtime = new Date(year.length === 2 ? '20' + year :
 				year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
 			return this.genDateTime(dtime);
 		});
 	}
-};
+}

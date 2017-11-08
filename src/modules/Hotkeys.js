@@ -374,90 +374,72 @@ var HotKeys = {
 	}
 };
 
-function KeyEditListener(popupEl, keys, allKeys) {
-	var aInputs = Array.from($Q('.de-input-key', popupEl));
-	for(var i = 0, len = allKeys.length; i < len; ++i) {
-		var k = allKeys[i];
-		if(k !== 0) {
-			for(var j = i + 1; j < len; ++j) {
-				if(k === allKeys[j]) {
-					aInputs[i].classList.add('de-error-input');
-					aInputs[j].classList.add('de-error-input');
-					break;
+class KeyEditListener {
+	constructor(popupEl, keys, allKeys) {
+		this.cEl = null;
+		this.cKey = -1;
+		this.errorInput = false;
+		const aInputs = Array.from($Q('.de-input-key', popupEl));
+		for(let i = 0, len = allKeys.length; i < len; ++i) {
+			const k = allKeys[i];
+			if(k !== 0) {
+				for(let j = i + 1; j < len; ++j) {
+					if(k === allKeys[j]) {
+						aInputs[i].classList.add('de-error-input');
+						aInputs[j].classList.add('de-error-input');
+						break;
+					}
 				}
 			}
 		}
+		this.popupEl = popupEl;
+		this.keys = keys;
+		this.initKeys = JSON.parse(JSON.stringify(keys));
+		this.allKeys = allKeys;
+		this.allInputs = aInputs;
+		this.errCount = $Q('.de-error-input', popupEl).length;
+		if(this.errCount !== 0) {
+			this.saveButton.disabled = true;
+		}
 	}
-	this.popupEl = popupEl;
-	this.keys = keys;
-	this.initKeys = JSON.parse(JSON.stringify(keys));
-	this.allKeys = allKeys;
-	this.allInputs = aInputs;
-	this.errCount = $Q('.de-error-input', popupEl).length;
-	if(this.errCount !== 0) {
-		this.saveButton.disabled = true;
+	static getEditMarkup(keys) {
+		const allKeys = [];
+		return [allKeys, Lng.hotKeyEdit[lang].join('')
+			.replace(/%l/g, '<label class="de-block">')
+			.replace(/%\/l/g, '</label>')
+			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+				const key = keys[+id1][+id2];
+				allKeys.push(key);
+				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
+					`" size="16" value="${ KeyEditListener.getStrKey(key) +
+						(isText ? '" de-text' : '"') } readonly>`;
+			}) + `<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
+			`<input type="button" id="de-keys-reset" class="de-button" value="${ Lng.reset[lang] }">`];
 	}
-}
-// Browsers have different codes for these keys (see HotKeys.readKeys):
-//     Firefox - '-' - 173, '=' - 61, ';' - 59
-//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
-/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
-KeyEditListener.keyCodes = [
-	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
-	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
-	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
-	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
-	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
-	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
-	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
-	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
-	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
-];
-/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
-KeyEditListener.getStrKey = function(key) {
-	return (key & 0x1000 ? 'Ctrl+' : '') +
-		(key & 0x2000 ? 'Shift+' : '') +
-		(key & 0x4000 ? 'Alt+' : '') +
-		KeyEditListener.keyCodes[key & 0xFFF];
-};
-KeyEditListener.getEditMarkup = function(keys) {
-	var allKeys = [];
-	var html = Lng.hotKeyEdit[lang].join('')
-		.replace(/%l/g, '<label class="de-block">')
-		.replace(/%\/l/g, '</label>')
-		.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
-			var key = keys[+id1][+id2];
-			allKeys.push(key);
-			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="16" value="' + KeyEditListener.getStrKey(key) +
-				(isText ? '" de-text' : '"') + ' readonly>';
-		}) +
-	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">' +
-	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">';
-	return [allKeys, html];
-};
-KeyEditListener.setTitle = function(el, idx) {
-	var title = el.getAttribute('de-title');
-	if(!title) {
-		title = el.getAttribute('title');
-		el.setAttribute('de-title', title);
+	static getStrKey(key) {
+		return (key & 0x1000 ? 'Ctrl+' : '') +
+			(key & 0x2000 ? 'Shift+' : '') +
+			(key & 0x4000 ? 'Alt+' : '') +
+			KeyEditListener.keyCodes[key & 0xFFF];
 	}
-	if(HotKeys.enabled && idx !== -1) {
-		title += ' [' + KeyEditListener.getStrKey(HotKeys.gKeys[idx]) + ']';
+	static setTitle(el, idx) {
+		let title = el.getAttribute('de-title');
+		if(!title) {
+			title = el.getAttribute('title');
+			el.setAttribute('de-title', title);
+		}
+		if(HotKeys.enabled && idx !== -1) {
+			title += ` [${ KeyEditListener.getStrKey(HotKeys.gKeys[idx]) }]`;
+		}
+		el.title = title;
 	}
-	el.title = title;
-};
-KeyEditListener.prototype = {
-	cEl        : null,
-	cKey       : -1,
-	errorInput : false,
 	get saveButton() {
-		var val = $id('de-keys-save');
+		const val = $id('de-keys-save');
 		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
 		return val;
-	},
+	}
 	handleEvent(e) {
-		var key, el = e.target;
+		let key, el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(HotKeys.enabled && this.errCount === 0) {
@@ -472,7 +454,7 @@ KeyEditListener.prototype = {
 			this.cEl = el;
 			return;
 		case 'click':
-			var keys;
+			let keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
 				this.initKeys = HotKeys.getDefaultKeys();
@@ -508,12 +490,12 @@ KeyEditListener.prototype = {
 				this.errorInput = false;
 				break;
 			}
-			var keyStr = KeyEditListener.keyCodes[key];
+			const keyStr = KeyEditListener.keyCodes[key];
 			if(keyStr === undefined) {
 				this.cKey = -1;
 				return;
 			}
-			var str = '';
+			let str = '';
 			if(e.ctrlKey) {
 				str += 'Ctrl+';
 			}
@@ -540,15 +522,16 @@ KeyEditListener.prototype = {
 			if(!el || key === -1) {
 				return;
 			}
-			var rEl, isError = el.classList.contains('de-error-input');
+			let rEl;
+			const isError = el.classList.contains('de-error-input');
 			if(!this.errorInput && key !== -1) {
-				var idx = this.allInputs.indexOf(el),
-					oKey = this.allKeys[idx];
+				let idx = this.allInputs.indexOf(el);
+				const oKey = this.allKeys[idx];
 				if(oKey === key) {
 					this.errorInput = false;
 					break;
 				}
-				var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+				const rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 				this.allKeys[idx] = key;
 				if(isError) {
 					idx = this.allKeys.indexOf(oKey);
@@ -588,4 +571,20 @@ KeyEditListener.prototype = {
 		}
 		$pd(e);
 	}
-};
+}
+// Browsers have different codes for these keys (see HotKeys.readKeys):
+//     Firefox - '-' - 173, '=' - 61, ';' - 59
+//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
+KeyEditListener.keyCodes = [
+	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
+	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
+	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
+	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
+	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
+	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
+	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
+	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
+	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
+];
+/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */

@@ -72,39 +72,29 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 	}), className);
 }
 
-function Menu(parentEl, html, clickFn, isFixed = true) {
-	var el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
-		isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
-	var mStyle = el.style,
-		cr = parentEl.getBoundingClientRect(),
-		width = el.offsetWidth,
-		xOffset = isFixed ? 0 : window.pageXOffset;
-	if(cr.left + width < Post.sizing.wWidth) {
-		mStyle.left = (xOffset + cr.left) + 'px';
-	} else {
-		mStyle.left = (xOffset + cr.right - width) + 'px';
+class Menu {
+	constructor(parentEl, html, clickFn, isFixed = true) {
+		this.onout = null;
+		this.onover = null;
+		this.onremove = null;
+		this._closeTO = 0;
+		const el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
+			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
+		const cr = parentEl.getBoundingClientRect();
+		const { style, offsetWidth: w, offsetHeight: h } = el;
+		style.left = (isFixed ? 0 : window.pageXOffset) +
+			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+		style.top = (isFixed ? 0 : window.pageYOffset) +
+			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
+		style.removeProperty('visibility');
+		this._clickFn = clickFn;
+		this._el = el;
+		this.parentEl = parentEl;
+		el.addEventListener('mouseover', this, true);
+		el.addEventListener('mouseout', this, true);
+		el.addEventListener('click', this);
+		parentEl.addEventListener('mouseout', this);
 	}
-	var height = el.offsetHeight;
-	var yOffset = isFixed ? 0 : window.pageYOffset;
-	if(cr.bottom + height < Post.sizing.wHeight) {
-		mStyle.top = (yOffset + cr.bottom - 0.5) + 'px';
-	} else {
-		mStyle.top = (yOffset + cr.top - height + 0.5) + 'px';
-	}
-	mStyle.removeProperty('visibility');
-	this._clickFn = clickFn;
-	this._el = el;
-	this.parentEl = parentEl;
-	el.addEventListener('mouseover', this, true);
-	el.addEventListener('mouseout', this, true);
-	parentEl.addEventListener('mouseout', this);
-	el.addEventListener('click', this);
-}
-Menu.prototype = {
-	onout    : null,
-	onover   : null,
-	onremove : null,
-	_closeTO : 0,
 	remove() {
 		if(!this._el) {
 			return;
@@ -118,9 +108,10 @@ Menu.prototype = {
 		this._el.removeEventListener('click', this);
 		$del(this._el);
 		this._el = null;
-	},
+	}
 	handleEvent(e) {
-		var isOverEvent = false, el = e.target;
+		let isOverEvent = false;
+		const el = e.target;
 		switch(e.type) {
 		case 'click':
 			if(el.className === 'de-menu-item') {
@@ -131,12 +122,11 @@ Menu.prototype = {
 				}
 			}
 			break;
-		case 'mouseover':
-			isOverEvent = true;
+		case 'mouseover': isOverEvent = true;
 			/* falls through */
 		case 'mouseout':
 			clearTimeout(this._closeTO);
-			var rt = fixEventEl(e.relatedTarget);
+			let rt = fixEventEl(e.relatedTarget);
 			rt = rt && rt.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
@@ -152,10 +142,10 @@ Menu.prototype = {
 			}
 		}
 	}
-};
+}
 
 function addMenu(el) {
-	var fn = a => $join(a, '<span class="de-menu-item">', '</span>');
+	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
@@ -163,7 +153,7 @@ function addMenu(el) {
 			'</div><div style="display: inline-block;">' +
 			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) + '</div>',
 		function(el) {
-			var exp = el.textContent;
+			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
 					'[' + aib.b + ',' + aib.t + ']') +
@@ -178,7 +168,7 @@ function addMenu(el) {
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
 		function(el) {
 			if(!$id('de-popup-savethr')) {
-				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+				const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 				if(Images_.preloading) {
 					$popup('savethr', Lng.loading[lang], true);
 					Images_.afterpreload = () => loadDocFiles(imgOnly);

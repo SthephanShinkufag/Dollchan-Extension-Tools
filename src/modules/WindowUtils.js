@@ -37,11 +37,11 @@ function makeDraggable(name, win, head) {
 				$pd(e);
 				return;
 			case 'mousemove':
-				var maxX = Post.sizing.wWidth - this._win.offsetWidth,
-					maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
-					cr = this._win.getBoundingClientRect(),
-					x = cr.left + curX - this._oldX,
-					y = cr.top + curY - this._oldY;
+				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
+				const maxY = Post.sizing.wHeight - this._win.offsetHeight - 25;
+				const cr = this._win.getBoundingClientRect();
+				const x = cr.left + curX - this._oldX;
+				const y = cr.top + curY - this._oldY;
 				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
 					'left: ' + x + 'px';
@@ -64,17 +64,17 @@ function makeDraggable(name, win, head) {
 	});
 }
 
-function WinResizer(name, dir, cfgName, win, target) {
-	this.name = name;
-	this.dir = dir;
-	this.cfgName = cfgName;
-	this.vertical = dir === 'top' || dir === 'bottom';
-	this.win = win;
-	this.wStyle = this.win.style;
-	this.tStyle = target.style;
-	$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
-}
-WinResizer.prototype = {
+class WinResizer {
+	constructor(name, dir, cfgName, win, target) {
+		this.name = name;
+		this.dir = dir;
+		this.cfgName = cfgName;
+		this.vertical = dir === 'top' || dir === 'bottom';
+		this.win = win;
+		this.wStyle = this.win.style;
+		this.tStyle = target.style;
+		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
+	}
 	handleEvent(e) {
 		let val, x, y;
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
@@ -134,7 +134,7 @@ WinResizer.prototype = {
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 		}
 	}
-};
+}
 
 function toggleWindow(name, isUpd, data, noAnim) {
 	let el, win = $id('de-win-' + name);

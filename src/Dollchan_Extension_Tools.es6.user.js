@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '8508d18';
+const commit = 'f7c62bf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1829,25 +1829,25 @@ class CancelablePromise {
 	}
 }
 
-function Maybe(Ctor/* , ...args */) {
-	this._ctor = Ctor;
-	// this._args = args;
-	this.hasValue = false;
-}
-Maybe.prototype = {
+class Maybe {
+	constructor(Ctor/* , ...args */) {
+		this._ctor = Ctor;
+		// this._args = args;
+		this.hasValue = false;
+	}
 	get value() {
 		const Ctor = this._ctor;
 		this.hasValue = !!Ctor;
 		const val = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value: val });
 		return val;
-	},
+	}
 	end() {
 		if(this.hasValue) {
 			this.value.end();
 		}
 	}
-};
+}
 
 class TemporaryContent {
 	constructor(key) {
@@ -1887,20 +1887,16 @@ class TemporaryContent {
 }
 TemporaryContent.purgeSecs = 6e4;
 
-function TasksPool(tasksCount, taskFunc, endFn) {
-	this.array = [];
-	this.running = 0;
-	this.num = 1;
-	this.func = taskFunc;
-	this.endFn = endFn;
-	this.max = tasksCount;
-	this.completed = this.paused = this.stopped = false;
-}
-TasksPool.PauseError = function(duration) {
-	this.name = 'TasksPool.PauseError';
-	this.duration = duration;
-};
-TasksPool.prototype = {
+class TasksPool {
+	constructor(tasksCount, taskFunc, endFn) {
+		this.array = [];
+		this.running = 0;
+		this.num = 1;
+		this.func = taskFunc;
+		this.endFn = endFn;
+		this.max = tasksCount;
+		this.completed = this.paused = this.stopped = false;
+	}
 	complete() {
 		if(!this.stopped) {
 			if(this.array.length === 0 && this.running === 0) {
@@ -1909,7 +1905,7 @@ TasksPool.prototype = {
 				this.completed = true;
 			}
 		}
-	},
+	}
 	'continue'() {
 		if(!this.stopped) {
 			this.paused = false;
@@ -1924,10 +1920,10 @@ TasksPool.prototype = {
 				this.running++;
 			}
 		}
-	},
+	}
 	pause() {
 		this.paused = true;
-	},
+	}
 	run(data) {
 		if(!this.stopped) {
 			if(this.paused || this.running === this.max) {
@@ -1937,11 +1933,11 @@ TasksPool.prototype = {
 				this.running++;
 			}
 		}
-	},
+	}
 	stop() {
 		this.stopped = true;
 		this.endFn();
-	},
+	}
 
 	_end() {
 		if(!this.stopped) {
@@ -1954,7 +1950,7 @@ TasksPool.prototype = {
 				this.endFn();
 			}
 		}
-	},
+	}
 	_run(data) {
 		this.func(this.num++, data).then(() => this._end(), e => {
 			if(e instanceof TasksPool.PauseError) {
@@ -1968,6 +1964,10 @@ TasksPool.prototype = {
 			}
 		});
 	}
+}
+TasksPool.PauseError = function(duration) {
+	this.name = 'TasksPool.PauseError';
+	this.duration = duration;
 };
 
 class WorkerPool {
@@ -2020,10 +2020,10 @@ class WorkerPool {
 	}
 }
 
-function TarBuilder() {
-	this._data = [];
-}
-TarBuilder.prototype = {
+class TarBuilder {
+	constructor() {
+		this._data = [];
+	}
 	addFile(filepath, input) {
 		let i, checksum = 0;
 		const fileSize = input.length;
@@ -2049,7 +2049,7 @@ TarBuilder.prototype = {
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 			this._data.push(new Uint8Array(i));
 		}
-	},
+	}
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
 		const len = sDat.length;
@@ -2058,11 +2058,11 @@ TarBuilder.prototype = {
 			data[i] = sDat.charCodeAt(i) & 0xFF;
 		}
 		this.addFile(filepath, data);
-	},
+	}
 	get() {
 		this._data.push(new Uint8Array(1024));
 		return new Blob(this._data, { type: 'application/x-tar' });
-	},
+	}
 
 	_padSet(data, offset, num, len) {
 		let i = 0;
@@ -2077,7 +2077,7 @@ TarBuilder.prototype = {
 		}
 		data[offset] = 0x20; // ' '
 	}
-};
+}
 
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
@@ -3052,11 +3052,11 @@ function makeDraggable(name, win, head) {
 				$pd(e);
 				return;
 			case 'mousemove':
-				var maxX = Post.sizing.wWidth - this._win.offsetWidth,
-					maxY = Post.sizing.wHeight - this._win.offsetHeight - 25,
-					cr = this._win.getBoundingClientRect(),
-					x = cr.left + curX - this._oldX,
-					y = cr.top + curY - this._oldY;
+				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
+				const maxY = Post.sizing.wHeight - this._win.offsetHeight - 25;
+				const cr = this._win.getBoundingClientRect();
+				const x = cr.left + curX - this._oldX;
+				const y = cr.top + curY - this._oldY;
 				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
 					'left: ' + x + 'px';
@@ -3079,17 +3079,17 @@ function makeDraggable(name, win, head) {
 	});
 }
 
-function WinResizer(name, dir, cfgName, win, target) {
-	this.name = name;
-	this.dir = dir;
-	this.cfgName = cfgName;
-	this.vertical = dir === 'top' || dir === 'bottom';
-	this.win = win;
-	this.wStyle = this.win.style;
-	this.tStyle = target.style;
-	$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
-}
-WinResizer.prototype = {
+class WinResizer {
+	constructor(name, dir, cfgName, win, target) {
+		this.name = name;
+		this.dir = dir;
+		this.cfgName = cfgName;
+		this.vertical = dir === 'top' || dir === 'bottom';
+		this.win = win;
+		this.wStyle = this.win.style;
+		this.tStyle = target.style;
+		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
+	}
 	handleEvent(e) {
 		let val, x, y;
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
@@ -3149,7 +3149,7 @@ WinResizer.prototype = {
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 		}
 	}
-};
+}
 
 function toggleWindow(name, isUpd, data, noAnim) {
 	let el, win = $id('de-win-' + name);
@@ -4867,39 +4867,29 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 	}), className);
 }
 
-function Menu(parentEl, html, clickFn, isFixed = true) {
-	var el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
-		isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
-	var mStyle = el.style,
-		cr = parentEl.getBoundingClientRect(),
-		width = el.offsetWidth,
-		xOffset = isFixed ? 0 : window.pageXOffset;
-	if(cr.left + width < Post.sizing.wWidth) {
-		mStyle.left = (xOffset + cr.left) + 'px';
-	} else {
-		mStyle.left = (xOffset + cr.right - width) + 'px';
+class Menu {
+	constructor(parentEl, html, clickFn, isFixed = true) {
+		this.onout = null;
+		this.onover = null;
+		this.onremove = null;
+		this._closeTO = 0;
+		const el = $bEnd(docBody, `<div class="${ aib.cReply } de-menu" style="position: ${
+			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
+		const cr = parentEl.getBoundingClientRect();
+		const { style, offsetWidth: w, offsetHeight: h } = el;
+		style.left = (isFixed ? 0 : window.pageXOffset) +
+			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+		style.top = (isFixed ? 0 : window.pageYOffset) +
+			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
+		style.removeProperty('visibility');
+		this._clickFn = clickFn;
+		this._el = el;
+		this.parentEl = parentEl;
+		el.addEventListener('mouseover', this, true);
+		el.addEventListener('mouseout', this, true);
+		el.addEventListener('click', this);
+		parentEl.addEventListener('mouseout', this);
 	}
-	var height = el.offsetHeight;
-	var yOffset = isFixed ? 0 : window.pageYOffset;
-	if(cr.bottom + height < Post.sizing.wHeight) {
-		mStyle.top = (yOffset + cr.bottom - 0.5) + 'px';
-	} else {
-		mStyle.top = (yOffset + cr.top - height + 0.5) + 'px';
-	}
-	mStyle.removeProperty('visibility');
-	this._clickFn = clickFn;
-	this._el = el;
-	this.parentEl = parentEl;
-	el.addEventListener('mouseover', this, true);
-	el.addEventListener('mouseout', this, true);
-	parentEl.addEventListener('mouseout', this);
-	el.addEventListener('click', this);
-}
-Menu.prototype = {
-	onout    : null,
-	onover   : null,
-	onremove : null,
-	_closeTO : 0,
 	remove() {
 		if(!this._el) {
 			return;
@@ -4913,9 +4903,10 @@ Menu.prototype = {
 		this._el.removeEventListener('click', this);
 		$del(this._el);
 		this._el = null;
-	},
+	}
 	handleEvent(e) {
-		var isOverEvent = false, el = e.target;
+		let isOverEvent = false;
+		const el = e.target;
 		switch(e.type) {
 		case 'click':
 			if(el.className === 'de-menu-item') {
@@ -4926,12 +4917,11 @@ Menu.prototype = {
 				}
 			}
 			break;
-		case 'mouseover':
-			isOverEvent = true;
+		case 'mouseover': isOverEvent = true;
 			/* falls through */
 		case 'mouseout':
 			clearTimeout(this._closeTO);
-			var rt = fixEventEl(e.relatedTarget);
+			let rt = fixEventEl(e.relatedTarget);
 			rt = rt && rt.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
@@ -4947,10 +4937,10 @@ Menu.prototype = {
 			}
 		}
 	}
-};
+}
 
 function addMenu(el) {
-	var fn = a => $join(a, '<span class="de-menu-item">', '</span>');
+	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
@@ -4958,7 +4948,7 @@ function addMenu(el) {
 			'</div><div style="display: inline-block;">' +
 			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) + '</div>',
 		function(el) {
-			var exp = el.textContent;
+			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
 					'[' + aib.b + ',' + aib.t + ']') +
@@ -4973,7 +4963,7 @@ function addMenu(el) {
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
 		function(el) {
 			if(!$id('de-popup-savethr')) {
-				var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+				const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
 				if(Images_.preloading) {
 					$popup('savethr', Lng.loading[lang], true);
 					Images_.afterpreload = () => loadDocFiles(imgOnly);
@@ -5369,90 +5359,72 @@ var HotKeys = {
 	}
 };
 
-function KeyEditListener(popupEl, keys, allKeys) {
-	var aInputs = Array.from($Q('.de-input-key', popupEl));
-	for(var i = 0, len = allKeys.length; i < len; ++i) {
-		var k = allKeys[i];
-		if(k !== 0) {
-			for(var j = i + 1; j < len; ++j) {
-				if(k === allKeys[j]) {
-					aInputs[i].classList.add('de-error-input');
-					aInputs[j].classList.add('de-error-input');
-					break;
+class KeyEditListener {
+	constructor(popupEl, keys, allKeys) {
+		this.cEl = null;
+		this.cKey = -1;
+		this.errorInput = false;
+		const aInputs = Array.from($Q('.de-input-key', popupEl));
+		for(let i = 0, len = allKeys.length; i < len; ++i) {
+			const k = allKeys[i];
+			if(k !== 0) {
+				for(let j = i + 1; j < len; ++j) {
+					if(k === allKeys[j]) {
+						aInputs[i].classList.add('de-error-input');
+						aInputs[j].classList.add('de-error-input');
+						break;
+					}
 				}
 			}
 		}
+		this.popupEl = popupEl;
+		this.keys = keys;
+		this.initKeys = JSON.parse(JSON.stringify(keys));
+		this.allKeys = allKeys;
+		this.allInputs = aInputs;
+		this.errCount = $Q('.de-error-input', popupEl).length;
+		if(this.errCount !== 0) {
+			this.saveButton.disabled = true;
+		}
 	}
-	this.popupEl = popupEl;
-	this.keys = keys;
-	this.initKeys = JSON.parse(JSON.stringify(keys));
-	this.allKeys = allKeys;
-	this.allInputs = aInputs;
-	this.errCount = $Q('.de-error-input', popupEl).length;
-	if(this.errCount !== 0) {
-		this.saveButton.disabled = true;
+	static getEditMarkup(keys) {
+		const allKeys = [];
+		return [allKeys, Lng.hotKeyEdit[lang].join('')
+			.replace(/%l/g, '<label class="de-block">')
+			.replace(/%\/l/g, '</label>')
+			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+				const key = keys[+id1][+id2];
+				allKeys.push(key);
+				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
+					`" size="16" value="${ KeyEditListener.getStrKey(key) +
+						(isText ? '" de-text' : '"') } readonly>`;
+			}) + `<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
+			`<input type="button" id="de-keys-reset" class="de-button" value="${ Lng.reset[lang] }">`];
 	}
-}
-// Browsers have different codes for these keys (see HotKeys.readKeys):
-//     Firefox - '-' - 173, '=' - 61, ';' - 59
-//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
-/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
-KeyEditListener.keyCodes = [
-	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
-	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
-	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
-	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
-	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
-	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
-	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
-	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
-	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
-];
-/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
-KeyEditListener.getStrKey = function(key) {
-	return (key & 0x1000 ? 'Ctrl+' : '') +
-		(key & 0x2000 ? 'Shift+' : '') +
-		(key & 0x4000 ? 'Alt+' : '') +
-		KeyEditListener.keyCodes[key & 0xFFF];
-};
-KeyEditListener.getEditMarkup = function(keys) {
-	var allKeys = [];
-	var html = Lng.hotKeyEdit[lang].join('')
-		.replace(/%l/g, '<label class="de-block">')
-		.replace(/%\/l/g, '</label>')
-		.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
-			var key = keys[+id1][+id2];
-			allKeys.push(key);
-			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="16" value="' + KeyEditListener.getStrKey(key) +
-				(isText ? '" de-text' : '"') + ' readonly>';
-		}) +
-	'<input type="button" id="de-keys-save" class="de-button" value="' + Lng.save[lang] + '">' +
-	'<input type="button" id="de-keys-reset" class="de-button" value="' + Lng.reset[lang] + '">';
-	return [allKeys, html];
-};
-KeyEditListener.setTitle = function(el, idx) {
-	var title = el.getAttribute('de-title');
-	if(!title) {
-		title = el.getAttribute('title');
-		el.setAttribute('de-title', title);
+	static getStrKey(key) {
+		return (key & 0x1000 ? 'Ctrl+' : '') +
+			(key & 0x2000 ? 'Shift+' : '') +
+			(key & 0x4000 ? 'Alt+' : '') +
+			KeyEditListener.keyCodes[key & 0xFFF];
 	}
-	if(HotKeys.enabled && idx !== -1) {
-		title += ' [' + KeyEditListener.getStrKey(HotKeys.gKeys[idx]) + ']';
+	static setTitle(el, idx) {
+		let title = el.getAttribute('de-title');
+		if(!title) {
+			title = el.getAttribute('title');
+			el.setAttribute('de-title', title);
+		}
+		if(HotKeys.enabled && idx !== -1) {
+			title += ` [${ KeyEditListener.getStrKey(HotKeys.gKeys[idx]) }]`;
+		}
+		el.title = title;
 	}
-	el.title = title;
-};
-KeyEditListener.prototype = {
-	cEl        : null,
-	cKey       : -1,
-	errorInput : false,
 	get saveButton() {
-		var val = $id('de-keys-save');
+		const val = $id('de-keys-save');
 		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
 		return val;
-	},
+	}
 	handleEvent(e) {
-		var key, el = e.target;
+		let key, el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(HotKeys.enabled && this.errCount === 0) {
@@ -5467,7 +5439,7 @@ KeyEditListener.prototype = {
 			this.cEl = el;
 			return;
 		case 'click':
-			var keys;
+			let keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
 				this.initKeys = HotKeys.getDefaultKeys();
@@ -5503,12 +5475,12 @@ KeyEditListener.prototype = {
 				this.errorInput = false;
 				break;
 			}
-			var keyStr = KeyEditListener.keyCodes[key];
+			const keyStr = KeyEditListener.keyCodes[key];
 			if(keyStr === undefined) {
 				this.cKey = -1;
 				return;
 			}
-			var str = '';
+			let str = '';
 			if(e.ctrlKey) {
 				str += 'Ctrl+';
 			}
@@ -5535,15 +5507,16 @@ KeyEditListener.prototype = {
 			if(!el || key === -1) {
 				return;
 			}
-			var rEl, isError = el.classList.contains('de-error-input');
+			let rEl;
+			const isError = el.classList.contains('de-error-input');
 			if(!this.errorInput && key !== -1) {
-				var idx = this.allInputs.indexOf(el),
-					oKey = this.allKeys[idx];
+				let idx = this.allInputs.indexOf(el);
+				const oKey = this.allKeys[idx];
 				if(oKey === key) {
 					this.errorInput = false;
 					break;
 				}
-				var rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
+				const rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 				this.allKeys[idx] = key;
 				if(isError) {
 					idx = this.allKeys.indexOf(oKey);
@@ -5583,7 +5556,23 @@ KeyEditListener.prototype = {
 		}
 		$pd(e);
 	}
-};
+}
+// Browsers have different codes for these keys (see HotKeys.readKeys):
+//     Firefox - '-' - 173, '=' - 61, ';' - 59
+//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+/* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
+KeyEditListener.keyCodes = [
+	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
+	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
+	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
+	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
+	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
+	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
+	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
+	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
+	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
+];
+/* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
 
 /* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
@@ -5923,45 +5912,45 @@ function loadDocFiles(imgOnly) {
                                                TIME CORRECTION
 =========================================================================================================== */
 
-function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
-	if(DateTime.checkPattern(pattern)) {
-		this.disabled = true;
-		return;
+class DateTime {
+	constructor(pattern, rPattern, diff, dtLang, onRPat) {
+		this.pad2 = pad2;
+		this.genDateTime = null;
+		this.onRPat = null;
+		if(DateTime.checkPattern(pattern)) {
+			this.disabled = true;
+			return;
+		}
+		this.regex = pattern
+			.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
+			.replace(/-/g, '[^<]')
+			.replace(/\+/g, '[^0-9<]')
+			.replace(/([sihdny]+)/g, '($1)')
+			.replace(/[sihdny]/g, '\\d')
+			.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
+		this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
+		this.diff = parseInt(diff, 10);
+		this.arrW = Lng.week[dtLang];
+		this.arrM = Lng.month[dtLang];
+		this.arrFM = Lng.fullMonth[dtLang];
+		if(rPattern) {
+			this.genDateTime = this.genRFunc(rPattern);
+		} else {
+			this.onRPat = onRPat;
+		}
 	}
-	this.regex = pattern
-		.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
-		.replace(/-/g, '[^<]')
-		.replace(/\+/g, '[^0-9<]')
-		.replace(/([sihdny]+)/g, '($1)')
-		.replace(/[sihdny]/g, '\\d')
-		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-	this.pattern = pattern.replace(/[?\-+]+/g, '').replace(/([a-z])\1+/g, '$1');
-	this.diff = parseInt(diff, 10);
-	this.arrW = Lng.week[dtLang];
-	this.arrM = Lng.month[dtLang];
-	this.arrFM = Lng.fullMonth[dtLang];
-	if(rPattern) {
-		this.genDateTime = this.genRFunc(rPattern);
-	} else {
-		this.onRPat = onRPat;
+	static toggleSettings(el) {
+		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
+			$popup('err-correcttime', Lng.cTimeError[lang]);
+			saveCfg('correctTime', 0);
+			el.checked = false;
+		}
 	}
-}
-DateTime.toggleSettings = function(el) {
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
-		$popup('err-correcttime', Lng.cTimeError[lang]);
-		saveCfg('correctTime', 0);
-		el.checked = false;
+	static checkPattern(val) {
+		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
+			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
+			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	}
-};
-DateTime.checkPattern = function(val) {
-	return !val.includes('i') || !val.includes('h') || !val.includes('d') || !val.includes('y') ||
-		!(val.includes('n') || val.includes('m')) ||
-		/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
-};
-DateTime.prototype = {
-	pad2,
-	genDateTime : null,
-	onRPat      : null,
 	genRFunc(rPattern) {
 		return new Function('dtime', "return '" +
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
@@ -5975,21 +5964,21 @@ DateTime.prototype = {
 				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
 				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
 				.replace('_Y', "' + dtime.getFullYear() + '") + "';");
-	},
+	}
 	getRPattern(txt) {
-		var m = txt.match(new RegExp(this.regex));
+		const m = txt.match(new RegExp(this.regex));
 		if(!m) {
 			this.disabled = true;
 			return false;
 		}
-		var rPattern = '';
-		for(var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
-			var a = m[i++],
-				p = this.pattern[i - 2];
+		let rPattern = '';
+		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
+			const a = m[i++];
+			let p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();
 			}
-			var k = str.indexOf(a, j);
+			const k = str.indexOf(a, j);
 			rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
@@ -5998,15 +5987,15 @@ DateTime.prototype = {
 		}
 		this.genDateTime = this.genRFunc(rPattern);
 		return true;
-	},
+	}
 	fix(txt) {
 		if(this.disabled || (!this.genDateTime && !this.getRPattern(txt))) {
 			return txt;
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (str, ...args) => {
-			var second, minute, hour, day, month, year;
-			for(var i = 0; i < 7; ++i) {
-				var a = args[i];
+			let second, minute, hour, day, month, year;
+			for(let i = 0; i < 7; ++i) {
+				const a = args[i];
 				switch(this.pattern[i]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;
@@ -6017,176 +6006,78 @@ DateTime.prototype = {
 				case 'm': month = Lng.monthDict[a.slice(0, 3).toLowerCase()] || 0; break;
 				}
 			}
-			var dtime = new Date(year.length === 2 ? '20' + year :
+			const dtime = new Date(year.length === 2 ? '20' + year :
 				year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
 			return this.genDateTime(dtime);
 		});
 	}
-};
+}
 
 /* ==[ Players.js ]===========================================================================================
                                           PLAYERS / LINKS EMBEDDERS
                                 youtube, vimeo, mp3, vocaroo embedding players
 =========================================================================================================== */
 
-function Videos(post, player = null, playerInfo = null) {
-	this.post = post;
-	this.vData = [[], []];
-	if(player && playerInfo) {
-		Object.defineProperty(this, 'player', { value: player });
-		this.playerInfo = playerInfo;
-	}
-}
-Videos._global = {
-	get vData() {
-		var val;
-		try {
-			sesStorage.removeItem('de-videos-data1');
-			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
-		} catch(e) {
-			val = [{}, {}];
-		}
-		Object.defineProperty(this, 'vData', { value: val });
-		return val;
-	}
-};
-Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
-Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
-	var txt;
-	if(isYtube) {
-		var list = m[0].match(/list=[^&#]+/);
-		txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] +
-			'?start=' + ((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) +
-			(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-			(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' :
-				'" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
-	} else {
-		var id = m[1] + (m[2] ? m[2] : '');
-		txt = Cfg.YTubeType === 1 ?
-			'<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id +
-				(Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" ' +
-				'webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
-			'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
-				'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-				'allowscriptaccess="always" allowfullscreen="true"></embed>';
-	}
-	el.innerHTML = txt + (enableJsapi ? '' :
-		'<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
-	$show(el);
-	if(!enableJsapi) {
-		el.lastChild.onclick = function() {
-			const node = this.parentNode;
-			node.className = 'de-video-obj' + (node.className === 'de-video-obj' ? ' de-video-expanded' : '');
-		};
-	}
-};
-Videos.setLinkData = function(link, [title, author, views, publ, duration]) {
-	link.textContent = title;
-	link.classList.add('de-video-title');
-	link.setAttribute('de-author', author);
-	link.title = (duration ? Lng.duration[lang] + duration : '') +
-		(publ ? ', ' + Lng.published[lang] + publ + '\n' : '') +
-		Lng.author[lang] + author +
-		(views ? ', ' + Lng.views[lang] + views : '');
-};
-Videos._fixTime = function(seconds = 0, minutes = 0, hours = 0) {
-	if(seconds >= 60) {
-		minutes += Math.floor(seconds / 60);
-		seconds %= 60;
-	}
-	if(minutes >= 60) {
-		hours += Math.floor(seconds / 60);
-		minutes %= 60;
-	}
-	return [
-		(hours ? hours + 'h' : '') +
-		(minutes ? minutes + 'm' : '') +
-		(seconds ? seconds + 's' : ''),
-		hours, minutes, seconds];
-};
-Videos._titlesLoaderHelper = function([link, isYtube, videoObj, id], num, ...data) {
-	if(data.length !== 0) {
-		Videos.setLinkData(link, data);
-		Videos._global.vData[isYtube ? 0 : 1][id] = data;
-		videoObj.vData[isYtube ? 0 : 1].push(data);
-		if(videoObj.titleLoadFn) {
-			videoObj.titleLoadFn(data);
+class Videos {
+	constructor(post, player = null, playerInfo = null) {
+		this.currentLink = null;
+		this.hasLinks = false;
+		this.linksCount = 0;
+		this.loadedLinksCount = 0;
+		this.playerInfo = null;
+		this.post = post;
+		this.titleLoadFn = null;
+		this.vData = [[], []];
+		if(player && playerInfo) {
+			Object.defineProperty(this, 'player', { value: player });
+			this.playerInfo = playerInfo;
 		}
 	}
-	videoObj.loadedLinksCount++;
-	if(num % 30 === 0) {
-		return Promise.reject(new TasksPool.PauseError(3e3));
-	}
-	return sleep(250);
-};
-Videos._getYTInfoAPI = function(info, num, id) {
-	return $ajax(
-		'https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id +
-		'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
-		'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
-		null, false
-	).then(xhr => {
-		var items = JSON.parse(xhr.responseText).items[0];
-		return Videos._titlesLoaderHelper(
-			info, num,
-			items.snippet.title,
-			items.snippet.channelTitle,
-			items.statistics.viewCount,
-			items.snippet.publishedAt.substr(0, 10),
-			items.contentDetails.duration.substr(2).toLowerCase());
-	}).catch(() => Videos._getYTInfoOembed(info, num, id));
-};
-Videos._getYTInfoOembed = function(info, num, id) {
-	return (nav.isGM ?
-		$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
-			null, false) :
-		$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
-	).then(xhr => {
-		var json = JSON.parse(xhr.responseText);
-		return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
-	}).catch(() => Videos._titlesLoaderHelper(info, num));
-};
-Videos._getTitlesLoader = function() {
-	return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
-		var [, isYtube,, id] = info;
+	static addPlayer(el, m, isYtube, enableJsapi = false) {
+		let txt;
 		if(isYtube) {
-			return Cfg.ytApiKey ?
-				Videos._getYTInfoAPI(info, num, id) :
-				Videos._getYTInfoOembed(info, num, id);
+			const list = m[0].match(/list=[^&#]+/);
+			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
+				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
+				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ?
+					'&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') +
+				' frameborder="0" allowfullscreen="1"></iframe>';
+		} else {
+			const id = m[1] + (m[2] ? m[2] : '');
+			txt = Cfg.YTubeType === 1 ?
+				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }` +
+					(Cfg.addYouTube === 3 ? '?autoplay=1' : '') +
+					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
+				'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
+					'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
+					'allowscriptaccess="always" allowfullscreen="true"></embed>';
 		}
-		return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(xhr => {
-			var entry = JSON.parse(xhr.responseText)[0];
-			return Videos._titlesLoaderHelper(
-				info, num,
-				entry.title,
-				entry.user_name,
-				entry.stats_number_of_plays,
-				(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
-				Videos._fixTime(entry.duration)[0]);
-		}).catch(() => Videos._titlesLoaderHelper(info, num));
-	}, () => {
-		sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData);
-	});
-};
-Videos.prototype = {
-	currentLink      : null,
-	hasLinks         : false,
-	linksCount       : 0,
-	loadedLinksCount : 0,
-	playerInfo       : null,
-	titleLoadFn      : null,
+		el.innerHTML = txt + (enableJsapi ? '' :
+			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
+		$show(el);
+		if(!enableJsapi) {
+			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
+		}
+	}
+	static setLinkData(link, [title, author, views, publ, duration]) {
+		link.textContent = title;
+		link.classList.add('de-video-title');
+		link.setAttribute('de-author', author);
+		link.title = (duration ? Lng.duration[lang] + duration : '') +
+			(publ ? ', ' + Lng.published[lang] + publ + '\n' : '') +
+			Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
+	}
 	get player() {
 		const { post } = this;
 		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
 			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
 		Object.defineProperty(this, 'player', { value: val });
 		return val;
-	},
+	}
 	addLink(m, loader, link, isYtube) {
-		var time, dataObj;
 		this.hasLinks = true;
 		this.linksCount++;
 		if(this.playerInfo === null) {
@@ -6195,12 +6086,14 @@ Videos.prototype = {
 			} else if(Cfg.addYouTube > 2) {
 				this._addThumb(m, isYtube);
 			}
-		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
+		} else if(!link && $q(`.de-video-link[href*="${ m[1] }"]`, this.post.msg)) {
 			return;
 		}
+		let dataObj;
 		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
 			this.vData[isYtube ? 0 : 1].push(dataObj);
 		}
+		let time;
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
@@ -6209,7 +6102,7 @@ Videos.prototype = {
 			}
 			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 		} else {
-			var src = isYtube ?
+			const src = isYtube ?
 				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
 				aib.prot + '//vimeo.com/' + m[1];
 			link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' +
@@ -6226,13 +6119,13 @@ Videos.prototype = {
 		if(loader && !dataObj) {
 			loader.run([link, isYtube, this, m[1]]);
 		}
-	},
+	}
 	addPlayer(m, isYtube) {
 		this.playerInfo = m;
 		Videos.addPlayer(this.player, m, isYtube);
-	},
+	}
 	clickLink(el, mode) {
-		var m = el.videoInfo;
+		const m = el.videoInfo;
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
@@ -6258,12 +6151,13 @@ Videos.prototype = {
 			this.player.innerHTML = '';
 			this.playerInfo = null;
 		}
-	},
+	}
 	updatePost(oldLinks, newLinks, cloned) {
-		var loader = !cloned && Videos._getTitlesLoader();
-		for(var i = 0, j = 0, len = newLinks.length; i < len; ++i) {
-			var el = newLinks[i],
-				link = oldLinks[j];
+		const loader = !cloned && Videos._getTitlesLoader();
+		let j = 0;
+		for(let i = 0, len = newLinks.length; i < len; ++i) {
+			const el = newLinks[i];
+			const link = oldLinks[j];
 			if(link && link.classList.contains('de-current')) {
 				this.currentLink = el;
 			}
@@ -6271,7 +6165,7 @@ Videos.prototype = {
 				el.videoInfo = link.videoInfo;
 				j++;
 			} else {
-				var m = el.href.match(Videos.ytReg);
+				const m = el.href.match(Videos.ytReg);
 				if(m) {
 					this.addLink(m, loader, el, true);
 					j++;
@@ -6282,25 +6176,117 @@ Videos.prototype = {
 		if(loader) {
 			loader.complete();
 		}
-	},
+	}
 
+	static _fixTime(seconds = 0, minutes = 0, hours = 0) {
+		if(seconds >= 60) {
+			minutes += Math.floor(seconds / 60);
+			seconds %= 60;
+		}
+		if(minutes >= 60) {
+			hours += Math.floor(seconds / 60);
+			minutes %= 60;
+		}
+		return [
+			(hours ? hours + 'h' : '') +
+			(minutes ? minutes + 'm' : '') +
+			(seconds ? seconds + 's' : ''),
+			hours, minutes, seconds];
+	}
+	static _getYTInfoAPI(info, num, id) {
+		return $ajax(
+			`https://www.googleapis.com/youtube/v3/videos?key=${ Cfg.ytApiKey }&id=${ id }` +
+			'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
+			'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
+			null, false
+		).then(xhr => {
+			const items = JSON.parse(xhr.responseText).items[0];
+			return Videos._titlesLoaderHelper(
+				info, num,
+				items.snippet.title,
+				items.snippet.channelTitle,
+				items.statistics.viewCount,
+				items.snippet.publishedAt.substr(0, 10),
+				items.contentDetails.duration.substr(2).toLowerCase());
+		}).catch(() => Videos._getYTInfoOembed(info, num, id));
+	}
+	static _getYTInfoOembed(info, num, id) {
+		return (nav.isGM ?
+			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
+				null, false) :
+			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
+		).then(xhr => {
+			const json = JSON.parse(xhr.responseText);
+			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
+		}).catch(() => Videos._titlesLoaderHelper(info, num));
+	}
+	static _getTitlesLoader() {
+		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+			const [, isYtube,, id] = info;
+			if(isYtube) {
+				return Videos[Cfg.ytApiKey ? '_getYTInfoAPI' : '_getYTInfoOembed'](info, num, id);
+			}
+			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
+				const entry = JSON.parse(xhr.responseText)[0];
+				return Videos._titlesLoaderHelper(
+					info, num,
+					entry.title,
+					entry.user_name,
+					entry.stats_number_of_plays,
+					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					Videos._fixTime(entry.duration)[0]);
+			}).catch(() => Videos._titlesLoaderHelper(info, num));
+		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
+	}
+	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
+		if(data.length !== 0) {
+			Videos.setLinkData(link, data);
+			Videos._global.vData[isYtube ? 0 : 1][id] = data;
+			videoObj.vData[isYtube ? 0 : 1].push(data);
+			if(videoObj.titleLoadFn) {
+				videoObj.titleLoadFn(data);
+			}
+		}
+		videoObj.loadedLinksCount++;
+		if(num % 30 === 0) {
+			return Promise.reject(new TasksPool.PauseError(3e3));
+		}
+		return sleep(250);
+	}
 	_addThumb(m, isYtube) {
-		var el = this.player;
+		const el = this.player;
 		this.playerInfo = m;
 		$show(el);
+		const str = `<a class="de-video-player" href="${ aib.prot }`;
 		if(isYtube) {
-			el.innerHTML = '<a class="de-video-player" href="' +
-				aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"></a>';
+			el.innerHTML = `${ str }//www.youtube.com/watch?v=${ m[1] }" target="_blank">` +
+				`<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/${ m[1] }/0.jpg"></a>`;
 			return;
 		}
-		el.innerHTML = '<a class="de-video-player" href="' + aib.prot + '//vimeo.com/' + m[1] +
-			'" target="_blank"><img class="de-video-thumb de-vimeo" src=""></a>';
-		$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(xhr => {
+		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
+			'<img class="de-video-thumb de-vimeo" src=""></a>';
+		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
 			try {
 				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 			} catch(e) {}
 		});
+	}
+}
+Videos.ytReg =
+	/^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+Videos.vimReg =
+	/^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
+Videos._global = {
+	get vData() {
+		let val;
+		try {
+			sesStorage.removeItem('de-videos-data1');
+			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
+		} catch(e) {
+			val = [{}, {}];
+		}
+		Object.defineProperty(this, 'vData', { value: val });
+		return val;
 	}
 };
 
@@ -14859,7 +14845,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`(function() {
-				var emptyFn = function() {};
+				var emptyFn = Function.prototype;
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
 						{ value: emptyFn, writable: false, configurable: false });
@@ -15047,7 +15033,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.location.reload();
 				return true;
 			}
-			$script('highlightReply = function() {}');
+			$script('highlightReply = Function.prototype');
 			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
@@ -15889,7 +15875,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
 			}
-			$script('window.UploadProgress = function() {}');
+			$script('window.UploadProgress = Function.prototype');
 			var el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
@@ -16063,7 +16049,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
-			$script('highlight = function() {}');
+			$script('highlight = Function.prototype');
 			return false;
 		}
 	}
@@ -16152,7 +16138,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			$script('highlightPost = function() {}');
+			$script('highlightPost = Function.prototype');
 			return false;
 		}
 		initCaptcha(cap) {
@@ -16249,7 +16235,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['**', '***', '', '^H', '', ''];
 		}
 		init() {
-			$script('highlight = function() {}');
+			$script('highlight = Function.prototype');
 			return false;
 		}
 	}

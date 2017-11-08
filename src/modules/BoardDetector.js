@@ -130,7 +130,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`(function() {
-				var emptyFn = function() {};
+				var emptyFn = Function.prototype;
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
 						{ value: emptyFn, writable: false, configurable: false });
@@ -318,7 +318,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.location.reload();
 				return true;
 			}
-			$script('highlightReply = function() {}');
+			$script('highlightReply = Function.prototype');
 			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
@@ -1160,7 +1160,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
 			}
-			$script('window.UploadProgress = function() {}');
+			$script('window.UploadProgress = Function.prototype');
 			var el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
@@ -1334,7 +1334,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
-			$script('highlight = function() {}');
+			$script('highlight = Function.prototype');
 			return false;
 		}
 	}
@@ -1423,7 +1423,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			$script('highlightPost = function() {}');
+			$script('highlightPost = Function.prototype');
 			return false;
 		}
 		initCaptcha(cap) {
@@ -1520,7 +1520,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['**', '***', '', '^H', '', ''];
 		}
 		init() {
-			$script('highlight = function() {}');
+			$script('highlight = Function.prototype');
 			return false;
 		}
 	}
