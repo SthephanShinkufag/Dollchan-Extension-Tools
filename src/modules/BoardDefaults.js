@@ -284,13 +284,17 @@ class BaseBoard {
 			return el;
 		}
 		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
-				return isOp ? el : $parent(el, 'TABLE');
-			} });
+			Object.defineProperty(this, 'getPostWrap', {
+				value(el, isOp) {
+					return isOp ? el : $parent(el, 'TABLE');
+				}
+			});
 		} else {
-			Object.defineProperty(this, 'getPostWrap', { value(el) {
-				return el;
-			} });
+			Object.defineProperty(this, 'getPostWrap', {
+				value(el) {
+					return el;
+				}
+			});
 		}
 		return this.getPostWrap(el, isOp);
 	}

@@ -1279,8 +1279,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			} catch(e) {
 				return false;
 			}
-			if(locSettings && locSettings['turnOffAll'] !== 1) {
-				locSettings['turnOffAll'] = 1;
+			if(locSettings && locSettings.turnOffAll !== 1) {
+				locSettings.turnOffAll = 1;
 				locStorage.setItem('settings', JSON.stringify(locSettings));
 				window.location.reload();
 				return true;

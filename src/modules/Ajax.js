@@ -129,12 +129,16 @@ class AjaxError {
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, { toString() {
-	return Lng.thrClosed[lang];
-} });
-AjaxError.Timeout = new AjaxError(0, { toString() {
-	return Lng.noConnect[lang] + ' (timeout)';
-} });
+AjaxError.Locked = new AjaxError(-1, {
+	toString() {
+		return Lng.thrClosed[lang];
+	}
+});
+AjaxError.Timeout = new AjaxError(0, {
+	toString() {
+		return Lng.noConnect[lang] + ' (timeout)';
+	}
+});
 
 class AjaxCache extends null {
 	static clear() {
@@ -185,7 +189,8 @@ class AjaxCache extends null {
 		let hasUrl = AjaxCache._data.has(url);
 		AjaxCache._data.set(url, {
 			hasCacheControl,
-			params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+			params: headers ? { headers, useTimeout: true } : { useTimeout: true }
+		});
 		return hasUrl || hasCacheControl;
 	}
 }

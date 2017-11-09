@@ -77,7 +77,8 @@ const cfgWindow = Object.create({
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPostThr[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
+					Lng.myPosts[lang] + ' (' + aib.dm + ')'
+				]) + '</div></div>');
 
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
@@ -147,7 +148,8 @@ const cfgWindow = Object.create({
 						let cfgData = await Promise.all([
 							getStored('DESU_Config'),
 							getStored('DESU_keys'),
-							getStored('DESU_Exclude')]);
+							getStored('DESU_Exclude')
+						]);
 						val.push('"settings":' + cfgData[0],
 							'"hotkeys":' + (cfgData[1] || '""'),
 							`"exclude":"${ cfgData[2] || '' }"`);
@@ -862,27 +864,33 @@ const cfgWindow = Object.create({
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
+			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
+		]);
 		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		this._toggleBox(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
 			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
-			'input[info="minWebmWidth"]']);
+			'input[info="minWebmWidth"]'
+		]);
 		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
-			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
+		]);
 		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
 		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-			'select[info="YTubeType"]', 'input[info="addVimeo"]']);
+			'select[info="YTubeType"]', 'input[info="addVimeo"]'
+		]);
 		this._toggleBox(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
-			'input[info="ytApiKey"]']);
+			'input[info="ytApiKey"]'
+		]);
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
-			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
+		]);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);

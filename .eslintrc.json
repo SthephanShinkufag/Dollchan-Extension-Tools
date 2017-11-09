@@ -11,8 +11,12 @@
 		"sourceType": "module"
 	},
 	"rules": {
+		"array-bracket-spacing": ["error", "never"],
 		"arrow-parens": ["error", "as-needed"],
+		"brace-style": ["error", "1tbs", { "allowSingleLine": false }],
 		"camelcase": "off",
+		"computed-property-spacing": ["error", "never"],
+		"dot-notation": "error",
 		"indent": ["error", "tab", { "flatTernaryExpressions": true }],
 		"key-spacing": ["error", {
 			"multiLine": {
@@ -48,6 +52,7 @@
 		"no-tabs": "off",
 		"no-unsafe-finally": "off",
 		"no-useless-concat": "error",
+		"object-curly-newline": ["error", { "multiline": true }],
 		"object-shorthand": ["error", "always"],
 		"one-var": "off",
 		"operator-linebreak": ["error", "after"],

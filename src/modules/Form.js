@@ -52,7 +52,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 	this.pArea = [
 		$bBegin(DelForm.first.el, html),
-		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
+	];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 	this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 	this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);

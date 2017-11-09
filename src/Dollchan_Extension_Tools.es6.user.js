@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'f7c62bf';
+const commit = '17136ff';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1780,12 +1780,6 @@ function sleep(ms) {
 // will propagate to the farthest pending promises and reject them with the cancel reason CancelError.
 function CancelError() {}
 class CancelablePromise {
-	static reject(val) {
-		return new CancelablePromise((res, rej) => rej(val));
-	}
-	static resolve(val) {
-		return new CancelablePromise(res => res(val));
-	}
 	constructor(resolver, cancelFn) {
 		this._promise = new Promise((resolve, reject) => {
 			this._reject = reject;
@@ -1799,6 +1793,21 @@ class CancelablePromise {
 		});
 		this._cancelFn = cancelFn;
 		this._isResolved = false;
+	}
+	static reject(val) {
+		return new CancelablePromise((res, rej) => rej(val));
+	}
+	static resolve(val) {
+		return new CancelablePromise(res => res(val));
+	}
+	cancel() {
+		this._reject(new CancelError());
+		if(!this._isResolved && this._cancelFn) {
+			this._cancelFn();
+		}
+	}
+	catch(eb) {
+		return this.then(void 0, eb);
 	}
 	then(cb, eb) {
 		const children = [];
@@ -1817,15 +1826,6 @@ class CancelablePromise {
 				}
 				this.cancel();
 			});
-	}
-	catch(eb) {
-		return this.then(void 0, eb);
-	}
-	cancel() {
-		this._reject(new CancelError());
-		if(!this._isResolved && this._cancelFn) {
-			this._cancelFn();
-		}
 	}
 }
 
@@ -1956,7 +1956,7 @@ class TasksPool {
 			if(e instanceof TasksPool.PauseError) {
 				this.pause();
 				if(e.duration !== -1) {
-					setTimeout(() => this['continue'](), e.duration);
+					setTimeout(() => this.continue(), e.duration);
 				}
 			} else {
 				this._end();
@@ -2440,7 +2440,7 @@ function readPostsData(firstPost, fav) {
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;
-				f['new'] = 0;
+				f.new = 0;
 				f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
@@ -2453,7 +2453,7 @@ function readPostsData(firstPost, fav) {
 				}
 				f.last = aib.anchor + thr.last.num;
 			} else {
-				f['new'] = thr.pcount - f.cnt;
+				f.new = thr.pcount - f.cnt;
 			}
 			updateFav = true;
 		}
@@ -3552,7 +3552,7 @@ function showFavoritesWindow(body, data) {
 					t.err === 'Closed' || t.err === 'Archived' ?
 						'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
-				const favInfNewDisp = t['new'] ? '' : ' style="display: none;"';
+				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
 					b }" de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
@@ -3569,7 +3569,7 @@ function showFavoritesWindow(body, data) {
 						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
 							${ t.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
-							${ t['new'] || 0 }</span>
+							${ t.new || 0 }</span>
 						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
@@ -3726,7 +3726,7 @@ function showFavoritesWindow(body, data) {
 				$hide(youEl);
 			} else {
 				$show(countEl);
-				f['new'] = cnt;
+				f.new = cnt;
 				isUpdate = true;
 				// Check for replies to my posts
 				if(myposts && myposts[b]) {
@@ -3964,7 +3964,8 @@ const cfgWindow = Object.create({
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPostThr[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')']) + '</div></div>');
+					Lng.myPosts[lang] + ' (' + aib.dm + ')'
+				]) + '</div></div>');
 
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
@@ -4034,7 +4035,8 @@ const cfgWindow = Object.create({
 						let cfgData = await Promise.all([
 							getStored('DESU_Config'),
 							getStored('DESU_keys'),
-							getStored('DESU_Exclude')]);
+							getStored('DESU_Exclude')
+						]);
 						val.push('"settings":' + cfgData[0],
 							'"hotkeys":' + (cfgData[1] || '""'),
 							`"exclude":"${ cfgData[2] || '' }"`);
@@ -4749,27 +4751,33 @@ const cfgWindow = Object.create({
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
+			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
+		]);
 		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		this._toggleBox(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
 			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
-			'input[info="minWebmWidth"]']);
+			'input[info="minWebmWidth"]'
+		]);
 		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		this._toggleBox(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
-			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
+		]);
 		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
 		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-			'select[info="YTubeType"]', 'input[info="addVimeo"]']);
+			'select[info="YTubeType"]', 'input[info="addVimeo"]'
+		]);
 		this._toggleBox(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
-			'input[info="ytApiKey"]']);
+			'input[info="ytApiKey"]'
+		]);
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
-			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
+			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
+		]);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
@@ -5563,14 +5571,13 @@ class KeyEditListener {
 /* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
-	/* Escape */,,,,,'Space',/* Page Up */,/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,
-	/* Insert */,/* Delete */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F',
-	'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,
-	/* Right WIN Key */,/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5',
-	'Numpad 6','Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
-	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,/* F11 */,
-	/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,,,,,'-',,,,,,,,,,,,,
-	';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
+	/* Esc */,,,,,'Space',/* PgUp */,/* PgDn */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,
+	/* Del */,,'0','1','2','3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F','G','H','I','J',
+	'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN */,/* Right WIN */,
+	/* Select */,,,'Num 0','Num 1','Num 2','Num 3','Num 4','Num 5','Num 6','Num 7','Num 8','Num 9','Num *',
+	'Num +',,'Num -','Num .','Num /',/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,
+	/* F9 */,/* F10 */,/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,
+	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
 ];
 /* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
 
@@ -6191,7 +6198,8 @@ class Videos {
 			(hours ? hours + 'h' : '') +
 			(minutes ? minutes + 'm' : '') +
 			(seconds ? seconds + 's' : ''),
-			hours, minutes, seconds];
+			hours, minutes, seconds
+		];
 	}
 	static _getYTInfoAPI(info, num, id) {
 		return $ajax(
@@ -6248,6 +6256,7 @@ class Videos {
 			}
 		}
 		videoObj.loadedLinksCount++;
+		// Wait for 3 sec every 30 links
 		if(num % 30 === 0) {
 			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
@@ -6290,15 +6299,15 @@ Videos._global = {
 	}
 };
 
-function VideosParser() {
-	this._loader = Videos._getTitlesLoader();
-}
-VideosParser.prototype = {
+class VideosParser {
+	constructor() {
+		this._loader = Videos._getTitlesLoader();
+	}
 	end() {
 		if(this._loader) {
 			this._loader.complete();
 		}
-	},
+	}
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
 		const loader = this._loader;
@@ -6335,7 +6344,7 @@ VideosParser.prototype = {
 		}
 		return this;
 	}
-};
+}
 
 // Embed .mp3 and Vocaroo links
 function embedMediaLinks(data) {
@@ -6512,12 +6521,16 @@ class AjaxError {
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, { toString() {
-	return Lng.thrClosed[lang];
-} });
-AjaxError.Timeout = new AjaxError(0, { toString() {
-	return Lng.noConnect[lang] + ' (timeout)';
-} });
+AjaxError.Locked = new AjaxError(-1, {
+	toString() {
+		return Lng.thrClosed[lang];
+	}
+});
+AjaxError.Timeout = new AjaxError(0, {
+	toString() {
+		return Lng.noConnect[lang] + ' (timeout)';
+	}
+});
 
 class AjaxCache extends null {
 	static clear() {
@@ -6568,7 +6581,8 @@ class AjaxCache extends null {
 		let hasUrl = AjaxCache._data.has(url);
 		AjaxCache._data.set(url, {
 			hasCacheControl,
-			params: headers ? { headers, useTimeout: true } : { useTimeout: true } });
+			params: headers ? { headers, useTimeout: true } : { useTimeout: true }
+		});
 		return hasUrl || hasCacheControl;
 	}
 }
@@ -6756,35 +6770,16 @@ toggleInfinityScroll.onwheel = e => {
                                                     SPELLS
 =========================================================================================================== */
 
-var Spells = Object.create({
-	hash  : null,
-	names : [
-		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
-		'all', 'video', 'wipe', 'num', 'vauthor'
-	],
-	needArg: [
-		/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
-		/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
-		/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
-		/* num */ true, /* vauthor */ true
-	],
-	get hiders() {
+class Spells extends null {
+	static get hiders() {
 		this._init();
 		return this.hiders;
-	},
-	get reps() {
-		this._init();
-		return this.reps;
-	},
-	get outreps() {
-		this._init();
-		return this.outreps;
-	},
-	get list() {
-		let data;
+	}
+	static get list() {
 		if(Cfg.spells === null) {
 			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
+		let data;
 		try {
 			data = JSON.parse(Cfg.spells);
 		} catch(e) {
@@ -6797,24 +6792,46 @@ var Spells = Object.create({
 				str += '\n\n';
 			}
 			if(reps) {
-				for(var rep of reps) {
+				for(let rep of reps) {
 					str += this._decompileRep(rep, false) + '\n';
 				}
 			}
 			if(oreps) {
-				for(var orep of oreps) {
+				for(let orep of oreps) {
 					str += this._decompileRep(orep, true) + '\n';
 				}
 			}
 			str = str.substr(0, str.length - 1);
 		}
 		return str;
-	},
-	add(type, arg, isNeg) {
-		var fld = $id('de-spell-txt'),
-			val = fld && fld.value,
-			chk = $q('input[info="hideBySpell"]'),
-			spells = val && this.parseText(val);
+	}
+	static get names() {
+		return [
+			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
+			'all', 'video', 'wipe', 'num', 'vauthor'
+		];
+	}
+	static get needArg() {
+		return [
+			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
+			/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
+			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
+			/* num */ true, /* vauthor */ true
+		];
+	}
+	static get outreps() {
+		this._init();
+		return this.outreps;
+	}
+	static get reps() {
+		this._init();
+		return this.reps;
+	}
+	static add(type, arg, isNeg) {
+		const fld = $id('de-spell-txt');
+		const val = fld && fld.value;
+		const chk = $q('input[info="hideBySpell"]');
+		let spells = val && this.parseText(val);
 		if(!val || spells) {
 			if(!spells) {
 				try {
@@ -6822,13 +6839,13 @@ var Spells = Object.create({
 				} catch(e) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
-			var idx, scope = aib.t ? [aib.b, aib.t] : null,
-				sScope = String(scope),
-				sArg = String(arg);
-			var isAdded = true;
+			let idx, isAdded = true;
+			const scope = aib.t ? [aib.b, aib.t] : null;
 			if(spells[1]) {
+				const sScope = String(scope);
+				const sArg = String(arg);
 				spells[1].some(scope && isNeg ? function(spell, i) {
-					var data;
+					let data;
 					if(spell[0] === 0xFF &&
 						((data = spell[1]) instanceof Array) &&
 						data.length === 2 &&
@@ -6888,9 +6905,9 @@ var Spells = Object.create({
 		if(chk) {
 			chk.checked = false;
 		}
-	},
-	decompileSpell(type, neg, val, scope, wipeMsg = null) {
-		var spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
+	}
+	static decompileSpell(type, neg, val, scope, wipeMsg = null) {
+		let spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
 			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if(!val) {
 			return spell;
@@ -6906,17 +6923,18 @@ var Spells = Object.create({
 			if(val === 0x3F && !wipeMsg) {
 				return spell;
 			}
-			var [msgBit, msgData] = wipeMsg || [],
-				names = [],
-				bits = {
-					1  : 'samelines',
-					2  : 'samewords',
-					4  : 'longwords',
-					8  : 'symbols',
-					16 : 'capslock',
-					32 : 'numbers',
-					64 : 'whitespace' };
-			for(var bit in bits) {
+			const [msgBit, msgData] = wipeMsg || [];
+			const names = [];
+			const bits = {
+				1  : 'samelines',
+				2  : 'samewords',
+				4  : 'longwords',
+				8  : 'symbols',
+				16 : 'capslock',
+				32 : 'numbers',
+				64 : 'whitespace'
+			};
+			for(let bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
 						names.push(bits[bit]);
@@ -6929,7 +6947,7 @@ var Spells = Object.create({
 			return spell + '(' + names.join(',') + ')';
 		// #num, #tlen
 		} else if(type === 15 || type === 11) {
-			var temp_, temp = val[1].length - 1;
+			let temp_, temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
 					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
@@ -6950,35 +6968,37 @@ var Spells = Object.create({
 		} else {
 			return spell + '(' + String(val) + ')';
 		}
-	},
-	disable() {
-		var value = null, configurable = true;
+	}
+	static disable() {
+		const value = null;
+		const configurable = true;
 		Object.defineProperties(this, {
 			hiders  : { configurable, value },
 			outreps : { configurable, value },
-			reps    : { configurable, value } });
+			reps    : { configurable, value }
+		});
 		saveCfg('hideBySpell', 0);
-	},
-	outReplace(txt) {
-		for(var orep of this.outreps) {
+	}
+	static outReplace(txt) {
+		for(let orep of this.outreps) {
 			txt = txt.replace(orep[0], orep[1]);
 		}
 		return txt;
-	},
-	parseText(text) {
-		var codeGen = new SpellsCodegen(text),
-			data = codeGen.generate();
+	}
+	static parseText(text) {
+		const codeGen = new SpellsCodegen(text);
+		const data = codeGen.generate();
 		if(codeGen.hasError) {
 			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
 		} else if(data) {
 			if(data[0] && Cfg.sortSpells) {
 				this._sort(data[0]);
 			}
-			return [Date.now(), data[0], data[1], data[2]];
+			return [Date.now(), ...data];
 		}
 		return null;
-	},
-	setSpells(spells, sync) {
+	}
+	static setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
@@ -6989,24 +7009,25 @@ var Spells = Object.create({
 		}
 		this._optimize(spells);
 		if(this.hiders) {
-			var sRunner = new SpellsRunner();
-			for(var post = Thread.first.op; post; post = post.next) {
+			const sRunner = new SpellsRunner();
+			for(let post = Thread.first.op; post; post = post.next) {
 				sRunner.run(post);
 			}
 			sRunner.end();
 		} else {
 			SpellsRunner.unhideAll();
 		}
-	},
-	replace(txt) {
-		for(var orep of this.reps) {
+	}
+	static replace(txt) {
+		for(let orep of this.reps) {
 			txt = txt.replace(orep[0], orep[1]);
 		}
 		return txt;
-	},
-	toggle() {
-		var spells, fld = $id('de-spell-txt'),
-			val = fld.value;
+	}
+	static toggle() {
+		let spells;
+		const fld = $id('de-spell-txt');
+		const val = fld.value;
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
 			this.setSpells(spells, true);
@@ -7023,19 +7044,24 @@ var Spells = Object.create({
 			}
 			$q('input[info="hideBySpell"]').checked = false;
 		}
-	},
+	}
 
-	_decompileScope(scope, indent) {
-		var dScope = [],
-			hScope = false;
-		for(var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
-			var spell = scope[i],
-				type = spell[0] & 0xFF;
+	static _decompileRep(rep, isOrep) {
+		return (isOrep ? '#outrep' : '#rep') +
+			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
+			'(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
+	}
+	static _decompileScope(scope, indent) {
+		const dScope = [];
+		let hScope = false;
+		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+			const spell = scope[i];
+			const type = spell[0] & 0xFF;
 			if(type === 0xFF) {
 				hScope = true;
-				var temp = this._decompileScope(spell[1], indent + '    ');
+				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					var str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
+					const str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
 						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
 					if(j === 0) {
 						dScope[0] = str;
@@ -7053,22 +7079,19 @@ var Spells = Object.create({
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
-	},
-	_decompileRep(rep, isOrep) {
-		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
-	},
-	_init() {
+	}
+	static _init() {
 		if(!Cfg.hideBySpell) {
-			var value = null, configurable = true;
+			const value = null;
+			const configurable = true;
 			Object.defineProperties(this, {
 				hiders  : { configurable, value },
 				outreps : { configurable, value },
-				reps    : { configurable, value } });
+				reps    : { configurable, value }
+			});
 			return;
 		}
-		var spells, data;
+		let spells, data;
 		try {
 			spells = JSON.parse(Cfg.spells);
 			data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
@@ -7083,11 +7106,11 @@ var Spells = Object.create({
 		} else {
 			this.disable();
 		}
-	},
-	_initHiders(data) {
+	}
+	static _initHiders(data) {
 		if(data) {
-			for(var item of data) {
-				var val = item[1];
+			for(let item of data) {
+				const val = item[1];
 				if(val) {
 					switch(item[0] & 0xFF) {
 					case 1:
@@ -7101,42 +7124,45 @@ var Spells = Object.create({
 			}
 		}
 		return data;
-	},
-	_initReps(data) {
+	}
+	static _initReps(data) {
 		if(data) {
-			for(var item of data) {
+			for(let item of data) {
 				item[0] = toRegExp(item[0], false);
 			}
 		}
 		return data;
-	},
-	_optimize(data) {
-		var hiders = data[1] ? this._optimizeSpells(data[1]) : null,
-			reps = data[2] ? this._optimizeReps(data[2]) : null,
-			outreps = data[3] ? this._optimizeReps(data[3]) : null;
-		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], hiders, reps, outreps]);
+	}
+	static _optimize(data) {
+		const arr = [
+			data[1] ? this._optimizeSpells(data[1]) : null,
+			data[2] ? this._optimizeReps(data[2]) : null,
+			data[3] ? this._optimizeReps(data[3]) : null
+		];
+		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], ...arr]);
 		this.hash = data[0];
-		this._setData(hiders, reps, outreps);
-	},
-	_optimizeReps(data) {
-		var rv = [];
-		for(var rep of data) {
+		this._setData(...arr);
+	}
+	static _optimizeReps(data) {
+		const rv = [];
+		for(let rep of data) {
 			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t))) {
 				rv.push([rep[2], rep[3]]);
 			}
 		}
 		return !rv.length ? null : rv;
-	},
-	_optimizeSpells(spells) {
-		var neg, lastSpell = -1,
-			newSpells = [];
-		for(var i = 0, len = spells.length; i < len; ++i) {
-			var j, spell = spells[i],
-				flags = spell[0],
-				type = flags & 0xFF;
+	}
+	static _optimizeSpells(spells) {
+		let neg, lastSpell = -1;
+		let newSpells = [];
+		for(let i = 0, len = spells.length; i < len; ++i) {
+			let j;
+			const spell = spells[i];
+			let flags = spell[0];
+			const type = flags & 0xFF;
 			neg = (flags & 0x100) !== 0;
 			if(type === 0xFF) {
-				var parensSpells = this._optimizeSpells(spell[1]);
+				const parensSpells = this._optimizeSpells(spell[1]);
 				if(parensSpells) {
 					if(parensSpells.length !== 1) {
 						newSpells.push([flags, parensSpells]);
@@ -7152,7 +7178,7 @@ var Spells = Object.create({
 					neg = !(neg ^ ((flags & 0x100) !== 0));
 				}
 			} else {
-				var scope = spell[2];
+				const scope = spell[2];
 				if(!scope || (
 					scope[0] === aib.b &&
 					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
@@ -7179,15 +7205,16 @@ var Spells = Object.create({
 			}
 		}
 		return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
-	},
-	_setData(hiders, reps, outreps) {
-		var configurable = true;
+	}
+	static _setData(hiders, reps, outreps) {
+		const configurable = true;
 		Object.defineProperties(this, {
 			hiders  : { configurable, value: this._initHiders(hiders) },
 			outreps : { configurable, value: this._initReps(outreps) },
-			reps    : { configurable, value: this._initReps(reps) } });
-	},
-	_sort(sp) {
+			reps    : { configurable, value: this._initReps(reps) }
+		});
+	}
+	static _sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
 		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
@@ -7221,48 +7248,46 @@ var Spells = Object.create({
 				len--;
 			}
 		}
-	},
-	_sync(data) {
+	}
+	static _sync(data) {
 		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
-});
-
-function SpellsCodegen(sList) {
-	this._line = 1;
-	this._col = 1;
-	this._sList = sList;
-	this.hasError = false;
 }
-SpellsCodegen.prototype = {
-	TYPE_UNKNOWN     : 0,
-	TYPE_ANDOR       : 1,
-	TYPE_NOT         : 2,
-	TYPE_SPELL       : 3,
-	TYPE_PARENTHESES : 4,
-	TYPE_REPLACER    : 5,
+Spells.hash = null;
 
+class SpellsCodegen {
+	constructor(sList) {
+		this.TYPE_UNKNOWN = 0;
+		this.TYPE_ANDOR = 1;
+		this.TYPE_NOT = 2;
+		this.TYPE_SPELL = 3;
+		this.TYPE_PARENTHESES = 4;
+		this.TYPE_REPLACER = 5;
+		this.hasError = false;
+		this._col = 1;
+		this._errMsg = '';
+		this._errMsgArg = null;
+		this._line = 1;
+		this._sList = sList;
+	}
+	get error() {
+		return !this.hasError ? '' :
+			(this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
+			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
+	}
 	generate() {
 		return this._sList ? this._generate(this._sList, false) : null;
-	},
-	get error() {
-		if(!this.hasError) {
-			return '';
-		}
-		return (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
-			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
-	},
+	}
 
-	_errMsg    : '',
-	_errMsgArg : null,
 	_generate(sList, inParens) {
-		var spells = [],
-			reps = [],
-			outreps = [],
-			lastType = this.TYPE_UNKNOWN,
-			hasReps = false;
-		for(var i = 0, len = sList.length; i < len; i++, this._col++) {
-			var res;
+		const spells = [];
+		let reps = [];
+		let outreps = [];
+		let lastType = this.TYPE_UNKNOWN;
+		let hasReps = false;
+		for(let i = 0, len = sList.length; i < len; i++, this._col++) {
+			let res;
 			switch(sList[i]) {
 			case '\n':
 				this._line++;
@@ -7271,7 +7296,7 @@ SpellsCodegen.prototype = {
 			case '\r':
 			case ' ': continue;
 			case '#':
-				var name = '';
+				let name = '';
 				i++;
 				this._col++;
 				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
@@ -7409,23 +7434,17 @@ SpellsCodegen.prototype = {
 			outreps = false;
 		}
 		return [spells, reps, outreps];
-	},
+	}
 	_getScope(str) {
-		var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		if(m) {
-			return [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]];
-		}
-		return null;
-	},
+		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+	}
 	_getRegex(str, haveComma) {
-		var val, m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
-		if(!m) {
+		const m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
+		if(!m || haveComma !== Boolean(m[2])) {
 			return null;
 		}
-		if(haveComma !== Boolean(m[2])) {
-			return null;
-		}
-		val = m[1];
+		let val = m[1];
 		try {
 			toRegExp(val, true);
 		} catch(e) {
@@ -7433,30 +7452,23 @@ SpellsCodegen.prototype = {
 			return null;
 		}
 		return [m[0].length, val];
-	},
+	}
 	_getText(str, haveBracket) {
 		if(haveBracket && (str[0] !== '(')) {
 			return [0, ''];
 		}
-		var rv = '';
-		for(var i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
-			var ch = str[i];
+		let rv = '';
+		for(let i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+			const ch = str[i];
 			if(ch === '\\') {
 				if(i === len - 1) {
 					return null;
 				}
 				switch(str[i + 1]) {
-				case 'n': // \n
-					rv += '\n';
-					break;
-				case '\\': // \
-					rv += '\\';
-					break;
-				case ')': // )
-					rv += ')';
-					break;
-				default:
-					return null;
+				case 'n': rv += '\n'; break;
+				case '\\': rv += '\\'; break;
+				case ')': rv += ')'; break;
+				default: return null;
 				}
 				++i;
 			} else if(ch === ')') {
@@ -7466,42 +7478,42 @@ SpellsCodegen.prototype = {
 			}
 		}
 		return null;
-	},
+	}
 	_doRep(name, str) {
-		var regex, scope = this._getScope(str);
+		let scope = this._getScope(str);
 		if(scope) {
 			str = str.substring(scope[0]);
 		} else {
 			scope = [0, ['', '']];
 		}
-		regex = this._getRegex(str, true);
+		const regex = this._getRegex(str, true);
 		if(regex) {
 			str = str.substring(regex[0]);
 			if(str[0] === ')') {
 				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 			}
-			var val = this._getText(str, false);
+			const val = this._getText(str, false);
 			if(val) {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
 		}
 		this._setError(Lng.seSyntaxErr[lang], name);
 		return null;
-	},
+	}
 	_doSpell(name, str, isNeg) {
-		var m, spellType, val, temp, scope = null, i = 0,
-			spellIdx = Spells.names.indexOf(name);
+		let m, val, scope = null, i = 0;
+		const spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
-		temp = this._getScope(str);
+		let temp = this._getScope(str);
 		if(temp) {
 			i += temp[0];
 			str = str.substring(temp[0]);
 			scope = temp[1];
 		}
-		spellType = isNeg ? spellIdx | 0x100 : spellIdx;
+		let spellType = isNeg ? spellIdx | 0x100 : spellIdx;
 		if(str[0] !== '(' || str[1] === ')') {
 			if(Spells.needArg[spellIdx]) {
 				this._setError(Lng.seMissArg[lang], name);
@@ -7556,7 +7568,7 @@ SpellsCodegen.prototype = {
 			if(m) {
 				m[1].split(/, */).forEach(function(v) {
 					if(v.includes('-')) {
-						var nums = v.split('-');
+						const nums = v.split('-');
 						nums[0] = +nums[0];
 						nums[1] = +nums[1];
 						this[1].push(nums);
@@ -7587,13 +7599,13 @@ SpellsCodegen.prototype = {
 		}
 		this._setError(Lng.seSyntaxErr[lang], name);
 		return null;
-	},
+	}
 	_setError(msg, arg) {
 		this.hasError = true;
 		this._errMsg = msg;
 		this._errMsgArg = arg;
 	}
-};
+}
 
 class SpellsRunner {
 	static unhideAll() {
@@ -7674,7 +7686,8 @@ class SpellsRunner {
 					hash      : Cfg.hideBySpell ? Spells.hash : 0,
 					lastCount : lPost.count,
 					lastNum   : lPost.num,
-					data });
+					data
+				});
 			}
 			toggleWindow('hid', true);
 		}
@@ -7683,23 +7696,22 @@ class SpellsRunner {
 }
 SpellsRunner.cachedData = null;
 
-function SpellsInterpreter(post, spells) {
-	this._post = post;
-	this._ctx = [spells.length, spells, 0, false];
-	this._lastTSpells = [];
-	this._triggeredSpellsStack = [this._lastTSpells];
-	this._deep = 0;
-}
-SpellsInterpreter.prototype = {
-	hasNumSpell: false,
+class SpellsInterpreter {
+	constructor(post, spells) {
+		this.hasNumSpell = false;
+		this._ctx = [spells.length, spells, 0, false];
+		this._deep = 0;
+		this._lastTSpells = [];
+		this._post = post;
+		this._triggeredSpellsStack = [this._lastTSpells];
+		this._wipeMsg = null;
+	}
 	run() {
-		var rv, stopCheck, isNegScope = this._ctx.pop(),
-			i = this._ctx.pop(),
-			scope = this._ctx.pop(),
-			len = this._ctx.pop();
+		let rv, stopCheck;
+		let [len, scope, i, isNegScope] = this._ctx.splice(0, 4);
 		while(true) {
 			if(i < len) {
-				var type = scope[i][0] & 0xFF;
+				const type = scope[i][0] & 0xFF;
 				if(type === 0xFF) {
 					this._deep++;
 					this._ctx.push(len, scope, i, isNegScope);
@@ -7711,7 +7723,7 @@ SpellsInterpreter.prototype = {
 					this._triggeredSpellsStack.push(this._lastTSpells);
 					continue;
 				}
-				var val = this._runSpell(type, scope[i][1]);
+				const val = this._runSpell(type, scope[i][1]);
 				if(val instanceof Promise) {
 					this._ctx.push(len, scope, ++i, isNegScope);
 					return val.then(v => this._asyncContinue(v));
@@ -7724,10 +7736,7 @@ SpellsInterpreter.prototype = {
 			}
 			if(this._deep !== 0) {
 				this._deep--;
-				isNegScope = this._ctx.pop();
-				i = this._ctx.pop();
-				scope = this._ctx.pop();
-				len = this._ctx.pop();
+				[len, scope, i, isNegScope] = this._ctx.splice(0, 4);
 				if(((scope[i][0] & 0x200) === 0) ^ rv) {
 					i++;
 					this._triggeredSpellsStack.pop();
@@ -7737,99 +7746,58 @@ SpellsInterpreter.prototype = {
 			}
 			return [this.hasNumSpell, rv, rv ? this._getMsg() : null];
 		}
-	},
+	}
 
-	_wipeMsg: null,
 	_asyncContinue(val) {
-		var cl = this._ctx.length;
-		var spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
-		var [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
+		const cl = this._ctx.length;
+		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
+		const [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
 		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
-	},
+	}
 	_checkRes(spell, val, isNegScope) {
-		var flags = spell[0];
-		var isAndSpell = ((flags & 0x200) !== 0) ^ isNegScope;
-		var isNegSpell = ((flags & 0x100) !== 0) ^ isNegScope;
+		const flags = spell[0];
+		const isAndSpell = ((flags & 0x200) !== 0) ^ isNegScope;
+		const isNegSpell = ((flags & 0x100) !== 0) ^ isNegScope;
 		if(isNegSpell ^ val) {
 			this._lastTSpells.push([isNegSpell, spell, (spell[0] & 0xFF) === 14 ? this._wipeMsg : null]);
 			return [true, !isAndSpell];
 		}
 		this._lastTSpells.length = 0;
 		return [false, isAndSpell];
-	},
+	}
 	_getMsg() {
-		var rv = [];
-		for(var spellEls of this._triggeredSpellsStack) {
-			for(var [isNeg, spell, wipeMsg] of spellEls) {
+		const rv = [];
+		for(let spellEls of this._triggeredSpellsStack) {
+			for(let [isNeg, spell, wipeMsg] of spellEls) {
 				rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 			}
 		}
 		return rv.join(' & ');
-	},
+	}
 	_runSpell(spellId, val) {
-		switch(spellId) {
-		case 0: return this._words(val);
-		case 1: return this._exp(val);
-		case 2: return this._exph(val);
-		case 3: return this._imgn(val);
-		case 4: return this._ihash(val);
-		case 5: return this._subj(val);
-		case 6: return this._name(val);
-		case 7: return this._trip(val);
-		case 8: return this._img(val);
-		case 9: return this._sage(val);
-		case 10: return this._op(val);
-		case 11: return this._tlen(val);
-		case 12: return this._all(val);
-		case 13: return this._video(val);
-		case 14: return this._wipe(val);
-		case 15:
+		if(spellId === 15) {
 			this.hasNumSpell = true;
-			return this._num(val);
-		case 16: return this._vauthor(val);
 		}
-	},
-	_words(val) {
-		return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
-	},
+		return this['_' + Spells.names[spellId]](val);
+	}
+
+	_all() {
+		return true;
+	}
 	_exp(val) {
 		return val.test(this._post.text);
-	},
+	}
 	_exph(val) {
 		return val.test(this._post.html);
-	},
-	_imgn(val) {
-		for(var image of this._post.images) {
-			if((image instanceof Attachment) && val.test(image.name)) {
-				return true;
-			}
-		}
-		return false;
-	},
+	}
 	async _ihash(val) {
-		for(var image of this._post.images) {
-			if(!(image instanceof Attachment)) {
-				continue;
-			}
-			var hash = await ImagesHashStorage.getHash(image);
-			if(hash === val) {
+		for(let image of this._post.images) {
+			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
 				return true;
 			}
 		}
 		return false;
-	},
-	_subj(val) {
-		var pSubj = this._post.subj;
-		return pSubj ? !val || val.test(pSubj) : false;
-	},
-	_name(val) {
-		var pName = this._post.posterName;
-		return pName ? !val || pName.includes(val) : false;
-	},
-	_trip(val) {
-		var pTrip = this._post.posterTrip;
-		return pTrip ? !val || pTrip.includes(val) : false;
-	},
+	}
 	_img(val) {
 		const { images } = this._post;
 		const [compareRule, weightVals, sizeVals] = val;
@@ -7855,8 +7823,7 @@ SpellsInterpreter.prototype = {
 				}
 			}
 			if(sizeVals) {
-				const w = image.width;
-				const h = image.height;
+				const { height: h, width: w } = image;
 				switch(compareRule) {
 				case 0:
 					if(w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
@@ -7876,23 +7843,88 @@ SpellsInterpreter.prototype = {
 			}
 		}
 		return false;
-	},
-	_sage() {
-		return this._post.sage;
-	},
+	}
+	_imgn(val) {
+		for(let image of this._post.images) {
+			if((image instanceof Attachment) && val.test(image.name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	_name(val) {
+		const pName = this._post.posterName;
+		return pName ? !val || pName.includes(val) : false;
+	}
+	_num(val) {
+		return this._tlenNum_helper(val, this._post.count + 1);
+	}
 	_op() {
 		return this._post.isOp;
-	},
+	}
+	_sage() {
+		return this._post.sage;
+	}
+	_subj(val) {
+		const pSubj = this._post.subj;
+		return pSubj ? !val || val.test(pSubj) : false;
+	}
 	_tlen(val) {
-		var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
+		const text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 		return !val ? !!text : this._tlenNum_helper(val, text.length);
-	},
-	_all() {
-		return true;
-	},
+	}
+	_tlenNum_helper(val, num) {
+		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
+			if(arr[i] === num) {
+				return true;
+			}
+		}
+		for(let arr = val[1], i = arr.length - 1; i >= 0; --i) {
+			if(num >= arr[i][0] && num <= arr[i][1]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	_trip(val) {
+		const pTrip = this._post.posterTrip;
+		return pTrip ? !val || pTrip.includes(val) : false;
+	}
+	_vauthor(val) {
+		return this._videoVauthor(val, true);
+	}
 	_video(val) {
 		return this._videoVauthor(val, false);
-	},
+	}
+	_videoVauthor(val, isAuthorSpell) {
+		const { videos } = this._post;
+		if(!val) {
+			return !!videos.hasLinks;
+		}
+		if(!videos.hasLinks || !Cfg.YTubeTitles) {
+			return false;
+		}
+		for(let siteData of videos.vData) {
+			for(let data of siteData) {
+				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
+					return true;
+				}
+			}
+		}
+		if(videos.linksCount === videos.loadedLinksCount) {
+			return false;
+		}
+		return new Promise(resolve => (videos.titleLoadFn = data => {
+			if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
+				resolve(true);
+			} else if(videos.linksCount === videos.loadedLinksCount) {
+				resolve(false);
+			} else {
+				return;
+			}
+			videos.titleLoadFn = null;
+		}));
+	}
 	_wipe(val) {
 		let arr, len, x, txt = this._post.text;
 		// (1 << 0): samelines
@@ -8004,59 +8036,11 @@ SpellsInterpreter.prototype = {
 			}
 		}
 		return false;
-	},
-	_num(val) {
-		return this._tlenNum_helper(val, this._post.count + 1);
-	},
-	_tlenNum_helper(val, num) {
-		var i, arr;
-		for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
-			if(arr[i] === num) {
-				return true;
-			}
-		}
-		for(arr = val[1], i = arr.length - 1; i >= 0; --i) {
-			if(num >= arr[i][0] && num <= arr[i][1]) {
-				return true;
-			}
-		}
-		return false;
-	},
-	_vauthor(val) {
-		return this._videoVauthor(val, true);
-	},
-	_videoVauthor(val, isAuthorSpell) {
-		const { videos } = this._post;
-		if(!val) {
-			return !!videos.hasLinks;
-		}
-		if(!videos.hasLinks || !Cfg.YTubeTitles) {
-			return false;
-		}
-		for(var siteData of videos.vData) {
-			for(var data of siteData) {
-				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
-					return true;
-				}
-			}
-		}
-		if(videos.linksCount === videos.loadedLinksCount) {
-			return false;
-		}
-		return new Promise(resolve => {
-			videos.titleLoadFn = data => {
-				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
-					resolve(true);
-				} else if(videos.linksCount === videos.loadedLinksCount) {
-					resolve(false);
-				} else {
-					return;
-				}
-				videos.titleLoadFn = null;
-			};
-		});
 	}
-};
+	_words(val) {
+		return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
+	}
+}
 
 /* ==[ Form.js ]==============================================================================================
                                                    POSTFORM
@@ -8112,7 +8096,8 @@ function PostForm(form, oeForm = null, ignoreForm = false) {
 	const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 	this.pArea = [
 		$bBegin(DelForm.first.el, html),
-		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
+		$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
+	];
 	this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 	this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
 	this._pBtn[1].firstElementChild.onclick = e => this.showMainReply(true, e);
@@ -11142,9 +11127,8 @@ class Pview extends AbstractPost {
 			}
 			if(Cfg.addYouTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
-					Object.defineProperty(this, 'videos', {
-						value: new Videos(this, $q('.de-video-obj', el), post.videos.playerInfo)
-					});
+					Object.defineProperty(this, 'videos',
+						{ value: new Videos(this, $q('.de-video-obj', el), post.videos.playerInfo) });
 				}
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', el), true);
 			}
@@ -13356,7 +13340,7 @@ class Thread {
 					el.textContent = this.pcount;
 				}
 				f.cnt = this.pcount;
-				f['new'] = 0;
+				f.new = 0;
 				f.you = 0;
 				f.last = aib.anchor + this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
@@ -13431,22 +13415,26 @@ var navPanel = {
 	},
 	_findCurrentThread() {
 		if('elementsFromPoint' in doc) {
-			Object.defineProperty(this, '_findCurrentThread', { value() {
-				return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
-					.find(el => this._thrs.has(el));
-			} });
+			Object.defineProperty(this, '_findCurrentThread', {
+				value() {
+					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+						.find(el => this._thrs.has(el));
+				}
+			});
 			return this._findCurrentThread();
 		}
-		Object.defineProperty(this, '_findCurrentThread', {	value() {
-			var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-			while(el) {
-				if(this._thrs.has(el)) {
-					return el;
+		Object.defineProperty(this, '_findCurrentThread', {
+			value() {
+				var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+				while(el) {
+					if(this._thrs.has(el)) {
+						return el;
+					}
+					el = el.parentElement;
 				}
-				el = el.parentElement;
+				return undefined;
 			}
-			return undefined;
-		} });
+		});
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
@@ -14672,13 +14660,17 @@ class BaseBoard {
 			return el;
 		}
 		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getPostWrap', { value(el, isOp) {
-				return isOp ? el : $parent(el, 'TABLE');
-			} });
+			Object.defineProperty(this, 'getPostWrap', {
+				value(el, isOp) {
+					return isOp ? el : $parent(el, 'TABLE');
+				}
+			});
 		} else {
-			Object.defineProperty(this, 'getPostWrap', { value(el) {
-				return el;
-			} });
+			Object.defineProperty(this, 'getPostWrap', {
+				value(el) {
+					return el;
+				}
+			});
 		}
 		return this.getPostWrap(el, isOp);
 	}
@@ -15994,8 +15986,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			} catch(e) {
 				return false;
 			}
-			if(locSettings && locSettings['turnOffAll'] !== 1) {
-				locSettings['turnOffAll'] = 1;
+			if(locSettings && locSettings.turnOffAll !== 1) {
+				locSettings.turnOffAll = 1;
 				locStorage.setItem('settings', JSON.stringify(locSettings));
 				window.location.reload();
 				return true;

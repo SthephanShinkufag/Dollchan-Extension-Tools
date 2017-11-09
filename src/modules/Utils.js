@@ -266,12 +266,6 @@ function sleep(ms) {
 // will propagate to the farthest pending promises and reject them with the cancel reason CancelError.
 function CancelError() {}
 class CancelablePromise {
-	static reject(val) {
-		return new CancelablePromise((res, rej) => rej(val));
-	}
-	static resolve(val) {
-		return new CancelablePromise(res => res(val));
-	}
 	constructor(resolver, cancelFn) {
 		this._promise = new Promise((resolve, reject) => {
 			this._reject = reject;
@@ -285,6 +279,21 @@ class CancelablePromise {
 		});
 		this._cancelFn = cancelFn;
 		this._isResolved = false;
+	}
+	static reject(val) {
+		return new CancelablePromise((res, rej) => rej(val));
+	}
+	static resolve(val) {
+		return new CancelablePromise(res => res(val));
+	}
+	cancel() {
+		this._reject(new CancelError());
+		if(!this._isResolved && this._cancelFn) {
+			this._cancelFn();
+		}
+	}
+	catch(eb) {
+		return this.then(void 0, eb);
 	}
 	then(cb, eb) {
 		const children = [];
@@ -303,15 +312,6 @@ class CancelablePromise {
 				}
 				this.cancel();
 			});
-	}
-	catch(eb) {
-		return this.then(void 0, eb);
-	}
-	cancel() {
-		this._reject(new CancelError());
-		if(!this._isResolved && this._cancelFn) {
-			this._cancelFn();
-		}
 	}
 }
 
@@ -442,7 +442,7 @@ class TasksPool {
 			if(e instanceof TasksPool.PauseError) {
 				this.pause();
 				if(e.duration !== -1) {
-					setTimeout(() => this['continue'](), e.duration);
+					setTimeout(() => this.continue(), e.duration);
 				}
 			} else {
 				this._end();

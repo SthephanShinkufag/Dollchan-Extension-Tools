@@ -501,7 +501,7 @@ class Thread {
 					el.textContent = this.pcount;
 				}
 				f.cnt = this.pcount;
-				f['new'] = 0;
+				f.new = 0;
 				f.you = 0;
 				f.last = aib.anchor + this.last.num;
 				setStored('DESU_Favorites', JSON.stringify(fav));
@@ -576,22 +576,26 @@ var navPanel = {
 	},
 	_findCurrentThread() {
 		if('elementsFromPoint' in doc) {
-			Object.defineProperty(this, '_findCurrentThread', { value() {
-				return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
-					.find(el => this._thrs.has(el));
-			} });
+			Object.defineProperty(this, '_findCurrentThread', {
+				value() {
+					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+						.find(el => this._thrs.has(el));
+				}
+			});
 			return this._findCurrentThread();
 		}
-		Object.defineProperty(this, '_findCurrentThread', {	value() {
-			var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-			while(el) {
-				if(this._thrs.has(el)) {
-					return el;
+		Object.defineProperty(this, '_findCurrentThread', {
+			value() {
+				var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+				while(el) {
+					if(this._thrs.has(el)) {
+						return el;
+					}
+					el = el.parentElement;
 				}
-				el = el.parentElement;
+				return undefined;
 			}
-			return undefined;
-		} });
+		});
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {

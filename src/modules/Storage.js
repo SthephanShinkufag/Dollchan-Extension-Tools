@@ -210,7 +210,7 @@ function readPostsData(firstPost, fav) {
 			post.setFavBtn(true);
 			if(aib.t) {
 				f.cnt = thr.pcount;
-				f['new'] = 0;
+				f.new = 0;
 				f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
@@ -223,7 +223,7 @@ function readPostsData(firstPost, fav) {
 				}
 				f.last = aib.anchor + thr.last.num;
 			} else {
-				f['new'] = thr.pcount - f.cnt;
+				f.new = thr.pcount - f.cnt;
 			}
 			updateFav = true;
 		}

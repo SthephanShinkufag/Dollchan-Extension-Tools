@@ -362,9 +362,8 @@ class Pview extends AbstractPost {
 			}
 			if(Cfg.addYouTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
-					Object.defineProperty(this, 'videos', {
-						value: new Videos(this, $q('.de-video-obj', el), post.videos.playerInfo)
-					});
+					Object.defineProperty(this, 'videos',
+						{ value: new Videos(this, $q('.de-video-obj', el), post.videos.playerInfo) });
 				}
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', el), true);
 			}

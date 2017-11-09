@@ -54,7 +54,7 @@ function showFavoritesWindow(body, data) {
 					t.err === 'Closed' || t.err === 'Archived' ?
 						'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
-				const favInfNewDisp = t['new'] ? '' : ' style="display: none;"';
+				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
 					b }" de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
@@ -71,7 +71,7 @@ function showFavoritesWindow(body, data) {
 						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
 							${ t.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
-							${ t['new'] || 0 }</span>
+							${ t.new || 0 }</span>
 						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
@@ -228,7 +228,7 @@ function showFavoritesWindow(body, data) {
 				$hide(youEl);
 			} else {
 				$show(countEl);
-				f['new'] = cnt;
+				f.new = cnt;
 				isUpdate = true;
 				// Check for replies to my posts
 				if(myposts && myposts[b]) {

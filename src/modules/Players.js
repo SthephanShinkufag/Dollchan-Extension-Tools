@@ -175,7 +175,8 @@ class Videos {
 			(hours ? hours + 'h' : '') +
 			(minutes ? minutes + 'm' : '') +
 			(seconds ? seconds + 's' : ''),
-			hours, minutes, seconds];
+			hours, minutes, seconds
+		];
 	}
 	static _getYTInfoAPI(info, num, id) {
 		return $ajax(
@@ -232,6 +233,7 @@ class Videos {
 			}
 		}
 		videoObj.loadedLinksCount++;
+		// Wait for 3 sec every 30 links
 		if(num % 30 === 0) {
 			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
@@ -274,15 +276,15 @@ Videos._global = {
 	}
 };
 
-function VideosParser() {
-	this._loader = Videos._getTitlesLoader();
-}
-VideosParser.prototype = {
+class VideosParser {
+	constructor() {
+		this._loader = Videos._getTitlesLoader();
+	}
 	end() {
 		if(this._loader) {
 			this._loader.complete();
 		}
-	},
+	}
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
 		const loader = this._loader;
@@ -319,7 +321,7 @@ VideosParser.prototype = {
 		}
 		return this;
 	}
-};
+}
 
 // Embed .mp3 and Vocaroo links
 function embedMediaLinks(data) {
