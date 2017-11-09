@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '17136ff';
+	var commit = 'e047d69';
 
 
 	var defaultCfg = {
@@ -8769,7 +8769,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    id = _info5[3];
 
 					if (isYtube) {
-						return Videos[Cfg.ytApiKey ? '_getYTInfoAPI' : '_getYTInfoOembed'](info, num, id);
+						if (Cfg.ytApiKey) {
+							return Videos._getYTInfoAPI(info, num, id);
+						} else {
+							return Videos._getYTInfoOembed(info, num, id);
+						}
 					}
 					return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
 						var entry = JSON.parse(xhr.responseText)[0];
@@ -10605,14 +10609,10 @@ true, true];
 
 				var rv = void 0,
 				    stopCheck = void 0;
-
-				var _ctx$splice = this._ctx.splice(0, 4),
-				    _ctx$splice2 = _slicedToArray(_ctx$splice, 4),
-				    len = _ctx$splice2[0],
-				    scope = _ctx$splice2[1],
-				    i = _ctx$splice2[2],
-				    isNegScope = _ctx$splice2[3];
-
+				var isNegScope = this._ctx.pop();
+				var i = this._ctx.pop();
+				var scope = this._ctx.pop();
+				var len = this._ctx.pop();
 				while (true) {
 					if (i < len) {
 						var type = scope[i][0] & 0xFF;
@@ -10649,16 +10649,10 @@ true, true];
 					}
 					if (this._deep !== 0) {
 						this._deep--;
-
-						var _ctx$splice3 = this._ctx.splice(0, 4);
-
-						var _ctx$splice4 = _slicedToArray(_ctx$splice3, 4);
-
-						len = _ctx$splice4[0];
-						scope = _ctx$splice4[1];
-						i = _ctx$splice4[2];
-						isNegScope = _ctx$splice4[3];
-
+						isNegScope = this._ctx.pop();
+						i = this._ctx.pop();
+						scope = this._ctx.pop();
+						len = this._ctx.pop();
 						if ((scope[i][0] & 0x200) === 0 ^ rv) {
 							i++;
 							this._triggeredSpellsStack.pop();
@@ -10739,10 +10733,43 @@ true, true];
 		}, {
 			key: '_runSpell',
 			value: function _runSpell(spellId, val) {
-				if (spellId === 15) {
-					this.hasNumSpell = true;
+				switch (spellId) {
+					case 0:
+						return this._words(val);
+					case 1:
+						return this._exp(val);
+					case 2:
+						return this._exph(val);
+					case 3:
+						return this._imgn(val);
+					case 4:
+						return this._ihash(val);
+					case 5:
+						return this._subj(val);
+					case 6:
+						return this._name(val);
+					case 7:
+						return this._trip(val);
+					case 8:
+						return this._img(val);
+					case 9:
+						return this._sage(val);
+					case 10:
+						return this._op(val);
+					case 11:
+						return this._tlen(val);
+					case 12:
+						return this._all(val);
+					case 13:
+						return this._video(val);
+					case 14:
+						return this._wipe(val);
+					case 15:
+						this.hasNumSpell = true;
+						return this._num(val);
+					case 16:
+						return this._vauthor(val);
 				}
-				return this['_' + Spells.names[spellId]](val);
 			}
 		}, {
 			key: '_all',
@@ -14001,7 +14028,11 @@ true, true];
 					case 'hide-notext':
 						Spells.add(0x10B , '', true);return;
 					case 'hide-refs':
-						this.ref[hidden ? 'unhide' : 'hide'](true);
+						if (hidden) {
+							this.ref.unhide(true);
+						} else {
+							this.ref.hide(true);
+						}
 						this.setUserVisib(!hidden);
 						return;
 					case 'thr-exp':
@@ -14014,7 +14045,11 @@ true, true];
 			value: function _strikePostNum(isHide) {
 				var num = this.num;
 
-				Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
+				if (isHide) {
+					Post.hiddenNums.add(+num);
+				} else {
+					Post.hiddenNums['delete'](+num);
+				}
 				$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function (el) {
 					el.classList.add('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {

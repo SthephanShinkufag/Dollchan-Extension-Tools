@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '17136ff';
+const commit = 'e047d69';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6232,7 +6232,11 @@ class Videos {
 		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
-				return Videos[Cfg.ytApiKey ? '_getYTInfoAPI' : '_getYTInfoOembed'](info, num, id);
+				if(Cfg.ytApiKey) {
+					return Videos._getYTInfoAPI(info, num, id);
+				} else {
+					return Videos._getYTInfoOembed(info, num, id);
+				}
 			}
 			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
@@ -7708,7 +7712,10 @@ class SpellsInterpreter {
 	}
 	run() {
 		let rv, stopCheck;
-		let [len, scope, i, isNegScope] = this._ctx.splice(0, 4);
+		let isNegScope = this._ctx.pop();
+		let i = this._ctx.pop();
+		let scope = this._ctx.pop();
+		let len = this._ctx.pop();
 		while(true) {
 			if(i < len) {
 				const type = scope[i][0] & 0xFF;
@@ -7736,7 +7743,10 @@ class SpellsInterpreter {
 			}
 			if(this._deep !== 0) {
 				this._deep--;
-				[len, scope, i, isNegScope] = this._ctx.splice(0, 4);
+				isNegScope = this._ctx.pop();
+				i = this._ctx.pop();
+				scope = this._ctx.pop();
+				len = this._ctx.pop();
 				if(((scope[i][0] & 0x200) === 0) ^ rv) {
 					i++;
 					this._triggeredSpellsStack.pop();
@@ -7775,10 +7785,27 @@ class SpellsInterpreter {
 		return rv.join(' & ');
 	}
 	_runSpell(spellId, val) {
-		if(spellId === 15) {
+		switch(spellId) {
+		case 0: return this._words(val);
+		case 1: return this._exp(val);
+		case 2: return this._exph(val);
+		case 3: return this._imgn(val);
+		case 4: return this._ihash(val);
+		case 5: return this._subj(val);
+		case 6: return this._name(val);
+		case 7: return this._trip(val);
+		case 8: return this._img(val);
+		case 9: return this._sage(val);
+		case 10: return this._op(val);
+		case 11: return this._tlen(val);
+		case 12: return this._all(val);
+		case 13: return this._video(val);
+		case 14: return this._wipe(val);
+		case 15:
 			this.hasNumSpell = true;
+			return this._num(val);
+		case 16: return this._vauthor(val);
 		}
-		return this['_' + Spells.names[spellId]](val);
 	}
 
 	_all() {
@@ -10484,7 +10511,11 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			this.ref[hidden ? 'unhide' : 'hide'](true);
+			if(hidden) {
+				this.ref.unhide(true);
+			} else {
+				this.ref.hide(true);
+			}
 			this.setUserVisib(!hidden);
 			return;
 		case 'thr-exp':
@@ -10494,7 +10525,11 @@ class Post extends AbstractPost {
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
-		Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
+		if(isHide) {
+			Post.hiddenNums.add(+num);
+		} else {
+			Post.hiddenNums.delete(+num);
+		}
 		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {

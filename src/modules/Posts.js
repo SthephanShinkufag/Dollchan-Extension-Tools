@@ -740,7 +740,11 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			this.ref[hidden ? 'unhide' : 'hide'](true);
+			if(hidden) {
+				this.ref.unhide(true);
+			} else {
+				this.ref.hide(true);
+			}
 			this.setUserVisib(!hidden);
 			return;
 		case 'thr-exp':
@@ -750,7 +754,11 @@ class Post extends AbstractPost {
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
-		Post.hiddenNums[isHide ? 'add' : 'delete'](+num);
+		if(isHide) {
+			Post.hiddenNums.add(+num);
+		} else {
+			Post.hiddenNums.delete(+num);
+		}
 		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {

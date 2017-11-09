@@ -209,7 +209,11 @@ class Videos {
 		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
-				return Videos[Cfg.ytApiKey ? '_getYTInfoAPI' : '_getYTInfoOembed'](info, num, id);
+				if(Cfg.ytApiKey) {
+					return Videos._getYTInfoAPI(info, num, id);
+				} else {
+					return Videos._getYTInfoOembed(info, num, id);
+				}
 			}
 			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
