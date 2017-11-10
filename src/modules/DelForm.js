@@ -7,7 +7,7 @@ class DelForm {
 		return {
 			_data: this.first,
 			next() {
-				var value = this._data;
+				const value = this._data;
 				if(value) {
 					this._data = value.next;
 					return { value, done: false };
@@ -105,7 +105,7 @@ class DelForm {
 		this.lastThr = thr;
 	}
 	get passEl() {
-		var value = $q(aib.qDelPassw, this.el);
+		const value = $q(aib.qDelPassw, this.el);
 		Object.defineProperty(this, 'passEl', { value });
 		return value;
 	}

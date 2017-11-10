@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '4287031';
+const commit = '3e8ce96';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1838,9 +1838,9 @@ class Maybe {
 	get value() {
 		const Ctor = this._ctor;
 		this.hasValue = !!Ctor;
-		const val = Ctor ? new Ctor(/* ...this._args */) : null;
-		Object.defineProperty(this, 'value', { value: val });
-		return val;
+		const value = Ctor ? new Ctor(/* ...this._args */) : null;
+		Object.defineProperty(this, 'value', { value });
+		return value;
 	}
 	end() {
 		if(this.hasValue) {
@@ -2078,6 +2078,111 @@ class TarBuilder {
 		data[offset] = 0x20; // ' '
 	}
 }
+
+class WebmParser {
+	constructor(data) {
+		let offset = 0;
+		const dv = nav.getUnsafeDataView(data);
+		const len = dv.byteLength;
+		const el = new WebmParser.Element(dv, len, 0);
+		const voids = [];
+		const EBMLId = 0x1A45DFA3;
+		const segmentId = 0x18538067;
+		const voidId = 0xEC;
+		this.voidId = voidId;
+		error: do {
+			if(el.error || el.id !== EBMLId) {
+				break;
+			}
+			this.EBML = el;
+			offset += el.headSize + el.size;
+			while(true) {
+				const el = new WebmParser.Element(dv, len, offset);
+				if(el.error) {
+					break error;
+				}
+				if(el.id === segmentId) {
+					this.segment = el;
+					break; // Ignore everything after first segment
+				} else if(el.id === voidId) {
+					voids.push(el);
+				} else {
+					break error;
+				}
+				offset += el.headSize + el.size;
+			}
+			this.voids = voids;
+			this.data = data;
+			this.length = len;
+			this.rv = [null];
+			this.error = false;
+			return;
+		} while(false);
+		this.error = true;
+	}
+	addData(data) {
+		if(this.error || !data) {
+			return this;
+		}
+		const size = (typeof data === 'string') ? data.length : data.byteLength;
+		if(size > 127) {
+			this.error = true;
+			return;
+		}
+		this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
+		return this;
+	}
+	getData() {
+		if(this.error) {
+			return null;
+		}
+		this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+		return this.rv;
+	}
+}
+WebmParser.Element = function(elData, dataLength, offset) {
+	this.error = false;
+	this.id = 0;
+	if(offset + 4 >= dataLength) {
+		return;
+	}
+	let num = elData.getUint32(offset);
+	let leadZeroes = Math.clz32(num);
+	if(leadZeroes > 3) {
+		this.error = true;
+		return;
+	}
+	offset += leadZeroes + 1;
+	if(offset >= dataLength) {
+		this.error = true;
+		return;
+	}
+	this.id = num >>> (8 * (3 - leadZeroes));
+	this.headSize = leadZeroes + 1;
+	num = elData.getUint32(offset);
+	leadZeroes = Math.clz32(num);
+	let size = num & (0xFFFFFFFF >>> (leadZeroes + 1));
+	if(leadZeroes > 3) {
+		const shift = 8 * (7 - leadZeroes);
+		if(size >>> shift !== 0 || offset + 4 > dataLength) {
+			this.error = true;
+			return; // We cannot handle webm-files with size greater than 4Gb :(
+		}
+		size = (size << (32 - shift)) | (elData.getUint32(offset + 4) >>> shift);
+	} else {
+		size >>>= 8 * (3 - leadZeroes);
+	}
+	this.headSize += leadZeroes + 1;
+	offset += leadZeroes + 1;
+	if(offset + size > dataLength) {
+		this.error = true;
+		return;
+	}
+	this.data = elData;
+	this.offset = offset;
+	this.endOffset = offset + size;
+	this.size = size;
+};
 
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {
@@ -2775,17 +2880,17 @@ var panel = Object.create({
 	_menu   : null,
 	_menuTO : 0,
 	get _pcountEl() {
-		var value = $id('de-panel-info-pcount');
+		const value = $id('de-panel-info-pcount');
 		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
 		return value;
 	},
 	get _icountEl() {
-		var value = $id('de-panel-info-icount');
+		const value = $id('de-panel-info-icount');
 		Object.defineProperty(this, '_icountEl', { value, configurable: true });
 		return value;
 	},
 	get _acountEl() {
-		var value = $id('de-panel-info-acount');
+		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
 	},
@@ -5427,9 +5532,9 @@ class KeyEditListener {
 		el.title = title;
 	}
 	get saveButton() {
-		const val = $id('de-keys-save');
-		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
-		return val;
+		const value = $id('de-keys-save');
+		Object.defineProperty(this, 'saveButton', { value, configurable: true });
+		return value;
 	}
 	handleEvent(e) {
 		let key, el = e.target;
@@ -6079,10 +6184,10 @@ class Videos {
 	}
 	get player() {
 		const { post } = this;
-		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
+		const value = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
 			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
-		Object.defineProperty(this, 'player', { value: val });
-		return val;
+		Object.defineProperty(this, 'player', { value });
+		return value;
 	}
 	addLink(m, loader, link, isYtube) {
 		this.hasLinks = true;
@@ -6291,15 +6396,15 @@ Videos.vimReg =
 	/^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos._global = {
 	get vData() {
-		let val;
+		let value;
 		try {
 			sesStorage.removeItem('de-videos-data1');
-			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
+			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 		} catch(e) {
-			val = [{}, {}];
+			value = [{}, {}];
 		}
-		Object.defineProperty(this, 'vData', { value: val });
-		return val;
+		Object.defineProperty(this, 'vData', { value });
+		return value;
 	}
 };
 
@@ -9030,118 +9135,6 @@ function readExif(data, off, len) {
 	return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 }
 
-var WebmParser = function(data) {
-	var EBMLId = 0x1A45DFA3,
-		segmentId = 0x18538067,
-		voidId = 0xEC;
-	function WebmElement(elData, dataLength, offset) {
-		if(offset + 4 >= dataLength) {
-			return;
-		}
-		var num = elData.getUint32(offset),
-			leadZeroes = Math.clz32(num);
-		if(leadZeroes > 3) {
-			this.error = true;
-			return;
-		}
-		offset += leadZeroes + 1;
-		if(offset >= dataLength) {
-			this.error = true;
-			return;
-		}
-		this.id = num >>> (8 * (3 - leadZeroes));
-		this.headSize = leadZeroes + 1;
-		num = elData.getUint32(offset);
-		leadZeroes = Math.clz32(num);
-		var size = num & (0xFFFFFFFF >>> (leadZeroes + 1));
-		if(leadZeroes > 3) {
-			var shift = 8 * (7 - leadZeroes);
-			if(size >>> shift !== 0 || offset + 4 > dataLength) {
-				this.error = true;
-				return; // We cannot handle webm-files with size greater than 4Gb :(
-			}
-			size = (size << (32 - shift)) | (elData.getUint32(offset + 4) >>> shift);
-		} else {
-			size >>>= 8 * (3 - leadZeroes);
-		}
-		this.headSize += leadZeroes + 1;
-		offset += leadZeroes + 1;
-		if(offset + size > dataLength) {
-			this.error = true;
-			return;
-		}
-		this.data = elData;
-		this.offset = offset;
-		this.endOffset = offset + size;
-		this.size = size;
-	}
-	WebmElement.prototype = {
-		error : false,
-		id    : 0
-	};
-
-	function Parser(data) {
-		var dv = nav.getUnsafeDataView(data),
-			len = dv.byteLength,
-			el = new WebmElement(dv, len, 0),
-			offset = 0,
-			voids = [];
-		error: do {
-			if(el.error || el.id !== EBMLId) {
-				break;
-			}
-			this.EBML = el;
-			offset += el.headSize + el.size;
-			while(true) {
-				el = new WebmElement(dv, len, offset);
-				if(el.error) {
-					break error;
-				}
-				if(el.id === segmentId) {
-					this.segment = el;
-					break; // Ignore everything after first segment
-				} else if(el.id === voidId) {
-					voids.push(el);
-				} else {
-					break error;
-				}
-				offset += el.headSize + el.size;
-			}
-			this.voids = voids;
-			this.data = data;
-			this.length = len;
-			this.rv = [null];
-			this.error = false;
-			return;
-		} while(false);
-		this.error = true;
-	}
-	Parser.prototype = {
-		addData(data) {
-			if(this.error || !data) {
-				return this;
-			}
-			var size = (typeof data === 'string') ? data.length : data.byteLength;
-			if(size > 127) {
-				this.error = true;
-				return;
-			}
-			this.rv.push(new Uint8Array([voidId, 0x80 | size]), data);
-			return this;
-		},
-		getData() {
-			if(this.error) {
-				return null;
-			}
-			this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
-			return this.rv;
-		}
-	};
-
-	WebmParser = Parser;
-	return new Parser(data);
-};
-
 /* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
                  image/webm files in postform: preview, adding by url, drag-n-drop, deleting
@@ -9813,35 +9806,36 @@ class AbstractPost {
 		this.thr = thr;
 	}
 	get hideBtn() {
-		var value = this.btns.firstChild;
+		const value = this.btns.firstChild;
 		Object.defineProperty(this, 'hideBtn', { value });
 		return value;
 	}
 	get images() {
-		var value = new PostImages(this);
+		const value = new PostImages(this);
 		Object.defineProperty(this, 'images', { value });
 		return value;
 	}
 	get mp3Obj() {
-		var value = $bBegin(this.msg, '<div class="de-mp3"></div>');
+		const value = $bBegin(this.msg, '<div class="de-mp3"></div>');
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
 	get msg() {
-		var val = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { configurable: true, value: val });
-		return val;
+		const value = $q(aib.qPostMsg, this.el);
+		Object.defineProperty(this, 'msg', { value, configurable: true });
+		return value;
 	}
 	get trunc() {
-		var el = aib.qTrunc && $q(aib.qTrunc, this.el), value = null;
+		let value = null;
+		const el = aib.qTrunc && $q(aib.qTrunc, this.el);
 		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 			value = el;
 		}
-		Object.defineProperty(this, 'trunc', { configurable: true, value });
+		Object.defineProperty(this, 'trunc', { value, configurable: true });
 		return value;
 	}
 	get videos() {
-		var value = Cfg.addYouTube ? new Videos(this) : null;
+		const value = Cfg.addYouTube ? new Videos(this) : null;
 		Object.defineProperty(this, 'videos', { value });
 		return value;
 	}
@@ -10213,8 +10207,8 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
-		var value = aib.getBanId(this.el);
-		Object.defineProperty(this, 'banned', { writable: true, value });
+		const value = aib.getBanId(this.el);
+		Object.defineProperty(this, 'banned', { value, writable: true });
 		return value;
 	}
 	get bottom() {
@@ -10228,18 +10222,18 @@ class Post extends AbstractPost {
 		return new Post.Сontent(this).html;
 	}
 	get nextInThread() {
-		var post = this.next;
+		const post = this.next;
 		return !post || post.count === 0 ? null : post;
 	}
 	get nextNotDeleted() {
-		var post = this.nextInThread;
+		let post = this.nextInThread;
 		while(post && post.deleted) {
 			post = post.nextInThread;
 		}
 		return post;
 	}
 	get note() {
-		var value = new Post.Note(this);
+		const value = new Post.Note(this);
 		Object.defineProperty(this, 'note', { value });
 		return value;
 	}
@@ -10584,33 +10578,35 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		this.post = post;
 	}
 	get headerEl() {
-		var value = $q(aib.qPostHeader, this.el);
+		const value = $q(aib.qPostHeader, this.el);
 		Object.defineProperty(this, 'headerEl', { value });
 		return value;
 	}
 	get html() {
-		var val = this.el.outerHTML;
-		Object.defineProperty(this, 'html', { value: val });
-		return val;
+		const value = this.el.outerHTML;
+		Object.defineProperty(this, 'html', { value });
+		return value;
 	}
 	get posterName() {
-		var pName = $q(aib.qPostName, this.el),
-			val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
-		Object.defineProperty(this, 'posterName', { value: val });
-		return val;
+		const pName = $q(aib.qPostName, this.el);
+		const value = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+		Object.defineProperty(this, 'posterName', { value });
+		return value;
 	}
 	get posterTrip() {
-		var pTrip = $q(aib.qPostTrip, this.el), val = pTrip ? pTrip.textContent : '';
-		Object.defineProperty(this, 'posterTrip', { value: val });
-		return val;
+		const pTrip = $q(aib.qPostTrip, this.el);
+		const value = pTrip ? pTrip.textContent : '';
+		Object.defineProperty(this, 'posterTrip', { value });
+		return value;
 	}
 	get subj() {
-		var subj = $q(aib.qPostSubj, this.el), val = subj ? subj.textContent : '';
-		Object.defineProperty(this, 'subj', { value: val });
-		return val;
+		const subj = $q(aib.qPostSubj, this.el);
+		const value = subj ? subj.textContent : '';
+		Object.defineProperty(this, 'subj', { value });
+		return value;
 	}
 	get text() {
-		var value = this.post.msg.innerHTML
+		const value = this.post.msg.innerHTML
 			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
 			.replace(/<[^>]+?>/g, '')
 			.replace(/&gt;/g, '>')
@@ -10620,14 +10616,14 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		return value;
 	}
 	get title() {
-		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
-		Object.defineProperty(this, 'title', { value: val });
-		return val;
+		const value = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+		Object.defineProperty(this, 'title', { value });
+		return value;
 	}
 	get wrap() {
-		var val = aib.getPostWrap(this.el, this.post.isOp);
-		Object.defineProperty(this, 'wrap', { value: val });
-		return val;
+		const value = aib.getPostWrap(this.el, this.post.isOp);
+		Object.defineProperty(this, 'wrap', { value });
+		return value;
 	}
 };
 Post.hasNew = false;
@@ -10727,33 +10723,33 @@ Post.findSameText = function(oNum, oHid, oWords, post) {
 };
 Post.sizing = {
 	get dPxRatio() {
-		var val = window.devicePixelRatio || 1;
-		Object.defineProperty(this, 'dPxRatio', { value: val });
-		return val;
+		const value = window.devicePixelRatio || 1;
+		Object.defineProperty(this, 'dPxRatio', { value });
+		return value;
 	},
 	get wHeight() {
-		var val = nav.viewportHeight();
+		const value = nav.viewportHeight();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value: val },
+			wHeight : { writable: true, configurable: true, value },
 			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
-		return val;
+		return value;
 	},
 	get wWidth() {
-		var val = nav.viewportWidth();
+		const value = nav.viewportWidth();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
 			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
-			wWidth  : { writable: true, configurable: true, value: val }
+			wWidth  : { writable: true, configurable: true, value }
 		});
-		return val;
+		return value;
 	},
 	handleEvent() {
 		this.wHeight = nav.viewportHeight();
@@ -10811,7 +10807,7 @@ PostImages.prototype = {
 		return {
 			_img: this.first,
 			next() {
-				var value = this._img;
+				const value = this._img;
 				if(value) {
 					this._img = value.next;
 					return { value, done: false };
@@ -10956,7 +10952,7 @@ class Pview extends AbstractPost {
 			e => this._onerror(e));
 	}
 	get stickBtn() {
-		var value = $q('.de-btn-stick', this.el);
+		const value = $q('.de-btn-stick', this.el);
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
@@ -11238,17 +11234,17 @@ class CacheItem {
 		this.viewed = false;
 	}
 	get msg() {
-		var value = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { configurable: true, value });
+		const value = $q(aib.qPostMsg, this.el);
+		Object.defineProperty(this, 'msg', { value, configurable: true });
 		return value;
 	}
 	get ref() {
-		var value = new RefMap(this);
+		const value = new RefMap(this);
 		Object.defineProperty(this, 'ref', { value });
 		return value;
 	}
 	get sage() {
-		var value = aib.getSage(this.el);
+		const value = aib.getSage(this.el);
 		Object.defineProperty(this, 'sage', { value });
 		return value;
 	}
@@ -11474,14 +11470,14 @@ AttachmentViewer.prototype = {
 	_oldY    : 0,
 	_width   : 0,
 	get _btns() {
-		var val = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
-		Object.defineProperty(this, '_btns', { value: val });
-		return val;
+		const value = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
+		Object.defineProperty(this, '_btns', { value });
+		return value;
 	},
 	get _zoomFactor() {
-		var val = 1 + (Cfg.zoomFactor / 100);
-		Object.defineProperty(this, '_zoomFactor', { value: val });
-		return val;
+		const value = 1 + (Cfg.zoomFactor / 100);
+		Object.defineProperty(this, '_zoomFactor', { value });
+		return value;
 	},
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
@@ -11623,35 +11619,36 @@ class ExpandableMedia {
 		return (this._size || [-1, -1])[1];
 	}
 	get inPview() {
-		var value = this.post instanceof Pview;
+		const value = this.post instanceof Pview;
 		Object.defineProperty(this, 'inPview', { value });
 		return value;
 	}
 	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
+		const value = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
 			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isImage', { value: val });
-		return val;
+		Object.defineProperty(this, 'isImage', { value });
+		return value;
 	}
 	get isVideo() {
-		var val = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
+		const value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isVideo', { value: val });
-		return val;
+		Object.defineProperty(this, 'isVideo', { value });
+		return value;
 	}
 	get src() {
-		var val = this._getImageSrc();
-		Object.defineProperty(this, 'src', { value: val });
-		return val;
+		const value = this._getImageSrc();
+		Object.defineProperty(this, 'src', { value });
+		return value;
 	}
 	get width() {
 		return (this._size || [-1, -1])[0];
 	}
 	cancelWebmLoad(fullEl) {
-		if(this.isVideo && fullEl.tagName === 'VIDEO') {
-			fullEl.pause();
-			fullEl.removeAttribute('src');
-			fullEl.load();
+		if(this.isVideo) {
+			const videoEl = fullEl.firstElementChild;
+			videoEl.pause();
+			videoEl.removeAttribute('src');
+			videoEl.load();
 		}
 		if(this._webmTitleLoad) {
 			this._webmTitleLoad.cancel();
@@ -11832,7 +11829,7 @@ class ExpandableMedia {
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
 		</div>`);
-		const videoEl = $q('video', wrapEl);
+		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
@@ -11919,12 +11916,12 @@ class ExpandableMedia {
 	}
 
 	get _size() {
-		var value = this._getImageSize();
+		const value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
 	}
 	_getThumbSize() {
-		var iEl = new Image();
+		const iEl = new Image();
 		iEl.src = this.el.src;
 		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
@@ -11944,24 +11941,24 @@ class EmbeddedImage extends ExpandableMedia {
 
 class Attachment extends ExpandableMedia {
 	get info() {
-		const val = aib.getImgInfo(aib.getImgWrap(this.el));
-		Object.defineProperty(this, 'info', { value: val });
-		return val;
+		const value = aib.getImgInfo(aib.getImgWrap(this.el));
+		Object.defineProperty(this, 'info', { value });
+		return value;
 	}
 	get weight() {
-		let val = 0;
+		let value = 0;
 		if(this.info) {
 			const w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
-			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+			value = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
-		Object.defineProperty(this, 'weight', { value: val });
-		return val;
+		Object.defineProperty(this, 'weight', { value });
+		return value;
 	}
 	get name() {
-		const val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
-		Object.defineProperty(this, 'name', { value: val });
-		return val;
+		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		Object.defineProperty(this, 'name', { value });
+		return value;
 	}
 
 	_getImageParent() {
@@ -11993,9 +11990,9 @@ var ImagesHashStorage = Object.create({
 		}
 	},
 	get getHash() {
-		var val = this._getHashHelper.bind(this);
-		Object.defineProperty(this, 'getHash', { value: val });
-		return val;
+		const value = this._getHashHelper.bind(this);
+		Object.defineProperty(this, 'getHash', { value });
+		return value;
 	},
 
 	async _getHashHelper({ el, src }) {
@@ -12034,26 +12031,26 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 	get _canvas() {
-		var val = doc.createElement('canvas');
-		Object.defineProperty(this, '_canvas', { value: val });
-		return val;
+		const value = doc.createElement('canvas');
+		Object.defineProperty(this, '_canvas', { value });
+		return value;
 	},
 	get _storage() {
-		var val = null;
+		let value = null;
 		try {
-			val = JSON.parse(sesStorage['de-imageshash']);
+			value = JSON.parse(sesStorage['de-imageshash']);
 		} finally {
-			if(!val) {
-				val = {};
+			if(!value) {
+				value = {};
 			}
-			Object.defineProperty(this, '_storage', { value: val });
-			return val;
+			Object.defineProperty(this, '_storage', { value });
+			return value;
 		}
 	},
 	get _workers() {
-		var val = new WorkerPool(4, genImgHash, emptyFn);
-		Object.defineProperty(this, '_workers', { value: val, configurable: true });
-		return val;
+		const value = new WorkerPool(4, genImgHash, emptyFn);
+		Object.defineProperty(this, '_workers', { value, configurable: true });
+		return value;
 	}
 });
 
@@ -12866,12 +12863,12 @@ class RefMap {
 	}
 
 	get _el() {
-		var value = $q('.de-refmap', this._post.el);
+		let value = $q('.de-refmap', this._post.el);
 		if(!value) {
 			this._createEl('', this._post.hidden);
 			value = $q('.de-refmap', this._post.el);
 		}
-		Object.defineProperty(this, '_el', { configurable: true, value });
+		Object.defineProperty(this, '_el', { value, configurable: true });
 		return value;
 	}
 	_createEl(innerHTML, isHidden) {
@@ -12970,22 +12967,24 @@ class Thread {
 		return this.hidden ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
-		var post = this.last;
+		let post = this.last;
 		while(post.deleted) {
 			post = post.prev;
 		}
 		return post;
 	}
 	get nextNotHidden() {
-		for(var thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
+		let thr;
+		for(thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
-		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
+		let thr;
+		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get userTouched() {
-		var value = new Map();
+		const value = new Map();
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
 	}
@@ -13003,7 +13002,7 @@ class Thread {
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
-		for(var tPost = post; tPost; tPost = tPost.nextInThread) {
+		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
 		}
 		this.pcount -= count;
@@ -13614,7 +13613,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_countingIV : null,
 		_enabled    : false,
 		get _el() {
-			var value = $id('de-updater-count');
+			const value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
 			return value;
 		},
@@ -13856,7 +13855,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds     : 0,
 		_state       : -1,
 		get _panelButton() {
-			var value = $q('a[id^="de-panel-upd"]');
+			const value = $q('a[id^="de-panel-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}
@@ -14104,7 +14103,7 @@ class DelForm {
 		return {
 			_data: this.first,
 			next() {
-				var value = this._data;
+				const value = this._data;
 				if(value) {
 					this._data = value.next;
 					return { value, done: false };
@@ -14202,7 +14201,7 @@ class DelForm {
 		this.lastThr = thr;
 	}
 	get passEl() {
-		var value = $q(aib.qDelPassw, this.el);
+		const value = $q(aib.qDelPassw, this.el);
 		Object.defineProperty(this, 'passEl', { value });
 		return value;
 	}
@@ -14368,20 +14367,20 @@ function initNavFuncs() {
 			return value;
 		},
 		get hasWorker() {
-			let val = false;
+			let value = false;
 			try {
-				val = 'Worker' in window && 'URL' in window;
+				value = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(val && this.isFirefox) {
-				val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
+			if(value && this.isFirefox) {
+				value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 			}
-			Object.defineProperty(this, 'hasWorker', { value: val });
-			return val;
+			Object.defineProperty(this, 'hasWorker', { value });
+			return value;
 		},
 		get canPlayMP3() {
-			const val = !!new Audio().canPlayType('audio/mpeg;');
-			Object.defineProperty(this, 'canPlayMP3', { value: val });
-			return val;
+			const value = !!new Audio().canPlayType('audio/mpeg;');
+			Object.defineProperty(this, 'canPlayMP3', { value });
+			return value;
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -14499,22 +14498,22 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a',
+		const value = nav.cssMatches(this.qImgInfo + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		var value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
+		const value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
 			'[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qThread() {
-		var val = $q('.thread') ? '.thread' : '[id^="thread"]';
-		Object.defineProperty(this, 'qThread', { value: val });
-		return val;
+		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
+		Object.defineProperty(this, 'qThread', { value });
+		return value;
 	}
 	get capLang() { // Differs _410chanOrg only
 		return this.ru ? 2 : 1;
@@ -14547,13 +14546,13 @@ class BaseBoard {
 		return false;
 	}
 	get lastPage() { // Differs Makaba only
-		var el = $q(this.qPages),
-			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-		if(this.page === val + 1) {
-			val++;
+		const el = $q(this.qPages);
+		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		if(this.page === value + 1) {
+			value++;
 		}
-		Object.defineProperty(this, 'lastPage', { value: val });
-		return val;
+		Object.defineProperty(this, 'lastPage', { value });
+		return value;
 	}
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
@@ -14562,10 +14561,10 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/` +
 			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
-		Object.defineProperty(this, 'reCrossLinks', { value: val });
-		return val;
+		Object.defineProperty(this, 'reCrossLinks', { value });
+		return value;
 	}
 	get thrId() { // Differs _0chanHk only
 		return null;
@@ -14829,10 +14828,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					bottom: 25px !important; }` : '' }`;
 		}
 		get lastPage() {
-			var els = $Q('.pager > a:not([class])'),
-				val = els ? els.length : 1;
-			Object.defineProperty(this, 'lastPage', { value: val });
-			return val;
+			const els = $Q('.pager > a:not([class])');
+			const value = els ? els.length : 1;
+			Object.defineProperty(this, 'lastPage', { value });
+			return value;
 		}
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];

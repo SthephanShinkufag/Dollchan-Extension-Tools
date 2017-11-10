@@ -8,17 +8,17 @@ var panel = Object.create({
 	_menu   : null,
 	_menuTO : 0,
 	get _pcountEl() {
-		var value = $id('de-panel-info-pcount');
+		const value = $id('de-panel-info-pcount');
 		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
 		return value;
 	},
 	get _icountEl() {
-		var value = $id('de-panel-info-icount');
+		const value = $id('de-panel-info-icount');
 		Object.defineProperty(this, '_icountEl', { value, configurable: true });
 		return value;
 	},
 	get _acountEl() {
-		var value = $id('de-panel-info-acount');
+		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
 	},

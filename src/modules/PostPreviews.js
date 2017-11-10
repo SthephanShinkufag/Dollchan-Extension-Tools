@@ -132,7 +132,7 @@ class Pview extends AbstractPost {
 			e => this._onerror(e));
 	}
 	get stickBtn() {
-		var value = $q('.de-btn-stick', this.el);
+		const value = $q('.de-btn-stick', this.el);
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
@@ -414,17 +414,17 @@ class CacheItem {
 		this.viewed = false;
 	}
 	get msg() {
-		var value = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { configurable: true, value });
+		const value = $q(aib.qPostMsg, this.el);
+		Object.defineProperty(this, 'msg', { value, configurable: true });
 		return value;
 	}
 	get ref() {
-		var value = new RefMap(this);
+		const value = new RefMap(this);
 		Object.defineProperty(this, 'ref', { value });
 		return value;
 	}
 	get sage() {
-		var value = aib.getSage(this.el);
+		const value = aib.getSage(this.el);
 		Object.defineProperty(this, 'sage', { value });
 		return value;
 	}

@@ -434,9 +434,9 @@ class KeyEditListener {
 		el.title = title;
 	}
 	get saveButton() {
-		const val = $id('de-keys-save');
-		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
-		return val;
+		const value = $id('de-keys-save');
+		Object.defineProperty(this, 'saveButton', { value, configurable: true });
+		return value;
 	}
 	handleEvent(e) {
 		let key, el = e.target;

@@ -56,10 +56,10 @@ class Videos {
 	}
 	get player() {
 		const { post } = this;
-		const val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
+		const value = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
 			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
-		Object.defineProperty(this, 'player', { value: val });
-		return val;
+		Object.defineProperty(this, 'player', { value });
+		return value;
 	}
 	addLink(m, loader, link, isYtube) {
 		this.hasLinks = true;
@@ -268,15 +268,15 @@ Videos.vimReg =
 	/^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos._global = {
 	get vData() {
-		let val;
+		let value;
 		try {
 			sesStorage.removeItem('de-videos-data1');
-			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
+			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 		} catch(e) {
-			val = [{}, {}];
+			value = [{}, {}];
 		}
-		Object.defineProperty(this, 'vData', { value: val });
-		return val;
+		Object.defineProperty(this, 'vData', { value });
+		return value;
 	}
 };
 

@@ -67,22 +67,22 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		var value = nav.cssMatches(this.qImgInfo + ' a',
+		const value = nav.cssMatches(this.qImgInfo + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		var value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
+		const value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
 			'[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
 	get qThread() {
-		var val = $q('.thread') ? '.thread' : '[id^="thread"]';
-		Object.defineProperty(this, 'qThread', { value: val });
-		return val;
+		const value = $q('.thread') ? '.thread' : '[id^="thread"]';
+		Object.defineProperty(this, 'qThread', { value });
+		return value;
 	}
 	get capLang() { // Differs _410chanOrg only
 		return this.ru ? 2 : 1;
@@ -115,13 +115,13 @@ class BaseBoard {
 		return false;
 	}
 	get lastPage() { // Differs Makaba only
-		var el = $q(this.qPages),
-			val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-		if(this.page === val + 1) {
-			val++;
+		const el = $q(this.qPages);
+		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+		if(this.page === value + 1) {
+			value++;
 		}
-		Object.defineProperty(this, 'lastPage', { value: val });
-		return val;
+		Object.defineProperty(this, 'lastPage', { value });
+		return value;
 	}
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
@@ -130,10 +130,10 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/` +
 			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
-		Object.defineProperty(this, 'reCrossLinks', { value: val });
-		return val;
+		Object.defineProperty(this, 'reCrossLinks', { value });
+		return value;
 	}
 	get thrId() { // Differs _0chanHk only
 		return null;

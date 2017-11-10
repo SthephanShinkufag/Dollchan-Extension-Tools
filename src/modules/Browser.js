@@ -124,20 +124,20 @@ function initNavFuncs() {
 			return value;
 		},
 		get hasWorker() {
-			let val = false;
+			let value = false;
 			try {
-				val = 'Worker' in window && 'URL' in window;
+				value = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(val && this.isFirefox) {
-				val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
+			if(value && this.isFirefox) {
+				value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 			}
-			Object.defineProperty(this, 'hasWorker', { value: val });
-			return val;
+			Object.defineProperty(this, 'hasWorker', { value });
+			return value;
 		},
 		get canPlayMP3() {
-			const val = !!new Audio().canPlayType('audio/mpeg;');
-			Object.defineProperty(this, 'canPlayMP3', { value: val });
-			return val;
+			const value = !!new Audio().canPlayType('audio/mpeg;');
+			Object.defineProperty(this, 'canPlayMP3', { value });
+			return value;
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;

@@ -324,9 +324,9 @@ class Maybe {
 	get value() {
 		const Ctor = this._ctor;
 		this.hasValue = !!Ctor;
-		const val = Ctor ? new Ctor(/* ...this._args */) : null;
-		Object.defineProperty(this, 'value', { value: val });
-		return val;
+		const value = Ctor ? new Ctor(/* ...this._args */) : null;
+		Object.defineProperty(this, 'value', { value });
+		return value;
 	}
 	end() {
 		if(this.hasValue) {
@@ -564,6 +564,111 @@ class TarBuilder {
 		data[offset] = 0x20; // ' '
 	}
 }
+
+class WebmParser {
+	constructor(data) {
+		let offset = 0;
+		const dv = nav.getUnsafeDataView(data);
+		const len = dv.byteLength;
+		const el = new WebmParser.Element(dv, len, 0);
+		const voids = [];
+		const EBMLId = 0x1A45DFA3;
+		const segmentId = 0x18538067;
+		const voidId = 0xEC;
+		this.voidId = voidId;
+		error: do {
+			if(el.error || el.id !== EBMLId) {
+				break;
+			}
+			this.EBML = el;
+			offset += el.headSize + el.size;
+			while(true) {
+				const el = new WebmParser.Element(dv, len, offset);
+				if(el.error) {
+					break error;
+				}
+				if(el.id === segmentId) {
+					this.segment = el;
+					break; // Ignore everything after first segment
+				} else if(el.id === voidId) {
+					voids.push(el);
+				} else {
+					break error;
+				}
+				offset += el.headSize + el.size;
+			}
+			this.voids = voids;
+			this.data = data;
+			this.length = len;
+			this.rv = [null];
+			this.error = false;
+			return;
+		} while(false);
+		this.error = true;
+	}
+	addData(data) {
+		if(this.error || !data) {
+			return this;
+		}
+		const size = (typeof data === 'string') ? data.length : data.byteLength;
+		if(size > 127) {
+			this.error = true;
+			return;
+		}
+		this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
+		return this;
+	}
+	getData() {
+		if(this.error) {
+			return null;
+		}
+		this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+		return this.rv;
+	}
+}
+WebmParser.Element = function(elData, dataLength, offset) {
+	this.error = false;
+	this.id = 0;
+	if(offset + 4 >= dataLength) {
+		return;
+	}
+	let num = elData.getUint32(offset);
+	let leadZeroes = Math.clz32(num);
+	if(leadZeroes > 3) {
+		this.error = true;
+		return;
+	}
+	offset += leadZeroes + 1;
+	if(offset >= dataLength) {
+		this.error = true;
+		return;
+	}
+	this.id = num >>> (8 * (3 - leadZeroes));
+	this.headSize = leadZeroes + 1;
+	num = elData.getUint32(offset);
+	leadZeroes = Math.clz32(num);
+	let size = num & (0xFFFFFFFF >>> (leadZeroes + 1));
+	if(leadZeroes > 3) {
+		const shift = 8 * (7 - leadZeroes);
+		if(size >>> shift !== 0 || offset + 4 > dataLength) {
+			this.error = true;
+			return; // We cannot handle webm-files with size greater than 4Gb :(
+		}
+		size = (size << (32 - shift)) | (elData.getUint32(offset + 4) >>> shift);
+	} else {
+		size >>>= 8 * (3 - leadZeroes);
+	}
+	this.headSize += leadZeroes + 1;
+	offset += leadZeroes + 1;
+	if(offset + size > dataLength) {
+		this.error = true;
+		return;
+	}
+	this.data = elData;
+	this.offset = offset;
+	this.endOffset = offset + size;
+	this.size = size;
+};
 
 function getErrorMessage(e) {
 	if(e instanceof AjaxError) {

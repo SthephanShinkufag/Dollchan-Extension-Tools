@@ -174,14 +174,14 @@ AttachmentViewer.prototype = {
 	_oldY    : 0,
 	_width   : 0,
 	get _btns() {
-		var val = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
-		Object.defineProperty(this, '_btns', { value: val });
-		return val;
+		const value = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
+		Object.defineProperty(this, '_btns', { value });
+		return value;
 	},
 	get _zoomFactor() {
-		var val = 1 + (Cfg.zoomFactor / 100);
-		Object.defineProperty(this, '_zoomFactor', { value: val });
-		return val;
+		const value = 1 + (Cfg.zoomFactor / 100);
+		Object.defineProperty(this, '_zoomFactor', { value });
+		return value;
 	},
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
@@ -323,35 +323,36 @@ class ExpandableMedia {
 		return (this._size || [-1, -1])[1];
 	}
 	get inPview() {
-		var value = this.post instanceof Pview;
+		const value = this.post instanceof Pview;
 		Object.defineProperty(this, 'inPview', { value });
 		return value;
 	}
 	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
+		const value = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
 			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isImage', { value: val });
-		return val;
+		Object.defineProperty(this, 'isImage', { value });
+		return value;
 	}
 	get isVideo() {
-		var val = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
+		const value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
-		Object.defineProperty(this, 'isVideo', { value: val });
-		return val;
+		Object.defineProperty(this, 'isVideo', { value });
+		return value;
 	}
 	get src() {
-		var val = this._getImageSrc();
-		Object.defineProperty(this, 'src', { value: val });
-		return val;
+		const value = this._getImageSrc();
+		Object.defineProperty(this, 'src', { value });
+		return value;
 	}
 	get width() {
 		return (this._size || [-1, -1])[0];
 	}
 	cancelWebmLoad(fullEl) {
-		if(this.isVideo && fullEl.tagName === 'VIDEO') {
-			fullEl.pause();
-			fullEl.removeAttribute('src');
-			fullEl.load();
+		if(this.isVideo) {
+			const videoEl = fullEl.firstElementChild;
+			videoEl.pause();
+			videoEl.removeAttribute('src');
+			videoEl.load();
 		}
 		if(this._webmTitleLoad) {
 			this._webmTitleLoad.cancel();
@@ -532,7 +533,7 @@ class ExpandableMedia {
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
 			</div>
 		</div>`);
-		const videoEl = $q('video', wrapEl);
+		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
@@ -619,12 +620,12 @@ class ExpandableMedia {
 	}
 
 	get _size() {
-		var value = this._getImageSize();
+		const value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
 	}
 	_getThumbSize() {
-		var iEl = new Image();
+		const iEl = new Image();
 		iEl.src = this.el.src;
 		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
@@ -644,24 +645,24 @@ class EmbeddedImage extends ExpandableMedia {
 
 class Attachment extends ExpandableMedia {
 	get info() {
-		const val = aib.getImgInfo(aib.getImgWrap(this.el));
-		Object.defineProperty(this, 'info', { value: val });
-		return val;
+		const value = aib.getImgInfo(aib.getImgWrap(this.el));
+		Object.defineProperty(this, 'info', { value });
+		return value;
 	}
 	get weight() {
-		let val = 0;
+		let value = 0;
 		if(this.info) {
 			const w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
-			val = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+			value = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
-		Object.defineProperty(this, 'weight', { value: val });
-		return val;
+		Object.defineProperty(this, 'weight', { value });
+		return value;
 	}
 	get name() {
-		const val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
-		Object.defineProperty(this, 'name', { value: val });
-		return val;
+		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		Object.defineProperty(this, 'name', { value });
+		return value;
 	}
 
 	_getImageParent() {
@@ -693,9 +694,9 @@ var ImagesHashStorage = Object.create({
 		}
 	},
 	get getHash() {
-		var val = this._getHashHelper.bind(this);
-		Object.defineProperty(this, 'getHash', { value: val });
-		return val;
+		const value = this._getHashHelper.bind(this);
+		Object.defineProperty(this, 'getHash', { value });
+		return value;
 	},
 
 	async _getHashHelper({ el, src }) {
@@ -734,26 +735,26 @@ var ImagesHashStorage = Object.create({
 		return val;
 	},
 	get _canvas() {
-		var val = doc.createElement('canvas');
-		Object.defineProperty(this, '_canvas', { value: val });
-		return val;
+		const value = doc.createElement('canvas');
+		Object.defineProperty(this, '_canvas', { value });
+		return value;
 	},
 	get _storage() {
-		var val = null;
+		let value = null;
 		try {
-			val = JSON.parse(sesStorage['de-imageshash']);
+			value = JSON.parse(sesStorage['de-imageshash']);
 		} finally {
-			if(!val) {
-				val = {};
+			if(!value) {
+				value = {};
 			}
-			Object.defineProperty(this, '_storage', { value: val });
-			return val;
+			Object.defineProperty(this, '_storage', { value });
+			return value;
 		}
 	},
 	get _workers() {
-		var val = new WorkerPool(4, genImgHash, emptyFn);
-		Object.defineProperty(this, '_workers', { value: val, configurable: true });
-		return val;
+		const value = new WorkerPool(4, genImgHash, emptyFn);
+		Object.defineProperty(this, '_workers', { value, configurable: true });
+		return value;
 	}
 });
 

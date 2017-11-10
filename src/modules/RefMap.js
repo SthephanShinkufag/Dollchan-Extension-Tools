@@ -180,12 +180,12 @@ class RefMap {
 	}
 
 	get _el() {
-		var value = $q('.de-refmap', this._post.el);
+		let value = $q('.de-refmap', this._post.el);
 		if(!value) {
 			this._createEl('', this._post.hidden);
 			value = $q('.de-refmap', this._post.el);
 		}
-		Object.defineProperty(this, '_el', { configurable: true, value });
+		Object.defineProperty(this, '_el', { value, configurable: true });
 		return value;
 	}
 	_createEl(innerHTML, isHidden) {

@@ -15,35 +15,36 @@ class AbstractPost {
 		this.thr = thr;
 	}
 	get hideBtn() {
-		var value = this.btns.firstChild;
+		const value = this.btns.firstChild;
 		Object.defineProperty(this, 'hideBtn', { value });
 		return value;
 	}
 	get images() {
-		var value = new PostImages(this);
+		const value = new PostImages(this);
 		Object.defineProperty(this, 'images', { value });
 		return value;
 	}
 	get mp3Obj() {
-		var value = $bBegin(this.msg, '<div class="de-mp3"></div>');
+		const value = $bBegin(this.msg, '<div class="de-mp3"></div>');
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
 	get msg() {
-		var val = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { configurable: true, value: val });
-		return val;
+		const value = $q(aib.qPostMsg, this.el);
+		Object.defineProperty(this, 'msg', { value, configurable: true });
+		return value;
 	}
 	get trunc() {
-		var el = aib.qTrunc && $q(aib.qTrunc, this.el), value = null;
+		let value = null;
+		const el = aib.qTrunc && $q(aib.qTrunc, this.el);
 		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 			value = el;
 		}
-		Object.defineProperty(this, 'trunc', { configurable: true, value });
+		Object.defineProperty(this, 'trunc', { value, configurable: true });
 		return value;
 	}
 	get videos() {
-		var value = Cfg.addYouTube ? new Videos(this) : null;
+		const value = Cfg.addYouTube ? new Videos(this) : null;
 		Object.defineProperty(this, 'videos', { value });
 		return value;
 	}
@@ -415,8 +416,8 @@ class Post extends AbstractPost {
 		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
-		var value = aib.getBanId(this.el);
-		Object.defineProperty(this, 'banned', { writable: true, value });
+		const value = aib.getBanId(this.el);
+		Object.defineProperty(this, 'banned', { value, writable: true });
 		return value;
 	}
 	get bottom() {
@@ -430,18 +431,18 @@ class Post extends AbstractPost {
 		return new Post.Сontent(this).html;
 	}
 	get nextInThread() {
-		var post = this.next;
+		const post = this.next;
 		return !post || post.count === 0 ? null : post;
 	}
 	get nextNotDeleted() {
-		var post = this.nextInThread;
+		let post = this.nextInThread;
 		while(post && post.deleted) {
 			post = post.nextInThread;
 		}
 		return post;
 	}
 	get note() {
-		var value = new Post.Note(this);
+		const value = new Post.Note(this);
 		Object.defineProperty(this, 'note', { value });
 		return value;
 	}
@@ -786,33 +787,35 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		this.post = post;
 	}
 	get headerEl() {
-		var value = $q(aib.qPostHeader, this.el);
+		const value = $q(aib.qPostHeader, this.el);
 		Object.defineProperty(this, 'headerEl', { value });
 		return value;
 	}
 	get html() {
-		var val = this.el.outerHTML;
-		Object.defineProperty(this, 'html', { value: val });
-		return val;
+		const value = this.el.outerHTML;
+		Object.defineProperty(this, 'html', { value });
+		return value;
 	}
 	get posterName() {
-		var pName = $q(aib.qPostName, this.el),
-			val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
-		Object.defineProperty(this, 'posterName', { value: val });
-		return val;
+		const pName = $q(aib.qPostName, this.el);
+		const value = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+		Object.defineProperty(this, 'posterName', { value });
+		return value;
 	}
 	get posterTrip() {
-		var pTrip = $q(aib.qPostTrip, this.el), val = pTrip ? pTrip.textContent : '';
-		Object.defineProperty(this, 'posterTrip', { value: val });
-		return val;
+		const pTrip = $q(aib.qPostTrip, this.el);
+		const value = pTrip ? pTrip.textContent : '';
+		Object.defineProperty(this, 'posterTrip', { value });
+		return value;
 	}
 	get subj() {
-		var subj = $q(aib.qPostSubj, this.el), val = subj ? subj.textContent : '';
-		Object.defineProperty(this, 'subj', { value: val });
-		return val;
+		const subj = $q(aib.qPostSubj, this.el);
+		const value = subj ? subj.textContent : '';
+		Object.defineProperty(this, 'subj', { value });
+		return value;
 	}
 	get text() {
-		var value = this.post.msg.innerHTML
+		const value = this.post.msg.innerHTML
 			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
 			.replace(/<[^>]+?>/g, '')
 			.replace(/&gt;/g, '>')
@@ -822,14 +825,14 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		return value;
 	}
 	get title() {
-		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
-		Object.defineProperty(this, 'title', { value: val });
-		return val;
+		const value = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+		Object.defineProperty(this, 'title', { value });
+		return value;
 	}
 	get wrap() {
-		var val = aib.getPostWrap(this.el, this.post.isOp);
-		Object.defineProperty(this, 'wrap', { value: val });
-		return val;
+		const value = aib.getPostWrap(this.el, this.post.isOp);
+		Object.defineProperty(this, 'wrap', { value });
+		return value;
 	}
 };
 Post.hasNew = false;
@@ -929,33 +932,33 @@ Post.findSameText = function(oNum, oHid, oWords, post) {
 };
 Post.sizing = {
 	get dPxRatio() {
-		var val = window.devicePixelRatio || 1;
-		Object.defineProperty(this, 'dPxRatio', { value: val });
-		return val;
+		const value = window.devicePixelRatio || 1;
+		Object.defineProperty(this, 'dPxRatio', { value });
+		return value;
 	},
 	get wHeight() {
-		var val = nav.viewportHeight();
+		const value = nav.viewportHeight();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
-			wHeight : { writable: true, configurable: true, value: val },
+			wHeight : { writable: true, configurable: true, value },
 			wWidth  : { writable: true, configurable: true, value: nav.viewportWidth() }
 		});
-		return val;
+		return value;
 	},
 	get wWidth() {
-		var val = nav.viewportWidth();
+		const value = nav.viewportWidth();
 		if(!this._enabled) {
 			doc.defaultView.addEventListener('resize', this);
 			this._enabled = true;
 		}
 		Object.defineProperties(this, {
 			wHeight : { writable: true, configurable: true, value: nav.viewportHeight() },
-			wWidth  : { writable: true, configurable: true, value: val }
+			wWidth  : { writable: true, configurable: true, value }
 		});
-		return val;
+		return value;
 	},
 	handleEvent() {
 		this.wHeight = nav.viewportHeight();
@@ -1013,7 +1016,7 @@ PostImages.prototype = {
 		return {
 			_img: this.first,
 			next() {
-				var value = this._img;
+				const value = this._img;
 				if(value) {
 					this._img = value.next;
 					return { value, done: false };

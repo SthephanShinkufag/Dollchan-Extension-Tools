@@ -75,22 +75,24 @@ class Thread {
 		return this.hidden ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
-		var post = this.last;
+		let post = this.last;
 		while(post.deleted) {
 			post = post.prev;
 		}
 		return post;
 	}
 	get nextNotHidden() {
-		for(var thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
+		let thr;
+		for(thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
-		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
+		let thr;
+		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get userTouched() {
-		var value = new Map();
+		const value = new Map();
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
 	}
@@ -108,7 +110,7 @@ class Thread {
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
-		for(var tPost = post; tPost; tPost = tPost.nextInThread) {
+		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
 		}
 		this.pcount -= count;

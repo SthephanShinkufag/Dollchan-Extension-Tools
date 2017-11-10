@@ -66,10 +66,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					bottom: 25px !important; }` : '' }`;
 		}
 		get lastPage() {
-			var els = $Q('.pager > a:not([class])'),
-				val = els ? els.length : 1;
-			Object.defineProperty(this, 'lastPage', { value: val });
-			return val;
+			const els = $Q('.pager > a:not([class])');
+			const value = els ? els.length : 1;
+			Object.defineProperty(this, 'lastPage', { value });
+			return value;
 		}
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];

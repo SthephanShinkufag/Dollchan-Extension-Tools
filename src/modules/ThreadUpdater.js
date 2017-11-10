@@ -88,7 +88,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_countingIV : null,
 		_enabled    : false,
 		get _el() {
-			var value = $id('de-updater-count');
+			const value = $id('de-updater-count');
 			Object.defineProperty(this, '_el', { value });
 			return value;
 		},
@@ -330,7 +330,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds     : 0,
 		_state       : -1,
 		get _panelButton() {
-			var value = $q('a[id^="de-panel-upd"]');
+			const value = $q('a[id^="de-panel-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}

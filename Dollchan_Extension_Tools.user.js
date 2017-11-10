@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '4287031';
+	var commit = '3e8ce96';
 
 
 	var defaultCfg = {
@@ -3926,9 +3926,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				var Ctor = this._ctor;
 				this.hasValue = !!Ctor;
-				var val = Ctor ? new Ctor() : null;
-				Object.defineProperty(this, 'value', { value: val });
-				return val;
+				var value = Ctor ? new Ctor() : null;
+				Object.defineProperty(this, 'value', { value: value });
+				return value;
 			}
 		}]);
 
@@ -4238,6 +4238,122 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return TarBuilder;
 	}();
+
+	var WebmParser = function () {
+		function WebmParser(data) {
+			_classCallCheck(this, WebmParser);
+
+			var offset = 0;
+			var dv = nav.getUnsafeDataView(data);
+			var len = dv.byteLength;
+			var el = new WebmParser.Element(dv, len, 0);
+			var voids = [];
+			var EBMLId = 0x1A45DFA3;
+			var segmentId = 0x18538067;
+			var voidId = 0xEC;
+			this.voidId = voidId;
+			error: do {
+				if (el.error || el.id !== EBMLId) {
+					break;
+				}
+				this.EBML = el;
+				offset += el.headSize + el.size;
+				while (true) {
+					var _el = new WebmParser.Element(dv, len, offset);
+					if (_el.error) {
+						break error;
+					}
+					if (_el.id === segmentId) {
+						this.segment = _el;
+						break; 
+					} else if (_el.id === voidId) {
+						voids.push(_el);
+					} else {
+						break error;
+					}
+					offset += _el.headSize + _el.size;
+				}
+				this.voids = voids;
+				this.data = data;
+				this.length = len;
+				this.rv = [null];
+				this.error = false;
+				return;
+			} while (false);
+			this.error = true;
+		}
+
+		_createClass(WebmParser, [{
+			key: 'addData',
+			value: function addData(data) {
+				if (this.error || !data) {
+					return this;
+				}
+				var size = typeof data === 'string' ? data.length : data.byteLength;
+				if (size > 127) {
+					this.error = true;
+					return;
+				}
+				this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
+				return this;
+			}
+		}, {
+			key: 'getData',
+			value: function getData() {
+				if (this.error) {
+					return null;
+				}
+				this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
+				return this.rv;
+			}
+		}]);
+
+		return WebmParser;
+	}();
+
+	WebmParser.Element = function (elData, dataLength, offset) {
+		this.error = false;
+		this.id = 0;
+		if (offset + 4 >= dataLength) {
+			return;
+		}
+		var num = elData.getUint32(offset);
+		var leadZeroes = Math.clz32(num);
+		if (leadZeroes > 3) {
+			this.error = true;
+			return;
+		}
+		offset += leadZeroes + 1;
+		if (offset >= dataLength) {
+			this.error = true;
+			return;
+		}
+		this.id = num >>> 8 * (3 - leadZeroes);
+		this.headSize = leadZeroes + 1;
+		num = elData.getUint32(offset);
+		leadZeroes = Math.clz32(num);
+		var size = num & 0xFFFFFFFF >>> leadZeroes + 1;
+		if (leadZeroes > 3) {
+			var shift = 8 * (7 - leadZeroes);
+			if (size >>> shift !== 0 || offset + 4 > dataLength) {
+				this.error = true;
+				return; 
+			}
+			size = size << 32 - shift | elData.getUint32(offset + 4) >>> shift;
+		} else {
+			size >>>= 8 * (3 - leadZeroes);
+		}
+		this.headSize += leadZeroes + 1;
+		offset += leadZeroes + 1;
+		if (offset + size > dataLength) {
+			this.error = true;
+			return;
+		}
+		this.data = elData;
+		this.offset = offset;
+		this.endOffset = offset + size;
+		this.size = size;
+	};
 
 	function getErrorMessage(e) {
 		if (e instanceof AjaxError) {
@@ -5964,8 +6080,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'de-fav-header-switch':
 						{
 							var _ret3 = function () {
-								var _el = el,
-								    checked = _el.checked;
+								var _el2 = el,
+								    checked = _el2.checked;
 
 								el = el.parentNode.nextElementSibling;
 								$each($Q('.de-entry > input', el), function (checkBox) {
@@ -7091,16 +7207,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var _el2 = els[i];
-				var _info4 = _el2.getAttribute('info');
-				if (_el2.tagName === 'INPUT') {
-					if (_el2.type === 'checkbox') {
-						_el2.checked = !!Cfg[_info4];
+				var _el3 = els[i];
+				var _info4 = _el3.getAttribute('info');
+				if (_el3.tagName === 'INPUT') {
+					if (_el3.type === 'checkbox') {
+						_el3.checked = !!Cfg[_info4];
 					} else {
-						_el2.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
+						_el3.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
 					}
 				} else {
-					_el2.selectedIndex = Cfg[_info4];
+					_el3.selectedIndex = Cfg[_info4];
 				}
 			}
 		},
@@ -8019,9 +8135,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'saveButton',
 			get: function get() {
-				var val = $id('de-keys-save');
-				Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
-				return val;
+				var value = $id('de-keys-save');
+				Object.defineProperty(this, 'saveButton', { value: value, configurable: true });
+				return value;
 			}
 		}], [{
 			key: 'getEditMarkup',
@@ -8682,9 +8798,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				var post = this.post;
 
-				var val = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' + (post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
-				Object.defineProperty(this, 'player', { value: val });
-				return val;
+				var value = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' + (post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
+				Object.defineProperty(this, 'player', { value: value });
+				return value;
 			}
 		}], [{
 			key: 'addPlayer',
@@ -8821,15 +8937,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos._global = {
 		get vData() {
-			var val = void 0;
+			var value = void 0;
 			try {
 				sesStorage.removeItem('de-videos-data1');
-				val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
+				value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 			} catch (e) {
-				val = [{}, {}];
+				value = [{}, {}];
 			}
-			Object.defineProperty(this, 'vData', { value: val });
-			return val;
+			Object.defineProperty(this, 'vData', { value: value });
+			return value;
 		}
 	};
 
@@ -8920,8 +9036,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i9 = 0, _len6 = _els.length; _i9 < _len6; ++_i9) {
 				var _link2 = _els[_i9];
-				var _el3 = _link2.previousSibling;
-				if (!_el3 || _el3.className !== 'de-vocaroo') {
+				var _el4 = _link2.previousSibling;
+				if (!_el4 || _el4.className !== 'de-vocaroo') {
 					_link2.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link2.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
@@ -11356,8 +11472,8 @@ true, true];
 				if (el.tagName !== 'SPAN') {
 					el = el.parentNode;
 				}
-				var _el4 = el,
-				    id = _el4.id;
+				var _el5 = el,
+				    id = _el5.id;
 
 				if (!id.startsWith('de-btn')) {
 					return;
@@ -12377,7 +12493,7 @@ true, true];
 			return rv;
 		}
 		if (img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-			return new _WebmParser(data).addData(rand).getData();
+			return new WebmParser(data).addData(rand).getData();
 		}
 		return null;
 	}
@@ -12417,118 +12533,6 @@ true, true];
 		yRes = yRes || xRes;
 		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	}
-
-	var _WebmParser = function WebmParser(data) {
-		var EBMLId = 0x1A45DFA3,
-		    segmentId = 0x18538067,
-		    voidId = 0xEC;
-		function WebmElement(elData, dataLength, offset) {
-			if (offset + 4 >= dataLength) {
-				return;
-			}
-			var num = elData.getUint32(offset),
-			    leadZeroes = Math.clz32(num);
-			if (leadZeroes > 3) {
-				this.error = true;
-				return;
-			}
-			offset += leadZeroes + 1;
-			if (offset >= dataLength) {
-				this.error = true;
-				return;
-			}
-			this.id = num >>> 8 * (3 - leadZeroes);
-			this.headSize = leadZeroes + 1;
-			num = elData.getUint32(offset);
-			leadZeroes = Math.clz32(num);
-			var size = num & 0xFFFFFFFF >>> leadZeroes + 1;
-			if (leadZeroes > 3) {
-				var shift = 8 * (7 - leadZeroes);
-				if (size >>> shift !== 0 || offset + 4 > dataLength) {
-					this.error = true;
-					return; 
-				}
-				size = size << 32 - shift | elData.getUint32(offset + 4) >>> shift;
-			} else {
-				size >>>= 8 * (3 - leadZeroes);
-			}
-			this.headSize += leadZeroes + 1;
-			offset += leadZeroes + 1;
-			if (offset + size > dataLength) {
-				this.error = true;
-				return;
-			}
-			this.data = elData;
-			this.offset = offset;
-			this.endOffset = offset + size;
-			this.size = size;
-		}
-		WebmElement.prototype = {
-			error: false,
-			id: 0
-		};
-
-		function Parser(data) {
-			var dv = nav.getUnsafeDataView(data),
-			    len = dv.byteLength,
-			    el = new WebmElement(dv, len, 0),
-			    offset = 0,
-			    voids = [];
-			error: do {
-				if (el.error || el.id !== EBMLId) {
-					break;
-				}
-				this.EBML = el;
-				offset += el.headSize + el.size;
-				while (true) {
-					el = new WebmElement(dv, len, offset);
-					if (el.error) {
-						break error;
-					}
-					if (el.id === segmentId) {
-						this.segment = el;
-						break; 
-					} else if (el.id === voidId) {
-						voids.push(el);
-					} else {
-						break error;
-					}
-					offset += el.headSize + el.size;
-				}
-				this.voids = voids;
-				this.data = data;
-				this.length = len;
-				this.rv = [null];
-				this.error = false;
-				return;
-			} while (false);
-			this.error = true;
-		}
-		Parser.prototype = {
-			addData: function addData(data) {
-				if (this.error || !data) {
-					return this;
-				}
-				var size = typeof data === 'string' ? data.length : data.byteLength;
-				if (size > 127) {
-					this.error = true;
-					return;
-				}
-				this.rv.push(new Uint8Array([voidId, 0x80 | size]), data);
-				return this;
-			},
-			getData: function getData() {
-				if (this.error) {
-					return null;
-				}
-				this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, this.segment.endOffset);
-				return this.rv;
-			}
-		};
-
-		_WebmParser = Parser;
-		return new Parser(data);
-	};
 
 
 	var Files = function () {
@@ -13116,8 +13120,8 @@ true, true];
 				} else if (this._isOldRecap()) {
 					this.textEl = $id('recaptcha_response_field');
 				} else {
-					var _el5 = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
-					$replace(_el5, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el5.getAttribute('data-sitekey') + '"></div>');
+					var _el6 = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
+					$replace(_el6, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el6.getAttribute('data-sitekey') + '"></div>');
 				}
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
@@ -13694,19 +13698,19 @@ true, true];
 		}, {
 			key: 'msg',
 			get: function get() {
-				var val = $q(aib.qPostMsg, this.el);
-				Object.defineProperty(this, 'msg', { configurable: true, value: val });
-				return val;
+				var value = $q(aib.qPostMsg, this.el);
+				Object.defineProperty(this, 'msg', { value: value, configurable: true });
+				return value;
 			}
 		}, {
 			key: 'trunc',
 			get: function get() {
-				var el = aib.qTrunc && $q(aib.qTrunc, this.el),
-				    value = null;
+				var value = null;
+				var el = aib.qTrunc && $q(aib.qTrunc, this.el);
 				if (el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 					value = el;
 				}
-				Object.defineProperty(this, 'trunc', { configurable: true, value: value });
+				Object.defineProperty(this, 'trunc', { value: value, configurable: true });
 				return value;
 			}
 		}, {
@@ -14186,7 +14190,7 @@ true, true];
 			key: 'banned',
 			get: function get() {
 				var value = aib.getBanId(this.el);
-				Object.defineProperty(this, 'banned', { writable: true, value: value });
+				Object.defineProperty(this, 'banned', { value: value, writable: true });
 				return value;
 			}
 		}, {
@@ -14298,33 +14302,33 @@ true, true];
 		}, {
 			key: 'html',
 			get: function get() {
-				var val = this.el.outerHTML;
-				Object.defineProperty(this, 'html', { value: val });
-				return val;
+				var value = this.el.outerHTML;
+				Object.defineProperty(this, 'html', { value: value });
+				return value;
 			}
 		}, {
 			key: 'posterName',
 			get: function get() {
-				var pName = $q(aib.qPostName, this.el),
-				    val = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
-				Object.defineProperty(this, 'posterName', { value: val });
-				return val;
+				var pName = $q(aib.qPostName, this.el);
+				var value = pName ? pName.textContent.trim().replace(/\s/g, ' ') : '';
+				Object.defineProperty(this, 'posterName', { value: value });
+				return value;
 			}
 		}, {
 			key: 'posterTrip',
 			get: function get() {
-				var pTrip = $q(aib.qPostTrip, this.el),
-				    val = pTrip ? pTrip.textContent : '';
-				Object.defineProperty(this, 'posterTrip', { value: val });
-				return val;
+				var pTrip = $q(aib.qPostTrip, this.el);
+				var value = pTrip ? pTrip.textContent : '';
+				Object.defineProperty(this, 'posterTrip', { value: value });
+				return value;
 			}
 		}, {
 			key: 'subj',
 			get: function get() {
-				var subj = $q(aib.qPostSubj, this.el),
-				    val = subj ? subj.textContent : '';
-				Object.defineProperty(this, 'subj', { value: val });
-				return val;
+				var subj = $q(aib.qPostSubj, this.el);
+				var value = subj ? subj.textContent : '';
+				Object.defineProperty(this, 'subj', { value: value });
+				return value;
 			}
 		}, {
 			key: 'text',
@@ -14336,16 +14340,16 @@ true, true];
 		}, {
 			key: 'title',
 			get: function get() {
-				var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
-				Object.defineProperty(this, 'title', { value: val });
-				return val;
+				var value = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+				Object.defineProperty(this, 'title', { value: value });
+				return value;
 			}
 		}, {
 			key: 'wrap',
 			get: function get() {
-				var val = aib.getPostWrap(this.el, this.post.isOp);
-				Object.defineProperty(this, 'wrap', { value: val });
-				return val;
+				var value = aib.getPostWrap(this.el, this.post.isOp);
+				Object.defineProperty(this, 'wrap', { value: value });
+				return value;
 			}
 		}]);
 
@@ -14458,33 +14462,33 @@ true, true];
 	};
 	Post.sizing = {
 		get dPxRatio() {
-			var val = window.devicePixelRatio || 1;
-			Object.defineProperty(this, 'dPxRatio', { value: val });
-			return val;
+			var value = window.devicePixelRatio || 1;
+			Object.defineProperty(this, 'dPxRatio', { value: value });
+			return value;
 		},
 		get wHeight() {
-			var val = nav.viewportHeight();
+			var value = nav.viewportHeight();
 			if (!this._enabled) {
 				doc.defaultView.addEventListener('resize', this);
 				this._enabled = true;
 			}
 			Object.defineProperties(this, {
-				wHeight: { writable: true, configurable: true, value: val },
+				wHeight: { writable: true, configurable: true, value: value },
 				wWidth: { writable: true, configurable: true, value: nav.viewportWidth() }
 			});
-			return val;
+			return value;
 		},
 		get wWidth() {
-			var val = nav.viewportWidth();
+			var value = nav.viewportWidth();
 			if (!this._enabled) {
 				doc.defaultView.addEventListener('resize', this);
 				this._enabled = true;
 			}
 			Object.defineProperties(this, {
 				wHeight: { writable: true, configurable: true, value: nav.viewportHeight() },
-				wWidth: { writable: true, configurable: true, value: val }
+				wWidth: { writable: true, configurable: true, value: value }
 			});
-			return val;
+			return value;
 		},
 		handleEvent: function handleEvent() {
 			this.wHeight = nav.viewportHeight();
@@ -14502,9 +14506,9 @@ true, true];
 		var hasAttachments = false;
 		var filesMap = new Map();
 		for (var i = 0, len = els.length; i < len; ++i) {
-			var _el6 = els[i];
-			last = new Attachment(post, _el6, last);
-			filesMap.set(_el6, last);
+			var _el7 = els[i];
+			last = new Attachment(post, _el7, last);
+			filesMap.set(_el7, last);
 			hasAttachments = true;
 			if (!first) {
 				first = last;
@@ -14513,9 +14517,9 @@ true, true];
 		if (Cfg.addImgs) {
 			els = Array.from($Q('.de-img-pre', post.el));
 			for (var _i36 = 0, _len8 = els.length; _i36 < _len8; ++_i36) {
-				var _el7 = els[_i36];
-				last = new EmbeddedImage(post, _el7, last);
-				filesMap.set(_el7, last);
+				var _el8 = els[_i36];
+				last = new EmbeddedImage(post, _el8, last);
+				filesMap.set(_el8, last);
 				if (!first) {
 					first = last;
 				}
@@ -14612,9 +14616,9 @@ true, true];
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-					var _el8 = parent.ref.getElByNum(pv.num);
-					if (_el8) {
-						pv._link = _el8;
+					var _el9 = parent.ref.getElByNum(pv.num);
+					if (_el9) {
+						pv._link = _el9;
 					} else {
 						pv['delete']();
 						return;
@@ -14718,14 +14722,14 @@ true, true];
 						Attachment.viewer = vPost = null;
 					}
 					var _pv2 = pv,
-					    _el9 = _pv2.el;
+					    _el10 = _pv2.el;
 
-					pByEl['delete'](_el9);
+					pByEl['delete'](_el10);
 					if (Cfg.animation) {
-						$animate(_el9, 'de-pview-anim', true);
-						_el9.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+						$animate(_el10, 'de-pview-anim', true);
+						_el10.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
-						_el9.remove();
+						_el10.remove();
 					}
 				} while (pv = pv.kid);
 			}
@@ -15015,7 +15019,7 @@ true, true];
 			key: 'msg',
 			get: function get() {
 				var value = $q(aib.qPostMsg, this.el);
-				Object.defineProperty(this, 'msg', { configurable: true, value: value });
+				Object.defineProperty(this, 'msg', { value: value, configurable: true });
 				return value;
 			}
 		}, {
@@ -15214,8 +15218,8 @@ true, true];
 					return;
 				case 'click':
 					{
-						var _el10 = e.target;
-						if (this.data.isVideo && this.data.isControlClick(e) || _el10.tagName !== 'IMG' && _el10.tagName !== 'VIDEO' && !_el10.classList.contains('de-fullimg-wrap') && _el10.target.className !== 'de-fullimg-load') {
+						var _el11 = e.target;
+						if (this.data.isVideo && this.data.isControlClick(e) || _el11.tagName !== 'IMG' && _el11.tagName !== 'VIDEO' && !_el11.classList.contains('de-fullimg-wrap') && _el11.target.className !== 'de-fullimg-load') {
 							return;
 						}
 						if (e.button === 0) {
@@ -15271,18 +15275,18 @@ true, true];
 		get _btns() {
 			var _this53 = this;
 
-			var val = new ImgBtnsShowHider(function () {
+			var value = new ImgBtnsShowHider(function () {
 				return _this53.navigate(true);
 			}, function () {
 				return _this53.navigate(false);
 			});
-			Object.defineProperty(this, '_btns', { value: val });
-			return val;
+			Object.defineProperty(this, '_btns', { value: value });
+			return value;
 		},
 		get _zoomFactor() {
-			var val = 1 + Cfg.zoomFactor / 100;
-			Object.defineProperty(this, '_zoomFactor', { value: val });
-			return val;
+			var value = 1 + Cfg.zoomFactor / 100;
+			Object.defineProperty(this, '_zoomFactor', { value: value });
+			return value;
 		},
 		_handleWheelEvent: function _handleWheelEvent(clientX, clientY, delta) {
 			if (delta === 0) {
@@ -15444,10 +15448,11 @@ true, true];
 		_createClass(ExpandableMedia, [{
 			key: 'cancelWebmLoad',
 			value: function cancelWebmLoad(fullEl) {
-				if (this.isVideo && fullEl.tagName === 'VIDEO') {
-					fullEl.pause();
-					fullEl.removeAttribute('src');
-					fullEl.load();
+				if (this.isVideo) {
+					var videoEl = fullEl.firstElementChild;
+					videoEl.pause();
+					videoEl.removeAttribute('src');
+					videoEl.load();
 				}
 				if (this._webmTitleLoad) {
 					this._webmTitleLoad.cancel();
@@ -15638,7 +15643,7 @@ true, true];
 				var isWebm = src.split('.').pop() === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
 				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') + (Cfg.webmVolume === 0 ? 'muted ' : '') + ('></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
-				var videoEl = $q('video', wrapEl);
+				var videoEl = wrapEl.firstElementChild;
 				videoEl.volume = Cfg.webmVolume / 100;
 				videoEl.addEventListener('error', function (_ref55) {
 					var target = _ref55.target;
@@ -15670,7 +15675,7 @@ true, true];
 							return;
 						}
 						var title = '',
-						    d = new _WebmParser(data.buffer).getData();
+						    d = new WebmParser(data.buffer).getData();
 						if (!d) {
 							return;
 						}
@@ -15743,23 +15748,23 @@ true, true];
 		}, {
 			key: 'isImage',
 			get: function get() {
-				var val = /\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
-				Object.defineProperty(this, 'isImage', { value: val });
-				return val;
+				var value = /\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
+				Object.defineProperty(this, 'isImage', { value: value });
+				return value;
 			}
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var val = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
-				Object.defineProperty(this, 'isVideo', { value: val });
-				return val;
+				var value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+				Object.defineProperty(this, 'isVideo', { value: value });
+				return value;
 			}
 		}, {
 			key: 'src',
 			get: function get() {
-				var val = this._getImageSrc();
-				Object.defineProperty(this, 'src', { value: val });
-				return val;
+				var value = this._getImageSrc();
+				Object.defineProperty(this, 'src', { value: value });
+				return value;
 			}
 		}, {
 			key: 'width',
@@ -15838,28 +15843,28 @@ true, true];
 		}, {
 			key: 'info',
 			get: function get() {
-				var val = aib.getImgInfo(aib.getImgWrap(this.el));
-				Object.defineProperty(this, 'info', { value: val });
-				return val;
+				var value = aib.getImgInfo(aib.getImgWrap(this.el));
+				Object.defineProperty(this, 'info', { value: value });
+				return value;
 			}
 		}, {
 			key: 'weight',
 			get: function get() {
-				var val = 0;
+				var value = 0;
 				if (this.info) {
 					var w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 					var w1 = w[1].replace(',', '.');
-					val = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
+					value = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 				}
-				Object.defineProperty(this, 'weight', { value: val });
-				return val;
+				Object.defineProperty(this, 'weight', { value: value });
+				return value;
 			}
 		}, {
 			key: 'name',
 			get: function get() {
-				var val = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
-				Object.defineProperty(this, 'name', { value: val });
-				return val;
+				var value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+				Object.defineProperty(this, 'name', { value: value });
+				return value;
 			}
 		}]);
 
@@ -15880,9 +15885,9 @@ true, true];
 		},
 
 		get getHash() {
-			var val = this._getHashHelper.bind(this);
-			Object.defineProperty(this, 'getHash', { value: val });
-			return val;
+			var value = this._getHashHelper.bind(this);
+			Object.defineProperty(this, 'getHash', { value: value });
+			return value;
 		},
 
 		_getHashHelper: function _getHashHelper(_ref56) {
@@ -15987,26 +15992,26 @@ true, true];
 		},
 
 		get _canvas() {
-			var val = doc.createElement('canvas');
-			Object.defineProperty(this, '_canvas', { value: val });
-			return val;
+			var value = doc.createElement('canvas');
+			Object.defineProperty(this, '_canvas', { value: value });
+			return value;
 		},
 		get _storage() {
-			var val = null;
+			var value = null;
 			try {
-				val = JSON.parse(sesStorage['de-imageshash']);
+				value = JSON.parse(sesStorage['de-imageshash']);
 			} finally {
-				if (!val) {
-					val = {};
+				if (!value) {
+					value = {};
 				}
-				Object.defineProperty(this, '_storage', { value: val });
-				return val;
+				Object.defineProperty(this, '_storage', { value: value });
+				return value;
 			}
 		},
 		get _workers() {
-			var val = new WorkerPool(4, genImgHash, emptyFn);
-			Object.defineProperty(this, '_workers', { value: val, configurable: true });
-			return val;
+			var value = new WorkerPool(4, genImgHash, emptyFn);
+			Object.defineProperty(this, '_workers', { value: value, configurable: true });
+			return value;
 		}
 	});
 
@@ -16977,7 +16982,7 @@ true, true];
 					this._createEl('', this._post.hidden);
 					value = $q('.de-refmap', this._post.el);
 				}
-				Object.defineProperty(this, '_el', { configurable: true, value: value });
+				Object.defineProperty(this, '_el', { value: value, configurable: true });
 				return value;
 			}
 		}]);
@@ -17542,13 +17547,15 @@ true, true];
 		}, {
 			key: 'nextNotHidden',
 			get: function get() {
-				for (var thr = this.next; thr && thr.hidden; thr = thr.next) {}
+				var thr = void 0;
+				for (thr = this.next; thr && thr.hidden; thr = thr.next) {}
 				return thr;
 			}
 		}, {
 			key: 'prevNotHidden',
 			get: function get() {
-				for (var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
+				var thr = void 0;
+				for (thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
 				return thr;
 			}
 		}, {
@@ -18587,20 +18594,20 @@ true, true];
 				return value;
 			},
 			get hasWorker() {
-				var val = false;
+				var value = false;
 				try {
-					val = 'Worker' in window && 'URL' in window;
+					value = 'Worker' in window && 'URL' in window;
 				} catch (e) {}
-				if (val && this.isFirefox) {
-					val = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
+				if (value && this.isFirefox) {
+					value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
 				}
-				Object.defineProperty(this, 'hasWorker', { value: val });
-				return val;
+				Object.defineProperty(this, 'hasWorker', { value: value });
+				return value;
 			},
 			get canPlayMP3() {
-				var val = !!new Audio().canPlayType('audio/mpeg;');
-				Object.defineProperty(this, 'canPlayMP3', { value: val });
-				return val;
+				var value = !!new Audio().canPlayType('audio/mpeg;');
+				Object.defineProperty(this, 'canPlayMP3', { value: value });
+				return value;
 			},
 			get matchesSelector() {
 				var dE = doc.documentElement;
@@ -18979,9 +18986,9 @@ true, true];
 		}, {
 			key: 'qThread',
 			get: function get() {
-				var val = $q('.thread') ? '.thread' : '[id^="thread"]';
-				Object.defineProperty(this, 'qThread', { value: val });
-				return val;
+				var value = $q('.thread') ? '.thread' : '[id^="thread"]';
+				Object.defineProperty(this, 'qThread', { value: value });
+				return value;
 			}
 		}, {
 			key: 'capLang',
@@ -19036,13 +19043,13 @@ true, true];
 		}, {
 			key: 'lastPage',
 			get: function get() {
-				var el = $q(this.qPages),
-				    val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
-				if (this.page === val + 1) {
-					val++;
+				var el = $q(this.qPages);
+				var value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
+				if (this.page === value + 1) {
+					value++;
 				}
-				Object.defineProperty(this, 'lastPage', { value: val });
-				return val;
+				Object.defineProperty(this, 'lastPage', { value: value });
+				return value;
 			}
 		}, {
 			key: 'markupTags',
@@ -19057,9 +19064,9 @@ true, true];
 		}, {
 			key: 'reCrossLinks',
 			get: function get() {
-				var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
-				Object.defineProperty(this, 'reCrossLinks', { value: val });
-				return val;
+				var value = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+				Object.defineProperty(this, 'reCrossLinks', { value: value });
+				return value;
 			}
 		}, {
 			key: 'thrId',
@@ -19278,10 +19285,10 @@ true, true];
 			}, {
 				key: 'lastPage',
 				get: function get() {
-					var els = $Q('.pager > a:not([class])'),
-					    val = els ? els.length : 1;
-					Object.defineProperty(this, 'lastPage', { value: val });
-					return val;
+					var els = $Q('.pager > a:not([class])');
+					var value = els ? els.length : 1;
+					Object.defineProperty(this, 'lastPage', { value: value });
+					return value;
 				}
 			}, {
 				key: 'markupTags',
@@ -20667,9 +20674,9 @@ true, true];
 						img.src = src;
 						cap.textEl.value = '';
 					} else if (isErr) {
-						var _el11 = img.parentNode;
-						_el11.innerHTML = '';
-						_el11.appendChild(img);
+						var _el12 = img.parentNode;
+						_el12.innerHTML = '';
+						_el12.appendChild(img);
 						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
 						$show(img);
 						cap.isAdded = false;
