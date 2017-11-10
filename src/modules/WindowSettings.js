@@ -240,7 +240,7 @@ const cfgWindow = Object.create({
 				lang = el.selectedIndex;
 				panel.remove();
 				if(pr.form) {
-					pr.addTextPanel();
+					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
 					if(pr.files) {
@@ -289,7 +289,7 @@ const cfgWindow = Object.create({
 				pr.isBottom = Cfg.addPostForm === 1;
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
-			case 'addTextBtns': pr.addTextPanel(); break;
+			case 'addTextBtns': pr.addMarkupPanel(); break;
 			case 'scriptStyle': this._updateCSS();
 			}
 			return;
@@ -394,7 +394,7 @@ const cfgWindow = Object.create({
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
 				break;
-			case 'txtBtnsLoc': pr.addTextPanel(); break;
+			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
 			case 'noName': PostForm.hideField(pr.name); break;

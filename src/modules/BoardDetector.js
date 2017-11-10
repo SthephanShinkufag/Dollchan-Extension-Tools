@@ -1389,7 +1389,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr,
 					form > div:first-of-type > hr, h2, .sage { display: none; }
 				.de-thr-hid { float: none; }
-				.de-video-obj-inline { margin-left: 5px; }\
+				.de-video-obj-inline { margin-left: 5px; }
 				div[id^="Wz"] { z-index: 10000 !important; }
 				form[action="/paint"] > select { width: 105px; }
 				form[action="/paint"] > input[type="text"] { width: 24px !important; }`;

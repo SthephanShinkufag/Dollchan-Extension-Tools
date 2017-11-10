@@ -714,10 +714,7 @@ class Post extends AbstractPost {
 		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
 		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img':
-			var img = this.images.firstAttach,
-				w = img.weight,
-				wi = img.width,
-				h = img.height;
+			const { weight: w, width: wi, height: h } = this.images.firstAttach;
 			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'hide-imgn':

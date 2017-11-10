@@ -187,8 +187,8 @@ AttachmentViewer.prototype = {
 		if(delta === 0) {
 			return;
 		}
-		var width, height, oldW = this._width,
-			oldH = this._height;
+		let width, height;
+		const { _width: oldW, _height: oldH } = this;
 		if(delta > 0) {
 			width = oldW / this._zoomFactor;
 			height = oldH / this._zoomFactor;
@@ -294,14 +294,13 @@ AttachmentViewer.prototype = {
 		if(el !== this._fullEl) {
 			return;
 		}
-		const width = this._width;
-		const height = this._height;
-		this._width = height;
-		this._height = width;
-		this._elStyle.width = height + 'px';
-		this._elStyle.height = width + 'px';
-		const halfWidth = width / 2;
-		const halfHeight = height / 2;
+		const { _width, _height } = this;
+		this._width = _height;
+		this._height = _width;
+		this._elStyle.width = _height + 'px';
+		this._elStyle.height = _width + 'px';
+		const halfWidth = _width / 2;
+		const halfHeight = _height / 2;
 		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 	}
@@ -495,12 +494,11 @@ class ExpandableMedia {
 					}
 					return;
 				}
-				const newWidth = target.naturalWidth;
-				const newHeight = target.naturalHeight;
-				const ar = this._size ? this._size[1] / this._size[0] : newHeight / newWidth;
+				const { naturalWidth: newW, naturalHeight: newH } = target;
+				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
 				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
 				if(!this._size || isExifRotated) {
-					this._size = isExifRotated ? [newHeight, newWidth] : [newWidth, newHeight];
+					this._size = isExifRotated ? [newH, newW] : [newW, newH];
 				}
 				const el = target.previousElementSibling;
 				if(el) {
@@ -710,11 +708,10 @@ var ImagesHashStorage = Object.create({
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		var data, buffer, val = -1,
-			w = el.naturalWidth,
-			h = el.naturalHeight;
+		let data, buffer, val = -1;
+		const { naturalWidth: w, naturalHeight: h } = el;
 		if(aib.fch) {
-			var imgData = await downloadImgData(el.src);
+			const imgData = await downloadImgData(el.src);
 			if(imgData) {
 				({ buffer } = imgData);
 			}

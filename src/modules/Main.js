@@ -77,7 +77,7 @@ async function runMain(checkDomains, dataPromise) {
 	try {
 		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 		if(!Thread.first) {
-			throw new Error('No threads detected!');
+			console.error('No threads detected!');
 		}
 	} catch(e) {
 		console.error('Delform parsing error:', getErrorMessage(e));

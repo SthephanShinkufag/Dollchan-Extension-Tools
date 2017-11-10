@@ -1212,7 +1212,7 @@ const Lng = {
 	postNotFound: [
 		'Пост не найден',
 		'Post not found',
-		'пост не знайдено'],
+		'Пост не знайдено'],
 	noHidThr: [
 		'Нет скрытых тредов…',
 		'No hidden threads…',
