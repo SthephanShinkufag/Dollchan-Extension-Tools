@@ -108,7 +108,7 @@ async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-		let hasGlobal = nav.isGlobal && !!val.global;
+		const hasGlobal = nav.isGlobal && !!val.global;
 		obj = hasGlobal ? val.global : {};
 		if(hasGlobal) {
 			delete obj.correctTime;
@@ -343,10 +343,10 @@ class PostsStorage extends null {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5000) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
-			for(let b in storage) {
+			for(const b in storage) {
 				if(storage.hasOwnProperty(b)) {
 					const data = storage[b];
-					for(let key in data) {
+					for(const key in data) {
 						if(data.hasOwnProperty(key) && data[key][0] < minDate) {
 							delete data[key];
 						}
@@ -410,7 +410,7 @@ class HiddenThreads extends PostsStorage {
 	static getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
-		for(let b in storage) {
+		for(const b in storage) {
 			rv += Object.keys(storage[b]).length;
 		}
 		return rv;
@@ -464,7 +464,7 @@ MyPosts._cachedData = null;
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
-		var data, temp, post, val = e.newValue;
+		let data, temp, val = e.newValue;
 		if(!val) {
 			return;
 		}
@@ -488,7 +488,8 @@ function initStorageEvent() {
 				HiddenThreads.purge();
 				HiddenPosts.purge();
 				if(data.brd === aib.b) {
-					if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
+					let post = pByNum.get(data.num);
+					if(post && (post.hidden ^ data.hide)) {
 						post.setUserVisib(data.hide, false);
 					} else if((post = pByNum.get(data.thrNum))) {
 						post.thr.userTouched.set(data.num, data.hide);

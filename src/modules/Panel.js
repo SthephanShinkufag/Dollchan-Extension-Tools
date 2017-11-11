@@ -2,77 +2,87 @@
                                                   MAIN PANEL
 =========================================================================================================== */
 
-var panel = Object.create({
-	_el     : null,
-	_hideTO : 0,
-	_menu   : null,
-	_menuTO : 0,
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	},
-	get _acountEl() {
+class Panel extends null {
+	static init(formEl) {
+		const imgLen = $Q(aib.qPostImg, formEl).length;
+		const isThr = aib.t;
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+			<div id="de-panel">
+				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
+					<svg class="de-panel-logo-svg">
+						<use xlink:href="#de-symbol-panel-logo"/>
+					</svg>
+				</div>
+				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
+				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
+					this._getButton('hid') +
+					this._getButton('fav') +
+					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
+					(localData ? '' :
+						this._getButton('refresh') +
+						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
+						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+					this._getButton('goup') +
+					this._getButton('godown') +
+					(imgLen === 0 ? '' :
+						this._getButton('expimg') +
+						this._getButton('maskimg')) +
+					(nav.Presto || localData ? '' :
+						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
+						(!isThr ? '' : this._getButton('savethr'))) +
+					(!isThr || localData ? '' :
+						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
+						(nav.isSafari ? '' : this._getButton('audio-off'))) +
+					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
+					this._getButton('enable') +
+					(!isThr ? '' : `<span id="de-panel-info">
+						<span id="de-panel-info-pcount" title="` +
+							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
+							`${ Thread.first.pcount }</span>
+						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
+							${ imgLen }</span>
+						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
+					</span>`)) }
+				</span>
+			</div>
+			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
+		</div>`);
+		this._el = $id('de-panel');
+		this._el.addEventListener('click', this.handleEvent, true);
+		this._el.addEventListener('mouseover', this.handleEvent);
+		this._el.addEventListener('mouseout', this.handleEvent);
+		this._buttons = $id('de-panel-buttons');
+		this.isNew = true;
+	}
+	static remove() {
+		this._el.removeEventListener('click', this.handleEvent, true);
+		this._el.removeEventListener('mouseover', this.handleEvent);
+		this._el.removeEventListener('mouseout', this.handleEvent);
+		delete this._pcountEl;
+		delete this._icountEl;
+		delete this._acountEl;
+		$del($id('de-main'));
+	}
+	static get _acountEl() {
 		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
-	},
-	_getButton(id) {
-		var p, href, title, useId;
-		switch(id) {
-		case 'goback':
-			p = Math.max(aib.page - 1, 0);
-			href = aib.getPageUrl(aib.b, p);
-			if(!aib.t) {
-				title = Lng.panelBtn.gonext[lang].replace('%s', p);
-			}
-			useId = 'arrow';
-			break;
-		case 'gonext':
-			p = aib.page + 1;
-			href = aib.getPageUrl(aib.b, p);
-			title = Lng.panelBtn.gonext[lang].replace('%s', p);
-			/* falls through */
-		case 'goup':
-		case 'godown':
-			useId = 'arrow';
-			break;
-		case 'upd-on':
-		case 'upd-off':
-			useId = 'upd';
-			break;
-		case 'catalog':
-			href = aib.catalogUrl;
-		}
-		var panelTitle = title || Lng.panelBtn[id][lang];
-		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
-		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
-			panelTitle }" href="${ href || '#' }">
-			<svg class="de-panel-svg">
-			${ id !== 'audio-off' ? `
-				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
-				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
-				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
-			</svg>
-		</a>`;
-	},
-	_prepareToHide(rt) {
-		if(!Cfg.expandPanel && !$q('.de-win-active') &&
-			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
-		) {
-			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
-		}
-	},
-	handleEvent(e) {
+	}
+	static get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	}
+	static get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	}
+	static handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		var el = fixEventEl(e.target);
+		let el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
 		}
@@ -81,7 +91,7 @@ var panel = Object.create({
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide(this._buttons);
+					$hide(Panel._buttons);
 				}
 				toggleCfg('expandPanel');
 				return;
@@ -95,14 +105,14 @@ var panel = Object.create({
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
-				for(var post = Thread.first.op; post; post = post.next) {
+				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}
 				break;
 			case 'de-panel-preimg':
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
-					for(var form of DelForm) {
+					for(const form of DelForm) {
 						preloadImages(form.el);
 					}
 				}
@@ -137,8 +147,8 @@ var panel = Object.create({
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
-				clearTimeout(this._hideTO);
-				$show(this._buttons);
+				clearTimeout(Panel._hideTO);
+				$show(Panel._buttons);
 			}
 			switch(el.id) {
 			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
@@ -155,93 +165,82 @@ var panel = Object.create({
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				if(this._menu && this._menu.parentEl === el) {
+				if(Panel._menu && Panel._menu.parentEl === el) {
 					return;
 				}
-				this._menuTO = setTimeout(() => {
-					this._menu = addMenu(el);
-					this._menu.onover = () => clearTimeout(this._hideTO);
-					this._menu.onout = () => this._prepareToHide(null);
-					this._menu.onremove = () => (this._menu = null);
+				Panel._menuTO = setTimeout(() => {
+					Panel._menu = addMenu(el);
+					Panel._menu.onover = () => clearTimeout(Panel._hideTO);
+					Panel._menu.onout = () => Panel._prepareToHide(null);
+					Panel._menu.onremove = () => (Panel._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide(fixEventEl(e.relatedTarget));
+			Panel._prepareToHide(fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				clearTimeout(this._menuTO);
-				this._menuTO = 0;
+				clearTimeout(Panel._menuTO);
+				Panel._menuTO = 0;
 			}
 		}
-	},
-	init(formEl) {
-		var imgLen = $Q(aib.qPostImg, formEl).length,
-			isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `
-		<div id="de-main">
-			<div id="de-panel">
-				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
-					<svg class="de-panel-logo-svg">
-						<use xlink:href="#de-symbol-panel-logo"/>
-					</svg>
-				</div>
-				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
-					this._getButton('hid') +
-					this._getButton('fav') +
-					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localData ? '' :
-						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
-						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
-					this._getButton('goup') +
-					this._getButton('godown') +
-					(imgLen === 0 ? '' :
-						this._getButton('expimg') +
-						this._getButton('maskimg')) +
-					(nav.Presto || localData ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
-						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localData ? '' :
-						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.isSafari ? '' : this._getButton('audio-off'))) +
-					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
-					this._getButton('enable') +
-					(!isThr ? '' : '<span id="de-panel-info">' +
-						'<span id="de-panel-info-pcount" title="' +
-							Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' +
-							Thread.first.pcount + '</span>' +
-						`<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">` +
-							`${ imgLen }</span>` +
-						`<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>` +
-					'</span>')) }
-				</span>
-			</div>
-			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
-		</div>`);
-		this._el = $id('de-panel');
-		this._el.addEventListener('click', this, true);
-		this._el.addEventListener('mouseover', this);
-		this._el.addEventListener('mouseout', this);
-		this._buttons = $id('de-panel-buttons');
-		this.isNew = true;
-	},
-	remove() {
-		this._el.removeEventListener('click', this, true);
-		this._el.removeEventListener('mouseover', this);
-		this._el.removeEventListener('mouseout', this);
-		delete this._pcountEl;
-		delete this._icountEl;
-		delete this._acountEl;
-		$del($id('de-main'));
-	},
-	updateCounter(postCount, imgsCount, postersCount) {
+	}
+	static updateCounter(postCount, imgsCount, postersCount) {
 		this._pcountEl.textContent = postCount;
 		this._icountEl.textContent = imgsCount;
 		this._acountEl.textContent = postersCount;
 		this.isNew = false;
 	}
-});
+
+	static _getButton(id) {
+		let page, href, title, useId;
+		switch(id) {
+		case 'goback':
+			page = Math.max(aib.page - 1, 0);
+			href = aib.getPageUrl(aib.b, page);
+			if(!aib.t) {
+				title = Lng.panelBtn.gonext[lang].replace('%s', page);
+			}
+			useId = 'arrow';
+			break;
+		case 'gonext':
+			page = aib.page + 1;
+			href = aib.getPageUrl(aib.b, page);
+			title = Lng.panelBtn.gonext[lang].replace('%s', page);
+			/* falls through */
+		case 'goup':
+		case 'godown':
+			useId = 'arrow';
+			break;
+		case 'upd-on':
+		case 'upd-off':
+			useId = 'upd';
+			break;
+		case 'catalog':
+			href = aib.catalogUrl;
+		}
+		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
+		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
+			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
+			<svg class="de-panel-svg">
+			${ id !== 'audio-off' ? `
+				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
+				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
+				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
+			</svg>
+		</a>`;
+	}
+	static _prepareToHide(rt) {
+		if(!Cfg.expandPanel && !$q('.de-win-active') &&
+			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
+		) {
+			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
+		}
+	}
+}
+Panel._el = null;
+Panel._hideTO = 0;
+Panel._menu = null;
+Panel._menuTO = 0;

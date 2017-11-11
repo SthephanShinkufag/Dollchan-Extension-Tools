@@ -10,6 +10,9 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
+		if(!aib) {
+			return;
+		}
 	}
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
@@ -41,7 +44,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	addSVGIcons();
 	if(Cfg.disabled) {
-		panel.init(formEl);
+		Panel.init(formEl);
 		scriptCSS();
 		return;
 	}
@@ -100,7 +103,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	initPage();
 	Logger.log('Init page');
-	panel.init(formEl);
+	Panel.init(formEl);
 	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();

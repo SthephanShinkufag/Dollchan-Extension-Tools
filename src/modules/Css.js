@@ -22,7 +22,7 @@ function scriptCSS() {
 	#de-panel-upd-warn { fill: #fff441; }
 	#de-panel-upd-off { fill: #ff3232; }
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
+	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-svg-fill { stroke: none; fill: currentColor; }

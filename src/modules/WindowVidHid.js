@@ -5,7 +5,7 @@
 function showVideosWindow(body) {
 	const els = $Q('.de-video-link');
 	if(!els.length) {
-		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
+		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
 	if(!$id('de-ytube-api')) {
@@ -99,9 +99,9 @@ function showVideosWindow(body) {
 				case 'de-video-btn-resize': { // Expand/collapse video player
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
-					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
-						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
+					this.linkList.style.maxWidth = `${ exp ? 894 : +Cfg.YTubeWidth + 40 }px`;
+					this.linkList.style.maxHeight = `${ nav.viewportHeight() * 0.92 -
+						(exp ? 562 : +Cfg.YTubeHeigh + 82) }px`;
 				}
 				}
 				$pd(e);
@@ -146,7 +146,7 @@ function showHiddenWindow(body) {
 	const hasThreads = !$isEmpty(hThr);
 	if(hasThreads) {
 		// Generate DOM for the list of hidden threads
-		for(let b in hThr) {
+		for(const b in hThr) {
 			if($isEmpty(hThr[b])) {
 				continue;
 			}
@@ -154,8 +154,8 @@ function showHiddenWindow(body) {
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
 				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
-			for(let tNum in hThr[b]) {
-				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
+			for(const tNum in hThr[b]) {
+				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
 					<input type="checkbox">
 					<a href="${ aib.getThrUrl(b, tNum) }" target="_blank">${ tNum }</a>
 					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
@@ -163,7 +163,7 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThr[lang] + '</b></center><hr>');
+	$bEnd(body, hasThreads ? '<hr>' : `<center><b>${ Lng.noHidThr[lang] }</b></center><hr>`);
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
 	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {

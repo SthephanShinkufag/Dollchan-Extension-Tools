@@ -21,8 +21,7 @@ function makeDraggable(name, win, head) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
 			}
-			var curX = e.clientX,
-				curY = e.clientY;
+			const { clientX: curX, clientY: curY } = e;
 			switch(e.type) {
 			case 'mousedown':
 				this._oldX = curX;
@@ -44,13 +43,13 @@ function makeDraggable(name, win, head) {
 				const y = cr.top + curY - this._oldY;
 				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
-					'left: ' + x + 'px';
+					`left: ${ x }px`;
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
-					'top: ' + y + 'px';
+					`top: ${ y }px`;
 				const { width } = this._wStyle;
-				this._win.setAttribute('style', this._X + '; ' + this._Y +
-					'; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
+				this._win.setAttribute('style', `${ this._X }; ${ this._Y }; z-index: ${ this._Z }${
+					width ? '; width: ' + width : '' }`);
 				this._oldX = curX;
 				this._oldY = curY;
 				return;
@@ -80,7 +79,7 @@ class WinResizer {
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
 		const { width } = this.wStyle;
 		const cr = this.win.getBoundingClientRect();
-		const z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+		const z = `; z-index: ${ this.wStyle.zIndex }${ width ? '; width:' + width : '' }`;
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -91,10 +90,10 @@ class WinResizer {
 				y = Cfg[this.name + 'WinY'];
 			}
 			switch(this.dir) {
-			case 'top': val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z; break;
-			case 'bottom': val = x + '; top: ' + cr.top + 'px' + z; break;
-			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z; break;
-			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
+			case 'top': val = `${ x }; bottom: ${ maxY - cr.bottom }px${ z }`; break;
+			case 'bottom': val = `${ x }; top: ${ cr.top }px${ z }`; break;
+			case 'left': val = `right: ${ maxX - cr.right }px; ${ y + z }`; break;
+			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
 			docBody.addEventListener('mousemove', this);
@@ -126,10 +125,10 @@ class WinResizer {
 			}
 			if(this.vertical) {
 				saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
-					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
+					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
 				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
-					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
+					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 		}
@@ -144,9 +143,9 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	}
 	if(!win) {
 		const winAttr = (Cfg[name + 'WinDrag'] ?
-			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
+			`de-win" style="${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 			'de-win-fixed" style="right: 0; bottom: 25px'
-		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
+		) + (name !== 'fav' ? '' : `; width: ${ Cfg.favWinWidth }px; `);
 		win = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
@@ -208,7 +207,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	updateWinZ(win.style);
 	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
-		(el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))
+		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
@@ -256,7 +255,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': cfgWindow.init(body); break;
+	case 'cfg': new CfgWindow().init(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}

@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 function closePopup(data) {
-	var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
+	const el = typeof data === 'string' ? $id('de-popup-' + data) : data;
 	if(el) {
 		el.closeTimeout = null;
 		if(Cfg.animation) {
@@ -29,8 +29,8 @@ function $popup(id, txt, isWait = false) {
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`));
-		el.onclick = e => {
-			let el = fixEventEl(e.target);
+		el.onclick = ({ target }) => {
+			let el = fixEventEl(target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -51,7 +51,7 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
-			'<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>');
+			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
 		const ta = el.lastChild;
 		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
@@ -95,20 +95,6 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	remove() {
-		if(!this._el) {
-			return;
-		}
-		if(this.onremove) {
-			this.onremove();
-		}
-		this._el.removeEventListener('mouseover', this, true);
-		this._el.removeEventListener('mouseout', this, true);
-		this.parentEl.removeEventListener('mouseout', this);
-		this._el.removeEventListener('click', this);
-		$del(this._el);
-		this._el = null;
-	}
 	handleEvent(e) {
 		let isOverEvent = false;
 		const el = e.target;
@@ -142,21 +128,35 @@ class Menu {
 			}
 		}
 	}
+	remove() {
+		if(!this._el) {
+			return;
+		}
+		if(this.onremove) {
+			this.onremove();
+		}
+		this._el.removeEventListener('mouseover', this, true);
+		this._el.removeEventListener('mouseout', this, true);
+		this.parentEl.removeEventListener('mouseout', this);
+		this._el.removeEventListener('click', this);
+		$del(this._el);
+		this._el = null;
+	}
 }
 
 function addMenu(el) {
 	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
-		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
-			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(',')) +
-			'</div><div style="display: inline-block;">' +
-			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) + '</div>',
+		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
+			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(','))
+		}</div><div style="display: inline-block;">${
+			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) }</div>`,
 		function(el) {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-					'[' + aib.b + ',' + aib.t + ']') +
+					`[${ aib.b },${ aib.t }]`) +
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
@@ -180,7 +180,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
-			var i = aProto.indexOf.call(el.parentNode.children, el);
+			const i = aProto.indexOf.call(el.parentNode.children, el);
 			updater.enable();
 			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';

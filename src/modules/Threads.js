@@ -404,8 +404,8 @@ class Thread {
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
-		if(newPosts !== 0 || panel.isNew) {
-			panel.updateCounter(
+		if(newPosts !== 0 || Panel.isNew) {
+			Panel.updateCounter(
 				pBuilder.length + 1 - this.hidCounter,
 				$Q(aib.qPostImg, this.el).length,
 				pBuilder.postersCount);

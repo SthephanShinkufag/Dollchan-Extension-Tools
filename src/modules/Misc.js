@@ -4,30 +4,30 @@
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
-class DollchanAPI {
+class DollchanAPI extends null {
 	static init() {
-		DollchanAPI.hasListeners = false;
+		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
 		}
 		const channel = new MessageChannel();
-		DollchanAPI.port = channel.port1;
-		DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
-		DollchanAPI.activeListeners = new Set();
+		this.port = channel.port1;
+		this.port.onmessage = this._handleMessage;
+		this.activeListeners = new Set();
 		const port = channel.port2;
 		doc.defaultView.addEventListener('message', ({ data }) => {
 			if(data === 'de-request-api-message') {
-				DollchanAPI.hasListeners = true;
+				this.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	}
 	static hasListener(name) {
-		return DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name);
+		return this.hasListeners && this.activeListeners.has(name);
 	}
 	static notify(name, data) {
-		if(DollchanAPI.hasListener(name)) {
-			DollchanAPI.port.postMessage({ name, data });
+		if(this.hasListener(name)) {
+			this.port.postMessage({ name, data });
 		}
 	}
 
@@ -57,7 +57,7 @@ class DollchanAPI {
 		case 'submitform': break;
 		default: return false;
 		}
-		DollchanAPI.activeListeners.add(name);
+		this.activeListeners.add(name);
 		return true;
 	}
 }

@@ -2,7 +2,7 @@
 
 const babelify     = require('babelify');
 const browserify   = require('browserify');
-const spawn        = require('child_process').spawn;
+const { spawn }    = require('child_process');
 const gulp         = require('gulp');
 const newfile      = require('gulp-file');
 const headerfooter = require('gulp-headerfooter');

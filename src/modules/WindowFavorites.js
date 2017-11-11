@@ -28,15 +28,15 @@ function cleanFavorites() {
 function showFavoritesWindow(body, data) {
 	let html = '';
 	// Create the list of favorite threads
-	for(let h in data) {
-		for(let b in data[h]) {
-			let d = data[h][b];
+	for(const h in data) {
+		for(const b in data[h]) {
+			const d = data[h][b];
 			let innerHtml = '';
-			for(let tNum in d) {
+			for(const tNum in d) {
 				if(tNum === 'url') { // Ignore keys with board url's
 					continue;
 				}
-				let t = d[tNum];
+				const t = d[tNum];
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
@@ -46,13 +46,10 @@ function showFavoritesWindow(body, data) {
 					!t.last ? '' :
 					t.last.startsWith('#') ? t.last :
 					h === aib.host ? aib.anchor + t.last : '');
-				const favInfIwrapTitle =
-					!t.err ? '' :
-					t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
-					'title="' + t.err + '"';
+				const favInfIwrapTitle = !t.err ? '' :
+					t.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ t.err }"`;
 				const favInfIconClass = !t.err ? '' :
-					t.err === 'Closed' || t.err === 'Archived' ?
-						'de-fav-closed' : 'de-fav-unavail';
+					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
@@ -95,7 +92,7 @@ function showFavoritesWindow(body, data) {
 
 	// Appending DOM and events
 	if(html) {
-		$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', e => {
+		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
 			let el = e.target;
 			switch(el.className) {
 			case 'de-fav-link':
@@ -131,7 +128,7 @@ function showFavoritesWindow(body, data) {
 			}
 		});
 	} else {
-		$bEnd(body, '<center><b>' + Lng.noFavThr[lang] + '</b></center>');
+		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
 
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
@@ -142,7 +139,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
-		let fav = await getStoredObj('DESU_Favorites');
+		const fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
 		}
@@ -155,7 +152,7 @@ function showFavoritesWindow(body, data) {
 			const host = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			let f = fav[host][b][num];
+			const f = fav[host][b][num];
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
@@ -259,7 +256,7 @@ function showFavoritesWindow(body, data) {
 	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
-		let thrInfo = [];
+		const thrInfo = [];
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
@@ -288,7 +285,7 @@ function showFavoritesWindow(body, data) {
 		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
-				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
+				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;

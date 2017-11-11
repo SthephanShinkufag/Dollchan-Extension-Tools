@@ -1645,8 +1645,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new ibDomains[dm](prot, dm);
 		}
 	}
-	dm = window.location.hostname.match(
-		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	dm = window.location.hostname;
+	if(!dm) {
+		return null;
+	}
+	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkEngines) {
 		for(var i = ibEngines.length - 1; i >= 0; --i) {
 			var [path, Ctor] = ibEngines[i];

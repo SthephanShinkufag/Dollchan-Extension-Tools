@@ -163,7 +163,7 @@ const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = b => '/' + b + (b ? '/' : '');
+const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot + url :
@@ -191,7 +191,7 @@ function $pd(e) {
 }
 
 function $isEmpty(obj) {
-	for(let i in obj) {
+	for(const i in obj) {
 		if(obj.hasOwnProperty(i)) {
 			return false;
 		}
@@ -220,12 +220,12 @@ function fixEventEl(el) {
 }
 
 // Allows to record the duration of code execution
-const Logger = {
-	finish() {
+class Logger extends null {
+	static finish() {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
-	},
-	getData(full) {
+	}
+	static getData(full) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -243,19 +243,18 @@ const Logger = {
 		duration = marks[i][1] - marks[0][1];
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
-	},
-	init() {
+	}
+	static init() {
 		this._marks.push(['LoggerInit', Date.now()]);
-	},
-	log(text) {
+	}
+	static log(text) {
 		if(!this._finished) {
 			this._marks.push([text, Date.now()]);
 		}
-	},
-
-	_finished : false,
-	_marks    : []
-};
+	}
+}
+Logger._finished = false;
+Logger._marks = [];
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -307,7 +306,7 @@ class CancelablePromise {
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
 			() => {
-				for(let child of children) {
+				for(const child of children) {
 					child.cancel();
 				}
 				this.cancel();
@@ -392,7 +391,7 @@ class TasksPool {
 			}
 		}
 	}
-	'continue'() {
+	continue() {
 		if(!this.stopped) {
 			this.paused = false;
 			if(this.array.length === 0) {
@@ -678,12 +677,11 @@ function getErrorMessage(e) {
 		return e;
 	}
 	return Lng.internalError[lang] + (
-		!e.stack ? e.name + ': ' + e.message :
-		nav.isWebkit ? e.stack :
-		e.name + ': ' + e.message + '\n' + (!nav.isFirefox ? e.stack : e.stack.replace(
+		!e.stack ? `${ e.name }: ${ e.message }` :
+		nav.isWebkit ? e.stack : `${ e.name }: ${ e.message }\n${ !nav.isFirefox ? e.stack : e.stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
-			(str, fName, line) => '    at ' + (fName ? fName + ' (' + line + ')' : line)
-		))
+			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
+		) }`
 	);
 }
 

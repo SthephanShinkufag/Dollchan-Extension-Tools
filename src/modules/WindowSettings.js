@@ -2,7 +2,7 @@
                                                WINDOW: SETTINGS
 =========================================================================================================== */
 
-const cfgWindow = Object.create({
+class CfgWindow {
 	init(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
@@ -34,7 +34,7 @@ const cfgWindow = Object.create({
 
 		// "Global" button. Allows to save/load global settings.
 		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
-			const el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
+			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
@@ -52,7 +52,7 @@ const cfgWindow = Object.create({
 			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				const obj = {};
 				const com = data[aib.dm];
-				for(let i in com) {
+				for(const i in com) {
 					if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
 						i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
 					) {
@@ -63,21 +63,21 @@ const cfgWindow = Object.create({
 				saveCfgObj('global', data.global);
 				toggleWindow('cfg', true);
 			});
-			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
+			el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
 		}));
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
-			$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' +
-				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
+			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
+				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
 					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')'
+					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+					Lng.myPosts[lang] + ` (${ aib.dm })'`
 				]) + '</div></div>');
 
 			// Import data from a file to the storage
@@ -145,35 +145,35 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg'); {
-						let cfgData = await Promise.all([
+						const cfgData = await Promise.all([
 							getStored('DESU_Config'),
 							getStored('DESU_keys'),
 							getStored('DESU_Exclude')
 						]);
-						val.push('"settings":' + cfgData[0],
-							'"hotkeys":' + (cfgData[1] || '""'),
+						val.push(`"settings":${ cfgData[0] }`,
+							`"hotkeys":${ cfgData[1] || '""' }`,
 							`"exclude":"${ cfgData[2] || '' }"`);
 						break;
 					}
 					case 1: name.push('Fav');
-						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
+						val.push(`"favorites":${ (await getStored('DESU_Favorites')) || '{}' }`);
 						break;
 					case 2: nameDm.push('Hid');
-						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'),
-							'"threads":' + (locStorage['de-threads'] || '{}'));
+						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+							`"threads":${ locStorage['de-threads'] || '{}' }`);
 						break;
 					case 3: nameDm.push('You');
-						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
+						valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
 					}
 				}
 				if((valDm = valDm.join(','))) {
-					val.push('"' + aib.dm + '":{' + valDm + '}');
-					name.push(aib.dm + '(' + nameDm.join('+') + ')');
+					val.push(`"${ aib.dm }":{${ valDm }}`);
+					name.push(`${ aib.dm } (${ nameDm.join('+') })`);
 				}
 				if((val = val.join(','))) {
-					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
-						'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
-						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+					downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
+						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
+							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
 				}
 				$pd(e);
 			}, true);
@@ -220,7 +220,7 @@ const cfgWindow = Object.create({
 			$popup('cfg-reset', Lng.updating[lang], true);
 			window.location.reload();
 		}))));
-	},
+	}
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
@@ -238,7 +238,7 @@ const cfgWindow = Object.create({
 			switch(info) {
 			case 'language':
 				lang = el.selectedIndex;
-				panel.remove();
+				Panel.remove();
 				if(pr.form) {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
@@ -249,7 +249,7 @@ const cfgWindow = Object.create({
 					}
 				}
 				this._updateCSS();
-				panel.init(DelForm.first.el);
+				Panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
 			case 'delHiddPost': {
@@ -362,7 +362,7 @@ const cfgWindow = Object.create({
 			}
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
-					for(let form of DelForm) {
+					for(const form of DelForm) {
 						processImagesLinks(form.el, 1, 0);
 					}
 				} else {
@@ -371,7 +371,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
-					for(let form of DelForm) {
+					for(const form of DelForm) {
 						processImagesLinks(form.el, 0, 1);
 					}
 				} else {
@@ -408,7 +408,7 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'turnOff': getStoredObj('DESU_Config').then(data => {
-				for(let dm in data) {
+				for(const dm in data) {
 					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 						data[dm].disabled = Cfg.turnOff;
 					}
@@ -448,15 +448,14 @@ const cfgWindow = Object.create({
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
 			case 'de-cfg-btn-debug':
-				$popup('cfg-debug',
-					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
+				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version,
 					location : String(window.location),
 					nav,
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
-					oSpells  : sesStorage['de-spells-' + aib.b + (aib.t || '')],
+					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getData(true)
 				}, function(key, value) {
 					switch(key) {
@@ -533,7 +532,7 @@ const cfgWindow = Object.create({
 		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
-	},
+	}
 
 	// Switch content in Settings by clicking on tab
 	_clickTab(info) {
@@ -595,7 +594,7 @@ const cfgWindow = Object.create({
 				el.selectedIndex = Cfg[info];
 			}
 		}
-	},
+	}
 
 	// "Filters" tab
 	_getCfgFilters() {
@@ -605,8 +604,8 @@ const cfgWindow = Object.create({
 				<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">${ Lng.add[lang] }</a>
 				<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">${ Lng.apply[lang] }</a>
 				<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">${ Lng.clear[lang] }</a>
-				<a class="de-abtn de-spell-btn" href="${ gitWiki +
-					'Spells-' + (lang ? 'en' : 'ru') }" target="_blank">[?]</a>
+				<a class="de-abtn de-spell-btn" href="${ gitWiki }Spells-` +
+					`${ lang ? 'en' : 'ru' }" target="_blank">[?]</a>
 			</div>
 			<div id="de-spell-editor">
 				<div id="de-spell-rowmeter"></div>
@@ -617,14 +616,14 @@ const cfgWindow = Object.create({
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
-	},
+	}
 
 	// "Posts" tab
 	_getCfgPosts() {
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
-			${ localData ? '' : this._getBox('ajaxUpdThr') +
-				this._getInp('updThrDelay') +
-				`<div class="de-cfg-depend">
+			${ localData ? '' : `${ this._getBox('ajaxUpdThr') }
+				${ this._getInp('updThrDelay') }
+				<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
@@ -645,14 +644,14 @@ const cfgWindow = Object.create({
 			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset') }
-			<a class="de-abtn" target="_blank" href="${ gitWiki +
-				'Settings-time-' + (lang ? 'en' : 'ru') }">[?]</a>
+			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
+				`${ lang ? 'en' : 'ru' }">[?]</a>
 			<div class="de-cfg-depend">
 				${ this._getInp('timePattern', true, 24) }<br>
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
 		</div>`;
-	},
+	}
 
 	// "Images" tab
 	_getCfgImages() {
@@ -679,7 +678,7 @@ const cfgWindow = Object.create({
 			${ this._getBox('delImgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
-	},
+	}
 
 	// "Links" tab
 	_getCfgLinks() {
@@ -713,7 +712,7 @@ const cfgWindow = Object.create({
 				${ this._getBox('addVimeo') }
 			</div>
 		</div>`;
-	},
+	}
 
 	// "Form" tab
 	_getCfgForm() {
@@ -749,7 +748,7 @@ const cfgWindow = Object.create({
 				(pr.name ? this._getBox('noName') : '') +
 				(pr.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
-	},
+	}
 
 	// "Common" tab
 	_getCfgCommon() {
@@ -772,14 +771,14 @@ const cfgWindow = Object.create({
 				`<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
-						Lng.checkNow[lang] + `">
+						`${ Lng.checkNow[lang] }">
 				</div>` : '' }
 			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
 				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
 				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
 				this._getBox('turnOff') : '' }
 		</div>`;
-	},
+	}
 
 	// "Info" tab
 	_getCfgInfo() {
@@ -788,7 +787,7 @@ const cfgWindow = Object.create({
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
 					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
-				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
+				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">` +
@@ -803,52 +802,46 @@ const cfgWindow = Object.create({
 			<input type="button" id="de-cfg-btn-debug" value="` +
 				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
-	},
+	}
 
 	// Creates a label with checkbox for option switching
 	_getBox(id) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
 		</label>`;
-	},
-
-	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	},
-
-	// Creates a select for multiple option values
-	_getSel(id) {
-		const x = Lng.cfg[id];
-		let opt = [];
-		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-		}
-		return `<label class="de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
-		</label>`;
-	},
-
+	}
 	// Creates a table for Info tab
 	_getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
-	},
-
+	}
+	// Creates a text input for text option values
+	_getInp(id, addText = true, size = 2) {
+		return `<label class="de-cfg-label">
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
+				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
+	}
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
 		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	},
-
+	}
+	// Creates a select for multiple option values
+	_getSel(id) {
+		const x = Lng.cfg[id];
+		const opt = [];
+		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
+			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
+		}
+		return `<label class="de-cfg-label">
+			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
+		</label>`;
+	}
 	// Creates a tab for tab bar
 	_getTab(name) {
 		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	},
-
+	}
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;
@@ -856,11 +849,11 @@ const cfgWindow = Object.create({
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
-	},
+	}
 	_updateCSS() {
 		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
-	},
+	}
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
@@ -894,8 +887,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-	},
-
+	}
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
 		const top = node.scrollTop;
@@ -903,13 +895,13 @@ const cfgWindow = Object.create({
 		let num = el.numLines || 1;
 		let i = 17;
 		if(num - i < ((top / 12) | 0 + 1)) {
-			var str = '';
+			let str = '';
 			while(i--) {
-				str += num++ + '<br>';
+				str += `${ num++ }<br>`;
 			}
 			el.insertAdjacentHTML('beforeend', str);
 			el.numLines = num;
 		}
 		el.scrollTop = top;
 	}
-});
+}

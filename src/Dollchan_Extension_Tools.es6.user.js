@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '3e8ce96';
+const commit = '5071554';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1677,7 +1677,7 @@ const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = b => '/' + b + (b ? '/' : '');
+const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot + url :
@@ -1705,7 +1705,7 @@ function $pd(e) {
 }
 
 function $isEmpty(obj) {
-	for(let i in obj) {
+	for(const i in obj) {
 		if(obj.hasOwnProperty(i)) {
 			return false;
 		}
@@ -1734,12 +1734,12 @@ function fixEventEl(el) {
 }
 
 // Allows to record the duration of code execution
-const Logger = {
-	finish() {
+class Logger extends null {
+	static finish() {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
-	},
-	getData(full) {
+	}
+	static getData(full) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -1757,19 +1757,18 @@ const Logger = {
 		duration = marks[i][1] - marks[0][1];
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
-	},
-	init() {
+	}
+	static init() {
 		this._marks.push(['LoggerInit', Date.now()]);
-	},
-	log(text) {
+	}
+	static log(text) {
 		if(!this._finished) {
 			this._marks.push([text, Date.now()]);
 		}
-	},
-
-	_finished : false,
-	_marks    : []
-};
+	}
+}
+Logger._finished = false;
+Logger._marks = [];
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -1821,7 +1820,7 @@ class CancelablePromise {
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
 			() => {
-				for(let child of children) {
+				for(const child of children) {
 					child.cancel();
 				}
 				this.cancel();
@@ -1906,7 +1905,7 @@ class TasksPool {
 			}
 		}
 	}
-	'continue'() {
+	continue() {
 		if(!this.stopped) {
 			this.paused = false;
 			if(this.array.length === 0) {
@@ -2192,12 +2191,11 @@ function getErrorMessage(e) {
 		return e;
 	}
 	return Lng.internalError[lang] + (
-		!e.stack ? e.name + ': ' + e.message :
-		nav.isWebkit ? e.stack :
-		e.name + ': ' + e.message + '\n' + (!nav.isFirefox ? e.stack : e.stack.replace(
+		!e.stack ? `${ e.name }: ${ e.message }` :
+		nav.isWebkit ? e.stack : `${ e.name }: ${ e.message }\n${ !nav.isFirefox ? e.stack : e.stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
-			(str, fName, line) => '    at ' + (fName ? fName + ' (' + line + ')' : line)
-		))
+			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
+		) }`
 	);
 }
 
@@ -2443,7 +2441,7 @@ async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-		let hasGlobal = nav.isGlobal && !!val.global;
+		const hasGlobal = nav.isGlobal && !!val.global;
 		obj = hasGlobal ? val.global : {};
 		if(hasGlobal) {
 			delete obj.correctTime;
@@ -2678,10 +2676,10 @@ class PostsStorage extends null {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5000) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
-			for(let b in storage) {
+			for(const b in storage) {
 				if(storage.hasOwnProperty(b)) {
 					const data = storage[b];
-					for(let key in data) {
+					for(const key in data) {
 						if(data.hasOwnProperty(key) && data[key][0] < minDate) {
 							delete data[key];
 						}
@@ -2745,7 +2743,7 @@ class HiddenThreads extends PostsStorage {
 	static getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
-		for(let b in storage) {
+		for(const b in storage) {
 			rv += Object.keys(storage[b]).length;
 		}
 		return rv;
@@ -2799,7 +2797,7 @@ MyPosts._cachedData = null;
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
-		var data, temp, post, val = e.newValue;
+		let data, temp, val = e.newValue;
 		if(!val) {
 			return;
 		}
@@ -2823,7 +2821,8 @@ function initStorageEvent() {
 				HiddenThreads.purge();
 				HiddenPosts.purge();
 				if(data.brd === aib.b) {
-					if((post = pByNum.get(data.num)) && (post.hidden ^ data.hide)) {
+					let post = pByNum.get(data.num);
+					if(post && (post.hidden ^ data.hide)) {
 						post.setUserVisib(data.hide, false);
 					} else if((post = pByNum.get(data.thrNum))) {
 						post.thr.userTouched.set(data.num, data.hide);
@@ -2874,77 +2873,87 @@ function initStorageEvent() {
                                                   MAIN PANEL
 =========================================================================================================== */
 
-var panel = Object.create({
-	_el     : null,
-	_hideTO : 0,
-	_menu   : null,
-	_menuTO : 0,
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	},
-	get _acountEl() {
+class Panel extends null {
+	static init(formEl) {
+		const imgLen = $Q(aib.qPostImg, formEl).length;
+		const isThr = aib.t;
+		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+			<div id="de-panel">
+				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
+					<svg class="de-panel-logo-svg">
+						<use xlink:href="#de-symbol-panel-logo"/>
+					</svg>
+				</div>
+				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
+				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
+					this._getButton('hid') +
+					this._getButton('fav') +
+					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
+					(localData ? '' :
+						this._getButton('refresh') +
+						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
+						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+					this._getButton('goup') +
+					this._getButton('godown') +
+					(imgLen === 0 ? '' :
+						this._getButton('expimg') +
+						this._getButton('maskimg')) +
+					(nav.Presto || localData ? '' :
+						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
+						(!isThr ? '' : this._getButton('savethr'))) +
+					(!isThr || localData ? '' :
+						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
+						(nav.isSafari ? '' : this._getButton('audio-off'))) +
+					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
+					this._getButton('enable') +
+					(!isThr ? '' : `<span id="de-panel-info">
+						<span id="de-panel-info-pcount" title="` +
+							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
+							`${ Thread.first.pcount }</span>
+						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
+							${ imgLen }</span>
+						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
+					</span>`)) }
+				</span>
+			</div>
+			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
+		</div>`);
+		this._el = $id('de-panel');
+		this._el.addEventListener('click', this.handleEvent, true);
+		this._el.addEventListener('mouseover', this.handleEvent);
+		this._el.addEventListener('mouseout', this.handleEvent);
+		this._buttons = $id('de-panel-buttons');
+		this.isNew = true;
+	}
+	static remove() {
+		this._el.removeEventListener('click', this.handleEvent, true);
+		this._el.removeEventListener('mouseover', this.handleEvent);
+		this._el.removeEventListener('mouseout', this.handleEvent);
+		delete this._pcountEl;
+		delete this._icountEl;
+		delete this._acountEl;
+		$del($id('de-main'));
+	}
+	static get _acountEl() {
 		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
 		return value;
-	},
-	_getButton(id) {
-		var p, href, title, useId;
-		switch(id) {
-		case 'goback':
-			p = Math.max(aib.page - 1, 0);
-			href = aib.getPageUrl(aib.b, p);
-			if(!aib.t) {
-				title = Lng.panelBtn.gonext[lang].replace('%s', p);
-			}
-			useId = 'arrow';
-			break;
-		case 'gonext':
-			p = aib.page + 1;
-			href = aib.getPageUrl(aib.b, p);
-			title = Lng.panelBtn.gonext[lang].replace('%s', p);
-			/* falls through */
-		case 'goup':
-		case 'godown':
-			useId = 'arrow';
-			break;
-		case 'upd-on':
-		case 'upd-off':
-			useId = 'upd';
-			break;
-		case 'catalog':
-			href = aib.catalogUrl;
-		}
-		var panelTitle = title || Lng.panelBtn[id][lang];
-		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
-		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
-			panelTitle }" href="${ href || '#' }">
-			<svg class="de-panel-svg">
-			${ id !== 'audio-off' ? `
-				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
-				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
-				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
-			</svg>
-		</a>`;
-	},
-	_prepareToHide(rt) {
-		if(!Cfg.expandPanel && !$q('.de-win-active') &&
-			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
-		) {
-			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
-		}
-	},
-	handleEvent(e) {
+	}
+	static get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	}
+	static get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	}
+	static handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		var el = fixEventEl(e.target);
+		let el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
 		}
@@ -2953,7 +2962,7 @@ var panel = Object.create({
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide(this._buttons);
+					$hide(Panel._buttons);
 				}
 				toggleCfg('expandPanel');
 				return;
@@ -2967,14 +2976,14 @@ var panel = Object.create({
 			case 'de-panel-expimg':
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
-				for(var post = Thread.first.op; post; post = post.next) {
+				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg);
 				}
 				break;
 			case 'de-panel-preimg':
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
-					for(var form of DelForm) {
+					for(const form of DelForm) {
 						preloadImages(form.el);
 					}
 				}
@@ -3009,8 +3018,8 @@ var panel = Object.create({
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
-				clearTimeout(this._hideTO);
-				$show(this._buttons);
+				clearTimeout(Panel._hideTO);
+				$show(Panel._buttons);
 			}
 			switch(el.id) {
 			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
@@ -3027,96 +3036,85 @@ var panel = Object.create({
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				if(this._menu && this._menu.parentEl === el) {
+				if(Panel._menu && Panel._menu.parentEl === el) {
 					return;
 				}
-				this._menuTO = setTimeout(() => {
-					this._menu = addMenu(el);
-					this._menu.onover = () => clearTimeout(this._hideTO);
-					this._menu.onout = () => this._prepareToHide(null);
-					this._menu.onremove = () => (this._menu = null);
+				Panel._menuTO = setTimeout(() => {
+					Panel._menu = addMenu(el);
+					Panel._menu.onover = () => clearTimeout(Panel._hideTO);
+					Panel._menu.onout = () => Panel._prepareToHide(null);
+					Panel._menu.onremove = () => (Panel._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide(fixEventEl(e.relatedTarget));
+			Panel._prepareToHide(fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				clearTimeout(this._menuTO);
-				this._menuTO = 0;
+				clearTimeout(Panel._menuTO);
+				Panel._menuTO = 0;
 			}
 		}
-	},
-	init(formEl) {
-		var imgLen = $Q(aib.qPostImg, formEl).length,
-			isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `
-		<div id="de-main">
-			<div id="de-panel">
-				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
-					<svg class="de-panel-logo-svg">
-						<use xlink:href="#de-symbol-panel-logo"/>
-					</svg>
-				</div>
-				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
-					this._getButton('hid') +
-					this._getButton('fav') +
-					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localData ? '' :
-						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
-						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
-					this._getButton('goup') +
-					this._getButton('godown') +
-					(imgLen === 0 ? '' :
-						this._getButton('expimg') +
-						this._getButton('maskimg')) +
-					(nav.Presto || localData ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
-						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localData ? '' :
-						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.isSafari ? '' : this._getButton('audio-off'))) +
-					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
-					this._getButton('enable') +
-					(!isThr ? '' : '<span id="de-panel-info">' +
-						'<span id="de-panel-info-pcount" title="' +
-							Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">' +
-							Thread.first.pcount + '</span>' +
-						`<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">` +
-							`${ imgLen }</span>` +
-						`<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>` +
-					'</span>')) }
-				</span>
-			</div>
-			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
-		</div>`);
-		this._el = $id('de-panel');
-		this._el.addEventListener('click', this, true);
-		this._el.addEventListener('mouseover', this);
-		this._el.addEventListener('mouseout', this);
-		this._buttons = $id('de-panel-buttons');
-		this.isNew = true;
-	},
-	remove() {
-		this._el.removeEventListener('click', this, true);
-		this._el.removeEventListener('mouseover', this);
-		this._el.removeEventListener('mouseout', this);
-		delete this._pcountEl;
-		delete this._icountEl;
-		delete this._acountEl;
-		$del($id('de-main'));
-	},
-	updateCounter(postCount, imgsCount, postersCount) {
+	}
+	static updateCounter(postCount, imgsCount, postersCount) {
 		this._pcountEl.textContent = postCount;
 		this._icountEl.textContent = imgsCount;
 		this._acountEl.textContent = postersCount;
 		this.isNew = false;
 	}
-});
+
+	static _getButton(id) {
+		let page, href, title, useId;
+		switch(id) {
+		case 'goback':
+			page = Math.max(aib.page - 1, 0);
+			href = aib.getPageUrl(aib.b, page);
+			if(!aib.t) {
+				title = Lng.panelBtn.gonext[lang].replace('%s', page);
+			}
+			useId = 'arrow';
+			break;
+		case 'gonext':
+			page = aib.page + 1;
+			href = aib.getPageUrl(aib.b, page);
+			title = Lng.panelBtn.gonext[lang].replace('%s', page);
+			/* falls through */
+		case 'goup':
+		case 'godown':
+			useId = 'arrow';
+			break;
+		case 'upd-on':
+		case 'upd-off':
+			useId = 'upd';
+			break;
+		case 'catalog':
+			href = aib.catalogUrl;
+		}
+		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
+		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
+			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
+			<svg class="de-panel-svg">
+			${ id !== 'audio-off' ? `
+				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
+				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
+				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
+			</svg>
+		</a>`;
+	}
+	static _prepareToHide(rt) {
+		if(!Cfg.expandPanel && !$q('.de-win-active') &&
+			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
+		) {
+			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
+		}
+	}
+}
+Panel._el = null;
+Panel._hideTO = 0;
+Panel._menu = null;
+Panel._menuTO = 0;
 
 /* ==[ WindowUtils.js ]=======================================================================================
                                                 WINDOW: UTILS
@@ -3141,8 +3139,7 @@ function makeDraggable(name, win, head) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
 			}
-			var curX = e.clientX,
-				curY = e.clientY;
+			const { clientX: curX, clientY: curY } = e;
 			switch(e.type) {
 			case 'mousedown':
 				this._oldX = curX;
@@ -3164,13 +3161,13 @@ function makeDraggable(name, win, head) {
 				const y = cr.top + curY - this._oldY;
 				this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 					x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
-					'left: ' + x + 'px';
+					`left: ${ x }px`;
 				this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 					y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
-					'top: ' + y + 'px';
+					`top: ${ y }px`;
 				const { width } = this._wStyle;
-				this._win.setAttribute('style', this._X + '; ' + this._Y +
-					'; z-index: ' + this._Z + (width ? '; width: ' + width : ''));
+				this._win.setAttribute('style', `${ this._X }; ${ this._Y }; z-index: ${ this._Z }${
+					width ? '; width: ' + width : '' }`);
 				this._oldX = curX;
 				this._oldY = curY;
 				return;
@@ -3200,7 +3197,7 @@ class WinResizer {
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
 		const { width } = this.wStyle;
 		const cr = this.win.getBoundingClientRect();
-		const z = '; z-index: ' + this.wStyle.zIndex + (width ? '; width:' + width : '');
+		const z = `; z-index: ${ this.wStyle.zIndex }${ width ? '; width:' + width : '' }`;
 		switch(e.type) {
 		case 'mousedown':
 			if(this.win.classList.contains('de-win-fixed')) {
@@ -3211,10 +3208,10 @@ class WinResizer {
 				y = Cfg[this.name + 'WinY'];
 			}
 			switch(this.dir) {
-			case 'top': val = x + '; bottom: ' + (maxY - cr.bottom) + 'px' + z; break;
-			case 'bottom': val = x + '; top: ' + cr.top + 'px' + z; break;
-			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + y + z; break;
-			case 'right': val = 'left: ' + cr.left + 'px; ' + y + z;
+			case 'top': val = `${ x }; bottom: ${ maxY - cr.bottom }px${ z }`; break;
+			case 'bottom': val = `${ x }; top: ${ cr.top }px${ z }`; break;
+			case 'left': val = `right: ${ maxX - cr.right }px; ${ y + z }`; break;
+			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
 			docBody.addEventListener('mousemove', this);
@@ -3246,10 +3243,10 @@ class WinResizer {
 			}
 			if(this.vertical) {
 				saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
-					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
+					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
 				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
-					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
+					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
 		}
@@ -3264,9 +3261,9 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	}
 	if(!win) {
 		const winAttr = (Cfg[name + 'WinDrag'] ?
-			'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] :
+			`de-win" style="${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
 			'de-win-fixed" style="right: 0; bottom: 25px'
-		) + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
+		) + (name !== 'fav' ? '' : `; width: ${ Cfg.favWinWidth }px; `);
 		win = $aBegin($id('de-main'), `<div id="de-win-${ name }" class="${ winAttr }; display: none;">
 			<div class="de-win-head">
 				<span class="de-win-title">
@@ -3328,7 +3325,7 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	updateWinZ(win.style);
 	let remove = !isUpd && isActive;
 	if(!remove && !win.classList.contains('de-win') &&
-		(el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))
+		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
@@ -3376,7 +3373,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': cfgWindow.init(body); break;
+	case 'cfg': new CfgWindow().init(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -3393,7 +3390,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 function showVideosWindow(body) {
 	const els = $Q('.de-video-link');
 	if(!els.length) {
-		body.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
+		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
 	if(!$id('de-ytube-api')) {
@@ -3487,9 +3484,9 @@ function showVideosWindow(body) {
 				case 'de-video-btn-resize': { // Expand/collapse video player
 					const exp = this.player.className === 'de-video-obj';
 					this.player.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
-					this.linkList.style.maxWidth = (exp ? 894 : +Cfg.YTubeWidth + 40) + 'px';
-					this.linkList.style.maxHeight = (nav.viewportHeight() * 0.92 -
-						(exp ? 562 : +Cfg.YTubeHeigh + 82)) + 'px';
+					this.linkList.style.maxWidth = `${ exp ? 894 : +Cfg.YTubeWidth + 40 }px`;
+					this.linkList.style.maxHeight = `${ nav.viewportHeight() * 0.92 -
+						(exp ? 562 : +Cfg.YTubeHeigh + 82) }px`;
 				}
 				}
 				$pd(e);
@@ -3534,7 +3531,7 @@ function showHiddenWindow(body) {
 	const hasThreads = !$isEmpty(hThr);
 	if(hasThreads) {
 		// Generate DOM for the list of hidden threads
-		for(let b in hThr) {
+		for(const b in hThr) {
 			if($isEmpty(hThr[b])) {
 				continue;
 			}
@@ -3542,8 +3539,8 @@ function showHiddenWindow(body) {
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
 				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
-			for(let tNum in hThr[b]) {
-				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b + ';' + tNum }">
+			for(const tNum in hThr[b]) {
+				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
 					<input type="checkbox">
 					<a href="${ aib.getThrUrl(b, tNum) }" target="_blank">${ tNum }</a>
 					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
@@ -3551,7 +3548,7 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, hasThreads ? '<hr>' : '<center><b>' + Lng.noHidThr[lang] + '</b></center><hr>');
+	$bEnd(body, hasThreads ? '<hr>' : `<center><b>${ Lng.noHidThr[lang] }</b></center><hr>`);
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
 	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
@@ -3631,15 +3628,15 @@ function cleanFavorites() {
 function showFavoritesWindow(body, data) {
 	let html = '';
 	// Create the list of favorite threads
-	for(let h in data) {
-		for(let b in data[h]) {
-			let d = data[h][b];
+	for(const h in data) {
+		for(const b in data[h]) {
+			const d = data[h][b];
 			let innerHtml = '';
-			for(let tNum in d) {
+			for(const tNum in d) {
 				if(tNum === 'url') { // Ignore keys with board url's
 					continue;
 				}
-				let t = d[tNum];
+				const t = d[tNum];
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
@@ -3649,13 +3646,10 @@ function showFavoritesWindow(body, data) {
 					!t.last ? '' :
 					t.last.startsWith('#') ? t.last :
 					h === aib.host ? aib.anchor + t.last : '');
-				const favInfIwrapTitle =
-					!t.err ? '' :
-					t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' :
-					'title="' + t.err + '"';
+				const favInfIwrapTitle = !t.err ? '' :
+					t.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ t.err }"`;
 				const favInfIconClass = !t.err ? '' :
-					t.err === 'Closed' || t.err === 'Archived' ?
-						'de-fav-closed' : 'de-fav-unavail';
+					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
@@ -3698,7 +3692,7 @@ function showFavoritesWindow(body, data) {
 
 	// Appending DOM and events
 	if(html) {
-		$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', e => {
+		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
 			let el = e.target;
 			switch(el.className) {
 			case 'de-fav-link':
@@ -3734,7 +3728,7 @@ function showFavoritesWindow(body, data) {
 			}
 		});
 	} else {
-		$bEnd(body, '<center><b>' + Lng.noFavThr[lang] + '</b></center>');
+		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
 
 	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
@@ -3745,7 +3739,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
-		let fav = await getStoredObj('DESU_Favorites');
+		const fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
 		}
@@ -3758,7 +3752,7 @@ function showFavoritesWindow(body, data) {
 			const host = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			let f = fav[host][b][num];
+			const f = fav[host][b][num];
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
@@ -3862,7 +3856,7 @@ function showFavoritesWindow(body, data) {
 	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
-		let thrInfo = [];
+		const thrInfo = [];
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
@@ -3891,7 +3885,7 @@ function showFavoritesWindow(body, data) {
 		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
-				let form = await ajaxLoad(aib.getPageUrl(aib.b, page));
+				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
@@ -3994,7 +3988,7 @@ function showFavoritesWindow(body, data) {
                                                WINDOW: SETTINGS
 =========================================================================================================== */
 
-const cfgWindow = Object.create({
+class CfgWindow {
 	init(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
@@ -4026,7 +4020,7 @@ const cfgWindow = Object.create({
 
 		// "Global" button. Allows to save/load global settings.
 		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
-			const el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
+			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
 				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
@@ -4044,7 +4038,7 @@ const cfgWindow = Object.create({
 			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				const obj = {};
 				const com = data[aib.dm];
-				for(let i in com) {
+				for(const i in com) {
 					if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
 						i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
 					) {
@@ -4055,21 +4049,21 @@ const cfgWindow = Object.create({
 				saveCfgObj('global', data.global);
 				toggleWindow('cfg', true);
 			});
-			el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
+			el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
 		}));
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
-			$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' +
-				'<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">' +
+			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
+				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
 					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
 				'<div class="de-list"><a id="de-export-file" href="#">' +
 					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ' (' + aib.dm + ')',
-					Lng.myPosts[lang] + ' (' + aib.dm + ')'
+					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+					Lng.myPosts[lang] + ` (${ aib.dm })'`
 				]) + '</div></div>');
 
 			// Import data from a file to the storage
@@ -4137,35 +4131,35 @@ const cfgWindow = Object.create({
 					}
 					switch(i) {
 					case 0: name.push('Cfg'); {
-						let cfgData = await Promise.all([
+						const cfgData = await Promise.all([
 							getStored('DESU_Config'),
 							getStored('DESU_keys'),
 							getStored('DESU_Exclude')
 						]);
-						val.push('"settings":' + cfgData[0],
-							'"hotkeys":' + (cfgData[1] || '""'),
+						val.push(`"settings":${ cfgData[0] }`,
+							`"hotkeys":${ cfgData[1] || '""' }`,
 							`"exclude":"${ cfgData[2] || '' }"`);
 						break;
 					}
 					case 1: name.push('Fav');
-						val.push('"favorites":' + ((await getStored('DESU_Favorites')) || '{}'));
+						val.push(`"favorites":${ (await getStored('DESU_Favorites')) || '{}' }`);
 						break;
 					case 2: nameDm.push('Hid');
-						valDm.push('"posts":' + (locStorage['de-posts'] || '{}'),
-							'"threads":' + (locStorage['de-threads'] || '{}'));
+						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+							`"threads":${ locStorage['de-threads'] || '{}' }`);
 						break;
 					case 3: nameDm.push('You');
-						valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
+						valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
 					}
 				}
 				if((valDm = valDm.join(','))) {
-					val.push('"' + aib.dm + '":{' + valDm + '}');
-					name.push(aib.dm + '(' + nameDm.join('+') + ')');
+					val.push(`"${ aib.dm }":{${ valDm }}`);
+					name.push(`${ aib.dm } (${ nameDm.join('+') })`);
 				}
 				if((val = val.join(','))) {
-					downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }),
-						'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
-						pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+					downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
+						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
+							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
 				}
 				$pd(e);
 			}, true);
@@ -4212,7 +4206,7 @@ const cfgWindow = Object.create({
 			$popup('cfg-reset', Lng.updating[lang], true);
 			window.location.reload();
 		}))));
-	},
+	}
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
@@ -4230,7 +4224,7 @@ const cfgWindow = Object.create({
 			switch(info) {
 			case 'language':
 				lang = el.selectedIndex;
-				panel.remove();
+				Panel.remove();
 				if(pr.form) {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
@@ -4241,7 +4235,7 @@ const cfgWindow = Object.create({
 					}
 				}
 				this._updateCSS();
-				panel.init(DelForm.first.el);
+				Panel.init(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
 			case 'delHiddPost': {
@@ -4354,7 +4348,7 @@ const cfgWindow = Object.create({
 			}
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
-					for(let form of DelForm) {
+					for(const form of DelForm) {
 						processImagesLinks(form.el, 1, 0);
 					}
 				} else {
@@ -4363,7 +4357,7 @@ const cfgWindow = Object.create({
 				break;
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
-					for(let form of DelForm) {
+					for(const form of DelForm) {
 						processImagesLinks(form.el, 0, 1);
 					}
 				} else {
@@ -4400,7 +4394,7 @@ const cfgWindow = Object.create({
 				}
 				break;
 			case 'turnOff': getStoredObj('DESU_Config').then(data => {
-				for(let dm in data) {
+				for(const dm in data) {
 					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
 						data[dm].disabled = Cfg.turnOff;
 					}
@@ -4440,15 +4434,14 @@ const cfgWindow = Object.create({
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
 			case 'de-cfg-btn-debug':
-				$popup('cfg-debug',
-					Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
+				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version,
 					location : String(window.location),
 					nav,
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
-					oSpells  : sesStorage['de-spells-' + aib.b + (aib.t || '')],
+					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getData(true)
 				}, function(key, value) {
 					switch(key) {
@@ -4525,7 +4518,7 @@ const cfgWindow = Object.create({
 		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
-	},
+	}
 
 	// Switch content in Settings by clicking on tab
 	_clickTab(info) {
@@ -4587,7 +4580,7 @@ const cfgWindow = Object.create({
 				el.selectedIndex = Cfg[info];
 			}
 		}
-	},
+	}
 
 	// "Filters" tab
 	_getCfgFilters() {
@@ -4597,8 +4590,8 @@ const cfgWindow = Object.create({
 				<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">${ Lng.add[lang] }</a>
 				<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">${ Lng.apply[lang] }</a>
 				<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">${ Lng.clear[lang] }</a>
-				<a class="de-abtn de-spell-btn" href="${ gitWiki +
-					'Spells-' + (lang ? 'en' : 'ru') }" target="_blank">[?]</a>
+				<a class="de-abtn de-spell-btn" href="${ gitWiki }Spells-` +
+					`${ lang ? 'en' : 'ru' }" target="_blank">[?]</a>
 			</div>
 			<div id="de-spell-editor">
 				<div id="de-spell-rowmeter"></div>
@@ -4609,14 +4602,14 @@ const cfgWindow = Object.create({
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
-	},
+	}
 
 	// "Posts" tab
 	_getCfgPosts() {
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
-			${ localData ? '' : this._getBox('ajaxUpdThr') +
-				this._getInp('updThrDelay') +
-				`<div class="de-cfg-depend">
+			${ localData ? '' : `${ this._getBox('ajaxUpdThr') }
+				${ this._getInp('updThrDelay') }
+				<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
@@ -4637,14 +4630,14 @@ const cfgWindow = Object.create({
 			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset') }
-			<a class="de-abtn" target="_blank" href="${ gitWiki +
-				'Settings-time-' + (lang ? 'en' : 'ru') }">[?]</a>
+			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
+				`${ lang ? 'en' : 'ru' }">[?]</a>
 			<div class="de-cfg-depend">
 				${ this._getInp('timePattern', true, 24) }<br>
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
 		</div>`;
-	},
+	}
 
 	// "Images" tab
 	_getCfgImages() {
@@ -4671,7 +4664,7 @@ const cfgWindow = Object.create({
 			${ this._getBox('delImgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
-	},
+	}
 
 	// "Links" tab
 	_getCfgLinks() {
@@ -4705,7 +4698,7 @@ const cfgWindow = Object.create({
 				${ this._getBox('addVimeo') }
 			</div>
 		</div>`;
-	},
+	}
 
 	// "Form" tab
 	_getCfgForm() {
@@ -4741,7 +4734,7 @@ const cfgWindow = Object.create({
 				(pr.name ? this._getBox('noName') : '') +
 				(pr.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
-	},
+	}
 
 	// "Common" tab
 	_getCfgCommon() {
@@ -4764,14 +4757,14 @@ const cfgWindow = Object.create({
 				`<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
-						Lng.checkNow[lang] + `">
+						`${ Lng.checkNow[lang] }">
 				</div>` : '' }
 			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
 				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
 				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
 				this._getBox('turnOff') : '' }
 		</div>`;
-	},
+	}
 
 	// "Info" tab
 	_getCfgInfo() {
@@ -4780,7 +4773,7 @@ const cfgWindow = Object.create({
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
 					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
-				<a href="${ gitWiki + (lang ? 'home-en/' : '') }" target="_blank">Github</a>
+				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">` +
@@ -4795,52 +4788,46 @@ const cfgWindow = Object.create({
 			<input type="button" id="de-cfg-btn-debug" value="` +
 				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
-	},
+	}
 
 	// Creates a label with checkbox for option switching
 	_getBox(id) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
 		</label>`;
-	},
-
-	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	},
-
-	// Creates a select for multiple option values
-	_getSel(id) {
-		const x = Lng.cfg[id];
-		let opt = [];
-		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-		}
-		return `<label class="de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
-		</label>`;
-	},
-
+	}
 	// Creates a table for Info tab
 	_getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
-	},
-
+	}
+	// Creates a text input for text option values
+	_getInp(id, addText = true, size = 2) {
+		return `<label class="de-cfg-label">
+			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
+				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
+	}
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
 		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	},
-
+	}
+	// Creates a select for multiple option values
+	_getSel(id) {
+		const x = Lng.cfg[id];
+		const opt = [];
+		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
+			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
+		}
+		return `<label class="de-cfg-label">
+			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
+		</label>`;
+	}
 	// Creates a tab for tab bar
 	_getTab(name) {
 		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	},
-
+	}
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;
@@ -4848,11 +4835,11 @@ const cfgWindow = Object.create({
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
-	},
+	}
 	_updateCSS() {
 		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
-	},
+	}
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
@@ -4886,8 +4873,7 @@ const cfgWindow = Object.create({
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-	},
-
+	}
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
 		const top = node.scrollTop;
@@ -4895,23 +4881,23 @@ const cfgWindow = Object.create({
 		let num = el.numLines || 1;
 		let i = 17;
 		if(num - i < ((top / 12) | 0 + 1)) {
-			var str = '';
+			let str = '';
 			while(i--) {
-				str += num++ + '<br>';
+				str += `${ num++ }<br>`;
 			}
 			el.insertAdjacentHTML('beforeend', str);
 			el.numLines = num;
 		}
 		el.scrollTop = top;
 	}
-});
+}
 
 /* ==[ MenuPopups.js ]========================================================================================
                                                 POPUPS & MENU
 =========================================================================================================== */
 
 function closePopup(data) {
-	var el = typeof data === 'string' ? $id('de-popup-' + data) : data;
+	const el = typeof data === 'string' ? $id('de-popup-' + data) : data;
 	if(el) {
 		el.closeTimeout = null;
 		if(Cfg.animation) {
@@ -4937,8 +4923,8 @@ function $popup(id, txt, isWait = false) {
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`));
-		el.onclick = e => {
-			let el = fixEventEl(e.target);
+		el.onclick = ({ target }) => {
+			let el = fixEventEl(target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -4959,7 +4945,7 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
-			'<b>' + Lng.editor[name][lang] + '</b><textarea class="de-editor"></textarea>');
+			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
 		const ta = el.lastChild;
 		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
@@ -5003,20 +4989,6 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	remove() {
-		if(!this._el) {
-			return;
-		}
-		if(this.onremove) {
-			this.onremove();
-		}
-		this._el.removeEventListener('mouseover', this, true);
-		this._el.removeEventListener('mouseout', this, true);
-		this.parentEl.removeEventListener('mouseout', this);
-		this._el.removeEventListener('click', this);
-		$del(this._el);
-		this._el = null;
-	}
 	handleEvent(e) {
 		let isOverEvent = false;
 		const el = e.target;
@@ -5050,21 +5022,35 @@ class Menu {
 			}
 		}
 	}
+	remove() {
+		if(!this._el) {
+			return;
+		}
+		if(this.onremove) {
+			this.onremove();
+		}
+		this._el.removeEventListener('mouseover', this, true);
+		this._el.removeEventListener('mouseout', this, true);
+		this.parentEl.removeEventListener('mouseout', this);
+		this._el.removeEventListener('click', this);
+		$del(this._el);
+		this._el = null;
+	}
 }
 
 function addMenu(el) {
 	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
-		return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
-			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(',')) +
-			'</div><div style="display: inline-block;">' +
-			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) + '</div>',
+		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
+			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(','))
+		}</div><div style="display: inline-block;">${
+			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) }</div>`,
 		function(el) {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-					'[' + aib.b + ',' + aib.t + ']') +
+					`[${ aib.b },${ aib.t }]`) +
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
@@ -5088,7 +5074,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
-			var i = aProto.indexOf.call(el.parentNode.children, el);
+			const i = aProto.indexOf.call(el.parentNode.children, el);
 			updater.enable();
 			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
@@ -13296,8 +13282,8 @@ class Thread {
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
-		if(newPosts !== 0 || panel.isNew) {
-			panel.updateCounter(
+		if(newPosts !== 0 || Panel.isNew) {
+			Panel.updateCounter(
 				pBuilder.length + 1 - this.hidCounter,
 				$Q(aib.qPostImg, this.el).length,
 				pBuilder.postersCount);
@@ -16407,8 +16393,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new ibDomains[dm](prot, dm);
 		}
 	}
-	dm = window.location.hostname.match(
-		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	dm = window.location.hostname;
+	if(!dm) {
+		return null;
+	}
+	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkEngines) {
 		for(var i = ibEngines.length - 1; i >= 0; --i) {
 			var [path, Ctor] = ibEngines[i];
@@ -16427,30 +16416,30 @@ function getImageBoard(checkDomains, checkEngines) {
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
-class DollchanAPI {
+class DollchanAPI extends null {
 	static init() {
-		DollchanAPI.hasListeners = false;
+		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
 		}
 		const channel = new MessageChannel();
-		DollchanAPI.port = channel.port1;
-		DollchanAPI.port.onmessage = DollchanAPI._handleMessage;
-		DollchanAPI.activeListeners = new Set();
+		this.port = channel.port1;
+		this.port.onmessage = this._handleMessage;
+		this.activeListeners = new Set();
 		const port = channel.port2;
 		doc.defaultView.addEventListener('message', ({ data }) => {
 			if(data === 'de-request-api-message') {
-				DollchanAPI.hasListeners = true;
+				this.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	}
 	static hasListener(name) {
-		return DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name);
+		return this.hasListeners && this.activeListeners.has(name);
 	}
 	static notify(name, data) {
-		if(DollchanAPI.hasListener(name)) {
-			DollchanAPI.port.postMessage({ name, data });
+		if(this.hasListener(name)) {
+			this.port.postMessage({ name, data });
 		}
 	}
 
@@ -16480,7 +16469,7 @@ class DollchanAPI {
 		case 'submitform': break;
 		default: return false;
 		}
-		DollchanAPI.activeListeners.add(name);
+		this.activeListeners.add(name);
 		return true;
 	}
 }
@@ -16809,7 +16798,7 @@ function scriptCSS() {
 	#de-panel-upd-warn { fill: #fff441; }
 	#de-panel-upd-off { fill: #ff3232; }
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
-	#de-panel-info { flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
+	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
@@ -17217,6 +17206,9 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
+		if(!aib) {
+			return;
+		}
 	}
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
@@ -17248,7 +17240,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	addSVGIcons();
 	if(Cfg.disabled) {
-		panel.init(formEl);
+		Panel.init(formEl);
 		scriptCSS();
 		return;
 	}
@@ -17307,7 +17299,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	initPage();
 	Logger.log('Init page');
-	panel.init(formEl);
+	Panel.init(formEl);
 	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();
