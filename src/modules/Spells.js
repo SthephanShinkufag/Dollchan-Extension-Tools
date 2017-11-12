@@ -512,6 +512,36 @@ class SpellsCodegen {
 		return this._sList ? this._generate(this._sList, false) : null;
 	}
 
+	static _getScope(str) {
+		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+	}
+	static _getText(str, haveBracket) {
+		if(haveBracket && (str[0] !== '(')) {
+			return [0, ''];
+		}
+		let rv = '';
+		for(let i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+			const ch = str[i];
+			if(ch === '\\') {
+				if(i === len - 1) {
+					return null;
+				}
+				switch(str[i + 1]) {
+				case 'n': rv += '\n'; break;
+				case '\\': rv += '\\'; break;
+				case ')': rv += ')'; break;
+				default: return null;
+				}
+				++i;
+			} else if(ch === ')') {
+				return [i + 1, rv];
+			} else {
+				rv += ch;
+			}
+		}
+		return null;
+	}
 	_generate(sList, inParens) {
 		const spellsArr = [];
 		let reps = [];
@@ -667,10 +697,6 @@ class SpellsCodegen {
 		}
 		return [spellsArr, reps, outreps];
 	}
-	_getScope(str) {
-		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
-	}
 	_getRegex(str, haveComma) {
 		const m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
 		if(!m || haveComma !== Boolean(m[2])) {
@@ -685,34 +711,8 @@ class SpellsCodegen {
 		}
 		return [m[0].length, val];
 	}
-	_getText(str, haveBracket) {
-		if(haveBracket && (str[0] !== '(')) {
-			return [0, ''];
-		}
-		let rv = '';
-		for(let i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
-			const ch = str[i];
-			if(ch === '\\') {
-				if(i === len - 1) {
-					return null;
-				}
-				switch(str[i + 1]) {
-				case 'n': rv += '\n'; break;
-				case '\\': rv += '\\'; break;
-				case ')': rv += ')'; break;
-				default: return null;
-				}
-				++i;
-			} else if(ch === ')') {
-				return [i + 1, rv];
-			} else {
-				rv += ch;
-			}
-		}
-		return null;
-	}
 	_doRep(name, str) {
-		let scope = this._getScope(str);
+		let scope = SpellsCodegen._getScope(str);
 		if(scope) {
 			str = str.substring(scope[0]);
 		} else {
@@ -724,7 +724,7 @@ class SpellsCodegen {
 			if(str[0] === ')') {
 				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 			}
-			const val = this._getText(str, false);
+			const val = SpellsCodegen._getText(str, false);
 			if(val) {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
@@ -739,7 +739,7 @@ class SpellsCodegen {
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
-		let temp = this._getScope(str);
+		let temp = SpellsCodegen._getScope(str);
 		if(temp) {
 			i += temp[0];
 			str = str.substring(temp[0]);
@@ -824,7 +824,7 @@ class SpellsCodegen {
 			break;
 		// #sage, #op, #all, #trip, #name, #words, #vauthor
 		default:
-			temp = this._getText(str, true);
+			temp = SpellsCodegen._getText(str, true);
 			if(temp) {
 				return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
 			}
@@ -840,6 +840,15 @@ class SpellsCodegen {
 }
 
 class SpellsRunner {
+	constructor() {
+		this.hasNumSpell = false;
+		this._endPromise = null;
+		this._spells = Spells.hiders;
+		if(!this._spells) {
+			this.run = SpellsRunner._unhidePost;
+			SpellsRunner.cachedData = null;
+		}
+	}
 	static unhideAll() {
 		if(aib.t) {
 			sesStorage['de-hidden-' + aib.b + aib.t] = null;
@@ -848,15 +857,6 @@ class SpellsRunner {
 			if(post.spellHidden) {
 				post.spellUnhide();
 			}
-		}
-	}
-	constructor() {
-		this.hasNumSpell = false;
-		this._endPromise = null;
-		this._spells = Spells.hiders;
-		if(!this._spells) {
-			this.run = this._unhidePost;
-			SpellsRunner.cachedData = null;
 		}
 	}
 	end() {
@@ -876,6 +876,15 @@ class SpellsRunner {
 		return this._checkRes(post, res);
 	}
 
+	static _unhidePost(post) {
+		if(post.spellHidden) {
+			post.spellUnhide();
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [false, null];
+			}
+		}
+		return 0;
+	}
 	_checkRes(post, [hasNumSpell, val, msg]) {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
@@ -885,7 +894,7 @@ class SpellsRunner {
 			}
 			return 1;
 		}
-		return this._unhidePost(post);
+		return SpellsRunner._unhidePost(post);
 	}
 	_savePostsHelper() {
 		if(this._spells) {
@@ -913,15 +922,6 @@ class SpellsRunner {
 			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
-	}
-	_unhidePost(post) {
-		if(post.spellHidden) {
-			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
-				SpellsRunner.cachedData[post.count] = [false, null];
-			}
-		}
-		return 0;
 	}
 }
 SpellsRunner.cachedData = null;
@@ -984,6 +984,19 @@ class SpellsInterpreter {
 		}
 	}
 
+	static _tlenNum_helper(val, num) {
+		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
+			if(arr[i] === num) {
+				return true;
+			}
+		}
+		for(let arr = val[1], i = arr.length - 1; i >= 0; --i) {
+			if(num >= arr[i][0] && num <= arr[i][1]) {
+				return true;
+			}
+		}
+		return false;
+	}
 	_asyncContinue(val) {
 		const cl = this._ctx.length;
 		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
@@ -1110,7 +1123,7 @@ class SpellsInterpreter {
 		return pName ? !val || pName.includes(val) : false;
 	}
 	_num(val) {
-		return this._tlenNum_helper(val, this._post.count + 1);
+		return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
 	}
 	_op() {
 		return this._post.isOp;
@@ -1124,20 +1137,7 @@ class SpellsInterpreter {
 	}
 	_tlen(val) {
 		const text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
-		return !val ? !!text : this._tlenNum_helper(val, text.length);
-	}
-	_tlenNum_helper(val, num) {
-		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
-			if(arr[i] === num) {
-				return true;
-			}
-		}
-		for(let arr = val[1], i = arr.length - 1; i >= 0; --i) {
-			if(num >= arr[i][0] && num <= arr[i][1]) {
-				return true;
-			}
-		}
-		return false;
+		return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
 	}
 	_trip(val) {
 		const pTrip = this._post.posterTrip;

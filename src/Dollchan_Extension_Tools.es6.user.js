@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '08d0083';
+const commit = 'a73926b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2032,19 +2032,19 @@ class TarBuilder {
 		for(i = 0; i < nameLen; ++i) {
 			header[i] = filepath.charCodeAt(i) & 0xFF;
 		}
-		this._padSet(header, 100, '100777', 8); // fileMode
-		this._padSet(header, 108, '0', 8); // uid
-		this._padSet(header, 116, '0', 8); // gid
-		this._padSet(header, 124, fileSize.toString(8), 13); // fileSize
-		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
-		this._padSet(header, 148, '        ', 8); // checksum
+		TarBuilder._padSet(header, 100, '100777', 8); // fileMode
+		TarBuilder._padSet(header, 108, '0', 8); // uid
+		TarBuilder._padSet(header, 116, '0', 8); // gid
+		TarBuilder._padSet(header, 124, fileSize.toString(8), 13); // fileSize
+		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
+		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
 		for(i = 0; i < 157; i++) {
 			checksum += header[i];
 		}
 		// checksum
-		this._padSet(header, 148, checksum.toString(8), 8);
+		TarBuilder._padSet(header, 148, checksum.toString(8), 8);
 		this._data.push(header, input);
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 			this._data.push(new Uint8Array(i));
@@ -2064,7 +2064,7 @@ class TarBuilder {
 		return new Blob(this._data, { type: 'application/x-tar' });
 	}
 
-	_padSet(data, offset, num, len) {
+	static _padSet(data, offset, num, len) {
 		let i = 0;
 		const nLen = num.length;
 		len -= 2;
@@ -3385,7 +3385,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': new CfgWindow().init(body); break;
+	case 'cfg': CfgWindow.init(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -4000,7 +4000,7 @@ function showFavoritesWindow(body, data) {
                                                WINDOW: SETTINGS
 =========================================================================================================== */
 
-class CfgWindow {
+const CfgWindow = {
 	init(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
@@ -4218,7 +4218,7 @@ class CfgWindow {
 			$popup('cfg-reset', Lng.updating[lang], true);
 			window.location.reload();
 		}))));
-	}
+	},
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
@@ -4530,7 +4530,7 @@ class CfgWindow {
 		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
-	}
+	},
 
 	// Switch content in Settings by clicking on tab
 	_clickTab(info) {
@@ -4592,7 +4592,7 @@ class CfgWindow {
 				el.selectedIndex = Cfg[info];
 			}
 		}
-	}
+	},
 
 	// "Filters" tab
 	_getCfgFilters() {
@@ -4614,7 +4614,7 @@ class CfgWindow {
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
-	}
+	},
 
 	// "Posts" tab
 	_getCfgPosts() {
@@ -4649,7 +4649,7 @@ class CfgWindow {
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
 		</div>`;
-	}
+	},
 
 	// "Images" tab
 	_getCfgImages() {
@@ -4676,7 +4676,7 @@ class CfgWindow {
 			${ this._getBox('delImgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
-	}
+	},
 
 	// "Links" tab
 	_getCfgLinks() {
@@ -4710,7 +4710,7 @@ class CfgWindow {
 				${ this._getBox('addVimeo') }
 			</div>
 		</div>`;
-	}
+	},
 
 	// "Form" tab
 	_getCfgForm() {
@@ -4746,7 +4746,7 @@ class CfgWindow {
 				(pr.name ? this._getBox('noName') : '') +
 				(pr.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
-	}
+	},
 
 	// "Common" tab
 	_getCfgCommon() {
@@ -4776,7 +4776,7 @@ class CfgWindow {
 				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
 				this._getBox('turnOff') : '' }
 		</div>`;
-	}
+	},
 
 	// "Info" tab
 	_getCfgInfo() {
@@ -4800,31 +4800,31 @@ class CfgWindow {
 			<input type="button" id="de-cfg-btn-debug" value="` +
 				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
-	}
+	},
 
 	// Creates a label with checkbox for option switching
 	_getBox(id) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
 		</label>`;
-	}
+	},
 	// Creates a table for Info tab
 	_getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
-	}
+	},
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
 				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	}
+	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
 		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	}
+	},
 	// Creates a select for multiple option values
 	_getSel(id) {
 		const x = Lng.cfg[id];
@@ -4835,11 +4835,11 @@ class CfgWindow {
 		return `<label class="de-cfg-label">
 			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
 		</label>`;
-	}
+	},
 	// Creates a tab for tab bar
 	_getTab(name) {
 		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	}
+	},
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;
@@ -4847,11 +4847,11 @@ class CfgWindow {
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
-	}
+	},
 	_updateCSS() {
 		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
-	}
+	},
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
@@ -4885,7 +4885,7 @@ class CfgWindow {
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-	}
+	},
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
 		const top = node.scrollTop;
@@ -4902,7 +4902,7 @@ class CfgWindow {
 		}
 		el.scrollTop = top;
 	}
-}
+};
 
 /* ==[ MenuPopups.js ]========================================================================================
                                                 POPUPS & MENU
@@ -7396,6 +7396,36 @@ class SpellsCodegen {
 		return this._sList ? this._generate(this._sList, false) : null;
 	}
 
+	static _getScope(str) {
+		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+	}
+	static _getText(str, haveBracket) {
+		if(haveBracket && (str[0] !== '(')) {
+			return [0, ''];
+		}
+		let rv = '';
+		for(let i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+			const ch = str[i];
+			if(ch === '\\') {
+				if(i === len - 1) {
+					return null;
+				}
+				switch(str[i + 1]) {
+				case 'n': rv += '\n'; break;
+				case '\\': rv += '\\'; break;
+				case ')': rv += ')'; break;
+				default: return null;
+				}
+				++i;
+			} else if(ch === ')') {
+				return [i + 1, rv];
+			} else {
+				rv += ch;
+			}
+		}
+		return null;
+	}
 	_generate(sList, inParens) {
 		const spellsArr = [];
 		let reps = [];
@@ -7551,10 +7581,6 @@ class SpellsCodegen {
 		}
 		return [spellsArr, reps, outreps];
 	}
-	_getScope(str) {
-		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
-	}
 	_getRegex(str, haveComma) {
 		const m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
 		if(!m || haveComma !== Boolean(m[2])) {
@@ -7569,34 +7595,8 @@ class SpellsCodegen {
 		}
 		return [m[0].length, val];
 	}
-	_getText(str, haveBracket) {
-		if(haveBracket && (str[0] !== '(')) {
-			return [0, ''];
-		}
-		let rv = '';
-		for(let i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
-			const ch = str[i];
-			if(ch === '\\') {
-				if(i === len - 1) {
-					return null;
-				}
-				switch(str[i + 1]) {
-				case 'n': rv += '\n'; break;
-				case '\\': rv += '\\'; break;
-				case ')': rv += ')'; break;
-				default: return null;
-				}
-				++i;
-			} else if(ch === ')') {
-				return [i + 1, rv];
-			} else {
-				rv += ch;
-			}
-		}
-		return null;
-	}
 	_doRep(name, str) {
-		let scope = this._getScope(str);
+		let scope = SpellsCodegen._getScope(str);
 		if(scope) {
 			str = str.substring(scope[0]);
 		} else {
@@ -7608,7 +7608,7 @@ class SpellsCodegen {
 			if(str[0] === ')') {
 				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 			}
-			const val = this._getText(str, false);
+			const val = SpellsCodegen._getText(str, false);
 			if(val) {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
@@ -7623,7 +7623,7 @@ class SpellsCodegen {
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
-		let temp = this._getScope(str);
+		let temp = SpellsCodegen._getScope(str);
 		if(temp) {
 			i += temp[0];
 			str = str.substring(temp[0]);
@@ -7708,7 +7708,7 @@ class SpellsCodegen {
 			break;
 		// #sage, #op, #all, #trip, #name, #words, #vauthor
 		default:
-			temp = this._getText(str, true);
+			temp = SpellsCodegen._getText(str, true);
 			if(temp) {
 				return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
 			}
@@ -7724,6 +7724,15 @@ class SpellsCodegen {
 }
 
 class SpellsRunner {
+	constructor() {
+		this.hasNumSpell = false;
+		this._endPromise = null;
+		this._spells = Spells.hiders;
+		if(!this._spells) {
+			this.run = SpellsRunner._unhidePost;
+			SpellsRunner.cachedData = null;
+		}
+	}
 	static unhideAll() {
 		if(aib.t) {
 			sesStorage['de-hidden-' + aib.b + aib.t] = null;
@@ -7732,15 +7741,6 @@ class SpellsRunner {
 			if(post.spellHidden) {
 				post.spellUnhide();
 			}
-		}
-	}
-	constructor() {
-		this.hasNumSpell = false;
-		this._endPromise = null;
-		this._spells = Spells.hiders;
-		if(!this._spells) {
-			this.run = this._unhidePost;
-			SpellsRunner.cachedData = null;
 		}
 	}
 	end() {
@@ -7760,6 +7760,15 @@ class SpellsRunner {
 		return this._checkRes(post, res);
 	}
 
+	static _unhidePost(post) {
+		if(post.spellHidden) {
+			post.spellUnhide();
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [false, null];
+			}
+		}
+		return 0;
+	}
 	_checkRes(post, [hasNumSpell, val, msg]) {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
@@ -7769,7 +7778,7 @@ class SpellsRunner {
 			}
 			return 1;
 		}
-		return this._unhidePost(post);
+		return SpellsRunner._unhidePost(post);
 	}
 	_savePostsHelper() {
 		if(this._spells) {
@@ -7797,15 +7806,6 @@ class SpellsRunner {
 			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
-	}
-	_unhidePost(post) {
-		if(post.spellHidden) {
-			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
-				SpellsRunner.cachedData[post.count] = [false, null];
-			}
-		}
-		return 0;
 	}
 }
 SpellsRunner.cachedData = null;
@@ -7868,6 +7868,19 @@ class SpellsInterpreter {
 		}
 	}
 
+	static _tlenNum_helper(val, num) {
+		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
+			if(arr[i] === num) {
+				return true;
+			}
+		}
+		for(let arr = val[1], i = arr.length - 1; i >= 0; --i) {
+			if(num >= arr[i][0] && num <= arr[i][1]) {
+				return true;
+			}
+		}
+		return false;
+	}
 	_asyncContinue(val) {
 		const cl = this._ctx.length;
 		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
@@ -7994,7 +8007,7 @@ class SpellsInterpreter {
 		return pName ? !val || pName.includes(val) : false;
 	}
 	_num(val) {
-		return this._tlenNum_helper(val, this._post.count + 1);
+		return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
 	}
 	_op() {
 		return this._post.isOp;
@@ -8008,20 +8021,7 @@ class SpellsInterpreter {
 	}
 	_tlen(val) {
 		const text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
-		return !val ? !!text : this._tlenNum_helper(val, text.length);
-	}
-	_tlenNum_helper(val, num) {
-		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
-			if(arr[i] === num) {
-				return true;
-			}
-		}
-		for(let arr = val[1], i = arr.length - 1; i >= 0; --i) {
-			if(num >= arr[i][0] && num <= arr[i][1]) {
-				return true;
-			}
-		}
-		return false;
+		return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
 	}
 	_trip(val) {
 		const pTrip = this._post.posterTrip;
@@ -8385,7 +8385,7 @@ class PostForm {
 			quotetxt = '';
 		} else {
 			const { scrtop } = txtaEl;
-			const val = this._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
 			const len = start + val[0];
 			txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
 			txtaEl.setSelectionRange(len, len);
@@ -8500,6 +8500,31 @@ class PostForm {
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 	}
 
+	static _wrapText(tag, text) {
+		let isBB = aib.markupBB;
+		if(tag.startsWith('[')) {
+			tag = tag.substr(1);
+			isBB = true;
+		}
+		if(isBB) {
+			if(text.includes('\n')) {
+				const str = `[${ tag }]${ text }[/${ tag }]`;
+				return [str.length, str];
+			}
+			const m = text.match(/^(\s*)(.*?)(\s*)$/);
+			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
+			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
+		}
+		let m, rv = '', i = 0;
+		const arr = text.split('\n');
+		for(let len = arr.length; i < len; ++i) {
+			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
+			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
+		}
+		return [i === 1 && !m[2].length && tag !== '^H' ?
+			m[1].length + tag.length :
+			rv.length - 1, rv.slice(1)];
+	}
 	_initAjaxPosting() {
 		const redirectEl = $q(aib.qFormRedir, this.form);
 		if(aib.qFormRedir && redirectEl) {
@@ -8558,7 +8583,7 @@ class PostForm {
 				val = Spells.outReplace(val);
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-				const temp = `\n\n${ this._wrapText(aib.markupTags[5],
+				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
 						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
 				)[1] }`;
@@ -8771,31 +8796,6 @@ class PostForm {
 					`<input type="hidden" name="${ aib.formParent }" value="${ tNum }">`);
 			}
 		}
-	}
-	_wrapText(tag, text) {
-		let isBB = aib.markupBB;
-		if(tag.startsWith('[')) {
-			tag = tag.substr(1);
-			isBB = true;
-		}
-		if(isBB) {
-			if(text.includes('\n')) {
-				const str = `[${ tag }]${ text }[/${ tag }]`;
-				return [str.length, str];
-			}
-			const m = text.match(/^(\s*)(.*?)(\s*)$/);
-			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
-			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
-		}
-		let m, rv = '', i = 0;
-		const arr = text.split('\n');
-		for(let len = arr.length; i < len; ++i) {
-			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
-			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
-		}
-		return [i === 1 && !m[2].length && tag !== '^H' ?
-			m[1].length + tag.length :
-			rv.length - 1, rv.slice(1)];
 	}
 }
 
@@ -9250,7 +9250,7 @@ class FileInput {
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
 			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
@@ -9281,7 +9281,7 @@ class FileInput {
 		this._thumb = this._mediaEl = null;
 	}
 	clear() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
@@ -9296,7 +9296,7 @@ class FileInput {
 			$hide(this._btnRarJpg);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			this._txtInput.value = '';
@@ -9339,7 +9339,7 @@ class FileInput {
 			} else if(el === this._btnTxt) {
 				this._showDelBtn((this._isTxtEditable = true));
 				$show(this._txtAddBtn);
-				if(this._isThumb) {
+				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);
 				}
 				this._txtInput.classList.remove('de-file-txt-noedit');
@@ -9388,7 +9388,7 @@ class FileInput {
 		}
 	}
 	hide() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._showDelBtn(false);
 			$hide(this._thumb);
 			$hide(this._txtWrap);
@@ -9396,21 +9396,21 @@ class FileInput {
 		$hide(this._wrap);
 	}
 	show() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			$show(this._thumb);
 		}
 		$show(this._wrap);
 	}
 
+	static get _isThumb() {
+		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+	}
 	static _readDroppedFile(input, file) {
 		readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
 			input.show();
 			input._onFileChange(true);
 		});
-	}
-	get _isThumb() {
-		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 	}
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
@@ -9485,7 +9485,7 @@ class FileInput {
 			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
 			DollchanAPI.notify('filechange', this._parent._files);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			this._onFileChange(true);
@@ -9522,7 +9522,7 @@ class FileInput {
 		if(this._parent.onchange) {
 			this._parent.onchange();
 		}
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._showPviewImage();
 		}
 		if(this.hasFile) {
@@ -9532,7 +9532,7 @@ class FileInput {
 			this._changeFilesCount(+1);
 			this._showDelBtn(true);
 			$hide(this._txtAddBtn);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			if(this._spoilEl) {

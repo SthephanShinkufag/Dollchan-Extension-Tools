@@ -255,7 +255,7 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': new CfgWindow().init(body); break;
+	case 'cfg': CfgWindow.init(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}

@@ -203,7 +203,7 @@ class PostForm {
 			quotetxt = '';
 		} else {
 			const { scrtop } = txtaEl;
-			const val = this._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
 			const len = start + val[0];
 			txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
 			txtaEl.setSelectionRange(len, len);
@@ -318,6 +318,31 @@ class PostForm {
 		$q('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 	}
 
+	static _wrapText(tag, text) {
+		let isBB = aib.markupBB;
+		if(tag.startsWith('[')) {
+			tag = tag.substr(1);
+			isBB = true;
+		}
+		if(isBB) {
+			if(text.includes('\n')) {
+				const str = `[${ tag }]${ text }[/${ tag }]`;
+				return [str.length, str];
+			}
+			const m = text.match(/^(\s*)(.*?)(\s*)$/);
+			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
+			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
+		}
+		let m, rv = '', i = 0;
+		const arr = text.split('\n');
+		for(let len = arr.length; i < len; ++i) {
+			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
+			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
+		}
+		return [i === 1 && !m[2].length && tag !== '^H' ?
+			m[1].length + tag.length :
+			rv.length - 1, rv.slice(1)];
+	}
 	_initAjaxPosting() {
 		const redirectEl = $q(aib.qFormRedir, this.form);
 		if(aib.qFormRedir && redirectEl) {
@@ -376,7 +401,7 @@ class PostForm {
 				val = Spells.outReplace(val);
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-				const temp = `\n\n${ this._wrapText(aib.markupTags[5],
+				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
 						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
 				)[1] }`;
@@ -589,30 +614,5 @@ class PostForm {
 					`<input type="hidden" name="${ aib.formParent }" value="${ tNum }">`);
 			}
 		}
-	}
-	_wrapText(tag, text) {
-		let isBB = aib.markupBB;
-		if(tag.startsWith('[')) {
-			tag = tag.substr(1);
-			isBB = true;
-		}
-		if(isBB) {
-			if(text.includes('\n')) {
-				const str = `[${ tag }]${ text }[/${ tag }]`;
-				return [str.length, str];
-			}
-			const m = text.match(/^(\s*)(.*?)(\s*)$/);
-			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
-			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
-		}
-		let m, rv = '', i = 0;
-		const arr = text.split('\n');
-		for(let len = arr.length; i < len; ++i) {
-			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
-			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
-		}
-		return [i === 1 && !m[2].length && tag !== '^H' ?
-			m[1].length + tag.length :
-			rv.length - 1, rv.slice(1)];
 	}
 }

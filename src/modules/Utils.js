@@ -518,19 +518,19 @@ class TarBuilder {
 		for(i = 0; i < nameLen; ++i) {
 			header[i] = filepath.charCodeAt(i) & 0xFF;
 		}
-		this._padSet(header, 100, '100777', 8); // fileMode
-		this._padSet(header, 108, '0', 8); // uid
-		this._padSet(header, 116, '0', 8); // gid
-		this._padSet(header, 124, fileSize.toString(8), 13); // fileSize
-		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
-		this._padSet(header, 148, '        ', 8); // checksum
+		TarBuilder._padSet(header, 100, '100777', 8); // fileMode
+		TarBuilder._padSet(header, 108, '0', 8); // uid
+		TarBuilder._padSet(header, 116, '0', 8); // gid
+		TarBuilder._padSet(header, 124, fileSize.toString(8), 13); // fileSize
+		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
+		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
 		for(i = 0; i < 157; i++) {
 			checksum += header[i];
 		}
 		// checksum
-		this._padSet(header, 148, checksum.toString(8), 8);
+		TarBuilder._padSet(header, 148, checksum.toString(8), 8);
 		this._data.push(header, input);
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 			this._data.push(new Uint8Array(i));
@@ -550,7 +550,7 @@ class TarBuilder {
 		return new Blob(this._data, { type: 'application/x-tar' });
 	}
 
-	_padSet(data, offset, num, len) {
+	static _padSet(data, offset, num, len) {
 		let i = 0;
 		const nLen = num.length;
 		len -= 2;

@@ -2,7 +2,7 @@
                                                WINDOW: SETTINGS
 =========================================================================================================== */
 
-class CfgWindow {
+const CfgWindow = {
 	init(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
@@ -220,7 +220,7 @@ class CfgWindow {
 			$popup('cfg-reset', Lng.updating[lang], true);
 			window.location.reload();
 		}))));
-	}
+	},
 
 	// Event handler for Setting window and its controls.
 	handleEvent(e) {
@@ -532,7 +532,7 @@ class CfgWindow {
 		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
-	}
+	},
 
 	// Switch content in Settings by clicking on tab
 	_clickTab(info) {
@@ -594,7 +594,7 @@ class CfgWindow {
 				el.selectedIndex = Cfg[info];
 			}
 		}
-	}
+	},
 
 	// "Filters" tab
 	_getCfgFilters() {
@@ -616,7 +616,7 @@ class CfgWindow {
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
-	}
+	},
 
 	// "Posts" tab
 	_getCfgPosts() {
@@ -651,7 +651,7 @@ class CfgWindow {
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
 		</div>`;
-	}
+	},
 
 	// "Images" tab
 	_getCfgImages() {
@@ -678,7 +678,7 @@ class CfgWindow {
 			${ this._getBox('delImgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
-	}
+	},
 
 	// "Links" tab
 	_getCfgLinks() {
@@ -712,7 +712,7 @@ class CfgWindow {
 				${ this._getBox('addVimeo') }
 			</div>
 		</div>`;
-	}
+	},
 
 	// "Form" tab
 	_getCfgForm() {
@@ -748,7 +748,7 @@ class CfgWindow {
 				(pr.name ? this._getBox('noName') : '') +
 				(pr.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
-	}
+	},
 
 	// "Common" tab
 	_getCfgCommon() {
@@ -778,7 +778,7 @@ class CfgWindow {
 				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
 				this._getBox('turnOff') : '' }
 		</div>`;
-	}
+	},
 
 	// "Info" tab
 	_getCfgInfo() {
@@ -802,31 +802,31 @@ class CfgWindow {
 			<input type="button" id="de-cfg-btn-debug" value="` +
 				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 		</div>`;
-	}
+	},
 
 	// Creates a label with checkbox for option switching
 	_getBox(id) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
 		</label>`;
-	}
+	},
 	// Creates a table for Info tab
 	_getInfoTable(data, needMs) {
 		return data.map(data => `<div class="de-info-row">
 			<span class="de-info-name">${ data[0] }</span>
 			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
 		</div>`).join('');
-	}
+	},
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		return `<label class="de-cfg-label">
 			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
 				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	}
+	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
 		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	}
+	},
 	// Creates a select for multiple option values
 	_getSel(id) {
 		const x = Lng.cfg[id];
@@ -837,11 +837,11 @@ class CfgWindow {
 		return `<label class="de-cfg-label">
 			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
 		</label>`;
-	}
+	},
 	// Creates a tab for tab bar
 	_getTab(name) {
 		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	}
+	},
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;
@@ -849,11 +849,11 @@ class CfgWindow {
 		while(i--) {
 			($q(arr[i]) || {}).disabled = nState;
 		}
-	}
+	},
 	_updateCSS() {
 		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
-	}
+	},
 	_updateDependant() {
 		this._toggleBox(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
@@ -887,7 +887,7 @@ class CfgWindow {
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-	}
+	},
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
 		const top = node.scrollTop;
@@ -904,4 +904,4 @@ class CfgWindow {
 		}
 		el.scrollTop = top;
 	}
-}
+};

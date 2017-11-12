@@ -101,7 +101,7 @@ class FileInput {
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
 			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
@@ -132,7 +132,7 @@ class FileInput {
 		this._thumb = this._mediaEl = null;
 	}
 	clear() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
@@ -147,7 +147,7 @@ class FileInput {
 			$hide(this._btnRarJpg);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			this._txtInput.value = '';
@@ -190,7 +190,7 @@ class FileInput {
 			} else if(el === this._btnTxt) {
 				this._showDelBtn((this._isTxtEditable = true));
 				$show(this._txtAddBtn);
-				if(this._isThumb) {
+				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);
 				}
 				this._txtInput.classList.remove('de-file-txt-noedit');
@@ -239,7 +239,7 @@ class FileInput {
 		}
 	}
 	hide() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._showDelBtn(false);
 			$hide(this._thumb);
 			$hide(this._txtWrap);
@@ -247,21 +247,21 @@ class FileInput {
 		$hide(this._wrap);
 	}
 	show() {
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			$show(this._thumb);
 		}
 		$show(this._wrap);
 	}
 
+	static get _isThumb() {
+		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+	}
 	static _readDroppedFile(input, file) {
 		readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
 			input.show();
 			input._onFileChange(true);
 		});
-	}
-	get _isThumb() {
-		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 	}
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
@@ -336,7 +336,7 @@ class FileInput {
 			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
 			DollchanAPI.notify('filechange', this._parent._files);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			this._onFileChange(true);
@@ -373,7 +373,7 @@ class FileInput {
 		if(this._parent.onchange) {
 			this._parent.onchange();
 		}
-		if(this._isThumb) {
+		if(FileInput._isThumb) {
 			this._showPviewImage();
 		}
 		if(this.hasFile) {
@@ -383,7 +383,7 @@ class FileInput {
 			this._changeFilesCount(+1);
 			this._showDelBtn(true);
 			$hide(this._txtAddBtn);
-			if(this._isThumb) {
+			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
 			}
 			if(this._spoilEl) {

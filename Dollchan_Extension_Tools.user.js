@@ -2969,7 +2969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = [getFormElements].map(regeneratorRuntime.mark);
 
 	var version = '17.10.24.0';
-	var commit = '08d0083';
+	var commit = 'a73926b';
 
 
 	var defaultCfg = {
@@ -4186,17 +4186,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				for (i = 0; i < nameLen; ++i) {
 					header[i] = filepath.charCodeAt(i) & 0xFF;
 				}
-				this._padSet(header, 100, '100777', 8); 
-				this._padSet(header, 108, '0', 8); 
-				this._padSet(header, 116, '0', 8); 
-				this._padSet(header, 124, fileSize.toString(8), 13); 
-				this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); 
-				this._padSet(header, 148, '        ', 8); 
+				TarBuilder._padSet(header, 100, '100777', 8); 
+				TarBuilder._padSet(header, 108, '0', 8); 
+				TarBuilder._padSet(header, 116, '0', 8); 
+				TarBuilder._padSet(header, 124, fileSize.toString(8), 13); 
+				TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); 
+				TarBuilder._padSet(header, 148, '        ', 8); 
 				header[156] = 0x30;
 				for (i = 0; i < 157; i++) {
 					checksum += header[i];
 				}
-				this._padSet(header, 148, checksum.toString(8), 8);
+				TarBuilder._padSet(header, 148, checksum.toString(8), 8);
 				this._data.push(header, input);
 				if ((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
 					this._data.push(new Uint8Array(i));
@@ -4219,7 +4219,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._data.push(new Uint8Array(1024));
 				return new Blob(this._data, { type: 'application/x-tar' });
 			}
-		}, {
+		}], [{
 			key: '_padSet',
 			value: function _padSet(data, offset, num, len) {
 				var i = 0;
@@ -5807,7 +5807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return;
 			case 'cfg':
-				new CfgWindow().init(body);break;
+				CfgWindow.init(body);break;
 			case 'hid':
 				showHiddenWindow(body);break;
 			case 'vid':
@@ -6552,842 +6552,795 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	var CfgWindow = function () {
-		function CfgWindow() {
-			_classCallCheck(this, CfgWindow);
-		}
+	var CfgWindow = {
+		init: function init(body) {
+			var _this12 = this;
 
-		_createClass(CfgWindow, [{
-			key: 'init',
-			value: function init(body) {
-				var _this12 = this;
+			body.addEventListener('click', this);
+			body.addEventListener('mouseover', this);
+			body.addEventListener('mouseout', this);
+			body.addEventListener('change', this);
+			body.addEventListener('keyup', this);
+			body.addEventListener('keydown', this);
+			body.addEventListener('scroll', this);
 
-				body.addEventListener('click', this);
-				body.addEventListener('mouseover', this);
-				body.addEventListener('mouseout', this);
-				body.addEventListener('change', this);
-				body.addEventListener('keyup', this);
-				body.addEventListener('keydown', this);
-				body.addEventListener('scroll', this);
+			var div = $bEnd(body, '<div id="de-cfg-bar">' + (this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (pr.form || pr.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info')) + '</div><div id="de-cfg-buttons">' + this._getSel('language') + '</div>');
 
-				var div = $bEnd(body, '<div id="de-cfg-bar">' + (this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (pr.form || pr.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info')) + '</div><div id="de-cfg-buttons">' + this._getSel('language') + '</div>');
+			this._clickTab(Cfg.cfgTab);
 
-				this._clickTab(Cfg.cfgTab);
+			div.appendChild(getEditButton('cfg', function (fn) {
+				return fn(Cfg, true, function (data) {
+					saveCfgObj(aib.dm, data);
+					window.location.reload();
+				});
+			}));
 
-				div.appendChild(getEditButton('cfg', function (fn) {
-					return fn(Cfg, true, function (data) {
-						saveCfgObj(aib.dm, data);
-						window.location.reload();
+			nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function () {
+				var el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
+				$bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.load[lang] + '"> ' + Lng.loadGlobal[lang] + '</div>').firstElementChild.onclick = function () {
+					return getStoredObj('DESU_Config').then(function (data) {
+						if (data && 'global' in data && !$isEmpty(data.global)) {
+							saveCfgObj(aib.dm, data.global);
+							window.location.reload();
+						} else {
+							$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
+						}
 					});
-				}));
-
-				nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function () {
-					var el = $popup('cfg-global', '<b>' + Lng.globalCfg[lang] + ':</b>');
-					$bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.load[lang] + '"> ' + Lng.loadGlobal[lang] + '</div>').firstElementChild.onclick = function () {
-						return getStoredObj('DESU_Config').then(function (data) {
-							if (data && 'global' in data && !$isEmpty(data.global)) {
-								saveCfgObj(aib.dm, data.global);
-								window.location.reload();
-							} else {
-								$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
-							}
-						});
-					};
-					div = $bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.save[lang] + '"> ' + Lng.saveGlobal[lang] + '</div>').firstElementChild.onclick = function () {
-						return getStoredObj('DESU_Config').then(function (data) {
-							var obj = {};
-							var com = data[aib.dm];
-							for (var i in com) {
-								if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]) {
-									obj[i] = com[i];
-								}
-							}
-							data.global = obj;
-							saveCfgObj('global', data.global);
-							toggleWindow('cfg', true);
-						});
-					};
-					el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
-				}));
-
-				!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
-					$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' + ('<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">') + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this12._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + (' (' + aib.dm + ')'), Lng.myPosts[lang] + (' (' + aib.dm + ')')]) + '</div></div>');
-
-					$id('de-import-file').onchange = function (e) {
-						var file = e.target.files[0];
-						if (!file) {
-							return;
-						}
-						readFile(file, true).then(function (_ref7) {
-							var data = _ref7.data;
-
-							var obj = void 0;
-							try {
-								obj = JSON.parse(data);
-							} catch (e) {
-								$popup('err-invaliddata', Lng.invalidData[lang]);
-								return;
-							}
-							var cfgObj = obj.settings;
-							var favObj = obj.favorites;
-							var dmObj = obj[aib.dm];
-							var isOldCfg = !cfgObj && !favObj && !dmObj;
-							if (isOldCfg) {
-								setStored('DESU_Config', data);
-							}
-							if (cfgObj) {
-								try {
-									setStored('DESU_Config', JSON.stringify(cfgObj));
-									setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-									setStored('DESU_Exclude', obj.exclude);
-								} catch (e) {}
-							}
-							if (favObj) {
-								saveFavorites(favObj);
-							}
-							if (dmObj) {
-								if (dmObj.posts) {
-									locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-								}
-								if (dmObj.threads) {
-									locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-								}
-								if (dmObj.myposts) {
-									locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-								}
-							}
-							if (cfgObj || dmObj || isOldCfg) {
-								$popup('cfg-file', Lng.updating[lang], true);
-								window.location.reload();
-								return;
-							}
-							closePopup('cfg-file');
-						});
-					};
-
-					var expFile = $id('de-export-file');
-					var els = $Q('input', expFile.nextElementSibling);
-					els[0].checked = true;
-					expFile.addEventListener('click', function _callee5(e) {
-						var name, nameDm, d, val, valDm, i, len, cfgData;
-						return regeneratorRuntime.async(function _callee5$(_context9) {
-							while (1) {
-								switch (_context9.prev = _context9.next) {
-									case 0:
-										name = [], nameDm = [], d = new Date();
-										val = [], valDm = [];
-										i = 0, len = els.length;
-
-									case 3:
-										if (!(i < len)) {
-											_context9.next = 34;
-											break;
-										}
-
-										if (els[i].checked) {
-											_context9.next = 6;
-											break;
-										}
-
-										return _context9.abrupt('continue', 31);
-
-									case 6:
-										_context9.t0 = i;
-										_context9.next = _context9.t0 === 0 ? 9 : _context9.t0 === 1 ? 15 : _context9.t0 === 2 ? 26 : _context9.t0 === 3 ? 29 : 31;
-										break;
-
-									case 9:
-										name.push('Cfg');_context9.next = 12;
-										return regeneratorRuntime.awrap(Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]));
-
-									case 12:
-										cfgData = _context9.sent;
-
-										val.push('"settings":' + cfgData[0], '"hotkeys":' + (cfgData[1] || '""'), '"exclude":"' + (cfgData[2] || '') + '"');
-										return _context9.abrupt('break', 31);
-
-									case 15:
-										name.push('Fav');
-										_context9.t1 = val;
-										_context9.next = 19;
-										return regeneratorRuntime.awrap(getStored('DESU_Favorites'));
-
-									case 19:
-										_context9.t2 = _context9.sent;
-
-										if (_context9.t2) {
-											_context9.next = 22;
-											break;
-										}
-
-										_context9.t2 = '{}';
-
-									case 22:
-										_context9.t3 = _context9.t2;
-										_context9.t4 = '"favorites":' + _context9.t3;
-
-										_context9.t1.push.call(_context9.t1, _context9.t4);
-
-										return _context9.abrupt('break', 31);
-
-									case 26:
-										nameDm.push('Hid');
-										valDm.push('"posts":' + (locStorage['de-posts'] || '{}'), '"threads":' + (locStorage['de-threads'] || '{}'));
-										return _context9.abrupt('break', 31);
-
-									case 29:
-										nameDm.push('You');
-										valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
-
-									case 31:
-										++i;
-										_context9.next = 3;
-										break;
-
-									case 34:
-										if (valDm = valDm.join(',')) {
-											val.push('"' + aib.dm + '":{' + valDm + '}');
-											name.push(aib.dm + ' (' + nameDm.join('+') + ')');
-										}
-										if (val = val.join(',')) {
-											downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' + pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
-										}
-										$pd(e);
-
-									case 37:
-									case 'end':
-										return _context9.stop();
-								}
-							}
-						}, null, _this12);
-					}, true);
-				}));
-
-				div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], function () {
-					return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this12._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this12._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (_ref8) {
-						var target = _ref8.target;
-
-						var els = $Q('input[type="checkbox"]', target.parentNode);
-						for (var i = 1, len = els.length; i < len; ++i) {
-							if (!els[i].checked) {
-								continue;
-							}
-							switch (i) {
-								case 1:
-									locStorage.removeItem('de-posts');
-									locStorage.removeItem('de-threads');
-									break;
-								case 2:
-									locStorage.removeItem('de-myposts');break;
-								case 4:
-									delStored('DESU_Favorites');
+				};
+				div = $bEnd(el, '<div id="de-list"><input type="button" value="' + Lng.save[lang] + '"> ' + Lng.saveGlobal[lang] + '</div>').firstElementChild.onclick = function () {
+					return getStoredObj('DESU_Config').then(function (data) {
+						var obj = {};
+						var com = data[aib.dm];
+						for (var i in com) {
+							if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]) {
+								obj[i] = com[i];
 							}
 						}
-						if (els[3].checked) {
-							delStored('DESU_Config');
-							delStored('DESU_keys');
-							delStored('DESU_Exclude');
-						} else if (els[0].checked) {
-							getStoredObj('DESU_Config').then(function (data) {
-								delete data[aib.dm];
-								setStored('DESU_Config', JSON.stringify(data));
-								$popup('cfg-reset', Lng.updating[lang], true);
-								window.location.reload();
-							});
-							return;
-						}
-						$popup('cfg-reset', Lng.updating[lang], true);
-						window.location.reload();
-					}));
-				}));
-			}
+						data.global = obj;
+						saveCfgObj('global', data.global);
+						toggleWindow('cfg', true);
+					});
+				};
+				el.insertAdjacentHTML('beforeend', '<hr><small>' + Lng.descrGlobal[lang] + '</small>');
+			}));
 
+			!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
+				$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' + ('<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">') + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this12._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + (' (' + aib.dm + ')'), Lng.myPosts[lang] + (' (' + aib.dm + ')')]) + '</div></div>');
 
-		}, {
-			key: 'handleEvent',
-			value: function handleEvent(e) {
-				var type = e.type,
-				    el = e.target;
-
-				var tag = el.tagName;
-				if (type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
-					var info = el.getAttribute('info');
-					this._clickTab(info);
-					saveCfg('cfgTab', info);
-				}
-				if (type === 'change' && tag === 'SELECT') {
-					var _info = el.getAttribute('info');
-					saveCfg(_info, el.selectedIndex);
-					this._updateDependant();
-					switch (_info) {
-						case 'language':
-							lang = el.selectedIndex;
-							Panel.remove();
-							if (pr.form) {
-								pr.addMarkupPanel();
-								pr.setPlaceholders();
-								pr.updateLanguage();
-								if (pr.files) {
-									$each($Q('.de-file-img, .de-file-txt-input', pr.form), function (el) {
-										return el.title = Lng.youCanDrag[lang];
-									});
-								}
-							}
-							this._updateCSS();
-							Panel.init(DelForm.first.el);
-							toggleWindow('cfg', false);
-							break;
-						case 'delHiddPost':
-							{
-								var isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
-								for (var post = Thread.first.op; post; post = post.next) {
-									if (post.hidden && !post.isOp) {
-										if (isHide) {
-											post.wrap.classList.add('de-hidden');
-										} else {
-											post.wrap.classList.remove('de-hidden');
-										}
-									}
-								}
-								updateCSS();
-								break;
-							}
-						case 'postBtnsCSS':
-							updateCSS();
-							if (nav.Presto) {
-								$del($q('.de-svg-icons'));
-								addSVGIcons();
-							}
-							break;
-						case 'noSpoilers':
-							updateCSS();break;
-						case 'expandImgs':
-							updateCSS();
-							if (Attachment.viewer) {
-								Attachment.viewer.close();
-							}
-							break;
-						case 'fileInputs':
-							pr.files.changeMode();
-							pr.setPlaceholders();
-							updateCSS();
-							break;
-						case 'addPostForm':
-							pr.isBottom = Cfg.addPostForm === 1;
-							pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-							break;
-						case 'addTextBtns':
-							pr.addMarkupPanel();break;
-						case 'scriptStyle':
-							this._updateCSS();
-					}
-					return;
-				}
-				if (type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
-					var _info2 = el.getAttribute('info');
-					toggleCfg(_info2);
-					this._updateDependant();
-					switch (_info2) {
-						case 'expandTrunc':
-						case 'updThrBtns':
-						case 'showHideBtn':
-						case 'showRepBtn':
-						case 'noPostNames':
-						case 'widePosts':
-						case 'imgNavBtns':
-						case 'resizeImgs':
-						case 'strikeHidd':
-						case 'removeHidd':
-						case 'noBoardRule':
-						case 'panelCounter':
-						case 'userCSS':
-							updateCSS();break;
-						case 'hideBySpell':
-							Spells.toggle();break;
-						case 'sortSpells':
-							if (Cfg.sortSpells) {
-								Spells.toggle();
-							}
-							break;
-						case 'hideRefPsts':
-							for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
-								if (!Cfg.hideRefPsts) {
-									_post3.ref.unhide();
-								} else if (_post3.hidden) {
-									_post3.ref.hide();
-								}
-							}
-							break;
-						case 'ajaxUpdThr':
-							if (aib.t) {
-								if (Cfg.ajaxUpdThr) {
-									updater.enable();
-								} else {
-									updater.disable();
-								}
-							}
-							break;
-						case 'updCount':
-							updater.toggleCounter(Cfg.updCount);break;
-						case 'desktNotif':
-							if (Cfg.desktNotif) {
-								Notification.requestPermission();
-							}
-							break;
-						case 'markNewPosts':
-							Post.clearMarks();break;
-						case 'useDobrAPI':
-							aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;break;
-						case 'markMyPosts':
-							if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
-								locStorage.removeItem('de-myposts');
-								MyPosts.purge();
-							}
-							updateCSS();
-							break;
-						case 'correctTime':
-							DateTime.toggleSettings();break;
-						case 'imgInfoLink':
-							{
-								var img = $q('.de-fullimg-wrap');
-								if (img) {
-									img.click();
-								}
-								updateCSS();
-								break;
-							}
-						case 'imgSrcBtns':
-							if (Cfg.imgSrcBtns) {
-								for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i5 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-									var _ref9;
-
-									if (_isArray3) {
-										if (_i5 >= _iterator3.length) break;
-										_ref9 = _iterator3[_i5++];
-									} else {
-										_i5 = _iterator3.next();
-										if (_i5.done) break;
-										_ref9 = _i5.value;
-									}
-
-									var _ref10 = _ref9,
-									    _el4 = _ref10.el;
-
-									processImagesLinks(_el4, 1, 0);
-								}
-							} else {
-								$each($Q('.de-btn-src'), function (el) {
-									return el.remove();
-								});
-							}
-							break;
-						case 'delImgNames':
-							if (Cfg.delImgNames) {
-								for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i6 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-									var _ref11;
-
-									if (_isArray4) {
-										if (_i6 >= _iterator4.length) break;
-										_ref11 = _iterator4[_i6++];
-									} else {
-										_i6 = _iterator4.next();
-										if (_i6.done) break;
-										_ref11 = _i6.value;
-									}
-
-									var _ref12 = _ref11,
-									    _el5 = _ref12.el;
-
-									processImagesLinks(_el5, 0, 1);
-								}
-							} else {
-								$each($Q('.de-img-name'), function (link) {
-									link.classList.remove('de-img-name');
-									link.textContent = link.title;
-									link.removeAttribute('title');
-								});
-							}
-							updateCSS();
-							break;
-						case 'markMyLinks':
-							if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
-								locStorage.removeItem('de-myposts');
-								MyPosts.purge();
-							}
-							updateCSS();
-							break;
-						case 'addSageBtn':
-							PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
-							updateCSS();
-							break;
-						case 'txtBtnsLoc':
-							pr.addMarkupPanel();break;
-						case 'userName':
-							PostForm.setUserName();break;
-						case 'noPassword':
-							$toggle($parent(pr.passw, 'TR'));break;
-						case 'noName':
-							PostForm.hideField(pr.name);break;
-						case 'noSubj':
-							PostForm.hideField(pr.subj);break;
-						case 'inftyScroll':
-							toggleInfinityScroll();break;
-						case 'hotKeys':
-							if (Cfg.hotKeys) {
-								HotKeys.enable();
-							} else {
-								HotKeys.disable();
-							}
-							break;
-						case 'turnOff':
-							getStoredObj('DESU_Config').then(function (data) {
-								for (var dm in data) {
-									if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-										data[dm].disabled = Cfg.turnOff;
-									}
-								}
-								data[aib.dm].turnOff = Cfg.turnOff;
-								setStored('DESU_Config', JSON.stringify(data));
-							});
-					}
-					return;
-				}
-				if (type === 'click' && tag === 'INPUT' && el.type === 'button') {
-					switch (el.id) {
-						case 'de-cfg-btn-pass':
-							$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
-							PostForm.setUserPassw();
-							break;
-						case 'de-cfg-btn-keys':
-							$pd(e);
-							if ($id('de-popup-edit-hotkeys')) {
-								return;
-							}
-							Promise.resolve(HotKeys.readKeys()).then(function (keys) {
-								var temp = KeyEditListener.getEditMarkup(keys);
-								var el = $popup('edit-hotkeys', temp[1]);
-								var fn = new KeyEditListener(el, keys, temp[0]);
-								el.addEventListener('focus', fn, true);
-								el.addEventListener('blur', fn, true);
-								el.addEventListener('click', fn, true);
-								el.addEventListener('keydown', fn, true);
-								el.addEventListener('keyup', fn, true);
-							});
-							break;
-						case 'de-cfg-btn-updnow':
-							$popup('updavail', Lng.loading[lang], true);
-							getStoredObj('DESU_Config').then(function (data) {
-								return checkForUpdates(true, data.lastUpd);
-							}).then(function (html) {
-								return $popup('updavail', html);
-							}, emptyFn);
-							break;
-						case 'de-cfg-btn-debug':
-							$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
-								version: version,
-								location: String(window.location),
-								nav: nav,
-								Cfg: Cfg,
-								sSpells: Spells.list.split('\n'),
-								oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
-								perf: Logger.getData(true)
-							}, function (key, value) {
-								switch (key) {
-									case 'stats':
-									case 'nameValue':
-									case 'passwValue':
-									case 'ytApiKey':
-										return void 0;
-								}
-								return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
-							}, '\t');
-					}
-				}
-				if (type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
-					var _info3 = el.getAttribute('info');
-					switch (_info3) {
-						case 'postBtnsBack':
-							if (checkCSSColor(el.value)) {
-								el.classList.remove('de-error-input');
-								saveCfg('postBtnsBack', el.value);
-								updateCSS();
-							} else {
-								el.classList.add('de-error-input');
-							}
-							break;
-						case 'minImgSize':
-							saveCfg('minImgSize', Math.max(+el.value, 1));break;
-						case 'zoomFactor':
-							saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100));break;
-						case 'webmVolume':
-							{
-								var val = Math.min(+el.value || 0, 100);
-								saveCfg('webmVolume', val);
-								locStorage['__de-webmvolume'] = val;
-								locStorage.removeItem('__de-webmvolume');
-								break;
-							}
-						case 'minWebmWidth':
-							saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));break;
-						case 'maskVisib':
-							saveCfg('maskVisib', Math.min(+el.value || 0, 100));
-							updateCSS();
-							break;
-						case 'linksOver':
-							saveCfg('linksOver', +el.value | 0);break;
-						case 'linksOut':
-							saveCfg('linksOut', +el.value | 0);break;
-						case 'ytApiKey':
-							saveCfg('ytApiKey', el.value.trim());break;
-						case 'passwValue':
-							PostForm.setUserPassw();break;
-						case 'nameValue':
-							PostForm.setUserName();break;
-						case 'excludeList':
-							setStored('DESU_Exclude', excludeList = el.value);break;
-						default:
-							saveCfg(_info3, el.value);
-					}
-					return;
-				}
-				if (tag === 'A') {
-					if (el.id === 'de-btn-spell-add') {
-						switch (e.type) {
-							case 'click':
-								$pd(e);break;
-							case 'mouseover':
-								el.odelay = setTimeout(function () {
-									return addMenu(el);
-								}, Cfg.linksOver);break;
-							case 'mouseout':
-								clearTimeout(el.odelay);
-						}
+				$id('de-import-file').onchange = function (e) {
+					var file = e.target.files[0];
+					if (!file) {
 						return;
 					}
-					if (type === 'click') {
-						switch (el.id) {
-							case 'de-btn-spell-apply':
-								$pd(e);
-								saveCfg('hideBySpell', 1);
-								$q('input[info="hideBySpell"]').checked = true;
-								Spells.toggle();
+					readFile(file, true).then(function (_ref7) {
+						var data = _ref7.data;
+
+						var obj = void 0;
+						try {
+							obj = JSON.parse(data);
+						} catch (e) {
+							$popup('err-invaliddata', Lng.invalidData[lang]);
+							return;
+						}
+						var cfgObj = obj.settings;
+						var favObj = obj.favorites;
+						var dmObj = obj[aib.dm];
+						var isOldCfg = !cfgObj && !favObj && !dmObj;
+						if (isOldCfg) {
+							setStored('DESU_Config', data);
+						}
+						if (cfgObj) {
+							try {
+								setStored('DESU_Config', JSON.stringify(cfgObj));
+								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+								setStored('DESU_Exclude', obj.exclude);
+							} catch (e) {}
+						}
+						if (favObj) {
+							saveFavorites(favObj);
+						}
+						if (dmObj) {
+							if (dmObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+							}
+							if (dmObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							}
+							if (dmObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							}
+						}
+						if (cfgObj || dmObj || isOldCfg) {
+							$popup('cfg-file', Lng.updating[lang], true);
+							window.location.reload();
+							return;
+						}
+						closePopup('cfg-file');
+					});
+				};
+
+				var expFile = $id('de-export-file');
+				var els = $Q('input', expFile.nextElementSibling);
+				els[0].checked = true;
+				expFile.addEventListener('click', function _callee5(e) {
+					var name, nameDm, d, val, valDm, i, len, cfgData;
+					return regeneratorRuntime.async(function _callee5$(_context9) {
+						while (1) {
+							switch (_context9.prev = _context9.next) {
+								case 0:
+									name = [], nameDm = [], d = new Date();
+									val = [], valDm = [];
+									i = 0, len = els.length;
+
+								case 3:
+									if (!(i < len)) {
+										_context9.next = 34;
+										break;
+									}
+
+									if (els[i].checked) {
+										_context9.next = 6;
+										break;
+									}
+
+									return _context9.abrupt('continue', 31);
+
+								case 6:
+									_context9.t0 = i;
+									_context9.next = _context9.t0 === 0 ? 9 : _context9.t0 === 1 ? 15 : _context9.t0 === 2 ? 26 : _context9.t0 === 3 ? 29 : 31;
+									break;
+
+								case 9:
+									name.push('Cfg');_context9.next = 12;
+									return regeneratorRuntime.awrap(Promise.all([getStored('DESU_Config'), getStored('DESU_keys'), getStored('DESU_Exclude')]));
+
+								case 12:
+									cfgData = _context9.sent;
+
+									val.push('"settings":' + cfgData[0], '"hotkeys":' + (cfgData[1] || '""'), '"exclude":"' + (cfgData[2] || '') + '"');
+									return _context9.abrupt('break', 31);
+
+								case 15:
+									name.push('Fav');
+									_context9.t1 = val;
+									_context9.next = 19;
+									return regeneratorRuntime.awrap(getStored('DESU_Favorites'));
+
+								case 19:
+									_context9.t2 = _context9.sent;
+
+									if (_context9.t2) {
+										_context9.next = 22;
+										break;
+									}
+
+									_context9.t2 = '{}';
+
+								case 22:
+									_context9.t3 = _context9.t2;
+									_context9.t4 = '"favorites":' + _context9.t3;
+
+									_context9.t1.push.call(_context9.t1, _context9.t4);
+
+									return _context9.abrupt('break', 31);
+
+								case 26:
+									nameDm.push('Hid');
+									valDm.push('"posts":' + (locStorage['de-posts'] || '{}'), '"threads":' + (locStorage['de-threads'] || '{}'));
+									return _context9.abrupt('break', 31);
+
+								case 29:
+									nameDm.push('You');
+									valDm.push('"myposts":' + (locStorage['de-myposts'] || '{}'));
+
+								case 31:
+									++i;
+									_context9.next = 3;
+									break;
+
+								case 34:
+									if (valDm = valDm.join(',')) {
+										val.push('"' + aib.dm + '":{' + valDm + '}');
+										name.push(aib.dm + ' (' + nameDm.join('+') + ')');
+									}
+									if (val = val.join(',')) {
+										downloadBlob(new Blob(['{' + val + '}'], { type: 'application/json' }), 'DE_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' + pad2(d.getHours()) + pad2(d.getMinutes()) + '_' + name.join('+') + '.json');
+									}
+									$pd(e);
+
+								case 37:
+								case 'end':
+									return _context9.stop();
+							}
+						}
+					}, null, _this12);
+				}, true);
+			}));
+
+			div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], function () {
+				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this12._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this12._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (_ref8) {
+					var target = _ref8.target;
+
+					var els = $Q('input[type="checkbox"]', target.parentNode);
+					for (var i = 1, len = els.length; i < len; ++i) {
+						if (!els[i].checked) {
+							continue;
+						}
+						switch (i) {
+							case 1:
+								locStorage.removeItem('de-posts');
+								locStorage.removeItem('de-threads');
 								break;
-							case 'de-btn-spell-clear':
-								$pd(e);
-								$id('de-spell-txt').value = '';
-								Spells.toggle();
+							case 2:
+								locStorage.removeItem('de-myposts');break;
+							case 4:
+								delStored('DESU_Favorites');
 						}
 					}
-					return;
-				}
-				if (tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
-					this._updateRowMeter(el);
-				}
+					if (els[3].checked) {
+						delStored('DESU_Config');
+						delStored('DESU_keys');
+						delStored('DESU_Exclude');
+					} else if (els[0].checked) {
+						getStoredObj('DESU_Config').then(function (data) {
+							delete data[aib.dm];
+							setStored('DESU_Config', JSON.stringify(data));
+							$popup('cfg-reset', Lng.updating[lang], true);
+							window.location.reload();
+						});
+						return;
+					}
+					$popup('cfg-reset', Lng.updating[lang], true);
+					window.location.reload();
+				}));
+			}));
+		},
+
+
+		handleEvent: function handleEvent(e) {
+			var type = e.type,
+			    el = e.target;
+
+			var tag = el.tagName;
+			if (type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
+				var info = el.getAttribute('info');
+				this._clickTab(info);
+				saveCfg('cfgTab', info);
 			}
-
-
-		}, {
-			key: '_clickTab',
-			value: function _clickTab(info) {
-				var el = $q('.de-cfg-tab[info="' + info + '"]');
-				if (el.hasAttribute('selected')) {
-					return;
-				}
-				var prefTab = $q('.de-cfg-body');
-				if (prefTab) {
-					prefTab.className = 'de-cfg-unvis';
-					$q('.de-cfg-tab[selected]').removeAttribute('selected');
-				}
-				el.setAttribute('selected', '');
-				var id = el.getAttribute('info');
-				var newTab = $id('de-cfg-' + id);
-				if (!newTab) {
-					newTab = $aEnd($id('de-cfg-bar'), id === 'filters' ? this._getCfgFilters() : id === 'posts' ? this._getCfgPosts() : id === 'images' ? this._getCfgImages() : id === 'links' ? this._getCfgLinks() : id === 'form' ? this._getCfgForm() : id === 'common' ? this._getCfgCommon() : this._getCfgInfo());
-					if (id === 'filters') {
-						this._updateRowMeter($id('de-spell-txt'));
-					}
-					if (id === 'common') {
-						$after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
-							return fn(Cfg.userCSSTxt, false, function () {
-								saveCfg('userCSSTxt', this.value);
-								updateCSS();
-								toggleWindow('cfg', true);
-							});
-						}, 'de-cfg-button'));
-					}
-				}
-				newTab.className = 'de-cfg-body';
-				if (id === 'filters') {
-					$id('de-spell-txt').value = Spells.list;
-				}
+			if (type === 'change' && tag === 'SELECT') {
+				var _info = el.getAttribute('info');
+				saveCfg(_info, el.selectedIndex);
 				this._updateDependant();
-
-				var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
-				for (var i = 0, len = els.length; i < len; ++i) {
-					var _el6 = els[i];
-					var _info4 = _el6.getAttribute('info');
-					if (_el6.tagName === 'INPUT') {
-						if (_el6.type === 'checkbox') {
-							_el6.checked = !!Cfg[_info4];
-						} else {
-							_el6.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
+				switch (_info) {
+					case 'language':
+						lang = el.selectedIndex;
+						Panel.remove();
+						if (pr.form) {
+							pr.addMarkupPanel();
+							pr.setPlaceholders();
+							pr.updateLanguage();
+							if (pr.files) {
+								$each($Q('.de-file-img, .de-file-txt-input', pr.form), function (el) {
+									return el.title = Lng.youCanDrag[lang];
+								});
+							}
 						}
+						this._updateCSS();
+						Panel.init(DelForm.first.el);
+						toggleWindow('cfg', false);
+						break;
+					case 'delHiddPost':
+						{
+							var isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
+							for (var post = Thread.first.op; post; post = post.next) {
+								if (post.hidden && !post.isOp) {
+									if (isHide) {
+										post.wrap.classList.add('de-hidden');
+									} else {
+										post.wrap.classList.remove('de-hidden');
+									}
+								}
+							}
+							updateCSS();
+							break;
+						}
+					case 'postBtnsCSS':
+						updateCSS();
+						if (nav.Presto) {
+							$del($q('.de-svg-icons'));
+							addSVGIcons();
+						}
+						break;
+					case 'noSpoilers':
+						updateCSS();break;
+					case 'expandImgs':
+						updateCSS();
+						if (Attachment.viewer) {
+							Attachment.viewer.close();
+						}
+						break;
+					case 'fileInputs':
+						pr.files.changeMode();
+						pr.setPlaceholders();
+						updateCSS();
+						break;
+					case 'addPostForm':
+						pr.isBottom = Cfg.addPostForm === 1;
+						pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
+						break;
+					case 'addTextBtns':
+						pr.addMarkupPanel();break;
+					case 'scriptStyle':
+						this._updateCSS();
+				}
+				return;
+			}
+			if (type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
+				var _info2 = el.getAttribute('info');
+				toggleCfg(_info2);
+				this._updateDependant();
+				switch (_info2) {
+					case 'expandTrunc':
+					case 'updThrBtns':
+					case 'showHideBtn':
+					case 'showRepBtn':
+					case 'noPostNames':
+					case 'widePosts':
+					case 'imgNavBtns':
+					case 'resizeImgs':
+					case 'strikeHidd':
+					case 'removeHidd':
+					case 'noBoardRule':
+					case 'panelCounter':
+					case 'userCSS':
+						updateCSS();break;
+					case 'hideBySpell':
+						Spells.toggle();break;
+					case 'sortSpells':
+						if (Cfg.sortSpells) {
+							Spells.toggle();
+						}
+						break;
+					case 'hideRefPsts':
+						for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
+							if (!Cfg.hideRefPsts) {
+								_post3.ref.unhide();
+							} else if (_post3.hidden) {
+								_post3.ref.hide();
+							}
+						}
+						break;
+					case 'ajaxUpdThr':
+						if (aib.t) {
+							if (Cfg.ajaxUpdThr) {
+								updater.enable();
+							} else {
+								updater.disable();
+							}
+						}
+						break;
+					case 'updCount':
+						updater.toggleCounter(Cfg.updCount);break;
+					case 'desktNotif':
+						if (Cfg.desktNotif) {
+							Notification.requestPermission();
+						}
+						break;
+					case 'markNewPosts':
+						Post.clearMarks();break;
+					case 'useDobrAPI':
+						aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;break;
+					case 'markMyPosts':
+						if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
+							locStorage.removeItem('de-myposts');
+							MyPosts.purge();
+						}
+						updateCSS();
+						break;
+					case 'correctTime':
+						DateTime.toggleSettings();break;
+					case 'imgInfoLink':
+						{
+							var img = $q('.de-fullimg-wrap');
+							if (img) {
+								img.click();
+							}
+							updateCSS();
+							break;
+						}
+					case 'imgSrcBtns':
+						if (Cfg.imgSrcBtns) {
+							for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i5 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+								var _ref9;
+
+								if (_isArray3) {
+									if (_i5 >= _iterator3.length) break;
+									_ref9 = _iterator3[_i5++];
+								} else {
+									_i5 = _iterator3.next();
+									if (_i5.done) break;
+									_ref9 = _i5.value;
+								}
+
+								var _ref10 = _ref9,
+								    _el4 = _ref10.el;
+
+								processImagesLinks(_el4, 1, 0);
+							}
+						} else {
+							$each($Q('.de-btn-src'), function (el) {
+								return el.remove();
+							});
+						}
+						break;
+					case 'delImgNames':
+						if (Cfg.delImgNames) {
+							for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i6 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+								var _ref11;
+
+								if (_isArray4) {
+									if (_i6 >= _iterator4.length) break;
+									_ref11 = _iterator4[_i6++];
+								} else {
+									_i6 = _iterator4.next();
+									if (_i6.done) break;
+									_ref11 = _i6.value;
+								}
+
+								var _ref12 = _ref11,
+								    _el5 = _ref12.el;
+
+								processImagesLinks(_el5, 0, 1);
+							}
+						} else {
+							$each($Q('.de-img-name'), function (link) {
+								link.classList.remove('de-img-name');
+								link.textContent = link.title;
+								link.removeAttribute('title');
+							});
+						}
+						updateCSS();
+						break;
+					case 'markMyLinks':
+						if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
+							locStorage.removeItem('de-myposts');
+							MyPosts.purge();
+						}
+						updateCSS();
+						break;
+					case 'addSageBtn':
+						PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
+						updateCSS();
+						break;
+					case 'txtBtnsLoc':
+						pr.addMarkupPanel();break;
+					case 'userName':
+						PostForm.setUserName();break;
+					case 'noPassword':
+						$toggle($parent(pr.passw, 'TR'));break;
+					case 'noName':
+						PostForm.hideField(pr.name);break;
+					case 'noSubj':
+						PostForm.hideField(pr.subj);break;
+					case 'inftyScroll':
+						toggleInfinityScroll();break;
+					case 'hotKeys':
+						if (Cfg.hotKeys) {
+							HotKeys.enable();
+						} else {
+							HotKeys.disable();
+						}
+						break;
+					case 'turnOff':
+						getStoredObj('DESU_Config').then(function (data) {
+							for (var dm in data) {
+								if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+									data[dm].disabled = Cfg.turnOff;
+								}
+							}
+							data[aib.dm].turnOff = Cfg.turnOff;
+							setStored('DESU_Config', JSON.stringify(data));
+						});
+				}
+				return;
+			}
+			if (type === 'click' && tag === 'INPUT' && el.type === 'button') {
+				switch (el.id) {
+					case 'de-cfg-btn-pass':
+						$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
+						PostForm.setUserPassw();
+						break;
+					case 'de-cfg-btn-keys':
+						$pd(e);
+						if ($id('de-popup-edit-hotkeys')) {
+							return;
+						}
+						Promise.resolve(HotKeys.readKeys()).then(function (keys) {
+							var temp = KeyEditListener.getEditMarkup(keys);
+							var el = $popup('edit-hotkeys', temp[1]);
+							var fn = new KeyEditListener(el, keys, temp[0]);
+							el.addEventListener('focus', fn, true);
+							el.addEventListener('blur', fn, true);
+							el.addEventListener('click', fn, true);
+							el.addEventListener('keydown', fn, true);
+							el.addEventListener('keyup', fn, true);
+						});
+						break;
+					case 'de-cfg-btn-updnow':
+						$popup('updavail', Lng.loading[lang], true);
+						getStoredObj('DESU_Config').then(function (data) {
+							return checkForUpdates(true, data.lastUpd);
+						}).then(function (html) {
+							return $popup('updavail', html);
+						}, emptyFn);
+						break;
+					case 'de-cfg-btn-debug':
+						$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
+							version: version,
+							location: String(window.location),
+							nav: nav,
+							Cfg: Cfg,
+							sSpells: Spells.list.split('\n'),
+							oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
+							perf: Logger.getData(true)
+						}, function (key, value) {
+							switch (key) {
+								case 'stats':
+								case 'nameValue':
+								case 'passwValue':
+								case 'ytApiKey':
+									return void 0;
+							}
+							return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+						}, '\t');
+				}
+			}
+			if (type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
+				var _info3 = el.getAttribute('info');
+				switch (_info3) {
+					case 'postBtnsBack':
+						if (checkCSSColor(el.value)) {
+							el.classList.remove('de-error-input');
+							saveCfg('postBtnsBack', el.value);
+							updateCSS();
+						} else {
+							el.classList.add('de-error-input');
+						}
+						break;
+					case 'minImgSize':
+						saveCfg('minImgSize', Math.max(+el.value, 1));break;
+					case 'zoomFactor':
+						saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100));break;
+					case 'webmVolume':
+						{
+							var val = Math.min(+el.value || 0, 100);
+							saveCfg('webmVolume', val);
+							locStorage['__de-webmvolume'] = val;
+							locStorage.removeItem('__de-webmvolume');
+							break;
+						}
+					case 'minWebmWidth':
+						saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));break;
+					case 'maskVisib':
+						saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+						updateCSS();
+						break;
+					case 'linksOver':
+						saveCfg('linksOver', +el.value | 0);break;
+					case 'linksOut':
+						saveCfg('linksOut', +el.value | 0);break;
+					case 'ytApiKey':
+						saveCfg('ytApiKey', el.value.trim());break;
+					case 'passwValue':
+						PostForm.setUserPassw();break;
+					case 'nameValue':
+						PostForm.setUserName();break;
+					case 'excludeList':
+						setStored('DESU_Exclude', excludeList = el.value);break;
+					default:
+						saveCfg(_info3, el.value);
+				}
+				return;
+			}
+			if (tag === 'A') {
+				if (el.id === 'de-btn-spell-add') {
+					switch (e.type) {
+						case 'click':
+							$pd(e);break;
+						case 'mouseover':
+							el.odelay = setTimeout(function () {
+								return addMenu(el);
+							}, Cfg.linksOver);break;
+						case 'mouseout':
+							clearTimeout(el.odelay);
+					}
+					return;
+				}
+				if (type === 'click') {
+					switch (el.id) {
+						case 'de-btn-spell-apply':
+							$pd(e);
+							saveCfg('hideBySpell', 1);
+							$q('input[info="hideBySpell"]').checked = true;
+							Spells.toggle();
+							break;
+						case 'de-btn-spell-clear':
+							$pd(e);
+							$id('de-spell-txt').value = '';
+							Spells.toggle();
+					}
+				}
+				return;
+			}
+			if (tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
+				this._updateRowMeter(el);
+			}
+		},
+
+
+		_clickTab: function _clickTab(info) {
+			var el = $q('.de-cfg-tab[info="' + info + '"]');
+			if (el.hasAttribute('selected')) {
+				return;
+			}
+			var prefTab = $q('.de-cfg-body');
+			if (prefTab) {
+				prefTab.className = 'de-cfg-unvis';
+				$q('.de-cfg-tab[selected]').removeAttribute('selected');
+			}
+			el.setAttribute('selected', '');
+			var id = el.getAttribute('info');
+			var newTab = $id('de-cfg-' + id);
+			if (!newTab) {
+				newTab = $aEnd($id('de-cfg-bar'), id === 'filters' ? this._getCfgFilters() : id === 'posts' ? this._getCfgPosts() : id === 'images' ? this._getCfgImages() : id === 'links' ? this._getCfgLinks() : id === 'form' ? this._getCfgForm() : id === 'common' ? this._getCfgCommon() : this._getCfgInfo());
+				if (id === 'filters') {
+					this._updateRowMeter($id('de-spell-txt'));
+				}
+				if (id === 'common') {
+					$after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
+						return fn(Cfg.userCSSTxt, false, function () {
+							saveCfg('userCSSTxt', this.value);
+							updateCSS();
+							toggleWindow('cfg', true);
+						});
+					}, 'de-cfg-button'));
+				}
+			}
+			newTab.className = 'de-cfg-body';
+			if (id === 'filters') {
+				$id('de-spell-txt').value = Spells.list;
+			}
+			this._updateDependant();
+
+			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
+			for (var i = 0, len = els.length; i < len; ++i) {
+				var _el6 = els[i];
+				var _info4 = _el6.getAttribute('info');
+				if (_el6.tagName === 'INPUT') {
+					if (_el6.type === 'checkbox') {
+						_el6.checked = !!Cfg[_info4];
 					} else {
-						_el6.selectedIndex = Cfg[_info4];
+						_el6.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
 					}
+				} else {
+					_el6.selectedIndex = Cfg[_info4];
 				}
 			}
+		},
 
 
-		}, {
-			key: '_getCfgFilters',
-			value: function _getCfgFilters() {
-				return '<div id="de-cfg-filters" class="de-cfg-unvis">\n\t\t\t<div id="de-spell-panel">\n\t\t\t\t' + this._getBox('hideBySpell') + '\n\t\t\t\t<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">' + Lng.add[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">' + Lng.apply[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">' + Lng.clear[lang] + '</a>\n\t\t\t\t<a class="de-abtn de-spell-btn" href="' + gitWiki + 'Spells-' + ((lang ? 'en' : 'ru') + '" target="_blank">[?]</a>\n\t\t\t</div>\n\t\t\t<div id="de-spell-editor">\n\t\t\t\t<div id="de-spell-rowmeter"></div>\n\t\t\t\t<textarea id="de-spell-txt" wrap="off"></textarea>\n\t\t\t</div>\n\t\t\t' + this._getBox('sortSpells') + '<br>\n\t\t\t' + this._getBox('menuHiddBtn') + '<br>\n\t\t\t' + this._getBox('hideRefPsts') + '<br>\n\t\t\t' + this._getSel('delHiddPost') + '\n\t\t</div>');
+		_getCfgFilters: function _getCfgFilters() {
+			return '<div id="de-cfg-filters" class="de-cfg-unvis">\n\t\t\t<div id="de-spell-panel">\n\t\t\t\t' + this._getBox('hideBySpell') + '\n\t\t\t\t<a id="de-btn-spell-add" class="de-abtn de-spell-btn" href="#">' + Lng.add[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-apply" class="de-abtn de-spell-btn" href="#">' + Lng.apply[lang] + '</a>\n\t\t\t\t<a id="de-btn-spell-clear" class="de-abtn de-spell-btn" href="#">' + Lng.clear[lang] + '</a>\n\t\t\t\t<a class="de-abtn de-spell-btn" href="' + gitWiki + 'Spells-' + ((lang ? 'en' : 'ru') + '" target="_blank">[?]</a>\n\t\t\t</div>\n\t\t\t<div id="de-spell-editor">\n\t\t\t\t<div id="de-spell-rowmeter"></div>\n\t\t\t\t<textarea id="de-spell-txt" wrap="off"></textarea>\n\t\t\t</div>\n\t\t\t' + this._getBox('sortSpells') + '<br>\n\t\t\t' + this._getBox('menuHiddBtn') + '<br>\n\t\t\t' + this._getBox('hideRefPsts') + '<br>\n\t\t\t' + this._getSel('delHiddPost') + '\n\t\t</div>');
+		},
+
+
+		_getCfgPosts: function _getCfgPosts() {
+			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
+		},
+
+
+		_getCfgImages: function _getCfgImages() {
+			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.Presto ? '' : this._getBox('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.Presto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
+		},
+
+
+		_getCfgLinks: function _getCfgLinks() {
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+		},
+
+
+		_getCfgForm: function _getCfgForm() {
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+		},
+
+
+		_getCfgCommon: function _getCfgCommon() {
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="') + (Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt"' + ' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
+		},
+
+
+		_getCfgInfo: function _getCfgInfo() {
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isESNext ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + gitWiki + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + ('</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>');
+		},
+
+
+		_getBox: function _getBox(id) {
+			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-chkbox" info="' + id + '" type="checkbox"> ' + Lng.cfg[id][lang] + '\n\t\t</label>';
+		},
+
+		_getInfoTable: function _getInfoTable(data, needMs) {
+			return data.map(function (data) {
+				return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
+			}).join('');
+		},
+
+		_getInp: function _getInp(id) {
+			var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
+
+			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + (escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>');
+		},
+
+		_getList: function _getList(a) {
+			return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+		},
+
+		_getSel: function _getSel(id) {
+			var x = Lng.cfg[id];
+			var opt = [];
+			for (var i = 0, len = x.sel[lang].length; i < len; ++i) {
+				opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
 			}
+			return '<label class="de-cfg-label">\n\t\t\t<select class="de-cfg-select" info="' + id + '">' + opt.join('') + '</select> ' + x.txt[lang] + '\n\t\t</label>';
+		},
 
+		_getTab: function _getTab(name) {
+			return '<div class="' + aib.cReply + ' de-cfg-tab" info="' + name + '">' + Lng.cfgTab[name][lang] + '</div>';
+		},
 
-		}, {
-			key: '_getCfgPosts',
-			value: function _getCfgPosts() {
-				return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + this._getBox('hideReplies') + '<br>\n\t\t\t' + this._getBox('expandTrunc') + '<br>\n\t\t\t' + this._getBox('updThrBtns') + '<br>\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + this._getBox('showRepBtn') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset') + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
+		_toggleBox: function _toggleBox(state, arr) {
+			var i = arr.length;
+			var nState = !state;
+			while (i--) {
+				($q(arr[i]) || {}).disabled = nState;
 			}
+		},
+		_updateCSS: function _updateCSS() {
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+			scriptCSS();
+		},
+		_updateDependant: function _updateDependant() {
+			this._toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
+			this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
+			this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+			this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+			this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
+			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
+			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
+			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
+			this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+			this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
+			this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
+		},
 
-
-		}, {
-			key: '_getCfgImages',
-			value: function _getCfgImages() {
-				return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.Presto ? '' : this._getBox('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.Presto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
-			}
-
-
-		}, {
-			key: '_getCfgLinks',
-			value: function _getCfgLinks() {
-				return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
-			}
-
-
-		}, {
-			key: '_getCfgForm',
-			value: function _getCfgForm() {
-				return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.Presto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') + this._getInp('capUpdTime') + '<br>' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + this._getBox('txtBtnsLoc') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + ('<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + ' ' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
-			}
-
-
-		}, {
-			key: '_getCfgCommon',
-			value: function _getCfgCommon() {
-				return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + this._getBox('inftyScroll') + '<br>\n\t\t\t' + this._getBox('scrollToTop') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('loadPages') + '\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') + ('<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getSel('scrUpdIntrv') + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="') + (Lng.checkNow[lang] + '">\n\t\t\t\t</div>') : '') + '\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '<input type="text" info="excludeList" class="de-cfg-inptxt"' + ' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' + this._getBox('turnOff') : '') + '\n\t\t</div>';
-			}
-
-
-		}, {
-			key: '_getCfgInfo',
-			value: function _getCfgInfo() {
-				return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + (commit + (nav.isESNext ? '.es6' : '')) + '</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;\n\t\t\t\t<a href="' + gitWiki + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false) + ('</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t<input type="button" id="de-cfg-btn-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t</div>');
-			}
-
-
-		}, {
-			key: '_getBox',
-			value: function _getBox(id) {
-				return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-chkbox" info="' + id + '" type="checkbox"> ' + Lng.cfg[id][lang] + '\n\t\t</label>';
-			}
-
-		}, {
-			key: '_getInfoTable',
-			value: function _getInfoTable(data, needMs) {
-				return data.map(function (data) {
-					return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
-				}).join('');
-			}
-
-		}, {
-			key: '_getInp',
-			value: function _getInp(id) {
-				var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-				var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
-
-				return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + (escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>');
-			}
-
-		}, {
-			key: '_getList',
-			value: function _getList(a) {
-				return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-			}
-
-		}, {
-			key: '_getSel',
-			value: function _getSel(id) {
-				var x = Lng.cfg[id];
-				var opt = [];
-				for (var i = 0, len = x.sel[lang].length; i < len; ++i) {
-					opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-				}
-				return '<label class="de-cfg-label">\n\t\t\t<select class="de-cfg-select" info="' + id + '">' + opt.join('') + '</select> ' + x.txt[lang] + '\n\t\t</label>';
-			}
-
-		}, {
-			key: '_getTab',
-			value: function _getTab(name) {
-				return '<div class="' + aib.cReply + ' de-cfg-tab" info="' + name + '">' + Lng.cfgTab[name][lang] + '</div>';
-			}
-
-		}, {
-			key: '_toggleBox',
-			value: function _toggleBox(state, arr) {
-				var i = arr.length;
-				var nState = !state;
+		_updateRowMeter: function _updateRowMeter(node) {
+			var top = node.scrollTop;
+			var el = node.previousElementSibling;
+			var num = el.numLines || 1;
+			var i = 17;
+			if (num - i < (top / 12 | 0 + 1)) {
+				var str = '';
 				while (i--) {
-					($q(arr[i]) || {}).disabled = nState;
+					str += num++ + '<br>';
 				}
+				el.insertAdjacentHTML('beforeend', str);
+				el.numLines = num;
 			}
-		}, {
-			key: '_updateCSS',
-			value: function _updateCSS() {
-				$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
-				scriptCSS();
-			}
-		}, {
-			key: '_updateDependant',
-			value: function _updateDependant() {
-				this._toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
-				this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-				this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
-				this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-				this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-				this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-				this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
-				this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
-				this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-				this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
-				this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-				this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
-				this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
-			}
-
-		}, {
-			key: '_updateRowMeter',
-			value: function _updateRowMeter(node) {
-				var top = node.scrollTop;
-				var el = node.previousElementSibling;
-				var num = el.numLines || 1;
-				var i = 17;
-				if (num - i < (top / 12 | 0 + 1)) {
-					var str = '';
-					while (i--) {
-						str += num++ + '<br>';
-					}
-					el.insertAdjacentHTML('beforeend', str);
-					el.numLines = num;
-				}
-				el.scrollTop = top;
-			}
-		}]);
-
-		return CfgWindow;
-	}();
+			el.scrollTop = top;
+		}
+	};
 
 
 	function closePopup(data) {
@@ -10374,12 +10327,6 @@ true, true];
 				return [spellsArr, reps, outreps];
 			}
 		}, {
-			key: '_getScope',
-			value: function _getScope(str) {
-				var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
-				return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
-			}
-		}, {
 			key: '_getRegex',
 			value: function _getRegex(str, haveComma) {
 				var m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
@@ -10396,41 +10343,9 @@ true, true];
 				return [m[0].length, val];
 			}
 		}, {
-			key: '_getText',
-			value: function _getText(str, haveBracket) {
-				if (haveBracket && str[0] !== '(') {
-					return [0, ''];
-				}
-				var rv = '';
-				for (var i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
-					var ch = str[i];
-					if (ch === '\\') {
-						if (i === len - 1) {
-							return null;
-						}
-						switch (str[i + 1]) {
-							case 'n':
-								rv += '\n';break;
-							case '\\':
-								rv += '\\';break;
-							case ')':
-								rv += ')';break;
-							default:
-								return null;
-						}
-						++i;
-					} else if (ch === ')') {
-						return [i + 1, rv];
-					} else {
-						rv += ch;
-					}
-				}
-				return null;
-			}
-		}, {
 			key: '_doRep',
 			value: function _doRep(name, str) {
-				var scope = this._getScope(str);
+				var scope = SpellsCodegen._getScope(str);
 				if (scope) {
 					str = str.substring(scope[0]);
 				} else {
@@ -10442,7 +10357,7 @@ true, true];
 					if (str[0] === ')') {
 						return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
 					}
-					var val = this._getText(str, false);
+					var val = SpellsCodegen._getText(str, false);
 					if (val) {
 						return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 					}
@@ -10462,7 +10377,7 @@ true, true];
 					this._setError(Lng.seUnknown[lang], name);
 					return null;
 				}
-				var temp = this._getScope(str);
+				var temp = SpellsCodegen._getScope(str);
 				if (temp) {
 					i += temp[0];
 					str = str.substring(temp[0]);
@@ -10545,7 +10460,7 @@ true, true];
 						}
 						break;
 					default:
-						temp = this._getText(str, true);
+						temp = SpellsCodegen._getText(str, true);
 						if (temp) {
 							return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
 						}
@@ -10565,26 +10480,50 @@ true, true];
 			get: function get() {
 				return !this.hasError ? '' : (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) + Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
 			}
+		}], [{
+			key: '_getScope',
+			value: function _getScope(str) {
+				var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+				return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
+			}
+		}, {
+			key: '_getText',
+			value: function _getText(str, haveBracket) {
+				if (haveBracket && str[0] !== '(') {
+					return [0, ''];
+				}
+				var rv = '';
+				for (var i = haveBracket ? 1 : 0, len = str.length; i < len; ++i) {
+					var ch = str[i];
+					if (ch === '\\') {
+						if (i === len - 1) {
+							return null;
+						}
+						switch (str[i + 1]) {
+							case 'n':
+								rv += '\n';break;
+							case '\\':
+								rv += '\\';break;
+							case ')':
+								rv += ')';break;
+							default:
+								return null;
+						}
+						++i;
+					} else if (ch === ')') {
+						return [i + 1, rv];
+					} else {
+						rv += ch;
+					}
+				}
+				return null;
+			}
 		}]);
 
 		return SpellsCodegen;
 	}();
 
 	var SpellsRunner = function () {
-		_createClass(SpellsRunner, null, [{
-			key: 'unhideAll',
-			value: function unhideAll() {
-				if (aib.t) {
-					sesStorage['de-hidden-' + aib.b + aib.t] = null;
-				}
-				for (var post = Thread.first.op; post; post = post.next) {
-					if (post.spellHidden) {
-						post.spellUnhide();
-					}
-				}
-			}
-		}]);
-
 		function SpellsRunner() {
 			_classCallCheck(this, SpellsRunner);
 
@@ -10592,7 +10531,7 @@ true, true];
 			this._endPromise = null;
 			this._spells = Spells.hiders;
 			if (!this._spells) {
-				this.run = this._unhidePost;
+				this.run = SpellsRunner._unhidePost;
 				SpellsRunner.cachedData = null;
 			}
 		}
@@ -10643,7 +10582,7 @@ true, true];
 					}
 					return 1;
 				}
-				return this._unhidePost(post);
+				return SpellsRunner._unhidePost(post);
 			}
 		}, {
 			key: '_savePostsHelper',
@@ -10673,6 +10612,18 @@ true, true];
 					toggleWindow('hid', true);
 				}
 				ImagesHashStorage.endFn();
+			}
+		}], [{
+			key: 'unhideAll',
+			value: function unhideAll() {
+				if (aib.t) {
+					sesStorage['de-hidden-' + aib.b + aib.t] = null;
+				}
+				for (var post = Thread.first.op; post; post = post.next) {
+					if (post.spellHidden) {
+						post.spellUnhide();
+					}
+				}
 			}
 		}, {
 			key: '_unhidePost',
@@ -11073,7 +11024,7 @@ true, true];
 		}, {
 			key: '_num',
 			value: function _num(val) {
-				return this._tlenNum_helper(val, this._post.count + 1);
+				return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
 			}
 		}, {
 			key: '_op',
@@ -11095,22 +11046,7 @@ true, true];
 			key: '_tlen',
 			value: function _tlen(val) {
 				var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
-				return !val ? !!text : this._tlenNum_helper(val, text.length);
-			}
-		}, {
-			key: '_tlenNum_helper',
-			value: function _tlenNum_helper(val, num) {
-				for (var arr = val[0], i = arr.length - 1; i >= 0; --i) {
-					if (arr[i] === num) {
-						return true;
-					}
-				}
-				for (var _arr = val[1], _i25 = _arr.length - 1; _i25 >= 0; --_i25) {
-					if (num >= _arr[_i25][0] && num <= _arr[_i25][1]) {
-						return true;
-					}
-				}
-				return false;
+				return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
 			}
 		}, {
 			key: '_trip',
@@ -11139,30 +11075,30 @@ true, true];
 				if (!videos.hasLinks || !Cfg.YTubeTitles) {
 					return false;
 				}
-				for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i26 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
+				for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i25 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
 					var _ref43;
 
 					if (_isArray19) {
-						if (_i26 >= _iterator19.length) break;
-						_ref43 = _iterator19[_i26++];
+						if (_i25 >= _iterator19.length) break;
+						_ref43 = _iterator19[_i25++];
 					} else {
-						_i26 = _iterator19.next();
-						if (_i26.done) break;
-						_ref43 = _i26.value;
+						_i25 = _iterator19.next();
+						if (_i25.done) break;
+						_ref43 = _i25.value;
 					}
 
 					var siteData = _ref43;
 
-					for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i27 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
+					for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i26 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
 						var _ref44;
 
 						if (_isArray20) {
-							if (_i27 >= _iterator20.length) break;
-							_ref44 = _iterator20[_i27++];
+							if (_i26 >= _iterator20.length) break;
+							_ref44 = _iterator20[_i26++];
 						} else {
-							_i27 = _iterator20.next();
-							if (_i27.done) break;
-							_ref44 = _i27.value;
+							_i26 = _iterator20.next();
+							if (_i26.done) break;
+							_ref44 = _i26.value;
 						}
 
 						var data = _ref44;
@@ -11218,10 +11154,10 @@ true, true];
 						arr.sort();
 						var keys = 0;
 						var pop = 0;
-						for (var _i28 = 0, _n = len / 4; _i28 < len; keys++) {
-							x = arr[_i28];
+						for (var _i27 = 0, _n = len / 4; _i27 < len; keys++) {
+							x = arr[_i27];
 							var _j2 = 0;
-							while (arr[_i28++] === x) {
+							while (arr[_i27++] === x) {
 								_j2++;
 							}
 							if (len > 25) {
@@ -11261,8 +11197,8 @@ true, true];
 						var _n2 = 0;
 						var capsw = 0;
 						var casew = 0;
-						for (var _i29 = 0; _i29 < len; _i29++) {
-							x = arr[_i29];
+						for (var _i28 = 0; _i28 < len; _i28++) {
+							x = arr[_i28];
 							if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 								continue;
 							}
@@ -11302,6 +11238,21 @@ true, true];
 			key: '_words',
 			value: function _words(val) {
 				return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
+			}
+		}], [{
+			key: '_tlenNum_helper',
+			value: function _tlenNum_helper(val, num) {
+				for (var arr = val[0], i = arr.length - 1; i >= 0; --i) {
+					if (arr[i] === num) {
+						return true;
+					}
+				}
+				for (var _arr = val[1], _i29 = _arr.length - 1; _i29 >= 0; --_i29) {
+					if (num >= _arr[_i29][0] && num <= _arr[_i29][1]) {
+						return true;
+					}
+				}
+				return false;
 			}
 		}]);
 
@@ -11498,7 +11449,7 @@ true, true];
 				} else {
 					var scrtop = txtaEl.scrtop;
 
-					var val = this._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
+					var val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
 					var len = start + val[0];
 					txtaEl.value = txtaEl.value.substr(0, start) + val[1] + txtaEl.value.substr(end);
 					txtaEl.setSelectionRange(len, len);
@@ -11699,7 +11650,7 @@ true, true];
 						val = Spells.outReplace(val);
 					}
 					if (_this25.tNum && pByNum.get(_this25.tNum).subj === 'Dollchan Extension Tools') {
-						var temp = '\n\n' + _this25._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+						var temp = '\n\n' + PostForm._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
 						if (!val.includes(temp)) {
 							val += temp;
 						}
@@ -11943,33 +11894,6 @@ true, true];
 				}
 			}
 		}, {
-			key: '_wrapText',
-			value: function _wrapText(tag, text) {
-				var isBB = aib.markupBB;
-				if (tag.startsWith('[')) {
-					tag = tag.substr(1);
-					isBB = true;
-				}
-				if (isBB) {
-					if (text.includes('\n')) {
-						var _str = '[' + tag + ']' + text + '[/' + tag + ']';
-						return [_str.length, _str];
-					}
-					var _m3 = text.match(/^(\s*)(.*?)(\s*)$/);
-					var str = _m3[1] + '[' + tag + ']' + _m3[2] + '[/' + tag + ']' + _m3[3];
-					return [!_m3[2].length ? _m3[1].length + tag.length + 2 : str.length, str];
-				}
-				var m = void 0,
-				    rv = '',
-				    i = 0;
-				var arr = text.split('\n');
-				for (var len = arr.length; i < len; ++i) {
-					m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
-					rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
-				}
-				return [i === 1 && !m[2].length && tag !== '^H' ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
-			}
-		}, {
 			key: 'isVisible',
 			get: function get() {
 				if (!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
@@ -12024,6 +11948,33 @@ true, true];
 
 					passEl.value = value;
 				}
+			}
+		}, {
+			key: '_wrapText',
+			value: function _wrapText(tag, text) {
+				var isBB = aib.markupBB;
+				if (tag.startsWith('[')) {
+					tag = tag.substr(1);
+					isBB = true;
+				}
+				if (isBB) {
+					if (text.includes('\n')) {
+						var _str = '[' + tag + ']' + text + '[/' + tag + ']';
+						return [_str.length, _str];
+					}
+					var _m3 = text.match(/^(\s*)(.*?)(\s*)$/);
+					var str = _m3[1] + '[' + tag + ']' + _m3[2] + '[/' + tag + ']' + _m3[3];
+					return [!_m3[2].length ? _m3[1].length + tag.length + 2 : str.length, str];
+				}
+				var m = void 0,
+				    rv = '',
+				    i = 0;
+				var arr = text.split('\n');
+				for (var len = arr.length; i < len; ++i) {
+					m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
+					rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
+				}
+				return [i === 1 && !m[2].length && tag !== '^H' ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
 			}
 		}]);
 
@@ -12672,7 +12623,7 @@ true, true];
 			if (el.files && el.files[0]) {
 				this._removeFile();
 			}
-			if (this._isThumb) {
+			if (FileInput._isThumb) {
 				this._initThumbs();
 			} else {
 				if (Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
@@ -12708,7 +12659,7 @@ true, true];
 		}, {
 			key: 'clear',
 			value: function clear() {
-				if (this._isThumb) {
+				if (FileInput._isThumb) {
 					this._thumb.classList.add('de-file-off');
 					if (this._mediaEl) {
 						window.URL.revokeObjectURL(this._mediaEl.src);
@@ -12723,7 +12674,7 @@ true, true];
 					$hide(this._btnRarJpg);
 					$hide(this._txtAddBtn);
 					$del(this._rarMsg);
-					if (this._isThumb) {
+					if (FileInput._isThumb) {
 						$hide(this._txtWrap);
 					}
 					this._txtInput.value = '';
@@ -12773,7 +12724,7 @@ true, true];
 						} else if (el === this._btnTxt) {
 							this._showDelBtn(this._isTxtEditable = true);
 							$show(this._txtAddBtn);
-							if (this._isThumb) {
+							if (FileInput._isThumb) {
 								$toggle(this._txtWrap);
 							}
 							this._txtInput.classList.remove('de-file-txt-noedit');
@@ -12827,7 +12778,7 @@ true, true];
 		}, {
 			key: 'hide',
 			value: function hide() {
-				if (this._isThumb) {
+				if (FileInput._isThumb) {
 					this._showDelBtn(false);
 					$hide(this._thumb);
 					$hide(this._txtWrap);
@@ -12837,7 +12788,7 @@ true, true];
 		}, {
 			key: 'show',
 			value: function show() {
-				if (this._isThumb) {
+				if (FileInput._isThumb) {
 					$show(this._thumb);
 				}
 				$show(this._wrap);
@@ -12930,7 +12881,7 @@ true, true];
 					}
 					_this32._parent._files[_this32._parent._inputs.indexOf(_this32)] = file;
 					DollchanAPI.notify('filechange', _this32._parent._files);
-					if (_this32._isThumb) {
+					if (FileInput._isThumb) {
 						$hide(_this32._txtWrap);
 					}
 					_this32._onFileChange(true);
@@ -12970,7 +12921,7 @@ true, true];
 				if (this._parent.onchange) {
 					this._parent.onchange();
 				}
-				if (this._isThumb) {
+				if (FileInput._isThumb) {
 					this._showPviewImage();
 				}
 				if (this.hasFile) {
@@ -12980,7 +12931,7 @@ true, true];
 					this._changeFilesCount(+1);
 					this._showDelBtn(true);
 					$hide(this._txtAddBtn);
-					if (this._isThumb) {
+					if (FileInput._isThumb) {
 						$hide(this._txtWrap);
 					}
 					if (this._spoilEl) {
@@ -13052,11 +13003,6 @@ true, true];
 				el[name]('drop', this);
 			}
 		}, {
-			key: '_isThumb',
-			get: function get() {
-				return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
-			}
-		}, {
 			key: '_wrap',
 			get: function get() {
 				return aib.multiFile ? this._input.parentNode : this._input;
@@ -13071,6 +13017,11 @@ true, true];
 					input.show();
 					input._onFileChange(true);
 				});
+			}
+		}, {
+			key: '_isThumb',
+			get: function get() {
+				return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 			}
 		}]);
 
