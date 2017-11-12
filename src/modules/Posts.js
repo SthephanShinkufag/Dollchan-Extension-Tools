@@ -314,7 +314,7 @@ class AbstractPost {
 	}
 	_getMenuImgSrc(el) {
 		const link = el.nextSibling;
-		let p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
+		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
 			'" target="_blank">' + Lng.searchIn[lang];
 		return `<a class="de-menu-item ${ [
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,

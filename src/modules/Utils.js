@@ -220,12 +220,12 @@ function fixEventEl(el) {
 }
 
 // Allows to record the duration of code execution
-class Logger extends null {
-	static finish() {
+const Logger = {
+	finish() {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
-	}
-	static getData(full) {
+	},
+	getData(full) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -243,18 +243,19 @@ class Logger extends null {
 		duration = marks[i][1] - marks[0][1];
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
-	}
-	static init() {
+	},
+	init() {
 		this._marks.push(['LoggerInit', Date.now()]);
-	}
-	static log(text) {
+	},
+	log(text) {
 		if(!this._finished) {
 			this._marks.push([text, Date.now()]);
 		}
-	}
-}
-Logger._finished = false;
-Logger._marks = [];
+	},
+
+	_finished : false,
+	_marks    : []
+};
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

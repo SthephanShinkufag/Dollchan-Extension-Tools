@@ -91,7 +91,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				const { headers } = params;
 				if(headers) {
-					for(let h in headers) {
+					for(const h in headers) {
 						if(headers.hasOwnProperty(h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
@@ -140,28 +140,30 @@ AjaxError.Timeout = new AjaxError(0, {
 	}
 });
 
-class AjaxCache extends null {
-	static clear() {
-		AjaxCache._data = new Map();
-	}
-	static fixURL(url) {
-		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
-	}
-	static runCachedAjax(url, useCache) {
-		var { hasCacheControl, params } = AjaxCache._data.get(url) || {};
-		var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
+const AjaxCache = {
+	fixURL(url) {
+		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
+	},
+	clear() {
+		this._data = new Map();
+	},
+	runCachedAjax(url, useCache) {
+		const { hasCacheControl, params } = this._data.get(url) || {};
+		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
 		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
-			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && params)
+			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params)
 		);
-	}
-	static saveData(url, xhr) {
-		var ETag = null, LastModified = null, i = 0,
-			hasCacheControl = false,
-			ajaxHeaders = 'getAllResponseHeaders' in xhr ?
-				xhr.getAllResponseHeaders() :
-				xhr.responseHeaders;
-		for(var header of ajaxHeaders.split('\r\n')) {
-			let lHeader = header.toLowerCase();
+	},
+	saveData(url, xhr) {
+		let ETag = null;
+		let LastModified = null;
+		let i = 0;
+		let hasCacheControl = false;
+		const ajaxHeaders = 'getAllResponseHeaders' in xhr ?
+			xhr.getAllResponseHeaders() :
+			xhr.responseHeaders;
+		for(const header of ajaxHeaders.split('\r\n')) {
+			const lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
 				i++;
@@ -186,19 +188,21 @@ class AjaxCache extends null {
 				headers['If-Modified-Since'] = LastModified;
 			}
 		}
-		let hasUrl = AjaxCache._data.has(url);
-		AjaxCache._data.set(url, {
+		const hasUrl = this._data.has(url);
+		this._data.set(url, {
 			hasCacheControl,
 			params: headers ? { headers, useTimeout: true } : { useTimeout: true }
 		});
 		return hasUrl || hasCacheControl;
-	}
-}
-AjaxCache._data = new Map();
+	},
+
+	_data: new Map()
+};
 
 function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		var el, text = xhr.responseText;
+		let el;
+		const text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
@@ -230,16 +234,16 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 }
 
 function infoLoadErrors(e, showError = true) {
-	var isAjax = e instanceof AjaxError,
-		eCode = isAjax ? e.code : 0;
+	const isAjax = e instanceof AjaxError;
+	const eCode = isAjax ? e.code : 0;
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
 		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e));
+		$popup('newposts', ` (№${ Lng.thrNotFound[lang] }${ aib.t }): \n${ getErrorMessage(e) }`);
 		if(showError) {
-			doc.title = '{' + eCode + '} ' + doc.title;
+			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
 	}
 }

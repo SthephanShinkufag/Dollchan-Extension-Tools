@@ -4,8 +4,8 @@
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
-class DollchanAPI extends null {
-	static init() {
+const DollchanAPI = {
+	init() {
 		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
@@ -21,17 +21,17 @@ class DollchanAPI extends null {
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
-	}
-	static hasListener(name) {
+	},
+	hasListener(name) {
 		return this.hasListeners && this.activeListeners.has(name);
-	}
-	static notify(name, data) {
+	},
+	notify(name, data) {
 		if(this.hasListener(name)) {
 			this.port.postMessage({ name, data });
 		}
-	}
+	},
 
-	static _handleMessage({ data: arg }) {
+	_handleMessage({ data: arg }) {
 		if(!arg || !arg.name) {
 			return;
 		}
@@ -41,15 +41,15 @@ class DollchanAPI extends null {
 		case 'registerapi':
 			if(data) {
 				rv = {};
-				for(let aName of data) {
+				for(const aName of data) {
 					rv[aName] = DollchanAPI._register(aName.toLowerCase());
 				}
 			}
 			break;
 		}
 		DollchanAPI.port.postMessage({ name, data: rv });
-	}
-	static _register(name) {
+	},
+	_register(name) {
 		switch(name) {
 		case 'expandmedia':
 		case 'filechange':
@@ -60,7 +60,7 @@ class DollchanAPI extends null {
 		this.activeListeners.add(name);
 		return true;
 	}
-}
+};
 
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {

@@ -312,8 +312,14 @@ function readViewedPosts() {
 
 // HIDDEN AND MY POSTS STORAGE
 
-class PostsStorage extends null {
-	static get(num) {
+class PostsStorage {
+	constructor() {
+		this.storageName = '';
+		this.__cachedTime = null;
+		this._cachedStorage = null;
+		this._cacheTO = null;
+	}
+	get(num) {
 		const storage = this._readStorage()[aib.b];
 		if(storage) {
 			const val = storage[num];
@@ -321,14 +327,14 @@ class PostsStorage extends null {
 		}
 		return null;
 	}
-	static has(num) {
+	has(num) {
 		const storage = this._readStorage()[aib.b];
 		return storage ? storage.hasOwnProperty(num) : false;
 	}
-	static purge() {
+	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
-	static remove(num, board = aib.b) {
+	remove(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {
@@ -339,7 +345,7 @@ class PostsStorage extends null {
 			this._saveStorage();
 		}
 	}
-	static set(num, thrNum, data = true) {
+	set(num, thrNum, data = true) {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5000) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
@@ -361,16 +367,16 @@ class PostsStorage extends null {
 		this._saveStorage();
 	}
 
-	static get _cachedTime() {
-		return this.__cachedTime || (this.__cachedTime = Date.now());
-	}
 	static _migrateOld(newName, oldName) {
 		if(locStorage.hasOwnProperty(oldName)) {
 			locStorage[newName] = locStorage[oldName];
 			locStorage.removeItem(oldName);
 		}
 	}
-	static _readStorage() {
+	get _cachedTime() {
+		return this.__cachedTime || (this.__cachedTime = Date.now());
+	}
+	_readStorage() {
 		if(this._cachedStorage) {
 			return this._cachedStorage;
 		}
@@ -382,7 +388,7 @@ class PostsStorage extends null {
 		}
 		return (this._cachedStorage = {});
 	}
-	static _saveStorage() {
+	_saveStorage() {
 		if(this._cacheTO === null) {
 			this._cacheTO = setTimeout(() => {
 				if(this._cachedStorage) {
@@ -393,21 +399,24 @@ class PostsStorage extends null {
 		}
 	}
 }
-PostsStorage.storageName = '';
-PostsStorage.__cachedTime = null;
-PostsStorage._cachedStorage = null;
-PostsStorage._cacheTO = null;
 
-class HiddenPosts extends PostsStorage {
-	static _readStorage() {
-		this._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
+const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-posts';
+	}
+	_readStorage() {
+		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
 	}
-}
-HiddenPosts.storageName = 'de-posts';
+})();
 
-class HiddenThreads extends PostsStorage {
-	static getCount() {
+const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-threads';
+	}
+	getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
 		for(const b in storage) {
@@ -415,52 +424,54 @@ class HiddenThreads extends PostsStorage {
 		}
 		return rv;
 	}
-	static getRawData() {
+	getRawData() {
 		return this._readStorage();
 	}
-	static saveRawData(data) {
+	saveRawData(data) {
 		locStorage[this.storageName] = JSON.stringify(data);
 		this.purge();
 	}
 
-	static _readStorage() {
-		this._migrateOld(this.storageName, ''); // Old storage has wrong name
+	_readStorage() {
+		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
 		return super._readStorage();
 	}
-}
-HiddenThreads.storageName = 'de-threads';
+})();
 
-class MyPosts extends PostsStorage {
-	static has(num) {
+const MyPosts = new (class MyPostsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-myposts';
+		this._cachedData = null;
+	}
+	has(num) {
 		return this._cachedData.has(num);
 	}
-	static purge() {
+	purge() {
 		super.purge();
 		this._cachedData = null;
 		this._readStorage();
 	}
-	static read() {
+	read() {
 		this._readStorage();
 	}
-	static set(num, thrNum) {
+	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
 		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
 		locStorage.removeItem('__de-mypost');
 	}
 
-	static _readStorage() {
+	_readStorage() {
 		if(this._cachedData && this._cachedStorage) {
 			return this._cachedStorage;
 		}
-		this._migrateOld(this.storageName, 'de-myposts-new');
+		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 		const rv = super._readStorage();
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
-}
-MyPosts.storageName = 'de-myposts';
-MyPosts._cachedData = null;
+})();
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {

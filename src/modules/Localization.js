@@ -1192,9 +1192,9 @@ const Lng = {
 		'Connection failed',
 		'Помилка зʼєднання'],
 	thrNotFound: [
-		'Тред недоступен (№',
-		'Thread is unavailable (№',
-		'Тред недоступний (№'],
+		'Тред недоступен',
+		'Thread is unavailable',
+		'Тред недоступний'],
 	thrClosed: [
 		'Тред закрыт',
 		'Thread is closed',

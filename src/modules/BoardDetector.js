@@ -1140,7 +1140,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getOmitted(el) {
 			while(el) {
-				let m = el.textContent.match(/(\d+) posts are omitted/);
+				const m = el.textContent.match(/(\d+) posts are omitted/);
 				if(m) {
 					return +m[1] + 1;
 				}
@@ -1459,7 +1459,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			let sessionId = null;
 			const { cookie } = doc;
 			if(cookie.includes('desuchan.session')) {
-				for(let c of cookie.split(';')) {
+				for(const c of cookie.split(';')) {
 					const m = c.match(/^\s*desuchan\.session=(.*)$/);
 					if(m) {
 						sessionId = unescape(m[1].replace(/\+/g, ' '));
@@ -1632,9 +1632,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
-			let ibKeys = Object.keys(ibDomains);
+			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			let host = window.location.hostname.toLowerCase();
+			const host = window.location.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {

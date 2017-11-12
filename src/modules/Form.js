@@ -99,8 +99,8 @@ class PostForm {
 			saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
-		for(let form of DelForm) {
-			(form.passEl || {}).value = value;
+		for(const { passEl = {} } of DelForm) {
+			passEl.value = value;
 		}
 	}
 	get isVisible() {
@@ -265,7 +265,7 @@ class PostForm {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				'de-abtn de-parea-btn-' + (aib.t ? 'reply' : 'thr');
+				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -292,17 +292,17 @@ class PostForm {
 		} else {
 			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
 			$txtInsert(this.txta, (
-				isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') :
+				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 				(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
 			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
 					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
-			temp = temp.substr(0, 30) + '\u2026';
+			temp = `${ temp.substr(0, 30) }\u2026`;
 		}
-		$q('.de-win-title', this.qArea).textContent = temp || '#' + pNum;
+		$q('.de-win-title', this.qArea).textContent = temp || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
 	updateLanguage() {
@@ -376,9 +376,10 @@ class PostForm {
 				val = Spells.outReplace(val);
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-				const temp = '\n\n' + this._wrapText(aib.markupTags[5],
-					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
-					(nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+				const temp = `\n\n${ this._wrapText(aib.markupTags[5],
+					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
+						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
+				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;
 				}
@@ -416,7 +417,7 @@ class PostForm {
 		// Add image from clipboard to file inputs on Ctrl+V
 		el.addEventListener('paste', e => {
 			if('clipboardData' in e) {
-				for(let item of e.clipboardData.items) {
+				for(const item of e.clipboardData.items) {
 					if(item.kind === 'file') {
 						const inputs = this.files._inputs;
 						for(let i = 0, len = inputs.length; i < len; ++i) {
@@ -451,8 +452,8 @@ class PostForm {
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
-					this._elStyle.width = (e.clientX - cr.left) + 'px';
-					this._elStyle.height = (e.clientY - cr.top) + 'px';
+					this._elStyle.width = `${ e.clientX - cr.left }px`;
+					this._elStyle.height = `${ e.clientY - cr.top }px`;
 					return;
 				}
 				default: // mouseup
@@ -597,11 +598,11 @@ class PostForm {
 		}
 		if(isBB) {
 			if(text.includes('\n')) {
-				let str = '[' + tag + ']' + text + '[/' + tag + ']';
+				const str = `[${ tag }]${ text }[/${ tag }]`;
 				return [str.length, str];
 			}
 			const m = text.match(/^(\s*)(.*?)(\s*)$/);
-			let str = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
 			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 		}
 		let m, rv = '', i = 0;

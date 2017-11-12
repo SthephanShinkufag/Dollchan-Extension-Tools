@@ -5,7 +5,7 @@
 class RefMap {
 	static gen(posts, thrURL) {
 		const opNums = DelForm.tNums;
-		for(let [pNum, post] of posts) {
+		for(const [pNum, post] of posts) {
 			const links = $Q('a', post.msg);
 			for(let lNum, i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];

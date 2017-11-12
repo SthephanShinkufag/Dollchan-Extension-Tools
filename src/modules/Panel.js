@@ -2,8 +2,23 @@
                                                   MAIN PANEL
 =========================================================================================================== */
 
-class Panel extends null {
-	static init(formEl) {
+const Panel = {
+	get _acountEl() {
+		const value = $id('de-panel-info-acount');
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	},
+	get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	},
+	init(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
@@ -48,37 +63,22 @@ class Panel extends null {
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
 		</div>`);
 		this._el = $id('de-panel');
-		this._el.addEventListener('click', this.handleEvent, true);
-		this._el.addEventListener('mouseover', this.handleEvent);
-		this._el.addEventListener('mouseout', this.handleEvent);
+		this._el.addEventListener('click', this, true);
+		this._el.addEventListener('mouseover', this);
+		this._el.addEventListener('mouseout', this);
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
-	}
-	static remove() {
-		this._el.removeEventListener('click', this.handleEvent, true);
-		this._el.removeEventListener('mouseover', this.handleEvent);
-		this._el.removeEventListener('mouseout', this.handleEvent);
+	},
+	remove() {
+		this._el.removeEventListener('click', this, true);
+		this._el.removeEventListener('mouseover', this);
+		this._el.removeEventListener('mouseout', this);
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
 		$del($id('de-main'));
-	}
-	static get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
-		return value;
-	}
-	static get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	}
-	static get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	}
-	static handleEvent(e) {
+	},
+	handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -91,7 +91,7 @@ class Panel extends null {
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide(Panel._buttons);
+					$hide(this._buttons);
 				}
 				toggleCfg('expandPanel');
 				return;
@@ -112,8 +112,8 @@ class Panel extends null {
 			case 'de-panel-preimg':
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
-					for(const form of DelForm) {
-						preloadImages(form.el);
+					for(const { el } of DelForm) {
+						preloadImages(el);
 					}
 				}
 				break;
@@ -147,8 +147,8 @@ class Panel extends null {
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
-				clearTimeout(Panel._hideTO);
-				$show(Panel._buttons);
+				clearTimeout(this._hideTO);
+				$show(this._buttons);
 			}
 			switch(el.id) {
 			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
@@ -165,36 +165,40 @@ class Panel extends null {
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				if(Panel._menu && Panel._menu.parentEl === el) {
+				if(this._menu && this._menu.parentEl === el) {
 					return;
 				}
-				Panel._menuTO = setTimeout(() => {
-					Panel._menu = addMenu(el);
-					Panel._menu.onover = () => clearTimeout(Panel._hideTO);
-					Panel._menu.onout = () => Panel._prepareToHide(null);
-					Panel._menu.onremove = () => (Panel._menu = null);
+				this._menuTO = setTimeout(() => {
+					this._menu = addMenu(el);
+					this._menu.onover = () => clearTimeout(this._hideTO);
+					this._menu.onout = () => this._prepareToHide(null);
+					this._menu.onremove = () => (this._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
 		default: // mouseout
-			Panel._prepareToHide(fixEventEl(e.relatedTarget));
+			this._prepareToHide(fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				clearTimeout(Panel._menuTO);
-				Panel._menuTO = 0;
+				clearTimeout(this._menuTO);
+				this._menuTO = 0;
 			}
 		}
-	}
-	static updateCounter(postCount, imgsCount, postersCount) {
+	},
+	updateCounter(postCount, imgsCount, postersCount) {
 		this._pcountEl.textContent = postCount;
 		this._icountEl.textContent = imgsCount;
 		this._acountEl.textContent = postersCount;
 		this.isNew = false;
-	}
+	},
 
-	static _getButton(id) {
+	_el     : null,
+	_hideTO : 0,
+	_menu   : null,
+	_menuTO : 0,
+	_getButton(id) {
 		let page, href, title, useId;
 		switch(id) {
 		case 'goback':
@@ -231,16 +235,12 @@ class Panel extends null {
 				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
 			</svg>
 		</a>`;
-	}
-	static _prepareToHide(rt) {
+	},
+	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
 			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
 		) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}
-}
-Panel._el = null;
-Panel._hideTO = 0;
-Panel._menu = null;
-Panel._menuTO = 0;
+};

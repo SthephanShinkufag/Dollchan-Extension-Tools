@@ -2,7 +2,7 @@
                                                    HOTKEYS
 =========================================================================================================== */
 
-var HotKeys = {
+const HotKeys = {
 	cPost          : null,
 	enabled        : false,
 	gKeys          : null,
@@ -10,39 +10,6 @@ var HotKeys = {
 	ntKeys         : null,
 	tKeys          : null,
 	version        : 7,
-	getDefaultKeys() {
-		var globKeys = [
-			/* One post/thread above      */ 0x004B /* = K          */,
-			/* One post/thread below      */ 0x004A /* = J          */,
-			/* Reply or create thread     */ 0x0052 /* = R          */,
-			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
-			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-			/* Open/close panel           */ 0x0050 /* = P          */,
-			/* Mask/unmask images         */ 0x0042 /* = B          */,
-			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-			/* Expand current image       */ 0x0049 /* = I          */,
-			/* Bold text                  */ 0xC042 /* = Alt+B      */,
-			/* Italic text                */ 0xC049 /* = Alt+I      */,
-			/* Strike text                */ 0xC054 /* = Alt+T      */,
-			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
-			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-		];
-		var nonThrKeys = [
-			/* One post above */ 0x004D /* = M */,
-			/* One post below */ 0x004E /* = N */,
-			/* Open thread    */ 0x0056 /* = V */,
-			/* Expand thread  */ 0x0045 /* = E */
-		];
-		var thrKeys = [
-			/* Update thread  */ 0x0055 /* = U */
-		];
-		return [HotKeys.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
-	},
 	clear() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
@@ -70,14 +37,49 @@ var HotKeys = {
 			});
 		}
 	},
+	getDefaultKeys() {
+		const globKeys = [
+			/* One post/thread above      */ 0x004B /* = K          */,
+			/* One post/thread below      */ 0x004A /* = J          */,
+			/* Reply or create thread     */ 0x0052 /* = R          */,
+			/* Hide selected thread/post  */ 0x0048 /* = H          */,
+			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
+			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+			/* Open/close panel           */ 0x0050 /* = P          */,
+			/* Mask/unmask images         */ 0x0042 /* = B          */,
+			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+			/* Expand current image       */ 0x0049 /* = I          */,
+			/* Bold text                  */ 0xC042 /* = Alt+B      */,
+			/* Italic text                */ 0xC049 /* = Alt+I      */,
+			/* Strike text                */ 0xC054 /* = Alt+T      */,
+			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+			/* Code text                  */ 0xC043 /* = Alt+C      */,
+			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+		];
+		const nonThrKeys = [
+			/* One post above */ 0x004D /* = M */,
+			/* One post below */ 0x004E /* = N */,
+			/* Open thread    */ 0x0056 /* = V */,
+			/* Expand thread  */ 0x0045 /* = E */
+		];
+		const thrKeys = [
+			/* Update thread  */ 0x0055 /* = U */
+		];
+		return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
+	},
 	handleEvent(e) {
 		if(this._paused || e.metaKey) {
 			return;
 		}
-		var isThr = aib.t,
-			curTh = e.target.tagName,
-			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) |
-				(curTh === 'TEXTAREA' || (curTh === 'INPUT' &&
+		let idx;
+		const isThr = aib.t;
+		const tag = e.target.tagName;
+		const kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) |
+			(e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (
+				tag === 'TEXTAREA' || (tag === 'INPUT' &&
 				(e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
@@ -105,7 +107,8 @@ var HotKeys = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			var post, idx, globIdx = this.gKeys.indexOf(kc);
+			let post;
+			const globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -191,7 +194,7 @@ var HotKeys = {
 				if(Attachment.viewer) {
 					Attachment.viewer.navigate(true);
 				} else if(!isThr) {
-					var pageNum = DelForm.last.pageNum + 1;
+					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
 						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 					}
@@ -243,7 +246,7 @@ var HotKeys = {
 				}
 				/* falls through */
 			default:
-				var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
+				const scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
 			}
@@ -254,15 +257,12 @@ var HotKeys = {
 	pause() {
 		this._paused = true;
 	},
-	resume(keys) {
-		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
-		this._paused = false;
-	},
 	async readKeys() {
-		var keys, str = await getStored('DESU_keys');
+		const str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
 		}
+		let keys;
 		try {
 			keys = JSON.parse(str);
 		} finally {
@@ -270,7 +270,7 @@ var HotKeys = {
 				return this.getDefaultKeys();
 			}
 			if(keys[0] !== this.version) {
-				var tKeys = this.getDefaultKeys();
+				const tKeys = this.getDefaultKeys();
 				switch(keys[0]) {
 				case 1:
 					keys[2][11] = tKeys[2][11];
@@ -319,13 +319,26 @@ var HotKeys = {
 			return keys;
 		}
 	},
+	resume(keys) {
+		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
+		this._paused = false;
+	},
 
 	_paused: false,
+	_getNextVisPost(cPost, isOp, toUp) {
+		if(isOp) {
+			const thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
+				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
+			return thr ? thr.op : null;
+		}
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
+			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
+	},
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
-			var post = getThread ? Thread.first : Thread.first.op;
+			let post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
-				var tPost = post.next;
+				const tPost = post.next;
 				if(!tPost) {
 					break;
 				}
@@ -339,20 +352,11 @@ var HotKeys = {
 		}
 		return this.cPost;
 	},
-	_getNextVisPost(cPost, isOp, toUp) {
-		if(isOp) {
-			var thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
-			return thr ? thr.op : null;
-		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
-			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
-	},
 	_scroll(post, toUp, toThread) {
-		var next = this._getNextVisPost(post, toThread, toUp);
+		const next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
 			if(!aib.t) {
-				var pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
+				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
 				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
 					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
@@ -404,16 +408,16 @@ class KeyEditListener {
 	}
 	static getEditMarkup(keys) {
 		const allKeys = [];
-		return [allKeys, Lng.hotKeyEdit[lang].join('')
+		return [allKeys, `${ Lng.hotKeyEdit[lang].join('')
 			.replace(/%l/g, '<label class="de-block">')
 			.replace(/%\/l/g, '</label>')
 			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
 				const key = keys[+id1][+id2];
 				allKeys.push(key);
 				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
-					`" size="16" value="${ KeyEditListener.getStrKey(key) +
-						(isText ? '" de-text' : '"') } readonly>`;
-			}) + `<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
+					`" size="16" value="${ KeyEditListener.getStrKey(key) }${
+						isText ? '" de-text' : '"' } readonly>`;
+			}) }<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
 			`<input type="button" id="de-keys-reset" class="de-button" value="${ Lng.reset[lang] }">`];
 	}
 	static getStrKey(key) {

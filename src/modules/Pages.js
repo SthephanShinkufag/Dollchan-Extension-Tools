@@ -2,19 +2,18 @@
                                                  PAGES LOADER
 =========================================================================================================== */
 
-var Pages = {
+const Pages = {
 	add() {
-		var pageNum = DelForm.last.pageNum + 1;
+		const pageNum = DelForm.last.pageNum + 1;
 		if(this._adding || pageNum > aib.lastPage) {
 			return;
 		}
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
-			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
+			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			var form = this._addForm(formEl, pageNum);
-			if(!form.firstThr) {
+			if(!this._addForm(formEl, pageNum).firstThr) {
 				this._endAdding();
 				this.add();
 				return CancelablePromise.reject(new CancelError());
@@ -46,7 +45,7 @@ var Pages = {
 			pr.clearForm();
 		}
 		DelForm.tNums = new Set();
-		for(var form of DelForm) {
+		for(const form of DelForm) {
 			$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
@@ -55,11 +54,9 @@ var Pages = {
 			$del(form.el);
 		}
 		DelForm.first = DelForm.last;
-		var len = Math.min(aib.lastPage + 1, aib.page + count);
-		for(var i = aib.page; i < len; ++i) {
+		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
-				var el = await ajaxLoad(aib.getPageUrl(aib.b, i));
-				this._addForm(el, i);
+				this._addForm((await ajaxLoad(aib.getPageUrl(aib.b, i))), i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
@@ -79,7 +76,7 @@ var Pages = {
 		formEl = doc.adoptNode(formEl);
 		$hide((formEl = aib.fixHTML(formEl)));
 		$after(DelForm.last.el, formEl);
-		var form = new DelForm(formEl, +pageNum, DelForm.last);
+		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
 		if(pageNum !== aib.page && form.firstThr) {
@@ -97,8 +94,7 @@ var Pages = {
 		this._addPromise = null;
 	},
 	async _updateForms(newForm) {
-		let fav = await getStoredObj('DESU_Favorites');
-		readPostsData(newForm.firstThr.op, fav);
+		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -110,7 +106,7 @@ var Pages = {
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
-		var evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
+		const evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
 		if(Cfg.inftyScroll) {
 			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
 		} else {

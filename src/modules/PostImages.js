@@ -777,7 +777,7 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
-			let text = link.textContent;
+			const text = link.textContent;
 			link.textContent = text.split('.').pop();
 			link.title = text;
 		}

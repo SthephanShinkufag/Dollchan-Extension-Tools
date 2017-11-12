@@ -4,8 +4,9 @@
 =========================================================================================================== */
 
 function detectImgFile(ab) {
-	var i, j, dat = new Uint8Array(ab),
-		len = dat.length;
+	let i, j;
+	const dat = new Uint8Array(ab);
+	let len = dat.length;
 	/* JPG [ff d8 ff e0] = [яШяа] */
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
@@ -57,11 +58,11 @@ function detectImgFile(ab) {
 }
 
 function addImgFileIcon(nameLink, fName, info) {
-	let app, ext;
 	const { type } = info;
 	if(typeof type === 'undefined') {
 		return;
 	}
+	let app, ext;
 	if(type === 2) {
 		app = 'application/x-rar-compressed';
 		ext = 'rar';
@@ -78,10 +79,10 @@ function addImgFileIcon(nameLink, fName, info) {
 		app = 'audio/mpeg';
 		ext = 'mp3';
 	}
-	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
+	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
 		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
-	) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
-		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
+		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }'</a>`);
 }
 
 function downloadImgData(url, repeatOnError = true) {
@@ -110,12 +111,15 @@ function preloadImages(data) {
 	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 		return;
 	}
-	var pool, isPost = data instanceof AbstractPost;
+	let pool;
+	const isPost = data instanceof AbstractPost;
+	const els = $Q(aib.qPostImg, isPost ? data.el : data);
+	const len = els.length;
 	if(isPreImg || Cfg.preLoadImgs) {
-		var cImg = 1,
-			mReqs = isPost ? 1 : 4,
-			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
-				e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
+		let cImg = 1;
+		const mReqs = isPost ? 1 : 4;
+		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
@@ -138,7 +142,7 @@ function preloadImages(data) {
 				}
 			}
 			if(Images_.progressId) {
-				$popup(Images_.progressId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
+				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
 			}
 			cImg++;
 		}), function() {
@@ -153,10 +157,9 @@ function preloadImages(data) {
 		});
 		Images_.preloading = true;
 	}
-	var els = $Q(aib.qPostImg, isPost ? data.el : data);
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i],
-			imgLink = $parent(el = els[i], 'A');
+	for(let i = 0; i < len; ++i) {
+		let el = els[i];
+		const imgLink = $parent(el = els[i], 'A');
 		if(!imgLink) {
 			continue;
 		}
@@ -186,7 +189,7 @@ function preloadImages(data) {
 
 function getDataFromImg(el) {
 	try {
-		var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
+		const cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
 		cnv.width = el.width;
 		cnv.height = el.height;
 		cnv.getContext('2d').drawImage(el, 0, 0);
@@ -198,19 +201,19 @@ function getDataFromImg(el) {
 }
 
 function loadDocFiles(imgOnly) {
-	var els, progress, counter, count = 0,
+	let progress, counter, count = 0,
 		current = 1,
 		warnings = '',
-		tar = new TarBuilder(),
-		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+		tar = new TarBuilder();
+	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
-		var [url, fName, el, imgLink] = data,
-			safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+		const [url, fName, el, imgLink] = data;
+		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 		progress.value = current;
 		counter.innerHTML = current;
 		current++;
 		if(imgLink) {
-			var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 			if(imgOnly) {
 				thumbName = 'thumb-' + thumbName;
 			} else {
@@ -221,8 +224,8 @@ function loadDocFiles(imgOnly) {
 			if(imgData) {
 				tar.addFile(safeName, imgData);
 			} else {
-				warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url +
-					'</a><br>' + Lng.willSavePview[lang];
+				warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
+					`<br>${ Lng.willSavePview[lang] }`;
 				$popup('err-files', Lng.loadErrors[lang] + warnings);
 				if(imgOnly) {
 					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
@@ -238,21 +241,22 @@ function loadDocFiles(imgOnly) {
 			$del(el);
 		}
 	}), function() {
-		var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
+		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
+			let scriptStr;
+			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
-				scriptStr = '(' + String(deMainFuncInner) +
-					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
+				scriptStr = `(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ${
+					localData });`;
 			} else {
 				/* global deMainFuncOuter */
-				scriptStr = '(' + String(deMainFuncOuter) + ')(' + localData + ');';
+				scriptStr = `(${ String(deMainFuncOuter) })(${ localData });`;
 			}
 			tar.addString('data/dollscript.js', scriptStr);
-			var dt = doc.doctype;
+			const dt = doc.doctype;
 			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
@@ -261,12 +265,12 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
+	let els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
-		var imgLink = $parent(el, 'A');
+		const imgLink = $parent(el, 'A');
 		if(imgLink) {
-			var url = imgLink.href;
+			let url = imgLink.href;
 			if(aib.tiny) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
@@ -279,7 +283,8 @@ function loadDocFiles(imgOnly) {
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
 			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
 		$each($Q('a', dc), function(el) {
-			var num, tc = el.textContent;
+			let num;
+			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 				el.href = aib.anchor + num;
 				if(!el.classList.contains('de-link-pref')) {
@@ -292,26 +297,26 @@ function loadDocFiles(imgOnly) {
 		$each($Q(aib.qRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
-		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' +
-			quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
+		const files = [];
+		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
+			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
-			var fName, url = el.tagName === 'LINK' ? el.href : el.src;
+			let url = el.tagName === 'LINK' ? el.href : el.src;
 			if(!urlRegex.test(url)) {
 				$del(el);
 				return;
 			}
-			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+			let fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(fName) !== -1) {
-				var temp = url.lastIndexOf('.'),
-					ext = url.substring(temp);
+				let temp = url.lastIndexOf('.');
+				const ext = url.substring(temp);
 				url = url.substring(0, temp);
 				fName = fName.substring(0, fName.lastIndexOf('.'));
-				for(var i = 0; ; ++i) {
-					temp = fName + '(' + i + ')' + ext;
+				for(let i = 0; ; ++i) {
+					temp = `${ fName }(${ i })${ ext }`;
 					if(files.indexOf(temp) === -1) {
 						break;
 					}
@@ -323,9 +328,9 @@ function loadDocFiles(imgOnly) {
 			count++;
 		});
 	}
-	$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
-		':<br><progress id="de-loadprogress" value="0" max="' + count +
-		'"></progress> <span>1</span>/' + count, true);
+	$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br>` +
+		`<progress id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${
+			count }`, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
 	Images_.pool.complete();

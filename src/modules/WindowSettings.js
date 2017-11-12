@@ -77,7 +77,7 @@ class CfgWindow {
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })'`
+					Lng.myPosts[lang] + ` (${ aib.dm })`
 				]) + '</div></div>');
 
 			// Import data from a file to the storage
@@ -362,8 +362,8 @@ class CfgWindow {
 			}
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
-					for(const form of DelForm) {
-						processImagesLinks(form.el, 1, 0);
+					for(const { el } of DelForm) {
+						processImagesLinks(el, 1, 0);
 					}
 				} else {
 					$each($Q('.de-btn-src'), el => el.remove());
@@ -371,8 +371,8 @@ class CfgWindow {
 				break;
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
-					for(const form of DelForm) {
-						processImagesLinks(form.el, 0, 1);
+					for(const { el } of DelForm) {
+						processImagesLinks(el, 0, 1);
 					}
 				} else {
 					$each($Q('.de-img-name'), link => {

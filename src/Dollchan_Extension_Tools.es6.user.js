@@ -25,12 +25,12 @@
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
-}] */
+}], no-var: "error" */
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '5071554';
+const commit = '08d0083';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1365,9 +1365,9 @@ const Lng = {
 		'Connection failed',
 		'Помилка зʼєднання'],
 	thrNotFound: [
-		'Тред недоступен (№',
-		'Thread is unavailable (№',
-		'Тред недоступний (№'],
+		'Тред недоступен',
+		'Thread is unavailable',
+		'Тред недоступний'],
 	thrClosed: [
 		'Тред закрыт',
 		'Thread is closed',
@@ -1734,12 +1734,12 @@ function fixEventEl(el) {
 }
 
 // Allows to record the duration of code execution
-class Logger extends null {
-	static finish() {
+const Logger = {
+	finish() {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
-	}
-	static getData(full) {
+	},
+	getData(full) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -1757,18 +1757,19 @@ class Logger extends null {
 		duration = marks[i][1] - marks[0][1];
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
-	}
-	static init() {
+	},
+	init() {
 		this._marks.push(['LoggerInit', Date.now()]);
-	}
-	static log(text) {
+	},
+	log(text) {
 		if(!this._finished) {
 			this._marks.push([text, Date.now()]);
 		}
-	}
-}
-Logger._finished = false;
-Logger._marks = [];
+	},
+
+	_finished : false,
+	_marks    : []
+};
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -2645,8 +2646,14 @@ function readViewedPosts() {
 
 // HIDDEN AND MY POSTS STORAGE
 
-class PostsStorage extends null {
-	static get(num) {
+class PostsStorage {
+	constructor() {
+		this.storageName = '';
+		this.__cachedTime = null;
+		this._cachedStorage = null;
+		this._cacheTO = null;
+	}
+	get(num) {
 		const storage = this._readStorage()[aib.b];
 		if(storage) {
 			const val = storage[num];
@@ -2654,14 +2661,14 @@ class PostsStorage extends null {
 		}
 		return null;
 	}
-	static has(num) {
+	has(num) {
 		const storage = this._readStorage()[aib.b];
 		return storage ? storage.hasOwnProperty(num) : false;
 	}
-	static purge() {
+	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
-	static remove(num, board = aib.b) {
+	remove(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {
@@ -2672,7 +2679,7 @@ class PostsStorage extends null {
 			this._saveStorage();
 		}
 	}
-	static set(num, thrNum, data = true) {
+	set(num, thrNum, data = true) {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5000) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
@@ -2694,16 +2701,16 @@ class PostsStorage extends null {
 		this._saveStorage();
 	}
 
-	static get _cachedTime() {
-		return this.__cachedTime || (this.__cachedTime = Date.now());
-	}
 	static _migrateOld(newName, oldName) {
 		if(locStorage.hasOwnProperty(oldName)) {
 			locStorage[newName] = locStorage[oldName];
 			locStorage.removeItem(oldName);
 		}
 	}
-	static _readStorage() {
+	get _cachedTime() {
+		return this.__cachedTime || (this.__cachedTime = Date.now());
+	}
+	_readStorage() {
 		if(this._cachedStorage) {
 			return this._cachedStorage;
 		}
@@ -2715,7 +2722,7 @@ class PostsStorage extends null {
 		}
 		return (this._cachedStorage = {});
 	}
-	static _saveStorage() {
+	_saveStorage() {
 		if(this._cacheTO === null) {
 			this._cacheTO = setTimeout(() => {
 				if(this._cachedStorage) {
@@ -2726,21 +2733,24 @@ class PostsStorage extends null {
 		}
 	}
 }
-PostsStorage.storageName = '';
-PostsStorage.__cachedTime = null;
-PostsStorage._cachedStorage = null;
-PostsStorage._cacheTO = null;
 
-class HiddenPosts extends PostsStorage {
-	static _readStorage() {
-		this._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
+const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-posts';
+	}
+	_readStorage() {
+		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
 	}
-}
-HiddenPosts.storageName = 'de-posts';
+})();
 
-class HiddenThreads extends PostsStorage {
-	static getCount() {
+const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-threads';
+	}
+	getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
 		for(const b in storage) {
@@ -2748,52 +2758,54 @@ class HiddenThreads extends PostsStorage {
 		}
 		return rv;
 	}
-	static getRawData() {
+	getRawData() {
 		return this._readStorage();
 	}
-	static saveRawData(data) {
+	saveRawData(data) {
 		locStorage[this.storageName] = JSON.stringify(data);
 		this.purge();
 	}
 
-	static _readStorage() {
-		this._migrateOld(this.storageName, ''); // Old storage has wrong name
+	_readStorage() {
+		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
 		return super._readStorage();
 	}
-}
-HiddenThreads.storageName = 'de-threads';
+})();
 
-class MyPosts extends PostsStorage {
-	static has(num) {
+const MyPosts = new (class MyPostsClass extends PostsStorage {
+	constructor() {
+		super();
+		this.storageName = 'de-myposts';
+		this._cachedData = null;
+	}
+	has(num) {
 		return this._cachedData.has(num);
 	}
-	static purge() {
+	purge() {
 		super.purge();
 		this._cachedData = null;
 		this._readStorage();
 	}
-	static read() {
+	read() {
 		this._readStorage();
 	}
-	static set(num, thrNum) {
+	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
 		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
 		locStorage.removeItem('__de-mypost');
 	}
 
-	static _readStorage() {
+	_readStorage() {
 		if(this._cachedData && this._cachedStorage) {
 			return this._cachedStorage;
 		}
-		this._migrateOld(this.storageName, 'de-myposts-new');
+		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 		const rv = super._readStorage();
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
-}
-MyPosts.storageName = 'de-myposts';
-MyPosts._cachedData = null;
+})();
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
@@ -2873,8 +2885,23 @@ function initStorageEvent() {
                                                   MAIN PANEL
 =========================================================================================================== */
 
-class Panel extends null {
-	static init(formEl) {
+const Panel = {
+	get _acountEl() {
+		const value = $id('de-panel-info-acount');
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	},
+	get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	},
+	init(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
@@ -2919,37 +2946,22 @@ class Panel extends null {
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
 		</div>`);
 		this._el = $id('de-panel');
-		this._el.addEventListener('click', this.handleEvent, true);
-		this._el.addEventListener('mouseover', this.handleEvent);
-		this._el.addEventListener('mouseout', this.handleEvent);
+		this._el.addEventListener('click', this, true);
+		this._el.addEventListener('mouseover', this);
+		this._el.addEventListener('mouseout', this);
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
-	}
-	static remove() {
-		this._el.removeEventListener('click', this.handleEvent, true);
-		this._el.removeEventListener('mouseover', this.handleEvent);
-		this._el.removeEventListener('mouseout', this.handleEvent);
+	},
+	remove() {
+		this._el.removeEventListener('click', this, true);
+		this._el.removeEventListener('mouseover', this);
+		this._el.removeEventListener('mouseout', this);
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
 		$del($id('de-main'));
-	}
-	static get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
-		return value;
-	}
-	static get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	}
-	static get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	}
-	static handleEvent(e) {
+	},
+	handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -2962,7 +2974,7 @@ class Panel extends null {
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
-					$hide(Panel._buttons);
+					$hide(this._buttons);
 				}
 				toggleCfg('expandPanel');
 				return;
@@ -2983,8 +2995,8 @@ class Panel extends null {
 			case 'de-panel-preimg':
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
-					for(const form of DelForm) {
-						preloadImages(form.el);
+					for(const { el } of DelForm) {
+						preloadImages(el);
 					}
 				}
 				break;
@@ -3018,8 +3030,8 @@ class Panel extends null {
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
-				clearTimeout(Panel._hideTO);
-				$show(Panel._buttons);
+				clearTimeout(this._hideTO);
+				$show(this._buttons);
 			}
 			switch(el.id) {
 			case 'de-panel-cfg': KeyEditListener.setTitle(el, 10); break;
@@ -3036,36 +3048,40 @@ class Panel extends null {
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				if(Panel._menu && Panel._menu.parentEl === el) {
+				if(this._menu && this._menu.parentEl === el) {
 					return;
 				}
-				Panel._menuTO = setTimeout(() => {
-					Panel._menu = addMenu(el);
-					Panel._menu.onover = () => clearTimeout(Panel._hideTO);
-					Panel._menu.onout = () => Panel._prepareToHide(null);
-					Panel._menu.onremove = () => (Panel._menu = null);
+				this._menuTO = setTimeout(() => {
+					this._menu = addMenu(el);
+					this._menu.onover = () => clearTimeout(this._hideTO);
+					this._menu.onout = () => this._prepareToHide(null);
+					this._menu.onremove = () => (this._menu = null);
 				}, Cfg.linksOver);
 			}
 			return;
 		default: // mouseout
-			Panel._prepareToHide(fixEventEl(e.relatedTarget));
+			this._prepareToHide(fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				clearTimeout(Panel._menuTO);
-				Panel._menuTO = 0;
+				clearTimeout(this._menuTO);
+				this._menuTO = 0;
 			}
 		}
-	}
-	static updateCounter(postCount, imgsCount, postersCount) {
+	},
+	updateCounter(postCount, imgsCount, postersCount) {
 		this._pcountEl.textContent = postCount;
 		this._icountEl.textContent = imgsCount;
 		this._acountEl.textContent = postersCount;
 		this.isNew = false;
-	}
+	},
 
-	static _getButton(id) {
+	_el     : null,
+	_hideTO : 0,
+	_menu   : null,
+	_menuTO : 0,
+	_getButton(id) {
 		let page, href, title, useId;
 		switch(id) {
 		case 'goback':
@@ -3102,19 +3118,15 @@ class Panel extends null {
 				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
 			</svg>
 		</a>`;
-	}
-	static _prepareToHide(rt) {
+	},
+	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
 			(!rt || !this._el.contains(rt.farthestViewportElement || rt))
 		) {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}
-}
-Panel._el = null;
-Panel._hideTO = 0;
-Panel._menu = null;
-Panel._menuTO = 0;
+};
 
 /* ==[ WindowUtils.js ]=======================================================================================
                                                 WINDOW: UTILS
@@ -4063,7 +4075,7 @@ class CfgWindow {
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
 					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })'`
+					Lng.myPosts[lang] + ` (${ aib.dm })`
 				]) + '</div></div>');
 
 			// Import data from a file to the storage
@@ -4348,8 +4360,8 @@ class CfgWindow {
 			}
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
-					for(const form of DelForm) {
-						processImagesLinks(form.el, 1, 0);
+					for(const { el } of DelForm) {
+						processImagesLinks(el, 1, 0);
 					}
 				} else {
 					$each($Q('.de-btn-src'), el => el.remove());
@@ -4357,8 +4369,8 @@ class CfgWindow {
 				break;
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
-					for(const form of DelForm) {
-						processImagesLinks(form.el, 0, 1);
+					for(const { el } of DelForm) {
+						processImagesLinks(el, 0, 1);
 					}
 				} else {
 					$each($Q('.de-img-name'), link => {
@@ -5086,7 +5098,7 @@ function addMenu(el) {
                                                    HOTKEYS
 =========================================================================================================== */
 
-var HotKeys = {
+const HotKeys = {
 	cPost          : null,
 	enabled        : false,
 	gKeys          : null,
@@ -5094,39 +5106,6 @@ var HotKeys = {
 	ntKeys         : null,
 	tKeys          : null,
 	version        : 7,
-	getDefaultKeys() {
-		var globKeys = [
-			/* One post/thread above      */ 0x004B /* = K          */,
-			/* One post/thread below      */ 0x004A /* = J          */,
-			/* Reply or create thread     */ 0x0052 /* = R          */,
-			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
-			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-			/* Open/close panel           */ 0x0050 /* = P          */,
-			/* Mask/unmask images         */ 0x0042 /* = B          */,
-			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-			/* Expand current image       */ 0x0049 /* = I          */,
-			/* Bold text                  */ 0xC042 /* = Alt+B      */,
-			/* Italic text                */ 0xC049 /* = Alt+I      */,
-			/* Strike text                */ 0xC054 /* = Alt+T      */,
-			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
-			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-		];
-		var nonThrKeys = [
-			/* One post above */ 0x004D /* = M */,
-			/* One post below */ 0x004E /* = N */,
-			/* Open thread    */ 0x0056 /* = V */,
-			/* Expand thread  */ 0x0045 /* = E */
-		];
-		var thrKeys = [
-			/* Update thread  */ 0x0055 /* = U */
-		];
-		return [HotKeys.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
-	},
 	clear() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
@@ -5154,14 +5133,49 @@ var HotKeys = {
 			});
 		}
 	},
+	getDefaultKeys() {
+		const globKeys = [
+			/* One post/thread above      */ 0x004B /* = K          */,
+			/* One post/thread below      */ 0x004A /* = J          */,
+			/* Reply or create thread     */ 0x0052 /* = R          */,
+			/* Hide selected thread/post  */ 0x0048 /* = H          */,
+			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
+			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+			/* Open/close panel           */ 0x0050 /* = P          */,
+			/* Mask/unmask images         */ 0x0042 /* = B          */,
+			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+			/* Expand current image       */ 0x0049 /* = I          */,
+			/* Bold text                  */ 0xC042 /* = Alt+B      */,
+			/* Italic text                */ 0xC049 /* = Alt+I      */,
+			/* Strike text                */ 0xC054 /* = Alt+T      */,
+			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+			/* Code text                  */ 0xC043 /* = Alt+C      */,
+			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+		];
+		const nonThrKeys = [
+			/* One post above */ 0x004D /* = M */,
+			/* One post below */ 0x004E /* = N */,
+			/* Open thread    */ 0x0056 /* = V */,
+			/* Expand thread  */ 0x0045 /* = E */
+		];
+		const thrKeys = [
+			/* Update thread  */ 0x0055 /* = U */
+		];
+		return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
+	},
 	handleEvent(e) {
 		if(this._paused || e.metaKey) {
 			return;
 		}
-		var isThr = aib.t,
-			curTh = e.target.tagName,
-			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) |
-				(curTh === 'TEXTAREA' || (curTh === 'INPUT' &&
+		let idx;
+		const isThr = aib.t;
+		const tag = e.target.tagName;
+		const kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) |
+			(e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (
+				tag === 'TEXTAREA' || (tag === 'INPUT' &&
 				(e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
@@ -5189,7 +5203,8 @@ var HotKeys = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			var post, idx, globIdx = this.gKeys.indexOf(kc);
+			let post;
+			const globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
 				if(pr.form) {
@@ -5275,7 +5290,7 @@ var HotKeys = {
 				if(Attachment.viewer) {
 					Attachment.viewer.navigate(true);
 				} else if(!isThr) {
-					var pageNum = DelForm.last.pageNum + 1;
+					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
 						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 					}
@@ -5327,7 +5342,7 @@ var HotKeys = {
 				}
 				/* falls through */
 			default:
-				var scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
+				const scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
 			}
@@ -5338,15 +5353,12 @@ var HotKeys = {
 	pause() {
 		this._paused = true;
 	},
-	resume(keys) {
-		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
-		this._paused = false;
-	},
 	async readKeys() {
-		var keys, str = await getStored('DESU_keys');
+		const str = await getStored('DESU_keys');
 		if(!str) {
 			return this.getDefaultKeys();
 		}
+		let keys;
 		try {
 			keys = JSON.parse(str);
 		} finally {
@@ -5354,7 +5366,7 @@ var HotKeys = {
 				return this.getDefaultKeys();
 			}
 			if(keys[0] !== this.version) {
-				var tKeys = this.getDefaultKeys();
+				const tKeys = this.getDefaultKeys();
 				switch(keys[0]) {
 				case 1:
 					keys[2][11] = tKeys[2][11];
@@ -5403,13 +5415,26 @@ var HotKeys = {
 			return keys;
 		}
 	},
+	resume(keys) {
+		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
+		this._paused = false;
+	},
 
 	_paused: false,
+	_getNextVisPost(cPost, isOp, toUp) {
+		if(isOp) {
+			const thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
+				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
+			return thr ? thr.op : null;
+		}
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
+			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
+	},
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
-			var post = getThread ? Thread.first : Thread.first.op;
+			let post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
-				var tPost = post.next;
+				const tPost = post.next;
 				if(!tPost) {
 					break;
 				}
@@ -5423,20 +5448,11 @@ var HotKeys = {
 		}
 		return this.cPost;
 	},
-	_getNextVisPost(cPost, isOp, toUp) {
-		if(isOp) {
-			var thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
-			return thr ? thr.op : null;
-		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
-			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
-	},
 	_scroll(post, toUp, toThread) {
-		var next = this._getNextVisPost(post, toThread, toUp);
+		const next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
 			if(!aib.t) {
-				var pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
+				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
 				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
 					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
@@ -5488,16 +5504,16 @@ class KeyEditListener {
 	}
 	static getEditMarkup(keys) {
 		const allKeys = [];
-		return [allKeys, Lng.hotKeyEdit[lang].join('')
+		return [allKeys, `${ Lng.hotKeyEdit[lang].join('')
 			.replace(/%l/g, '<label class="de-block">')
 			.replace(/%\/l/g, '</label>')
 			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
 				const key = keys[+id1][+id2];
 				allKeys.push(key);
 				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
-					`" size="16" value="${ KeyEditListener.getStrKey(key) +
-						(isText ? '" de-text' : '"') } readonly>`;
-			}) + `<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
+					`" size="16" value="${ KeyEditListener.getStrKey(key) }${
+						isText ? '" de-text' : '"' } readonly>`;
+			}) }<input type="button" id="de-keys-save" class="de-button" value="${ Lng.save[lang] }">` +
 			`<input type="button" id="de-keys-reset" class="de-button" value="${ Lng.reset[lang] }">`];
 	}
 	static getStrKey(key) {
@@ -5678,8 +5694,9 @@ KeyEditListener.keyCodes = [
 =========================================================================================================== */
 
 function detectImgFile(ab) {
-	var i, j, dat = new Uint8Array(ab),
-		len = dat.length;
+	let i, j;
+	const dat = new Uint8Array(ab);
+	let len = dat.length;
 	/* JPG [ff d8 ff e0] = [яШяа] */
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
@@ -5731,11 +5748,11 @@ function detectImgFile(ab) {
 }
 
 function addImgFileIcon(nameLink, fName, info) {
-	let app, ext;
 	const { type } = info;
 	if(typeof type === 'undefined') {
 		return;
 	}
+	let app, ext;
 	if(type === 2) {
 		app = 'application/x-rar-compressed';
 		ext = 'rar';
@@ -5752,10 +5769,10 @@ function addImgFileIcon(nameLink, fName, info) {
 		app = 'audio/mpeg';
 		ext = 'mp3';
 	}
-	nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
+	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
 		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
-	) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
-		'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
+		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }'</a>`);
 }
 
 function downloadImgData(url, repeatOnError = true) {
@@ -5784,12 +5801,15 @@ function preloadImages(data) {
 	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 		return;
 	}
-	var pool, isPost = data instanceof AbstractPost;
+	let pool;
+	const isPost = data instanceof AbstractPost;
+	const els = $Q(aib.qPostImg, isPost ? data.el : data);
+	const len = els.length;
 	if(isPreImg || Cfg.preLoadImgs) {
-		var cImg = 1,
-			mReqs = isPost ? 1 : 4,
-			rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
-				e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
+		let cImg = 1;
+		const mReqs = isPost ? 1 : 4;
+		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, nExp, el] = data;
 			if(imageData) {
@@ -5812,7 +5832,7 @@ function preloadImages(data) {
 				}
 			}
 			if(Images_.progressId) {
-				$popup(Images_.progressId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
+				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
 			}
 			cImg++;
 		}), function() {
@@ -5827,10 +5847,9 @@ function preloadImages(data) {
 		});
 		Images_.preloading = true;
 	}
-	var els = $Q(aib.qPostImg, isPost ? data.el : data);
-	for(var i = 0, len = els.length; i < len; ++i) {
-		var el = els[i],
-			imgLink = $parent(el = els[i], 'A');
+	for(let i = 0; i < len; ++i) {
+		let el = els[i];
+		const imgLink = $parent(el = els[i], 'A');
 		if(!imgLink) {
 			continue;
 		}
@@ -5860,7 +5879,7 @@ function preloadImages(data) {
 
 function getDataFromImg(el) {
 	try {
-		var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
+		const cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
 		cnv.width = el.width;
 		cnv.height = el.height;
 		cnv.getContext('2d').drawImage(el, 0, 0);
@@ -5872,19 +5891,19 @@ function getDataFromImg(el) {
 }
 
 function loadDocFiles(imgOnly) {
-	var els, progress, counter, count = 0,
+	let progress, counter, count = 0,
 		current = 1,
 		warnings = '',
-		tar = new TarBuilder(),
-		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+		tar = new TarBuilder();
+	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
-		var [url, fName, el, imgLink] = data,
-			safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+		const [url, fName, el, imgLink] = data;
+		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 		progress.value = current;
 		counter.innerHTML = current;
 		current++;
 		if(imgLink) {
-			var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 			if(imgOnly) {
 				thumbName = 'thumb-' + thumbName;
 			} else {
@@ -5895,8 +5914,8 @@ function loadDocFiles(imgOnly) {
 			if(imgData) {
 				tar.addFile(safeName, imgData);
 			} else {
-				warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url +
-					'</a><br>' + Lng.willSavePview[lang];
+				warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
+					`<br>${ Lng.willSavePview[lang] }`;
 				$popup('err-files', Lng.loadErrors[lang] + warnings);
 				if(imgOnly) {
 					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
@@ -5912,21 +5931,22 @@ function loadDocFiles(imgOnly) {
 			$del(el);
 		}
 	}), function() {
-		var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
+		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-			var scriptStr, localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
+			let scriptStr;
+			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
-				scriptStr = '(' + String(deMainFuncInner) +
-					')(null, null, (x, y) => window.scrollTo(x, y), ' + localData + ');';
+				scriptStr = `(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ${
+					localData });`;
 			} else {
 				/* global deMainFuncOuter */
-				scriptStr = '(' + String(deMainFuncOuter) + ')(' + localData + ');';
+				scriptStr = `(${ String(deMainFuncOuter) })(${ localData });`;
 			}
 			tar.addString('data/dollscript.js', scriptStr);
-			var dt = doc.doctype;
+			const dt = doc.doctype;
 			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
@@ -5935,12 +5955,12 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
+	let els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
-		var imgLink = $parent(el, 'A');
+		const imgLink = $parent(el, 'A');
 		if(imgLink) {
-			var url = imgLink.href;
+			let url = imgLink.href;
 			if(aib.tiny) {
 				url = url.replace(/^.*?\?v=|&.*?$/g, '');
 			}
@@ -5953,7 +5973,8 @@ function loadDocFiles(imgOnly) {
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
 			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
 		$each($Q('a', dc), function(el) {
-			var num, tc = el.textContent;
+			let num;
+			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 				el.href = aib.anchor + num;
 				if(!el.classList.contains('de-link-pref')) {
@@ -5966,26 +5987,26 @@ function loadDocFiles(imgOnly) {
 		$each($Q(aib.qRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 		});
-		var files = [];
-		var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' +
-			quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
+		const files = [];
+		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
+			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
-			var fName, url = el.tagName === 'LINK' ? el.href : el.src;
+			let url = el.tagName === 'LINK' ? el.href : el.src;
 			if(!urlRegex.test(url)) {
 				$del(el);
 				return;
 			}
-			fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+			let fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 			if(files.indexOf(fName) !== -1) {
-				var temp = url.lastIndexOf('.'),
-					ext = url.substring(temp);
+				let temp = url.lastIndexOf('.');
+				const ext = url.substring(temp);
 				url = url.substring(0, temp);
 				fName = fName.substring(0, fName.lastIndexOf('.'));
-				for(var i = 0; ; ++i) {
-					temp = fName + '(' + i + ')' + ext;
+				for(let i = 0; ; ++i) {
+					temp = `${ fName }(${ i })${ ext }`;
 					if(files.indexOf(temp) === -1) {
 						break;
 					}
@@ -5997,9 +6018,9 @@ function loadDocFiles(imgOnly) {
 			count++;
 		});
 	}
-	$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
-		':<br><progress id="de-loadprogress" value="0" max="' + count +
-		'"></progress> <span>1</span>/' + count, true);
+	$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br>` +
+		`<progress id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${
+			count }`, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
 	Images_.pool.complete();
@@ -6020,7 +6041,7 @@ class DateTime {
 			return;
 		}
 		this.regex = pattern
-			.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
+			.replace(/(?:[sihdny]\?){2,}/g, str => `(?:${ str.replace(/\?/g, '') })?`)
 			.replace(/-/g, '[^<]')
 			.replace(/\+/g, '[^0-9<]')
 			.replace(/([sihdny]+)/g, '($1)')
@@ -6037,6 +6058,11 @@ class DateTime {
 			this.onRPat = onRPat;
 		}
 	}
+	static checkPattern(val) {
+		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
+			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
+			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+	}
 	static toggleSettings(el) {
 		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
 			$popup('err-correcttime', Lng.cTimeError[lang]);
@@ -6044,13 +6070,8 @@ class DateTime {
 			el.checked = false;
 		}
 	}
-	static checkPattern(val) {
-		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
-			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
-			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
-	}
 	genRFunc(rPattern) {
-		return new Function('dtime', "return '" +
+		return new Function('dtime', `return '${
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
 				.replace('_s', "' + this.pad2(dtime.getSeconds()) + '")
 				.replace('_i', "' + this.pad2(dtime.getMinutes()) + '")
@@ -6061,7 +6082,7 @@ class DateTime {
 				.replace('_m', "' + this.arrM[dtime.getMonth()] + '")
 				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
 				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
-				.replace('_Y', "' + dtime.getFullYear() + '") + "';");
+				.replace('_Y', "' + dtime.getFullYear() + '") }';`);
 	}
 	getRPattern(txt) {
 		const m = txt.match(new RegExp(this.regex));
@@ -6165,13 +6186,13 @@ class Videos {
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
 		link.title = (duration ? Lng.duration[lang] + duration : '') +
-			(publ ? ', ' + Lng.published[lang] + publ + '\n' : '') +
+			(publ ? `, ${ Lng.published[lang] + publ }\n` : '') +
 			Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
 	}
 	get player() {
 		const { post } = this;
-		const value = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
-			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
+		const value = aib.insertYtPlayer(post.msg, `<div class="de-video-obj${
+			post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '' }"></div>`);
 		Object.defineProperty(this, 'player', { value });
 		return value;
 	}
@@ -6191,21 +6212,21 @@ class Videos {
 		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
 			this.vData[isYtube ? 0 : 1].push(dataObj);
 		}
-		let time;
+		let time = '';
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
 			if(time) {
 				link.setAttribute('de-time', time);
 			}
-			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
+			link.className = `de-video-link ${ isYtube ? 'de-ytube' : 'de-vimeo' }`;
 		} else {
 			const src = isYtube ?
-				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
-				aib.prot + '//vimeo.com/' + m[1];
-			link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' +
-				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') +
-				`" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
+				`${ aib.prot }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
+				`${ aib.prot }//vimeo.com/${ m[1] }`;
+			link = $bEnd(this.post.msg, `<p class="de-video-ext"><a class="de-video-link ${
+				isYtube ? 'de-ytube' : 'de-vimeo' }${ time ? '" de-time="' + time : ''
+			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
 		}
 		if(dataObj) {
 			Videos.setLinkData(link, dataObj);
@@ -6292,6 +6313,28 @@ class Videos {
 			hours, minutes, seconds
 		];
 	}
+	static _getTitlesLoader() {
+		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+			const [, isYtube,, id] = info;
+			if(isYtube) {
+				if(Cfg.ytApiKey) {
+					return Videos._getYTInfoAPI(info, num, id);
+				} else {
+					return Videos._getYTInfoOembed(info, num, id);
+				}
+			}
+			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
+				const entry = JSON.parse(xhr.responseText)[0];
+				return Videos._titlesLoaderHelper(
+					info, num,
+					entry.title,
+					entry.user_name,
+					entry.stats_number_of_plays,
+					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					Videos._fixTime(entry.duration)[0]);
+			}).catch(() => Videos._titlesLoaderHelper(info, num));
+		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
+	}
 	static _getYTInfoAPI(info, num, id) {
 		return $ajax(
 			`https://www.googleapis.com/youtube/v3/videos?key=${ Cfg.ytApiKey }&id=${ id }` +
@@ -6318,28 +6361,6 @@ class Videos {
 			const json = JSON.parse(xhr.responseText);
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
-	}
-	static _getTitlesLoader() {
-		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
-			const [, isYtube,, id] = info;
-			if(isYtube) {
-				if(Cfg.ytApiKey) {
-					return Videos._getYTInfoAPI(info, num, id);
-				} else {
-					return Videos._getYTInfoOembed(info, num, id);
-				}
-			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
-				const entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(
-					info, num,
-					entry.title,
-					entry.user_name,
-					entry.stats_number_of_plays,
-					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
-					Videos._fixTime(entry.duration)[0]);
-			}).catch(() => Videos._titlesLoaderHelper(info, num));
-		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
 	}
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
 		if(data.length !== 0) {
@@ -6423,7 +6444,7 @@ class VideosParser {
 				const link = links[i];
 				const m = link.href.match(Videos.vimReg);
 				if(m) {
-					var mPost = isPost ? data : aib.getPostOfEl(link);
+					const mPost = isPost ? data : aib.getPostOfEl(link);
 					if(mPost) {
 						mPost.videos.addLink(m, loader, link, false);
 					}
@@ -6578,7 +6599,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				const { headers } = params;
 				if(headers) {
-					for(let h in headers) {
+					for(const h in headers) {
 						if(headers.hasOwnProperty(h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
@@ -6627,28 +6648,30 @@ AjaxError.Timeout = new AjaxError(0, {
 	}
 });
 
-class AjaxCache extends null {
-	static clear() {
-		AjaxCache._data = new Map();
-	}
-	static fixURL(url) {
-		return url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
-	}
-	static runCachedAjax(url, useCache) {
-		var { hasCacheControl, params } = AjaxCache._data.get(url) || {};
-		var ajaxURL = hasCacheControl === false ? AjaxCache.fixURL(url) : url;
+const AjaxCache = {
+	fixURL(url) {
+		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
+	},
+	clear() {
+		this._data = new Map();
+	},
+	runCachedAjax(url, useCache) {
+		const { hasCacheControl, params } = this._data.get(url) || {};
+		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
 		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
-			AjaxCache.saveData(url, xhr) ? xhr : $ajax(AjaxCache.fixURL(url), useCache && params)
+			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params)
 		);
-	}
-	static saveData(url, xhr) {
-		var ETag = null, LastModified = null, i = 0,
-			hasCacheControl = false,
-			ajaxHeaders = 'getAllResponseHeaders' in xhr ?
-				xhr.getAllResponseHeaders() :
-				xhr.responseHeaders;
-		for(var header of ajaxHeaders.split('\r\n')) {
-			let lHeader = header.toLowerCase();
+	},
+	saveData(url, xhr) {
+		let ETag = null;
+		let LastModified = null;
+		let i = 0;
+		let hasCacheControl = false;
+		const ajaxHeaders = 'getAllResponseHeaders' in xhr ?
+			xhr.getAllResponseHeaders() :
+			xhr.responseHeaders;
+		for(const header of ajaxHeaders.split('\r\n')) {
+			const lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
 				i++;
@@ -6673,19 +6696,21 @@ class AjaxCache extends null {
 				headers['If-Modified-Since'] = LastModified;
 			}
 		}
-		let hasUrl = AjaxCache._data.has(url);
-		AjaxCache._data.set(url, {
+		const hasUrl = this._data.has(url);
+		this._data.set(url, {
 			hasCacheControl,
 			params: headers ? { headers, useTimeout: true } : { useTimeout: true }
 		});
 		return hasUrl || hasCacheControl;
-	}
-}
-AjaxCache._data = new Map();
+	},
+
+	_data: new Map()
+};
 
 function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		var el, text = xhr.responseText;
+		let el;
+		const text = xhr.responseText;
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
@@ -6717,16 +6742,16 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 }
 
 function infoLoadErrors(e, showError = true) {
-	var isAjax = e instanceof AjaxError,
-		eCode = isAjax ? e.code : 0;
+	const isAjax = e instanceof AjaxError;
+	const eCode = isAjax ? e.code : 0;
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
 		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e));
+		$popup('newposts', ` (№${ Lng.thrNotFound[lang] }${ aib.t }): \n${ getErrorMessage(e) }`);
 		if(showError) {
-			doc.title = '{' + eCode + '} ' + doc.title;
+			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
 	}
 }
@@ -6735,19 +6760,18 @@ function infoLoadErrors(e, showError = true) {
                                                  PAGES LOADER
 =========================================================================================================== */
 
-var Pages = {
+const Pages = {
 	add() {
-		var pageNum = DelForm.last.pageNum + 1;
+		const pageNum = DelForm.last.pageNum + 1;
 		if(this._adding || pageNum > aib.lastPage) {
 			return;
 		}
 		this._adding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
-			'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>');
+			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			var form = this._addForm(formEl, pageNum);
-			if(!form.firstThr) {
+			if(!this._addForm(formEl, pageNum).firstThr) {
 				this._endAdding();
 				this.add();
 				return CancelablePromise.reject(new CancelError());
@@ -6779,7 +6803,7 @@ var Pages = {
 			pr.clearForm();
 		}
 		DelForm.tNums = new Set();
-		for(var form of DelForm) {
+		for(const form of DelForm) {
 			$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
@@ -6788,11 +6812,9 @@ var Pages = {
 			$del(form.el);
 		}
 		DelForm.first = DelForm.last;
-		var len = Math.min(aib.lastPage + 1, aib.page + count);
-		for(var i = aib.page; i < len; ++i) {
+		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
-				var el = await ajaxLoad(aib.getPageUrl(aib.b, i));
-				this._addForm(el, i);
+				this._addForm((await ajaxLoad(aib.getPageUrl(aib.b, i))), i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
@@ -6812,7 +6834,7 @@ var Pages = {
 		formEl = doc.adoptNode(formEl);
 		$hide((formEl = aib.fixHTML(formEl)));
 		$after(DelForm.last.el, formEl);
-		var form = new DelForm(formEl, +pageNum, DelForm.last);
+		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
 		if(pageNum !== aib.page && form.firstThr) {
@@ -6830,8 +6852,7 @@ var Pages = {
 		this._addPromise = null;
 	},
 	async _updateForms(newForm) {
-		let fav = await getStoredObj('DESU_Favorites');
-		readPostsData(newForm.firstThr.op, fav);
+		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -6843,7 +6864,7 @@ var Pages = {
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
-		var evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
+		const evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
 		if(Cfg.inftyScroll) {
 			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
 		} else {
@@ -6865,12 +6886,13 @@ toggleInfinityScroll.onwheel = e => {
                                                     SPELLS
 =========================================================================================================== */
 
-class Spells extends null {
-	static get hiders() {
+const Spells = {
+	hash: null,
+	get hiders() {
 		this._init();
 		return this.hiders;
-	}
-	static get list() {
+	},
+	get list() {
 		if(Cfg.spells === null) {
 			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
@@ -6887,42 +6909,42 @@ class Spells extends null {
 				str += '\n\n';
 			}
 			if(reps) {
-				for(let rep of reps) {
+				for(const rep of reps) {
 					str += this._decompileRep(rep, false) + '\n';
 				}
 			}
 			if(oreps) {
-				for(let orep of oreps) {
+				for(const orep of oreps) {
 					str += this._decompileRep(orep, true) + '\n';
 				}
 			}
 			str = str.substr(0, str.length - 1);
 		}
 		return str;
-	}
-	static get names() {
+	},
+	get names() {
 		return [
 			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
 			'all', 'video', 'wipe', 'num', 'vauthor'
 		];
-	}
-	static get needArg() {
+	},
+	get needArg() {
 		return [
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
 			/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
 			/* num */ true, /* vauthor */ true
 		];
-	}
-	static get outreps() {
+	},
+	get outreps() {
 		this._init();
 		return this.outreps;
-	}
-	static get reps() {
+	},
+	get reps() {
 		this._init();
 		return this.reps;
-	}
-	static add(type, arg, isNeg) {
+	},
+	add(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld && fld.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -7000,9 +7022,9 @@ class Spells extends null {
 		if(chk) {
 			chk.checked = false;
 		}
-	}
-	static decompileSpell(type, neg, val, scope, wipeMsg = null) {
-		let spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
+	},
+	decompileSpell(type, neg, val, scope, wipeMsg = null) {
+		let spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
 			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if(!val) {
 			return spell;
@@ -7029,7 +7051,7 @@ class Spells extends null {
 				32 : 'numbers',
 				64 : 'whitespace'
 			};
-			for(let bit in bits) {
+			for(const bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
 						names.push(bits[bit]);
@@ -7039,7 +7061,7 @@ class Spells extends null {
 			if(msgBit) {
 				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 			}
-			return spell + '(' + names.join(',') + ')';
+			return `${ spell }(${ names.join(',') })`;
 		// #num, #tlen
 		} else if(type === 15 || type === 11) {
 			let temp_, temp = val[1].length - 1;
@@ -7059,12 +7081,12 @@ class Spells extends null {
 			return spell + ')';
 		// #words, #name, #trip, #vauthor
 		} else if(type === 0 || type === 6 || type === 7 || type === 16) {
-			return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
+			return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
 		} else {
-			return spell + '(' + String(val) + ')';
+			return `${ spell }(${ String(val) })`;
 		}
-	}
-	static disable() {
+	},
+	disable() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -7073,14 +7095,14 @@ class Spells extends null {
 			reps    : { configurable, value }
 		});
 		saveCfg('hideBySpell', 0);
-	}
-	static outReplace(txt) {
-		for(let orep of this.outreps) {
+	},
+	outReplace(txt) {
+		for(const orep of this.outreps) {
 			txt = txt.replace(orep[0], orep[1]);
 		}
 		return txt;
-	}
-	static parseText(text) {
+	},
+	parseText(text) {
 		const codeGen = new SpellsCodegen(text);
 		const data = codeGen.generate();
 		if(codeGen.hasError) {
@@ -7092,8 +7114,14 @@ class Spells extends null {
 			return [Date.now(), ...data];
 		}
 		return null;
-	}
-	static setSpells(spells, sync) {
+	},
+	replace(txt) {
+		for(const rep of this.reps) {
+			txt = txt.replace(rep[0], rep[1]);
+		}
+		return txt;
+	},
+	setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
@@ -7112,14 +7140,8 @@ class Spells extends null {
 		} else {
 			SpellsRunner.unhideAll();
 		}
-	}
-	static replace(txt) {
-		for(let orep of this.reps) {
-			txt = txt.replace(orep[0], orep[1]);
-		}
-		return txt;
-	}
-	static toggle() {
+	},
+	toggle() {
 		let spells;
 		const fld = $id('de-spell-txt');
 		const val = fld.value;
@@ -7139,14 +7161,14 @@ class Spells extends null {
 			}
 			$q('input[info="hideBySpell"]').checked = false;
 		}
-	}
+	},
 
-	static _decompileRep(rep, isOrep) {
+	_decompileRep(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
-	}
-	static _decompileScope(scope, indent) {
+			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
+			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
+	},
+	_decompileScope(scope, indent) {
 		const dScope = [];
 		let hScope = false;
 		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
@@ -7156,15 +7178,15 @@ class Spells extends null {
 				hScope = true;
 				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					const str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
-						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
+					const str = `${ (spell[0] & 0x100) ? '!(\n' : '(\n' }${ indent }    ` +
+						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
 					if(j === 0) {
 						dScope[0] = str;
 					} else {
 						dScope[--j] += ' ' + str;
 					}
 				} else {
-					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
+					dScope[j] = `${ (spell[0] & 0x100) ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
@@ -7174,8 +7196,8 @@ class Spells extends null {
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
-	}
-	static _init() {
+	},
+	_init() {
 		if(!Cfg.hideBySpell) {
 			const value = null;
 			const configurable = true;
@@ -7189,7 +7211,7 @@ class Spells extends null {
 		let spells, data;
 		try {
 			spells = JSON.parse(Cfg.spells);
-			data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
+			data = JSON.parse(sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`]);
 		} catch(e) {}
 		if(data && spells && data[0] === spells[0]) {
 			this.hash = data[0];
@@ -7201,10 +7223,10 @@ class Spells extends null {
 		} else {
 			this.disable();
 		}
-	}
-	static _initHiders(data) {
+	},
+	_initHiders(data) {
 		if(data) {
-			for(let item of data) {
+			for(const item of data) {
 				const val = item[1];
 				if(val) {
 					switch(item[0] & 0xFF) {
@@ -7219,35 +7241,35 @@ class Spells extends null {
 			}
 		}
 		return data;
-	}
-	static _initReps(data) {
+	},
+	_initReps(data) {
 		if(data) {
-			for(let item of data) {
+			for(const item of data) {
 				item[0] = toRegExp(item[0], false);
 			}
 		}
 		return data;
-	}
-	static _optimize(data) {
+	},
+	_optimize(data) {
 		const arr = [
 			data[1] ? this._optimizeSpells(data[1]) : null,
 			data[2] ? this._optimizeReps(data[2]) : null,
 			data[3] ? this._optimizeReps(data[3]) : null
 		];
-		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], ...arr]);
+		sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`] = JSON.stringify([data[0], ...arr]);
 		this.hash = data[0];
 		this._setData(...arr);
-	}
-	static _optimizeReps(data) {
+	},
+	_optimizeReps(data) {
 		const rv = [];
-		for(let rep of data) {
-			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t))) {
-				rv.push([rep[2], rep[3]]);
+		for(const [r0, r1, r2, r3] of data) {
+			if(!r0 || (r0 === aib.b && (r1 === -1 ? !aib.t : !r1 || +r1 === aib.t))) {
+				rv.push([r2, r3]);
 			}
 		}
 		return !rv.length ? null : rv;
-	}
-	static _optimizeSpells(spells) {
+	},
+	_optimizeSpells(spells) {
 		let neg, lastSpell = -1;
 		let newSpells = [];
 		for(let i = 0, len = spells.length; i < len; ++i) {
@@ -7300,16 +7322,16 @@ class Spells extends null {
 			}
 		}
 		return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
-	}
-	static _setData(hiders, reps, outreps) {
+	},
+	_setData(hiders, reps, outreps) {
 		const configurable = true;
 		Object.defineProperties(this, {
 			hiders  : { configurable, value: this._initHiders(hiders) },
 			outreps : { configurable, value: this._initReps(outreps) },
 			reps    : { configurable, value: this._initReps(reps) }
 		});
-	}
-	static _sort(sp) {
+	},
+	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
 		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
@@ -7343,13 +7365,12 @@ class Spells extends null {
 				len--;
 			}
 		}
-	}
-	static _sync(data) {
+	},
+	_sync(data) {
 		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
-}
-Spells.hash = null;
+};
 
 class SpellsCodegen {
 	constructor(sList) {
@@ -7376,7 +7397,7 @@ class SpellsCodegen {
 	}
 
 	_generate(sList, inParens) {
-		const spells = [];
+		const spellsArr = [];
 		let reps = [];
 		let outreps = [];
 		let lastType = this.TYPE_UNKNOWN;
@@ -7446,7 +7467,7 @@ class SpellsCodegen {
 					}
 					i += res[0] - 1;
 					this._col += res[0] - 1;
-					spells.push(res[1]);
+					spellsArr.push(res[1]);
 					lastType = this.TYPE_SPELL;
 				}
 				break;
@@ -7464,7 +7485,7 @@ class SpellsCodegen {
 					return null;
 				}
 				i += res[0] + 1;
-				spells.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
+				spellsArr.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
 				lastType = this.TYPE_PARENTHESES;
 				break;
 			case '|':
@@ -7478,7 +7499,7 @@ class SpellsCodegen {
 					return null;
 				}
 				if(sList[i] === '&') {
-					spells[spells.length - 1][0] |= 0x200;
+					spellsArr[spellsArr.length - 1][0] |= 0x200;
 				}
 				lastType = this.TYPE_ANDOR;
 				break;
@@ -7503,7 +7524,7 @@ class SpellsCodegen {
 					return null;
 				}
 				if(inParens) {
-					return [i, spells];
+					return [i, spellsArr];
 				}
 				/* falls through */
 			default:
@@ -7528,7 +7549,7 @@ class SpellsCodegen {
 		if(!outreps.length) {
 			outreps = false;
 		}
-		return [spells, reps, outreps];
+		return [spellsArr, reps, outreps];
 	}
 	_getScope(str) {
 		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
@@ -7539,7 +7560,7 @@ class SpellsCodegen {
 		if(!m || haveComma !== Boolean(m[2])) {
 			return null;
 		}
-		let val = m[1];
+		const val = m[1];
 		try {
 			toRegExp(val, true);
 		} catch(e) {
@@ -7608,7 +7629,7 @@ class SpellsCodegen {
 			str = str.substring(temp[0]);
 			scope = temp[1];
 		}
-		let spellType = isNeg ? spellIdx | 0x100 : spellIdx;
+		const spellType = isNeg ? spellIdx | 0x100 : spellIdx;
 		if(str[0] !== '(' || str[1] === ')') {
 			if(Spells.needArg[spellIdx]) {
 				this._setError(Lng.seMissArg[lang], name);
@@ -7707,7 +7728,7 @@ class SpellsRunner {
 		if(aib.t) {
 			sesStorage['de-hidden-' + aib.b + aib.t] = null;
 		}
-		for(var post = Thread.first.op; post; post = post.next) {
+		for(let post = Thread.first.op; post; post = post.next) {
 			if(post.spellHidden) {
 				post.spellUnhide();
 			}
@@ -7730,8 +7751,7 @@ class SpellsRunner {
 		}
 	}
 	run(post) {
-		var interp = new SpellsInterpreter(post, this._spells);
-		var res = interp.run();
+		let res = (new SpellsInterpreter(post, this._spells)).run();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -7751,28 +7771,18 @@ class SpellsRunner {
 		}
 		return this._unhidePost(post);
 	}
-	_unhidePost(post) {
-		if(post.spellHidden) {
-			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
-				SpellsRunner.cachedData[post.count] = [false, null];
-			}
-		}
-		return 0;
-	}
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
-				var lPost = Thread.first.lastNotDeleted,
-					data = null;
+				const lPost = Thread.first.lastNotDeleted;
+				let data = null;
 				if(Spells.hiders) {
 					if(SpellsRunner.cachedData) {
 						data = SpellsRunner.cachedData;
 					} else {
 						data = [];
-						for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
-							var hidden = post.spellHidden;
-							data.push(hidden ? [true, Post.Note.text] : [false, null]);
+						for(let post = Thread.first.op; post; post = post.nextNotDeleted) {
+							data.push(post.spellHidden ? [true, Post.Note.text] : [false, null]);
 						}
 						SpellsRunner.cachedData = data;
 					}
@@ -7787,6 +7797,15 @@ class SpellsRunner {
 			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
+	}
+	_unhidePost(post) {
+		if(post.spellHidden) {
+			post.spellUnhide();
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [false, null];
+			}
+		}
+		return 0;
 	}
 }
 SpellsRunner.cachedData = null;
@@ -7868,8 +7887,8 @@ class SpellsInterpreter {
 	}
 	_getMsg() {
 		const rv = [];
-		for(let spellEls of this._triggeredSpellsStack) {
-			for(let [isNeg, spell, wipeMsg] of spellEls) {
+		for(const spellEls of this._triggeredSpellsStack) {
+			for(const [isNeg, spell, wipeMsg] of spellEls) {
 				rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 			}
 		}
@@ -7909,7 +7928,7 @@ class SpellsInterpreter {
 		return val.test(this._post.html);
 	}
 	async _ihash(val) {
-		for(let image of this._post.images) {
+		for(const image of this._post.images) {
 			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
 				return true;
 			}
@@ -7922,7 +7941,7 @@ class SpellsInterpreter {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(let image of images) {
+		for(const image of images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -7963,7 +7982,7 @@ class SpellsInterpreter {
 		return false;
 	}
 	_imgn(val) {
-		for(let image of this._post.images) {
+		for(const image of this._post.images) {
 			if((image instanceof Attachment) && val.test(image.name)) {
 				return true;
 			}
@@ -8022,8 +8041,8 @@ class SpellsInterpreter {
 		if(!videos.hasLinks || !Cfg.YTubeTitles) {
 			return false;
 		}
-		for(let siteData of videos.vData) {
-			for(let data of siteData) {
+		for(const siteData of videos.vData) {
+			for(const data of siteData) {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					return true;
 				}
@@ -8044,7 +8063,8 @@ class SpellsInterpreter {
 		}));
 	}
 	_wipe(val) {
-		let arr, len, x, txt = this._post.text;
+		let arr, len, x;
+		const txt = this._post.text;
 		// (1 << 0): samelines
 		if(val & 1) {
 			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
@@ -8057,7 +8077,7 @@ class SpellsInterpreter {
 						j++;
 					}
 					if(j > 4 && j > n && x) {
-						this._wipeMsg = [1, '"' + x.substr(0, 20) + '" x' + (j + 1)];
+						this._wipeMsg = [1, `"${ x.substr(0, 20) }" x${ j + 1 }`];
 						return true;
 					}
 				}
@@ -8081,14 +8101,14 @@ class SpellsInterpreter {
 							pop = j;
 						}
 						if(pop >= n) {
-							this._wipeMsg = [2, 'same "' + x.substr(0, 20) + '" x' + (pop + 1)];
+							this._wipeMsg = [2, `same "${ x.substr(0, 20) }" x${ pop + 1 }`];
 							return true;
 						}
 					}
 				}
 				x = keys / len;
 				if(x < 0.25) {
-					this._wipeMsg = [2, 'uniq ' + (x * 100).toFixed(0) + '%'];
+					this._wipeMsg = [2, `uniq ${ (x * 100).toFixed(0) }%`];
 					return true;
 				}
 			}
@@ -8105,7 +8125,7 @@ class SpellsInterpreter {
 		if(val & 8) {
 			const _txt = txt.replace(/\s+/g, '');
 			if((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я.?!,]/ig, '').length / len) > 0.4) {
-				this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
+				this._wipeMsg = [8, `${ (x * 100).toFixed(0) }%`];
 				return true;
 			}
 		}
@@ -8130,10 +8150,10 @@ class SpellsInterpreter {
 					n++;
 				}
 				if(capsw / n >= 0.3 && n > 4) {
-					this._wipeMsg = [16, 'CAPS ' + capsw / arr.length * 100 + '%'];
+					this._wipeMsg = [16, `CAPS ${ capsw / arr.length * 100 }%`];
 					return true;
 				} else if(casew / n >= 0.3 && n > 8) {
-					this._wipeMsg = [16, 'cAsE ' + casew / arr.length * 100 + '%'];
+					this._wipeMsg = [16, `cAsE ${ casew / arr.length * 100 }%`];
 					return true;
 				}
 			}
@@ -8142,7 +8162,7 @@ class SpellsInterpreter {
 		if(val & 32) {
 			const _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-				this._wipeMsg = [32, Math.round(x * 100) + '%'];
+				this._wipeMsg = [32, `${ Math.round(x * 100) }%`];
 				return true;
 			}
 		}
@@ -8261,8 +8281,8 @@ class PostForm {
 			saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
-		for(let form of DelForm) {
-			(form.passEl || {}).value = value;
+		for(const { passEl = {} } of DelForm) {
+			passEl.value = value;
 		}
 	}
 	get isVisible() {
@@ -8427,7 +8447,7 @@ class PostForm {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
-				'de-abtn de-parea-btn-' + (aib.t ? 'reply' : 'thr');
+				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
@@ -8454,17 +8474,17 @@ class PostForm {
 		} else {
 			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
 			$txtInsert(this.txta, (
-				isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') :
+				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 				(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : '>>' + pNum + '\n')
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
 			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
 					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
-			temp = temp.substr(0, 30) + '\u2026';
+			temp = `${ temp.substr(0, 30) }\u2026`;
 		}
-		$q('.de-win-title', this.qArea).textContent = temp || '#' + pNum;
+		$q('.de-win-title', this.qArea).textContent = temp || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
 	updateLanguage() {
@@ -8538,9 +8558,10 @@ class PostForm {
 				val = Spells.outReplace(val);
 			}
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
-				const temp = '\n\n' + this._wrapText(aib.markupTags[5],
-					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit +
-					(nav.isESNext ? '.es6' : '') + ' [' + nav.scriptInstall + ']')[1];
+				const temp = `\n\n${ this._wrapText(aib.markupTags[5],
+					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
+						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
+				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;
 				}
@@ -8578,7 +8599,7 @@ class PostForm {
 		// Add image from clipboard to file inputs on Ctrl+V
 		el.addEventListener('paste', e => {
 			if('clipboardData' in e) {
-				for(let item of e.clipboardData.items) {
+				for(const item of e.clipboardData.items) {
 					if(item.kind === 'file') {
 						const inputs = this.files._inputs;
 						for(let i = 0, len = inputs.length; i < len; ++i) {
@@ -8613,8 +8634,8 @@ class PostForm {
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
-					this._elStyle.width = (e.clientX - cr.left) + 'px';
-					this._elStyle.height = (e.clientY - cr.top) + 'px';
+					this._elStyle.width = `${ e.clientX - cr.left }px`;
+					this._elStyle.height = `${ e.clientY - cr.top }px`;
 					return;
 				}
 				default: // mouseup
@@ -8759,11 +8780,11 @@ class PostForm {
 		}
 		if(isBB) {
 			if(text.includes('\n')) {
-				let str = '[' + tag + ']' + text + '[/' + tag + ']';
+				const str = `[${ tag }]${ text }[/${ tag }]`;
 				return [str.length, str];
 			}
 			const m = text.match(/^(\s*)(.*?)(\s*)$/);
-			let str = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
 			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 		}
 		let m, rv = '', i = 0;
@@ -8787,8 +8808,9 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	var err = '', els = $Q(aib.qError, dc);
-	for(var i = 0, len = els.length; i < len; ++i) {
+	let err = '';
+	const els = $Q(aib.qError, dc);
+	for(let i = 0, len = els.length; i < len; ++i) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
@@ -8821,7 +8843,9 @@ function getUploadFunc() {
 }
 
 function checkUpload(data) {
-	var error = null, postNum = null, isDocument = data instanceof HTMLDocument;
+	let error = null;
+	let postNum = null;
+	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
@@ -8923,7 +8947,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+	const els = $Q(`[de-form] ${ aib.qRPost } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {
@@ -8947,9 +8971,10 @@ async function checkDelete(data) {
 }
 
 async function html5Submit(form, submitter, needProgress = false) {
-	const formData = new FormData();
+	const data = new FormData();
 	let hasFiles = false;
-	for(let { name, value, type, el } of getFormElements(form, submitter)) {
+	for(const { name, value, type, el } of getFormElements(form, submitter)) {
+		let val = value;
 		if(name === 'de-file-txt') {
 			continue;
 		}
@@ -8963,18 +8988,18 @@ async function html5Submit(form, submitter, needProgress = false) {
 				value.type === 'image/png' ||
 				value.type === 'video/webm' && !aib.mak)
 			) {
-				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
-				if(!data) {
+				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
+				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
-				value = new File(data, newFileName);
+				val = new File(cleanData, newFileName);
 			} else if(Cfg.removeFName) {
-				value = new File([value], newFileName);
+				val = new File([value], newFileName);
 			}
 		}
-		formData.append(name, value);
+		data.append(name, val);
 	}
-	const ajaxParams = { method: 'POST', data: formData };
+	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
@@ -8988,7 +9013,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 
 async function readFile(file, asText = false) {
 	return new Promise(resolve => {
-		var fr = new FileReader();
+		const fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
 		if(asText) {
@@ -9000,19 +9025,20 @@ async function readFile(file, asText = false) {
 }
 
 function cleanFile(data, extraData) {
-	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
-	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
-		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
-		rExif = !!Cfg.removeEXIF,
-		rv = extraData ?
-			(rand ? [img, extraData, rand] : [img, extraData]) :
-			(rand ? [img, rand] : [img]);
+	const img = nav.getUnsafeUint8Array(data);
+	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
+	const rv = extraData ?
+		(rand ? [img, extraData, rand] : [img, extraData]) :
+		(rand ? [img, rand] : [img]);
+	const rExif = !!Cfg.removeEXIF;
 	if(!rand && !rExif && !extraData) {
 		return rv;
 	}
+	let i, len, val, lIdx, jpgDat;
+	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
-		var deep = 1;
+		let deep = 1;
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
@@ -9087,21 +9113,21 @@ function cleanFile(data, extraData) {
 }
 
 function readExif(data, off, len) {
-	var i, xRes = 0,
-		yRes = 0,
-		resT = 0,
-		dv = nav.getUnsafeDataView(data, off),
-		le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
+	let xRes = 0;
+	let yRes = 0;
+	let resT = 0;
+	const dv = nav.getUnsafeDataView(data, off);
+	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
 	}
-	i = dv.getUint32(4, le);
+	const i = dv.getUint32(4, le);
 	if(i > len) {
 		return null;
 	}
-	for(var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
-		var dE = i + 2 + 12 * j,
-			tag = dv.getUint16(dE, le);
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+		let dE = i + 2 + 12 * j;
+		const tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
 			resT = dv.getUint16(dE + 8, le) - 1;
 		} else if(tag === 0x011A || tag === 0x011B) {
@@ -9153,7 +9179,7 @@ class Files {
 			$after(this.fileTd.parentNode, value);
 		} else {
 			value = $q(aib.tiny ? 'th' : 'td', $parent(this._form.txta, 'TR'));
-			value.innerHTML = '<div style="display: none;">' + value.innerHTML + '</div><div></div>';
+			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
 		Object.defineProperty(this, 'thumbsEl', { value });
@@ -9161,13 +9187,13 @@ class Files {
 	}
 	changeMode() {
 		const cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
-		for(let inp of this._inputs) {
+		for(const inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
 		this.hide();
 	}
 	clear() {
-		for(let inp of this._inputs) {
+		for(const inp of this._inputs) {
 			inp.clear();
 		}
 		this.hide();
@@ -9405,11 +9431,11 @@ class FileInput {
 	}
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
-		el.onchange = e => {
+		el.onchange = ({ target }) => {
 			$hide(this._btnRarJpg);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-			const file = e.target.files[0];
+			const file = target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
@@ -9535,6 +9561,10 @@ class FileInput {
 		this.hasFile = false;
 		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
+	_showDelBtn(isShow) {
+		$toggle(this._btnDel, isShow);
+		$toggle(this._btnTxt, !isShow);
+	}
 	_showPviewImage() {
 		if(this.imgFile) {
 			const [data, fileName, fileType] = this.imgFile;
@@ -9550,10 +9580,6 @@ class FileInput {
 			}
 		}
 	}
-	_showDelBtn(isShow) {
-		$toggle(this._btnDel, isShow);
-		$toggle(this._btnTxt, !isShow);
-	}
 	_toggleDragEvents(el, add) {
 		const name = add ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', $pd);
@@ -9562,6 +9588,8 @@ class FileInput {
 		el[name]('drop', this);
 	}
 }
+
+/* eslint-disable no-var */
 
 /* ==[ FormCaptcha.js ]=======================================================================================
                                                     CAPTCHA
@@ -10091,7 +10119,7 @@ class AbstractPost {
 	}
 	_getMenuImgSrc(el) {
 		const link = el.nextSibling;
-		let p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
+		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
 			'" target="_blank">' + Lng.searchIn[lang];
 		return `<a class="de-menu-item ${ [
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
@@ -12059,7 +12087,7 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
-			let text = link.textContent;
+			const text = link.textContent;
 			link.textContent = text.split('.').pop();
 			link.title = text;
 		}
@@ -12140,8 +12168,8 @@ class DOMPostsBuilder {
 	* bannedPostsData() {
 		var bEls = $Q(aib.qBan, this._form);
 		for(let i = 0, len = bEls.length; i < len; ++i) {
-			let bEl = bEls[i],
-				pEl = aib.getPostElOfEl(bEl);
+			const bEl = bEls[i];
+			const pEl = aib.getPostElOfEl(bEl);
 			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
 		}
 	}
@@ -12376,45 +12404,44 @@ class DobrochanPostsBuilder {
 
 		// --- FILE ---
 		let filesHTML = '';
-		for(let file of data.files) {
-			let fileName, fullFileName;
-			let { thumb } = file;
+		for(const { file_id, metadata, rating, size, src, thumb, thumb_height, thumb_width } of data.files) {
+			let fileName, fullFileName, th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
-			const ext = file.src.split('.').pop();
+			const ext = src.split('.').pop();
 			if(brd === 'b' || brd === 'rf') {
-				fileName = fullFileName = thumb.split('/').pop();
+				fileName = fullFileName = th.split('/').pop();
 			} else {
-				fileName = fullFileName = file.src.split('/').pop();
+				fileName = fullFileName = src.split('/').pop();
 				if(multiFile && fileName.length > 20) {
 					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
 			}
 			const maxRating = 'r15'; // FIXME: read from settings
-			if(file.rating === 'r-18g' && maxRating !== 'r-18g') {
-				thumb = 'images/r-18g.png';
-			} else if(file.rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
-				thumb = 'images/r-18.png';
-			} else if(file.rating === 'r-15' && maxRating === 'sfw') {
-				thumb = 'images/r-15.png';
-			} else if(file.rating === 'illegal') {
-				thumb = 'images/illegal.png';
+			if(rating === 'r-18g' && maxRating !== 'r-18g') {
+				th = 'images/r-18g.png';
+			} else if(rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
+				th = 'images/r-18.png';
+			} else if(rating === 'r-15' && maxRating === 'sfw') {
+				th = 'images/r-15.png';
+			} else if(rating === 'illegal') {
+				th = 'images/illegal.png';
 			} else {
-				thumbW = file.thumb_width;
-				thumbH = file.thumb_height;
+				thumbW = thumb_width;
+				thumbH = thumb_height;
 			}
-			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
-				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a><br>
-				<em>${ ext }, ${ prettifySize(file.size) }, ${ file.metadata.width }x${ file.metadata.height }
+			const fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
+				<a href="/${ src }" title="${ fullFileName }" target="_blank">${ fileName }</a><br>
+				<em>${ ext }, ${ prettifySize(size) }, ${ metadata.width }x${ metadata.height }
 				</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }<br>
-				<a class="edit_ icon" href="/utils/image/edit/${ file.file_id }/${ num }">
+				<a class="edit_ icon" href="/utils/image/edit/${ file_id }/${ num }">
 					<img title="edit" alt="edit" src="/images/blank.png">
 				</a>
 			</div>`;
 			filesHTML += `${ multiFile ? '' : fileInfo }
-			<div id="file_${ num }_${ file.file_id }" class="file">${ multiFile ? fileInfo : '' }
-				<a href="/${ file.src }" target="_blank">
-					<img class="thumb" src="/${ thumb }" width="${ thumbW }" height="${ thumbH }">
+			<div id="file_${ num }_${ file_id }" class="file">${ multiFile ? fileInfo : '' }
+				<a href="/${ src }" target="_blank">
+					<img class="thumb" src="/${ th }" width="${ thumbW }" height="${ thumbH }">
 				</a>
 			</div>`;
 		}
@@ -12422,7 +12449,7 @@ class DobrochanPostsBuilder {
 		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 			(_, y, mo, d, h, m, s) => {
-				let dt = new Date(y, +mo - 1, d, h, m, s);
+				const dt = new Date(y, +mo - 1, d, h, m, s);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
@@ -12483,7 +12510,7 @@ class MakabaPostsBuilder {
 		if(data.files && data.files.length !== 0) {
 			filesHTML = `<div class="images ${
 				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
-			for(let file of data.files) {
+			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const fullName = file.fullname || file.name;
 				const dispName = file.displayname || file.name;
@@ -12561,14 +12588,14 @@ class MakabaPostsBuilder {
 		return this._posts[i + 1].num;
 	}
 	* bannedPostsData() {
-		for(let post of this._posts) {
-			switch(post.banned) {
+		for(const { banned, num } of this._posts) {
+			switch(banned) {
 			case 1:
-				yield [1, post.num, $add('<span class="pomyanem">' +
+				yield [1, num, $add('<span class="pomyanem">' +
 					'(Автор этого поста был забанен. Помянем.)</span>')];
 				break;
 			case 2:
-				yield [2, post.num, $add('<span class="pomyanem">' +
+				yield [2, num, $add('<span class="pomyanem">' +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
@@ -12615,11 +12642,10 @@ class _0chanPostsBuilder {
 		let filesHTML = '';
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
-			for(let file of data.attachments) {
-				const img = file.images;
-				const orig = img.original;
-				const thumb200 = img.thumb_200px;
-				const thumb400 = img.thumb_400px;
+			for(const { images } of data.attachments) {
+				const orig = images.original;
+				const thumb200 = images.thumb_200px;
+				const thumb400 = images.thumb_400px;
 				filesHTML += `<figure class="post-img"><span>
 					<figcaption>
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
@@ -12674,7 +12700,7 @@ class _0chanPostsBuilder {
 class RefMap {
 	static gen(posts, thrURL) {
 		const opNums = DelForm.tNums;
-		for(let [pNum, post] of posts) {
+		for(const [pNum, post] of posts) {
 			const links = $Q('a', post.msg);
 			for(let lNum, i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
@@ -13095,8 +13121,8 @@ class Thread {
 		if(!aib.qBan) {
 			return;
 		}
-		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
-			let post = bNum ? pByNum.get(bNum) : this.op;
+		for(const [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
+			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
 				$del($q(aib.qBan, post.el));
 				post.msg.appendChild(bEl);
@@ -13133,15 +13159,15 @@ class Thread {
 			newVisCount = newCount,
 			nums = [];
 		if(aib.JsonBuilder && nav.hasTemplate) {
-			let temp = document.createElement('template');
-			let html = [];
+			const html = [];
 			for(let i = begin; i < end; ++i) {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
+			const temp = document.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
-			let posts = $Q(aib.qRPost, fragm);
+			const posts = $Q(aib.qRPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.run(last);
@@ -13208,14 +13234,14 @@ class Thread {
 				post = post.next;
 			}
 		} else {
-			let nonExisted = pBuilder.length - existed,
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
-				iprv = this._importPosts(op, pBuilder,
-					Math.max(0, nonExisted + existed - needToShow),
-					nonExisted,
-					maybeVParser,
-					maybeSpells);
-			let [,, fragm, last, nums] = iprv;
+			const nonExisted = pBuilder.length - existed;
+			const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+			const [,, fragm, last, nums] = this._importPosts(
+				op, pBuilder,
+				Math.max(0, nonExisted + existed - needToShow),
+				nonExisted,
+				maybeVParser,
+				maybeSpells);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
@@ -14258,8 +14284,8 @@ function initNavFuncs() {
 	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
+	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let isGM = false;
-	let isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -14609,7 +14635,7 @@ class BaseBoard {
 			return str;
 		}
 		if(isForm) {
-			let newForm = $bBegin(data, str);
+			const newForm = $bBegin(data, str);
 			$hide(data);
 			window.addEventListener('load', () => $del($id('de-dform-old')));
 			return newForm;
@@ -15888,7 +15914,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getOmitted(el) {
 			while(el) {
-				let m = el.textContent.match(/(\d+) posts are omitted/);
+				const m = el.textContent.match(/(\d+) posts are omitted/);
 				if(m) {
 					return +m[1] + 1;
 				}
@@ -16207,7 +16233,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			let sessionId = null;
 			const { cookie } = doc;
 			if(cookie.includes('desuchan.session')) {
-				for(let c of cookie.split(';')) {
+				for(const c of cookie.split(';')) {
 					const m = c.match(/^\s*desuchan\.session=(.*)$/);
 					if(m) {
 						sessionId = unescape(m[1].replace(/\+/g, ' '));
@@ -16380,9 +16406,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
-			let ibKeys = Object.keys(ibDomains);
+			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			let host = window.location.hostname.toLowerCase();
+			const host = window.location.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {
@@ -16416,8 +16442,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
-class DollchanAPI extends null {
-	static init() {
+const DollchanAPI = {
+	init() {
 		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
@@ -16433,17 +16459,17 @@ class DollchanAPI extends null {
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
-	}
-	static hasListener(name) {
+	},
+	hasListener(name) {
 		return this.hasListeners && this.activeListeners.has(name);
-	}
-	static notify(name, data) {
+	},
+	notify(name, data) {
 		if(this.hasListener(name)) {
 			this.port.postMessage({ name, data });
 		}
-	}
+	},
 
-	static _handleMessage({ data: arg }) {
+	_handleMessage({ data: arg }) {
 		if(!arg || !arg.name) {
 			return;
 		}
@@ -16453,15 +16479,15 @@ class DollchanAPI extends null {
 		case 'registerapi':
 			if(data) {
 				rv = {};
-				for(let aName of data) {
+				for(const aName of data) {
 					rv[aName] = DollchanAPI._register(aName.toLowerCase());
 				}
 			}
 			break;
 		}
 		DollchanAPI.port.postMessage({ name, data: rv });
-	}
-	static _register(name) {
+	},
+	_register(name) {
 		switch(name) {
 		case 'expandmedia':
 		case 'filechange':
@@ -16472,7 +16498,7 @@ class DollchanAPI extends null {
 		this.activeListeners.add(name);
 		return true;
 	}
-}
+};
 
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {

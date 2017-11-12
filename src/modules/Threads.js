@@ -217,8 +217,8 @@ class Thread {
 		if(!aib.qBan) {
 			return;
 		}
-		for(let [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
-			let post = bNum ? pByNum.get(bNum) : this.op;
+		for(const [banId, bNum, bEl] of pBuilder.bannedPostsData()) {
+			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
 				$del($q(aib.qBan, post.el));
 				post.msg.appendChild(bEl);
@@ -255,15 +255,15 @@ class Thread {
 			newVisCount = newCount,
 			nums = [];
 		if(aib.JsonBuilder && nav.hasTemplate) {
-			let temp = document.createElement('template');
-			let html = [];
+			const html = [];
 			for(let i = begin; i < end; ++i) {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
+			const temp = document.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
-			let posts = $Q(aib.qRPost, fragm);
+			const posts = $Q(aib.qRPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.run(last);
@@ -330,14 +330,14 @@ class Thread {
 				post = post.next;
 			}
 		} else {
-			let nonExisted = pBuilder.length - existed,
-				maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null),
-				iprv = this._importPosts(op, pBuilder,
-					Math.max(0, nonExisted + existed - needToShow),
-					nonExisted,
-					maybeVParser,
-					maybeSpells);
-			let [,, fragm, last, nums] = iprv;
+			const nonExisted = pBuilder.length - existed;
+			const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+			const [,, fragm, last, nums] = this._importPosts(
+				op, pBuilder,
+				Math.max(0, nonExisted + existed - needToShow),
+				nonExisted,
+				maybeVParser,
+				maybeSpells);
 			maybeVParser.end();
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);

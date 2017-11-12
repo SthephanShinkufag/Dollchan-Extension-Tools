@@ -192,7 +192,7 @@ class BaseBoard {
 			return str;
 		}
 		if(isForm) {
-			let newForm = $bBegin(data, str);
+			const newForm = $bBegin(data, str);
 			$hide(data);
 			window.addEventListener('load', () => $del($id('de-dform-old')));
 			return newForm;

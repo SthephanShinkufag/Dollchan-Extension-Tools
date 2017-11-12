@@ -51,13 +51,13 @@ class Videos {
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
 		link.title = (duration ? Lng.duration[lang] + duration : '') +
-			(publ ? ', ' + Lng.published[lang] + publ + '\n' : '') +
+			(publ ? `, ${ Lng.published[lang] + publ }\n` : '') +
 			Lng.author[lang] + author + (views ? ', ' + Lng.views[lang] + views : '');
 	}
 	get player() {
 		const { post } = this;
-		const value = aib.insertYtPlayer(post.msg, '<div class="de-video-obj' +
-			(post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '') + '"></div>');
+		const value = aib.insertYtPlayer(post.msg, `<div class="de-video-obj${
+			post.images.hasAttachments && !post.isOp ? ' de-video-obj-inline' : '' }"></div>`);
 		Object.defineProperty(this, 'player', { value });
 		return value;
 	}
@@ -77,21 +77,21 @@ class Videos {
 		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
 			this.vData[isYtube ? 0 : 1].push(dataObj);
 		}
-		let time;
+		let time = '';
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
 			if(time) {
 				link.setAttribute('de-time', time);
 			}
-			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
+			link.className = `de-video-link ${ isYtube ? 'de-ytube' : 'de-vimeo' }`;
 		} else {
 			const src = isYtube ?
-				aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '') :
-				aib.prot + '//vimeo.com/' + m[1];
-			link = $bEnd(this.post.msg, '<p class="de-video-ext"><a class="de-video-link ' +
-				(isYtube ? 'de-ytube' : 'de-vimeo') + (time ? '" de-time="' + time : '') +
-				`" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
+				`${ aib.prot }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
+				`${ aib.prot }//vimeo.com/${ m[1] }`;
+			link = $bEnd(this.post.msg, `<p class="de-video-ext"><a class="de-video-link ${
+				isYtube ? 'de-ytube' : 'de-vimeo' }${ time ? '" de-time="' + time : ''
+			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
 		}
 		if(dataObj) {
 			Videos.setLinkData(link, dataObj);
@@ -178,6 +178,28 @@ class Videos {
 			hours, minutes, seconds
 		];
 	}
+	static _getTitlesLoader() {
+		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+			const [, isYtube,, id] = info;
+			if(isYtube) {
+				if(Cfg.ytApiKey) {
+					return Videos._getYTInfoAPI(info, num, id);
+				} else {
+					return Videos._getYTInfoOembed(info, num, id);
+				}
+			}
+			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
+				const entry = JSON.parse(xhr.responseText)[0];
+				return Videos._titlesLoaderHelper(
+					info, num,
+					entry.title,
+					entry.user_name,
+					entry.stats_number_of_plays,
+					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					Videos._fixTime(entry.duration)[0]);
+			}).catch(() => Videos._titlesLoaderHelper(info, num));
+		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
+	}
 	static _getYTInfoAPI(info, num, id) {
 		return $ajax(
 			`https://www.googleapis.com/youtube/v3/videos?key=${ Cfg.ytApiKey }&id=${ id }` +
@@ -204,28 +226,6 @@ class Videos {
 			const json = JSON.parse(xhr.responseText);
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
-	}
-	static _getTitlesLoader() {
-		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
-			const [, isYtube,, id] = info;
-			if(isYtube) {
-				if(Cfg.ytApiKey) {
-					return Videos._getYTInfoAPI(info, num, id);
-				} else {
-					return Videos._getYTInfoOembed(info, num, id);
-				}
-			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
-				const entry = JSON.parse(xhr.responseText)[0];
-				return Videos._titlesLoaderHelper(
-					info, num,
-					entry.title,
-					entry.user_name,
-					entry.stats_number_of_plays,
-					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
-					Videos._fixTime(entry.duration)[0]);
-			}).catch(() => Videos._titlesLoaderHelper(info, num));
-		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
 	}
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
 		if(data.length !== 0) {
@@ -309,7 +309,7 @@ class VideosParser {
 				const link = links[i];
 				const m = link.href.match(Videos.vimReg);
 				if(m) {
-					var mPost = isPost ? data : aib.getPostOfEl(link);
+					const mPost = isPost ? data : aib.getPostOfEl(link);
 					if(mPost) {
 						mPost.videos.addLink(m, loader, link, false);
 					}

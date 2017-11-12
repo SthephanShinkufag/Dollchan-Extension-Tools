@@ -30,7 +30,7 @@ class Files {
 			$after(this.fileTd.parentNode, value);
 		} else {
 			value = $q(aib.tiny ? 'th' : 'td', $parent(this._form.txta, 'TR'));
-			value.innerHTML = '<div style="display: none;">' + value.innerHTML + '</div><div></div>';
+			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
 		Object.defineProperty(this, 'thumbsEl', { value });
@@ -38,13 +38,13 @@ class Files {
 	}
 	changeMode() {
 		const cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
-		for(let inp of this._inputs) {
+		for(const inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
 		this.hide();
 	}
 	clear() {
-		for(let inp of this._inputs) {
+		for(const inp of this._inputs) {
 			inp.clear();
 		}
 		this.hide();
@@ -282,11 +282,11 @@ class FileInput {
 	}
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
-		el.onchange = e => {
+		el.onchange = ({ target }) => {
 			$hide(this._btnRarJpg);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-			const file = e.target.files[0];
+			const file = target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
@@ -412,6 +412,10 @@ class FileInput {
 		this.hasFile = false;
 		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
+	_showDelBtn(isShow) {
+		$toggle(this._btnDel, isShow);
+		$toggle(this._btnTxt, !isShow);
+	}
 	_showPviewImage() {
 		if(this.imgFile) {
 			const [data, fileName, fileType] = this.imgFile;
@@ -427,10 +431,6 @@ class FileInput {
 			}
 		}
 	}
-	_showDelBtn(isShow) {
-		$toggle(this._btnDel, isShow);
-		$toggle(this._btnTxt, !isShow);
-	}
 	_toggleDragEvents(el, add) {
 		const name = add ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', $pd);
@@ -439,3 +439,5 @@ class FileInput {
 		el[name]('drop', this);
 	}
 }
+
+/* eslint-disable no-var */

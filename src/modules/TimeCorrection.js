@@ -12,7 +12,7 @@ class DateTime {
 			return;
 		}
 		this.regex = pattern
-			.replace(/(?:[sihdny]\?){2,}/g, str => '(?:' + str.replace(/\?/g, '') + ')?')
+			.replace(/(?:[sihdny]\?){2,}/g, str => `(?:${ str.replace(/\?/g, '') })?`)
 			.replace(/-/g, '[^<]')
 			.replace(/\+/g, '[^0-9<]')
 			.replace(/([sihdny]+)/g, '($1)')
@@ -29,6 +29,11 @@ class DateTime {
 			this.onRPat = onRPat;
 		}
 	}
+	static checkPattern(val) {
+		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
+			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
+			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+	}
 	static toggleSettings(el) {
 		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
 			$popup('err-correcttime', Lng.cTimeError[lang]);
@@ -36,13 +41,8 @@ class DateTime {
 			el.checked = false;
 		}
 	}
-	static checkPattern(val) {
-		return !val.includes('i') || !val.includes('h') || !val.includes('d') ||
-			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
-			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
-	}
 	genRFunc(rPattern) {
-		return new Function('dtime', "return '" +
+		return new Function('dtime', `return '${
 			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
 				.replace('_s', "' + this.pad2(dtime.getSeconds()) + '")
 				.replace('_i', "' + this.pad2(dtime.getMinutes()) + '")
@@ -53,7 +53,7 @@ class DateTime {
 				.replace('_m', "' + this.arrM[dtime.getMonth()] + '")
 				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
 				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
-				.replace('_Y', "' + dtime.getFullYear() + '") + "';");
+				.replace('_Y', "' + dtime.getFullYear() + '") }';`);
 	}
 	getRPattern(txt) {
 		const m = txt.match(new RegExp(this.regex));

@@ -25,8 +25,8 @@ class DOMPostsBuilder {
 	* bannedPostsData() {
 		var bEls = $Q(aib.qBan, this._form);
 		for(let i = 0, len = bEls.length; i < len; ++i) {
-			let bEl = bEls[i],
-				pEl = aib.getPostElOfEl(bEl);
+			const bEl = bEls[i];
+			const pEl = aib.getPostElOfEl(bEl);
 			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
 		}
 	}
@@ -261,45 +261,44 @@ class DobrochanPostsBuilder {
 
 		// --- FILE ---
 		let filesHTML = '';
-		for(let file of data.files) {
-			let fileName, fullFileName;
-			let { thumb } = file;
+		for(const { file_id, metadata, rating, size, src, thumb, thumb_height, thumb_width } of data.files) {
+			let fileName, fullFileName, th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
-			const ext = file.src.split('.').pop();
+			const ext = src.split('.').pop();
 			if(brd === 'b' || brd === 'rf') {
-				fileName = fullFileName = thumb.split('/').pop();
+				fileName = fullFileName = th.split('/').pop();
 			} else {
-				fileName = fullFileName = file.src.split('/').pop();
+				fileName = fullFileName = src.split('/').pop();
 				if(multiFile && fileName.length > 20) {
 					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
 			}
 			const maxRating = 'r15'; // FIXME: read from settings
-			if(file.rating === 'r-18g' && maxRating !== 'r-18g') {
-				thumb = 'images/r-18g.png';
-			} else if(file.rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
-				thumb = 'images/r-18.png';
-			} else if(file.rating === 'r-15' && maxRating === 'sfw') {
-				thumb = 'images/r-15.png';
-			} else if(file.rating === 'illegal') {
-				thumb = 'images/illegal.png';
+			if(rating === 'r-18g' && maxRating !== 'r-18g') {
+				th = 'images/r-18g.png';
+			} else if(rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
+				th = 'images/r-18.png';
+			} else if(rating === 'r-15' && maxRating === 'sfw') {
+				th = 'images/r-15.png';
+			} else if(rating === 'illegal') {
+				th = 'images/illegal.png';
 			} else {
-				thumbW = file.thumb_width;
-				thumbH = file.thumb_height;
+				thumbW = thumb_width;
+				thumbH = thumb_height;
 			}
-			let fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
-				<a href="/${ file.src }" title="${ fullFileName }" target="_blank">${ fileName }</a><br>
-				<em>${ ext }, ${ prettifySize(file.size) }, ${ file.metadata.width }x${ file.metadata.height }
+			const fileInfo = `<div class="fileinfo${ multiFile ? ' limited' : '' }">Файл:
+				<a href="/${ src }" title="${ fullFileName }" target="_blank">${ fileName }</a><br>
+				<em>${ ext }, ${ prettifySize(size) }, ${ metadata.width }x${ metadata.height }
 				</em>${ multiFile ? '' : ' - Нажмите на картинку для увеличения' }<br>
-				<a class="edit_ icon" href="/utils/image/edit/${ file.file_id }/${ num }">
+				<a class="edit_ icon" href="/utils/image/edit/${ file_id }/${ num }">
 					<img title="edit" alt="edit" src="/images/blank.png">
 				</a>
 			</div>`;
 			filesHTML += `${ multiFile ? '' : fileInfo }
-			<div id="file_${ num }_${ file.file_id }" class="file">${ multiFile ? fileInfo : '' }
-				<a href="/${ file.src }" target="_blank">
-					<img class="thumb" src="/${ thumb }" width="${ thumbW }" height="${ thumbH }">
+			<div id="file_${ num }_${ file_id }" class="file">${ multiFile ? fileInfo : '' }
+				<a href="/${ src }" target="_blank">
+					<img class="thumb" src="/${ th }" width="${ thumbW }" height="${ thumbH }">
 				</a>
 			</div>`;
 		}
@@ -307,7 +306,7 @@ class DobrochanPostsBuilder {
 		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 			(_, y, mo, d, h, m, s) => {
-				let dt = new Date(y, +mo - 1, d, h, m, s);
+				const dt = new Date(y, +mo - 1, d, h, m, s);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
@@ -368,7 +367,7 @@ class MakabaPostsBuilder {
 		if(data.files && data.files.length !== 0) {
 			filesHTML = `<div class="images ${
 				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
-			for(let file of data.files) {
+			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const fullName = file.fullname || file.name;
 				const dispName = file.displayname || file.name;
@@ -446,14 +445,14 @@ class MakabaPostsBuilder {
 		return this._posts[i + 1].num;
 	}
 	* bannedPostsData() {
-		for(let post of this._posts) {
-			switch(post.banned) {
+		for(const { banned, num } of this._posts) {
+			switch(banned) {
 			case 1:
-				yield [1, post.num, $add('<span class="pomyanem">' +
+				yield [1, num, $add('<span class="pomyanem">' +
 					'(Автор этого поста был забанен. Помянем.)</span>')];
 				break;
 			case 2:
-				yield [2, post.num, $add('<span class="pomyanem">' +
+				yield [2, num, $add('<span class="pomyanem">' +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
@@ -500,11 +499,10 @@ class _0chanPostsBuilder {
 		let filesHTML = '';
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
-			for(let file of data.attachments) {
-				const img = file.images;
-				const orig = img.original;
-				const thumb200 = img.thumb_200px;
-				const thumb400 = img.thumb_400px;
+			for(const { images } of data.attachments) {
+				const orig = images.original;
+				const thumb200 = images.thumb_200px;
+				const thumb400 = images.thumb_400px;
 				filesHTML += `<figure class="post-img"><span>
 					<figcaption>
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>

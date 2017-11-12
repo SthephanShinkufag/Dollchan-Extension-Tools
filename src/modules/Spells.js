@@ -2,12 +2,13 @@
                                                     SPELLS
 =========================================================================================================== */
 
-class Spells extends null {
-	static get hiders() {
+const Spells = {
+	hash: null,
+	get hiders() {
 		this._init();
 		return this.hiders;
-	}
-	static get list() {
+	},
+	get list() {
 		if(Cfg.spells === null) {
 			return '#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)';
 		}
@@ -24,42 +25,42 @@ class Spells extends null {
 				str += '\n\n';
 			}
 			if(reps) {
-				for(let rep of reps) {
+				for(const rep of reps) {
 					str += this._decompileRep(rep, false) + '\n';
 				}
 			}
 			if(oreps) {
-				for(let orep of oreps) {
+				for(const orep of oreps) {
 					str += this._decompileRep(orep, true) + '\n';
 				}
 			}
 			str = str.substr(0, str.length - 1);
 		}
 		return str;
-	}
-	static get names() {
+	},
+	get names() {
 		return [
 			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
 			'all', 'video', 'wipe', 'num', 'vauthor'
 		];
-	}
-	static get needArg() {
+	},
+	get needArg() {
 		return [
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
 			/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
 			/* num */ true, /* vauthor */ true
 		];
-	}
-	static get outreps() {
+	},
+	get outreps() {
 		this._init();
 		return this.outreps;
-	}
-	static get reps() {
+	},
+	get reps() {
 		this._init();
 		return this.reps;
-	}
-	static add(type, arg, isNeg) {
+	},
+	add(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld && fld.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -137,9 +138,9 @@ class Spells extends null {
 		if(chk) {
 			chk.checked = false;
 		}
-	}
-	static decompileSpell(type, neg, val, scope, wipeMsg = null) {
-		let spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
+	},
+	decompileSpell(type, neg, val, scope, wipeMsg = null) {
+		let spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
 			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if(!val) {
 			return spell;
@@ -166,7 +167,7 @@ class Spells extends null {
 				32 : 'numbers',
 				64 : 'whitespace'
 			};
-			for(let bit in bits) {
+			for(const bit in bits) {
 				if(+bit !== msgBit) {
 					if(val & +bit) {
 						names.push(bits[bit]);
@@ -176,7 +177,7 @@ class Spells extends null {
 			if(msgBit) {
 				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 			}
-			return spell + '(' + names.join(',') + ')';
+			return `${ spell }(${ names.join(',') })`;
 		// #num, #tlen
 		} else if(type === 15 || type === 11) {
 			let temp_, temp = val[1].length - 1;
@@ -196,12 +197,12 @@ class Spells extends null {
 			return spell + ')';
 		// #words, #name, #trip, #vauthor
 		} else if(type === 0 || type === 6 || type === 7 || type === 16) {
-			return spell + '(' + val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
+			return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
 		} else {
-			return spell + '(' + String(val) + ')';
+			return `${ spell }(${ String(val) })`;
 		}
-	}
-	static disable() {
+	},
+	disable() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -210,14 +211,14 @@ class Spells extends null {
 			reps    : { configurable, value }
 		});
 		saveCfg('hideBySpell', 0);
-	}
-	static outReplace(txt) {
-		for(let orep of this.outreps) {
+	},
+	outReplace(txt) {
+		for(const orep of this.outreps) {
 			txt = txt.replace(orep[0], orep[1]);
 		}
 		return txt;
-	}
-	static parseText(text) {
+	},
+	parseText(text) {
 		const codeGen = new SpellsCodegen(text);
 		const data = codeGen.generate();
 		if(codeGen.hasError) {
@@ -229,8 +230,14 @@ class Spells extends null {
 			return [Date.now(), ...data];
 		}
 		return null;
-	}
-	static setSpells(spells, sync) {
+	},
+	replace(txt) {
+		for(const rep of this.reps) {
+			txt = txt.replace(rep[0], rep[1]);
+		}
+		return txt;
+	},
+	setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
@@ -249,14 +256,8 @@ class Spells extends null {
 		} else {
 			SpellsRunner.unhideAll();
 		}
-	}
-	static replace(txt) {
-		for(let orep of this.reps) {
-			txt = txt.replace(orep[0], orep[1]);
-		}
-		return txt;
-	}
-	static toggle() {
+	},
+	toggle() {
 		let spells;
 		const fld = $id('de-spell-txt');
 		const val = fld.value;
@@ -276,14 +277,14 @@ class Spells extends null {
 			}
 			$q('input[info="hideBySpell"]').checked = false;
 		}
-	}
+	},
 
-	static _decompileRep(rep, isOrep) {
+	_decompileRep(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')';
-	}
-	static _decompileScope(scope, indent) {
+			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
+			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
+	},
+	_decompileScope(scope, indent) {
 		const dScope = [];
 		let hScope = false;
 		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
@@ -293,15 +294,15 @@ class Spells extends null {
 				hScope = true;
 				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					const str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
-						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
+					const str = `${ (spell[0] & 0x100) ? '!(\n' : '(\n' }${ indent }    ` +
+						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
 					if(j === 0) {
 						dScope[0] = str;
 					} else {
 						dScope[--j] += ' ' + str;
 					}
 				} else {
-					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
+					dScope[j] = `${ (spell[0] & 0x100) ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
@@ -311,8 +312,8 @@ class Spells extends null {
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
-	}
-	static _init() {
+	},
+	_init() {
 		if(!Cfg.hideBySpell) {
 			const value = null;
 			const configurable = true;
@@ -326,7 +327,7 @@ class Spells extends null {
 		let spells, data;
 		try {
 			spells = JSON.parse(Cfg.spells);
-			data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
+			data = JSON.parse(sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`]);
 		} catch(e) {}
 		if(data && spells && data[0] === spells[0]) {
 			this.hash = data[0];
@@ -338,10 +339,10 @@ class Spells extends null {
 		} else {
 			this.disable();
 		}
-	}
-	static _initHiders(data) {
+	},
+	_initHiders(data) {
 		if(data) {
-			for(let item of data) {
+			for(const item of data) {
 				const val = item[1];
 				if(val) {
 					switch(item[0] & 0xFF) {
@@ -356,35 +357,35 @@ class Spells extends null {
 			}
 		}
 		return data;
-	}
-	static _initReps(data) {
+	},
+	_initReps(data) {
 		if(data) {
-			for(let item of data) {
+			for(const item of data) {
 				item[0] = toRegExp(item[0], false);
 			}
 		}
 		return data;
-	}
-	static _optimize(data) {
+	},
+	_optimize(data) {
 		const arr = [
 			data[1] ? this._optimizeSpells(data[1]) : null,
 			data[2] ? this._optimizeReps(data[2]) : null,
 			data[3] ? this._optimizeReps(data[3]) : null
 		];
-		sesStorage['de-spells-' + aib.b + (aib.t || '')] = JSON.stringify([data[0], ...arr]);
+		sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`] = JSON.stringify([data[0], ...arr]);
 		this.hash = data[0];
 		this._setData(...arr);
-	}
-	static _optimizeReps(data) {
+	},
+	_optimizeReps(data) {
 		const rv = [];
-		for(let rep of data) {
-			if(!rep[0] || (rep[0] === aib.b && (rep[1] === -1 ? !aib.t : !rep[1] || +rep[1] === aib.t))) {
-				rv.push([rep[2], rep[3]]);
+		for(const [r0, r1, r2, r3] of data) {
+			if(!r0 || (r0 === aib.b && (r1 === -1 ? !aib.t : !r1 || +r1 === aib.t))) {
+				rv.push([r2, r3]);
 			}
 		}
 		return !rv.length ? null : rv;
-	}
-	static _optimizeSpells(spells) {
+	},
+	_optimizeSpells(spells) {
 		let neg, lastSpell = -1;
 		let newSpells = [];
 		for(let i = 0, len = spells.length; i < len; ++i) {
@@ -437,16 +438,16 @@ class Spells extends null {
 			}
 		}
 		return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
-	}
-	static _setData(hiders, reps, outreps) {
+	},
+	_setData(hiders, reps, outreps) {
 		const configurable = true;
 		Object.defineProperties(this, {
 			hiders  : { configurable, value: this._initHiders(hiders) },
 			outreps : { configurable, value: this._initReps(outreps) },
 			reps    : { configurable, value: this._initReps(reps) }
 		});
-	}
-	static _sort(sp) {
+	},
+	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
 		for(let i = 0, len = sp.length - 1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
@@ -480,13 +481,12 @@ class Spells extends null {
 				len--;
 			}
 		}
-	}
-	static _sync(data) {
+	},
+	_sync(data) {
 		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
-}
-Spells.hash = null;
+};
 
 class SpellsCodegen {
 	constructor(sList) {
@@ -513,7 +513,7 @@ class SpellsCodegen {
 	}
 
 	_generate(sList, inParens) {
-		const spells = [];
+		const spellsArr = [];
 		let reps = [];
 		let outreps = [];
 		let lastType = this.TYPE_UNKNOWN;
@@ -583,7 +583,7 @@ class SpellsCodegen {
 					}
 					i += res[0] - 1;
 					this._col += res[0] - 1;
-					spells.push(res[1]);
+					spellsArr.push(res[1]);
 					lastType = this.TYPE_SPELL;
 				}
 				break;
@@ -601,7 +601,7 @@ class SpellsCodegen {
 					return null;
 				}
 				i += res[0] + 1;
-				spells.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
+				spellsArr.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
 				lastType = this.TYPE_PARENTHESES;
 				break;
 			case '|':
@@ -615,7 +615,7 @@ class SpellsCodegen {
 					return null;
 				}
 				if(sList[i] === '&') {
-					spells[spells.length - 1][0] |= 0x200;
+					spellsArr[spellsArr.length - 1][0] |= 0x200;
 				}
 				lastType = this.TYPE_ANDOR;
 				break;
@@ -640,7 +640,7 @@ class SpellsCodegen {
 					return null;
 				}
 				if(inParens) {
-					return [i, spells];
+					return [i, spellsArr];
 				}
 				/* falls through */
 			default:
@@ -665,7 +665,7 @@ class SpellsCodegen {
 		if(!outreps.length) {
 			outreps = false;
 		}
-		return [spells, reps, outreps];
+		return [spellsArr, reps, outreps];
 	}
 	_getScope(str) {
 		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
@@ -676,7 +676,7 @@ class SpellsCodegen {
 		if(!m || haveComma !== Boolean(m[2])) {
 			return null;
 		}
-		let val = m[1];
+		const val = m[1];
 		try {
 			toRegExp(val, true);
 		} catch(e) {
@@ -745,7 +745,7 @@ class SpellsCodegen {
 			str = str.substring(temp[0]);
 			scope = temp[1];
 		}
-		let spellType = isNeg ? spellIdx | 0x100 : spellIdx;
+		const spellType = isNeg ? spellIdx | 0x100 : spellIdx;
 		if(str[0] !== '(' || str[1] === ')') {
 			if(Spells.needArg[spellIdx]) {
 				this._setError(Lng.seMissArg[lang], name);
@@ -844,7 +844,7 @@ class SpellsRunner {
 		if(aib.t) {
 			sesStorage['de-hidden-' + aib.b + aib.t] = null;
 		}
-		for(var post = Thread.first.op; post; post = post.next) {
+		for(let post = Thread.first.op; post; post = post.next) {
 			if(post.spellHidden) {
 				post.spellUnhide();
 			}
@@ -867,8 +867,7 @@ class SpellsRunner {
 		}
 	}
 	run(post) {
-		var interp = new SpellsInterpreter(post, this._spells);
-		var res = interp.run();
+		let res = (new SpellsInterpreter(post, this._spells)).run();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -888,28 +887,18 @@ class SpellsRunner {
 		}
 		return this._unhidePost(post);
 	}
-	_unhidePost(post) {
-		if(post.spellHidden) {
-			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
-				SpellsRunner.cachedData[post.count] = [false, null];
-			}
-		}
-		return 0;
-	}
 	_savePostsHelper() {
 		if(this._spells) {
 			if(aib.t) {
-				var lPost = Thread.first.lastNotDeleted,
-					data = null;
+				const lPost = Thread.first.lastNotDeleted;
+				let data = null;
 				if(Spells.hiders) {
 					if(SpellsRunner.cachedData) {
 						data = SpellsRunner.cachedData;
 					} else {
 						data = [];
-						for(var post = Thread.first.op; post; post = post.nextNotDeleted) {
-							var hidden = post.spellHidden;
-							data.push(hidden ? [true, Post.Note.text] : [false, null]);
+						for(let post = Thread.first.op; post; post = post.nextNotDeleted) {
+							data.push(post.spellHidden ? [true, Post.Note.text] : [false, null]);
 						}
 						SpellsRunner.cachedData = data;
 					}
@@ -924,6 +913,15 @@ class SpellsRunner {
 			toggleWindow('hid', true);
 		}
 		ImagesHashStorage.endFn();
+	}
+	_unhidePost(post) {
+		if(post.spellHidden) {
+			post.spellUnhide();
+			if(SpellsRunner.cachedData && !post.deleted) {
+				SpellsRunner.cachedData[post.count] = [false, null];
+			}
+		}
+		return 0;
 	}
 }
 SpellsRunner.cachedData = null;
@@ -1005,8 +1003,8 @@ class SpellsInterpreter {
 	}
 	_getMsg() {
 		const rv = [];
-		for(let spellEls of this._triggeredSpellsStack) {
-			for(let [isNeg, spell, wipeMsg] of spellEls) {
+		for(const spellEls of this._triggeredSpellsStack) {
+			for(const [isNeg, spell, wipeMsg] of spellEls) {
 				rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 			}
 		}
@@ -1046,7 +1044,7 @@ class SpellsInterpreter {
 		return val.test(this._post.html);
 	}
 	async _ihash(val) {
-		for(let image of this._post.images) {
+		for(const image of this._post.images) {
 			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
 				return true;
 			}
@@ -1059,7 +1057,7 @@ class SpellsInterpreter {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(let image of images) {
+		for(const image of images) {
 			if(!(image instanceof Attachment)) {
 				continue;
 			}
@@ -1100,7 +1098,7 @@ class SpellsInterpreter {
 		return false;
 	}
 	_imgn(val) {
-		for(let image of this._post.images) {
+		for(const image of this._post.images) {
 			if((image instanceof Attachment) && val.test(image.name)) {
 				return true;
 			}
@@ -1159,8 +1157,8 @@ class SpellsInterpreter {
 		if(!videos.hasLinks || !Cfg.YTubeTitles) {
 			return false;
 		}
-		for(let siteData of videos.vData) {
-			for(let data of siteData) {
+		for(const siteData of videos.vData) {
+			for(const data of siteData) {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					return true;
 				}
@@ -1181,7 +1179,8 @@ class SpellsInterpreter {
 		}));
 	}
 	_wipe(val) {
-		let arr, len, x, txt = this._post.text;
+		let arr, len, x;
+		const txt = this._post.text;
 		// (1 << 0): samelines
 		if(val & 1) {
 			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
@@ -1194,7 +1193,7 @@ class SpellsInterpreter {
 						j++;
 					}
 					if(j > 4 && j > n && x) {
-						this._wipeMsg = [1, '"' + x.substr(0, 20) + '" x' + (j + 1)];
+						this._wipeMsg = [1, `"${ x.substr(0, 20) }" x${ j + 1 }`];
 						return true;
 					}
 				}
@@ -1218,14 +1217,14 @@ class SpellsInterpreter {
 							pop = j;
 						}
 						if(pop >= n) {
-							this._wipeMsg = [2, 'same "' + x.substr(0, 20) + '" x' + (pop + 1)];
+							this._wipeMsg = [2, `same "${ x.substr(0, 20) }" x${ pop + 1 }`];
 							return true;
 						}
 					}
 				}
 				x = keys / len;
 				if(x < 0.25) {
-					this._wipeMsg = [2, 'uniq ' + (x * 100).toFixed(0) + '%'];
+					this._wipeMsg = [2, `uniq ${ (x * 100).toFixed(0) }%`];
 					return true;
 				}
 			}
@@ -1242,7 +1241,7 @@ class SpellsInterpreter {
 		if(val & 8) {
 			const _txt = txt.replace(/\s+/g, '');
 			if((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я.?!,]/ig, '').length / len) > 0.4) {
-				this._wipeMsg = [8, (x * 100).toFixed(0) + '%'];
+				this._wipeMsg = [8, `${ (x * 100).toFixed(0) }%`];
 				return true;
 			}
 		}
@@ -1267,10 +1266,10 @@ class SpellsInterpreter {
 					n++;
 				}
 				if(capsw / n >= 0.3 && n > 4) {
-					this._wipeMsg = [16, 'CAPS ' + capsw / arr.length * 100 + '%'];
+					this._wipeMsg = [16, `CAPS ${ capsw / arr.length * 100 }%`];
 					return true;
 				} else if(casew / n >= 0.3 && n > 8) {
-					this._wipeMsg = [16, 'cAsE ' + casew / arr.length * 100 + '%'];
+					this._wipeMsg = [16, `cAsE ${ casew / arr.length * 100 }%`];
 					return true;
 				}
 			}
@@ -1279,7 +1278,7 @@ class SpellsInterpreter {
 		if(val & 32) {
 			const _txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-				this._wipeMsg = [32, Math.round(x * 100) + '%'];
+				this._wipeMsg = [32, `${ Math.round(x * 100) }%`];
 				return true;
 			}
 		}

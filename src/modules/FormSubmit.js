@@ -7,8 +7,9 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	var err = '', els = $Q(aib.qError, dc);
-	for(var i = 0, len = els.length; i < len; ++i) {
+	let err = '';
+	const els = $Q(aib.qError, dc);
+	for(let i = 0, len = els.length; i < len; ++i) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
@@ -41,7 +42,9 @@ function getUploadFunc() {
 }
 
 function checkUpload(data) {
-	var error = null, postNum = null, isDocument = data instanceof HTMLDocument;
+	let error = null;
+	let postNum = null;
+	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
@@ -143,7 +146,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+	const els = $Q(`[de-form] ${ aib.qRPost } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {
@@ -167,9 +170,10 @@ async function checkDelete(data) {
 }
 
 async function html5Submit(form, submitter, needProgress = false) {
-	const formData = new FormData();
+	const data = new FormData();
 	let hasFiles = false;
-	for(let { name, value, type, el } of getFormElements(form, submitter)) {
+	for(const { name, value, type, el } of getFormElements(form, submitter)) {
+		let val = value;
 		if(name === 'de-file-txt') {
 			continue;
 		}
@@ -183,18 +187,18 @@ async function html5Submit(form, submitter, needProgress = false) {
 				value.type === 'image/png' ||
 				value.type === 'video/webm' && !aib.mak)
 			) {
-				const data = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
-				if(!data) {
+				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
+				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
-				value = new File(data, newFileName);
+				val = new File(cleanData, newFileName);
 			} else if(Cfg.removeFName) {
-				value = new File([value], newFileName);
+				val = new File([value], newFileName);
 			}
 		}
-		formData.append(name, value);
+		data.append(name, val);
 	}
-	const ajaxParams = { method: 'POST', data: formData };
+	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
@@ -208,7 +212,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 
 async function readFile(file, asText = false) {
 	return new Promise(resolve => {
-		var fr = new FileReader();
+		const fr = new FileReader();
 		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
 		if(asText) {
@@ -220,19 +224,20 @@ async function readFile(file, asText = false) {
 }
 
 function cleanFile(data, extraData) {
-	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
-	var i, len, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
-		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
-		rExif = !!Cfg.removeEXIF,
-		rv = extraData ?
-			(rand ? [img, extraData, rand] : [img, extraData]) :
-			(rand ? [img, rand] : [img]);
+	const img = nav.getUnsafeUint8Array(data);
+	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
+	const rv = extraData ?
+		(rand ? [img, extraData, rand] : [img, extraData]) :
+		(rand ? [img, rand] : [img]);
+	const rExif = !!Cfg.removeEXIF;
 	if(!rand && !rExif && !extraData) {
 		return rv;
 	}
+	let i, len, val, lIdx, jpgDat;
+	const subarray = (begin, end) => nav.getUnsafeUint8Array(data, begin, end - begin);
 	// JPG
 	if(img[0] === 0xFF && img[1] === 0xD8) {
-		var deep = 1;
+		let deep = 1;
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
@@ -307,21 +312,21 @@ function cleanFile(data, extraData) {
 }
 
 function readExif(data, off, len) {
-	var i, xRes = 0,
-		yRes = 0,
-		resT = 0,
-		dv = nav.getUnsafeDataView(data, off),
-		le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
+	let xRes = 0;
+	let yRes = 0;
+	let resT = 0;
+	const dv = nav.getUnsafeDataView(data, off);
+	const le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
 	}
-	i = dv.getUint32(4, le);
+	const i = dv.getUint32(4, le);
 	if(i > len) {
 		return null;
 	}
-	for(var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
-		var dE = i + 2 + 12 * j,
-			tag = dv.getUint16(dE, le);
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+		let dE = i + 2 + 12 * j;
+		const tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
 			resT = dv.getUint16(dE + 8, le) - 1;
 		} else if(tag === 0x011A || tag === 0x011B) {

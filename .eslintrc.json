@@ -56,6 +56,7 @@
 		"object-shorthand": ["error", "always"],
 		"one-var": "off",
 		"operator-linebreak": ["error", "after"],
+		"prefer-const": "error",
 		"prefer-destructuring": ["error", { "object": true }],
 		"prefer-promise-reject-errors": ["error", { "allowEmptyReject": true }],
 		"quote-props": ["error", "as-needed"],
