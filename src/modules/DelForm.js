@@ -32,17 +32,17 @@ class DelForm {
 	}
 
 	static _parseClasslessThreads(formEl) {
-		var i, len, threads = [],
-			fNodes = Array.from(formEl.childNodes),
-			cThr = doc.createElement('div');
+		let i, len, cThr = doc.createElement('div');
+		const threads = [];
+		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			var node = fNodes[i];
+			const node = fNodes[i];
 			if(node.tagName === 'HR') {
 				formEl.insertBefore(cThr, node);
 				if(!aib.tinyib) {
 					formEl.insertBefore(cThr.lastElementChild, node);
 				}
-				var el = cThr.lastElementChild;
+				const el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
 				}

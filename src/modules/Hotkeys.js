@@ -383,7 +383,7 @@ class KeyEditListener {
 		this.cEl = null;
 		this.cKey = -1;
 		this.errorInput = false;
-		const aInputs = Array.from($Q('.de-input-key', popupEl));
+		const aInputs = [...$Q('.de-input-key', popupEl)];
 		for(let i = 0, len = allKeys.length; i < len; ++i) {
 			const k = allKeys[i];
 			if(k !== 0) {
@@ -466,7 +466,7 @@ class KeyEditListener {
 					HotKeys.resume(this.keys);
 				}
 				[this.allKeys, this.popupEl.innerHTML] = KeyEditListener.getEditMarkup(this.keys);
-				this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
+				this.allInputs = [...$Q('.de-input-key', this.popupEl)];
 				this.errCount = 0;
 				delete this.saveButton;
 				break;

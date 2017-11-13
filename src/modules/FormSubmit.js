@@ -25,7 +25,7 @@ function getUploadFunc() {
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
-	const [counterEl, totalEl, speedEl] = Array.from(counterWrap.children);
+	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
 	return function(data) {
 		if(!inited) {
 			progress.setAttribute('max', data.total);
@@ -34,10 +34,10 @@ function getUploadFunc() {
 			$show(counterWrap);
 			inited = true;
 		}
-		progress.value = data.loaded;
-		counterEl.textContent = prettifySize(data.loaded);
-		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
-			'/' + Lng.second[lang];
+		const { loaded: i } = data;
+		progress.value = i;
+		counterEl.textContent = prettifySize(i);
+		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;
 	};
 }
 
@@ -164,7 +164,7 @@ async function checkDelete(data) {
 			infoLoadErrors(e);
 		}
 	} else {
-		await Promise.all(Array.from(threads).map(thr => thr.loadPosts(visPosts, false, false)));
+		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }

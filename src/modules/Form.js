@@ -546,7 +546,7 @@ class PostForm {
 			case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
-		const [clearBtn, toggleBtn, closeBtn] = Array.from(buttons.children);
+		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
 			this._setSage();

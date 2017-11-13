@@ -82,14 +82,14 @@ class FileInput {
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = Array.from(this._utils.children);
+		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
 				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-txt-add" value="+" title="` +
 				`${ Lng.add[lang] }" style="display: none;"></span>`);
-		[this._txtInput, this._txtAddBtn] = Array.from(this._txtWrap.children);
+		[this._txtInput, this._txtAddBtn] = [...this._txtWrap.children];
 		this._txtWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._txtWrap, true);
 		if(Cfg.ajaxPosting) {
@@ -161,7 +161,8 @@ class FileInput {
 	}
 	handleEvent(e) {
 		const el = e.target;
-		const isThumb = el === this._thumb || el.className === 'de-file-img';
+		const thumb = this._thumb;
+		const isThumb = el === thumb || el.className === 'de-file-img';
 		switch(e.type) {
 		case 'change': {
 			setTimeout(() => this._onFileChange(false), 20);
@@ -207,12 +208,12 @@ class FileInput {
 			return;
 		case 'dragenter':
 			if(isThumb) {
-				this._thumb.classList.add('de-file-drag');
+				thumb.classList.add('de-file-drag');
 			}
 			return;
 		case 'dragleave':
-			if(isThumb && !this._thumb.contains(e.relatedTarget)) {
-				this._thumb.classList.remove('de-file-drag');
+			if(isThumb && el.classList.contains('de-file-img')) {
+				thumb.classList.remove('de-file-drag');
 			}
 			return;
 		case 'drop': {
@@ -232,7 +233,7 @@ class FileInput {
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
-			setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
+			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			e.stopPropagation();
 			$pd(e);
 		}
@@ -266,7 +267,7 @@ class FileInput {
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
 	}
-	_addNewThumb(fileData, fileName, fileSize, fileType) {
+	_addNewThumb(fileData, fileName, fileType, fileSize) {
 		let el = this._thumb;
 		el.classList.remove('de-file-off');
 		el = el.firstChild.firstChild;
@@ -417,15 +418,15 @@ class FileInput {
 		$toggle(this._btnTxt, !isShow);
 	}
 	_showPviewImage() {
-		if(this.imgFile) {
-			const [data, fileName, fileType] = this.imgFile;
-			this._addNewThumb(data, fileName, data.byteLength, fileType);
+		const { imgFile } = this;
+		if(imgFile) {
+			this._addNewThumb(...imgFile, imgFile[0].byteLength);
 		} else {
 			const file = this._input.files[0];
 			if(file) {
 				readFile(file).then(({ data }) => {
 					if(this._input.files[0] === file) {
-						this._addNewThumb(data, file.name, file.size, file.type);
+						this._addNewThumb(data, file.name, file.type, file.size);
 					}
 				});
 			}

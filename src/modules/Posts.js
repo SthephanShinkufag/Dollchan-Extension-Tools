@@ -982,7 +982,7 @@ function PostImages(post) {
 		}
 	}
 	if(Cfg.addImgs) {
-		els = Array.from($Q('.de-img-pre', post.el));
+		els = $Q('.de-img-pre', post.el);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			last = new EmbeddedImage(post, el, last);

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'a73926b';
+const commit = '2fe83e3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3898,7 +3898,7 @@ function showFavoritesWindow(body, data) {
 			let tNums;
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				tNums = new Set(Array.from(DelForm.getThreads(form)).map(thrEl => aib.getTNum(thrEl)));
+				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
 			} catch(e) {
 				continue;
 			}
@@ -5479,7 +5479,7 @@ class KeyEditListener {
 		this.cEl = null;
 		this.cKey = -1;
 		this.errorInput = false;
-		const aInputs = Array.from($Q('.de-input-key', popupEl));
+		const aInputs = [...$Q('.de-input-key', popupEl)];
 		for(let i = 0, len = allKeys.length; i < len; ++i) {
 			const k = allKeys[i];
 			if(k !== 0) {
@@ -5562,7 +5562,7 @@ class KeyEditListener {
 					HotKeys.resume(this.keys);
 				}
 				[this.allKeys, this.popupEl.innerHTML] = KeyEditListener.getEditMarkup(this.keys);
-				this.allInputs = Array.from($Q('.de-input-key', this.popupEl));
+				this.allInputs = [...$Q('.de-input-key', this.popupEl)];
 				this.errCount = 0;
 				delete this.saveButton;
 				break;
@@ -5955,7 +5955,7 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	let els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
+	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 	count += els.length;
 	els.forEach(function(el) {
 		const imgLink = $parent(el, 'A');
@@ -8728,7 +8728,7 @@ class PostForm {
 			case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
-		const [clearBtn, toggleBtn, closeBtn] = Array.from(buttons.children);
+		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
 			this._setSage();
@@ -8826,7 +8826,7 @@ function getUploadFunc() {
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
-	const [counterEl, totalEl, speedEl] = Array.from(counterWrap.children);
+	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
 	return function(data) {
 		if(!inited) {
 			progress.setAttribute('max', data.total);
@@ -8835,10 +8835,10 @@ function getUploadFunc() {
 			$show(counterWrap);
 			inited = true;
 		}
-		progress.value = data.loaded;
-		counterEl.textContent = prettifySize(data.loaded);
-		speedEl.textContent = prettifySize((data.loaded / (Date.now() - beginTime)) * 1e3) +
-			'/' + Lng.second[lang];
+		const { loaded: i } = data;
+		progress.value = i;
+		counterEl.textContent = prettifySize(i);
+		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;
 	};
 }
 
@@ -8965,7 +8965,7 @@ async function checkDelete(data) {
 			infoLoadErrors(e);
 		}
 	} else {
-		await Promise.all(Array.from(threads).map(thr => thr.loadPosts(visPosts, false, false)));
+		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }
@@ -9231,14 +9231,14 @@ class FileInput {
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = Array.from(this._utils.children);
+		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
 				`${ Lng.youCanDrag[lang] }" placeholder="${ Lng.dropFileHere[lang] }">
 			<input type="button" class="de-file-txt-add" value="+" title="` +
 				`${ Lng.add[lang] }" style="display: none;"></span>`);
-		[this._txtInput, this._txtAddBtn] = Array.from(this._txtWrap.children);
+		[this._txtInput, this._txtAddBtn] = [...this._txtWrap.children];
 		this._txtWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._txtWrap, true);
 		if(Cfg.ajaxPosting) {
@@ -9310,7 +9310,8 @@ class FileInput {
 	}
 	handleEvent(e) {
 		const el = e.target;
-		const isThumb = el === this._thumb || el.className === 'de-file-img';
+		const thumb = this._thumb;
+		const isThumb = el === thumb || el.className === 'de-file-img';
 		switch(e.type) {
 		case 'change': {
 			setTimeout(() => this._onFileChange(false), 20);
@@ -9356,12 +9357,12 @@ class FileInput {
 			return;
 		case 'dragenter':
 			if(isThumb) {
-				this._thumb.classList.add('de-file-drag');
+				thumb.classList.add('de-file-drag');
 			}
 			return;
 		case 'dragleave':
-			if(isThumb && !this._thumb.contains(e.relatedTarget)) {
-				this._thumb.classList.remove('de-file-drag');
+			if(isThumb && el.classList.contains('de-file-img')) {
+				thumb.classList.remove('de-file-drag');
 			}
 			return;
 		case 'drop': {
@@ -9381,7 +9382,7 @@ class FileInput {
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
-			setTimeout(() => this._thumb.classList.remove('de-file-drag'), 10);
+			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			e.stopPropagation();
 			$pd(e);
 		}
@@ -9415,7 +9416,7 @@ class FileInput {
 	get _wrap() {
 		return aib.multiFile ? this._input.parentNode : this._input;
 	}
-	_addNewThumb(fileData, fileName, fileSize, fileType) {
+	_addNewThumb(fileData, fileName, fileType, fileSize) {
 		let el = this._thumb;
 		el.classList.remove('de-file-off');
 		el = el.firstChild.firstChild;
@@ -9566,15 +9567,15 @@ class FileInput {
 		$toggle(this._btnTxt, !isShow);
 	}
 	_showPviewImage() {
-		if(this.imgFile) {
-			const [data, fileName, fileType] = this.imgFile;
-			this._addNewThumb(data, fileName, data.byteLength, fileType);
+		const { imgFile } = this;
+		if(imgFile) {
+			this._addNewThumb(...imgFile, imgFile[0].byteLength);
 		} else {
 			const file = this._input.files[0];
 			if(file) {
 				readFile(file).then(({ data }) => {
 					if(this._input.files[0] === file) {
-						this._addNewThumb(data, file.name, file.size, file.type);
+						this._addNewThumb(data, file.name, file.type, file.size);
 					}
 				});
 			}
@@ -10787,7 +10788,7 @@ function PostImages(post) {
 		}
 	}
 	if(Cfg.addImgs) {
-		els = Array.from($Q('.de-img-pre', post.el));
+		els = $Q('.de-img-pre', post.el);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			last = new EmbeddedImage(post, el, last);
@@ -14140,17 +14141,17 @@ class DelForm {
 	}
 
 	static _parseClasslessThreads(formEl) {
-		var i, len, threads = [],
-			fNodes = Array.from(formEl.childNodes),
-			cThr = doc.createElement('div');
+		let i, len, cThr = doc.createElement('div');
+		const threads = [];
+		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			var node = fNodes[i];
+			const node = fNodes[i];
 			if(node.tagName === 'HR') {
 				formEl.insertBefore(cThr, node);
 				if(!aib.tinyib) {
 					formEl.insertBefore(cThr.lastElementChild, node);
 				}
-				var el = cThr.lastElementChild;
+				const el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
 					formEl.insertBefore(el, node);
 				}

@@ -265,7 +265,7 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	let els = Array.from($Q(aib.qPostImg, $q('[de-form]', dc)));
+	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 	count += els.length;
 	els.forEach(function(el) {
 		const imgLink = $parent(el, 'A');
