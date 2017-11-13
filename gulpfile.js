@@ -65,7 +65,7 @@ gulp.task('make:es5', ['make:es6'], function() {
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
-		.pipe(streamify(headerfooter('(function de_main_func_outer(localData) {\n', '})(null);')))
+		.pipe(streamify(headerfooter('(function deMainFuncOuter(localData) {\n', '})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 		.pipe(gulp.dest(''));
 });
