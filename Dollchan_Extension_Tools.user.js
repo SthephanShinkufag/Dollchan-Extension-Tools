@@ -3654,7 +3654,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								$each($Q('.de-post-removed'), function (el) {
 									var post = pByEl.get(el);
 									if (post) {
-										post['delete'](false);
+										post.delete(false);
 									}
 								});
 								Logger.log('Local changings');
@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'ed5bb16';
+	var commit = '2306532';
 
 
 	var defaultCfg = {
@@ -4690,7 +4690,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'remove',
 			value: function remove(key) {
 				if (this.data) {
-					this.data['delete'](key);
+					this.data.delete(key);
 				}
 			}
 		}]);
@@ -4790,7 +4790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						_this3.pause();
 						if (e.duration !== -1) {
 							setTimeout(function () {
-								return _this3['continue']();
+								return _this3.continue();
 							}, e.duration);
 						}
 					} else {
@@ -5404,7 +5404,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				post.setFavBtn(true);
 				if (aib.t) {
 					f.cnt = thr.pcount;
-					f['new'] = 0;
+					f.new = 0;
 					f.you = 0;
 					if (Cfg.markNewPosts && f.last) {
 						var lastPost = pByNum.get(+f.last.match(/\d+/));
@@ -5416,7 +5416,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					f.last = aib.anchor + thr.last.num;
 				} else {
-					f['new'] = thr.pcount - f.cnt;
+					f.new = thr.pcount - f.cnt;
 				}
 				updateFav = true;
 			}
@@ -6569,8 +6569,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var favInfIwrapTitle = !t.err ? '' : t.err === 'Closed' ? 'title="' + Lng.thrClosed[lang] + '"' : 'title="' + t.err + '"';
 					var favInfIconClass = !t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 					var favInfYouDisp = t.you ? '' : ' style="display: none;"';
-					var favInfNewDisp = t['new'] ? '' : ' style="display: none;"';
-					innerHtml += '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t['new'] || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
+					var favInfNewDisp = t.new ? '' : ' style="display: none;"';
+					innerHtml += '<div class="de-entry ' + aib.cReply + '" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
 				}
 				if (!innerHtml) {
 					continue;
@@ -6781,7 +6781,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								$hide(youEl);
 							} else {
 								$show(countEl);
-								f['new'] = cnt;
+								f.new = cnt;
 								isUpdate = true;
 								if (myposts && myposts[_b]) {
 									f.you = 0;
@@ -9380,7 +9380,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
 						var entry = JSON.parse(xhr.responseText)[0];
 						return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1], Videos._fixTime(entry.duration)[0]);
-					})['catch'](function () {
+					}).catch(function () {
 						return Videos._titlesLoaderHelper(info, num);
 					});
 				}, function () {
@@ -9393,7 +9393,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' + 'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration', null, false).then(function (xhr) {
 					var items = JSON.parse(xhr.responseText).items[0];
 					return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10), items.contentDetails.duration.substr(2).toLowerCase());
-				})['catch'](function () {
+				}).catch(function () {
 					return Videos._getYTInfoOembed(info, num, id);
 				});
 			}
@@ -9403,7 +9403,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return (nav.isGM ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
 					var json = JSON.parse(xhr.responseText);
 					return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
-				})['catch'](function () {
+				}).catch(function () {
 					return Videos._titlesLoaderHelper(info, num);
 				});
 			}
@@ -9854,7 +9854,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return _this17._updateForms(DelForm.last);
 			}).then(function () {
 				return _this17._endAdding();
-			})['catch'](function (e) {
+			}).catch(function (e) {
 				if (!(e instanceof CancelError)) {
 					$popup('add-page', getErrorMessage(e));
 					_this17._endAdding();
@@ -12092,7 +12092,7 @@ true, true];
 				this.form.onsubmit = function (e) {
 					$pd(e);
 					$popup('upload', Lng.sending[lang], true);
-					html5Submit(_this22.form, _this22.subm, true).then(checkUpload)['catch'](function (e) {
+					html5Submit(_this22.form, _this22.subm, true).then(checkUpload).catch(function (e) {
 						return $popup('upload', getErrorMessage(e));
 					});
 				};
@@ -12558,7 +12558,7 @@ true, true];
 							pr.setReply(true, false);
 						}
 						updater.sendErrNotif();
-						updater['continue']();
+						updater.continue();
 					});
 					return;
 				}
@@ -12586,7 +12586,7 @@ true, true];
 			}
 			$popup('upload', error);
 			updater.sendErrNotif();
-			updater['continue']();
+			updater.continue();
 			DollchanAPI.notify('submitform', { success: false, error: error });
 			return;
 		}
@@ -12625,7 +12625,7 @@ true, true];
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
-				updater['continue'](true);
+				updater.continue(true);
 				closePopup('upload');
 			});
 		} else {
@@ -14046,8 +14046,8 @@ true, true];
 			value: function _delete(removeEl) {
 				if (removeEl) {
 					$del(this.wrap);
-					pByEl['delete'](this.el);
-					pByNum['delete'](this.num);
+					pByEl.delete(this.el);
+					pByNum.delete(this.num);
 					if (this.hidden) {
 						this.ref.unhide();
 					}
@@ -14379,7 +14379,7 @@ true, true];
 				if (isHide) {
 					Post.hiddenNums.add(+num);
 				} else {
-					Post.hiddenNums['delete'](+num);
+					Post.hiddenNums.delete(+num);
 				}
 				$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function (el) {
 					el.classList.add('de-link-hid');
@@ -14786,7 +14786,7 @@ true, true];
 				clearTimeout(Pview._delTO);
 				if (pv && pv.num === pNum) {
 					if (pv.kid) {
-						pv.kid['delete']();
+						pv.kid.delete();
 					}
 					if (pv._link !== link) {
 						pv._setPosition(link, Cfg.animation);
@@ -14803,7 +14803,7 @@ true, true];
 					pv.parent = parent;
 				} else if (!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 					if (pv) {
-						pv['delete']();
+						pv.delete();
 					}
 					pv = new Pview(parent, link, pNum, tNum);
 					if (isTop) {
@@ -14825,7 +14825,7 @@ true, true];
 				    parent = _pv.parent;
 
 				if (parent.omitted) {
-					pv['delete']();
+					pv.delete();
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
@@ -14833,7 +14833,7 @@ true, true];
 					if (el) {
 						pv._link = el;
 					} else {
-						pv['delete']();
+						pv.delete();
 						return;
 					}
 				}
@@ -14937,7 +14937,7 @@ true, true];
 					var _pv2 = pv,
 					    el = _pv2.el;
 
-					pByEl['delete'](el);
+					pByEl.delete(el);
 					if (Cfg.animation) {
 						$animate(el, 'de-pview-anim', true);
 						el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
@@ -14957,9 +14957,9 @@ true, true];
 					}
 				} while (pv = pv.kid);
 				if (!lastSticky) {
-					this['delete']();
+					this.delete();
 				} else if (lastSticky.kid) {
-					lastSticky.kid['delete']();
+					lastSticky.kid.delete();
 				}
 			}
 		}, {
@@ -17131,7 +17131,7 @@ true, true];
 		}, {
 			key: 'remove',
 			value: function remove(num) {
-				this._set['delete'](num);
+				this._set.delete(num);
 				if (this._set.size === 0) {
 					this.removeMap();
 				} else {
@@ -17308,7 +17308,7 @@ true, true];
 					if (removePost && this.last === post) {
 						this.last = post.prev;
 					}
-					post['delete'](removePost);
+					post.delete(removePost);
 					post = post.nextNotDeleted;
 					count++;
 				} while (delAll && post);
@@ -17368,7 +17368,7 @@ true, true];
 						fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
 						fav[h][b][num] = {
 							cnt: _this61.pcount,
-							'new': 0,
+							new: 0,
 							you: 0,
 							txt: _this61.op.title,
 							url: aib.getThrUrl(b, num),
@@ -17410,7 +17410,7 @@ true, true];
 				}
 				if (this.userTouched.has(num)) {
 					post.setUserVisib(this.userTouched.get(num), false);
-					this.userTouched['delete'](num);
+					this.userTouched.delete(num);
 				}
 				if (maybeVParser.value) {
 					maybeVParser.value.parse(post);
@@ -17749,7 +17749,7 @@ true, true];
 							el.textContent = _this63.pcount;
 						}
 						f.cnt = _this63.pcount;
-						f['new'] = 0;
+						f.new = 0;
 						f.you = 0;
 						f.last = aib.anchor + _this63.last.num;
 						setStored('DESU_Favorites', JSON.stringify(fav));
@@ -17839,7 +17839,7 @@ true, true];
 			this._thrs = new Set();
 		},
 		removeThr: function removeThr(thr) {
-			this._thrs['delete'](thr.el);
+			this._thrs.delete(thr.el);
 			if (this._thrs.size === 0) {
 				$hide(this._el);
 				this._currentThr = null;
@@ -18485,7 +18485,7 @@ true, true];
 					paused = true;
 				}
 			},
-			'continue': function _continue() {
+			continue: function _continue() {
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (enabled && paused) {
@@ -18654,7 +18654,7 @@ true, true];
 							$pd(e);
 							pr.closeReply();
 							$popup('delete', Lng.deleting[lang], true);
-							html5Submit(el, e.target).then(checkDelete)['catch'](function (e) {
+							html5Submit(el, e.target).then(checkDelete).catch(function (e) {
 								return $popup('delete', getErrorMessage(e));
 							});
 						};

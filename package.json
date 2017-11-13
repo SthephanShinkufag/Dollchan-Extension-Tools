@@ -18,9 +18,6 @@
 			"env"
 		],
 		"plugins": [
-			"transform-es3-property-literals",
-			"transform-es3-member-expression-literals",
-			"transform-regenerator",
 			[
 				"transform-es2015-for-of",
 				{
@@ -31,8 +28,6 @@
 	},
 	"devDependencies": {
 		"babel-core": "^6.26.0",
-		"babel-plugin-transform-es3-member-expression-literals": "^6.22.0",
-		"babel-plugin-transform-es3-property-literals": "^6.22.0",
 		"babel-polyfill": "^6.26.0",
 		"babel-preset-env": "^1.6.1",
 		"babelify": "^8.0.0",
