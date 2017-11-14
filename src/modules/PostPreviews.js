@@ -162,7 +162,7 @@ class Pview extends AbstractPost {
 					(this._isTop ? 't' : 'b') +
 					(this._isLeft ? 'l' : 'r');
 			} else {
-				$del(el);
+				el.remove();
 			}
 		} while((pv = pv.kid));
 	}

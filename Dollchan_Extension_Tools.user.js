@@ -3133,7 +3133,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (aib.dobr && !Cfg.useDobrAPI) {
 								aib.JsonBuilder = null;
 							}
-							if (!('FormData' in window && FormData.prototype)) {
+							if (!('FormData' in window)) {
 								Cfg.ajaxPosting = 0;
 							}
 							if (!('Notification' in window)) {
@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '8ece6cb';
+	var commit = '76099bc';
 
 
 	var defaultCfg = {
@@ -4276,21 +4276,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	var $txt = function $txt(el) {
-		return doc.createTextNode(el);
-	};
-
-	var $del = function $del(el) {
-		if (el) {
-			el.remove();
-		}
-	};
-
-	function $add(html) {
-		dummy.innerHTML = html;
-		return dummy.firstElementChild;
-	}
-
 	function $before(el, node) {
 		el.parentNode.insertBefore(node, el);
 	}
@@ -4327,11 +4312,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function $replace(origEl, newEl) {
 		if (typeof newEl === 'string') {
 			origEl.insertAdjacentHTML('afterend', newEl);
-			$del(origEl);
+			origEl.remove();
 		} else {
 			origEl.parentNode.replaceChild(newEl, origEl);
 		}
 	}
+
+	function $del(el) {
+		if (el) {
+			el.remove();
+		}
+	}
+
+	function $add(html) {
+		dummy.innerHTML = html;
+		return dummy.firstElementChild;
+	}
+
+	var $txt = function $txt(el) {
+		return doc.createTextNode(el);
+	};
 
 	function $btn(val, ttl, fn) {
 		var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'de-button';
@@ -4390,7 +4390,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		el.addEventListener('animationend', function aEvent() {
 			el.removeEventListener('animationend', aEvent);
 			if (remove) {
-				$del(el);
+				el.remove();
 			} else {
 				el.classList.remove(cName);
 			}
@@ -7469,7 +7469,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						} else {
 							$each($Q('.de-btn-src'), function (el) {
-								return $del(el);
+								return el.remove();
 							});
 						}
 						break;
@@ -7850,7 +7850,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (Cfg.animation) {
 				$animate(el, 'de-close', true);
 			} else {
-				$del(el);
+				el.remove();
 			}
 		}
 	}
@@ -14942,7 +14942,7 @@ true, true];
 						$animate(el, 'de-pview-anim', true);
 						el.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
-						$del(el);
+						el.remove();
 					}
 				} while (pv = pv.kid);
 			}
@@ -18733,20 +18733,10 @@ true, true];
 				return setTimeout(fn, 0);
 			};
 		}
-		if (!Element.prototype) {
-			$del = function $del(el) {
-				if (el) {
-					var parent = el.parentNode;
-					if (parent) {
-						parent.removeChild(el);
-					}
-				}
-			};
-		} else if (!('remove' in Element.prototype)) {
+		if (!('remove' in Element.prototype)) {
 			Element.prototype.remove = function () {
-				var parent = this.parentNode;
-				if (parent) {
-					parent.removeChild(this);
+				if (this.parentNode) {
+					this.parentNode.removeChild(this);
 				}
 			};
 		}
@@ -18760,22 +18750,20 @@ true, true];
 			needFileHack = true;
 		}
 		if (needFileHack && FormData) {
-			if (FormData.prototype) {
-				var OrigFormData = FormData;
-				var origAppend = FormData.prototype.append;
-				FormData = function FormData(form) {
-					var rv = form ? new OrigFormData(form) : new OrigFormData();
-					rv.append = function append(name, value) {
-						var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+			var OrigFormData = FormData;
+			var origAppend = FormData.prototype.append;
+			FormData = function FormData(form) {
+				var rv = form ? new OrigFormData(form) : new OrigFormData();
+				rv.append = function append(name, value) {
+					var fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-						if (value instanceof Blob && 'name' in value && fileName === null) {
-							return origAppend.call(this, name, value, value.name);
-						}
-						return origAppend.apply(this, arguments);
-					};
-					return rv;
+					if (value instanceof Blob && 'name' in value && fileName === null) {
+						return origAppend.call(this, name, value, value.name);
+					}
+					return origAppend.apply(this, arguments);
 				};
-			}
+				return rv;
+			};
 			window.File = function File(arr, name) {
 				var rv = new Blob(arr);
 				rv.name = name;

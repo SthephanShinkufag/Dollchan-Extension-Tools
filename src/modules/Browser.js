@@ -42,20 +42,10 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!Element.prototype) { // XXX: Firefox < 23
-		$del = function(el) {
-			if(el) {
-				const parent = el.parentNode;
-				if(parent) {
-					parent.removeChild(el);
-				}
-			}
-		}
-	} else if(!('remove' in Element.prototype)) { // XXX: nav.Presto
+	if(!('remove' in Element.prototype)) { // XXX: nav.Presto
 		Element.prototype.remove = function() {
-			const parent = this.parentNode;
-			if(parent) {
-				parent.removeChild(this);
+			if(this.parentNode) {
+				this.parentNode.removeChild(this);
 			}
 		};
 	}
@@ -69,20 +59,18 @@ function initNavFuncs() {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
-		if(FormData.prototype) {
-			const OrigFormData = FormData;
-			const origAppend = FormData.prototype.append;
-			FormData = function FormData(form) {
-				const rv = form ? new OrigFormData(form) : new OrigFormData();
-				rv.append = function append(name, value, fileName = null) {
-					if(value instanceof Blob && 'name' in value && fileName === null) {
-						return origAppend.call(this, name, value, value.name);
-					}
-					return origAppend.apply(this, arguments);
-				};
-				return rv;
+		const OrigFormData = FormData;
+		const origAppend = FormData.prototype.append;
+		FormData = function FormData(form) {
+			const rv = form ? new OrigFormData(form) : new OrigFormData();
+			rv.append = function append(name, value, fileName = null) {
+				if(value instanceof Blob && 'name' in value && fileName === null) {
+					return origAppend.call(this, name, value, value.name);
+				}
+				return origAppend.apply(this, arguments);
 			};
-		}
+			return rv;
+		};
 		window.File = function File(arr, name) {
 			const rv = new Blob(arr);
 			rv.name = name;

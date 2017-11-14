@@ -366,7 +366,7 @@ const CfgWindow = {
 						processImagesLinks(el, 1, 0);
 					}
 				} else {
-					$each($Q('.de-btn-src'), el => $del(el));
+					$each($Q('.de-btn-src'), el => el.remove());
 				}
 				break;
 			case 'delImgNames':

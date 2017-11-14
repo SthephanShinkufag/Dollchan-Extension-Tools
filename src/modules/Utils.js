@@ -21,19 +21,6 @@ function $parent(el, tagName) {
 
 // DOM MODIFIERS
 
-const $txt = el => doc.createTextNode(el);
-
-let $del = function(el) {
-	if(el) {
-		el.remove();
-	}
-}
-
-function $add(html) {
-	dummy.innerHTML = html;
-	return dummy.firstElementChild;
-}
-
 function $before(el, node) {
 	el.parentNode.insertBefore(node, el);
 }
@@ -70,11 +57,24 @@ function $aEnd(sibling, html) {
 function $replace(origEl, newEl) {
 	if(typeof newEl === 'string') {
 		origEl.insertAdjacentHTML('afterend', newEl);
-		$del(origEl);
+		origEl.remove();
 	} else {
 		origEl.parentNode.replaceChild(newEl, origEl);
 	}
 }
+
+function $del(el) {
+	if(el) {
+		el.remove();
+	}
+}
+
+function $add(html) {
+	dummy.innerHTML = html;
+	return dummy.firstElementChild;
+}
+
+const $txt = el => doc.createTextNode(el);
 
 // TODO: Get rid of this function and paste buttons in html
 function $btn(val, ttl, fn, className = 'de-button') {
@@ -130,7 +130,7 @@ function $animate(el, cName, remove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
 		if(remove) {
-			$del(el);
+			el.remove();
 		} else {
 			el.classList.remove(cName);
 		}

@@ -9,7 +9,7 @@ function closePopup(data) {
 		if(Cfg.animation) {
 			$animate(el, 'de-close', true);
 		} else {
-			$del(el);
+			el.remove();
 		}
 	}
 }
