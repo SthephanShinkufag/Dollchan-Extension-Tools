@@ -344,9 +344,9 @@ class PostForm {
 			rv.length - 1, rv.slice(1)];
 	}
 	_initAjaxPosting() {
-		const redirectEl = $q(aib.qFormRedir, this.form);
-		if(aib.qFormRedir && redirectEl) {
-			aib.disableRedirection(redirectEl);
+		let el;
+		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
+			aib.disableRedirection(el);
 		}
 		this.form.onsubmit = e => {
 			$pd(e);

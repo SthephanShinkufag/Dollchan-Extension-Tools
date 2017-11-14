@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '2306532';
+const commit = '8ece6cb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1535,6 +1535,19 @@ function $parent(el, tagName) {
 
 // DOM MODIFIERS
 
+const $txt = el => doc.createTextNode(el);
+
+let $del = function(el) {
+	if(el) {
+		el.remove();
+	}
+}
+
+function $add(html) {
+	dummy.innerHTML = html;
+	return dummy.firstElementChild;
+}
+
 function $before(el, node) {
 	el.parentNode.insertBefore(node, el);
 }
@@ -1571,24 +1584,11 @@ function $aEnd(sibling, html) {
 function $replace(origEl, newEl) {
 	if(typeof newEl === 'string') {
 		origEl.insertAdjacentHTML('afterend', newEl);
-		origEl.remove();
+		$del(origEl);
 	} else {
 		origEl.parentNode.replaceChild(newEl, origEl);
 	}
 }
-
-function $del(el) {
-	if(el) {
-		el.remove();
-	}
-}
-
-function $add(html) {
-	dummy.innerHTML = html;
-	return dummy.firstElementChild;
-}
-
-const $txt = el => doc.createTextNode(el);
 
 // TODO: Get rid of this function and paste buttons in html
 function $btn(val, ttl, fn, className = 'de-button') {
@@ -1644,7 +1644,7 @@ function $animate(el, cName, remove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
 		if(remove) {
-			el.remove();
+			$del(el);
 		} else {
 			el.classList.remove(cName);
 		}
@@ -2464,7 +2464,7 @@ async function readCfg() {
 	if(aib.dobr && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
-	if(!('FormData' in window)) {
+	if(!('FormData' in window && FormData.prototype)) {
 		Cfg.ajaxPosting = 0;
 	}
 	if(!('Notification' in window)) {
@@ -4364,7 +4364,7 @@ const CfgWindow = {
 						processImagesLinks(el, 1, 0);
 					}
 				} else {
-					$each($Q('.de-btn-src'), el => el.remove());
+					$each($Q('.de-btn-src'), el => $del(el));
 				}
 				break;
 			case 'delImgNames':
@@ -4915,7 +4915,7 @@ function closePopup(data) {
 		if(Cfg.animation) {
 			$animate(el, 'de-close', true);
 		} else {
-			el.remove();
+			$del(el);
 		}
 	}
 }
@@ -8526,9 +8526,9 @@ class PostForm {
 			rv.length - 1, rv.slice(1)];
 	}
 	_initAjaxPosting() {
-		const redirectEl = $q(aib.qFormRedir, this.form);
-		if(aib.qFormRedir && redirectEl) {
-			aib.disableRedirection(redirectEl);
+		let el;
+		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
+			aib.disableRedirection(el);
 		}
 		this.form.onsubmit = e => {
 			$pd(e);
@@ -10997,7 +10997,7 @@ class Pview extends AbstractPost {
 					(this._isTop ? 't' : 'b') +
 					(this._isLeft ? 'l' : 'r');
 			} else {
-				el.remove();
+				$del(el);
 			}
 		} while((pv = pv.kid));
 	}
@@ -14298,10 +14298,20 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: nav.Presto
+	if(!Element.prototype) { // XXX: Firefox < 23
+		$del = function(el) {
+			if(el) {
+				const parent = el.parentNode;
+				if(parent) {
+					parent.removeChild(el);
+				}
+			}
+		}
+	} else if(!('remove' in Element.prototype)) { // XXX: nav.Presto
 		Element.prototype.remove = function() {
-			if(this.parentNode) {
-				this.parentNode.removeChild(this);
+			const parent = this.parentNode;
+			if(parent) {
+				parent.removeChild(this);
 			}
 		};
 	}
@@ -14315,18 +14325,20 @@ function initNavFuncs() {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
-		const OrigFormData = FormData;
-		const origAppend = FormData.prototype.append;
-		FormData = function FormData(form) {
-			const rv = form ? new OrigFormData(form) : new OrigFormData();
-			rv.append = function append(name, value, fileName = null) {
-				if(value instanceof Blob && 'name' in value && fileName === null) {
-					return origAppend.call(this, name, value, value.name);
-				}
-				return origAppend.apply(this, arguments);
+		if(FormData.prototype) {
+			const OrigFormData = FormData;
+			const origAppend = FormData.prototype.append;
+			FormData = function FormData(form) {
+				const rv = form ? new OrigFormData(form) : new OrigFormData();
+				rv.append = function append(name, value, fileName = null) {
+					if(value instanceof Blob && 'name' in value && fileName === null) {
+						return origAppend.call(this, name, value, value.name);
+					}
+					return origAppend.apply(this, arguments);
+				};
+				return rv;
 			};
-			return rv;
-		};
+		}
 		window.File = function File(arr, name) {
 			const rv = new Blob(arr);
 			rv.name = name;

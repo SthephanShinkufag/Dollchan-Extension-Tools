@@ -130,7 +130,7 @@ async function readCfg() {
 	if(aib.dobr && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
-	if(!('FormData' in window)) {
+	if(!('FormData' in window && FormData.prototype)) {
 		Cfg.ajaxPosting = 0;
 	}
 	if(!('Notification' in window)) {
