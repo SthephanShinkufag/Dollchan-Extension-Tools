@@ -84,7 +84,8 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			}
 		};
 		try {
-			xhr.open((params && params.method) || 'GET', url, true);
+			xhr.open((params && params.method) || 'GET',
+				(url.startsWith('/') ? aib.prot + '//' + aib.host : '') + url, true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;

@@ -12,6 +12,7 @@
 		}
 	},
 	"browser_action": {
+		"browser_style": false,
 		"default_icon": {
 			"32": "icons/icon-32.png"
 		},
@@ -22,7 +23,7 @@
 	},
 	"content_scripts": [ {
 		"all_frames": true,
-		"js": [ "Dollchan_Extension_Tools.es6.user.js" ],
+		"js": [ "content.js" ],
 		"matches": [ "*://*/*" ],
 		"run_at": "document_start"
 	} ],
@@ -36,8 +37,9 @@
 	"optional_permissions": ["*://*/"],
 	"permissions": [
 		"<all_urls>",
+		"notifications",
 		"storage",
-		"unlimitedStorage",
-		"notifications"
+		"tabs",
+		"unlimitedStorage"
 	]
 }
