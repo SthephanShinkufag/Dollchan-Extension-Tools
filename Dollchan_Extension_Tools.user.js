@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '76099bc';
+	var commit = 'f60e65a';
 
 
 	var defaultCfg = {
@@ -18717,7 +18717,7 @@ true, true];
 		var isWebkit = ua.includes('WebKit/');
 		var isChrome = isWebkit && ua.includes('Chrome/');
 		var isSafari = isWebkit && !isChrome;
-		var isChromeStorage = !!window.chrome && !!window.chrome.storage;
+		var isChromeStorage = !!chrome && !!chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		var isGM = false;

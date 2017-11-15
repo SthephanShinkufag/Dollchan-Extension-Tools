@@ -93,6 +93,15 @@ gulp.task('make:modules', function() {
 	}));
 });
 
+// Make an extension from es6-script
+gulp.task('make:ext', function() {
+	gulp.src('extension/caller.js').pipe(tap(function(wrapFile) {
+		gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
+			.pipe(streamify(headerfooter(...wrapFile.contents.toString().split('/* ==[Dollchan]== */'))))
+			.pipe(gulp.dest('./extension'));
+	}));
+});
+
 // Waits for changes in watchedPaths files, then makes es5 and es6-scripts
 gulp.task('watch', function() {
 	gulp.watch(watchedPaths, ['make']);

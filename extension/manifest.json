@@ -1,0 +1,43 @@
+{
+	"description": "The best way to browse imageboards",
+	"homepage_url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
+	"manifest_version": 2,
+	"name": "Dollchan Extension Tools",
+	"version": "17.10.24.0",
+
+	"applications": {
+		"gecko": {
+			"id": "dollchan_extension@dscript.me",
+			"strict_min_version": "52.0"
+		}
+	},
+	"browser_action": {
+		"default_icon": {
+			"32": "icons/icon-32.png"
+		},
+		"default_title": "Disable Dollchan-Extension"
+	},
+	"background": {
+		"scripts": ["background.js"]
+	},
+	"content_scripts": [ {
+		"all_frames": true,
+		"js": [ "Dollchan_Extension_Tools.es6.user.js" ],
+		"matches": [ "*://*/*" ],
+		"run_at": "document_start"
+	} ],
+	"icons": {
+		"16": "icons/logo-16.svg",
+		"32": "icons/logo-32.svg",
+		"48": "icons/logo-48.svg",
+		"48": "icons/logo-96.svg",
+		"128": "icons/logo-128.svg"
+	},
+	"optional_permissions": ["*://*/"],
+	"permissions": [
+		"<all_urls>",
+		"storage",
+		"unlimitedStorage",
+		"notifications"
+	]
+}

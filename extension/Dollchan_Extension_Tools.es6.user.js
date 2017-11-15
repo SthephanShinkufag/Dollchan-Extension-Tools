@@ -1,4 +1,9 @@
-// ==UserScript==
+const port = chrome.runtime.connect({ name: 'de-question' });
+port.postMessage({ question: 'isDollchanEnabled' });
+port.onMessage.addListener(msg => {
+	if(msg.answer === true) {
+
+		// ==UserScript==
 // @name            Dollchan Extension Tools
 // @version         17.10.24.0
 // @namespace       http://www.freedollchan.org/scripts/*
@@ -17386,3 +17391,7 @@ if(doc.readyState !== 'loading') {
 	(x, y) => window.scrollTo(x, y),
 	/* global localData */ typeof localData === 'object' ? localData : null
 ));
+
+
+	}
+});

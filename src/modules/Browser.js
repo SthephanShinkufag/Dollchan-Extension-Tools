@@ -27,7 +27,7 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = !!window.chrome && !!window.chrome.storage;
+	const isChromeStorage = !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let isGM = false;
