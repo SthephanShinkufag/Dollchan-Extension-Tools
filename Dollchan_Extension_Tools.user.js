@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '6ede269';
+	var commit = '6e89e1c';
 
 
 	var defaultCfg = {
@@ -18717,7 +18717,6 @@ true, true];
 		var isWebkit = ua.includes('WebKit/');
 		var isChrome = isWebkit && ua.includes('Chrome/');
 		var isSafari = isWebkit && !isChrome;
-		var isChromeStorage = !!chrome && !!chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		var isGM = false;
@@ -18726,6 +18725,14 @@ true, true];
 				isGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
 			} catch (e) {
 				isGM = e.message === 'Permission denied to access property "toString"';
+			}
+		}
+		var isChromeStorage = void 0;
+		if (isChrome || isFirefox) {
+			try {
+				isChromeStorage = !!chrome && !!chrome.storage;
+			} catch (e) {
+				isChromeStorage = false;
 			}
 		}
 		if (!('requestAnimationFrame' in window)) {

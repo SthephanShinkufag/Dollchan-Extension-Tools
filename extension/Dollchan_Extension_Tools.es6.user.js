@@ -14286,7 +14286,6 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let isGM = false;
@@ -14296,6 +14295,14 @@ function initNavFuncs() {
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
+		}
+	}
+	let isChromeStorage;
+	if(isChrome || isFirefox) {
+		try {
+			isChromeStorage = !!chrome && !!chrome.storage;
+		} catch(e) {
+			isChromeStorage = false;
 		}
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
