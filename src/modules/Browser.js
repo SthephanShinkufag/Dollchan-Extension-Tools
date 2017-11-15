@@ -38,13 +38,11 @@ function initNavFuncs() {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
 	}
-	let isChromeStorage;
+	let isChromeStorage = false;
 	if(isChrome || isFirefox) {
 		try {
 			isChromeStorage = !!chrome && !!chrome.storage;
-		} catch(e) {
-			isChromeStorage = false;
-		}
+		} catch(e) {}
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);

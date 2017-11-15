@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '6e89e1c';
+	var commit = '0dfc2f7';
 
 
 	var defaultCfg = {
@@ -18727,13 +18727,11 @@ true, true];
 				isGM = e.message === 'Permission denied to access property "toString"';
 			}
 		}
-		var isChromeStorage = void 0;
+		var isChromeStorage = false;
 		if (isChrome || isFirefox) {
 			try {
 				isChromeStorage = !!chrome && !!chrome.storage;
-			} catch (e) {
-				isChromeStorage = false;
-			}
+			} catch (e) {}
 		}
 		if (!('requestAnimationFrame' in window)) {
 			window.requestAnimationFrame = function (fn) {
