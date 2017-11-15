@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'ce89fcc';
+const commit = '6ede269';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6593,8 +6593,8 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		};
 		try {
 			xhr.open((params && params.method) || 'GET', (
-				url.startsWith('//') ? aib.prot :
-				url.startsWith('/') ? aib.prot + '//' + aib.host : ''
+				url[1] === '/' ? aib.prot :
+				url[0] === '/' ? aib.prot + '//' + aib.host : ''
 			) + url, true);
 			if(params) {
 				if(params.responseType) {

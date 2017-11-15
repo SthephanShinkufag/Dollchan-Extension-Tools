@@ -3679,7 +3679,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'ce89fcc';
+	var commit = '6ede269';
 
 
 	var defaultCfg = {
@@ -9635,7 +9635,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			};
 			try {
-				xhr.open(params && params.method || 'GET', (url.startsWith('//') ? aib.prot : url.startsWith('/') ? aib.prot + '//' + aib.host : '') + url, true);
+				xhr.open(params && params.method || 'GET', (url[1] === '/' ? aib.prot : url[0] === '/' ? aib.prot + '//' + aib.host : '') + url, true);
 				if (params) {
 					if (params.responseType) {
 						xhr.responseType = params.responseType;
