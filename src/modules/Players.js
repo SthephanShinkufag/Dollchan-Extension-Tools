@@ -218,12 +218,13 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (nav.isGM ?
+		return (nav.hasGMXHR ?
 			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
 				null, false) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
-			const json = JSON.parse(xhr.responseText);
+			const res = xhr.responseText;
+			const json = JSON.parse(nav.hasGMXHR ? res : res.replace(/^[^{]+|\)$/g, ''));
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}

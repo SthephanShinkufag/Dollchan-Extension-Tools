@@ -14,7 +14,7 @@
 	"browser_action": {
 		"browser_style": false,
 		"default_icon": {
-			"32": "icons/icon-32.png"
+			"32": "icons/logo-32.svg"
 		},
 		"default_title": "Disable Dollchan-Extension"
 	},

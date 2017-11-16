@@ -767,7 +767,7 @@ const CfgWindow = {
 			<div class="de-cfg-depend">
 				${ this._getInp('loadPages') }
 			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') +
+			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? this._getBox('updScript') +
 				`<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '878111a';
+const commit = '72236f6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4765,7 +4765,7 @@ const CfgWindow = {
 			<div class="de-cfg-depend">
 				${ this._getInp('loadPages') }
 			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.isGM ? this._getBox('updScript') +
+			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? this._getBox('updScript') +
 				`<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
@@ -6353,12 +6353,13 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (nav.isGM ?
+		return (nav.hasGMXHR ?
 			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
 				null, false) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
-			const json = JSON.parse(xhr.responseText);
+			const res = xhr.responseText;
+			const json = JSON.parse(nav.hasGMXHR ? res : res.replace(/^[^{]+|\)$/g, ''));
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}
@@ -14369,7 +14370,7 @@ function initNavFuncs() {
 				}
 				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
 			}
-			return isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript';
+			return isChromeStorage ? 'WebExtension' : isGM || isNewGM ? 'Monkey' : 'Native userscript';
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
@@ -16811,7 +16812,7 @@ function addSVGIcons() {
 /* eslint-disable max-len */
 
 function scriptCSS() {
-	const cont = (id, src) => id + `::before { content: ""; padding-right: 16px; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
+	const cont = (id, src) => id + `::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
 	const gif = (id, src) => id + ` { background-image: url(data:image/gif;base64,${ src }); background-repeat: no-repeat; background-position: center; }`;
 
 	// Main panel
@@ -16891,7 +16892,7 @@ function scriptCSS() {
 	`.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 327px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
+	.de-cfg-body { min-height: 328px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }

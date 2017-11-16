@@ -110,7 +110,7 @@ function initNavFuncs() {
 				}
 				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
 			}
-			return isChromeStorage ? 'Chrome extension' : isGM ? 'Monkey' : 'Native userscript';
+			return isChromeStorage ? 'WebExtension' : isGM || isNewGM ? 'Monkey' : 'Native userscript';
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
