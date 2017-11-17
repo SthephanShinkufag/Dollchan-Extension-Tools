@@ -28,9 +28,9 @@ class Captcha {
 		} else if(this._isOldRecap()) {
 			this.textEl = $id('recaptcha_response_field');
 		} else {
-			const el = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
-			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
-				el.getAttribute('data-sitekey') + '"></div>');
+			const el = $q(`#g-recaptcha, .g-recaptcha${ aib.fch ? ', #qrCaptchaContainerAlt' : '' }`);
+			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
+				el.getAttribute('data-sitekey') }"></div>`);
 		}
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {

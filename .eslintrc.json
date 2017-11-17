@@ -40,6 +40,7 @@
 			"ignoreRegExpLiterals": true,
 			"ignoreUrls": true
 		}],
+		"no-case-declarations": "error",
 		"no-global-assign": ["error", { "exceptions": ["FormData"] }],
 		"no-labels": ["error", { "allowLoop": true }],
 		"no-mixed-operators": "off",

@@ -26,15 +26,14 @@ function getUploadFunc() {
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return function(data) {
+	return function({ total, loaded: i }) {
 		if(!inited) {
-			progress.setAttribute('max', data.total);
+			progress.setAttribute('max', total);
 			$show(progress);
-			totalEl.textContent = prettifySize(data.total);
+			totalEl.textContent = prettifySize(total);
 			$show(counterWrap);
 			inited = true;
 		}
-		const { loaded: i } = data;
 		progress.value = i;
 		counterEl.textContent = prettifySize(i);
 		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;

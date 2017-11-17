@@ -421,15 +421,15 @@ class FileInput {
 		const { imgFile } = this;
 		if(imgFile) {
 			this._addNewThumb(...imgFile, imgFile[0].byteLength);
-		} else {
-			const file = this._input.files[0];
-			if(file) {
-				readFile(file).then(({ data }) => {
-					if(this._input.files[0] === file) {
-						this._addNewThumb(data, file.name, file.type, file.size);
-					}
-				});
-			}
+			return;
+		}
+		const file = this._input.files[0];
+		if(file) {
+			readFile(file).then(({ data }) => {
+				if(this._input.files[0] === file) {
+					this._addNewThumb(data, file.name, file.type, file.size);
+				}
+			});
 		}
 	}
 	_toggleDragEvents(el, add) {
@@ -440,5 +440,3 @@ class FileInput {
 		el[name]('drop', this);
 	}
 }
-
-/* eslint-disable no-var */

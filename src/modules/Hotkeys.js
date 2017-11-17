@@ -245,10 +245,11 @@ const HotKeys = {
 					break;
 				}
 				/* falls through */
-			default:
+			default: {
 				const scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
+			}
 			}
 		}
 		e.stopPropagation();
@@ -457,7 +458,7 @@ class KeyEditListener {
 			}
 			this.cEl = el;
 			return;
-		case 'click':
+		case 'click': {
 			let keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
@@ -483,7 +484,8 @@ class KeyEditListener {
 			}
 			closePopup('edit-hotkeys');
 			break;
-		case 'keydown':
+		}
+		case 'keydown': {
 			if(!this.cEl) {
 				return;
 			}
@@ -520,7 +522,8 @@ class KeyEditListener {
 			}
 			this.cEl.value = str;
 			break;
-		case 'keyup':
+		}
+		case 'keyup': {
 			el = this.cEl;
 			key = this.cKey;
 			if(!el || key === -1) {
@@ -572,6 +575,7 @@ class KeyEditListener {
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
 			}
+		}
 		}
 		$pd(e);
 	}

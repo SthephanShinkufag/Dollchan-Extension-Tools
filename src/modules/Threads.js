@@ -281,7 +281,6 @@ class Thread {
 	_loadFromBuilder(last, smartScroll, pBuilder) {
 		let nextCoord;
 		const maybeSpells = new Maybe(SpellsRunner);
-		const { op, el: thrEl } = this;
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.top;
@@ -290,6 +289,7 @@ class Thread {
 			}
 		}
 		pr.closeReply();
+		const { op, el: thrEl } = this;
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {

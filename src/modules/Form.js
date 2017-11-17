@@ -141,7 +141,7 @@ class PostForm {
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
 			}</div>`;
 		}
-		el.innerHTML = html + `<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			mode === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
@@ -296,7 +296,7 @@ class PostForm {
 				(isOnNewLine ? '' : '\n') +
 					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
 			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
+					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) + '\n' : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {

@@ -35,7 +35,7 @@ function makeDraggable(name, win, head) {
 				docBody.addEventListener('mouseup', this);
 				$pd(e);
 				return;
-			case 'mousemove':
+			case 'mousemove': {
 				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
 				const maxY = Post.sizing.wHeight - this._win.offsetHeight - 25;
 				const cr = this._win.getBoundingClientRect();
@@ -53,6 +53,7 @@ function makeDraggable(name, win, head) {
 				this._oldX = curX;
 				this._oldY = curY;
 				return;
+			}
 			default: // mouseup
 				docBody.removeEventListener('mousemove', this);
 				docBody.removeEventListener('mouseup', this);

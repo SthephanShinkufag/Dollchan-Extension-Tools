@@ -37,7 +37,7 @@ const DollchanAPI = {
 		}
 		let rv = null;
 		const { name, data } = arg;
-		switch(arg.name.toLowerCase()) {
+		switch(name.toLowerCase()) {
 		case 'registerapi':
 			if(data) {
 				rv = {};

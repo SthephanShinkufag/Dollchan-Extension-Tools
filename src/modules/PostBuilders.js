@@ -500,9 +500,7 @@ class _0chanPostsBuilder {
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
 			for(const { images } of data.attachments) {
-				const orig = images.original;
-				const thumb200 = images.thumb_200px;
-				const thumb400 = images.thumb_400px;
+				const { original: orig, thumb_200px: thumb200, thumb_400px: thumb400 } = images;
 				filesHTML += `<figure class="post-img"><span>
 					<figcaption>
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>

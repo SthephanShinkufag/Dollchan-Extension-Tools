@@ -3,29 +3,34 @@
                images expanding (in post / by center), navigate buttons, image-links embedding
 =========================================================================================================== */
 
-function ImgBtnsShowHider(nextFn, prevFn) {
-	var btns = $bEnd(docBody, '<div style="display: none;">' +
-		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' +
-		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-	this._btns = btns;
-	this._btnsStyle = btns.style;
-	this._nextFn = nextFn;
-	this._prevFn = prevFn;
-	doc.defaultView.addEventListener('mousemove', this);
-	btns.addEventListener('mouseover', this);
-}
-ImgBtnsShowHider.prototype = {
+class ImgBtnsShowHider {
+	constructor(nextFn, prevFn) {
+		const btns = $bEnd(docBody, '<div style="display: none;">' +
+			`<div id="de-img-btn-next" de-title="${ Lng.nextImg[lang] }"></div>` +
+			`<div id="de-img-btn-prev" de-title="${ Lng.prevImg[lang] }"></div></div>`);
+		this._btns = btns;
+		this._btnsStyle = btns.style;
+		this._hasEvents = false;
+		this._hidden = true;
+		this._hideTmt = 0;
+		this._nextFn = nextFn;
+		this._oldX = -1;
+		this._oldY = -1;
+		this._prevFn = prevFn;
+		doc.defaultView.addEventListener('mousemove', this);
+		btns.addEventListener('mouseover', this);
+	}
 	handleEvent(e) {
 		switch(e.type) {
-		case 'mousemove':
-			var curX = e.clientX,
-				curY = e.clientY;
+		case 'mousemove': {
+			const { clientX: curX, clientY: curY } = e;
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
 				this._oldY = curY;
 				this.show();
 			}
 			return;
+		}
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
@@ -45,51 +50,58 @@ ImgBtnsShowHider.prototype = {
 			case 'de-img-btn-prev': this._prevFn();
 			}
 		}
-	},
+	}
 	hide() {
 		this._btnsStyle.display = 'none';
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
-	},
+	}
 	remove() {
 		$del(this._btns);
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
-	},
+	}
 	show() {
 		if(this._hidden) {
 			this._btnsStyle.removeProperty('display');
 			this._hidden = false;
 			this._setHideTmt();
 		}
-	},
+	}
 
-	_hasEvents : false,
-	_hidden    : true,
-	_hideTmt   : 0,
-	_oldX      : -1,
-	_oldY      : -1,
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
 		this._hideTmt = setTimeout(() => this.hide(), 2e3);
 	}
-};
-
-function AttachmentViewer(data) {
-	this._show(data);
 }
-AttachmentViewer.prototype = {
-	data: null,
+
+class AttachmentViewer {
+	constructor(data) {
+		this.data = null;
+		this._data = null;
+		this._elStyle = null;
+		this._fullEl = null;
+		this._height = 0;
+		this._minSize = 0;
+		this._moved = false;
+		this._obj = null;
+		this._oldL = 0;
+		this._oldT = 0;
+		this._oldX = 0;
+		this._oldY = 0;
+		this._width = 0;
+		this._show(data);
+	}
 	close(e) {
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
 		}
 		this._remove(e);
-	},
+	}
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && this.data.isControlClick(e)) {
+			if(this.data.isVideo && ExpandableMedia.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -97,9 +109,8 @@ AttachmentViewer.prototype = {
 			docBody.addEventListener('mousemove', this, true);
 			docBody.addEventListener('mouseup', this, true);
 			break;
-		case 'mousemove':
-			var curX = e.clientX,
-				curY = e.clientY;
+		case 'mousemove': {
+			const { clientX: curX, clientY: curY } = e;
 			if(curX !== this._oldX || curY !== this._oldY) {
 				this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
 				this._elStyle.left = this._oldL + 'px';
@@ -110,13 +121,14 @@ AttachmentViewer.prototype = {
 				this._moved = true;
 			}
 			return;
+		}
 		case 'mouseup':
 			docBody.removeEventListener('mousemove', this, true);
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click': {
 			const el = e.target;
-			if(this.data.isVideo && this.data.isControlClick(e) ||
+			if(this.data.isVideo && ExpandableMedia.isControlClick(e) ||
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
@@ -144,7 +156,7 @@ AttachmentViewer.prototype = {
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
 		$pd(e);
-	},
+	}
 	navigate(isForward) {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
@@ -155,34 +167,22 @@ AttachmentViewer.prototype = {
 			this.update(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
-	},
+	}
 	update(data, showButtons, e) {
 		this._remove(e);
 		this._show(data, showButtons);
-	},
+	}
 
-	_data    : null,
-	_elStyle : null,
-	_fullEl  : null,
-	_height  : 0,
-	_minSize : 0,
-	_moved   : false,
-	_obj     : null,
-	_oldL    : 0,
-	_oldT    : 0,
-	_oldX    : 0,
-	_oldY    : 0,
-	_width   : 0,
 	get _btns() {
 		const value = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
 		Object.defineProperty(this, '_btns', { value });
 		return value;
-	},
+	}
 	get _zoomFactor() {
 		const value = 1 + (Cfg.zoomFactor / 100);
 		Object.defineProperty(this, '_zoomFactor', { value });
 		return value;
-	},
+	}
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
@@ -207,9 +207,9 @@ AttachmentViewer.prototype = {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
-	},
+	}
 	_show(data) {
-		var [width, height, minSize] = data.computeFullSize();
+		let [width, height, minSize] = data.computeFullSize();
 		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
 		if(data.isVideo && (width < Cfg.minWebmWidth)) {
 			width = Cfg.minWebmWidth;
@@ -219,15 +219,11 @@ AttachmentViewer.prototype = {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-fullimg-center" style="top:' +
-			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
-			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
-		if(data.isImage) {
-			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
-				.appendChild(this._fullEl);
-		} else {
-			obj.appendChild(this._fullEl);
-		}
+		const obj = $add(`<div class="de-fullimg-center" style="top:${
+			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
+			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
+		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+			.appendChild(this._fullEl);
 		this._elStyle = obj.style;
 		this.data = data;
 		this._obj = obj;
@@ -243,7 +239,7 @@ AttachmentViewer.prototype = {
 			this._btns.hide();
 		}
 		data.post.thr.form.el.appendChild(obj);
-	},
+	}
 	_remove(e) {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
@@ -254,24 +250,24 @@ AttachmentViewer.prototype = {
 		if(e && data.inPview) {
 			data.sendCloseEvent(e, false);
 		}
-	},
+	}
 	_resize(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
-		var [width, height, minSize] = this.data.computeFullSize();
+		let [width, height, minSize] = this.data.computeFullSize();
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
 			Post.sizing.wHeight - this._oldT - this._height < 5
 		) {
 			return;
 		}
-		var cPointX = this._oldL + this._width / 2,
-			cPointY = this._oldT + this._height / 2,
-			maxWidth = (Post.sizing.wWidth - cPointX - 2) * 2,
-			maxHeight = (Post.sizing.wHeight - cPointY - 2) * 2;
+		const cPointX = this._oldL + this._width / 2;
+		const cPointY = this._oldT + this._height / 2;
+		const maxWidth = (Post.sizing.wWidth - cPointX - 2) * 2;
+		const maxHeight = (Post.sizing.wHeight - cPointY - 2) * 2;
 		if(width > maxWidth || height > maxHeight) {
-			var ar = width / height;
+			const ar = width / height;
 			if(ar > maxWidth / maxHeight) {
 				width = maxWidth;
 				height = width / ar;
@@ -289,7 +285,7 @@ AttachmentViewer.prototype = {
 		this._elStyle.height = height + 'px';
 		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
-	},
+	}
 	_rotate(el) {
 		if(el !== this._fullEl) {
 			return;
@@ -304,20 +300,23 @@ AttachmentViewer.prototype = {
 		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 	}
-};
+}
 
 class ExpandableMedia {
 	constructor(post, el, prev) {
-		this.post = post;
 		this.el = el;
-		this.prev = prev;
-		this.next = null;
 		this.expanded = false;
+		this.next = null;
+		this.post = post;
+		this.prev = prev;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
 		if(prev) {
 			prev.next = this;
 		}
+	}
+	static isControlClick(e) {
+		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
 	}
 	get height() {
 		return (this._size || [-1, -1])[1];
@@ -360,7 +359,7 @@ class ExpandableMedia {
 		}
 	}
 	collapse(e) {
-		if(e && this.isVideo && this.isControlClick(e)) {
+		if(e && this.isVideo && ExpandableMedia.isControlClick(e)) {
 			return;
 		}
 		this.cancelWebmLoad(this._fullEl);
@@ -473,10 +472,10 @@ class ExpandableMedia {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
-		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
-			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
+		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
+			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
 		const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
-			' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
+			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
 			const waitEl = inPost || this._size ? '' :
@@ -554,8 +553,8 @@ class ExpandableMedia {
 		// MS Edge needs an external app with DollchanAPI to play webms
 		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 			const href = 'https://github.com/Kagami/webmify/';
-			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] +
-				`:\n<a href="${ href }" target="_blank">${ href }</a>`, false);
+			$popup('err-expandmedia', `${ Lng.errMsEdgeWebm[lang] }:\n<a href="${
+				href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle) {
@@ -583,7 +582,7 @@ class ExpandableMedia {
 						}
 						if(title) {
 							$q('.de-fullimg-src', wrapEl).textContent +=
-								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
+								` - ${ videoEl.title = decodeURIComponent(escape(title)) }`;
 						}
 						break;
 					}
@@ -593,14 +592,11 @@ class ExpandableMedia {
 		DollchanAPI.notify('expandmedia', src);
 		return wrapEl;
 	}
-	isControlClick(e) {
-		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
-	}
 	sendCloseEvent(e, inPost) {
-		var pv = this.post,
-			cr = pv.el.getBoundingClientRect(),
-			x = e.pageX - window.pageXOffset,
-			y = e.pageY - window.pageYOffset;
+		let pv = this.post;
+		let cr = pv.el.getBoundingClientRect();
+		const x = e.pageX - window.pageXOffset;
+		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				pv = pv.parent;
@@ -649,6 +645,11 @@ class Attachment extends ExpandableMedia {
 		Object.defineProperty(this, 'info', { value });
 		return value;
 	}
+	get name() {
+		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		Object.defineProperty(this, 'name', { value });
+		return value;
+	}
 	get weight() {
 		let value = 0;
 		if(this.info) {
@@ -659,18 +660,13 @@ class Attachment extends ExpandableMedia {
 		Object.defineProperty(this, 'weight', { value });
 		return value;
 	}
-	get name() {
-		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
-		Object.defineProperty(this, 'name', { value });
-		return value;
-	}
 
 	_getImageParent() {
 		return aib.getImgWrap(this.el);
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+			const size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;
@@ -683,7 +679,12 @@ class Attachment extends ExpandableMedia {
 }
 Attachment.viewer = null;
 
-var ImagesHashStorage = Object.create({
+const ImagesHashStorage = {
+	get getHash() {
+		const value = this._getHashHelper.bind(this);
+		Object.defineProperty(this, 'getHash', { value });
+		return value;
+	},
 	endFn() {
 		if(this.hasOwnProperty('_storage')) {
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
@@ -693,47 +694,7 @@ var ImagesHashStorage = Object.create({
 			delete this._workers;
 		}
 	},
-	get getHash() {
-		const value = this._getHashHelper.bind(this);
-		Object.defineProperty(this, 'getHash', { value });
-		return value;
-	},
 
-	async _getHashHelper({ el, src }) {
-		if(src in this._storage) {
-			return this._storage[src];
-		}
-		if(!el.complete) {
-			await new Promise(resolve => el.addEventListener('load', () => resolve()));
-		}
-		if(el.naturalWidth + el.naturalHeight === 0) {
-			return -1;
-		}
-		let data, buffer, val = -1;
-		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib.fch) {
-			const imgData = await downloadImgData(el.src);
-			if(imgData) {
-				({ buffer } = imgData);
-			}
-		} else {
-			var cnv = this._canvas;
-			cnv.width = w;
-			cnv.height = h;
-			var ctx = cnv.getContext('2d');
-			ctx.drawImage(el, 0, 0);
-			({ buffer } = ctx.getImageData(0, 0, w, h).data);
-		}
-		if(buffer) {
-			data = await new Promise(resolve =>
-				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
-			if(data && ('hash' in data)) {
-				val = data.hash;
-			}
-		}
-		this._storage[src] = val;
-		return val;
-	},
 	get _canvas() {
 		const value = doc.createElement('canvas');
 		Object.defineProperty(this, '_canvas', { value });
@@ -755,15 +716,51 @@ var ImagesHashStorage = Object.create({
 		const value = new WorkerPool(4, genImgHash, emptyFn);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
+	},
+	async _getHashHelper({ el, src }) {
+		if(src in this._storage) {
+			return this._storage[src];
+		}
+		if(!el.complete) {
+			await new Promise(resolve => el.addEventListener('load', () => resolve()));
+		}
+		if(el.naturalWidth + el.naturalHeight === 0) {
+			return -1;
+		}
+		let data, buffer, val = -1;
+		const { naturalWidth: w, naturalHeight: h } = el;
+		if(aib.fch) {
+			const imgData = await downloadImgData(el.src);
+			if(imgData) {
+				({ buffer } = imgData);
+			}
+		} else {
+			const cnv = this._canvas;
+			cnv.width = w;
+			cnv.height = h;
+			const ctx = cnv.getContext('2d');
+			ctx.drawImage(el, 0, 0);
+			({ buffer } = ctx.getImageData(0, 0, w, h).data);
+		}
+		if(buffer) {
+			data = await new Promise(resolve =>
+				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+			if(data && ('hash' in data)) {
+				val = data.hash;
+			}
+		}
+		this._storage[src] = val;
+		return val;
 	}
-});
+};
 
 function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {
 		return;
 	}
-	for(var i = 0, els = $Q(aib.qImgNameLink, el), len = els.length; i < len; i++) {
-		var link = els[i];
+	const els = $Q(aib.qImgNameLink, el);
+	for(let i = 0, len = els.length; i < len; i++) {
+		const link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -785,14 +782,16 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 }
 
 function embedImagesLinks(el) {
-	for(var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
-		var link = els[i], url = link.href;
+	const els = $Q(aib.qMsgImgLink, el);
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const link = els[i];
+		const url = link.href;
 		if(link.parentNode.tagName === 'SMALL' || url.includes('?')) {
 			return;
 		}
-		var a = link.cloneNode(false);
+		const a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = '<img class="de-img-pre" src="' + url + '">';
+		a.innerHTML = `<img class="de-img-pre" src="${ url }">`;
 		$before(link, a);
 	}
 }
@@ -830,3 +829,5 @@ function genImgHash([arrBuf, oldw, oldh]) {
 	}
 	return { hash };
 }
+
+/* eslint-disable no-var */

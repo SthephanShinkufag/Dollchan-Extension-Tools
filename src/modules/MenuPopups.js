@@ -97,12 +97,11 @@ class Menu {
 	}
 	handleEvent(e) {
 		let isOverEvent = false;
-		const el = e.target;
 		switch(e.type) {
 		case 'click':
-			if(el.className === 'de-menu-item') {
+			if(e.target.className === 'de-menu-item') {
 				this.remove();
-				this._clickFn(el);
+				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
 				}
@@ -110,22 +109,23 @@ class Menu {
 			break;
 		case 'mouseover': isOverEvent = true;
 			/* falls through */
-		case 'mouseout':
+		case 'mouseout': {
 			clearTimeout(this._closeTO);
 			let rt = fixEventEl(e.relatedTarget);
-			rt = rt && rt.farthestViewportElement || rt;
-			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
-				if(isOverEvent) {
-					if(this.onover) {
-						this.onover();
-					}
-				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-					this._closeTO = setTimeout(() => this.remove(), 75);
-					if(this.onout) {
-						this.onout();
-					}
+			if(rt && (rt = rt.farthestViewportElement) && (rt === this._el || this._el.contains(rt))) {
+				return;
+			}
+			if(isOverEvent) {
+				if(this.onover) {
+					this.onover();
+				}
+			} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
+				this._closeTO = setTimeout(() => this.remove(), 75);
+				if(this.onout) {
+					this.onout();
 				}
 			}
+		}
 		}
 	}
 	remove() {

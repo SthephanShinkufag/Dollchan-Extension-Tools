@@ -557,7 +557,7 @@ class SpellsCodegen {
 				/* falls through */
 			case '\r':
 			case ' ': continue;
-			case '#':
+			case '#': {
 				let name = '';
 				i++;
 				this._col++;
@@ -617,6 +617,7 @@ class SpellsCodegen {
 					lastType = this.TYPE_SPELL;
 				}
 				break;
+			}
 			case '(':
 				if(hasReps) {
 					this._setError(Lng.seUnexpChar[lang], '(');
