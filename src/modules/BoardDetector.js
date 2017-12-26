@@ -160,7 +160,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			cap.textEl.tabIndex = 999;
+			if(cap.textEl) {
+				cap.textEl.tabIndex = 999;
+			}
 			return this.updateCaptcha(cap);
 		}
 		updateCaptcha(cap) {
@@ -170,7 +172,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			} catch(e) {
 				type = '2chaptcha';
 			}
-			return cap.updateHelper(`/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
+			const url = cap.textEl ? `/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum :
+				'/api/captcha/recaptcha/id';
+			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
 				let data = xhr.responseText;
 				try {
@@ -185,8 +189,17 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(type === '2chaptcha') {
-						// Get captcha image
+					if(data.type === 'recaptcha') {
+						$q('.captcha-key').value = data.id;
+						/* global grecaptcha */
+						if(!$id('captcha-widget-main').hasChildNodes()) {
+							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+						} else {
+							grecaptcha.reset(cap._2chWidget);
+						}
+						break;
+					} else if(type === '2chaptcha') {
+						// Get old captcha image
 						const src = `/api/captcha/${ type }/image/` + data.id;
 						let image = $id('de-image-captcha');
 						if(image) {

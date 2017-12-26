@@ -3677,7 +3677,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '998ae61';
+	var commit = 'a851611';
 
 
 	var defaultCfg = {
@@ -19537,7 +19537,9 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					cap.textEl.tabIndex = 999;
+					if (cap.textEl) {
+						cap.textEl.tabIndex = 999;
+					}
 					return this.updateCaptcha(cap);
 				}
 			}, {
@@ -19549,7 +19551,8 @@ true, true];
 					} catch (e) {
 						type = '2chaptcha';
 					}
-					return cap.updateHelper('/api/captcha/' + type + '/id?board=' + this.b + '&thread=' + pr.tNum, function (xhr) {
+					var url = cap.textEl ? '/api/captcha/' + type + '/id?board=' + this.b + '&thread=' + pr.tNum : '/api/captcha/recaptcha/id';
+					return cap.updateHelper(url, function (xhr) {
 						var box = $q('.captcha-box', cap.parentEl);
 						var data = xhr.responseText;
 						try {
@@ -19565,7 +19568,15 @@ true, true];
 							case 3:
 								return CancelablePromise.reject(); 
 							case 1:
-								if (type === '2chaptcha') {
+								if (data.type === 'recaptcha') {
+									$q('.captcha-key').value = data.id;
+									if (!$id('captcha-widget-main').hasChildNodes()) {
+										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+									} else {
+										grecaptcha.reset(cap._2chWidget);
+									}
+									break;
+								} else if (type === '2chaptcha') {
 									var src = '/api/captcha/' + type + '/image/' + data.id;
 									var image = $id('de-image-captcha');
 									if (image) {
