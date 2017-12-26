@@ -112,17 +112,17 @@ class Menu {
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
 			let rt = fixEventEl(e.relatedTarget);
-			if(rt && (rt = rt.farthestViewportElement) && (rt === this._el || this._el.contains(rt))) {
-				return;
-			}
-			if(isOverEvent) {
-				if(this.onover) {
-					this.onover();
-				}
-			} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-				this._closeTO = setTimeout(() => this.remove(), 75);
-				if(this.onout) {
-					this.onout();
+			rt = rt && rt.farthestViewportElement || rt;
+			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
+				if(isOverEvent) {
+					if(this.onover) {
+						this.onover();
+					}
+				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
+					this._closeTO = setTimeout(() => this.remove(), 75);
+					if(this.onout) {
+						this.onout();
+					}
 				}
 			}
 		}

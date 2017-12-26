@@ -25,12 +25,12 @@
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
-}], no-var: "error" */
+}], no-var: "error" *//* , prefer-template: "error" */
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '3ff9979';
+const commit = '998ae61';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */

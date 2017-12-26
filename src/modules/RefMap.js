@@ -3,8 +3,15 @@
 =========================================================================================================== */
 
 class RefMap {
+	constructor(post) {
+		this.hasMap = false;
+		this._hidden = false;
+		this._inited = false;
+		this._post = post;
+		this._set = new Set();
+	}
 	static gen(posts, thrURL) {
-		const opNums = DelForm.tNums;
+		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
 			const links = $Q('a', post.msg);
 			for(let lNum, i = 0, len = links.length; i < len; ++i) {
@@ -27,7 +34,7 @@ class RefMap {
 					ref._set.add(pNum);
 					ref.hasMap = true;
 				}
-				if(!aib.hasOPNum && opNums.has(lNum)) {
+				if(!aib.hasOPNum && tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
 				if(thrURL) {
@@ -40,10 +47,10 @@ class RefMap {
 		}
 	}
 	static init(form) {
-		var post = form.firstThr && form.firstThr.op;
+		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.init('', strNums);
@@ -71,31 +78,24 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
-			if(isAdd) {
-				if(strNums && strNums.has(lNum)) {
-					link.classList.add('de-link-hid');
-				}
-				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-					link.classList.add('de-ref-op');
-				}
-				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
-			} else {
+			if(!isAdd) {
 				lPost.ref.remove(pNum);
+				return;
 			}
+			if(strNums && strNums.has(lNum)) {
+				link.classList.add('de-link-hid');
+			}
+			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
+				link.classList.add('de-ref-op');
+			}
+			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 		}
-	}
-	constructor(post) {
-		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
-		this._post = post;
-		this._set = new Set();
 	}
 	add(post, num, isHidden = null) {
 		if(isHidden === null) {
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
@@ -108,7 +108,7 @@ class RefMap {
 		}
 	}
 	getElByNum(num) {
-		return $q('a[href$="' + num + '"]', this._el);
+		return $q(`a[href$="${ num }"]`, this._el);
 	}
 	has(num) {
 		return this._set.has(num);
@@ -118,22 +118,22 @@ class RefMap {
 			return;
 		}
 		this._hidden = true;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && !pst.hidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && !post.hidden) {
 				if(isForced) {
-					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					pst.ref.hide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(true, 'reference to >>' + this._post.num);
-					pst.ref.hide();
+					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
+					post.ref.hide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(true, 'reference to >>' + this._post.num);
+					post.ref.hide();
 				}
 			}
 		}
 	}
 	init(tUrl, strNums) {
-		var html = '';
-		for(var num of this._set) {
+		let html = '';
+		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
@@ -147,7 +147,7 @@ class RefMap {
 		if(this._set.size === 0) {
 			this.removeMap();
 		} else {
-			var el = this.getElByNum(num);
+			const el = this.getElByNum(num);
 			if(el) {
 				$del(el.nextSibling);
 				$del(el);
@@ -165,15 +165,15 @@ class RefMap {
 			return;
 		}
 		this._hidden = false;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && pst.hidden && !pst.spellHidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
-					pst.setUserVisib(false);
-					pst.ref.unhide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(false);
-					pst.ref.unhide();
+					post.setUserVisib(false);
+					post.ref.unhide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(false);
+					post.ref.unhide();
 				}
 			}
 		}
@@ -200,9 +200,10 @@ class RefMap {
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
-		return '<a href="' + tUrl + aib.anchor + num +
-			'" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') +
-			(MyPosts.has(num) ? ' de-ref-my' : '') +
-			'">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
+			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-my' : ''
+		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }
+
+/* eslint-disable no-var *//* , prefer-template */

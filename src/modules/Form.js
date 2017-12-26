@@ -295,8 +295,8 @@ class PostForm {
 				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 				(isOnNewLine ? '' : '\n') +
 					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) + '\n' : ''));
+			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
+					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {

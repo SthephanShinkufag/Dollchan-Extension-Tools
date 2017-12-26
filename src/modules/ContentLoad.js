@@ -209,9 +209,7 @@ function loadDocFiles(imgOnly) {
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-		progress.value = current;
-		counter.innerHTML = current;
-		current++;
+		progress.value = counter.innerHTML = current++;
 		if(imgLink) {
 			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 			if(imgOnly) {

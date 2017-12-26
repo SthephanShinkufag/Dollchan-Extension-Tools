@@ -525,8 +525,8 @@ class ExpandableMedia {
 		const needTitle = isWebm && Cfg.webmTitles;
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
-				(Cfg.webmControl ? 'controls ' : '') +
-				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
+				`${ Cfg.webmControl ? 'controls ' : '' }` +
+				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
 				${ imgNameEl }
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
@@ -829,5 +829,3 @@ function genImgHash([arrBuf, oldw, oldh]) {
 	}
 	return { hash };
 }
-
-/* eslint-disable no-var */

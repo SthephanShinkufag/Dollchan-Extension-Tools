@@ -25,12 +25,12 @@
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
-}], no-var: "error" */
+}], no-var: "error" *//* , prefer-template: "error" */
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '3ff9979';
+const commit = '998ae61';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4729,18 +4729,17 @@ const CfgWindow = {
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ? this._getBox('addSageBtn') +
-				this._getBox('saveSage') + '<br>' : '' }
-			${ pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
-				this._getInp('capUpdTime') + '<br>' +
-				this._getSel('captchaLang') + '<br>' : '' }
-			${ pr.txta ? this._getSel('addTextBtns') +
-				this._getBox('txtBtnsLoc') + '<br>' : '' }
-			${ pr.passw ? this._getInp('passwValue', true, 9) +
-				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
-					Lng.change[lang] }"><br>` : '' }
-			${ pr.name ? this._getInp('nameValue', false, 9) + ' ' +
-				this._getBox('userName') + '<br>' : '' }
+			${ pr.mail ? `${ this._getBox('addSageBtn') }
+				${ this._getBox('saveSage') }<br>` : '' }
+			${ pr.cap ? `${ aib.fch ? `${ this._getBox('cap4chanAlt') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
+				${ this._getSel('captchaLang') }<br>` : '' }
+			${ pr.txta ? `${ this._getSel('addTextBtns') }
+				${ this._getBox('txtBtnsLoc') }<br>` : '' }
+			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
+				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
+			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
+				${ this._getBox('userName') }<br>` : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
 				(pr.passw ? this._getBox('noPassword') : '') +
@@ -4763,39 +4762,36 @@ const CfgWindow = {
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
-			<div class="de-cfg-depend">
-				${ this._getInp('loadPages') }
-			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? this._getBox('updScript') +
-				`<div class="de-cfg-depend">
+			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
+			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
 						`${ Lng.checkNow[lang] }">
 				</div>` : '' }
-			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
-				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
-				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
-				this._getBox('turnOff') : '' }
+			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
+				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
+				` width: 80%;" placeholder="4chan.org, 8ch.net, …">${ this._getBox('turnOff') }` : '' }
 		</div>`;
 	},
 
 	// "Info" tab
 	_getCfgInfo() {
+		const statsTable = this._getInfoTable([
+			[Lng.thrViewed[lang], Cfg.stats.view],
+			[Lng.thrCreated[lang], Cfg.stats.op],
+			[Lng.thrHidden[lang], HiddenThreads.getCount()],
+			[Lng.postsSent[lang], Cfg.stats.reply]
+		], false);
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
-				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
+				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
+					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">` +
-				this._getInfoTable([
-					[Lng.thrViewed[lang], Cfg.stats.view],
-					[Lng.thrCreated[lang], Cfg.stats.op],
-					[Lng.thrHidden[lang], HiddenThreads.getCount()],
-					[Lng.postsSent[lang], Cfg.stats.reply]
-				], false) + `</div>
+				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
 			</div>
 			<input type="button" id="de-cfg-btn-debug" value="` +
@@ -5019,17 +5015,17 @@ class Menu {
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
 			let rt = fixEventEl(e.relatedTarget);
-			if(rt && (rt = rt.farthestViewportElement) && (rt === this._el || this._el.contains(rt))) {
-				return;
-			}
-			if(isOverEvent) {
-				if(this.onover) {
-					this.onover();
-				}
-			} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-				this._closeTO = setTimeout(() => this.remove(), 75);
-				if(this.onout) {
-					this.onout();
+			rt = rt && rt.farthestViewportElement || rt;
+			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
+				if(isOverEvent) {
+					if(this.onover) {
+						this.onover();
+					}
+				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
+					this._closeTO = setTimeout(() => this.remove(), 75);
+					if(this.onout) {
+						this.onout();
+					}
 				}
 			}
 		}
@@ -5904,9 +5900,7 @@ function loadDocFiles(imgOnly) {
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-		progress.value = current;
-		counter.innerHTML = current;
-		current++;
+		progress.value = counter.innerHTML = current++;
 		if(imgLink) {
 			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 			if(imgOnly) {
@@ -6171,9 +6165,9 @@ class Videos {
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
 			txt = Cfg.YTubeType === 1 ?
-				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }` +
-					(Cfg.addYouTube === 3 ? '?autoplay=1' : '') +
-					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
+				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+					Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+				}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>` :
 				'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
 					'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
@@ -6459,9 +6453,9 @@ class VideosParser {
 		}
 		const vids = aib.fixVideo(isPost, data);
 		for(let i = 0, len = vids.length; i < len; ++i) {
-			const [pst, m, isYtube] = vids[i];
-			if(pst) {
-				pst.videos.addLink(m, loader, null, isYtube);
+			const [post, m, isYtube] = vids[i];
+			if(post) {
+				post.videos.addLink(m, loader, null, isYtube);
 			}
 		}
 		return this;
@@ -6486,14 +6480,14 @@ function embedMediaLinks(data) {
 						`<p><audio src="${ src }" preload="none" controls></audio></p>`);
 				}
 			// Flash plugin for old browsers that not support HTML5 audio
-			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
+			} else if(!$q(`object[FlashVars*="${ src }"]`, el)) {
 				el.insertAdjacentHTML('beforeend', '<object data="' +
 					'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' +
 					'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' +
 					'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' +
 					'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' +
 					'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' +
-					'loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+					`loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=${ src }"><br>`);
 			}
 		}
 	}
@@ -6504,7 +6498,7 @@ function embedMediaLinks(data) {
 			const el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=` + link.href.split('/').pop() +
+					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('/').pop() }` +
 						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
 				</div>`);
 			}
@@ -6642,7 +6636,7 @@ class AjaxError {
 	toString() {
 		return this.code <= 0 ?
 			String(this.message || Lng.noConnect[lang]) :
-			'HTTP [' + this.code + '] ' + this.message;
+			`HTTP [${ this.code }] ${ this.message }`;
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
@@ -7033,8 +7027,8 @@ const Spells = {
 		}
 	},
 	decompileSpell(type, neg, val, scope, wipeMsg = null) {
-		let spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
-			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+		let spell = (neg ? '!#' : '#') + this.names[type] +
+			(scope ? `[${ scope[0] }${ scope[1] ? `,${ scope[1] === -1 ? '' : scope[1] }` : '' }]` : '');
 		if(!val) {
 			return spell;
 		}
@@ -7173,9 +7167,9 @@ const Spells = {
 	},
 
 	_decompileRep(rep, isOrep) {
-		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
-			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
+		return `${ isOrep ? '#outrep' : '#rep' }` +
+			`${ rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '' }` +
+			`${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') }`;
 	},
 	_decompileScope(scope, indent) {
 		const dScope = [];
@@ -8487,8 +8481,8 @@ class PostForm {
 				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 				(isOnNewLine ? '' : '\n') +
 					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) + '\n' : ''));
+			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
+					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
@@ -11212,13 +11206,13 @@ class Pview extends AbstractPost {
 				$each($Q('.de-img-pre', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(pst) {
-					if(!pst.viewed) {
-						pst.el.classList.add('de-viewed');
-						pst.viewed = true;
+				this._readDelay = setTimeout(function(post) {
+					if(!post.viewed) {
+						post.el.classList.add('de-viewed');
+						post.viewed = true;
 					}
 					const arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(pst.num);
+					arr.push(post.num);
 					sesStorage['de-viewed'] = arr;
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
@@ -11295,20 +11289,20 @@ class PviewsCache extends TemporaryContent {
 		}
 	}
 	getPost(num) {
-		const pst = this._posts.get(num);
-		if(!pst || pst.itemInited) {
-			return pst;
+		const post = this._posts.get(num);
+		if(!post || post.itemInited) {
+			return post;
 		}
 		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-			pst.ref.makeUnion(pByNum.get(this._tNum).ref);
+			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
-		pst.el = aib.fixHTML(pst.el);
-		delete pst.msg;
-		if(pst.ref.hasMap) {
-			pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+		post.el = aib.fixHTML(post.el);
+		delete post.msg;
+		if(post.ref.hasMap) {
+			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
-		pst.itemInited = true;
-		return pst;
+		post.itemInited = true;
+		return post;
 	}
 }
 PviewsCache.purgeSecs = 3e5;
@@ -11840,8 +11834,8 @@ class ExpandableMedia {
 		const needTitle = isWebm && Cfg.webmTitles;
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
-				(Cfg.webmControl ? 'controls ' : '') +
-				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
+				`${ Cfg.webmControl ? 'controls ' : '' }` +
+				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
 				${ imgNameEl }
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
@@ -12145,8 +12139,6 @@ function genImgHash([arrBuf, oldw, oldh]) {
 	return { hash };
 }
 
-/* eslint-disable no-var */
-
 /* ==[ PostBuilders.js ]======================================================================================
                                           BUILDERS FOR LOADED POSTS
 =========================================================================================================== */
@@ -12165,53 +12157,23 @@ class DOMPostsBuilder {
 	getOpMessage() {
 		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
 	}
-	getPostEl(i) {
-		return aib.fixHTML(this._posts[i]);
-	}
 	getPNum(i) {
 		return aib.getPNum(this._posts[i]);
 	}
+	getPostEl(i) {
+		return aib.fixHTML(this._posts[i]);
+	}
 	* bannedPostsData() {
-		var bEls = $Q(aib.qBan, this._form);
-		for(let i = 0, len = bEls.length; i < len; ++i) {
-			const bEl = bEls[i];
-			const pEl = aib.getPostElOfEl(bEl);
-			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
+		const banEls = $Q(aib.qBan, this._form);
+		for(let i = 0, len = banEls.length; i < len; ++i) {
+			const banEl = banEls[i];
+			const postEl = aib.getPostElOfEl(banEl);
+			yield [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 		}
 	}
 }
-DOMPostsBuilder.fixFileName = function(name, maxLength) {
-	const decodedName = name.replace(/&amp;/g, '&')
-		.replace(/&quot;/g, '"')
-		.replace(/&#039;/g, "'")
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>');
-	if(decodedName.length > maxLength) {
-		return {
-			isFixed : true,
-			name    : decodedName.slice(0, 25)
-				.replace(/&/g, '&amp;')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-		};
-	}
-	return { isFixed: false, name };
-};
 
 class _4chanPostsBuilder {
-	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
-			let s;
-			if(board === aib.brd && (s = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
-			}
-		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
-		}
-	}
 	constructor(json, brd) {
 		this._posts = json.posts;
 		this._brd = brd;
@@ -12221,13 +12183,35 @@ class _4chanPostsBuilder {
 			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 		}
 	}
+	static fixFileName(name, maxLength) {
+		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		return decodedName.length <= maxLength ? { isFixed: false, name } : {
+			isFixed : true,
+			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+		};
+	}
+	static _setCustomSpoiler(board, val) {
+		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+			let spoilerEl;
+			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
+				_4chanPostsBuilder._customSpoiler.set(board,
+					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+			}
+		} else {
+			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+		}
+	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
 	}
 	getOpMessage() {
-		const data = this._posts[0];
-		return $add(aib.fixHTML('<blockquote class="postMessage" id="' +
-			`m${ data.no }"> ${ data.com }</blockquote>`));
+		const { no, com } = this._posts[0];
+		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].no;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -12236,8 +12220,7 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon =
-			id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif' }`;
+		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -12246,7 +12229,7 @@ class _4chanPostsBuilder {
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
 		} else if(typeof data.filename === 'string') {
-			let { name, isFixed: needTitle } = DOMPostsBuilder.fixFileName(data.filename, 30);
+			let { name, isFixed: needTitle } = _4chanPostsBuilder.fixFileName(data.filename, 30);
 			name += data.ext;
 			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
@@ -12271,9 +12254,9 @@ class _4chanPostsBuilder {
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
 				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
-					data.tim + data.ext + `" target="_blank">
+					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
-						data.md5 + `" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
 					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">
 						${ size } ${ data.ext.substr(1).toUpperCase() }
 					</div>
@@ -12291,53 +12274,52 @@ class _4chanPostsBuilder {
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by Administrators">## Admin</strong>';
 			capcodeClass = 'capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." ' +
+			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." ` +
 				'title="This user is a 4chan Administrator." class="identityIcon">';
 			break;
 		case 'mod':
 			capcodeText = '<strong class="capcode hand id_mod" ' +
 				'title="Highlight posts by Moderators">## Mod</strong>';
 			capcodeClass = 'capcodeMod';
-			capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." ' +
+			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." ` +
 				'title="This user is a 4chan Moderator." class="identityIcon">';
 			break;
 		case 'developer':
 			capcodeText = '<strong class="capcode hand id_developer" ' +
 				'title="Highlight posts by Developers">## Developer</strong>';
 			capcodeClass = 'capcodeDeveloper';
-			capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." ' +
+			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." ` +
 				'title="This user is a 4chan Developer." class="identityIcon">';
 			break;
 		case 'manager':
 			capcodeText = '<strong class="capcode hand id_manager" ' +
 				'title="Highlight posts by Managers">## Manager</strong>';
 			capcodeClass = 'capcodeManager';
-			capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." ' +
+			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." ` +
 				'title="This user is a 4chan Manager." class="identityIcon">';
 			break;
 		case 'founder':
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by the Founder">## Founder</strong>';
 			capcodeClass = ' capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." ' +
+			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan's Founder." ` +
 				'title="This user is 4chan\'s Founder." class="identityIcon">';
-			break;
 		}
 
 		// --- POST ---
-		const name = data.name || '';
+		const { name = '' } = data;
 		const nameEl = `<span class="name">${ name }</span>`;
 		const mobNameEl = name.length <= 30 ? nameEl :
 			`<span class="name" data-tip data-tip-cb="mShowFull">${ name.substring(30) }(…)</span>`;
 		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
-		const posteruidEl = data.id && !data.capcode ? '<span class="posteruid id_' + data.id +
+		const posteruidEl = data.id && !data.capcode ? `<span class="posteruid id_${ data.id }` +
 			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
 		const flagEl = data.country ? `<span title="${ data.country_name }" class="flag flag-${
 			data.country.toLowerCase() }"></span>` : '';
 		const emailEl = data.email ? `<a href="mailto:${
 			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
-		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('` +
-			num + `');" title="Reply to this post">${ num }</a>`;
+		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
+			num }');" title="Reply to this post">${ num }</a>`;
 		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
 		return `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
@@ -12375,9 +12357,6 @@ class _4chanPostsBuilder {
 			</div>
 		</div>`;
 	}
-	getPNum(i) {
-		return this._posts[i + 1].no;
-	}
 	* bannedPostsData() {}
 }
 _4chanPostsBuilder._customSpoiler = new Map();
@@ -12398,6 +12377,9 @@ class DobrochanPostsBuilder {
 	}
 	getOpMessage() {
 		return $add(aib.fixHTML(`<div class="postbody"> ${ this._posts[0].message_html }</div>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].display_id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
@@ -12460,11 +12442,11 @@ class DobrochanPostsBuilder {
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
 		const isOp = i === -1;
-		return (isOp ? `<div id="post_${ num }" class="oppost post">` :
+		return `${ isOp ? `<div id="post_${ num }" class="oppost post">` :
 			`<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
-			<td class="reply" id="reply${ num }">`) +
-				`<a name="i${ num }"></a>
+			<td class="reply" id="reply${ num }">` }
+				<a name="i${ num }"></a>
 				<label>
 					<input name="${ num }" value="${ data.thread_id }" ` +
 						`class="delete_checkbox" id="delbox_${ num }" type="checkbox">
@@ -12476,11 +12458,8 @@ class DobrochanPostsBuilder {
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
-				<div class="postbody"> ${ data.message_html }</div>` +
-			(isOp ? '</div>' : '</td></tr></tbody></table>');
-	}
-	getPNum(i) {
-		return this._posts[i + 1].display_id;
+				<div class="postbody"> ${ data.message_html }</div>
+			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
 	}
 	* bannedPostsData() {}
 }
@@ -12502,6 +12481,9 @@ class MakabaPostsBuilder {
 	getOpMessage() {
 		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
+	getPNum(i) {
+		return this._posts[i + 1].num;
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
 	}
@@ -12514,17 +12496,15 @@ class MakabaPostsBuilder {
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images ${
-				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
+			filesHTML = `<div class="images images-${ data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
-				const fullName = file.fullname || file.name;
-				const dispName = file.displayname || file.name;
-				const isWebm = fullName.substr(-5) === '.webm';
+				const { fullname = file.name, displayname: dispName = file.name } = file;
+				const isWebm = fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
-							`${	dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
+							`${	dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
 							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
@@ -12561,7 +12541,7 @@ class MakabaPostsBuilder {
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
-						(data.tags ? ' /' + data.tags + '/' : '') }</span>` }
+						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
 					<span class="${ tripEl }</span>
@@ -12589,9 +12569,6 @@ class MakabaPostsBuilder {
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-	}
-	getPNum(i) {
-		return this._posts[i + 1].num;
 	}
 	* bannedPostsData() {
 		for(const { banned, num } of this._posts) {
@@ -12636,16 +12613,17 @@ class _0chanPostsBuilder {
 		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${
 			this._posts[0].message }</div></div>`));
 	}
+	getPNum(i) {
+		return +this._posts[i + 1].id; // Must return a Number, not a String!
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
 	}
 	getPostHTML(i) {
-		const data = this._posts[i + 1];
-		const num = data.id;
-		const brd = data.boardDir;
-		const parId = data.parentId;
-		const isOp = i === -1;
 		let filesHTML = '';
+		const isOp = i === -1;
+		const data = this._posts[i + 1];
+		const { id: num, boardDir: brd, parentId: parId } = data;
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
 			for(const { images } of data.attachments) {
@@ -12655,8 +12633,8 @@ class _0chanPostsBuilder {
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
 					</figcaption>
 					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url }" srcset="` +
-						thumb400.url + ' 2x" class="post-img-thumbnail" style="width: ' +
-						thumb200.width + `px; height: ${ thumb200.height }px;"></a>
+						`${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ` +
+						`${ thumb200.width }px; height: ${ thumb200.height }px;"></a>
 				</span></figure>`;
 			}
 			filesHTML += '</div>';
@@ -12692,9 +12670,6 @@ class _0chanPostsBuilder {
 			<div class="post-footer"></div>
 		</div></div>`;
 	}
-	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
-	}
 }
 
 /* ==[ RefMap.js ]============================================================================================
@@ -12702,8 +12677,15 @@ class _0chanPostsBuilder {
 =========================================================================================================== */
 
 class RefMap {
+	constructor(post) {
+		this.hasMap = false;
+		this._hidden = false;
+		this._inited = false;
+		this._post = post;
+		this._set = new Set();
+	}
 	static gen(posts, thrURL) {
-		const opNums = DelForm.tNums;
+		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
 			const links = $Q('a', post.msg);
 			for(let lNum, i = 0, len = links.length; i < len; ++i) {
@@ -12726,7 +12708,7 @@ class RefMap {
 					ref._set.add(pNum);
 					ref.hasMap = true;
 				}
-				if(!aib.hasOPNum && opNums.has(lNum)) {
+				if(!aib.hasOPNum && tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
 				if(thrURL) {
@@ -12739,10 +12721,10 @@ class RefMap {
 		}
 	}
 	static init(form) {
-		var post = form.firstThr && form.firstThr.op;
+		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.init('', strNums);
@@ -12770,31 +12752,24 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
-			if(isAdd) {
-				if(strNums && strNums.has(lNum)) {
-					link.classList.add('de-link-hid');
-				}
-				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-					link.classList.add('de-ref-op');
-				}
-				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
-			} else {
+			if(!isAdd) {
 				lPost.ref.remove(pNum);
+				return;
 			}
+			if(strNums && strNums.has(lNum)) {
+				link.classList.add('de-link-hid');
+			}
+			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
+				link.classList.add('de-ref-op');
+			}
+			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 		}
-	}
-	constructor(post) {
-		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
-		this._post = post;
-		this._set = new Set();
 	}
 	add(post, num, isHidden = null) {
 		if(isHidden === null) {
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
@@ -12807,7 +12782,7 @@ class RefMap {
 		}
 	}
 	getElByNum(num) {
-		return $q('a[href$="' + num + '"]', this._el);
+		return $q(`a[href$="${ num }"]`, this._el);
 	}
 	has(num) {
 		return this._set.has(num);
@@ -12817,22 +12792,22 @@ class RefMap {
 			return;
 		}
 		this._hidden = true;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && !pst.hidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && !post.hidden) {
 				if(isForced) {
-					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					pst.ref.hide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(true, 'reference to >>' + this._post.num);
-					pst.ref.hide();
+					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
+					post.ref.hide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(true, 'reference to >>' + this._post.num);
+					post.ref.hide();
 				}
 			}
 		}
 	}
 	init(tUrl, strNums) {
-		var html = '';
-		for(var num of this._set) {
+		let html = '';
+		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
@@ -12846,7 +12821,7 @@ class RefMap {
 		if(this._set.size === 0) {
 			this.removeMap();
 		} else {
-			var el = this.getElByNum(num);
+			const el = this.getElByNum(num);
 			if(el) {
 				$del(el.nextSibling);
 				$del(el);
@@ -12864,15 +12839,15 @@ class RefMap {
 			return;
 		}
 		this._hidden = false;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && pst.hidden && !pst.spellHidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
-					pst.setUserVisib(false);
-					pst.ref.unhide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(false);
-					pst.ref.unhide();
+					post.setUserVisib(false);
+					post.ref.unhide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(false);
+					post.ref.unhide();
 				}
 			}
 		}
@@ -12899,12 +12874,13 @@ class RefMap {
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
-		return '<a href="' + tUrl + aib.anchor + num +
-			'" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') +
-			(MyPosts.has(num) ? ' de-ref-my' : '') +
-			'">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
+			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-my' : ''
+		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }
+
+/* eslint-disable no-var *//* , prefer-template */
 
 /* ==[ Threads.js ]===========================================================================================
                                                    THREADS

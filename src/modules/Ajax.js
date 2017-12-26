@@ -128,7 +128,7 @@ class AjaxError {
 	toString() {
 		return this.code <= 0 ?
 			String(this.message || Lng.noConnect[lang]) :
-			'HTTP [' + this.code + '] ' + this.message;
+			`HTTP [${ this.code }] ${ this.message }`;
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');

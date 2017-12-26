@@ -16,53 +16,23 @@ class DOMPostsBuilder {
 	getOpMessage() {
 		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
 	}
-	getPostEl(i) {
-		return aib.fixHTML(this._posts[i]);
-	}
 	getPNum(i) {
 		return aib.getPNum(this._posts[i]);
 	}
+	getPostEl(i) {
+		return aib.fixHTML(this._posts[i]);
+	}
 	* bannedPostsData() {
-		var bEls = $Q(aib.qBan, this._form);
-		for(let i = 0, len = bEls.length; i < len; ++i) {
-			const bEl = bEls[i];
-			const pEl = aib.getPostElOfEl(bEl);
-			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
+		const banEls = $Q(aib.qBan, this._form);
+		for(let i = 0, len = banEls.length; i < len; ++i) {
+			const banEl = banEls[i];
+			const postEl = aib.getPostElOfEl(banEl);
+			yield [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 		}
 	}
 }
-DOMPostsBuilder.fixFileName = function(name, maxLength) {
-	const decodedName = name.replace(/&amp;/g, '&')
-		.replace(/&quot;/g, '"')
-		.replace(/&#039;/g, "'")
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>');
-	if(decodedName.length > maxLength) {
-		return {
-			isFixed : true,
-			name    : decodedName.slice(0, 25)
-				.replace(/&/g, '&amp;')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-		};
-	}
-	return { isFixed: false, name };
-};
 
 class _4chanPostsBuilder {
-	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
-			let s;
-			if(board === aib.brd && (s = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
-			}
-		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
-		}
-	}
 	constructor(json, brd) {
 		this._posts = json.posts;
 		this._brd = brd;
@@ -72,13 +42,35 @@ class _4chanPostsBuilder {
 			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 		}
 	}
+	static fixFileName(name, maxLength) {
+		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		return decodedName.length <= maxLength ? { isFixed: false, name } : {
+			isFixed : true,
+			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+		};
+	}
+	static _setCustomSpoiler(board, val) {
+		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+			let spoilerEl;
+			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
+				_4chanPostsBuilder._customSpoiler.set(board,
+					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+			}
+		} else {
+			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+		}
+	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
 	}
 	getOpMessage() {
-		const data = this._posts[0];
-		return $add(aib.fixHTML('<blockquote class="postMessage" id="' +
-			`m${ data.no }"> ${ data.com }</blockquote>`));
+		const { no, com } = this._posts[0];
+		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].no;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -87,8 +79,7 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon =
-			id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif' }`;
+		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -97,7 +88,7 @@ class _4chanPostsBuilder {
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
 		} else if(typeof data.filename === 'string') {
-			let { name, isFixed: needTitle } = DOMPostsBuilder.fixFileName(data.filename, 30);
+			let { name, isFixed: needTitle } = _4chanPostsBuilder.fixFileName(data.filename, 30);
 			name += data.ext;
 			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
@@ -122,9 +113,9 @@ class _4chanPostsBuilder {
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
 				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
-					data.tim + data.ext + `" target="_blank">
+					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
-						data.md5 + `" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
 					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">
 						${ size } ${ data.ext.substr(1).toUpperCase() }
 					</div>
@@ -142,53 +133,52 @@ class _4chanPostsBuilder {
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by Administrators">## Admin</strong>';
 			capcodeClass = 'capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." ' +
+			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." ` +
 				'title="This user is a 4chan Administrator." class="identityIcon">';
 			break;
 		case 'mod':
 			capcodeText = '<strong class="capcode hand id_mod" ' +
 				'title="Highlight posts by Moderators">## Mod</strong>';
 			capcodeClass = 'capcodeMod';
-			capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." ' +
+			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." ` +
 				'title="This user is a 4chan Moderator." class="identityIcon">';
 			break;
 		case 'developer':
 			capcodeText = '<strong class="capcode hand id_developer" ' +
 				'title="Highlight posts by Developers">## Developer</strong>';
 			capcodeClass = 'capcodeDeveloper';
-			capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." ' +
+			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." ` +
 				'title="This user is a 4chan Developer." class="identityIcon">';
 			break;
 		case 'manager':
 			capcodeText = '<strong class="capcode hand id_manager" ' +
 				'title="Highlight posts by Managers">## Manager</strong>';
 			capcodeClass = 'capcodeManager';
-			capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." ' +
+			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." ` +
 				'title="This user is a 4chan Manager." class="identityIcon">';
 			break;
 		case 'founder':
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by the Founder">## Founder</strong>';
 			capcodeClass = ' capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." ' +
+			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan's Founder." ` +
 				'title="This user is 4chan\'s Founder." class="identityIcon">';
-			break;
 		}
 
 		// --- POST ---
-		const name = data.name || '';
+		const { name = '' } = data;
 		const nameEl = `<span class="name">${ name }</span>`;
 		const mobNameEl = name.length <= 30 ? nameEl :
 			`<span class="name" data-tip data-tip-cb="mShowFull">${ name.substring(30) }(…)</span>`;
 		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
-		const posteruidEl = data.id && !data.capcode ? '<span class="posteruid id_' + data.id +
+		const posteruidEl = data.id && !data.capcode ? `<span class="posteruid id_${ data.id }` +
 			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
 		const flagEl = data.country ? `<span title="${ data.country_name }" class="flag flag-${
 			data.country.toLowerCase() }"></span>` : '';
 		const emailEl = data.email ? `<a href="mailto:${
 			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
-		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('` +
-			num + `');" title="Reply to this post">${ num }</a>`;
+		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
+			num }');" title="Reply to this post">${ num }</a>`;
 		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
 		return `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
@@ -226,9 +216,6 @@ class _4chanPostsBuilder {
 			</div>
 		</div>`;
 	}
-	getPNum(i) {
-		return this._posts[i + 1].no;
-	}
 	* bannedPostsData() {}
 }
 _4chanPostsBuilder._customSpoiler = new Map();
@@ -249,6 +236,9 @@ class DobrochanPostsBuilder {
 	}
 	getOpMessage() {
 		return $add(aib.fixHTML(`<div class="postbody"> ${ this._posts[0].message_html }</div>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].display_id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
@@ -311,11 +301,11 @@ class DobrochanPostsBuilder {
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
 		const isOp = i === -1;
-		return (isOp ? `<div id="post_${ num }" class="oppost post">` :
+		return `${ isOp ? `<div id="post_${ num }" class="oppost post">` :
 			`<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
-			<td class="reply" id="reply${ num }">`) +
-				`<a name="i${ num }"></a>
+			<td class="reply" id="reply${ num }">` }
+				<a name="i${ num }"></a>
 				<label>
 					<input name="${ num }" value="${ data.thread_id }" ` +
 						`class="delete_checkbox" id="delbox_${ num }" type="checkbox">
@@ -327,11 +317,8 @@ class DobrochanPostsBuilder {
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
-				<div class="postbody"> ${ data.message_html }</div>` +
-			(isOp ? '</div>' : '</td></tr></tbody></table>');
-	}
-	getPNum(i) {
-		return this._posts[i + 1].display_id;
+				<div class="postbody"> ${ data.message_html }</div>
+			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
 	}
 	* bannedPostsData() {}
 }
@@ -353,6 +340,9 @@ class MakabaPostsBuilder {
 	getOpMessage() {
 		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
+	getPNum(i) {
+		return this._posts[i + 1].num;
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
 	}
@@ -365,17 +355,15 @@ class MakabaPostsBuilder {
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images ${
-				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
+			filesHTML = `<div class="images images-${ data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
-				const fullName = file.fullname || file.name;
-				const dispName = file.displayname || file.name;
-				const isWebm = fullName.substr(-5) === '.webm';
+				const { fullname = file.name, displayname: dispName = file.name } = file;
+				const isWebm = fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
-							`${	dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
+							`${	dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
 							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
@@ -412,7 +400,7 @@ class MakabaPostsBuilder {
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
-						(data.tags ? ' /' + data.tags + '/' : '') }</span>` }
+						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
 					<span class="${ tripEl }</span>
@@ -440,9 +428,6 @@ class MakabaPostsBuilder {
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-	}
-	getPNum(i) {
-		return this._posts[i + 1].num;
 	}
 	* bannedPostsData() {
 		for(const { banned, num } of this._posts) {
@@ -487,16 +472,17 @@ class _0chanPostsBuilder {
 		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${
 			this._posts[0].message }</div></div>`));
 	}
+	getPNum(i) {
+		return +this._posts[i + 1].id; // Must return a Number, not a String!
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
 	}
 	getPostHTML(i) {
-		const data = this._posts[i + 1];
-		const num = data.id;
-		const brd = data.boardDir;
-		const parId = data.parentId;
-		const isOp = i === -1;
 		let filesHTML = '';
+		const isOp = i === -1;
+		const data = this._posts[i + 1];
+		const { id: num, boardDir: brd, parentId: parId } = data;
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
 			for(const { images } of data.attachments) {
@@ -506,8 +492,8 @@ class _0chanPostsBuilder {
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
 					</figcaption>
 					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url }" srcset="` +
-						thumb400.url + ' 2x" class="post-img-thumbnail" style="width: ' +
-						thumb200.width + `px; height: ${ thumb200.height }px;"></a>
+						`${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ` +
+						`${ thumb200.width }px; height: ${ thumb200.height }px;"></a>
 				</span></figure>`;
 			}
 			filesHTML += '</div>';
@@ -542,8 +528,5 @@ class _0chanPostsBuilder {
 			</div>
 			<div class="post-footer"></div>
 		</div></div>`;
-	}
-	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
 	}
 }

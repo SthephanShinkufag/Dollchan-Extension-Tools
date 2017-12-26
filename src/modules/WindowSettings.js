@@ -730,18 +730,17 @@ const CfgWindow = {
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ? this._getBox('addSageBtn') +
-				this._getBox('saveSage') + '<br>' : '' }
-			${ pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
-				this._getInp('capUpdTime') + '<br>' +
-				this._getSel('captchaLang') + '<br>' : '' }
-			${ pr.txta ? this._getSel('addTextBtns') +
-				this._getBox('txtBtnsLoc') + '<br>' : '' }
-			${ pr.passw ? this._getInp('passwValue', true, 9) +
-				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
-					Lng.change[lang] }"><br>` : '' }
-			${ pr.name ? this._getInp('nameValue', false, 9) + ' ' +
-				this._getBox('userName') + '<br>' : '' }
+			${ pr.mail ? `${ this._getBox('addSageBtn') }
+				${ this._getBox('saveSage') }<br>` : '' }
+			${ pr.cap ? `${ aib.fch ? `${ this._getBox('cap4chanAlt') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
+				${ this._getSel('captchaLang') }<br>` : '' }
+			${ pr.txta ? `${ this._getSel('addTextBtns') }
+				${ this._getBox('txtBtnsLoc') }<br>` : '' }
+			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
+				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
+			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
+				${ this._getBox('userName') }<br>` : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
 				(pr.passw ? this._getBox('noPassword') : '') +
@@ -764,39 +763,36 @@ const CfgWindow = {
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
-			<div class="de-cfg-depend">
-				${ this._getInp('loadPages') }
-			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? this._getBox('updScript') +
-				`<div class="de-cfg-depend">
+			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
+			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
 						`${ Lng.checkNow[lang] }">
 				</div>` : '' }
-			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
-				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
-				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
-				this._getBox('turnOff') : '' }
+			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
+				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
+				` width: 80%;" placeholder="4chan.org, 8ch.net, …">${ this._getBox('turnOff') }` : '' }
 		</div>`;
 	},
 
 	// "Info" tab
 	_getCfgInfo() {
+		const statsTable = this._getInfoTable([
+			[Lng.thrViewed[lang], Cfg.stats.view],
+			[Lng.thrCreated[lang], Cfg.stats.op],
+			[Lng.thrHidden[lang], HiddenThreads.getCount()],
+			[Lng.postsSent[lang], Cfg.stats.reply]
+		], false);
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
-				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
+				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
+					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">` +
-				this._getInfoTable([
-					[Lng.thrViewed[lang], Cfg.stats.view],
-					[Lng.thrCreated[lang], Cfg.stats.op],
-					[Lng.thrHidden[lang], HiddenThreads.getCount()],
-					[Lng.postsSent[lang], Cfg.stats.reply]
-				], false) + `</div>
+				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
 			</div>
 			<input type="button" id="de-cfg-btn-debug" value="` +

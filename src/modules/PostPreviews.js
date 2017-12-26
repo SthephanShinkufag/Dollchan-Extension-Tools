@@ -368,13 +368,13 @@ class Pview extends AbstractPost {
 				$each($Q('.de-img-pre', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(pst) {
-					if(!pst.viewed) {
-						pst.el.classList.add('de-viewed');
-						pst.viewed = true;
+				this._readDelay = setTimeout(function(post) {
+					if(!post.viewed) {
+						post.el.classList.add('de-viewed');
+						post.viewed = true;
 					}
 					const arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(pst.num);
+					arr.push(post.num);
 					sesStorage['de-viewed'] = arr;
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
@@ -451,20 +451,20 @@ class PviewsCache extends TemporaryContent {
 		}
 	}
 	getPost(num) {
-		const pst = this._posts.get(num);
-		if(!pst || pst.itemInited) {
-			return pst;
+		const post = this._posts.get(num);
+		if(!post || post.itemInited) {
+			return post;
 		}
 		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-			pst.ref.makeUnion(pByNum.get(this._tNum).ref);
+			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
-		pst.el = aib.fixHTML(pst.el);
-		delete pst.msg;
-		if(pst.ref.hasMap) {
-			pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+		post.el = aib.fixHTML(post.el);
+		delete post.msg;
+		if(post.ref.hasMap) {
+			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
-		pst.itemInited = true;
-		return pst;
+		post.itemInited = true;
+		return post;
 	}
 }
 PviewsCache.purgeSecs = 3e5;
