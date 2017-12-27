@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'f2336c8';
+const commit = '668eebe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16525,14 +16525,15 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return `${ link }${ Lng.updAvail[lang].replace('%s', version) }</a>`;
+					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
 			}
 			if(isManual) {
-				const vc = version + '.' + commit;
-				return xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1] === commit ?
+				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+				const vc = version + '.' + c;
+				return c === commit ?
 					Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;

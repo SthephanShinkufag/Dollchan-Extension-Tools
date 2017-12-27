@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'f2336c8';
+	var commit = '668eebe';
 
 
 	var defaultCfg = {
@@ -21820,14 +21820,15 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
 				for (var i = 0, _len12 = Math.max(currentVer.length, remoteVer.length); i < _len12; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-						return '' + link + Lng.updAvail[lang].replace('%s', version) + '</a>';
+						return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>';
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 						break;
 					}
 				}
 				if (isManual) {
-					var vc = version + '.' + commit;
-					return xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1] === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
+					var c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+					var vc = version + '.' + c;
+					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
 				}
 			}
 			return Promise.reject();
