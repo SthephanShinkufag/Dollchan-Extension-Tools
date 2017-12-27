@@ -3,7 +3,7 @@
 // @version         17.10.24.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
-// @copyright       © 2017 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
+// @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
@@ -13,6 +13,10 @@
 // @grant           GM_deleteValue
 // @grant           GM_openInTab
 // @grant           GM_xmlhttpRequest
+// @grant           GM.getValue
+// @grant           GM.setValue
+// @grant           GM.deleteValue
+// @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
 // @nocompat        Chrome
@@ -2963,6 +2967,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
+
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 	'use strict';
 
@@ -3677,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'bcda236';
+	var commit = '414a4d4';
 
 
 	var defaultCfg = {

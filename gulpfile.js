@@ -51,7 +51,9 @@ gulp.task('make:es6', ['updatecommit'], function() {
 				.pipe(tap(function(moduleFile) {
 					str = str.replace(arr[i], moduleFile.contents.toString());
 					if(++count === len) {
-						newfile('src/Dollchan_Extension_Tools.es6.user.js', str).pipe(gulp.dest('.'));
+						newfile('src/Dollchan_Extension_Tools.es6.user.js', str)
+							.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
+							.pipe(gulp.dest('.'));
 					}
 				}));
 		}
@@ -75,7 +77,7 @@ gulp.task('make', ['make:es5']);
 // Split es6-script into separate module files
 gulp.task('make:modules', function() {
 	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(function(file) {
-		const arr = file.contents.toString().split('/* ==[ ');
+		const arr = file.contents.toString().split('// ==/UserScript==\r\n\r\n')[1].split('/* ==[ ');
 		let wrapStr = `${ arr[0].slice(0, -2) }\r\n`;
 		for(let i = 1, len = arr.length; i < len; ++i) {
 			let str = arr[i];
