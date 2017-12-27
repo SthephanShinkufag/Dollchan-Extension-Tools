@@ -3677,7 +3677,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '69b2bbb';
+	var commit = '4944ab6';
 
 
 	var defaultCfg = {
@@ -18693,6 +18693,9 @@ true, true];
 				thr = prev.lastThr;
 			}
 			formEl.setAttribute('de-form', '');
+			if (!aib.mak) {
+				formEl.removeAttribute('id');
+			}
 			$each($Q('script', this.el), $del);
 			var threads = DelForm.getThreads(this.el),
 			    len = threads.length;

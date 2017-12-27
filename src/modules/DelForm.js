@@ -72,6 +72,9 @@ class DelForm {
 			thr = prev.lastThr;
 		}
 		formEl.setAttribute('de-form', '');
+		if(!aib.mak) {
+			formEl.removeAttribute('id');
+		}
 		$each($Q('script', this.el), $del);
 		var threads = DelForm.getThreads(this.el),
 			len = threads.length;
