@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'ea3cdc6';
+const commit = '69b2bbb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14160,7 +14160,6 @@ class DelForm {
 			thr = prev.lastThr;
 		}
 		formEl.setAttribute('de-form', '');
-		formEl.removeAttribute('id');
 		$each($Q('script', this.el), $del);
 		var threads = DelForm.getThreads(this.el),
 			len = threads.length;
