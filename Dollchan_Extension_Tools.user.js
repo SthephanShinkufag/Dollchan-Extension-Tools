@@ -3677,7 +3677,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '4944ab6';
+	var commit = 'e2b6bea';
 
 
 	var defaultCfg = {
@@ -21656,6 +21656,11 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 					defaultCfg.timeOffset = 4;
 					defaultCfg.correctTime = 1;
 					return false;
+				}
+			}, {
+				key: 'qImgNameLink',
+				get: function get() {
+					return '.file-info > .btn-group > .btn-xs > a';
 				}
 			}, {
 				key: 'css',

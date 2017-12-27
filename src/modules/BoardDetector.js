@@ -1616,6 +1616,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
+		get qImgNameLink() {
+			return '.file-info > .btn-group > .btn-xs > a';
+		}
 		get css() {
 			return super.css + `.fa-sort { display: none; }
 				time::after { content: none; }`;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '4944ab6';
+const commit = 'e2b6bea';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16371,6 +16371,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.unimportant';
 
 			this.markupBB = true;
+		}
+		get qImgNameLink() {
+			return '.file-info > .btn-group > .btn-xs > a';
 		}
 		get css() {
 			return super.css + `.fa-sort { display: none; }
