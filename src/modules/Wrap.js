@@ -1,4 +1,3 @@
-
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
@@ -8,7 +7,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '2deff05';
+const commit = '188ac53';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */

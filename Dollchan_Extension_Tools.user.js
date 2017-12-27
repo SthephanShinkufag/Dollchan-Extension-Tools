@@ -2967,7 +2967,6 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
-
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 	'use strict';
 
@@ -3682,7 +3681,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '2deff05';
+	var commit = '188ac53';
 
 
 	var defaultCfg = {
@@ -21826,9 +21825,8 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 					}
 				}
 				if (isManual) {
-					var c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
 					var vc = version + '.' + commit;
-					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
+					return xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1] === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
 				}
 			}
 			return Promise.reject();

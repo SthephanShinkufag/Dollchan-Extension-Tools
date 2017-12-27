@@ -88,9 +88,9 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				}
 			}
 			if(isManual) {
-				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
 				const vc = version + '.' + commit;
-				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+				return xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1] === commit ?
+					Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}

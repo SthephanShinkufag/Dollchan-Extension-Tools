@@ -21,7 +21,6 @@
 // @include         *
 // @nocompat        Chrome
 // ==/UserScript==
-
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
@@ -31,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '2deff05';
+const commit = '188ac53';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16531,9 +16530,9 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				}
 			}
 			if(isManual) {
-				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
 				const vc = version + '.' + commit;
-				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+				return xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1] === commit ?
+					Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
