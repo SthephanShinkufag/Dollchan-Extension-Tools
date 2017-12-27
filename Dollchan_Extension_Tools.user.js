@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '414a4d4';
+	var commit = '2deff05';
 
 
 	var defaultCfg = {
@@ -4104,8 +4104,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		myPosts: ['Мои посты', 'My posts', 'Мої пости'],
 
 		checkNow: ['Проверить сейчас', 'Check now', 'Перевірити зараз'],
-		updAvail: ['Доступно обновление Dollchan!', 'Dollchan update available!', 'Доступне оновлення Dollchan!'],
-		haveLatest: ['У вас стоит последняя стабильная версия!', 'You have the latest stable version!', 'Ви маєте останню стабільну версію!'],
+		updAvail: ['Доступно обновление Dollchan: %s', 'Dollchan update available: %s!', 'Доступне оновлення Dollchan: %s'],
+		newCommitsAvail: ['Обнаружены новые исправления: %s', 'New fixes detected: %s', 'Виявлено нові виправлення: %s'],
+		haveLatestStable: ['Ваша версия %s является последней из стабильных.', 'Your %s version is the latest from stable versions.', 'Ваша версія %s є останньою зі стабільних.'],
+		haveLatestCommit: ['Ваша версия %s содержит последние исправления.', 'Your %s version contains all the latest fixes.', 'Ваша версія %s містить всі останні виправлення.'],
 		thrViewed: ['Тредов посещено', 'Threads visited', 'Тредів відвідано'],
 		thrCreated: ['Тредов создано', 'Threads created', 'Тредів створено'],
 		thrHidden: ['Тредов скрыто', 'Threads hidden', 'Тредів сховано'],
@@ -4227,7 +4229,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var aProto = Array.prototype;
 	var Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-	var gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+	var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 	var docBody = void 0,
 	    locStorage = void 0,
@@ -21808,22 +21810,25 @@ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
-			var m = xhr.responseText.match(/@version\s+([0-9.]+)/);
-			var remoteVer = m && m[1] ? m[1].split('.') : null;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
+			var v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+			var remoteVer = v && v[1] ? v[1].split('.') : null;
 			if (remoteVer) {
 				var currentVer = version.split('.');
-				var src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isESNext ? 'es6.' : '') + 'user.js';
+				var src = '' + gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isESNext ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
+				var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
 				for (var i = 0, _len12 = Math.max(currentVer.length, remoteVer.length); i < _len12; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-						return '<a style="color: blue; font-weight: bold;" href="' + src + '">' + Lng.updAvail[lang] + '</a>';
+						return '' + link + Lng.updAvail[lang].replace('%s', version) + '</a>';
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 						break;
 					}
 				}
 				if (isManual) {
-					return Lng.haveLatest[lang];
+					var c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
+					var vc = version + '.' + commit;
+					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
 				}
 			}
 			return Promise.reject();

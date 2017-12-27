@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '414a4d4';
+const commit = '2deff05';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1162,13 +1162,21 @@ const Lng = {
 		'Check now',
 		'Перевірити зараз'],
 	updAvail: [
-		'Доступно обновление Dollchan!',
-		'Dollchan update available!',
-		'Доступне оновлення Dollchan!'],
-	haveLatest: [
-		'У вас стоит последняя стабильная версия!',
-		'You have the latest stable version!',
-		'Ви маєте останню стабільну версію!'],
+		'Доступно обновление Dollchan: %s',
+		'Dollchan update available: %s!',
+		'Доступне оновлення Dollchan: %s'],
+	newCommitsAvail: [
+		'Обнаружены новые исправления: %s',
+		'New fixes detected: %s',
+		'Виявлено нові виправлення: %s'],
+	haveLatestStable: [
+		'Ваша версия %s является последней из стабильных.',
+		'Your %s version is the latest from stable versions.',
+		'Ваша версія %s є останньою зі стабільних.'],
+	haveLatestCommit: [
+		'Ваша версия %s содержит последние исправления.',
+		'Your %s version contains all the latest fixes.',
+		'Ваша версія %s містить всі останні виправлення.'],
 	thrViewed: [
 		'Тредов посещено',
 		'Threads visited',
@@ -1504,7 +1512,7 @@ const emptyFn = Function.prototype;
 const aProto = Array.prototype;
 const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
 	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
@@ -16505,25 +16513,29 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false
+		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
 	).then(xhr => {
-		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
-		const remoteVer = m && m[1] ? m[1].split('.') : null;
+		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
-			const src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
-				(nav.isESNext ? 'es6.' : '') + 'user.js';
+			const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+				nav.isESNext ? 'es6.' : '' }user.js`;
 			saveCfgObj('lastUpd', Date.now());
+			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return '<a style="color: blue; font-weight: bold;" href="' + src + '">' +
-						Lng.updAvail[lang] + '</a>';
+					return `${ link }${ Lng.updAvail[lang].replace('%s', version) }</a>`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
 			}
 			if(isManual) {
-				return Lng.haveLatest[lang];
+				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
+				const vc = version + '.' + commit;
+				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
+						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
 		}
 		return Promise.reject();

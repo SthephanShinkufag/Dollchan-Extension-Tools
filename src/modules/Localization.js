@@ -988,13 +988,21 @@ const Lng = {
 		'Check now',
 		'Перевірити зараз'],
 	updAvail: [
-		'Доступно обновление Dollchan!',
-		'Dollchan update available!',
-		'Доступне оновлення Dollchan!'],
-	haveLatest: [
-		'У вас стоит последняя стабильная версия!',
-		'You have the latest stable version!',
-		'Ви маєте останню стабільну версію!'],
+		'Доступно обновление Dollchan: %s',
+		'Dollchan update available: %s!',
+		'Доступне оновлення Dollchan: %s'],
+	newCommitsAvail: [
+		'Обнаружены новые исправления: %s',
+		'New fixes detected: %s',
+		'Виявлено нові виправлення: %s'],
+	haveLatestStable: [
+		'Ваша версия %s является последней из стабильных.',
+		'Your %s version is the latest from stable versions.',
+		'Ваша версія %s є останньою зі стабільних.'],
+	haveLatestCommit: [
+		'Ваша версия %s содержит последние исправления.',
+		'Your %s version contains all the latest fixes.',
+		'Ваша версія %s містить всі останні виправлення.'],
 	thrViewed: [
 		'Тредов посещено',
 		'Threads visited',

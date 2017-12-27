@@ -70,25 +70,29 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false
+		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
 	).then(xhr => {
-		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
-		const remoteVer = m && m[1] ? m[1].split('.') : null;
+		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
-			const src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
-				(nav.isESNext ? 'es6.' : '') + 'user.js';
+			const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+				nav.isESNext ? 'es6.' : '' }user.js`;
 			saveCfgObj('lastUpd', Date.now());
+			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return '<a style="color: blue; font-weight: bold;" href="' + src + '">' +
-						Lng.updAvail[lang] + '</a>';
+					return `${ link }${ Lng.updAvail[lang].replace('%s', version) }</a>`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
 			}
 			if(isManual) {
-				return Lng.haveLatest[lang];
+				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/);
+				const vc = version + '.' + commit;
+				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
+						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
 		}
 		return Promise.reject();
