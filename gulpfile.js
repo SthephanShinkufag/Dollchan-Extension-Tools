@@ -51,7 +51,7 @@ gulp.task('make:es6', ['updatecommit'], function() {
 				.pipe(tap(function(moduleFile) {
 					str = str.replace(arr[i], moduleFile.contents.toString());
 					if(++count === len) {
-						newfile('src/Dollchan_Extension_Tools.es6.user.js', str)
+						newfile('src/Dollchan_Extension_Tools.es6.user.js', `\r\n${ str }`)
 							.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 							.pipe(gulp.dest('.'));
 					}
