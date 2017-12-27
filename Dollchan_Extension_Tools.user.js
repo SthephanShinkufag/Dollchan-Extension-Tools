@@ -3677,7 +3677,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '131cec7';
+	var commit = 'bcda236';
 
 
 	var defaultCfg = {
@@ -12617,11 +12617,11 @@ true, true];
 		saveCfgObj(aib.dm, Cfg);
 		if (!tNum) {
 			if (postNum) {
-				window.location = aib.getThrUrl(aib.b, postNum);
+				window.location.assign(aib.getThrUrl(aib.b, postNum));
 			} else if (isDocument) {
 				var dForm = $q(aib.qDForm, data);
 				if (dForm) {
-					window.location = aib.getThrUrl(aib.b, aib.getTNum(dForm));
+					window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 				}
 			}
 			return;

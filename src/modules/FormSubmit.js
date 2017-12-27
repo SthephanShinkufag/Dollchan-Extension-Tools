@@ -112,11 +112,11 @@ function checkUpload(data) {
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
 		if(postNum) {
-			window.location = aib.getThrUrl(aib.b, postNum);
+			window.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
 			const dForm = $q(aib.qDForm, data);
 			if(dForm) {
-				window.location = aib.getThrUrl(aib.b, aib.getTNum(dForm));
+				window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
 		}
 		return;
