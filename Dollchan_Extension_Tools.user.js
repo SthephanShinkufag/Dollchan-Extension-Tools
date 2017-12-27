@@ -3677,7 +3677,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'a851611';
+	var commit = 'ea3cdc6';
 
 
 	var defaultCfg = {
@@ -19571,9 +19571,9 @@ true, true];
 								if (data.type === 'recaptcha') {
 									$q('.captcha-key').value = data.id;
 									if (!$id('captcha-widget-main').hasChildNodes()) {
-										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+										$script('deCapWidget = grecaptcha.render(\'captcha-widget-main\',\n\t\t\t\t\t\t\t\t{ sitekey: "' + data.id + '" });');
 									} else {
-										grecaptcha.reset(cap._2chWidget);
+										$script('grecaptcha.reset(deCapWidget);');
 									}
 									break;
 								} else if (type === '2chaptcha') {

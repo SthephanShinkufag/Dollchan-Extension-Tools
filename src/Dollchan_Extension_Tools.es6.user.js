@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'a851611';
+const commit = 'ea3cdc6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14945,11 +14945,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				case 1: // Captcha is enabled
 					if(data.type === 'recaptcha') {
 						$q('.captcha-key').value = data.id;
-						/* global grecaptcha */
 						if(!$id('captcha-widget-main').hasChildNodes()) {
-							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+							$script(`deCapWidget = grecaptcha.render('captcha-widget-main',
+								{ sitekey: "${ data.id }" });`);
 						} else {
-							grecaptcha.reset(cap._2chWidget);
+							$script('grecaptcha.reset(deCapWidget);');
 						}
 						break;
 					} else if(type === '2chaptcha') {
