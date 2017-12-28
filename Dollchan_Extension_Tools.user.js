@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'e410a9b';
+	var commit = 'da4ccf8';
 
 
 	var defaultCfg = {
@@ -13690,10 +13690,42 @@ true, true];
 							}
 							return;
 					}
-					if (aib.mak && el.classList.contains('expand-large-comment')) {
-						this._getFullMsg(el, false);
-						$pd(e);
-						e.stopPropagation();
+					if (aib.mak) {
+						switch (el.className) {
+							case 'fa fa-bolt':
+							case 'fa fa-thumbs-down':
+								el = el.parentNode;
+							case 'like-icon':
+							case 'dislike-icon':
+							case 'like-caption':
+							case 'dislike-caption':
+							case 'like-count':
+							case 'dislike-count':
+								el = el.parentNode;
+							case 'like-div':
+							case 'dislike-div':
+								{
+									var num = el.id.match(/\d+/)[0];
+									var task = el.className === 'dislike-div' ? 'dislike' : 'like';
+									$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
+										var data = JSON.parse(xhr.responseText);
+										if (data.Status !== 'OK') {
+											$popup('err-2chlike', data.Reason);
+											return;
+										}
+										el.classList.add(task + '-div-checked');
+										var countEl = $id(task + '-count' + num);
+										countEl.innerHTML = (+countEl.textContent || 0) + 1;
+									}, function (xhr) {
+										return $popup('err-2chlike', Lng.noConnect[lang]);
+									});
+								}
+						}
+						if (el.classList.contains('expand-large-comment')) {
+							this._getFullMsg(el, false);
+							$pd(e);
+							e.stopPropagation();
+						}
 					}
 					switch (el.classList[0]) {
 						case 'de-btn-expthr':

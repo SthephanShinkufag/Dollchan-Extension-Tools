@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'e410a9b';
+const commit = 'da4ccf8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9954,10 +9954,41 @@ class AbstractPost {
 				}
 				return;
 			}
-			if(aib.mak && el.classList.contains('expand-large-comment')) {
-				this._getFullMsg(el, false);
-				$pd(e);
-				e.stopPropagation();
+			if(aib.mak) {
+				switch(el.className) {
+				case 'fa fa-bolt':
+				case 'fa fa-thumbs-down':
+					el = el.parentNode;
+					/* falls through */
+				case 'like-icon':
+				case 'dislike-icon':
+				case 'like-caption':
+				case 'dislike-caption':
+				case 'like-count':
+				case 'dislike-count':
+					el = el.parentNode;
+					/* falls through */
+				case 'like-div':
+				case 'dislike-div': {
+					const num = el.id.match(/\d+/)[0];
+					const task = el.className === 'dislike-div' ? 'dislike' : 'like';
+					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
+						const data = JSON.parse(xhr.responseText);
+						if(data.Status !== 'OK') {
+							$popup('err-2chlike', data.Reason);
+							return;
+						}
+						el.classList.add(`${ task }-div-checked`);
+						const countEl = $id(task + '-count' + num);
+						countEl.innerHTML = (+countEl.textContent || 0) + 1;
+					}, xhr => $popup('err-2chlike', Lng.noConnect[lang]));
+				}
+				}
+				if(el.classList.contains('expand-large-comment')) {
+					this._getFullMsg(el, false);
+					$pd(e);
+					e.stopPropagation();
+				}
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
