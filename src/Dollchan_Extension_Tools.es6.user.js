@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '790ed32';
+const commit = 'e410a9b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2250,18 +2250,18 @@ function * getFormElements(form, submitter) {
 				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
 				continue constructSet;
 			case 'file': {
-				let imgFile;
+				let img;
 				if(field.files.length > 0) {
 					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
 					}
-				} else if(({ imgFile } = field.obj) && imgFile) {
+				} else if(field.obj && (img = field.obj.imgFile)) {
 					yield {
 						name,
 						type,
 						el    : field,
-						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
+						value : new File([img[0]], img[1], { type: img[2] })
 					};
 				} else {
 					yield {
@@ -14808,7 +14808,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
 					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
 					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
-					.toolbar-area { display: none !important; }
+					.toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }

@@ -727,18 +727,18 @@ function * getFormElements(form, submitter) {
 				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
 				continue constructSet;
 			case 'file': {
-				let imgFile;
+				let img;
 				if(field.files.length > 0) {
 					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
 					}
-				} else if(({ imgFile } = field.obj) && imgFile) {
+				} else if(field.obj && (img = field.obj.imgFile)) {
 					yield {
 						name,
 						type,
 						el    : field,
-						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
+						value : new File([img[0]], img[1], { type: img[2] })
 					};
 				} else {
 					yield {

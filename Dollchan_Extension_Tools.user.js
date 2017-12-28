@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = '790ed32';
+	var commit = 'e410a9b';
 
 
 	var defaultCfg = {
@@ -5083,7 +5083,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getFormElements(form, submitter) {
-		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, _field$obj, imgFile, files, _j, _jlen, dirname;
+		var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, img, files, _j, _jlen, dirname;
 
 		return regeneratorRuntime.wrap(function getFormElements$(_context) {
 			while (1) {
@@ -5170,7 +5170,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return _context.abrupt('continue', 62);
 
 					case 31:
-						imgFile = void 0;
+						img = void 0;
 
 						if (!(field.files.length > 0)) {
 							_context.next = 43;
@@ -5199,7 +5199,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 
 					case 43:
-						if (!((_field$obj = field.obj, imgFile = _field$obj.imgFile, _field$obj) && imgFile)) {
+						if (!(field.obj && (img = field.obj.imgFile))) {
 							_context.next = 48;
 							break;
 						}
@@ -5209,7 +5209,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							name: name,
 							type: type,
 							el: field,
-							value: new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
+							value: new File([img[0]], img[1], { type: img[2] })
 						};
 
 					case 46:
@@ -19607,7 +19607,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,\n\t\t\t\t\timg[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,\n\t\t\t\t\t#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,\n\t\t\t\t\t.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,\n\t\t\t\t\t.toolbar-area { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '');
+					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,\n\t\t\t\t\timg[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,\n\t\t\t\t\t#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,\n\t\t\t\t\t.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,\n\t\t\t\t\t.toolbar-area, .top-user-boards + hr { display: none !important; }\n\t\t\t\t.captcha-image > img { cursor: pointer; }\n\t\t\t\t#de-txt-panel { font-size: 16px !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '');
 				}
 			}, {
 				key: 'lastPage',

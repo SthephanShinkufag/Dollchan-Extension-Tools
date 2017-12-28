@@ -48,7 +48,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
 					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
 					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
-					.toolbar-area { display: none !important; }
+					.toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
