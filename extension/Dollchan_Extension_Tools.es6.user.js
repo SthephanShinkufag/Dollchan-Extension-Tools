@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         17.10.24.0
+// @version         17.12.28.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -25,12 +25,13 @@
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
-}], no-var: "error" */
+}], no-var: "error" *//* , prefer-template: "error" */
+
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '17.10.24.0';
-const commit = '878111a';
+const version = '17.12.28.0';
+const commit = 'bb9a14c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1161,13 +1162,21 @@ const Lng = {
 		'Check now',
 		'Перевірити зараз'],
 	updAvail: [
-		'Доступно обновление Dollchan!',
-		'Dollchan update available!',
-		'Доступне оновлення Dollchan!'],
-	haveLatest: [
-		'У вас стоит последняя стабильная версия!',
-		'You have the latest stable version!',
-		'Ви маєте останню стабільну версію!'],
+		'Доступно обновление Dollchan: %s',
+		'Dollchan update available: %s!',
+		'Доступне оновлення Dollchan: %s'],
+	newCommitsAvail: [
+		'Обнаружены новые исправления: %s',
+		'New fixes detected: %s',
+		'Виявлено нові виправлення: %s'],
+	haveLatestStable: [
+		'Ваша версия %s является последней из стабильных.',
+		'Your %s version is the latest from stable versions.',
+		'Ваша версія %s є останньою зі стабільних.'],
+	haveLatestCommit: [
+		'Ваша версия %s содержит последние исправления.',
+		'Your %s version contains all the latest fixes.',
+		'Ваша версія %s містить всі останні виправлення.'],
 	thrViewed: [
 		'Тредов посещено',
 		'Threads visited',
@@ -1503,7 +1512,7 @@ const emptyFn = Function.prototype;
 const aProto = Array.prototype;
 const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
-const gitRaw = 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
+const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
 let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
 	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
@@ -2201,7 +2210,7 @@ function getErrorMessage(e) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function* getFormElements(form, submitter) {
+function * getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
 
@@ -2241,18 +2250,18 @@ function* getFormElements(form, submitter) {
 				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
 				continue constructSet;
 			case 'file': {
-				let imgFile;
+				let img;
 				if(field.files.length > 0) {
 					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
 					}
-				} else if(({ imgFile } = field.obj) && imgFile) {
+				} else if(field.obj && (img = field.obj.imgFile)) {
 					yield {
 						name,
 						type,
 						el    : field,
-						value : new File([imgFile[0]], imgFile[1], { type: imgFile[2] })
+						value : new File([img[0]], img[1], { type: img[2] })
 					};
 				} else {
 					yield {
@@ -3165,7 +3174,7 @@ function makeDraggable(name, win, head) {
 				docBody.addEventListener('mouseup', this);
 				$pd(e);
 				return;
-			case 'mousemove':
+			case 'mousemove': {
 				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
 				const maxY = Post.sizing.wHeight - this._win.offsetHeight - 25;
 				const cr = this._win.getBoundingClientRect();
@@ -3183,6 +3192,7 @@ function makeDraggable(name, win, head) {
 				this._oldX = curX;
 				this._oldY = curY;
 				return;
+			}
 			default: // mouseup
 				docBody.removeEventListener('mousemove', this);
 				docBody.removeEventListener('mouseup', this);
@@ -4448,7 +4458,7 @@ const CfgWindow = {
 			case 'de-cfg-btn-debug':
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
-					version,
+					version  : version + '.' + commit,
 					location : String(window.location),
 					nav,
 					Cfg,
@@ -4728,18 +4738,17 @@ const CfgWindow = {
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ? this._getBox('addSageBtn') +
-				this._getBox('saveSage') + '<br>' : '' }
-			${ pr.cap ? (aib.fch ? this._getBox('cap4chanAlt') + '<br>' : '') +
-				this._getInp('capUpdTime') + '<br>' +
-				this._getSel('captchaLang') + '<br>' : '' }
-			${ pr.txta ? this._getSel('addTextBtns') +
-				this._getBox('txtBtnsLoc') + '<br>' : '' }
-			${ pr.passw ? this._getInp('passwValue', true, 9) +
-				`<input type="button" id="de-cfg-btn-pass" class="de-cfg-button" value="${
-					Lng.change[lang] }"><br>` : '' }
-			${ pr.name ? this._getInp('nameValue', false, 9) + ' ' +
-				this._getBox('userName') + '<br>' : '' }
+			${ pr.mail ? `${ this._getBox('addSageBtn') }
+				${ this._getBox('saveSage') }<br>` : '' }
+			${ pr.cap ? `${ aib.fch ? `${ this._getBox('cap4chanAlt') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
+				${ this._getSel('captchaLang') }<br>` : '' }
+			${ pr.txta ? `${ this._getSel('addTextBtns') }
+				${ this._getBox('txtBtnsLoc') }<br>` : '' }
+			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
+				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
+			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
+				${ this._getBox('userName') }<br>` : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
 				(pr.rules ? this._getBox('noBoardRule') : '') +
 				(pr.passw ? this._getBox('noPassword') : '') +
@@ -4762,39 +4771,36 @@ const CfgWindow = {
 			${ this._getBox('scrollToTop') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
-			<div class="de-cfg-depend">
-				${ this._getInp('loadPages') }
-			</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? this._getBox('updScript') +
-				`<div class="de-cfg-depend">
+			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
+			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
 						`${ Lng.checkNow[lang] }">
 				</div>` : '' }
-			${ nav.isGlobal ? Lng.cfg.excludeList[lang] +
-				'<input type="text" info="excludeList" class="de-cfg-inptxt"' +
-				' style="display: block; width: 80%;" placeholder="4chan.org, 8ch.net, …">' +
-				this._getBox('turnOff') : '' }
+			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
+				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
+				` width: 80%;" placeholder="4chan.org, 8ch.net, …">${ this._getBox('turnOff') }` : '' }
 		</div>`;
 	},
 
 	// "Info" tab
 	_getCfgInfo() {
+		const statsTable = this._getInfoTable([
+			[Lng.thrViewed[lang], Cfg.stats.view],
+			[Lng.thrCreated[lang], Cfg.stats.op],
+			[Lng.thrHidden[lang], HiddenThreads.getCount()],
+			[Lng.postsSent[lang], Cfg.stats.reply]
+		], false);
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
-				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit +
-					(nav.isESNext ? '.es6' : '') }</a>&nbsp;|&nbsp;
+				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
+					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">` +
-				this._getInfoTable([
-					[Lng.thrViewed[lang], Cfg.stats.view],
-					[Lng.thrCreated[lang], Cfg.stats.op],
-					[Lng.thrHidden[lang], HiddenThreads.getCount()],
-					[Lng.postsSent[lang], Cfg.stats.reply]
-				], false) + `</div>
+				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
 			</div>
 			<input type="button" id="de-cfg-btn-debug" value="` +
@@ -5003,12 +5009,11 @@ class Menu {
 	}
 	handleEvent(e) {
 		let isOverEvent = false;
-		const el = e.target;
 		switch(e.type) {
 		case 'click':
-			if(el.className === 'de-menu-item') {
+			if(e.target.className === 'de-menu-item') {
 				this.remove();
-				this._clickFn(el);
+				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
 				}
@@ -5016,7 +5021,7 @@ class Menu {
 			break;
 		case 'mouseover': isOverEvent = true;
 			/* falls through */
-		case 'mouseout':
+		case 'mouseout': {
 			clearTimeout(this._closeTO);
 			let rt = fixEventEl(e.relatedTarget);
 			rt = rt && rt.farthestViewportElement || rt;
@@ -5032,6 +5037,7 @@ class Menu {
 					}
 				}
 			}
+		}
 		}
 	}
 	remove() {
@@ -5341,10 +5347,11 @@ const HotKeys = {
 					break;
 				}
 				/* falls through */
-			default:
+			default: {
 				const scrollToThr = !isThr && (globIdx === 0 || globIdx === 1);
 				this._scroll(this._getFirstVisPost(scrollToThr, false),
 					globIdx === 0 || idx === 0, scrollToThr);
+			}
 			}
 		}
 		e.stopPropagation();
@@ -5553,7 +5560,7 @@ class KeyEditListener {
 			}
 			this.cEl = el;
 			return;
-		case 'click':
+		case 'click': {
 			let keys;
 			if(el.id === 'de-keys-reset') {
 				this.keys = HotKeys.getDefaultKeys();
@@ -5579,7 +5586,8 @@ class KeyEditListener {
 			}
 			closePopup('edit-hotkeys');
 			break;
-		case 'keydown':
+		}
+		case 'keydown': {
 			if(!this.cEl) {
 				return;
 			}
@@ -5616,7 +5624,8 @@ class KeyEditListener {
 			}
 			this.cEl.value = str;
 			break;
-		case 'keyup':
+		}
+		case 'keyup': {
 			el = this.cEl;
 			key = this.cKey;
 			if(!el || key === -1) {
@@ -5668,6 +5677,7 @@ class KeyEditListener {
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
 			}
+		}
 		}
 		$pd(e);
 	}
@@ -5899,9 +5909,7 @@ function loadDocFiles(imgOnly) {
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-		progress.value = current;
-		counter.innerHTML = current;
-		current++;
+		progress.value = counter.innerHTML = current++;
 		if(imgLink) {
 			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 			if(imgOnly) {
@@ -6166,9 +6174,9 @@ class Videos {
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
 			txt = Cfg.YTubeType === 1 ?
-				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }` +
-					(Cfg.addYouTube === 3 ? '?autoplay=1' : '') +
-					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' :
+				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+					Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+				}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>` :
 				'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
 					'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
 					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
@@ -6454,9 +6462,9 @@ class VideosParser {
 		}
 		const vids = aib.fixVideo(isPost, data);
 		for(let i = 0, len = vids.length; i < len; ++i) {
-			const [pst, m, isYtube] = vids[i];
-			if(pst) {
-				pst.videos.addLink(m, loader, null, isYtube);
+			const [post, m, isYtube] = vids[i];
+			if(post) {
+				post.videos.addLink(m, loader, null, isYtube);
 			}
 		}
 		return this;
@@ -6481,14 +6489,14 @@ function embedMediaLinks(data) {
 						`<p><audio src="${ src }" preload="none" controls></audio></p>`);
 				}
 			// Flash plugin for old browsers that not support HTML5 audio
-			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
+			} else if(!$q(`object[FlashVars*="${ src }"]`, el)) {
 				el.insertAdjacentHTML('beforeend', '<object data="' +
 					'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' +
 					'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' +
 					'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' +
 					'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' +
 					'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' +
-					'loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+					`loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=${ src }"><br>`);
 			}
 		}
 	}
@@ -6499,7 +6507,7 @@ function embedMediaLinks(data) {
 			const el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=` + link.href.split('/').pop() +
+					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('/').pop() }` +
 						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
 				</div>`);
 			}
@@ -6637,7 +6645,7 @@ class AjaxError {
 	toString() {
 		return this.code <= 0 ?
 			String(this.message || Lng.noConnect[lang]) :
-			'HTTP [' + this.code + '] ' + this.message;
+			`HTTP [${ this.code }] ${ this.message }`;
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
@@ -7028,8 +7036,8 @@ const Spells = {
 		}
 	},
 	decompileSpell(type, neg, val, scope, wipeMsg = null) {
-		let spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
-			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+		let spell = (neg ? '!#' : '#') + this.names[type] +
+			(scope ? `[${ scope[0] }${ scope[1] ? `,${ scope[1] === -1 ? '' : scope[1] }` : '' }]` : '');
 		if(!val) {
 			return spell;
 		}
@@ -7168,9 +7176,9 @@ const Spells = {
 	},
 
 	_decompileRep(rep, isOrep) {
-		return (isOrep ? '#outrep' : '#rep') +
-			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
-			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
+		return `${ isOrep ? '#outrep' : '#rep' }` +
+			`${ rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '' }` +
+			`${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') }`;
 	},
 	_decompileScope(scope, indent) {
 		const dScope = [];
@@ -7445,7 +7453,7 @@ class SpellsCodegen {
 				/* falls through */
 			case '\r':
 			case ' ': continue;
-			case '#':
+			case '#': {
 				let name = '';
 				i++;
 				this._col++;
@@ -7505,6 +7513,7 @@ class SpellsCodegen {
 					lastType = this.TYPE_SPELL;
 				}
 				break;
+			}
 			case '(':
 				if(hasReps) {
 					this._setError(Lng.seUnexpChar[lang], '(');
@@ -8327,7 +8336,7 @@ class PostForm {
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
 			}</div>`;
 		}
-		el.innerHTML = html + `<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			mode === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
@@ -8481,8 +8490,8 @@ class PostForm {
 				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 				(isOnNewLine ? '' : '\n') +
 					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n' : ''));
+			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
+					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
 		if(temp.length > 27) {
@@ -8831,15 +8840,14 @@ function getUploadFunc() {
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return function(data) {
+	return function({ total, loaded: i }) {
 		if(!inited) {
-			progress.setAttribute('max', data.total);
+			progress.setAttribute('max', total);
 			$show(progress);
-			totalEl.textContent = prettifySize(data.total);
+			totalEl.textContent = prettifySize(total);
 			$show(counterWrap);
 			inited = true;
 		}
-		const { loaded: i } = data;
 		progress.value = i;
 		counterEl.textContent = prettifySize(i);
 		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;
@@ -8918,11 +8926,11 @@ function checkUpload(data) {
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
 		if(postNum) {
-			window.location = aib.getThrUrl(aib.b, postNum);
+			window.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
 			const dForm = $q(aib.qDForm, data);
 			if(dForm) {
-				window.location = aib.getThrUrl(aib.b, aib.getTNum(dForm));
+				window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
 		}
 		return;
@@ -9574,15 +9582,15 @@ class FileInput {
 		const { imgFile } = this;
 		if(imgFile) {
 			this._addNewThumb(...imgFile, imgFile[0].byteLength);
-		} else {
-			const file = this._input.files[0];
-			if(file) {
-				readFile(file).then(({ data }) => {
-					if(this._input.files[0] === file) {
-						this._addNewThumb(data, file.name, file.type, file.size);
-					}
-				});
-			}
+			return;
+		}
+		const file = this._input.files[0];
+		if(file) {
+			readFile(file).then(({ data }) => {
+				if(this._input.files[0] === file) {
+					this._addNewThumb(data, file.name, file.type, file.size);
+				}
+			});
 		}
 	}
 	_toggleDragEvents(el, add) {
@@ -9593,8 +9601,6 @@ class FileInput {
 		el[name]('drop', this);
 	}
 }
-
-/* eslint-disable no-var */
 
 /* ==[ FormCaptcha.js ]=======================================================================================
                                                     CAPTCHA
@@ -9626,9 +9632,9 @@ class Captcha {
 		} else if(this._isOldRecap()) {
 			this.textEl = $id('recaptcha_response_field');
 		} else {
-			const el = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
-			$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' +
-				el.getAttribute('data-sitekey') + '"></div>');
+			const el = $q(`#g-recaptcha, .g-recaptcha${ aib.fch ? ', #qrCaptchaContainerAlt' : '' }`);
+			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
+				el.getAttribute('data-sitekey') }"></div>`);
 		}
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {
@@ -9814,15 +9820,15 @@ class Captcha {
 
 class AbstractPost {
 	constructor(thr, num, isOp) {
-		this._hasEvents = false;
-		this._linkDelay = 0;
-		this._menu = null;
-		this._menuDelay = 0;
 		this.isOp = isOp;
 		this.kid = null;
 		this.num = num;
 		this.ref = new RefMap(this);
 		this.thr = thr;
+		this._hasEvents = false;
+		this._linkDelay = 0;
+		this._menu = null;
+		this._menuDelay = 0;
 	}
 	get hideBtn() {
 		const value = this.btns.firstChild;
@@ -9909,16 +9915,16 @@ class AbstractPost {
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
-							var formText = pr.txta.value,
-								isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-							$txtInsert(pr.txta, '>>' + this.num + (isOnNewLine ? '\n' : ''));
+							const formText = pr.txta.value;
+							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
+							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
 							window.location = el.href.replace(/#i/, '#');
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
 					) {
-						var post = pByNum.get(+temp.match(/\d+/));
+						const post = pByNum.get(+temp.match(/\d+/));
 						if(post) {
 							post.selectAndScrollTo();
 						}
@@ -9929,9 +9935,9 @@ class AbstractPost {
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg.addYouTube === 3) {
-						var vObject = this.videos;
-						vObject.currentLink.classList.add('de-current');
-						vObject.addPlayer(vObject.playerInfo, el.classList.contains('de-ytube'));
+						const { videos } = this;
+						videos.currentLink.classList.add('de-current');
+						videos.addPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
 				} else if(Cfg.expandImgs !== 0) {
@@ -9948,23 +9954,48 @@ class AbstractPost {
 				}
 				return;
 			}
-			if(aib.mak && el.classList.contains('expand-large-comment')) {
-				this._getFullMsg(el, false);
-				$pd(e);
-				e.stopPropagation();
+			if(aib.mak) {
+				switch(el.className) {
+				case 'fa fa-bolt':
+				case 'fa fa-thumbs-down': el = el.parentNode;
+					/* falls through */
+				case 'like-icon':
+				case 'dislike-icon':
+				case 'like-caption':
+				case 'dislike-caption':
+				case 'like-count':
+				case 'dislike-count': el = el.parentNode;
+					/* falls through */
+				case 'like-div':
+				case 'dislike-div': {
+					const task = el.className.split('-')[0];
+					const num = el.id.match(/\d+/)[0];
+					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
+						const data = JSON.parse(xhr.responseText);
+						if(data.Status !== 'OK') {
+							$popup('err-2chlike', data.Reason);
+							return;
+						}
+						el.classList.add(`${ task }-div-checked`);
+						const countEl = $q(`.${ task }-count`, el);
+						countEl.textContent = +countEl.textContent + 1;
+					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
+				}
+				}
+				if(el.classList.contains('expand-large-comment')) {
+					this._getFullMsg(el, false);
+					$pd(e);
+					e.stopPropagation();
+				}
 			}
 			switch(el.classList[0]) {
-			case 'de-btn-expthr':
-				this.thr.loadPosts('all');
-				return;
+			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
 			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
 			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
-			case 'de-btn-unhide-user':
-				this.setUserVisib(!this.hidden);
-				return;
+			case 'de-btn-unhide-user': this.setUserVisib(!this.hidden); return;
 			case 'de-btn-rep':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
@@ -10016,7 +10047,7 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, this._getMenuImgSrc(el)); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, AbstractPost._getMenuImgSrc(el)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
@@ -10030,30 +10061,32 @@ class AbstractPost {
 			/* falls through */
 		case 'de-link-ref':
 		case 'de-link-pref':
-			if(Cfg.linksNavig) {
-				if(isOutEvent) { // We need to delete previews
-					clearTimeout(this._linkDelay);
-					if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
-						Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
-					} else if(this.kid) {
-						this.kid.markToDel(); // If cursor is over any preview - delete its kids
-					}
-				} else { // We need to show a preview for this link
-					this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
-				}
-				$pd(e);
-				e.stopPropagation();
+			if(!Cfg.linksNavig) {
+				return;
 			}
+			if(isOutEvent) { // We need to delete previews
+				clearTimeout(this._linkDelay);
+				if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
+				} else if(this.kid) {
+					this.kid.markToDel(); // If cursor is over any preview - delete its kids
+				}
+			} else { // We need to show a preview for this link
+				this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
+			}
+			$pd(e);
+			e.stopPropagation();
 		}
 	}
 	setFavBtn(state) {
-		var el = $q(state ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
+		const el = $q(state ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
 		if(el) {
 			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
 		}
 	}
 	updateMsg(newMsg, sRunner) {
-		var videoExt, videoLinks, origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
+		let videoExt, videoLinks;
+		const origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
 		if(Cfg.addYouTube) {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
@@ -10075,6 +10108,20 @@ class AbstractPost {
 		closePopup('load-fullmsg');
 	}
 
+	static _getMenuImgSrc(el) {
+		const link = el.nextSibling;
+		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
+			'" target="_blank">' + Lng.searchIn[lang];
+		return `<a class="de-menu-item ${ [
+			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
+			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
+				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+		].join('</a><a class="de-menu-item ') }</a>`;
+	}
 	_addMenu(el, isOutEvent, html) {
 		if(this.menu && this.menu.parentEl === el) {
 			return;
@@ -10086,7 +10133,7 @@ class AbstractPost {
 		}
 	}
 	_clickImage(el, e) {
-		var data = this.images.getImageByEl(el);
+		const data = this.images.getImageByEl(el);
 		if(!data || (!data.isImage && !data.isVideo)) {
 			return;
 		}
@@ -10122,20 +10169,6 @@ class AbstractPost {
 			maybeSpells.end();
 		}, emptyFn);
 	}
-	_getMenuImgSrc(el) {
-		const link = el.nextSibling;
-		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
-			'" target="_blank">' + Lng.searchIn[lang];
-		return `<a class="de-menu-item ${ [
-			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
-			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
-			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
-			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
-			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
-				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
-		].join('</a><a class="de-menu-item ') }</a>`;
-	}
 	_showMenu(el, html) {
 		if(this._menu) {
 			this._menu.remove();
@@ -10146,6 +10179,50 @@ class AbstractPost {
 }
 
 class Post extends AbstractPost {
+	constructor(el, thr, num, count, isOp, prev) {
+		super(thr, num, isOp);
+		this.count = count;
+		this.deleted = false;
+		this.el = el;
+		this.hidden = false;
+		this.next = null;
+		this.omitted = false;
+		this.prev = prev;
+		this.spellHidden = false;
+		this.userToggled = false;
+		this.viewed = false;
+		this._selRange = null;
+		this._selText = '';
+		if(prev) {
+			prev.next = this;
+		}
+		pByEl.set(el, this);
+		pByNum.set(num, this);
+		if(MyPosts.has(num)) {
+			this.el.classList.add('de-mypost');
+		}
+		const refEl = $q(aib.qPostRef, el);
+		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
+			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
+		this._pref = refEl;
+		if(isOp) {
+			if(!aib.t) {
+				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
+			}
+			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
+		}
+		this.sage = aib.getSage(el);
+		if(this.sage) {
+			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
+		}
+		this.btns = $aEnd(refEl, html + '</span>');
+		if(Cfg.expandTrunc && this.trunc) {
+			this._getFullMsg(this.trunc, true);
+		}
+		el.addEventListener('mouseover', this, true);
+	}
 	static addMark(postEl, forced) {
 		if(!doc.hidden && !forced) {
 			Post.clearMarks();
@@ -10164,6 +10241,49 @@ class Post extends AbstractPost {
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
+	static findSameText(pNum, isHidden, words, curPost) {
+		const curWords = Post.getWrds(curPost.text);
+		const len = curWords.length;
+		let i = words.length;
+		const olen = i;
+		let _olen = i;
+		let n = 0;
+		if(len < olen * 0.4 || len > olen * 3) {
+			return;
+		}
+		while(i--) {
+			if(olen > 6 && words[i].length < 3) {
+				_olen--;
+				continue;
+			}
+			let j = len;
+			while(j--) {
+				if(curWords[j] === words[i] || words[i].match(/>>\d+/) && curWords[j].match(/>>\d+/)) {
+					n++;
+				}
+			}
+		}
+		if(n < _olen * 0.4 || len > _olen * 3) {
+			return;
+		}
+		if(isHidden) {
+			if(curPost.spellHidden) {
+				Post.Note.reset();
+			} else {
+				curPost.setVisib(false);
+			}
+			if(curPost.userToggled) {
+				HiddenPosts.remove(curPost.num);
+				curPost.userToggled = false;
+			}
+		} else {
+			curPost.setUserVisib(true, true, 'similar to >>' + pNum);
+		}
+		return false;
+	}
+	static getWrds(text) {
+		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
+	}
 	static hideContent(headerEl, hideBtn, isUser, hide) {
 		if(hide) {
 			if(aib.t) {
@@ -10171,7 +10291,7 @@ class Post extends AbstractPost {
 			}
 			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 			if(headerEl) {
-				for(var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+				for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
 					el.classList.add('de-post-hiddencontent');
 				}
 			}
@@ -10180,50 +10300,6 @@ class Post extends AbstractPost {
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
 		}
-	}
-	constructor(el, thr, num, count, isOp, prev) {
-		super(thr, num, isOp);
-		this.count = count;
-		this.el = el;
-		this.prev = prev;
-		this.next = null;
-		this.deleted = false;
-		this.hidden = false;
-		this.omitted = false;
-		this.spellHidden = false;
-		this.userToggled = false;
-		this.viewed = false;
-		this._selRange = null;
-		this._selText = '';
-		if(prev) {
-			prev.next = this;
-		}
-		pByEl.set(el, this);
-		pByNum.set(num, this);
-		if(MyPosts.has(num)) {
-			this.el.classList.add('de-mypost');
-		}
-		var refEl = $q(aib.qPostRef, el),
-			html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '">' +
-				'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
-				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-				'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-		this._pref = refEl;
-		if(isOp) {
-			if(!aib.t) {
-				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
-			}
-			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
-		}
-		this.sage = aib.getSage(el);
-		if(this.sage) {
-			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
-		}
-		this.btns = $aEnd(refEl, html + '</span>');
-		if(Cfg.expandTrunc && this.trunc) {
-			this._getFullMsg(this.trunc, true);
-		}
-		el.addEventListener('mouseover', this, true);
 	}
 	get banned() {
 		const value = aib.getBanId(this.el);
@@ -10309,7 +10385,7 @@ class Post extends AbstractPost {
 		}
 	}
 	getAdjacentVisPost(toUp) {
-		var post = toUp ? this.prev : this.next;
+		let post = toUp ? this.prev : this.next;
 		while(post) {
 			if(post.thr.hidden) {
 				post = toUp ? post.thr.op.prev : post.thr.last.next;
@@ -10350,7 +10426,7 @@ class Post extends AbstractPost {
 			HotKeys.cPost = this;
 			HotKeys.lastPageOffset = window.pageYOffset;
 		} else {
-			var el = $q('.de-selected');
+			const el = $q('.de-selected');
 			if(el) {
 				el.unselect();
 			}
@@ -10437,7 +10513,7 @@ class Post extends AbstractPost {
 		}
 	}
 	toggleImages(expand = !this.images.expanded) {
-		for(var image of this.images) {
+		for(const image of this.images) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
@@ -10449,7 +10525,7 @@ class Post extends AbstractPost {
 	}
 	unselect() {
 		if(this.isOp) {
-			var el = $id('de-thr-hid-' + this.num);
+			const el = $id('de-thr-hid-' + this.num);
 			if(el) {
 				el.classList.remove('de-selected');
 			}
@@ -10459,11 +10535,83 @@ class Post extends AbstractPost {
 		}
 	}
 
+	_clickMenu(el) {
+		const { hidden } = this;
+		switch(el.getAttribute('info')) {
+		case 'hide-sel': {
+			let { startContainer: start, endContainer: end } = this._selRange;
+			if(start.nodeType === 3) {
+				start = start.parentNode;
+			}
+			if(end.nodeType === 3) {
+				end = end.parentNode;
+			}
+			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
+			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
+				nav.matchesSelector(start, aib.qPostSubj) &&
+				nav.matchesSelector(end, aib.qPostSubj)
+			)) {
+				if(this._selText.includes('\n')) {
+					Spells.add(1 /* #exp */,
+						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
+				} else {
+					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
+				}
+			} else {
+				dummy.innerHTML = '';
+				dummy.appendChild(this._selRange.cloneContents());
+				Spells.add(2 /* #exph */,
+					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+			}
+			return;
+		}
+		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-img': {
+			const { weight: w, width: wi, height: h } = this.images.firstAttach;
+			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			return;
+		}
+		case 'hide-imgn':
+			Spells.add(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			return;
+		case 'hide-ihash':
+			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
+				if(hash !== -1) {
+					Spells.add(4 /* #ihash */, hash, false);
+				}
+			});
+			return;
+		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-text': {
+			const { num } = this;
+			const words = Post.getWrds(this.text);
+			for(let post = Thread.first.op; post; post = post.next) {
+				Post.findSameText(num, hidden, words, post);
+			}
+			return;
+		}
+		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-refs':
+			if(hidden) {
+				this.ref.unhide(true);
+			} else {
+				this.ref.hide(true);
+			}
+			this.setUserVisib(!hidden);
+			return;
+		case 'thr-exp': {
+			const task = parseInt(el.textContent.match(/\d+/), 10);
+			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
+		}
+		}
+	}
 	_getMenuHide() {
-		var str = '', sel = window.getSelection(),
-			ssel = sel.toString().trim(),
-			getItem = name => '<span info="hide-' + name + '" class="de-menu-item">' +
-				Lng.selHiderMenu[name][lang] + '</span>';
+		let str = '';
+		const sel = window.getSelection();
+		const ssel = sel.toString().trim();
+		const getItem = name => `<span info="hide-${ name }" class="de-menu-item">${
+			Lng.selHiderMenu[name][lang] }</span>`;
 		if(ssel) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
@@ -10492,74 +10640,6 @@ class Post extends AbstractPost {
 		}
 		return str;
 	}
-	_clickMenu(el) {
-		const { hidden } = this;
-		switch(el.getAttribute('info')) {
-		case 'hide-sel':
-			var start = this._selRange.startContainer,
-				end = this._selRange.endContainer;
-			if(start.nodeType === 3) {
-				start = start.parentNode;
-			}
-			if(end.nodeType === 3) {
-				end = end.parentNode;
-			}
-			var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
-				nav.matchesSelector(start, aib.qPostSubj) &&
-				nav.matchesSelector(end, aib.qPostSubj)
-			)) {
-				if(this._selText.includes('\n')) {
-					Spells.add(1 /* #exp */, '/' +
-						quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
-				} else {
-					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
-				}
-			} else {
-				dummy.innerHTML = '';
-				dummy.appendChild(this._selRange.cloneContents());
-				Spells.add(2 /* #exph */, '/' +
-					quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
-			}
-			return;
-		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
-		case 'hide-img':
-			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
-			return;
-		case 'hide-imgn':
-			Spells.add(3 /* #imgn */, '/' + quoteReg(this.images.firstAttach.name) + '/', false);
-			return;
-		case 'hide-ihash':
-			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
-				if(hash !== -1) {
-					Spells.add(4 /* #ihash */, hash, false);
-				}
-			});
-			return;
-		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
-		case 'hide-text':
-			const { num } = this;
-			const wrds = Post.getWrds(this.text);
-			for(let post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, hidden, wrds, post);
-			}
-			return;
-		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'hide-refs':
-			if(hidden) {
-				this.ref.unhide(true);
-			} else {
-				this.ref.hide(true);
-			}
-			this.setUserVisib(!hidden);
-			return;
-		case 'thr-exp':
-			var task = parseInt(el.textContent.match(/\d+/), 10);
-			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
-		}
-	}
 	_strikePostNum(isHide) {
 		const { num } = this;
 		if(isHide) {
@@ -10567,10 +10647,10 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q('[de-form] a[href*="' + aib.anchor + num + '"]'), isHide ? function(el) {
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? function(el) {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				var refmap = el.parentNode;
+				const refmap = el.parentNode;
 				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					$hide(refmap);
 				}
@@ -10578,7 +10658,7 @@ class Post extends AbstractPost {
 		} : function(el) {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				var refmap = el.parentNode;
+				const refmap = el.parentNode;
 				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
 					$show(refmap);
 				}
@@ -10586,6 +10666,8 @@ class Post extends AbstractPost {
 		});
 	}
 }
+Post.hasNew = false;
+Post.hiddenNums = new Set();
 Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
@@ -10645,8 +10727,6 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		return value;
 	}
 };
-Post.hasNew = false;
-Post.hiddenNums = new Set();
 Post.Note = class PostNote {
 	constructor(post) {
 		this.text = null;
@@ -10671,6 +10751,14 @@ Post.Note = class PostNote {
 		}
 		$hide(this._noteEl);
 	}
+	reset() {
+		this.text = null;
+		if(this.isHideThr) {
+			this.set(null);
+		} else {
+			this.hide();
+		}
+	}
 	set(note) {
 		this.text = note;
 		let text;
@@ -10688,57 +10776,6 @@ Post.Note = class PostNote {
 		this.textEl.textContent = text;
 		$show(this._noteEl);
 	}
-	reset() {
-		this.text = null;
-		if(this.isHideThr) {
-			this.set(null);
-		} else {
-			this.hide();
-		}
-	}
-};
-Post.getWrds = function(text) {
-	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
-};
-Post.findSameText = function(oNum, oHid, oWords, post) {
-	var words = Post.getWrds(post.text),
-		len = words.length,
-		i = oWords.length,
-		olen = i,
-		_olen = i,
-		n = 0;
-	if(len < olen * 0.4 || len > olen * 3) {
-		return;
-	}
-	while(i--) {
-		if(olen > 6 && oWords[i].length < 3) {
-			_olen--;
-			continue;
-		}
-		var j = len;
-		while(j--) {
-			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
-				n++;
-			}
-		}
-	}
-	if(n < _olen * 0.4 || len > _olen * 3) {
-		return;
-	}
-	if(oHid) {
-		if(post.spellHidden) {
-			Post.Note.reset();
-		} else {
-			post.setVisib(false);
-		}
-		if(post.userToggled) {
-			HiddenPosts.remove(post.num);
-			post.userToggled = false;
-		}
-	} else {
-		post.setUserVisib(true, true, 'similar to >>' + oNum);
-	}
-	return false;
 };
 Post.sizing = {
 	get dPxRatio() {
@@ -10778,50 +10815,50 @@ Post.sizing = {
 	_enabled: false
 };
 
-function PostImages(post) {
-	let first = null, last = null, els = $Q(aib.qPostImg, post.el);
-	let hasAttachments = false;
-	const filesMap = new Map();
-	for(let i = 0, len = els.length; i < len; ++i) {
-		const el = els[i];
-		last = new Attachment(post, el, last);
-		filesMap.set(el, last);
-		hasAttachments = true;
-		if(!first) {
-			first = last;
-		}
-	}
-	if(Cfg.addImgs) {
-		els = $Q('.de-img-pre', post.el);
+class PostImages {
+	constructor(post) {
+		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let hasAttachments = false;
+		const filesMap = new Map();
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
-			last = new EmbeddedImage(post, el, last);
+			last = new Attachment(post, el, last);
 			filesMap.set(el, last);
+			hasAttachments = true;
 			if(!first) {
 				first = last;
 			}
 		}
+		if(Cfg.addImgs) {
+			els = $Q('.de-img-pre', post.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				last = new EmbeddedImage(post, el, last);
+				filesMap.set(el, last);
+				if(!first) {
+					first = last;
+				}
+			}
+		}
+		this.first = first;
+		this.last = last;
+		this.hasAttachments = hasAttachments;
+		this._map = filesMap;
 	}
-	this.first = first;
-	this.last = last;
-	this.hasAttachments = hasAttachments;
-	this._map = filesMap;
-}
-PostImages.prototype = {
 	get expanded() {
-		for(var img = this.first; img; img = img.next) {
+		for(let img = this.first; img; img = img.next) {
 			if(img.expanded) {
 				return true;
 			}
 		}
 		return false;
-	},
+	}
 	get firstAttach() {
 		return this.hasAttachments ? this.first : null;
-	},
+	}
 	getImageByEl(el) {
 		return this._map.get(el);
-	},
+	}
 	[Symbol.iterator]() {
 		return {
 			_img: this.first,
@@ -10835,13 +10872,60 @@ PostImages.prototype = {
 			}
 		};
 	}
-};
+}
 
 /* ==[ PostPreviews.js ]======================================================================================
                                                 POST PREVIEWS
 =========================================================================================================== */
 
 class Pview extends AbstractPost {
+	constructor(parent, link, pNum, tNum) {
+		super(parent.thr, pNum, pNum === tNum);
+		this.isSticky = false;
+		this.parent = parent;
+		this.tNum = tNum;
+		this._isCached = false;
+		this._isLeft = false;
+		this._isTop = false;
+		this._link = link;
+		this._newPos = null;
+		this._offsetTop = 0;
+		this._readDelay = 0;
+		let post = pByNum.get(pNum);
+		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
+			this._showPost(post);
+			return;
+		}
+		this._isCached = true;
+		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+		if(PviewsCache.has(this._brd + tNum)) {
+			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
+			if(post) {
+				this._showPost(post);
+			} else {
+				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+					${ Lng.postNotFound[lang] }</div>`));
+			}
+			return;
+		}
+		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
+			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
+
+		// Get post preview via ajax. Uses json if available.
+		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
+			pBuilder => {
+				if(aib.JsonBuilder) {
+					const html = [];
+					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
+						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
+					}
+					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
+				} else {
+					this._onload(pBuilder._form);
+				}
+			},
+			e => this._onerror(e));
+	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
@@ -10916,60 +11000,6 @@ class Pview extends AbstractPost {
 			} while((pv = pv.kid));
 		}
 	}
-	static _markLink(el, num) {
-		$each($Q('a[href*="' + num + '"]', el), function(el) {
-			if(el.textContent.startsWith('>>' + num)) {
-				el.classList.add('de-link-pview');
-			}
-		});
-	}
-	constructor(parent, link, pNum, tNum) {
-		super(parent.thr, pNum, pNum === tNum);
-		this._isCached = false;
-		this._isLeft = false;
-		this._isTop = false;
-		this._link = link;
-		this._newPos = null;
-		this._offsetTop = 0;
-		this._readDelay = 0;
-		this.isSticky = false;
-		this.parent = parent;
-		this.tNum = tNum;
-		let post = pByNum.get(pNum);
-		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-			this._showPost(post);
-			return;
-		}
-		this._isCached = true;
-		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(PviewsCache.has(this._brd + tNum)) {
-			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
-			if(post) {
-				this._showPost(post);
-			} else {
-				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
-					${ Lng.postNotFound[lang] }</div>`));
-			}
-			return;
-		}
-		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
-			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
-
-		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
-			pBuilder => {
-				if(aib.JsonBuilder) {
-					const html = [];
-					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-					}
-					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-				} else {
-					this._onload(pBuilder._form);
-				}
-			},
-			e => this._onerror(e));
-	}
 	get stickBtn() {
 		const value = $q('.de-btn-stick', this.el);
 		Object.defineProperty(this, 'stickBtn', { value });
@@ -10985,8 +11015,8 @@ class Pview extends AbstractPost {
 			this._loadPromise.cancel();
 			this._loadPromise = null;
 		}
-		var vPost = Attachment.viewer && Attachment.viewer.data.post;
-		var pv = this;
+		let vPost = Attachment.viewer && Attachment.viewer.data.post;
+		let pv = this;
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
@@ -10997,16 +11027,15 @@ class Pview extends AbstractPost {
 			pByEl.delete(el);
 			if(Cfg.animation) {
 				$animate(el, 'de-pview-anim', true);
-				el.style.animationName = 'de-post-close-' +
-					(this._isTop ? 't' : 'b') +
-					(this._isLeft ? 'l' : 'r');
+				el.style.animationName =
+					`de-post-close-${ this._isTop ? 't' : 'b' }${ this._isLeft ? 'l' : 'r' }`;
 			} else {
 				el.remove();
 			}
 		} while((pv = pv.kid));
 	}
 	deleteNonSticky() {
-		var lastSticky = null, pv = this;
+		let lastSticky = null, pv = this;
 		do {
 			if(pv.isSticky) {
 				lastSticky = pv;
@@ -11019,7 +11048,7 @@ class Pview extends AbstractPost {
 		}
 	}
 	handleEvent(e) {
-		var pv = e.target;
+		const pv = e.target;
 		if(e.type === 'animationend' && pv.style.animationName) {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
@@ -11028,14 +11057,14 @@ class Pview extends AbstractPost {
 			pv.removeEventListener('animationend', this);
 			return;
 		}
-		var isOverEvent = false;
+		let isOverEvent = false;
 		checkMouse: do {
 			switch(e.type) {
 			case 'mouseover': isOverEvent = true; break;
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			var el = fixEventEl(e.relatedTarget);
+			const el = fixEventEl(e.relatedTarget);
 			if(!el ||
 				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
 				el !== this.el && !this.el.contains(el)
@@ -11067,10 +11096,10 @@ class Pview extends AbstractPost {
 		this.isSticky = val;
 	}
 	setUserVisib() {
-		var post = pByNum.get(this.num);
+		const post = pByNum.get(this.num);
 		post.setUserVisib(!post.hidden);
 		Pview.updatePosition(true);
-		$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), el => {
+		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -11081,6 +11110,13 @@ class Pview extends AbstractPost {
 		});
 	}
 
+	static _markLink(el, num) {
+		$each($Q(`a[href*="${ num }"]`, el), function(el) {
+			if(el.textContent.startsWith('>>' + num)) {
+				el.classList.add('de-link-pview');
+			}
+		});
+	}
 	_onerror(e) {
 		if(!(e instanceof CancelError)) {
 			this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
@@ -11088,14 +11124,14 @@ class Pview extends AbstractPost {
 		}
 	}
 	_onload(form) {
-		var parentNum = this.parent.num,
-			post = new PviewsCache(doc.adoptNode(form), this._brd, this.tNum).getPost(this.num);
-		if(post && (aib.b !== this._brd || !post.ref.hasMap || !post.ref.has(parentNum))) {
+		const b = this._brd;
+		const { num } = this.parent;
+		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
+		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
-				.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
-					aib.getThrUrl(this._brd, this.parent.tNum) + aib.anchor +
-					parentNum + '">&gt;&gt;' + (aib.b === this._brd ? '' : '/' + aib.b + '/') +
-					parentNum + '</a><span class="de-refcomma">, </span>');
+				.insertAdjacentHTML('afterbegin', `<a class="de-link-ref" href="${
+					aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
+					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
 			this._showPost(post);
@@ -11104,22 +11140,23 @@ class Pview extends AbstractPost {
 		}
 	}
 	_setPosition(link, isAnim) {
-		var oldCSS, pv = this.el,
-			cr = link.getBoundingClientRect(),
-			offX = cr.left + window.pageXOffset + cr.width / 2,
-			offY = cr.top,
-			bWidth = nav.viewportWidth(),
-			isLeft = offX < bWidth / 2,
-			tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10)),
-			lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+		let oldCSS;
+		const cr = link.getBoundingClientRect();
+		const offX = cr.left + window.pageXOffset + cr.width / 2;
+		const offY = cr.top;
+		const bWidth = nav.viewportWidth();
+		const isLeft = offX < bWidth / 2;
+		const pv = this.el;
+		const tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10));
+		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
 		if(isAnim) {
 			oldCSS = pv.style.cssText;
 			pv.style.cssText = 'opacity: 0; ' + lmw;
 		} else {
 			pv.style.cssText = lmw;
 		}
-		var top = pv.offsetHeight,
-			isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
+		let top = pv.offsetHeight;
+		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
 		this._offsetTop = top;
 		this._isLeft = isLeft;
@@ -11128,15 +11165,15 @@ class Pview extends AbstractPost {
 			pv.style.top = top + 'px';
 			return;
 		}
-		var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-		$css('@keyframes ' + uId + ' { to { ' + lmw + ' top:' + top + 'px; } }').className = 'de-css-move';
+		const uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+		$css(`@keyframes ${ uId } { to { ${ lmw } top:${ top }px; } }`).className = 'de-css-move';
 		if(this._newPos) {
 			pv.style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
 		} else {
 			pv.style.cssText = oldCSS;
 		}
-		this._newPos = lmw + ' top:' + top + 'px;';
+		this._newPos = `${ lmw } top:${ top }px;`;
 		pv.addEventListener('animationend', this);
 		pv.classList.add('de-pview-anim');
 		pv.style.animationName = uId;
@@ -11150,79 +11187,76 @@ class Pview extends AbstractPost {
 		if(this.el) {
 			$del(this.el);
 		}
-		var el = this.el = post.el.cloneNode(true),
-			isMyPost = Cfg.markMyPosts && MyPosts.has(this.num),
-			pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
-				(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-				'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-				(post.deleted ? '' : '<span style="margin: 0 4px 0 2px; vertical-align: 1px; ' +
-				'color: #4f7942; font: bold 11px tahoma; cursor: default;">' +
-				(post.isOp ? 'OP' : post.count + 1) + (isMyPost ? ' (You)' : '') + '</span>');
-		pByEl.set(el, this);
-		el.className = aib.cReply + ' de-pview' +
-			(post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
-		$show(el);
-		$each($Q('.de-post-hiddencontent', el), node => node.classList.remove('de-post-hiddencontent'));
+		const pviewEl = this.el = post.el.cloneNode(true);
+		const isMyPost = Cfg.markMyPosts && MyPosts.has(this.num);
+		pByEl.set(pviewEl, this);
+		pviewEl.className = `${ aib.cReply } de-pview${
+			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
+		$show(pviewEl);
+		$each($Q('.de-post-hiddencontent', pviewEl), node => node.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
-			Pview._markLink(el, this.parent.num);
+			Pview._markLink(pviewEl, this.parent.num);
 		}
-		this._pref = $q(aib.qPostRef, el);
+		this._pref = $q(aib.qPostRef, pviewEl);
 		this._link.classList.add('de-link-parent');
+		const pText = `<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>${
+			post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : ''
+		}<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>${
+			post.deleted ? '' : `<span class="de-post-counter-pview">${
+				post.isOp ? 'OP' : post.count + +!aib.JsonBuilder }${ isMyPost ? ' (You)' : '' }</span>` }`;
 		if(post instanceof CacheItem) {
-			this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span>');
+			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedMediaLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
 			}
 			if(Cfg.addImgs) {
-				embedImagesLinks(el);
+				embedImagesLinks(pviewEl);
 			}
-			processImagesLinks(el);
+			processImagesLinks(pviewEl);
 		} else {
-			var node = this._pref.nextSibling;
-			this.btns = node;
+			let el = this._pref.nextSibling;
+			this.btns = el;
 			this.isOp = post.isOp;
-			node.classList.remove('de-post-counter');
+			el.classList.remove('de-post-counter');
 			if(post.hidden) {
-				node.classList.add('de-post-hide');
+				el.classList.add('de-post-hide');
 			}
-			node.innerHTML = '<svg class="de-btn-' + (post.hidden ? 'unhide' : 'hide') +
-				(post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '">' +
-				'<use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
-				'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
-			$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') +
-				'.de-fullimg-wrap, .de-fullimg-after', el), $del);
-			$each($Q(aib.qPostImg, el), function(el) {
-				$show(el.parentNode);
-			});
-			node = $q('.de-link-parent', el);
-			if(node) {
-				node.classList.remove('de-link-parent');
+			el.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
+				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
+				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
+				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
+			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
+				pviewEl), $del);
+			$each($Q(aib.qPostImg, pviewEl), img => $show(img.parentNode));
+			el = $q('.de-link-parent', pviewEl);
+			if(el) {
+				el.classList.remove('de-link-parent');
 			}
 			if(Cfg.addYouTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
 					Object.defineProperty(this, 'videos',
-						{ value: new Videos(this, $q('.de-video-obj', el), post.videos.playerInfo) });
+						{ value: new Videos(this, $q('.de-video-obj', pviewEl), post.videos.playerInfo) });
 				}
-				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', el), true);
+				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-pre', el), $show);
+				$each($Q('.de-img-pre', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(pst) {
-					if(!pst.viewed) {
-						pst.el.classList.add('de-viewed');
-						pst.viewed = true;
+				this._readDelay = setTimeout(function(post) {
+					if(!post.viewed) {
+						post.el.classList.add('de-viewed');
+						post.viewed = true;
 					}
-					var arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(pst.num);
+					const arr = (sesStorage['de-viewed'] || '').split(',');
+					arr.push(post.num);
 					sesStorage['de-viewed'] = arr;
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		}
-		el.addEventListener('click', this, true);
-		this._showPview(el);
+		pviewEl.addEventListener('click', this, true);
+		this._showPview(pviewEl);
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -11236,7 +11270,7 @@ class Pview extends AbstractPost {
 				el.style.animationName = '';
 			});
 			el.classList.add('de-pview-anim');
-			el.style.animationName = 'de-post-open-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+			el.style.animationName = `de-post-open-${ this._isTop ? 't' : 'b' }${ this._isLeft ? 'l' : 'r' }`;
 		}
 	}
 }
@@ -11245,11 +11279,11 @@ Pview._delTO = null;
 
 class CacheItem {
 	constructor(el, count) {
-		this.el = el;
 		this.count = count;
+		this.el = el;
+		this.deleted = false;
 		this.isOp = count === 0;
 		this.itemInited = false;
-		this.deleted = false;
 		this.viewed = false;
 	}
 	get msg() {
@@ -11276,39 +11310,37 @@ class PviewsCache extends TemporaryContent {
 			return;
 		}
 		this._inited = true;
-		var pBn = new Map(),
-			thr = $q(aib.qThread, form) || form,
-			posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-		for(var i = 0, len = posts.length; i < len; ++i) {
-			var post = posts[i];
-			pBn.set(aib.getPNum(post), new CacheItem(post, i + 1));
+		const pByNum = new Map();
+		const thr = $q(aib.qThread, form) || form;
+		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
+		for(let i = 0, len = posts.length; i < len; ++i) {
+			const post = posts[i];
+			pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 		}
-		pBn.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
+		pByNum.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
 		this._b = b;
 		this._tNum = tNum;
 		this._tUrl = aib.getThrUrl(b, tNum);
-		this._posts = pBn;
+		this._posts = pByNum;
 		if(Cfg.linksNavig) {
-			RefMap.gen(pBn, this._tUrl);
+			RefMap.gen(pByNum, this._tUrl);
 		}
 	}
 	getPost(num) {
-		var pst = this._posts.get(num);
-		if(!pst || pst.itemInited) {
-			return pst;
+		const post = this._posts.get(num);
+		if(!post || post.itemInited) {
+			return post;
 		}
-		if(num === this._tNum) {
-			if(this._b === aib.b && pByNum.has(this._tNum)) {
-				pst.ref.makeUnion(pByNum.get(this._tNum).ref);
-			}
+		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
+			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
-		pst.el = aib.fixHTML(pst.el);
-		delete pst.msg;
-		if(pst.ref.hasMap) {
-			pst.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+		post.el = aib.fixHTML(post.el);
+		delete post.msg;
+		if(post.ref.hasMap) {
+			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
-		pst.itemInited = true;
-		return pst;
+		post.itemInited = true;
+		return post;
 	}
 }
 PviewsCache.purgeSecs = 3e5;
@@ -11318,29 +11350,34 @@ PviewsCache.purgeSecs = 3e5;
                images expanding (in post / by center), navigate buttons, image-links embedding
 =========================================================================================================== */
 
-function ImgBtnsShowHider(nextFn, prevFn) {
-	var btns = $bEnd(docBody, '<div style="display: none;">' +
-		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>' +
-		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>');
-	this._btns = btns;
-	this._btnsStyle = btns.style;
-	this._nextFn = nextFn;
-	this._prevFn = prevFn;
-	doc.defaultView.addEventListener('mousemove', this);
-	btns.addEventListener('mouseover', this);
-}
-ImgBtnsShowHider.prototype = {
+class ImgBtnsShowHider {
+	constructor(nextFn, prevFn) {
+		const btns = $bEnd(docBody, '<div style="display: none;">' +
+			`<div id="de-img-btn-next" de-title="${ Lng.nextImg[lang] }"></div>` +
+			`<div id="de-img-btn-prev" de-title="${ Lng.prevImg[lang] }"></div></div>`);
+		this._btns = btns;
+		this._btnsStyle = btns.style;
+		this._hasEvents = false;
+		this._hidden = true;
+		this._hideTmt = 0;
+		this._nextFn = nextFn;
+		this._oldX = -1;
+		this._oldY = -1;
+		this._prevFn = prevFn;
+		doc.defaultView.addEventListener('mousemove', this);
+		btns.addEventListener('mouseover', this);
+	}
 	handleEvent(e) {
 		switch(e.type) {
-		case 'mousemove':
-			var curX = e.clientX,
-				curY = e.clientY;
+		case 'mousemove': {
+			const { clientX: curX, clientY: curY } = e;
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
 				this._oldY = curY;
 				this.show();
 			}
 			return;
+		}
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
@@ -11360,51 +11397,58 @@ ImgBtnsShowHider.prototype = {
 			case 'de-img-btn-prev': this._prevFn();
 			}
 		}
-	},
+	}
 	hide() {
 		this._btnsStyle.display = 'none';
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
-	},
+	}
 	remove() {
 		$del(this._btns);
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
-	},
+	}
 	show() {
 		if(this._hidden) {
 			this._btnsStyle.removeProperty('display');
 			this._hidden = false;
 			this._setHideTmt();
 		}
-	},
+	}
 
-	_hasEvents : false,
-	_hidden    : true,
-	_hideTmt   : 0,
-	_oldX      : -1,
-	_oldY      : -1,
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
 		this._hideTmt = setTimeout(() => this.hide(), 2e3);
 	}
-};
-
-function AttachmentViewer(data) {
-	this._show(data);
 }
-AttachmentViewer.prototype = {
-	data: null,
+
+class AttachmentViewer {
+	constructor(data) {
+		this.data = null;
+		this._data = null;
+		this._elStyle = null;
+		this._fullEl = null;
+		this._height = 0;
+		this._minSize = 0;
+		this._moved = false;
+		this._obj = null;
+		this._oldL = 0;
+		this._oldT = 0;
+		this._oldX = 0;
+		this._oldY = 0;
+		this._width = 0;
+		this._show(data);
+	}
 	close(e) {
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
 		}
 		this._remove(e);
-	},
+	}
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && this.data.isControlClick(e)) {
+			if(this.data.isVideo && ExpandableMedia.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -11412,9 +11456,8 @@ AttachmentViewer.prototype = {
 			docBody.addEventListener('mousemove', this, true);
 			docBody.addEventListener('mouseup', this, true);
 			break;
-		case 'mousemove':
-			var curX = e.clientX,
-				curY = e.clientY;
+		case 'mousemove': {
+			const { clientX: curX, clientY: curY } = e;
 			if(curX !== this._oldX || curY !== this._oldY) {
 				this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX;
 				this._elStyle.left = this._oldL + 'px';
@@ -11425,13 +11468,14 @@ AttachmentViewer.prototype = {
 				this._moved = true;
 			}
 			return;
+		}
 		case 'mouseup':
 			docBody.removeEventListener('mousemove', this, true);
 			docBody.removeEventListener('mouseup', this, true);
 			return;
 		case 'click': {
 			const el = e.target;
-			if(this.data.isVideo && this.data.isControlClick(e) ||
+			if(this.data.isVideo && ExpandableMedia.isControlClick(e) ||
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
@@ -11459,7 +11503,7 @@ AttachmentViewer.prototype = {
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
 		$pd(e);
-	},
+	}
 	navigate(isForward) {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
@@ -11470,34 +11514,22 @@ AttachmentViewer.prototype = {
 			this.update(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
-	},
+	}
 	update(data, showButtons, e) {
 		this._remove(e);
 		this._show(data, showButtons);
-	},
+	}
 
-	_data    : null,
-	_elStyle : null,
-	_fullEl  : null,
-	_height  : 0,
-	_minSize : 0,
-	_moved   : false,
-	_obj     : null,
-	_oldL    : 0,
-	_oldT    : 0,
-	_oldX    : 0,
-	_oldY    : 0,
-	_width   : 0,
 	get _btns() {
 		const value = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
 		Object.defineProperty(this, '_btns', { value });
 		return value;
-	},
+	}
 	get _zoomFactor() {
 		const value = 1 + (Cfg.zoomFactor / 100);
 		Object.defineProperty(this, '_zoomFactor', { value });
 		return value;
-	},
+	}
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
@@ -11522,27 +11554,20 @@ AttachmentViewer.prototype = {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
-	},
+	}
 	_show(data) {
-		var [width, height, minSize] = data.computeFullSize();
+		const [width, height, minSize] = data.computeFullSize();
 		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
-		if(data.isVideo && (width < Cfg.minWebmWidth)) {
-			width = Cfg.minWebmWidth;
-		}
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		var obj = $add('<div class="de-fullimg-center" style="top:' +
-			(this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' +
-			this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
-		if(data.isImage) {
-			$aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
-				.appendChild(this._fullEl);
-		} else {
-			obj.appendChild(this._fullEl);
-		}
+		const obj = $add(`<div class="de-fullimg-center" style="top:${
+			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
+			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
+		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+			.appendChild(this._fullEl);
 		this._elStyle = obj.style;
 		this.data = data;
 		this._obj = obj;
@@ -11558,7 +11583,7 @@ AttachmentViewer.prototype = {
 			this._btns.hide();
 		}
 		data.post.thr.form.el.appendChild(obj);
-	},
+	}
 	_remove(e) {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
@@ -11569,24 +11594,24 @@ AttachmentViewer.prototype = {
 		if(e && data.inPview) {
 			data.sendCloseEvent(e, false);
 		}
-	},
+	}
 	_resize(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
-		var [width, height, minSize] = this.data.computeFullSize();
+		let [width, height, minSize] = this.data.computeFullSize();
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		if(Post.sizing.wWidth - this._oldL - this._width < 5 ||
 			Post.sizing.wHeight - this._oldT - this._height < 5
 		) {
 			return;
 		}
-		var cPointX = this._oldL + this._width / 2,
-			cPointY = this._oldT + this._height / 2,
-			maxWidth = (Post.sizing.wWidth - cPointX - 2) * 2,
-			maxHeight = (Post.sizing.wHeight - cPointY - 2) * 2;
+		const cPointX = this._oldL + this._width / 2;
+		const cPointY = this._oldT + this._height / 2;
+		const maxWidth = (Post.sizing.wWidth - cPointX - 2) * 2;
+		const maxHeight = (Post.sizing.wHeight - cPointY - 2) * 2;
 		if(width > maxWidth || height > maxHeight) {
-			var ar = width / height;
+			const ar = width / height;
 			if(ar > maxWidth / maxHeight) {
 				width = maxWidth;
 				height = width / ar;
@@ -11604,7 +11629,7 @@ AttachmentViewer.prototype = {
 		this._elStyle.height = height + 'px';
 		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
-	},
+	}
 	_rotate(el) {
 		if(el !== this._fullEl) {
 			return;
@@ -11619,20 +11644,23 @@ AttachmentViewer.prototype = {
 		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
 		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 	}
-};
+}
 
 class ExpandableMedia {
 	constructor(post, el, prev) {
-		this.post = post;
 		this.el = el;
-		this.prev = prev;
-		this.next = null;
 		this.expanded = false;
+		this.next = null;
+		this.post = post;
+		this.prev = prev;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
 		if(prev) {
 			prev.next = this;
 		}
+	}
+	static isControlClick(e) {
+		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
 	}
 	get height() {
 		return (this._size || [-1, -1])[1];
@@ -11675,7 +11703,7 @@ class ExpandableMedia {
 		}
 	}
 	collapse(e) {
-		if(e && this.isVideo && this.isControlClick(e)) {
+		if(e && this.isVideo && ExpandableMedia.isControlClick(e)) {
 			return;
 		}
 		this.cancelWebmLoad(this._fullEl);
@@ -11700,7 +11728,7 @@ class ExpandableMedia {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
 		}
-		const minSize = Cfg.minImgSize;
+		const minSize = this.isVideo ? Math.max(Cfg.minImgSize, Cfg.minWebmWidth) : Cfg.minImgSize;
 		if(width < minSize && height < minSize) {
 			const ar = width / height;
 			if(width > height) {
@@ -11788,10 +11816,10 @@ class ExpandableMedia {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
-		const imgNameEl = '<a class="de-fullimg-src" target="_blank" title="' +
-			Lng.openOriginal[lang] + `" href="${ origSrc }">${ name }</a>`;
+		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
+			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
 		const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
-			' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize');
+			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
 			const waitEl = inPost || this._size ? '' :
@@ -11839,10 +11867,15 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+		let inPostSize = '';
+		if(inPost) {
+			const [width, height] = this.computeFullSize();
+			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
+		}
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
-				(Cfg.webmControl ? 'controls ' : '') +
-				(Cfg.webmVolume === 0 ? 'muted ' : '') + `></video>
+				`${ Cfg.webmControl ? 'controls ' : '' }` +
+				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
 				${ imgNameEl }
 				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
@@ -11869,8 +11902,8 @@ class ExpandableMedia {
 		// MS Edge needs an external app with DollchanAPI to play webms
 		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 			const href = 'https://github.com/Kagami/webmify/';
-			$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] +
-				`:\n<a href="${ href }" target="_blank">${ href }</a>`, false);
+			$popup('err-expandmedia', `${ Lng.errMsEdgeWebm[lang] }:\n<a href="${
+				href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle) {
@@ -11898,7 +11931,7 @@ class ExpandableMedia {
 						}
 						if(title) {
 							$q('.de-fullimg-src', wrapEl).textContent +=
-								' - ' + (videoEl.title = decodeURIComponent(escape(title)));
+								` - ${ videoEl.title = decodeURIComponent(escape(title)) }`;
 						}
 						break;
 					}
@@ -11908,14 +11941,11 @@ class ExpandableMedia {
 		DollchanAPI.notify('expandmedia', src);
 		return wrapEl;
 	}
-	isControlClick(e) {
-		return Cfg.webmControl && e.clientY > (e.target.getBoundingClientRect().bottom - 40);
-	}
 	sendCloseEvent(e, inPost) {
-		var pv = this.post,
-			cr = pv.el.getBoundingClientRect(),
-			x = e.pageX - window.pageXOffset,
-			y = e.pageY - window.pageYOffset;
+		let pv = this.post;
+		let cr = pv.el.getBoundingClientRect();
+		const x = e.pageX - window.pageXOffset;
+		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				pv = pv.parent;
@@ -11964,6 +11994,11 @@ class Attachment extends ExpandableMedia {
 		Object.defineProperty(this, 'info', { value });
 		return value;
 	}
+	get name() {
+		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		Object.defineProperty(this, 'name', { value });
+		return value;
+	}
 	get weight() {
 		let value = 0;
 		if(this.info) {
@@ -11974,18 +12009,13 @@ class Attachment extends ExpandableMedia {
 		Object.defineProperty(this, 'weight', { value });
 		return value;
 	}
-	get name() {
-		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
-		Object.defineProperty(this, 'name', { value });
-		return value;
-	}
 
 	_getImageParent() {
 		return aib.getImgWrap(this.el);
 	}
 	_getImageSize() {
 		if(this.info) {
-			var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+			const size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return [size[1], size[2]];
 		}
 		return null;
@@ -11998,7 +12028,12 @@ class Attachment extends ExpandableMedia {
 }
 Attachment.viewer = null;
 
-var ImagesHashStorage = Object.create({
+const ImagesHashStorage = {
+	get getHash() {
+		const value = this._getHashHelper.bind(this);
+		Object.defineProperty(this, 'getHash', { value });
+		return value;
+	},
 	endFn() {
 		if(this.hasOwnProperty('_storage')) {
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
@@ -12008,47 +12043,7 @@ var ImagesHashStorage = Object.create({
 			delete this._workers;
 		}
 	},
-	get getHash() {
-		const value = this._getHashHelper.bind(this);
-		Object.defineProperty(this, 'getHash', { value });
-		return value;
-	},
 
-	async _getHashHelper({ el, src }) {
-		if(src in this._storage) {
-			return this._storage[src];
-		}
-		if(!el.complete) {
-			await new Promise(resolve => el.addEventListener('load', () => resolve()));
-		}
-		if(el.naturalWidth + el.naturalHeight === 0) {
-			return -1;
-		}
-		let data, buffer, val = -1;
-		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib.fch) {
-			const imgData = await downloadImgData(el.src);
-			if(imgData) {
-				({ buffer } = imgData);
-			}
-		} else {
-			var cnv = this._canvas;
-			cnv.width = w;
-			cnv.height = h;
-			var ctx = cnv.getContext('2d');
-			ctx.drawImage(el, 0, 0);
-			({ buffer } = ctx.getImageData(0, 0, w, h).data);
-		}
-		if(buffer) {
-			data = await new Promise(resolve =>
-				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
-			if(data && ('hash' in data)) {
-				val = data.hash;
-			}
-		}
-		this._storage[src] = val;
-		return val;
-	},
 	get _canvas() {
 		const value = doc.createElement('canvas');
 		Object.defineProperty(this, '_canvas', { value });
@@ -12070,15 +12065,51 @@ var ImagesHashStorage = Object.create({
 		const value = new WorkerPool(4, genImgHash, emptyFn);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
+	},
+	async _getHashHelper({ el, src }) {
+		if(src in this._storage) {
+			return this._storage[src];
+		}
+		if(!el.complete) {
+			await new Promise(resolve => el.addEventListener('load', () => resolve()));
+		}
+		if(el.naturalWidth + el.naturalHeight === 0) {
+			return -1;
+		}
+		let data, buffer, val = -1;
+		const { naturalWidth: w, naturalHeight: h } = el;
+		if(aib.fch) {
+			const imgData = await downloadImgData(el.src);
+			if(imgData) {
+				({ buffer } = imgData);
+			}
+		} else {
+			const cnv = this._canvas;
+			cnv.width = w;
+			cnv.height = h;
+			const ctx = cnv.getContext('2d');
+			ctx.drawImage(el, 0, 0);
+			({ buffer } = ctx.getImageData(0, 0, w, h).data);
+		}
+		if(buffer) {
+			data = await new Promise(resolve =>
+				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+			if(data && ('hash' in data)) {
+				val = data.hash;
+			}
+		}
+		this._storage[src] = val;
+		return val;
 	}
-});
+};
 
 function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {
 		return;
 	}
-	for(var i = 0, els = $Q(aib.qImgNameLink, el), len = els.length; i < len; i++) {
-		var link = els[i];
+	const els = $Q(aib.qImgNameLink, el);
+	for(let i = 0, len = els.length; i < len; i++) {
+		const link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -12100,14 +12131,16 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 }
 
 function embedImagesLinks(el) {
-	for(var i = 0, els = $Q(aib.qMsgImgLink, el), len = els.length; i < len; ++i) {
-		var link = els[i], url = link.href;
+	const els = $Q(aib.qMsgImgLink, el);
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const link = els[i];
+		const url = link.href;
 		if(link.parentNode.tagName === 'SMALL' || url.includes('?')) {
 			return;
 		}
-		var a = link.cloneNode(false);
+		const a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = '<img class="de-img-pre" src="' + url + '">';
+		a.innerHTML = `<img class="de-img-pre" src="${ url }">`;
 		$before(link, a);
 	}
 }
@@ -12164,53 +12197,23 @@ class DOMPostsBuilder {
 	getOpMessage() {
 		return aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, this._form)));
 	}
-	getPostEl(i) {
-		return aib.fixHTML(this._posts[i]);
-	}
 	getPNum(i) {
 		return aib.getPNum(this._posts[i]);
 	}
+	getPostEl(i) {
+		return aib.fixHTML(this._posts[i]);
+	}
 	* bannedPostsData() {
-		var bEls = $Q(aib.qBan, this._form);
-		for(let i = 0, len = bEls.length; i < len; ++i) {
-			const bEl = bEls[i];
-			const pEl = aib.getPostElOfEl(bEl);
-			yield [1, pEl ? aib.getPNum(pEl) : null, doc.adoptNode(bEl)];
+		const banEls = $Q(aib.qBan, this._form);
+		for(let i = 0, len = banEls.length; i < len; ++i) {
+			const banEl = banEls[i];
+			const postEl = aib.getPostElOfEl(banEl);
+			yield [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 		}
 	}
 }
-DOMPostsBuilder.fixFileName = function(name, maxLength) {
-	const decodedName = name.replace(/&amp;/g, '&')
-		.replace(/&quot;/g, '"')
-		.replace(/&#039;/g, "'")
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>');
-	if(decodedName.length > maxLength) {
-		return {
-			isFixed : true,
-			name    : decodedName.slice(0, 25)
-				.replace(/&/g, '&amp;')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-		};
-	}
-	return { isFixed: false, name };
-};
 
 class _4chanPostsBuilder {
-	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
-			let s;
-			if(board === aib.brd && (s = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					s.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
-			}
-		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
-		}
-	}
 	constructor(json, brd) {
 		this._posts = json.posts;
 		this._brd = brd;
@@ -12220,13 +12223,35 @@ class _4chanPostsBuilder {
 			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
 		}
 	}
+	static fixFileName(name, maxLength) {
+		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		return decodedName.length <= maxLength ? { isFixed: false, name } : {
+			isFixed : true,
+			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+		};
+	}
+	static _setCustomSpoiler(board, val) {
+		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+			let spoilerEl;
+			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
+				_4chanPostsBuilder._customSpoiler.set(board,
+					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+			}
+		} else {
+			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+		}
+	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
 	}
 	getOpMessage() {
-		const data = this._posts[0];
-		return $add(aib.fixHTML('<blockquote class="postMessage" id="' +
-			`m${ data.no }"> ${ data.com }</blockquote>`));
+		const { no, com } = this._posts[0];
+		return $add(aib.fixHTML(`<blockquote class="postMessage" id="m${ no }"> ${ com }</blockquote>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].no;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -12235,8 +12260,7 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon =
-			id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif' }`;
+		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -12245,7 +12269,7 @@ class _4chanPostsBuilder {
 				<img src="${ _icon('filedeleted-res') }" class="fileDeletedRes" alt="File deleted.">
 			</span></div>`;
 		} else if(typeof data.filename === 'string') {
-			let { name, isFixed: needTitle } = DOMPostsBuilder.fixFileName(data.filename, 30);
+			let { name, isFixed: needTitle } = _4chanPostsBuilder.fixFileName(data.filename, 30);
 			name += data.ext;
 			if(!data.tn_w && !data.tn_h && data.ext === '.gif') {
 				data.tn_w = data.w;
@@ -12270,9 +12294,9 @@ class _4chanPostsBuilder {
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
 				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
-					data.tim + data.ext + `" target="_blank">
+					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
-						data.md5 + `" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
+						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
 					<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">
 						${ size } ${ data.ext.substr(1).toUpperCase() }
 					</div>
@@ -12290,53 +12314,52 @@ class _4chanPostsBuilder {
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by Administrators">## Admin</strong>';
 			capcodeClass = 'capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." ' +
+			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." ` +
 				'title="This user is a 4chan Administrator." class="identityIcon">';
 			break;
 		case 'mod':
 			capcodeText = '<strong class="capcode hand id_mod" ' +
 				'title="Highlight posts by Moderators">## Mod</strong>';
 			capcodeClass = 'capcodeMod';
-			capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." ' +
+			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." ` +
 				'title="This user is a 4chan Moderator." class="identityIcon">';
 			break;
 		case 'developer':
 			capcodeText = '<strong class="capcode hand id_developer" ' +
 				'title="Highlight posts by Developers">## Developer</strong>';
 			capcodeClass = 'capcodeDeveloper';
-			capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." ' +
+			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." ` +
 				'title="This user is a 4chan Developer." class="identityIcon">';
 			break;
 		case 'manager':
 			capcodeText = '<strong class="capcode hand id_manager" ' +
 				'title="Highlight posts by Managers">## Manager</strong>';
 			capcodeClass = 'capcodeManager';
-			capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." ' +
+			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." ` +
 				'title="This user is a 4chan Manager." class="identityIcon">';
 			break;
 		case 'founder':
 			capcodeText = '<strong class="capcode hand id_admin" ' +
 				'title="Highlight posts by the Founder">## Founder</strong>';
 			capcodeClass = ' capcodeAdmin';
-			capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." ' +
+			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan's Founder." ` +
 				'title="This user is 4chan\'s Founder." class="identityIcon">';
-			break;
 		}
 
 		// --- POST ---
-		const name = data.name || '';
+		const { name = '' } = data;
 		const nameEl = `<span class="name">${ name }</span>`;
 		const mobNameEl = name.length <= 30 ? nameEl :
 			`<span class="name" data-tip data-tip-cb="mShowFull">${ name.substring(30) }(…)</span>`;
 		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
-		const posteruidEl = data.id && !data.capcode ? '<span class="posteruid id_' + data.id +
+		const posteruidEl = data.id && !data.capcode ? `<span class="posteruid id_${ data.id }` +
 			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
 		const flagEl = data.country ? `<span title="${ data.country_name }" class="flag flag-${
 			data.country.toLowerCase() }"></span>` : '';
 		const emailEl = data.email ? `<a href="mailto:${
 			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
-		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('` +
-			num + `');" title="Reply to this post">${ num }</a>`;
+		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
+			num }');" title="Reply to this post">${ num }</a>`;
 		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
 		return `<div class="postContainer replyContainer" id="pc${ num }">
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
@@ -12374,9 +12397,6 @@ class _4chanPostsBuilder {
 			</div>
 		</div>`;
 	}
-	getPNum(i) {
-		return this._posts[i + 1].no;
-	}
 	* bannedPostsData() {}
 }
 _4chanPostsBuilder._customSpoiler = new Map();
@@ -12397,6 +12417,9 @@ class DobrochanPostsBuilder {
 	}
 	getOpMessage() {
 		return $add(aib.fixHTML(`<div class="postbody"> ${ this._posts[0].message_html }</div>`));
+	}
+	getPNum(i) {
+		return this._posts[i + 1].display_id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
@@ -12459,11 +12482,11 @@ class DobrochanPostsBuilder {
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
 			});
 		const isOp = i === -1;
-		return (isOp ? `<div id="post_${ num }" class="oppost post">` :
+		return `${ isOp ? `<div id="post_${ num }" class="oppost post">` :
 			`<table id="post_${ num }" class="replypost post"><tbody><tr>
 			<td class="doubledash">&gt;&gt;</td>
-			<td class="reply" id="reply${ num }">`) +
-				`<a name="i${ num }"></a>
+			<td class="reply" id="reply${ num }">` }
+				<a name="i${ num }"></a>
 				<label>
 					<input name="${ num }" value="${ data.thread_id }" ` +
 						`class="delete_checkbox" id="delbox_${ num }" type="checkbox">
@@ -12475,11 +12498,8 @@ class DobrochanPostsBuilder {
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
-				<div class="postbody"> ${ data.message_html }</div>` +
-			(isOp ? '</div>' : '</td></tr></tbody></table>');
-	}
-	getPNum(i) {
-		return this._posts[i + 1].display_id;
+				<div class="postbody"> ${ data.message_html }</div>
+			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
 	}
 	* bannedPostsData() {}
 }
@@ -12501,6 +12521,9 @@ class MakabaPostsBuilder {
 	getOpMessage() {
 		return $add(aib.fixHTML(this._getPostMsg(this._posts[0])));
 	}
+	getPNum(i) {
+		return this._posts[i + 1].num;
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
 	}
@@ -12513,17 +12536,15 @@ class MakabaPostsBuilder {
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images ${
-				data.files.length === 1 ? 'images-single' : 'images-multi' }">`;
+			filesHTML = `<div class="images images-${ data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
-				const fullName = file.fullname || file.name;
-				const dispName = file.displayname || file.name;
-				const isWebm = fullName.substr(-5) === '.webm';
+				const { fullname = file.name, displayname: dispName = file.name } = file;
+				const isWebm = fullname.substr(-5) === '.webm';
 				filesHTML += `<figure class="image">
 					<figcaption class="file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
-							`${	dispName === fullName ? '' : ` title="${ fullName }"` }>${ dispName }</a>
+							`${	dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
 							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
@@ -12560,7 +12581,7 @@ class MakabaPostsBuilder {
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
-						(data.tags ? ' /' + data.tags + '/' : '') }</span>` }
+						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
 					<span class="${ tripEl }</span>
@@ -12588,9 +12609,6 @@ class MakabaPostsBuilder {
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-	}
-	getPNum(i) {
-		return this._posts[i + 1].num;
 	}
 	* bannedPostsData() {
 		for(const { banned, num } of this._posts) {
@@ -12635,29 +12653,28 @@ class _0chanPostsBuilder {
 		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${
 			this._posts[0].message }</div></div>`));
 	}
+	getPNum(i) {
+		return +this._posts[i + 1].id; // Must return a Number, not a String!
+	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
 	}
 	getPostHTML(i) {
-		const data = this._posts[i + 1];
-		const num = data.id;
-		const brd = data.boardDir;
-		const parId = data.parentId;
-		const isOp = i === -1;
 		let filesHTML = '';
+		const isOp = i === -1;
+		const data = this._posts[i + 1];
+		const { id: num, boardDir: brd, parentId: parId } = data;
 		if(data.attachments.length) {
 			filesHTML += '<div class="post-attachments">';
 			for(const { images } of data.attachments) {
-				const orig = images.original;
-				const thumb200 = images.thumb_200px;
-				const thumb400 = images.thumb_400px;
+				const { original: orig, thumb_200px: thumb200, thumb_400px: thumb400 } = images;
 				filesHTML += `<figure class="post-img"><span>
 					<figcaption>
 						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
 					</figcaption>
 					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url }" srcset="` +
-						thumb400.url + ' 2x" class="post-img-thumbnail" style="width: ' +
-						thumb200.width + `px; height: ${ thumb200.height }px;"></a>
+						`${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ` +
+						`${ thumb200.width }px; height: ${ thumb200.height }px;"></a>
 				</span></figure>`;
 			}
 			filesHTML += '</div>';
@@ -12693,9 +12710,6 @@ class _0chanPostsBuilder {
 			<div class="post-footer"></div>
 		</div></div>`;
 	}
-	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
-	}
 }
 
 /* ==[ RefMap.js ]============================================================================================
@@ -12703,8 +12717,15 @@ class _0chanPostsBuilder {
 =========================================================================================================== */
 
 class RefMap {
+	constructor(post) {
+		this.hasMap = false;
+		this._hidden = false;
+		this._inited = false;
+		this._post = post;
+		this._set = new Set();
+	}
 	static gen(posts, thrURL) {
-		const opNums = DelForm.tNums;
+		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
 			const links = $Q('a', post.msg);
 			for(let lNum, i = 0, len = links.length; i < len; ++i) {
@@ -12727,7 +12748,7 @@ class RefMap {
 					ref._set.add(pNum);
 					ref.hasMap = true;
 				}
-				if(!aib.hasOPNum && opNums.has(lNum)) {
+				if(!aib.hasOPNum && tNums.has(lNum)) {
 					link.classList.add('de-ref-op');
 				}
 				if(thrURL) {
@@ -12740,10 +12761,10 @@ class RefMap {
 		}
 	}
 	static init(form) {
-		var post = form.firstThr && form.firstThr.op;
+		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.init('', strNums);
@@ -12771,31 +12792,24 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
-			if(isAdd) {
-				if(strNums && strNums.has(lNum)) {
-					link.classList.add('de-link-hid');
-				}
-				if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-					link.classList.add('de-ref-op');
-				}
-				lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
-			} else {
+			if(!isAdd) {
 				lPost.ref.remove(pNum);
+				return;
 			}
+			if(strNums && strNums.has(lNum)) {
+				link.classList.add('de-link-hid');
+			}
+			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
+				link.classList.add('de-ref-op');
+			}
+			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
 		}
-	}
-	constructor(post) {
-		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
-		this._post = post;
-		this._set = new Set();
 	}
 	add(post, num, isHidden = null) {
 		if(isHidden === null) {
-			var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
@@ -12808,7 +12822,7 @@ class RefMap {
 		}
 	}
 	getElByNum(num) {
-		return $q('a[href$="' + num + '"]', this._el);
+		return $q(`a[href$="${ num }"]`, this._el);
 	}
 	has(num) {
 		return this._set.has(num);
@@ -12818,22 +12832,22 @@ class RefMap {
 			return;
 		}
 		this._hidden = true;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && !pst.hidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && !post.hidden) {
 				if(isForced) {
-					pst.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					pst.ref.hide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(true, 'reference to >>' + this._post.num);
-					pst.ref.hide();
+					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
+					post.ref.hide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(true, 'reference to >>' + this._post.num);
+					post.ref.hide();
 				}
 			}
 		}
 	}
 	init(tUrl, strNums) {
-		var html = '';
-		for(var num of this._set) {
+		let html = '';
+		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
@@ -12847,7 +12861,7 @@ class RefMap {
 		if(this._set.size === 0) {
 			this.removeMap();
 		} else {
-			var el = this.getElByNum(num);
+			const el = this.getElByNum(num);
 			if(el) {
 				$del(el.nextSibling);
 				$del(el);
@@ -12865,15 +12879,15 @@ class RefMap {
 			return;
 		}
 		this._hidden = false;
-		for(var num of this._set) {
-			var pst = pByNum.get(num);
-			if(pst && pst.hidden && !pst.spellHidden) {
+		for(const num of this._set) {
+			const post = pByNum.get(num);
+			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
-					pst.setUserVisib(false);
-					pst.ref.unhide(true);
-				} else if(!pst.userToggled) {
-					pst.setVisib(false);
-					pst.ref.unhide();
+					post.setUserVisib(false);
+					post.ref.unhide(true);
+				} else if(!post.userToggled) {
+					post.setVisib(false);
+					post.ref.unhide();
 				}
 			}
 		}
@@ -12900,12 +12914,13 @@ class RefMap {
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
-		return '<a href="' + tUrl + aib.anchor + num +
-			'" class="de-link-ref' + (isHidden ? ' de-link-hid' : '') +
-			(MyPosts.has(num) ? ' de-ref-my' : '') +
-			'">&gt;&gt;' + num + '</a><span class="de-refcomma">, </span>';
+		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
+			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-my' : ''
+		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }
+
+/* eslint-disable no-var *//* , prefer-template */
 
 /* ==[ Threads.js ]===========================================================================================
                                                    THREADS
@@ -13190,7 +13205,6 @@ class Thread {
 	_loadFromBuilder(last, smartScroll, pBuilder) {
 		let nextCoord;
 		const maybeSpells = new Maybe(SpellsRunner);
-		const { op, el: thrEl } = this;
 		if(smartScroll) {
 			if(this.next) {
 				nextCoord = this.next.top;
@@ -13199,6 +13213,7 @@ class Thread {
 			}
 		}
 		pr.closeReply();
+		const { op, el: thrEl } = this;
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
 			if(op.trunc) {
@@ -14361,16 +14376,13 @@ function initNavFuncs() {
 			return typeof deMainFuncOuter === 'undefined';
 		},
 		get scriptInstall() {
-			if(this.isFirefox) {
-				if(this.isNewGM) {
-					if(GM.info) {
-						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
-					}
-					return 'Greasemonkey';
-				}
-				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
+			if(this.isNewGM) {
+				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 			}
-			return isChromeStorage ? 'WebExtension' : isGM || isNewGM ? 'Monkey' : 'Native userscript';
+			if(this.isFirefox) {
+				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
@@ -14827,7 +14839,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
 					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
 					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
-					.toolbar-area { display: none !important; }
+					.toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-image > img { cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
@@ -14939,7 +14951,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			cap.textEl.tabIndex = 999;
+			if(cap.textEl) {
+				cap.textEl.tabIndex = 999;
+			}
 			return this.updateCaptcha(cap);
 		}
 		updateCaptcha(cap) {
@@ -14949,7 +14963,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			} catch(e) {
 				type = '2chaptcha';
 			}
-			return cap.updateHelper(`/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
+			const url = cap.textEl ? `/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum :
+				'/api/captcha/recaptcha/id';
+			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
 				let data = xhr.responseText;
 				try {
@@ -14964,8 +14980,17 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(type === '2chaptcha') {
-						// Get captcha image
+					if(data.type === 'recaptcha') {
+						$q('.captcha-key').value = data.id;
+						if(!$id('captcha-widget-main').hasChildNodes()) {
+							$script(`deCapWidget = grecaptcha.render('captcha-widget-main',
+								{ sitekey: "${ data.id }" });`);
+						} else {
+							$script('grecaptcha.reset(deCapWidget);');
+						}
+						break;
+					} else if(type === '2chaptcha') {
+						// Get old captcha image
 						const src = `/api/captcha/${ type }/image/` + data.id;
 						let image = $id('de-image-captcha');
 						if(image) {
@@ -15563,7 +15588,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				.postForm { display: table !important; width: auto !important; }
-				textarea { margin-right: 0 !important; }`;
+				textarea { margin-right: 0 !important; }
+				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
 			return ['', '', '', '', '[spoiler'];
@@ -16014,7 +16040,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
+				#de-win-reply { float:left; margin-left:2em }
+				${ Cfg.widePosts ? `.doubledash { display: none; }
+					.thread_reply { float: none; }` : '' }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input name="file" type="file"></div>';
@@ -16382,6 +16410,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
+		get qImgNameLink() {
+			return '.file-info > .btn-group > .btn-xs > a';
+		}
 		get css() {
 			return super.css + `.fa-sort { display: none; }
 				time::after { content: none; }`;
@@ -16480,7 +16511,7 @@ const DollchanAPI = {
 		}
 		let rv = null;
 		const { name, data } = arg;
-		switch(arg.name.toLowerCase()) {
+		switch(name.toLowerCase()) {
 		case 'registerapi':
 			if(data) {
 				rv = {};
@@ -16513,25 +16544,30 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'Dollchan_Extension_Tools.meta.js', { 'Content-Type': 'text/plain' }, false
+		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
 	).then(xhr => {
-		const m = xhr.responseText.match(/@version\s+([0-9.]+)/);
-		const remoteVer = m && m[1] ? m[1].split('.') : null;
+		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
-			const src = gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' +
-				(nav.isESNext ? 'es6.' : '') + 'user.js';
+			const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+				nav.isESNext ? 'es6.' : '' }user.js`;
 			saveCfgObj('lastUpd', Date.now());
+			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return '<a style="color: blue; font-weight: bold;" href="' + src + '">' +
-						Lng.updAvail[lang] + '</a>';
+					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
 			}
 			if(isManual) {
-				return Lng.haveLatest[lang];
+				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+				const vc = version + '.' + c;
+				return c === commit ?
+					Lng.haveLatestCommit[lang].replace('%s', vc) :
+					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
+						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
 		}
 		return Promise.reject();
@@ -16958,8 +16994,10 @@ function scriptCSS() {
 	cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') +
 
 	// Posts counter
-	`.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); margin: 0 4px 0 2px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }
-	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; margin: 0 4px 0 2px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }` +
+	`.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
+	.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }
+	.de-post-counter-pview { color: #4f7942; }
+	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }` +
 
 	// Text markup buttons
 	`#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
@@ -17197,7 +17235,7 @@ function updateCSS() {
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
+	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
