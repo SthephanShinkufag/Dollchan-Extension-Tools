@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.10.24.0';
-	var commit = 'da4ccf8';
+	var commit = 'bb9a14c';
 
 
 	var defaultCfg = {
@@ -13705,8 +13705,8 @@ true, true];
 							case 'like-div':
 							case 'dislike-div':
 								{
+									var task = el.className.split('-')[0];
 									var num = el.id.match(/\d+/)[0];
-									var task = el.className === 'dislike-div' ? 'dislike' : 'like';
 									$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
 										var data = JSON.parse(xhr.responseText);
 										if (data.Status !== 'OK') {
@@ -13714,9 +13714,9 @@ true, true];
 											return;
 										}
 										el.classList.add(task + '-div-checked');
-										var countEl = $id(task + '-count' + num);
-										countEl.innerHTML = (+countEl.textContent || 0) + 1;
-									}, function (xhr) {
+										var countEl = $q('.' + task + '-count', el);
+										countEl.textContent = +countEl.textContent + 1;
+									}, function () {
 										return $popup('err-2chlike', Lng.noConnect[lang]);
 									});
 								}
@@ -15637,9 +15637,6 @@ true, true];
 				}, function (el) {
 					return _this51._rotate(el);
 				});
-				if (data.isVideo && width < Cfg.minWebmWidth) {
-					width = Cfg.minWebmWidth;
-				}
 				this._width = width;
 				this._height = height;
 				this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -15825,7 +15822,7 @@ true, true];
 					width /= Post.sizing.dPxRatio;
 					height /= Post.sizing.dPxRatio;
 				}
-				var minSize = Cfg.minImgSize;
+				var minSize = this.isVideo ? Math.max(Cfg.minImgSize, Cfg.minWebmWidth) : Cfg.minImgSize;
 				if (width < minSize && height < minSize) {
 					var ar = width / height;
 					if (width > height) {
@@ -15974,7 +15971,16 @@ true, true];
 				}
 				var isWebm = src.split('.').pop() === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
-				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + ('' + (Cfg.webmControl ? 'controls ' : '')) + ((Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
+				var inPostSize = '';
+				if (inPost) {
+					var _computeFullSize = this.computeFullSize(),
+					    _computeFullSize2 = _slicedToArray(_computeFullSize, 2),
+					    width = _computeFullSize2[0],
+					    height = _computeFullSize2[1];
+
+					inPostSize = ' style="width: ' + width + 'px; height: ' + height + 'px;"';
+				}
+				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '"' + inPostSize + '>\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + ('' + (Cfg.webmControl ? 'controls ' : '')) + ((Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
 				var videoEl = wrapEl.firstElementChild;
 				videoEl.volume = Cfg.webmVolume / 100;
 				videoEl.addEventListener('error', function (_ref80) {

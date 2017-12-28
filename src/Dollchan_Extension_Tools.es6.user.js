@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = 'da4ccf8';
+const commit = 'bb9a14c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9957,21 +9957,19 @@ class AbstractPost {
 			if(aib.mak) {
 				switch(el.className) {
 				case 'fa fa-bolt':
-				case 'fa fa-thumbs-down':
-					el = el.parentNode;
+				case 'fa fa-thumbs-down': el = el.parentNode;
 					/* falls through */
 				case 'like-icon':
 				case 'dislike-icon':
 				case 'like-caption':
 				case 'dislike-caption':
 				case 'like-count':
-				case 'dislike-count':
-					el = el.parentNode;
+				case 'dislike-count': el = el.parentNode;
 					/* falls through */
 				case 'like-div':
 				case 'dislike-div': {
+					const task = el.className.split('-')[0];
 					const num = el.id.match(/\d+/)[0];
-					const task = el.className === 'dislike-div' ? 'dislike' : 'like';
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
@@ -9979,9 +9977,9 @@ class AbstractPost {
 							return;
 						}
 						el.classList.add(`${ task }-div-checked`);
-						const countEl = $id(task + '-count' + num);
-						countEl.innerHTML = (+countEl.textContent || 0) + 1;
-					}, xhr => $popup('err-2chlike', Lng.noConnect[lang]));
+						const countEl = $q(`.${ task }-count`, el);
+						countEl.textContent = +countEl.textContent + 1;
+					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 				}
 				}
 				if(el.classList.contains('expand-large-comment')) {
@@ -11558,11 +11556,8 @@ class AttachmentViewer {
 		this._elStyle.top = this._oldT + 'px';
 	}
 	_show(data) {
-		let [width, height, minSize] = data.computeFullSize();
+		const [width, height, minSize] = data.computeFullSize();
 		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
-		if(data.isVideo && (width < Cfg.minWebmWidth)) {
-			width = Cfg.minWebmWidth;
-		}
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -11733,7 +11728,7 @@ class ExpandableMedia {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
 		}
-		const minSize = Cfg.minImgSize;
+		const minSize = this.isVideo ? Math.max(Cfg.minImgSize, Cfg.minWebmWidth) : Cfg.minImgSize;
 		if(width < minSize && height < minSize) {
 			const ar = width / height;
 			if(width > height) {
@@ -11872,7 +11867,12 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+		let inPostSize = '';
+		if(inPost) {
+			const [width, height] = this.computeFullSize();
+			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
+		}
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>

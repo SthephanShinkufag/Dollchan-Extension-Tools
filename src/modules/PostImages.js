@@ -209,11 +209,8 @@ class AttachmentViewer {
 		this._elStyle.top = this._oldT + 'px';
 	}
 	_show(data) {
-		let [width, height, minSize] = data.computeFullSize();
+		const [width, height, minSize] = data.computeFullSize();
 		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
-		if(data.isVideo && (width < Cfg.minWebmWidth)) {
-			width = Cfg.minWebmWidth;
-		}
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -384,7 +381,7 @@ class ExpandableMedia {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
 		}
-		const minSize = Cfg.minImgSize;
+		const minSize = this.isVideo ? Math.max(Cfg.minImgSize, Cfg.minWebmWidth) : Cfg.minImgSize;
 		if(width < minSize && height < minSize) {
 			const ar = width / height;
 			if(width > height) {
@@ -523,7 +520,12 @@ class ExpandableMedia {
 		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
+		let inPostSize = '';
+		if(inPost) {
+			const [width, height] = this.computeFullSize();
+			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
+		}
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
 			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
