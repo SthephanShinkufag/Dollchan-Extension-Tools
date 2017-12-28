@@ -101,16 +101,13 @@ function initNavFuncs() {
 			return typeof deMainFuncOuter === 'undefined';
 		},
 		get scriptInstall() {
-			if(this.isFirefox) {
-				if(this.isNewGM) {
-					if(GM.info) {
-						return `${ GM.info.scriptHandler } ${ GM.info.version }`;
-					}
-					return 'Greasemonkey';
-				}
-				return typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish';
+			if(this.isNewGM) {
+				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 			}
-			return isChromeStorage ? 'WebExtension' : isGM || isNewGM ? 'Monkey' : 'Native userscript';
+			if(this.isFirefox) {
+				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);

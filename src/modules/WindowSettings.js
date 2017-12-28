@@ -450,7 +450,7 @@ const CfgWindow = {
 			case 'de-cfg-btn-debug':
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
-					version,
+					version  : version + '.' + commit,
 					location : String(window.location),
 					nav,
 					Cfg,
