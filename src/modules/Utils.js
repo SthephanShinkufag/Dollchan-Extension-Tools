@@ -687,7 +687,7 @@ function getErrorMessage(e) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function* getFormElements(form, submitter) {
+function * getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
 

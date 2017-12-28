@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.10.24.0';
-const commit = '668eebe';
+const commit = '3d380a7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2210,7 +2210,7 @@ function getErrorMessage(e) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function* getFormElements(form, submitter) {
+function * getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
 
@@ -15560,7 +15560,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				.postForm { display: table !important; width: auto !important; }
-				textarea { margin-right: 0 !important; }`;
+				textarea { margin-right: 0 !important; }
+				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
 			return ['', '', '', '', '[spoiler'];
@@ -16011,7 +16012,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
+				#de-win-reply { float:left; margin-left:2em }
+				${ Cfg.widePosts ? `.doubledash { display: none; }
+					.thread_reply { float: none; }` : '' }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input name="file" type="file"></div>';
@@ -17204,7 +17207,7 @@ function updateCSS() {
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 100%; }` : '' }
+	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }

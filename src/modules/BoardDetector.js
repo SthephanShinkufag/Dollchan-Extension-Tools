@@ -797,7 +797,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				.postForm { display: table !important; width: auto !important; }
-				textarea { margin-right: 0 !important; }`;
+				textarea { margin-right: 0 !important; }
+				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
 			return ['', '', '', '', '[spoiler'];
@@ -1248,7 +1249,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
+				#de-win-reply { float:left; margin-left:2em }
+				${ Cfg.widePosts ? `.doubledash { display: none; }
+					.thread_reply { float: none; }` : '' }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input name="file" type="file"></div>';
