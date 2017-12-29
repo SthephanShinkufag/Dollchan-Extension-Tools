@@ -7,7 +7,7 @@ function saveStorage(obj) {
 }
 
 function setIcon(enabled) {
-	chrome.browserAction.setIcon({ path: `icons/logo-32${ enabled ? '' : '-disabled' }.svg` });
+	chrome.browserAction.setIcon({ path: `icons/logo-32${ enabled ? '' : '-disabled' }.png` });
 	chrome.browserAction.setTitle({ title: `${ enabled ? 'Disable' : 'Enable' } Dollchan-Extension` });
 }
 

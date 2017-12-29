@@ -3,7 +3,7 @@
 	"homepage_url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
 	"manifest_version": 2,
 	"name": "Dollchan Extension Tools",
-	"version": "17.12.28.0",
+	"version": "17.12.28.1",
 
 	"applications": {
 		"gecko": {
@@ -14,7 +14,7 @@
 	"browser_action": {
 		"browser_style": false,
 		"default_icon": {
-			"32": "icons/logo-32.svg"
+			"32": "icons/logo-32.png"
 		},
 		"default_title": "Disable Dollchan-Extension"
 	},
@@ -28,11 +28,11 @@
 		"run_at": "document_start"
 	} ],
 	"icons": {
-		"16": "icons/logo-16.svg",
-		"32": "icons/logo-32.svg",
-		"48": "icons/logo-48.svg",
-		"48": "icons/logo-96.svg",
-		"128": "icons/logo-128.svg"
+		"16": "icons/logo-16.png",
+		"32": "icons/logo-32.png",
+		"48": "icons/logo-48.png",
+		"96": "icons/logo-96.png",
+		"128": "icons/logo-128.png"
 	},
 	"optional_permissions": ["*://*/"],
 	"permissions": [
