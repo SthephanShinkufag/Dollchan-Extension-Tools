@@ -11,8 +11,8 @@ function setIcon(enabled) {
 	chrome.browserAction.setTitle({ title: `${ enabled ? 'Disable' : 'Enable' } Dollchan-Extension` });
 }
 
-function runScript() {
-	chrome.tabs.executeScript({ file: 'Dollchan_Extension_Tools.es6.user.js' });
+function runScript(tabId) {
+	chrome.tabs.executeScript(tabId, { file: 'Dollchan_Extension_Tools.es6.user.js' });
 }
 
 // Run
@@ -29,7 +29,7 @@ chrome.browserAction.onClicked.addListener(tab => {
 	saveStorage({ 'de-enabled': (isEnabled = !isEnabled) });
 	setIcon(isEnabled);
 	if(isEnabled) {
-		runScript();
+		runScript(tab.id);
 	}
 });
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		sendResponse({ answer: isEnabled });
 		break;
 	case 'runScript':
-		runScript();
+		runScript(sender.tab.id);
 		sendResponse({ answer: 'Script is runned!' });
 		break;
 	default: sendResponse({ answer: 'Unknown request' });
