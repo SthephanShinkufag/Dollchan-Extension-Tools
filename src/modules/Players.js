@@ -46,7 +46,14 @@ class Videos {
 			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
 		}
 	}
-	static setLinkData(link, [title, author, views, publ, duration]) {
+	static setLinkData(link, data, isCloned = false) {
+		const [title, author, views, publ, duration] = data;
+		if(Panel.isVidEnabled && !isCloned) {
+			const clonedLink = $q(`.de-entry > .de-video-link[href="${ link.href }"]:not(title)`);
+			if(clonedLink) {
+				Videos.setLinkData(clonedLink, data, true);
+			}
+		}
 		link.textContent = title;
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
@@ -100,6 +107,9 @@ class Videos {
 			this.currentLink = link;
 		}
 		link.videoInfo = m;
+		if(Panel.isVidEnabled) {
+			updateVideoList($id('de-video-list'), link, this.post.num);
+		}
 		if(loader && !dataObj) {
 			loader.run([link, isYtube, this, m[1]]);
 		}

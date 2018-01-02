@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = '4e9b7a5';
+const commit = '369052b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2895,21 +2895,7 @@ function initStorageEvent() {
 =========================================================================================================== */
 
 const Panel = Object.create({
-	get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
-		return value;
-	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	},
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	},
+	isVidEnabled: false,
 	init(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
@@ -2990,7 +2976,10 @@ const Panel = Object.create({
 			case 'de-panel-cfg': toggleWindow('cfg', false); break;
 			case 'de-panel-hid': toggleWindow('hid', false); break;
 			case 'de-panel-fav': toggleWindow('fav', false); break;
-			case 'de-panel-vid': toggleWindow('vid', false); break;
+			case 'de-panel-vid':
+				toggleWindow('vid', false);
+				this.isVidEnabled = !this.isVidEnabled;
+				break;
 			case 'de-panel-refresh': window.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
@@ -3090,6 +3079,21 @@ const Panel = Object.create({
 	_hideTO : 0,
 	_menu   : null,
 	_menuTO : 0,
+	get _acountEl() {
+		const value = $id('de-panel-info-acount');
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	},
+	get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	},
 	_getButton(id) {
 		let page, href, title, useId;
 		switch(id) {
@@ -3535,16 +3539,19 @@ function showVideosWindow(body) {
 
 	// Copy all video links into videos list
 	for(let i = 0, len = els.length; i < len; ++i) {
-		const el = els[i].cloneNode(true);
-		const { num } = aib.getPostOfEl(els[i]);
-		el.videoInfo = els[i].videoInfo;
-		$bEnd(linkList, `<div class="de-entry ${ aib.cReply }">
-			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
-		</div>`).appendChild(el).classList.remove('de-current');
-		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
+		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
 	body.appendChild(linkList);
 	$q('.de-video-link', linkList).click();
+}
+
+function updateVideoList(parent, link, num) {
+	const el = link.cloneNode(true);
+	el.videoInfo = link.videoInfo;
+	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
+		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
+	</div>`).appendChild(el).classList.remove('de-current');
+	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 }
 
 // HIDDEN THREADS WINDOW
@@ -6189,7 +6196,14 @@ class Videos {
 			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
 		}
 	}
-	static setLinkData(link, [title, author, views, publ, duration]) {
+	static setLinkData(link, data, isCloned = false) {
+		const [title, author, views, publ, duration] = data;
+		if(Panel.isVidEnabled && !isCloned) {
+			const clonedLink = $q(`.de-entry > .de-video-link[href="${ link.href }"]:not(title)`);
+			if(clonedLink) {
+				Videos.setLinkData(clonedLink, data, true);
+			}
+		}
 		link.textContent = title;
 		link.classList.add('de-video-title');
 		link.setAttribute('de-author', author);
@@ -6243,6 +6257,9 @@ class Videos {
 			this.currentLink = link;
 		}
 		link.videoInfo = m;
+		if(Panel.isVidEnabled) {
+			updateVideoList($id('de-video-list'), link, this.post.num);
+		}
 		if(loader && !dataObj) {
 			loader.run([link, isYtube, this, m[1]]);
 		}

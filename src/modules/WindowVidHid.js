@@ -128,16 +128,19 @@ function showVideosWindow(body) {
 
 	// Copy all video links into videos list
 	for(let i = 0, len = els.length; i < len; ++i) {
-		const el = els[i].cloneNode(true);
-		const { num } = aib.getPostOfEl(els[i]);
-		el.videoInfo = els[i].videoInfo;
-		$bEnd(linkList, `<div class="de-entry ${ aib.cReply }">
-			<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
-		</div>`).appendChild(el).classList.remove('de-current');
-		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
+		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
 	body.appendChild(linkList);
 	$q('.de-video-link', linkList).click();
+}
+
+function updateVideoList(parent, link, num) {
+	const el = link.cloneNode(true);
+	el.videoInfo = link.videoInfo;
+	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
+		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
+	</div>`).appendChild(el).classList.remove('de-current');
+	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 }
 
 // HIDDEN THREADS WINDOW

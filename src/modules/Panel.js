@@ -3,21 +3,7 @@
 =========================================================================================================== */
 
 const Panel = Object.create({
-	get _acountEl() {
-		const value = $id('de-panel-info-acount');
-		Object.defineProperty(this, '_acountEl', { value, configurable: true });
-		return value;
-	},
-	get _icountEl() {
-		const value = $id('de-panel-info-icount');
-		Object.defineProperty(this, '_icountEl', { value, configurable: true });
-		return value;
-	},
-	get _pcountEl() {
-		const value = $id('de-panel-info-pcount');
-		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
-		return value;
-	},
+	isVidEnabled: false,
 	init(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
@@ -98,7 +84,10 @@ const Panel = Object.create({
 			case 'de-panel-cfg': toggleWindow('cfg', false); break;
 			case 'de-panel-hid': toggleWindow('hid', false); break;
 			case 'de-panel-fav': toggleWindow('fav', false); break;
-			case 'de-panel-vid': toggleWindow('vid', false); break;
+			case 'de-panel-vid':
+				toggleWindow('vid', false);
+				this.isVidEnabled = !this.isVidEnabled;
+				break;
 			case 'de-panel-refresh': window.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
@@ -198,6 +187,21 @@ const Panel = Object.create({
 	_hideTO : 0,
 	_menu   : null,
 	_menuTO : 0,
+	get _acountEl() {
+		const value = $id('de-panel-info-acount');
+		Object.defineProperty(this, '_acountEl', { value, configurable: true });
+		return value;
+	},
+	get _icountEl() {
+		const value = $id('de-panel-info-icount');
+		Object.defineProperty(this, '_icountEl', { value, configurable: true });
+		return value;
+	},
+	get _pcountEl() {
+		const value = $id('de-panel-info-pcount');
+		Object.defineProperty(this, '_pcountEl', { value, configurable: true });
+		return value;
+	},
 	_getButton(id) {
 		let page, href, title, useId;
 		switch(id) {
