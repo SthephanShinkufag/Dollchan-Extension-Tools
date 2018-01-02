@@ -2,7 +2,7 @@
                                                   MAIN PANEL
 =========================================================================================================== */
 
-const Panel = {
+const Panel = Object.create({
 	get _acountEl() {
 		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
@@ -243,4 +243,4 @@ const Panel = {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}
-};
+});

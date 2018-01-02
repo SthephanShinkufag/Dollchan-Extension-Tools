@@ -2,7 +2,7 @@
                                                     SPELLS
 =========================================================================================================== */
 
-const Spells = {
+const Spells = Object.create({
 	hash: null,
 	get hiders() {
 		this._init();
@@ -486,7 +486,7 @@ const Spells = {
 		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
-};
+});
 
 class SpellsCodegen {
 	constructor(sList) {

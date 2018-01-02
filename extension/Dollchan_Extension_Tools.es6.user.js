@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = 'bb9a14c';
+const commit = 'f1679a3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2894,7 +2894,7 @@ function initStorageEvent() {
                                                   MAIN PANEL
 =========================================================================================================== */
 
-const Panel = {
+const Panel = Object.create({
 	get _acountEl() {
 		const value = $id('de-panel-info-acount');
 		Object.defineProperty(this, '_acountEl', { value, configurable: true });
@@ -3135,7 +3135,7 @@ const Panel = {
 			this._hideTO = setTimeout(() => $hide(this._buttons), 500);
 		}
 	}
-};
+});
 
 /* ==[ WindowUtils.js ]=======================================================================================
                                                 WINDOW: UTILS
@@ -6898,7 +6898,7 @@ toggleInfinityScroll.onwheel = e => {
                                                     SPELLS
 =========================================================================================================== */
 
-const Spells = {
+const Spells = Object.create({
 	hash: null,
 	get hiders() {
 		this._init();
@@ -7382,7 +7382,7 @@ const Spells = {
 		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
 		locStorage.removeItem('__de-spells');
 	}
-};
+});
 
 class SpellsCodegen {
 	constructor(sList) {
@@ -12028,7 +12028,7 @@ class Attachment extends ExpandableMedia {
 }
 Attachment.viewer = null;
 
-const ImagesHashStorage = {
+const ImagesHashStorage = Object.create({
 	get getHash() {
 		const value = this._getHashHelper.bind(this);
 		Object.defineProperty(this, 'getHash', { value });
@@ -12101,7 +12101,7 @@ const ImagesHashStorage = {
 		this._storage[src] = val;
 		return val;
 	}
-};
+});
 
 function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {

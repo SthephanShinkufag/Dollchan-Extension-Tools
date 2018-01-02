@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.12.28.0';
-	var commit = '7e61a8d';
+	var commit = 'f1679a3';
 
 
 	var defaultCfg = {
@@ -5825,7 +5825,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 
-	var Panel = {
+	var Panel = Object.create({
 		get _acountEl() {
 			var value = $id('de-panel-info-acount');
 			Object.defineProperty(this, '_acountEl', { value: value, configurable: true });
@@ -6059,7 +6059,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, 500);
 			}
 		}
-	};
+	});
 
 
 	function updateWinZ(style) {
@@ -10104,7 +10104,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 
-	var Spells = {
+	var Spells = Object.create({
 		hash: null,
 		get hiders() {
 			this._init();
@@ -10664,7 +10664,7 @@ true, true];
 			locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data: data });
 			locStorage.removeItem('__de-spells');
 		}
-	};
+	});
 
 	var SpellsCodegen = function () {
 		function SpellsCodegen(sList) {
@@ -16211,7 +16211,7 @@ true, true];
 
 	Attachment.viewer = null;
 
-	var ImagesHashStorage = {
+	var ImagesHashStorage = Object.create({
 		get getHash() {
 			var value = this._getHashHelper.bind(this);
 			Object.defineProperty(this, 'getHash', { value: value });
@@ -16358,7 +16358,7 @@ true, true];
 
 			return _getHashHelper;
 		}()
-	};
+	});
 
 	function processImagesLinks(el) {
 		var addSrc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Cfg.imgSrcBtns;

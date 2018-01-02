@@ -681,7 +681,7 @@ class Attachment extends ExpandableMedia {
 }
 Attachment.viewer = null;
 
-const ImagesHashStorage = {
+const ImagesHashStorage = Object.create({
 	get getHash() {
 		const value = this._getHashHelper.bind(this);
 		Object.defineProperty(this, 'getHash', { value });
@@ -754,7 +754,7 @@ const ImagesHashStorage = {
 		this._storage[src] = val;
 		return val;
 	}
-};
+});
 
 function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {
