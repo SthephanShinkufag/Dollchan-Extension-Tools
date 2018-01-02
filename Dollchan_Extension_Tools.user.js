@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.12.28.0';
-	var commit = 'f1679a3';
+	var commit = 'da81336';
 
 
 	var defaultCfg = {
@@ -19593,7 +19593,7 @@ true, true];
 					} catch (e) {
 						type = '2chaptcha';
 					}
-					var url = cap.textEl ? '/api/captcha/' + type + '/id?board=' + this.b + '&thread=' + pr.tNum : '/api/captcha/recaptcha/id';
+					var url = cap.textEl ? '/api/captcha/' + type + '/id?board=' + this.b + '&thread=' + pr.tNum : '/api/captcha/invisible_recaptcha/id';
 					return cap.updateHelper(url, function (xhr) {
 						var box = $q('.captcha-box', cap.parentEl);
 						var data = xhr.responseText;
@@ -19610,26 +19610,13 @@ true, true];
 							case 3:
 								return CancelablePromise.reject(); 
 							case 1:
-								if (data.type === 'recaptcha') {
+								if (data.type === 'invisible_recaptcha') {
 									$q('.captcha-key').value = data.id;
-									if (!$id('captcha-widget-main').hasChildNodes()) {
-										$script('deCapWidget = grecaptcha.render(\'captcha-widget-main\',\n\t\t\t\t\t\t\t\t{ sitekey: "' + data.id + '" });');
+									if (!$id('captcha-widget').hasChildNodes()) {
+										$script('deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									} else {
-										$script('grecaptcha.reset(deCapWidget);');
+										$script('grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									}
-									break;
-								} else if (type === '2chaptcha') {
-									var src = '/api/captcha/' + type + '/image/' + data.id;
-									var image = $id('de-image-captcha');
-									if (image) {
-										image.src = '';
-										image.src = src;
-									} else {
-										image = $q('.captcha-image', cap.parentEl);
-										image.innerHTML = '<img id="de-image-captcha" src="' + src + '">';
-										cap.initImage(image.firstChild);
-									}
-									$q('input[name="2chaptcha_id"]', cap.parentEl).value = data.id;
 									break;
 								}
 							default:

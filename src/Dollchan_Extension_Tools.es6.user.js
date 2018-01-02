@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = 'f1679a3';
+const commit = 'da81336';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14964,7 +14964,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				type = '2chaptcha';
 			}
 			const url = cap.textEl ? `/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum :
-				'/api/captcha/recaptcha/id';
+				'/api/captcha/invisible_recaptcha/id';
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
 				let data = xhr.responseText;
@@ -14980,28 +14980,24 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(data.type === 'recaptcha') {
+					if(data.type === 'invisible_recaptcha') {
 						$q('.captcha-key').value = data.id;
-						if(!$id('captcha-widget-main').hasChildNodes()) {
-							$script(`deCapWidget = grecaptcha.render('captcha-widget-main',
-								{ sitekey: "${ data.id }" });`);
+						if(!$id('captcha-widget').hasChildNodes()) {
+							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
+									sitekey : '${ data.id }',
+									theme   : 'light',
+									size    : 'invisible',
+									callback: function() {
+										var el = document.getElementById('captcha-widget-main');
+										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
+										el.firstChild.value = grecaptcha.getResponse();
+									}
+								});
+								grecaptcha.execute(deCapWidget);`);
 						} else {
-							$script('grecaptcha.reset(deCapWidget);');
+							$script(`grecaptcha.reset(deCapWidget);
+								grecaptcha.execute(deCapWidget);`);
 						}
-						break;
-					} else if(type === '2chaptcha') {
-						// Get old captcha image
-						const src = `/api/captcha/${ type }/image/` + data.id;
-						let image = $id('de-image-captcha');
-						if(image) {
-							image.src = '';
-							image.src = src;
-						} else {
-							image = $q('.captcha-image', cap.parentEl);
-							image.innerHTML = `<img id="de-image-captcha" src="${ src }">`;
-							cap.initImage(image.firstChild);
-						}
-						$q('input[name="2chaptcha_id"]', cap.parentEl).value = data.id;
 						break;
 					}
 					/* falls through */
