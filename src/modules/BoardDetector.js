@@ -797,7 +797,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
-			return ['', '', '', '', '[spoiler'];
+			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : ''];
 		}
 		get updateCaptcha() {
 			let value = null;
@@ -877,6 +877,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			Cfg.findImgFile = 0;
+			Cfg.txtBtnsLoc = 0;
 			const el = $id('styleSelector');
 			if(el) {
 				el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');

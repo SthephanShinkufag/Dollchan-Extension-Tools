@@ -222,7 +222,7 @@ function scriptCSS() {
 	.de-video-obj-inline { display: inline-block; }
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }
-	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }
+	#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }
 	.de-video-expanded { width: 854px !important; height: 480px !important; }
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }
 	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }

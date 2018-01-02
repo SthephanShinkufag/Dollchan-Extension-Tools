@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = 'da81336';
+const commit = '4e9b7a5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4744,7 +4744,7 @@ const CfgWindow = {
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
-				${ this._getBox('txtBtnsLoc') }<br>` : '' }
+				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
 				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
@@ -8310,7 +8310,7 @@ class PostForm {
 	}
 	addMarkupPanel() {
 		let el = $id('de-txt-panel');
-		if(!Cfg.addTextBtns || (aib.fch && !$q('input[type="checkbox"][name="spoiler"]', this.form))) {
+		if(!Cfg.addTextBtns) {
 			$del(el);
 			return;
 		}
@@ -15588,7 +15588,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
-			return ['', '', '', '', '[spoiler'];
+			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : ''];
 		}
 		get updateCaptcha() {
 			let value = null;
@@ -15668,6 +15668,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			Cfg.findImgFile = 0;
+			Cfg.txtBtnsLoc = 0;
 			const el = $id('styleSelector');
 			if(el) {
 				el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
@@ -17061,7 +17062,7 @@ function scriptCSS() {
 	.de-video-obj-inline { display: inline-block; }
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }
-	#de-video-buttons { display: flex; align-items: center; width: 100%; line-height: 16px; }
+	#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }
 	.de-video-expanded { width: 854px !important; height: 480px !important; }
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }
 	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }

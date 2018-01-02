@@ -115,7 +115,7 @@ class PostForm {
 	}
 	addMarkupPanel() {
 		let el = $id('de-txt-panel');
-		if(!Cfg.addTextBtns || (aib.fch && !$q('input[type="checkbox"][name="spoiler"]', this.form))) {
+		if(!Cfg.addTextBtns) {
 			$del(el);
 			return;
 		}

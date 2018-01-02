@@ -736,7 +736,7 @@ const CfgWindow = {
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
-				${ this._getBox('txtBtnsLoc') }<br>` : '' }
+				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
 				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
