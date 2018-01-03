@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = '1b45f6b';
+const commit = '252e6f8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6774,7 +6774,7 @@ function infoLoadErrors(e, showError = true) {
 	} else if(isAjax && eCode === 0) {
 		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', ` (№${ Lng.thrNotFound[lang] }${ aib.t }): \n${ getErrorMessage(e) }`);
+		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(e) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}

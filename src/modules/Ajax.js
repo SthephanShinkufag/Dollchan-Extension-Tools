@@ -244,7 +244,7 @@ function infoLoadErrors(e, showError = true) {
 	} else if(isAjax && eCode === 0) {
 		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', ` (№${ Lng.thrNotFound[lang] }${ aib.t }): \n${ getErrorMessage(e) }`);
+		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(e) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}

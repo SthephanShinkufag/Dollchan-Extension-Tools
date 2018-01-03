@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.12.28.0';
-	var commit = '1b45f6b';
+	var commit = '252e6f8';
 
 
 	var defaultCfg = {
@@ -9852,7 +9852,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else if (isAjax && eCode === 0) {
 			$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
 		} else {
-			$popup('newposts', ' (\u2116' + Lng.thrNotFound[lang] + aib.t + '): \n' + getErrorMessage(e));
+			$popup('newposts', ' (' + Lng.thrNotFound[lang] + ': \u2116' + aib.t + '): \n' + getErrorMessage(e));
 			if (showError) {
 				doc.title = '{' + eCode + '} ' + doc.title;
 			}
