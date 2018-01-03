@@ -257,10 +257,6 @@ const Logger = {
 	_marks    : []
 };
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
 // Cancellation is supposed to flow through a graph of promise dependencies. When a promise is cancelled, it
 // will propagate to the farthest pending promises and reject them with the cancel reason CancelError.

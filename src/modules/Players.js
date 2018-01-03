@@ -252,7 +252,7 @@ class Videos {
 		if(num % 30 === 0) {
 			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
-		return sleep(250);
+		return new Promise(resolve => setTimeout(resolve, 250));
 	}
 	_addThumb(m, isYtube) {
 		const el = this.player;

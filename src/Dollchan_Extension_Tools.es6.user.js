@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '17.12.28.0';
-const commit = '369052b';
+const commit = '1b45f6b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1779,10 +1779,6 @@ const Logger = {
 	_finished : false,
 	_marks    : []
 };
-
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 // Some async operations should be cancelable, to ignore all the chaining callbacks of promises.
 // Cancellation is supposed to flow through a graph of promise dependencies. When a promise is cancelled, it
@@ -6402,7 +6398,7 @@ class Videos {
 		if(num % 30 === 0) {
 			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
-		return sleep(250);
+		return new Promise(resolve => setTimeout(resolve, 250));
 	}
 	_addThumb(m, isYtube) {
 		const el = this.player;
@@ -7193,9 +7189,9 @@ const Spells = Object.create({
 	},
 
 	_decompileRep(rep, isOrep) {
-		return `${ isOrep ? '#outrep' : '#rep' }` +
-			`${ rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '' }` +
-			`${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') }`;
+		return (isOrep ? '#outrep' : '#rep') +
+			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
+			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
 	},
 	_decompileScope(scope, indent) {
 		const dScope = [];

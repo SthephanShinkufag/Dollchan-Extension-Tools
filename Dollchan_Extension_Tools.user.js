@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '17.12.28.0';
-	var commit = '369052b';
+	var commit = '1b45f6b';
 
 
 	var defaultCfg = {
@@ -4523,12 +4523,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_finished: false,
 		_marks: []
 	};
-
-	function sleep(ms) {
-		return new Promise(function (resolve) {
-			return setTimeout(resolve, ms);
-		});
-	}
 
 	function CancelError() {}
 
@@ -9462,7 +9456,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (num % 30 === 0) {
 					return Promise.reject(new TasksPool.PauseError(3e3));
 				}
-				return sleep(250);
+				return new Promise(function (resolve) {
+					return setTimeout(resolve, 250);
+				});
 			}
 		}]);
 
@@ -10442,7 +10438,7 @@ true, true];
 			}
 		},
 		_decompileRep: function _decompileRep(rep, isOrep) {
-			return '' + (isOrep ? '#outrep' : '#rep') + ('' + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '')) + (rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n'));
+			return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + ('(' + rep[2] + ',' + rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') + ')');
 		},
 		_decompileScope: function _decompileScope(scope, indent) {
 			var dScope = [];
