@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '78fcf73';
+	var commit = '9dad054';
 
 
 	var defaultCfg = {
@@ -19718,7 +19718,7 @@ true, true];
 			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return $q('.postfilename, .unimportant > a', wrap).textContent;
+					return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -19848,6 +19848,12 @@ true, true];
 				key: 'getCaptchaSrc',
 				value: function getCaptchaSrc(src) {
 					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+				}
+			}, {
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					var el = $q('.filesize', wrap).textContent.split(',')[2];
+					return !el && _get(Kusaba.prototype.__proto__ || Object.getPrototypeOf(Kusaba.prototype), 'getImgRealName', this).call(this, wrap) || el.replace(')', '');
 				}
 			}, {
 				key: 'init',
@@ -21118,6 +21124,11 @@ true, true];
 			}
 
 			_createClass(Iichan, [{
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q('.filesize > em', wrap).textContent.split(',')[2] || _get(Iichan.prototype.__proto__ || Object.getPrototypeOf(Iichan.prototype), 'getImgRealName', this).call(this, wrap);
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
@@ -21418,6 +21429,12 @@ true, true];
 			}
 
 			_createClass(Niuchan, [{
+				key: 'init',
+				value: function init() {
+					_get(Niuchan.prototype.__proto__ || Object.getPrototypeOf(Niuchan.prototype), 'init', this).call(this);
+					delete Array.prototype.toJSON;
+				}
+			}, {
 				key: 'css',
 				get: function get() {
 					return _get(Niuchan.prototype.__proto__ || Object.getPrototypeOf(Niuchan.prototype), 'css', this) + '.replybacklinks, .resize { display: none; }';
@@ -21540,6 +21557,11 @@ true, true];
 			}
 
 			_createClass(Ponychan, [{
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q('.post-filename', wrap).textContent;
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					_get(Ponychan.prototype.__proto__ || Object.getPrototypeOf(Ponychan.prototype), 'init', this).call(this);

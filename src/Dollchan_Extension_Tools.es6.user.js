@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '78fcf73';
+const commit = '9dad054';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15077,7 +15077,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.postfilename, .unimportant > a', wrap).textContent;
+			return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -15166,6 +15166,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap).textContent.split(',')[2];
+			return  !el && super.getImgRealName(wrap) || el.replace(')', '');
 		}
 		init() {
 			var el = $id('posttypeindicator');
@@ -16088,6 +16092,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get isArchived() {
 			return this.b.includes('/arch');
 		}
+		getImgRealName(wrap) {
+			return $q('.filesize > em', wrap).textContent.split(',')[2] || super.getImgRealName(wrap);
+		}
 		init() {
 			defaultCfg.addSageBtn = 0;
 			$script('highlight = Function.prototype');
@@ -16268,6 +16275,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return super.css + '.replybacklinks, .resize { display: none; }';
 		}
+		init() {
+			super.init();
+			delete Array.prototype.toJSON;
+		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
 
@@ -16340,6 +16351,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return super.css + `.mature_thread { display: block !important; }
 				.mature_warning { display: none; }`;
+		}
+		getImgRealName(wrap) {
+			return $q('.post-filename', wrap).textContent;
 		}
 		init() {
 			super.init();
