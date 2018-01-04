@@ -489,21 +489,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
 
-	class _02chNet extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-
-			this.ru = true;
-			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-	}
-	ibDomains['02ch.net'] = _02chNet;
-
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -1271,52 +1256,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
-	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
-
-	class Nulldvachin extends Ernstchan {
-		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(
-				/* global maxfiles */ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
-		}
-		get qFormMail() {
-			return 'input[name="nya2"]';
-		}
-		init() {
-			let locSettings;
-			try {
-				locSettings = JSON.parse(locStorage.getItem('settings'));
-			} catch(e) {
-				return false;
-			}
-			if(locSettings && locSettings.turnOffAll !== 1) {
-				locSettings.turnOffAll = 1;
-				locStorage.setItem('settings', JSON.stringify(locSettings));
-				window.location.reload();
-				return true;
-			}
-			return false;
-		}
-	}
-	ibDomains['02ch.in'] = Nulldvachin;
-	ibDomains['buttflaps.pp.ua'] = Nulldvachin;
-
-	class Ichan extends Kusaba {
-		init() {
-			super.init();
-			var el = $q('div[id^="thread"]');
-			if(el) {
-				let node;
-				while((node = el.nextElementSibling) && node.tagName === 'TABLE') {
-					el.appendChild(node);
-				}
-			}
-		}
-	}
-	ibDomains['ichan.net'] = Ichan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
@@ -1523,7 +1462,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Niuchan extends Kusaba {
 		get css() {
-			return super.css + '.resize { display: none; }';
+			return super.css + '.replybacklinks, .resize { display: none; }';
 		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
