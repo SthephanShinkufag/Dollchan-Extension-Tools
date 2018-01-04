@@ -232,7 +232,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
-			this.qPages = '.pages > a:nth-last-of-type(2)';
+			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
 			this.qPostMsg = '.body';
 			this.qPostName = '.name';

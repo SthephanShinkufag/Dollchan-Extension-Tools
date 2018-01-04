@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = 'c90a31b';
+const commit = '78fcf73';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15036,7 +15036,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
-			this.qPages = '.pages > a:nth-last-of-type(2)';
+			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
 			this.qPostMsg = '.body';
 			this.qPostName = '.name';

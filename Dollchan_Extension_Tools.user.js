@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = 'c90a31b';
+	var commit = '78fcf73';
 
 
 	var defaultCfg = {
@@ -19684,7 +19684,7 @@ true, true];
 				_this75.qFormRedir = null;
 				_this75.qImgInfo = '.fileinfo';
 				_this75.qOmitted = '.omitted';
-				_this75.qPages = '.pages > a:nth-last-of-type(2)';
+				_this75.qPages = '.pages';
 				_this75.qPostHeader = '.intro';
 				_this75.qPostMsg = '.body';
 				_this75.qPostName = '.name';
