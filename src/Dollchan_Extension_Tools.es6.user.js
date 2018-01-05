@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '9dad054';
+const commit = 'efec95c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15169,7 +15169,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgRealName(wrap) {
 			const el = $q('.filesize', wrap).textContent.split(',')[2];
-			return  !el && super.getImgRealName(wrap) || el.replace(')', '');
+			return !el && super.getImgRealName(wrap) || el.replace(')', '');
 		}
 		init() {
 			var el = $id('posttypeindicator');
@@ -16186,6 +16186,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
+			delete Array.prototype.toJSON;
 			$script('highlightPost = Function.prototype');
 			return false;
 		}

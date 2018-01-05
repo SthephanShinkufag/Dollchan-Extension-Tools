@@ -3682,7 +3682,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '9dad054';
+	var commit = 'efec95c';
 
 
 	var defaultCfg = {
@@ -21247,6 +21247,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
+					delete Array.prototype.toJSON;
 					$script('highlightPost = Function.prototype');
 					return false;
 				}
