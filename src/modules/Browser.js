@@ -77,9 +77,6 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	nav = {
 		get ua() {
 			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');

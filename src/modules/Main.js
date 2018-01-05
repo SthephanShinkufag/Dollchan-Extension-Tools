@@ -42,6 +42,9 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
 	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
+	}
 	addSVGIcons();
 	if(Cfg.disabled) {
 		Panel.init(formEl);

@@ -3557,10 +3557,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context22.abrupt('return');
 
 						case 39:
+							if ('toJSON' in aProto) {
+								delete aProto.toJSON;
+							}
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context22.next = 44;
+								_context22.next = 45;
 								break;
 							}
 
@@ -3568,7 +3571,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scriptCSS();
 							return _context22.abrupt('return');
 
-						case 44:
+						case 45:
 							initStorageEvent();
 							DollchanAPI.init();
 							if (localData) {
@@ -3600,24 +3603,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context22.prev = 58;
+							_context22.prev = 59;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context22.next = 68;
+							_context22.next = 69;
 							break;
 
-						case 63:
-							_context22.prev = 63;
-							_context22.t0 = _context22['catch'](58);
+						case 64:
+							_context22.prev = 64;
+							_context22.t0 = _context22['catch'](59);
 
 							console.error('Delform parsing error:', getErrorMessage(_context22.t0));
 							$show(docBody);
 							return _context22.abrupt('return');
 
-						case 68:
+						case 69:
 							Logger.log('Parse delform');
 							storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -3664,12 +3667,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							Logger.finish();
 
-						case 93:
+						case 94:
 						case 'end':
 							return _context22.stop();
 					}
 				}
-			}, _callee17, this, [[58, 63]]);
+			}, _callee17, this, [[59, 64]]);
 		}));
 
 		return function runMain(_x70, _x71) {
@@ -3682,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = 'efec95c';
+	var commit = '4e54657';
 
 
 	var defaultCfg = {
@@ -18910,9 +18913,6 @@ true, true];
 				return rv;
 			};
 		}
-		if ('toJSON' in aProto) {
-			delete aProto.toJSON;
-		}
 		nav = {
 			get ua() {
 				return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
@@ -20340,7 +20340,6 @@ true, true];
 				value: function init() {
 					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
 					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-					delete Array.prototype.toJSON;
 				}
 			}, {
 				key: 'updateCaptcha',
@@ -21247,7 +21246,6 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					delete Array.prototype.toJSON;
 					$script('highlightPost = Function.prototype');
 					return false;
 				}
@@ -21430,12 +21428,6 @@ true, true];
 			}
 
 			_createClass(Niuchan, [{
-				key: 'init',
-				value: function init() {
-					_get(Niuchan.prototype.__proto__ || Object.getPrototypeOf(Niuchan.prototype), 'init', this).call(this);
-					delete Array.prototype.toJSON;
-				}
-			}, {
 				key: 'css',
 				get: function get() {
 					return _get(Niuchan.prototype.__proto__ || Object.getPrototypeOf(Niuchan.prototype), 'css', this) + '.replybacklinks, .resize { display: none; }';

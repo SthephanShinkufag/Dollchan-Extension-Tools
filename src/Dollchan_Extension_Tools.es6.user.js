@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = 'efec95c';
+const commit = '4e54657';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14365,9 +14365,6 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	nav = {
 		get ua() {
 			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
@@ -15520,8 +15517,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-			// Workaround for "JSON.stringify bug" #1107
-			delete Array.prototype.toJSON;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
@@ -16186,7 +16181,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		}
 		init() {
-			delete Array.prototype.toJSON;
 			$script('highlightPost = Function.prototype');
 			return false;
 		}
@@ -16275,10 +16269,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Niuchan extends Kusaba {
 		get css() {
 			return super.css + '.replybacklinks, .resize { display: none; }';
-		}
-		init() {
-			super.init();
-			delete Array.prototype.toJSON;
 		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
@@ -17270,6 +17260,9 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Data loading');
 	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
+	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
 	}
 	addSVGIcons();
 	if(Cfg.disabled) {
