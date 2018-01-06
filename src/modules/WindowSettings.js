@@ -351,7 +351,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'correctTime': DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {

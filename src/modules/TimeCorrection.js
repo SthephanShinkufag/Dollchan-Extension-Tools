@@ -64,6 +64,9 @@ class DateTime {
 		let rPattern = '';
 		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 			const a = m[i++];
+			if(!a) {
+				continue;
+			}
 			let p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();

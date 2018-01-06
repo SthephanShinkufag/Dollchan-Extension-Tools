@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '4e54657';
+const commit = '9f4b925';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4362,7 +4362,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'correctTime': DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -6104,6 +6104,9 @@ class DateTime {
 		let rPattern = '';
 		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 			const a = m[i++];
+			if(!a) {
+				continue;
+			}
 			let p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();

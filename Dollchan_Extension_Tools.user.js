@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '4e54657';
+	var commit = '9f4b925';
 
 
 	var defaultCfg = {
@@ -7445,7 +7445,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						updateCSS();
 						break;
 					case 'correctTime':
-						DateTime.toggleSettings();break;
+						DateTime.toggleSettings(el);break;
 					case 'imgInfoLink':
 						{
 							var img = $q('.de-fullimg-wrap');
@@ -9085,6 +9085,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var rPattern = '';
 				for (var i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 					var a = m[i++];
+					if (!a) {
+						continue;
+					}
 					var p = this.pattern[i - 2];
 					if ((p === 'm' || p === 'y') && a.length > 3) {
 						p = p.toUpperCase();
