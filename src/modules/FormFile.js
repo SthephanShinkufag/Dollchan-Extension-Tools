@@ -1,6 +1,6 @@
 /* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
-                 image/webm files in postform: preview, adding by url, drag-n-drop, deleting
+                 image/video files in postform: preview, adding by url, drag-n-drop, deleting
 =========================================================================================================== */
 
 class Files {

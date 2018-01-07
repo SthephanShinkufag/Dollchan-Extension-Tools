@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = 'ff25b21';
+const commit = '6b22565';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2324,7 +2324,9 @@ function getFileType(url) {
 	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
 		/\.png$/i.test(url) ? 'image/png' :
 		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' : '';
+		/\.webm$/i.test(url) ? 'video/webm' :
+		/\.mp4$/i.test(url) ? 'video/mp4' :
+		/\.ogv$/i.test(url) ? 'video/ogv' : '';
 }
 
 function downloadBlob(blob, name) {
@@ -5703,7 +5705,7 @@ KeyEditListener.keyCodes = [
 
 /* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
-                      images/webm preloading, rarjpeg detecting, thread/images downloading
+                     images/video preloading, rarjpeg detecting, thread/images downloading
 =========================================================================================================== */
 
 function detectImgFile(ab) {
@@ -5833,7 +5835,7 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm') {
+				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 					el.setAttribute('de-video', '');
 				}
 				if(nExp) {
@@ -5874,7 +5876,7 @@ function preloadImages(data) {
 		} else if(iType === 'image/gif') {
 			nExp &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm') {
+			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 				nExp = false;
 			}
 			nExp &= Cfg.openImgs !== 2;
@@ -9178,7 +9180,7 @@ function readExif(data, off, len) {
 
 /* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
-                 image/webm files in postform: preview, adding by url, drag-n-drop, deleting
+                 image/video files in postform: preview, adding by url, drag-n-drop, deleting
 =========================================================================================================== */
 
 class Files {
@@ -11694,7 +11696,7 @@ class ExpandableMedia {
 		return value;
 	}
 	get isVideo() {
-		const value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
+		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -14543,7 +14545,7 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}

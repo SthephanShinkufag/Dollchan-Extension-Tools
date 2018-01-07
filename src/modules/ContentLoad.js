@@ -1,6 +1,6 @@
 /* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
-                      images/webm preloading, rarjpeg detecting, thread/images downloading
+                     images/video preloading, rarjpeg detecting, thread/images downloading
 =========================================================================================================== */
 
 function detectImgFile(ab) {
@@ -130,7 +130,7 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm') {
+				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 					el.setAttribute('de-video', '');
 				}
 				if(nExp) {
@@ -171,7 +171,7 @@ function preloadImages(data) {
 		} else if(iType === 'image/gif') {
 			nExp &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm') {
+			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 				nExp = false;
 			}
 			nExp &= Cfg.openImgs !== 2;

@@ -801,7 +801,9 @@ function getFileType(url) {
 	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
 		/\.png$/i.test(url) ? 'image/png' :
 		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' : '';
+		/\.webm$/i.test(url) ? 'video/webm' :
+		/\.mp4$/i.test(url) ? 'video/mp4' :
+		/\.ogv$/i.test(url) ? 'video/ogv' : '';
 }
 
 function downloadBlob(blob, name) {

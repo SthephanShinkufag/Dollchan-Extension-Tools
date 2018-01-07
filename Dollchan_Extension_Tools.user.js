@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = 'ff25b21';
+	var commit = '6b22565';
 
 
 	var defaultCfg = {
@@ -5302,7 +5302,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function getFileType(url) {
-		return (/\.jpe?g$/i.test(url) ? 'image/jpeg' : /\.png$/i.test(url) ? 'image/png' : /\.gif$/i.test(url) ? 'image/gif' : /\.webm$/i.test(url) ? 'video/webm' : ''
+		return (/\.jpe?g$/i.test(url) ? 'image/jpeg' : /\.png$/i.test(url) ? 'image/png' : /\.gif$/i.test(url) ? 'image/gif' : /\.webm$/i.test(url) ? 'video/webm' : /\.mp4$/i.test(url) ? 'video/mp4' : /\.ogv$/i.test(url) ? 'video/ogv' : ''
 		);
 	}
 
@@ -8833,7 +8833,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						nameLink.setAttribute('download', fName);
 						nameLink.setAttribute('de-href', nameLink.href);
 						imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						if (iType === 'video/webm') {
+						if (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 							el.setAttribute('de-video', '');
 						}
 						if (nExp) {
@@ -8876,7 +8876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			} else if (iType === 'image/gif') {
 				nExp &= Cfg.openImgs !== 3;
 			} else {
-				if (iType === 'video/webm') {
+				if (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 					nExp = false;
 				}
 				nExp &= Cfg.openImgs !== 2;
@@ -16105,7 +16105,7 @@ true, true];
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+				var value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isVideo', { value: value });
 				return value;
 			}
@@ -19340,7 +19340,7 @@ true, true];
 		}, {
 			key: 'qImgNameLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+				var value = nav.cssMatches(this.qImgInfo + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}

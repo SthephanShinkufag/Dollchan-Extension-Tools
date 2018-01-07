@@ -330,7 +330,7 @@ class ExpandableMedia {
 		return value;
 	}
 	get isVideo() {
-		const value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
+		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;

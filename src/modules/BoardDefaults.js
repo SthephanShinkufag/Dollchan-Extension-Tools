@@ -69,7 +69,7 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
