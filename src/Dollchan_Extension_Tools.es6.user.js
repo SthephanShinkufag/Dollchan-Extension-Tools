@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '240bbc7';
+const commit = 'ff25b21';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6406,6 +6406,7 @@ class Videos {
 	_addThumb(m, isYtube) {
 		const el = this.player;
 		this.playerInfo = m;
+		el.classList.remove('de-video-expanded');
 		$show(el);
 		const str = `<a class="de-video-player" href="${ aib.prot }`;
 		if(isYtube) {

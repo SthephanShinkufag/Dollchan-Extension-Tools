@@ -257,6 +257,7 @@ class Videos {
 	_addThumb(m, isYtube) {
 		const el = this.player;
 		this.playerInfo = m;
+		el.classList.remove('de-video-expanded');
 		$show(el);
 		const str = `<a class="de-video-player" href="${ aib.prot }`;
 		if(isYtube) {

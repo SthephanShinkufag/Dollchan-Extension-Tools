@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '240bbc7';
+	var commit = 'ff25b21';
 
 
 	var defaultCfg = {
@@ -9307,6 +9307,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _addThumb(m, isYtube) {
 				var el = this.player;
 				this.playerInfo = m;
+				el.classList.remove('de-video-expanded');
 				$show(el);
 				var str = '<a class="de-video-player" href="' + aib.prot;
 				if (isYtube) {
