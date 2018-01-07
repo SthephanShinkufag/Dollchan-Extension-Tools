@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '9f4b925';
+const commit = '945ec7b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15631,7 +15631,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
+				.replace(/ \(OP\)<\/a/g, '</a');
 		}
 		getImgInfo(wrap) {
 			const el = $q(this.qImgInfo, wrap);
