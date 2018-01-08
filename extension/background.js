@@ -12,7 +12,10 @@ function setIcon(enabled) {
 }
 
 function runScript(tabId) {
-	chrome.tabs.executeScript(tabId, { file: 'Dollchan_Extension_Tools.es6.user.js' });
+	chrome.tabs.executeScript(tabId, {
+		file: 'Dollchan_Extension_Tools.es6.user.js',
+		allFrames: true
+	});
 }
 
 // Run

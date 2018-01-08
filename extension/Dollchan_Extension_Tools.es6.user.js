@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '1dabb01';
+const commit = '7e20085';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2324,7 +2324,9 @@ function getFileType(url) {
 	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
 		/\.png$/i.test(url) ? 'image/png' :
 		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' : '';
+		/\.webm$/i.test(url) ? 'video/webm' :
+		/\.mp4$/i.test(url) ? 'video/mp4' :
+		/\.ogv$/i.test(url) ? 'video/ogv' : '';
 }
 
 function downloadBlob(blob, name) {
@@ -4362,7 +4364,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(); break;
+			case 'correctTime': DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -5703,7 +5705,7 @@ KeyEditListener.keyCodes = [
 
 /* ==[ ContentLoad.js ]=======================================================================================
                                              CONTENT DOWNLOADING
-                      images/webm preloading, rarjpeg detecting, thread/images downloading
+                     images/video preloading, rarjpeg detecting, thread/images downloading
 =========================================================================================================== */
 
 function detectImgFile(ab) {
@@ -5833,7 +5835,7 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm') {
+				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 					el.setAttribute('de-video', '');
 				}
 				if(nExp) {
@@ -5874,7 +5876,7 @@ function preloadImages(data) {
 		} else if(iType === 'image/gif') {
 			nExp &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm') {
+			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
 				nExp = false;
 			}
 			nExp &= Cfg.openImgs !== 2;
@@ -6104,6 +6106,9 @@ class DateTime {
 		let rPattern = '';
 		for(let i = 1, len = m.length, j = 0, str = m[0]; i < len;) {
 			const a = m[i++];
+			if(!a) {
+				continue;
+			}
 			let p = this.pattern[i - 2];
 			if((p === 'm' || p === 'y') && a.length > 3) {
 				p = p.toUpperCase();
@@ -6403,6 +6408,7 @@ class Videos {
 	_addThumb(m, isYtube) {
 		const el = this.player;
 		this.playerInfo = m;
+		el.classList.remove('de-video-expanded');
 		$show(el);
 		const str = `<a class="de-video-player" href="${ aib.prot }`;
 		if(isYtube) {
@@ -9174,7 +9180,7 @@ function readExif(data, off, len) {
 
 /* ==[ FormFile.js ]==========================================================================================
                                                  FILE INPUTS
-                 image/webm files in postform: preview, adding by url, drag-n-drop, deleting
+                 image/video files in postform: preview, adding by url, drag-n-drop, deleting
 =========================================================================================================== */
 
 class Files {
@@ -11690,7 +11696,7 @@ class ExpandableMedia {
 		return value;
 	}
 	get isVideo() {
-		const value = /\.(?:webm|mp4)(?:&|$)/i.test(this.src) ||
+		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -14365,9 +14371,6 @@ function initNavFuncs() {
 			return rv;
 		};
 	}
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	nav = {
 		get ua() {
 			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
@@ -14542,7 +14545,7 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -15036,7 +15039,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
-			this.qPages = '.pages > a:nth-last-of-type(2)';
+			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
 			this.qPostMsg = '.body';
 			this.qPostName = '.name';
@@ -15077,7 +15080,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return $q('.postfilename, .unimportant > a', wrap).textContent;
+			return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -15166,6 +15169,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap).textContent.split(',')[2];
+			return !el && super.getImgRealName(wrap) || el.replace(')', '');
 		}
 		init() {
 			var el = $id('posttypeindicator');
@@ -15292,21 +15299,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
-
-	class _02chNet extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-
-			this.ru = true;
-			this.timePattern = 'yyyy+nn+dd++w++hh+ii+ss';
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-	}
-	ibDomains['02ch.net'] = _02chNet;
 
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
@@ -15531,8 +15523,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-			// Workaround for "JSON.stringify bug" #1107
-			delete Array.prototype.toJSON;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
@@ -15644,7 +15634,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				'<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
+				.replace(/<\/?wbr>/g, '')
+				.replace(/ \(OP\)<\/a/g, '</a');
 		}
 		getImgInfo(wrap) {
 			const el = $q(this.qImgInfo, wrap);
@@ -16075,52 +16067,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
-	// ibEngines.push(['head > link[href*="phutaba.css"]', Ernstchan]);
-
-	class Nulldvachin extends Ernstchan {
-		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(
-				/* global maxfiles */ typeof maxfiles !== 'undefined' ? maxfiles - 1 : 3);
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
-		}
-		get qFormMail() {
-			return 'input[name="nya2"]';
-		}
-		init() {
-			let locSettings;
-			try {
-				locSettings = JSON.parse(locStorage.getItem('settings'));
-			} catch(e) {
-				return false;
-			}
-			if(locSettings && locSettings.turnOffAll !== 1) {
-				locSettings.turnOffAll = 1;
-				locStorage.setItem('settings', JSON.stringify(locSettings));
-				window.location.reload();
-				return true;
-			}
-			return false;
-		}
-	}
-	ibDomains['02ch.in'] = Nulldvachin;
-	ibDomains['buttflaps.pp.ua'] = Nulldvachin;
-
-	class Ichan extends Kusaba {
-		init() {
-			super.init();
-			var el = $q('div[id^="thread"]');
-			if(el) {
-				let node;
-				while((node = el.nextElementSibling) && node.tagName === 'TABLE') {
-					el.appendChild(node);
-				}
-			}
-		}
-	}
-	ibDomains['ichan.net'] = Ichan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16148,6 +16094,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > em', wrap).textContent.split(',')[2] || super.getImgRealName(wrap);
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
@@ -16327,7 +16276,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Niuchan extends Kusaba {
 		get css() {
-			return super.css + '.resize { display: none; }';
+			return super.css + '.replybacklinks, .resize { display: none; }';
 		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
@@ -16401,6 +16350,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return super.css + `.mature_thread { display: block !important; }
 				.mature_warning { display: none; }`;
+		}
+		getImgRealName(wrap) {
+			return $q('.post-filename', wrap).textContent;
 		}
 		init() {
 			super.init();
@@ -17057,7 +17009,7 @@ function scriptCSS() {
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
-	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'padding: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
+	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
 	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }
@@ -17316,6 +17268,9 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Data loading');
 	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
 		return;
+	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
 	}
 	addSVGIcons();
 	if(Cfg.disabled) {
