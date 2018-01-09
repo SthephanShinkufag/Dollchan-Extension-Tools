@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '6053dac';
+	var commit = 'f738c1f';
 
 
 	var defaultCfg = {
@@ -20851,7 +20851,7 @@ true, true];
 			_createClass(Lolifox, [{
 				key: 'css',
 				get: function get() {
-					return _get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'css', this) + ('' + (Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : ''));
+					return _get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'css', this) + ((Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : '') + '\n\t\t\t#thread-interactions { display: none; }');
 				}
 			}]);
 

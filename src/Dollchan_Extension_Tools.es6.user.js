@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '6053dac';
+const commit = 'f738c1f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15869,7 +15869,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
 				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-				'color: inherit !important' }; transition: none !important; }` : '' }`;
+				'color: inherit !important' }; transition: none !important; }` : '' }
+			#thread-interactions { display: none; }`;
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
