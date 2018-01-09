@@ -1057,7 +1057,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 	ibDomains['brchanansdnhvvnm.onion'] = Brchan;
-	ibDomains['lolifox.org'] = Brchan;
+
+	class Lolifox extends Brchan {
+		get css() {
+			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+				'color: inherit !important' }; transition: none !important; }` : '' }`;
+		}
+	}
+	ibDomains['lolifox.org'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
