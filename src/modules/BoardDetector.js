@@ -1020,22 +1020,37 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.brchan = true;
 
 			this.qPostTrip = '.poster_id';
 
 			this.markupBB = true;
-		}
-		get css() {
-			return super.css + `input[name="embed"] { width: 100% !important; }
-				#upload_embed > td > .unimportant.hint { display: none; }
-				.reflink::after { content: "" !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
+		}
+		init() {
+			super.init();
+			if(Cfg.ajaxUpdThr) {
+				locStorage.auto_thread_update = false;
+			}
+			return false;
+		}
+	}
+	ibDomains['brchan.org'] = Brchan;
+
+	class Lolifox extends Brchan {
+		get css() {
+			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+				'color: inherit !important' }; transition: none !important; }` : '' }
+			#thread-interactions { display: none; }
+			.reflink::after { content: "" !important; }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -1044,26 +1059,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
 			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			if(Cfg.ajaxUpdThr) {
-				locStorage.auto_thread_update = false;
-			}
-			const el = $id('upload_embed');
-			const el2 = $id('upload');
-			if(el && el2) {
-				$after(el2, el);
-			}
 			return false;
-		}
-	}
-	ibDomains['brchan.org'] = Brchan;
-	ibDomains['brchanansdnhvvnm.onion'] = Brchan;
-
-	class Lolifox extends Brchan {
-		get css() {
-			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-				'color: inherit !important' }; transition: none !important; }` : '' }
-			#thread-interactions { display: none; }`;
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;

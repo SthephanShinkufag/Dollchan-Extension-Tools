@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = 'f738c1f';
+	var commit = '8352cfa';
 
 
 	var defaultCfg = {
@@ -20787,8 +20787,6 @@ true, true];
 
 				var _this91 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this91.brchan = true;
-
 				_this91.qPostTrip = '.poster_id';
 
 				_this91.markupBB = true;
@@ -20801,30 +20799,13 @@ true, true];
 					return img.parentNode.parentNode.parentNode;
 				}
 			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
-				}
-			}, {
 				key: 'init',
 				value: function init() {
 					_get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'init', this).call(this);
-					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
 					if (Cfg.ajaxUpdThr) {
 						locStorage.auto_thread_update = false;
 					}
-					var el = $id('upload_embed');
-					var el2 = $id('upload');
-					if (el && el2) {
-						$after(el2, el);
-					}
 					return false;
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return _get(Brchan.prototype.__proto__ || Object.getPrototypeOf(Brchan.prototype), 'css', this) + 'input[name="embed"] { width: 100% !important; }\n\t\t\t\t#upload_embed > td > .unimportant.hint { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -20837,7 +20818,6 @@ true, true];
 		}(Vichan);
 
 		ibDomains['brchan.org'] = Brchan;
-		ibDomains['brchanansdnhvvnm.onion'] = Brchan;
 
 		var Lolifox = function (_Brchan) {
 			_inherits(Lolifox, _Brchan);
@@ -20849,9 +20829,27 @@ true, true];
 			}
 
 			_createClass(Lolifox, [{
+				key: 'getImgWrap',
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode;
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post);
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					_get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'init', this).call(this);
+					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
+					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+					return false;
+				}
+			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'css', this) + ((Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : '') + '\n\t\t\t#thread-interactions { display: none; }');
+					return _get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'css', this) + ((Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : '') + '\n\t\t\t#thread-interactions { display: none; }\n\t\t\t.reflink::after { content: "" !important; }');
 				}
 			}]);
 
