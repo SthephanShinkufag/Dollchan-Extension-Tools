@@ -268,10 +268,7 @@ function loadDocFiles(imgOnly) {
 	els.forEach(function(el) {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
-			let url = imgLink.href;
-			if(aib.tiny) {
-				url = url.replace(/^.*?\?v=|&.*?$/g, '');
-			}
+			const url = imgLink.href;
 			Images_.pool.run([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}

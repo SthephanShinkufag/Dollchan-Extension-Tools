@@ -3685,7 +3685,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '8352cfa';
+	var commit = '86c1654';
 
 
 	var defaultCfg = {
@@ -8982,9 +8982,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var imgLink = $parent(el, 'A');
 			if (imgLink) {
 				var _url2 = imgLink.href;
-				if (aib.tiny) {
-					_url2 = _url2.replace(/^.*?\?v=|&.*?$/g, '');
-				}
 				Images_.pool.run([_url2, imgLink.getAttribute('download') || _url2.substring(_url2.lastIndexOf('/') + 1), el, imgLink]);
 			}
 		});
@@ -15932,8 +15929,9 @@ true, true];
 
 				var wrapEl = void 0,
 				    name = void 0,
-				    origSrc = void 0,
-				    src = this.src;
+				    origSrc = void 0;
+				var src = this.src;
+
 				var parent = this._getImageParent();
 				if (this.el.className !== 'de-img-pre') {
 					var nameEl = $q(aib.qImgNameLink, parent);
@@ -15983,9 +15981,6 @@ true, true];
 					return wrapEl;
 				}
 
-				if (aib.tiny) {
-					src = src.replace(/^.*?\?v=|&.*?$/g, '');
-				}
 				var isWebm = src.split('.').pop() === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
 				var inPostSize = '';
@@ -19816,12 +19811,15 @@ true, true];
 					if (el) {
 						$q(this.qForm).appendChild(el);
 					}
+					$each($Q('.file[href^="/player.php?v="]'), function (link) {
+						link.href = $q('.fileinfo > a', link.parentNode).href;
+					});
 					return false;
 				}
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .post-btn, small {\n\t\t\t\t\tdisplay: none !important; }';
+					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '.boardlist { position: static !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.fileinfo { width: 250px; }\n\t\t\t\t.multifile { width: auto !important; }\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > .unimportant + span,\n\t\t\t\t\t.fileinfo > .unimportant + span + span, .post-btn, small { display: none !important; }';
 				}
 			}]);
 
@@ -20857,6 +20855,7 @@ true, true];
 		}(Brchan);
 
 		ibDomains['lolifox.org'] = Lolifox;
+		ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
 
 		var Diochan = function (_Kusaba3) {
 			_inherits(Diochan, _Kusaba3);

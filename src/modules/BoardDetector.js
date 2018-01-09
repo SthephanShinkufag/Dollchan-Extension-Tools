@@ -309,8 +309,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				#expand-all-images, #expand-all-images + .unimportant, .post-btn, small {
-					display: none !important; }`;
+				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > .unimportant + span,
+					.fileinfo > .unimportant + span + span, .post-btn, small { display: none !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -338,6 +338,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				$q(this.qForm).appendChild(el);
 			}
+			$each($Q('.file[href^="/player.php?v="]'), link => {
+				link.href = $q('.fileinfo > a', link.parentNode).href;
+			});
 			return false;
 		}
 	}
@@ -1063,6 +1066,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
+	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {

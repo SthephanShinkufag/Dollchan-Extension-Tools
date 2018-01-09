@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '8352cfa';
+const commit = '86c1654';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5973,10 +5973,7 @@ function loadDocFiles(imgOnly) {
 	els.forEach(function(el) {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
-			let url = imgLink.href;
-			if(aib.tiny) {
-				url = url.replace(/^.*?\?v=|&.*?$/g, '');
-			}
+			const url = imgLink.href;
 			Images_.pool.run([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
@@ -11825,7 +11822,8 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let wrapEl, name, origSrc, { src } = this;
+		let wrapEl, name, origSrc;
+		const { src } = this;
 		const parent = this._getImageParent();
 		if(this.el.className !== 'de-img-pre') {
 			const nameEl = $q(aib.qImgNameLink, parent);
@@ -11881,9 +11879,6 @@ class ExpandableMedia {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		if(aib.tiny) {
-			src = src.replace(/^.*?\?v=|&.*?$/g, '');
-		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
@@ -15116,8 +15111,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				#expand-all-images, #expand-all-images + .unimportant, .post-btn, small {
-					display: none !important; }`;
+				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > .unimportant + span,
+					.fileinfo > .unimportant + span + span, .post-btn, small { display: none !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -15145,6 +15140,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				$q(this.qForm).appendChild(el);
 			}
+			$each($Q('.file[href^="/player.php?v="]'), link => {
+				link.href = $q('.fileinfo > a', link.parentNode).href;
+			});
 			return false;
 		}
 	}
@@ -15870,6 +15868,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
+	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {

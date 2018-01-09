@@ -459,7 +459,8 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let wrapEl, name, origSrc, { src } = this;
+		let wrapEl, name, origSrc;
+		const { src } = this;
 		const parent = this._getImageParent();
 		if(this.el.className !== 'de-img-pre') {
 			const nameEl = $q(aib.qImgNameLink, parent);
@@ -515,9 +516,6 @@ class ExpandableMedia {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		if(aib.tiny) {
-			src = src.replace(/^.*?\?v=|&.*?$/g, '');
-		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
