@@ -39,9 +39,13 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	excludeList = eList || '';
 	Logger.log('Data loading');
-	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
+	let oldMain;
+	if(!Cfg.disabled && ((aib.init && aib.init())) ||
+		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
+	) {
 		return;
 	}
+	$del(oldMain);
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}

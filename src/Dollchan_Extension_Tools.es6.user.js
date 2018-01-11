@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = '86c1654';
+const commit = '15dfbd9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17270,9 +17270,13 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	excludeList = eList || '';
 	Logger.log('Data loading');
-	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
+	let oldMain;
+	if(!Cfg.disabled && ((aib.init && aib.init())) ||
+		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
+	) {
 		return;
 	}
+	$del(oldMain);
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}

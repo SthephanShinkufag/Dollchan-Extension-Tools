@@ -3446,7 +3446,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var runMain = function () {
 		var _ref105 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(checkDomains, dataPromise) {
-			var formEl, eList, fav, _ref106, _ref107, _ref108, _ref109, storageName, firstThr;
+			var formEl, eList, fav, _ref106, _ref107, _ref108, _ref109, oldMain, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee17$(_context22) {
 				while (1) {
@@ -3548,22 +3548,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 35:
 							excludeList = eList || '';
 							Logger.log('Data loading');
+							oldMain = void 0;
 
-							if (!(!Cfg.disabled && (aib.init && aib.init() || $id('de-panel')))) {
-								_context22.next = 39;
+							if (!(!Cfg.disabled && aib.init && aib.init() || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
+								_context22.next = 40;
 								break;
 							}
 
 							return _context22.abrupt('return');
 
-						case 39:
+						case 40:
+							$del(oldMain);
 							if ('toJSON' in aProto) {
 								delete aProto.toJSON;
 							}
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context22.next = 45;
+								_context22.next = 47;
 								break;
 							}
 
@@ -3571,7 +3573,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scriptCSS();
 							return _context22.abrupt('return');
 
-						case 45:
+						case 47:
 							initStorageEvent();
 							DollchanAPI.init();
 							if (localData) {
@@ -3603,24 +3605,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context22.prev = 59;
+							_context22.prev = 61;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context22.next = 69;
+							_context22.next = 71;
 							break;
 
-						case 64:
-							_context22.prev = 64;
-							_context22.t0 = _context22['catch'](59);
+						case 66:
+							_context22.prev = 66;
+							_context22.t0 = _context22['catch'](61);
 
 							console.error('Delform parsing error:', getErrorMessage(_context22.t0));
 							$show(docBody);
 							return _context22.abrupt('return');
 
-						case 69:
+						case 71:
 							Logger.log('Parse delform');
 							storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -3667,12 +3669,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							Logger.finish();
 
-						case 94:
+						case 96:
 						case 'end':
 							return _context22.stop();
 					}
 				}
-			}, _callee17, this, [[59, 64]]);
+			}, _callee17, this, [[61, 66]]);
 		}));
 
 		return function runMain(_x70, _x71) {
@@ -3685,7 +3687,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '86c1654';
+	var commit = '15dfbd9';
 
 
 	var defaultCfg = {
