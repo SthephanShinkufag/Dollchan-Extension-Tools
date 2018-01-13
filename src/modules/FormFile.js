@@ -101,6 +101,9 @@ class FileInput {
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
+		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+			this._input.setAttribute('multiple', true);
+		}
 		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
@@ -113,6 +116,11 @@ class FileInput {
 	changeMode(showThumbs) {
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
+		}
+		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+			this._input.setAttribute('multiple', true);
+		} else {
+			this._input.removeAttribute('multiple');
 		}
 		if(showThumbs) {
 			this._initThumbs();
@@ -165,12 +173,27 @@ class FileInput {
 		const isThumb = el === thumb || el.className === 'de-file-img';
 		switch(e.type) {
 		case 'change': {
-			setTimeout(() => this._onFileChange(false), 20);
-			const index = this._parent._inputs.indexOf(this);
-			if(el.files.length > 0) {
-				this._parent._files[index] = el.files[0];
+			const inpArray = this._parent._inputs;
+			const curInpIdx = inpArray.indexOf(this);
+			const filesLen = el.files.length;
+			if(filesLen > 1) {
+				const allowedLen = Math.min(filesLen, inpArray.length - curInpIdx);
+				let j = allowedLen;
+				for(let i = 0; i < allowedLen; ++i) {
+					FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(() => {
+						if(!(--j)) { // Clear original file input after all allowed files will be read.
+							this._removeFileHelper();
+						}
+					});
+					this._parent._files[curInpIdx + i] = el.files[i];
+				}
 			} else {
-				delete this._parent._files[index];
+				setTimeout(() => this._onFileChange(false), 20);
+				if(filesLen > 0) {
+					this._parent._files[curInpIdx] = el.files[0];
+				} else {
+					delete this._parent._files[curInpIdx];
+				}
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
@@ -258,7 +281,7 @@ class FileInput {
 		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 	}
 	static _readDroppedFile(input, file) {
-		readFile(file).then(({ data }) => {
+		return readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
 			input.show();
 			input._onFileChange(true);
@@ -403,6 +426,11 @@ class FileInput {
 		}
 	}
 	_removeFile() {
+		this._removeFileHelper();
+		this.hasFile = false;
+		delete this._parent._files[this._parent._inputs.indexOf(this)];
+	}
+	_removeFileHelper() {
 		const oldEl = this._input;
 		const newEl = $aEnd(oldEl, oldEl.outerHTML);
 		oldEl.removeEventListener('change', this);
@@ -410,8 +438,6 @@ class FileInput {
 		newEl.obj = this;
 		this._input = newEl;
 		$del(oldEl);
-		this.hasFile = false;
-		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
 	_showDelBtn(isShow) {
 		$toggle(this._btnDel, isShow);

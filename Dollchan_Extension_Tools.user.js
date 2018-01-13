@@ -3687,7 +3687,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = '15dfbd9';
+	var commit = 'e7b6a23';
 
 
 	var defaultCfg = {
@@ -12934,6 +12934,9 @@ true, true];
 			if (el.files && el.files[0]) {
 				this._removeFile();
 			}
+			if (aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+				this._input.setAttribute('multiple', true);
+			}
 			if (FileInput._isThumb) {
 				this._initThumbs();
 			} else {
@@ -12949,6 +12952,11 @@ true, true];
 			value: function changeMode(showThumbs) {
 				if (!(showThumbs ^ !!this._thumb)) {
 					return;
+				}
+				if (aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+					this._input.setAttribute('multiple', true);
+				} else {
+					this._input.removeAttribute('multiple');
 				}
 				if (showThumbs) {
 					this._initThumbs();
@@ -13008,14 +13016,31 @@ true, true];
 				switch (e.type) {
 					case 'change':
 						{
-							setTimeout(function () {
-								return _this30._onFileChange(false);
-							}, 20);
-							var index = this._parent._inputs.indexOf(this);
-							if (el.files.length > 0) {
-								this._parent._files[index] = el.files[0];
+							var inpArray = this._parent._inputs;
+							var curInpIdx = inpArray.indexOf(this);
+							var filesLen = el.files.length;
+							if (filesLen > 1) {
+								(function () {
+									var allowedLen = Math.min(filesLen, inpArray.length - curInpIdx);
+									var j = allowedLen;
+									for (var i = 0; i < allowedLen; ++i) {
+										FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
+											if (! --j) {
+												_this30._removeFileHelper();
+											}
+										});
+										_this30._parent._files[curInpIdx + i] = el.files[i];
+									}
+								})();
 							} else {
-								delete this._parent._files[index];
+								setTimeout(function () {
+									return _this30._onFileChange(false);
+								}, 20);
+								if (filesLen > 0) {
+									this._parent._files[curInpIdx] = el.files[0];
+								} else {
+									delete this._parent._files[curInpIdx];
+								}
 							}
 							DollchanAPI.notify('filechange', this._parent._files);
 							return;
@@ -13067,12 +13092,12 @@ true, true];
 							if (!isThumb && el !== this._txtInput) {
 								return;
 							}
-							var filesLen = dt.files.length;
-							if (filesLen) {
-								var inpArray = this._parent._inputs;
-								var inpLen = inpArray.length;
-								for (var i = inpArray.indexOf(this), j = 0; i < inpLen && j < filesLen; ++i, ++j) {
-									FileInput._readDroppedFile(inpArray[i], dt.files[j]);
+							var _filesLen = dt.files.length;
+							if (_filesLen) {
+								var _inpArray = this._parent._inputs;
+								var inpLen = _inpArray.length;
+								for (var i = _inpArray.indexOf(this), j = 0; i < inpLen && j < _filesLen; ++i, ++j) {
+									FileInput._readDroppedFile(_inpArray[i], dt.files[j]);
 									this._parent._files[i] = dt.files[j];
 								}
 								DollchanAPI.notify('filechange', this._parent._files);
@@ -13262,6 +13287,13 @@ true, true];
 		}, {
 			key: '_removeFile',
 			value: function _removeFile() {
+				this._removeFileHelper();
+				this.hasFile = false;
+				delete this._parent._files[this._parent._inputs.indexOf(this)];
+			}
+		}, {
+			key: '_removeFileHelper',
+			value: function _removeFileHelper() {
 				var oldEl = this._input;
 				var newEl = $aEnd(oldEl, oldEl.outerHTML);
 				oldEl.removeEventListener('change', this);
@@ -13269,8 +13301,6 @@ true, true];
 				newEl.obj = this;
 				this._input = newEl;
 				$del(oldEl);
-				this.hasFile = false;
-				delete this._parent._files[this._parent._inputs.indexOf(this)];
 			}
 		}, {
 			key: '_showDelBtn',
@@ -13317,7 +13347,7 @@ true, true];
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				readFile(file).then(function (_ref75) {
+				return readFile(file).then(function (_ref75) {
 					var data = _ref75.data;
 
 					input.imgFile = [data, file.name, file.type];
