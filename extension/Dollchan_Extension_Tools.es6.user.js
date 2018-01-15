@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.1.4.0
+// @version         18.1.15.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -30,8 +30,8 @@
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.1.4.0';
-const commit = '7e20085';
+const version = '18.1.15.0';
+const commit = '73606d7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5973,10 +5973,7 @@ function loadDocFiles(imgOnly) {
 	els.forEach(function(el) {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
-			let url = imgLink.href;
-			if(aib.tiny) {
-				url = url.replace(/^.*?\?v=|&.*?$/g, '');
-			}
+			const url = imgLink.href;
 			Images_.pool.run([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
@@ -9281,6 +9278,9 @@ class FileInput {
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
+		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+			this._input.setAttribute('multiple', true);
+		}
 		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
@@ -9293,6 +9293,11 @@ class FileInput {
 	changeMode(showThumbs) {
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
+		}
+		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
+			this._input.setAttribute('multiple', true);
+		} else {
+			this._input.removeAttribute('multiple');
 		}
 		if(showThumbs) {
 			this._initThumbs();
@@ -9345,12 +9350,27 @@ class FileInput {
 		const isThumb = el === thumb || el.className === 'de-file-img';
 		switch(e.type) {
 		case 'change': {
-			setTimeout(() => this._onFileChange(false), 20);
-			const index = this._parent._inputs.indexOf(this);
-			if(el.files.length > 0) {
-				this._parent._files[index] = el.files[0];
+			const inpArray = this._parent._inputs;
+			const curInpIdx = inpArray.indexOf(this);
+			const filesLen = el.files.length;
+			if(filesLen > 1) {
+				const allowedLen = Math.min(filesLen, inpArray.length - curInpIdx);
+				let j = allowedLen;
+				for(let i = 0; i < allowedLen; ++i) {
+					FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(() => {
+						if(!(--j)) { // Clear original file input after all allowed files will be read.
+							this._removeFileHelper();
+						}
+					});
+					this._parent._files[curInpIdx + i] = el.files[i];
+				}
 			} else {
-				delete this._parent._files[index];
+				setTimeout(() => this._onFileChange(false), 20);
+				if(filesLen > 0) {
+					this._parent._files[curInpIdx] = el.files[0];
+				} else {
+					delete this._parent._files[curInpIdx];
+				}
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
@@ -9438,7 +9458,7 @@ class FileInput {
 		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 	}
 	static _readDroppedFile(input, file) {
-		readFile(file).then(({ data }) => {
+		return readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
 			input.show();
 			input._onFileChange(true);
@@ -9583,6 +9603,11 @@ class FileInput {
 		}
 	}
 	_removeFile() {
+		this._removeFileHelper();
+		this.hasFile = false;
+		delete this._parent._files[this._parent._inputs.indexOf(this)];
+	}
+	_removeFileHelper() {
 		const oldEl = this._input;
 		const newEl = $aEnd(oldEl, oldEl.outerHTML);
 		oldEl.removeEventListener('change', this);
@@ -9590,8 +9615,6 @@ class FileInput {
 		newEl.obj = this;
 		this._input = newEl;
 		$del(oldEl);
-		this.hasFile = false;
-		delete this._parent._files[this._parent._inputs.indexOf(this)];
 	}
 	_showDelBtn(isShow) {
 		$toggle(this._btnDel, isShow);
@@ -11825,7 +11848,8 @@ class ExpandableMedia {
 		return isForward ? imgs.first : imgs.last;
 	}
 	getFullObject(inPost, onsizechange, onrotate) {
-		let wrapEl, name, origSrc, { src } = this;
+		let wrapEl, name, origSrc;
+		const { src } = this;
 		const parent = this._getImageParent();
 		if(this.el.className !== 'de-img-pre') {
 			const nameEl = $q(aib.qImgNameLink, parent);
@@ -11881,9 +11905,6 @@ class ExpandableMedia {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		if(aib.tiny) {
-			src = src.replace(/^.*?\?v=|&.*?$/g, '');
-		}
 		const isWebm = src.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
@@ -15080,7 +15101,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
+			return ($q('.postfilename, .unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -15107,7 +15128,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
-			this.qPostImg = '.post-image';
+			this.qPostImg = '.post-image[alt]';
 
 			this.multiFile = true;
 		}
@@ -15116,8 +15137,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				#expand-all-images, #expand-all-images + .unimportant, .post-btn, small {
-					display: none !important; }`;
+				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > .unimportant + span,
+					.fileinfo > .unimportant + span + span, .post-btn, small { display: none !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -15145,6 +15166,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				$q(this.qForm).appendChild(el);
 			}
+			$each($Q('.file[href^="/player.php?v="]'), link => {
+				link.href = $q('.fileinfo > a', link.parentNode).href;
+			});
 			return false;
 		}
 	}
@@ -15827,22 +15851,37 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.brchan = true;
 
 			this.qPostTrip = '.poster_id';
 
 			this.markupBB = true;
-		}
-		get css() {
-			return super.css + `input[name="embed"] { width: 100% !important; }
-				#upload_embed > td > .unimportant.hint { display: none; }
-				.reflink::after { content: "" !important; }`;
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
+		}
+		init() {
+			super.init();
+			if(Cfg.ajaxUpdThr) {
+				locStorage.auto_thread_update = false;
+			}
+			return false;
+		}
+	}
+	ibDomains['brchan.org'] = Brchan;
+
+	class Lolifox extends Brchan {
+		get css() {
+			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+				'color: inherit !important' }; transition: none !important; }` : '' }
+			#thread-interactions { display: none; }
+			.reflink::after { content: "" !important; }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
 		}
 		getSage(post) {
 			return !!$q('.sage', post);
@@ -15851,20 +15890,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
 			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			if(Cfg.ajaxUpdThr) {
-				locStorage.auto_thread_update = false;
-			}
-			const el = $id('upload_embed');
-			const el2 = $id('upload');
-			if(el && el2) {
-				$after(el2, el);
-			}
 			return false;
 		}
 	}
-	ibDomains['brchan.org'] = Brchan;
-	ibDomains['brchanansdnhvvnm.onion'] = Brchan;
-	ibDomains['lolifox.org'] = Brchan;
+	ibDomains['lolifox.org'] = Lolifox;
+	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
@@ -17266,9 +17296,13 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	excludeList = eList || '';
 	Logger.log('Data loading');
-	if(!Cfg.disabled && ((aib.init && aib.init()) || $id('de-panel'))) {
+	let oldMain;
+	if(!Cfg.disabled && ((aib.init && aib.init())) ||
+		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
+	) {
 		return;
 	}
+	$del(oldMain);
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}

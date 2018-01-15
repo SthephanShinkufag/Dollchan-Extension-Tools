@@ -3,7 +3,7 @@
 	"homepage_url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
 	"manifest_version": 2,
 	"name": "Dollchan Extension Tools",
-	"version": "18.1.4.1",
+	"version": "18.1.15.0",
 
 	"applications": {
 		"gecko": {
