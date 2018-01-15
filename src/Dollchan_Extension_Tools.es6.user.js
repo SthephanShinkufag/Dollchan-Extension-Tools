@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.4.0';
-const commit = 'e7b6a23';
+const commit = '03e10c6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15101,7 +15101,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
+			return ($q('.postfilename, .unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -15128,7 +15128,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
-			this.qPostImg = '.post-image';
+			this.qPostImg = '.post-image[alt]';
 
 			this.multiFile = true;
 		}

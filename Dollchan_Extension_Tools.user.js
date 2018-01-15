@@ -3687,7 +3687,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.4.0';
-	var commit = 'e7b6a23';
+	var commit = '03e10c6';
 
 
 	var defaultCfg = {
@@ -19749,7 +19749,7 @@ true, true];
 			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return ($q('.postfilename, .unimportant > a', wrap) || $q(this.qImgNameLink, wrap)).textContent;
+					return ($q('.postfilename, .unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap)).textContent;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -19807,7 +19807,7 @@ true, true];
 				var _this76 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
 				_this76.qDelPassw = '#password';
-				_this76.qPostImg = '.post-image';
+				_this76.qPostImg = '.post-image[alt]';
 
 				_this76.multiFile = true;
 				return _this76;
