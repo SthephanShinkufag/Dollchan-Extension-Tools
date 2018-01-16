@@ -867,10 +867,9 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['input[info="addVimeo"]']);
 		this._toggleBox(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
-			'input[info="ytApiKey"]'
+			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
 		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		this._toggleBox(Cfg.ajaxPosting, [
