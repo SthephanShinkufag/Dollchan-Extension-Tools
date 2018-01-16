@@ -426,7 +426,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(this._panelButton) {
 				this._panelButton.id = 'de-panel-upd-' + status;
 				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
-				if(nav.Presto) {
+				if(nav.isPresto) {
 					this._panelButton.innerHTML =
 						'<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
 				}

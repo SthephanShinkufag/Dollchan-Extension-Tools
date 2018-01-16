@@ -67,7 +67,7 @@ const CfgWindow = {
 		}));
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-		!nav.Presto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
 			// Create popup with controls
 			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
 				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
@@ -268,7 +268,7 @@ const CfgWindow = {
 			}
 			case 'postBtnsCSS':
 				updateCSS();
-				if(nav.Presto) {
+				if(nav.isPresto) {
 					$del($q('.de-svg-icons'));
 					addSVGIcons();
 				}
@@ -669,8 +669,8 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.Presto ? '' : this._getBox('preLoadImgs') + '<br>' }
-			${ nav.Presto || aib.fch ? '' : `<div class="de-cfg-depend">
+			${ nav.isPresto ? '' : this._getBox('preLoadImgs') + '<br>' }
+			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
 			${ this._getSel('openImgs') }<br>
@@ -724,7 +724,7 @@ const CfgWindow = {
 				${ this._getBox('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
-				${ pr.files && !nav.Presto ? this._getSel('fileInputs') : '' }
+				${ pr.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
 			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
 			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
@@ -764,7 +764,7 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.Presto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+			${ !nav.isChromeStorage && !nav.isPresto || nav.hasGMXHR ? `${ this._getBox('updScript') }
 				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +

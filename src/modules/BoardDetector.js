@@ -273,7 +273,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return videos;
 		}
 		getImgRealName(wrap) {
-			return ($q('.postfilename, .unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap)).textContent;
+			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
+				$q(this.qImgNameLink, wrap)).textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);

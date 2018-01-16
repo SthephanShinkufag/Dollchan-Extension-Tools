@@ -472,8 +472,9 @@ class ExpandableMedia {
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
 			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
-		const wrapClass = inPost ? ' de-fullimg-wrap-inpost' :
-			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`;
+		const wrapClass = (inPost ? ' de-fullimg-wrap-inpost' :
+			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`) +
+			(this.isVideo ? ' de-fullimg-video' : '');
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
 			const waitEl = inPost || this._size ? '' :
@@ -551,7 +552,7 @@ class ExpandableMedia {
 			}
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms
-		if(nav.MsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
+		if(nav.isMsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
 			const href = 'https://github.com/Kagami/webmify/';
 			$popup('err-expandmedia', `${ Lng.errMsEdgeWebm[lang] }:\n<a href="${
 				href }" target="_blank">${ href }</a>`, false);

@@ -136,7 +136,7 @@ async function readCfg() {
 	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
-	if(nav.Presto) {
+	if(nav.isPresto) {
 		if(Cfg.YTubeType === 2) {
 			Cfg.YTubeType = 1;
 		}

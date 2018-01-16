@@ -28,7 +28,7 @@ const Panel = Object.create({
 					(imgLen === 0 ? '' :
 						this._getButton('expimg') +
 						this._getButton('maskimg')) +
-					(nav.Presto || localData ? '' :
+					(nav.isPresto || localData ? '' :
 						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
 						(!isThr ? '' : this._getButton('savethr'))) +
 					(!isThr || localData ? '' :
@@ -229,7 +229,7 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX nav.Presto: keep in sync with updMachine._setUpdateStatus
+		// XXX nav.isPresto: keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">

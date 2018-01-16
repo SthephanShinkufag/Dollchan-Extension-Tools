@@ -24,6 +24,7 @@ function checkStorage() {
 function initNavFuncs() {
 	const ua = navigator.userAgent;
 	const isFirefox = ua.includes('Gecko/');
+	const firefoxVer = isFirefox ? (ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0;
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
@@ -39,10 +40,10 @@ function initNavFuncs() {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
 	}
-	if(!('requestAnimationFrame' in window)) { // XXX: nav.Presto
+	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: nav.Presto
+	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
 			if(this.parentNode) {
 				this.parentNode.removeChild(this);
@@ -81,19 +82,20 @@ function initNavFuncs() {
 		get ua() {
 			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		isFirefox,
-		isWebkit,
+		firefoxVer,
 		isChrome,
-		isSafari,
+		isChromeStorage,
+		isFirefox,
 		isGM,
 		isNewGM,
-		isChromeStorage,
+		isSafari,
 		isScriptStorage,
-		Presto   : !!window.opera,
-		MsEdge   : ua.includes('Edge/'),
-		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		hasGMXHR : (typeof GM_xmlhttpRequest === 'function') ||
+		isWebkit,
+		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		isMsEdge : ua.includes('Edge/'),
+		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		isPresto : !!window.opera,
 		get isESNext() {
 			return typeof deMainFuncOuter === 'undefined';
 		},

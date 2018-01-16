@@ -418,7 +418,7 @@ class FileInput {
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this._parent.hide();
-		if(!nav.Presto && !aib.fch &&
+		if(!nav.isPresto && !aib.fch &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
 		) {
 			$del(this._rarMsg);

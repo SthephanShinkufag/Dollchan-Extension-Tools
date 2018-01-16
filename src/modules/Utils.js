@@ -210,7 +210,7 @@ function $txtInsert(el, txt) {
 
 // XXX: SVG events hack for Opera Presto
 function fixEventEl(el) {
-	if(el && nav.Presto) {
+	if(el && nav.isPresto) {
 		const svg = el.correspondingUseElement;
 		if(svg) {
 			el = svg.ownerSVGElement;
@@ -807,7 +807,7 @@ function getFileType(url) {
 }
 
 function downloadBlob(blob, name) {
-	const url = nav.MsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
+	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
 	const link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
 	link.click();
 	setTimeout(() => {
