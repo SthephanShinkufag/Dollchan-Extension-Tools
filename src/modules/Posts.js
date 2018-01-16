@@ -121,7 +121,7 @@ class AbstractPost {
 					if(Cfg.addYouTube === 3) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
-						videos.addPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
+						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
 				} else if(Cfg.expandImgs !== 0) {

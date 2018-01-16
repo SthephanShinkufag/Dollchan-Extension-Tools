@@ -119,8 +119,7 @@ function showVideosWindow(body) {
 				}
 				this.currentLink = el;
 				el.classList.add('de-current');
-				this.playerInfo = info;
-				Videos.addPlayer(this.player, info, el.classList.contains('de-ytube'), true);
+				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
 			}
 			$pd(e);
 		}

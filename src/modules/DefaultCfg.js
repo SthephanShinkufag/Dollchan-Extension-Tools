@@ -68,7 +68,6 @@ const defaultCfg = {
 	addMP3       : 1,    // embed mp3 links
 	addVocaroo   : 1,    // embed Vocaroo links
 	addYouTube   : 3,    // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
-	YTubeType    : 0,    //    player type [0=flash, 1=HTML5]
 	YTubeWidth   : 360,  //    player width (px)
 	YTubeHeigh   : 270,  //    player height (px)
 	YTubeTitles  : 0,    //    load titles for YouTube links

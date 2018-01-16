@@ -18,26 +18,21 @@ class Videos {
 			this.playerInfo = playerInfo;
 		}
 	}
-	static addPlayer(el, m, isYtube, enableJsapi = false) {
+	static addPlayer(obj, m, isYtube, enableJsapi = false) {
+		const el = obj.player;
+		obj.playerInfo = m;
 		let txt;
 		if(isYtube) {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
 				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
 				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-				(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ?
-					'&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') +
-				' frameborder="0" allowfullscreen="1"></iframe>';
+				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
-			txt = Cfg.YTubeType === 1 ?
-				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
-					Cfg.addYouTube === 3 ? '?autoplay=1' : ''
-				}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>` :
-				'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
-					'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-					'allowscriptaccess="always" allowfullscreen="true"></embed>';
+			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+				Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
 		el.innerHTML = txt + (enableJsapi ? '' :
 			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
@@ -73,7 +68,7 @@ class Videos {
 		this.linksCount++;
 		if(this.playerInfo === null) {
 			if(Cfg.addYouTube === 2) {
-				this.addPlayer(m, isYtube);
+				this.setPlayer(m, isYtube);
 			} else if(Cfg.addYouTube > 2) {
 				this._addThumb(m, isYtube);
 			}
@@ -114,10 +109,6 @@ class Videos {
 			loader.run([link, isYtube, this, m[1]]);
 		}
 	}
-	addPlayer(m, isYtube) {
-		this.playerInfo = m;
-		Videos.addPlayer(this.player, m, isYtube);
-	}
 	clickLink(el, mode) {
 		const m = el.videoInfo;
 		if(this.playerInfo !== m) {
@@ -127,14 +118,14 @@ class Videos {
 				this._addThumb(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.add('de-current');
-				this.addPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, el.classList.contains('de-ytube'));
 			}
 			return;
 		}
 		if(mode === 3) {
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
-				this.addPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.remove('de-current');
 				this._addThumb(m, el.classList.contains('de-ytube'));
@@ -145,6 +136,9 @@ class Videos {
 			this.player.innerHTML = '';
 			this.playerInfo = null;
 		}
+	}
+	setPlayer(m, isYtube) {
+		Videos.addPlayer(this, m, isYtube);
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();

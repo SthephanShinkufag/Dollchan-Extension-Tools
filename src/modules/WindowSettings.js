@@ -704,7 +704,6 @@ const CfgWindow = {
 			</div>
 			${ this._getSel('addYouTube') }
 			<div class="de-cfg-depend">
-				${ this._getSel('YTubeType') }
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
 				${ this._getBox('YTubeTitles') }<br>
@@ -868,9 +867,7 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-			'select[info="YTubeType"]', 'input[info="addVimeo"]'
-		]);
+		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['input[info="addVimeo"]']);
 		this._toggleBox(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]'

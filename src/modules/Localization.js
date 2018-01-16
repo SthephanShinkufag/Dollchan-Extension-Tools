@@ -315,10 +315,6 @@ const Lng = {
 				'for YouTube links* ',
 				'до YouTube посилань* ']
 		},
-		YTubeType: {
-			sel : [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
-			txt : ['', '', '']
-		},
 		YTubeTitles: [
 			'Загружать названия к YouTube ссылкам*',
 			'Load titles for YouTube links*',

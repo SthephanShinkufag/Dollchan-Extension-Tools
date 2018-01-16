@@ -137,9 +137,6 @@ async function readCfg() {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.isPresto) {
-		if(Cfg.YTubeType === 2) {
-			Cfg.YTubeType = 1;
-		}
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
 		if(!nav.isGM) {

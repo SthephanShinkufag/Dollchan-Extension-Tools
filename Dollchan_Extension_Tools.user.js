@@ -3143,9 +3143,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								Cfg.desktNotif = 0;
 							}
 							if (nav.isPresto) {
-								if (Cfg.YTubeType === 2) {
-									Cfg.YTubeType = 1;
-								}
 								Cfg.preLoadImgs = 0;
 								Cfg.findImgFile = 0;
 								if (!nav.isGM) {
@@ -3687,7 +3684,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.15.0';
-	var commit = 'f3b40dc';
+	var commit = '43528fe';
 
 
 	var defaultCfg = {
@@ -3756,7 +3753,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		addMP3: 1, 
 		addVocaroo: 1, 
 		addYouTube: 3, 
-		YTubeType: 0, 
 		YTubeWidth: 360, 
 		YTubeHeigh: 270, 
 		YTubeTitles: 0, 
@@ -3924,10 +3920,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			addYouTube: {
 				sel: [['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'], ['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
 				txt: ['к YouTube ссылкам* ', 'for YouTube links* ', 'до YouTube посилань* ']
-			},
-			YTubeType: {
-				sel: [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
-				txt: ['', '', '']
 			},
 			YTubeTitles: ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*', 'Отримувати назви до YouTube посилань*'],
 			ytApiKey: ['Ключ YT API*', 'YT API Key*', 'Ключ YT API*'],
@@ -6400,8 +6392,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					this.currentLink = el;
 					el.classList.add('de-current');
-					this.playerInfo = info;
-					Videos.addPlayer(this.player, info, el.classList.contains('de-ytube'), true);
+					Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
 				}
 				$pd(e);
 			}
@@ -7754,7 +7745,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getSel('YTubeType') + '\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + this._getBox('addOPLink') + '<br>\n\t\t\t' + this._getBox('addImgs') + '<br>\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -7826,7 +7817,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 			this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['select[info="YTubeType"]', 'input[info="addVimeo"]']);
+			this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['input[info="addVimeo"]']);
 			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]']);
 			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
@@ -9192,7 +9183,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.linksCount++;
 				if (this.playerInfo === null) {
 					if (Cfg.addYouTube === 2) {
-						this.addPlayer(m, isYtube);
+						this.setPlayer(m, isYtube);
 					} else if (Cfg.addYouTube > 2) {
 						this._addThumb(m, isYtube);
 					}
@@ -9239,12 +9230,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
-			key: 'addPlayer',
-			value: function addPlayer(m, isYtube) {
-				this.playerInfo = m;
-				Videos.addPlayer(this.player, m, isYtube);
-			}
-		}, {
 			key: 'clickLink',
 			value: function clickLink(el, mode) {
 				var m = el.videoInfo;
@@ -9255,14 +9240,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._addThumb(m, el.classList.contains('de-ytube'));
 					} else {
 						el.classList.add('de-current');
-						this.addPlayer(m, el.classList.contains('de-ytube'));
+						this.setPlayer(m, el.classList.contains('de-ytube'));
 					}
 					return;
 				}
 				if (mode === 3) {
 					if ($q('.de-video-thumb', this.player)) {
 						el.classList.add('de-current');
-						this.addPlayer(m, el.classList.contains('de-ytube'));
+						this.setPlayer(m, el.classList.contains('de-ytube'));
 					} else {
 						el.classList.remove('de-current');
 						this._addThumb(m, el.classList.contains('de-ytube'));
@@ -9273,6 +9258,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.player.innerHTML = '';
 					this.playerInfo = null;
 				}
+			}
+		}, {
+			key: 'setPlayer',
+			value: function setPlayer(m, isYtube) {
+				Videos.addPlayer(this, m, isYtube);
 			}
 		}, {
 			key: 'updatePost',
@@ -9331,16 +9321,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}], [{
 			key: 'addPlayer',
-			value: function addPlayer(el, m, isYtube) {
+			value: function addPlayer(obj, m, isYtube) {
 				var enableJsapi = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
+				var el = obj.player;
+				obj.playerInfo = m;
 				var txt = void 0;
 				if (isYtube) {
 					var list = m[0].match(/list=[^&#]+/);
-					txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ? '&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') + ' frameborder="0" allowfullscreen="1"></iframe>';
+					txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 				} else {
 					var id = m[1] + (m[2] ? m[2] : '');
-					txt = Cfg.YTubeType === 1 ? '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>' : '<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') + '&server=vimeo.com&color=00adef&fullscreen=1" ' + 'allowscriptaccess="always" allowfullscreen="true"></embed>';
+					txt = '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 				}
 				el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
 				$show(el);
@@ -13722,7 +13714,7 @@ true, true];
 									var videos = this.videos;
 
 									videos.currentLink.classList.add('de-current');
-									videos.addPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
+									videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
 									$pd(e);
 								}
 							} else if (Cfg.expandImgs !== 0) {

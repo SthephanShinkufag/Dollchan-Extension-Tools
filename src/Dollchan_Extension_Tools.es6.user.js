@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = 'f3b40dc';
+const commit = '43528fe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -103,7 +103,6 @@ const defaultCfg = {
 	addMP3       : 1,    // embed mp3 links
 	addVocaroo   : 1,    // embed Vocaroo links
 	addYouTube   : 3,    // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
-	YTubeType    : 0,    //    player type [0=flash, 1=HTML5]
 	YTubeWidth   : 360,  //    player width (px)
 	YTubeHeigh   : 270,  //    player height (px)
 	YTubeTitles  : 0,    //    load titles for YouTube links
@@ -488,10 +487,6 @@ const Lng = {
 				'к YouTube ссылкам* ',
 				'for YouTube links* ',
 				'до YouTube посилань* ']
-		},
-		YTubeType: {
-			sel : [['Flash', 'HTML5'], ['Flash', 'HTML5'], ['Flash', 'HTML5']],
-			txt : ['', '', '']
 		},
 		YTubeTitles: [
 			'Загружать названия к YouTube ссылкам*',
@@ -2478,9 +2473,6 @@ async function readCfg() {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.isPresto) {
-		if(Cfg.YTubeType === 2) {
-			Cfg.YTubeType = 1;
-		}
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
 		if(!nav.isGM) {
@@ -3528,8 +3520,7 @@ function showVideosWindow(body) {
 				}
 				this.currentLink = el;
 				el.classList.add('de-current');
-				this.playerInfo = info;
-				Videos.addPlayer(this.player, info, el.classList.contains('de-ytube'), true);
+				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
 			}
 			$pd(e);
 		}
@@ -4717,7 +4708,6 @@ const CfgWindow = {
 			</div>
 			${ this._getSel('addYouTube') }
 			<div class="de-cfg-depend">
-				${ this._getSel('YTubeType') }
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
 				${ this._getBox('YTubeTitles') }<br>
@@ -4881,9 +4871,7 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
-			'select[info="YTubeType"]', 'input[info="addVimeo"]'
-		]);
+		this._toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, ['input[info="addVimeo"]']);
 		this._toggleBox(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]'
@@ -6166,26 +6154,21 @@ class Videos {
 			this.playerInfo = playerInfo;
 		}
 	}
-	static addPlayer(el, m, isYtube, enableJsapi = false) {
+	static addPlayer(obj, m, isYtube, enableJsapi = false) {
+		const el = obj.player;
+		obj.playerInfo = m;
 		let txt;
 		if(isYtube) {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
 				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
 				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-				(list ? '&' + list[0] : '') + (Cfg.YTubeType === 1 ?
-					'&html5=1" type="text/html"' : '" type="application/x-shockwave-flash"') +
-				' frameborder="0" allowfullscreen="1"></iframe>';
+				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
-			txt = Cfg.YTubeType === 1 ?
-				`<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
-					Cfg.addYouTube === 3 ? '?autoplay=1' : ''
-				}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>` :
-				'<embed class="de-video-player" type="application/x-shockwave-flash" src="' + aib.prot +
-					'//vimeo.com/moogaloop.swf?clip_id=' + id + (Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
-					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-					'allowscriptaccess="always" allowfullscreen="true"></embed>';
+			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+				Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
 		el.innerHTML = txt + (enableJsapi ? '' :
 			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
@@ -6221,7 +6204,7 @@ class Videos {
 		this.linksCount++;
 		if(this.playerInfo === null) {
 			if(Cfg.addYouTube === 2) {
-				this.addPlayer(m, isYtube);
+				this.setPlayer(m, isYtube);
 			} else if(Cfg.addYouTube > 2) {
 				this._addThumb(m, isYtube);
 			}
@@ -6262,10 +6245,6 @@ class Videos {
 			loader.run([link, isYtube, this, m[1]]);
 		}
 	}
-	addPlayer(m, isYtube) {
-		this.playerInfo = m;
-		Videos.addPlayer(this.player, m, isYtube);
-	}
 	clickLink(el, mode) {
 		const m = el.videoInfo;
 		if(this.playerInfo !== m) {
@@ -6275,14 +6254,14 @@ class Videos {
 				this._addThumb(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.add('de-current');
-				this.addPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, el.classList.contains('de-ytube'));
 			}
 			return;
 		}
 		if(mode === 3) {
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
-				this.addPlayer(m, el.classList.contains('de-ytube'));
+				this.setPlayer(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.remove('de-current');
 				this._addThumb(m, el.classList.contains('de-ytube'));
@@ -6293,6 +6272,9 @@ class Videos {
 			this.player.innerHTML = '';
 			this.playerInfo = null;
 		}
+	}
+	setPlayer(m, isYtube) {
+		Videos.addPlayer(this, m, isYtube);
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();
@@ -9979,7 +9961,7 @@ class AbstractPost {
 					if(Cfg.addYouTube === 3) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
-						videos.addPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
+						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
 				} else if(Cfg.expandImgs !== 0) {
