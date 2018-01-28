@@ -3693,7 +3693,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.15.0';
-	var commit = 'cd6da4e';
+	var commit = 'a734b07';
 
 
 	var defaultCfg = {
@@ -20097,7 +20097,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-					if (!$q(this.qForm + ' > td')) {
+					if (!$q(this.qForm + ' td')) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 						var _els4 = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' + '#fieldPostingPassword, #divUpload');
 						for (var _i50 = 0, _len11 = _els4.length; _i50 < _len11; ++_i50) {

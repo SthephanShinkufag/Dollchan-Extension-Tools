@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = 'cd6da4e';
+const commit = 'a734b07';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15339,7 +15339,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-			if(!$q(this.qForm + ' > td')) {
+			if(!$q(this.qForm + ' td')) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
 					'#fieldPostingPassword, #divUpload');

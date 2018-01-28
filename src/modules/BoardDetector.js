@@ -514,7 +514,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-			if(!$q(this.qForm + ' > td')) {
+			if(!$q(this.qForm + ' td')) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
 					'#fieldPostingPassword, #divUpload');
