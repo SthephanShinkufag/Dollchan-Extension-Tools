@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = '2b0056e';
+const commit = 'cd6da4e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3788,7 +3788,7 @@ function showFavoritesWindow(body, data) {
 				if(!aib.iichan) {
 					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
 				}
 				last404 = false;
 			} catch(e) {
@@ -4247,6 +4247,7 @@ const CfgWindow = {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
+					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
@@ -6537,7 +6538,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4) {
-					if(e.status === 200 || aib.tiny && e.status === 400) {
+					if(aib.isAjaxStatusOK(e.status)) {
 						resolve(e);
 					} else {
 						reject(new AjaxError(e.status, e.statusText));
@@ -6585,8 +6586,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				if(target.status === 200 ||
-					(aib.tiny && target.status === 400) ||
+				if(aib.isAjaxStatusOK(target.status) ||
 					(target.status === 0 && target.responseType === 'arraybuffer')
 				) {
 					resolve(target);
@@ -8223,7 +8223,7 @@ class PostForm {
 		this.form = form;
 		this.files = null;
 		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
-		this.subm = $q('tr input[type="submit"]', form);
+		this.subm = $q(aib.qFormSubm, form);
 		this.name = $q(aib.qFormName, form);
 		this.mail = $q(aib.qFormMail, form);
 		this.subj = $q(aib.qFormSubj, form);
@@ -8499,9 +8499,7 @@ class PostForm {
 	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
-		if(!aib.tiny) {
-			this.subm.value = Lng.reply[lang];
-		}
+		aib.updSubmitButton(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -8792,13 +8790,8 @@ class PostForm {
 			}
 		}
 		if(this.form) {
-			if(aib.tiny) {
-				if(tNum) {
-					$del($q('input[name="page"]', this.form));
-				} else if(!$q('input[name="page"]', this.form)) {
-					$q('input[name="board"]', this.form).insertAdjacentHTML('afterend',
-						'<input name="page" value="1" type="hidden">');
-				}
+			if(aib.changeReplyMode) {
+				aib.changeReplyMode(this.form, tNum);
 			}
 			$del($q(`input[name="${ aib.formParent }"]`, this.form));
 			if(tNum) {
@@ -8824,7 +8817,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|post deleted|обновл|удален[о.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -8992,21 +8985,25 @@ async function html5Submit(form, submitter, needProgress = false) {
 			const fileName = value.name;
 			const newFileName = Cfg.removeFName ?
 				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
-				value.type === 'image/jpeg' ||
-				value.type === 'image/png' ||
-				value.type === 'video/webm' && !aib.mak)
+				mime === 'image/jpeg' ||
+				mime === 'image/png' ||
+				mime === 'video/webm' && !aib.mak)
 			) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
-				val = new File(cleanData, newFileName);
+				val = new File(cleanData, newFileName, { type: mime });
 			} else if(Cfg.removeFName) {
-				val = new File([value], newFileName);
+				val = new File([value], newFileName, { type: mime });
 			}
 		}
 		data.append(name, val);
+	}
+	if(aib.sendHTML5Post) {
+		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
 	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
@@ -9187,7 +9184,7 @@ class Files {
 			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
 			$after(this.fileTd.parentNode, value);
 		} else {
-			value = $q(aib.tiny ? 'th' : 'td', $parent(this._form.txta, 'TR'));
+			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
@@ -9634,7 +9631,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = el.tagName === 'TR' ? el : $parent(el, 'TR');
+		this.parentEl = el.tagName === 'TR' ? el : aib.getCapParent(el);
 		this.isAdded = false;
 		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
@@ -9926,7 +9923,7 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form &&
-						this._pref === (aib.tiny ? el : temp) &&
+						(this._pref === temp || this.btns === el.nextElementSibling) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) {
 						$pd(e);
@@ -9942,7 +9939,7 @@ class AbstractPost {
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
-							window.location = el.href.replace(/#i/, '#');
+							window.location.assign(el.href.replace(/#i/, '#'));
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
@@ -11650,8 +11647,8 @@ class AttachmentViewer {
 		this._height = height;
 		this._elStyle.width = width + 'px';
 		this._elStyle.height = height + 'px';
-		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
+		this._elStyle.left = `${ this._oldL = parseInt(cPointX - width / 2, 10) }px`;
+		this._elStyle.top = `${ this._oldT = parseInt(cPointY - height / 2, 10) }px`;
 	}
 	_rotate(el) {
 		if(el !== this._fullEl) {
@@ -11664,8 +11661,8 @@ class AttachmentViewer {
 		this._elStyle.height = _width + 'px';
 		const halfWidth = _width / 2;
 		const halfHeight = _height / 2;
-		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
+		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
+		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
 	}
 }
 
@@ -12038,7 +12035,7 @@ class Attachment extends ExpandableMedia {
 	_getImageSize() {
 		if(this.info) {
 			const size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
-			return [size[1], size[2]];
+			return size ? [size[1], size[2]] : null;
 		}
 		return null;
 	}
@@ -12942,26 +12939,12 @@ class RefMap {
 	}
 }
 
-/* eslint-disable no-var *//* , prefer-template */
-
 /* ==[ Threads.js ]===========================================================================================
                                                    THREADS
 =========================================================================================================== */
 
 class Thread {
-	static get first() {
-		return DelForm.first.firstThr;
-	}
-	static get last() {
-		return DelForm.last.lastThr;
-	}
-	static removeSavedData() {
-		// TODO: remove relevant spells, hidden posts and user posts
-	}
 	constructor(el, num, prev, form) {
-		var els = $Q(aib.qRPost, el),
-			len = els.length,
-			omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.hasNew = false;
 		this.hidden = false;
 		this.hidCounter = 0;
@@ -12969,6 +12952,9 @@ class Thread {
 		this.next = null;
 		this.num = num;
 		this.thrId = aib.thrId ? aib.thrId(el) : num;
+		const els = $Q(aib.qRPost, el);
+		const len = els.length;
+		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.pcount = omt + len;
 		this.el = el;
 		this.prev = prev;
@@ -12977,45 +12963,48 @@ class Thread {
 		if(prev) {
 			prev.next = this;
 		}
-		var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
+		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByEl.set(el, lastPost);
-		for(var i = 0; i < len; i++) {
-			var pEl = els[i];
+		for(let i = 0; i < len; i++) {
+			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
 		el.style.counterReset = 'de-cnt ' + omt;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
-		if(aib.tiny) {
-			var temp = el.lastChild;
-			if(temp !== this.op.el) {
-				$after(el, temp);
-			}
-			$del($q('.clear', el));
+		if(aib.t) {
+			return;
 		}
-		if(!aib.t) {
-			this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
-				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
-			var updBtn = this.btns.firstChild;
-			updBtn.onclick = e => {
+		this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
+			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
+		const updBtn = this.btns.firstChild;
+		updBtn.onclick = e => {
+			$pd(e);
+			this.loadPosts('new');
+		};
+		if(Cfg.hideReplies) {
+			const repBtn = $bEnd(this.btns,
+				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
+			repBtn.onclick = e => {
 				$pd(e);
-				this.loadPosts('new');
-			};
-			if(Cfg.hideReplies) {
-				var repBtn = $bEnd(this.btns,
-					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-				repBtn.onclick = e => {
-					$pd(e);
-					var nextCoord = !this.next || this.last.omitted ? null : this.next.top;
-					this._toggleReplies(repBtn, updBtn);
-					if(nextCoord) {
-						scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
-					}
-				};
+				const nextCoord = !this.next || this.last.omitted ? null : this.next.top;
 				this._toggleReplies(repBtn, updBtn);
-			}
+				if(nextCoord) {
+					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
+				}
+			};
+			this._toggleReplies(repBtn, updBtn);
 		}
+	}
+	static get first() {
+		return DelForm.first.firstThr;
+	}
+	static get last() {
+		return DelForm.last.lastThr;
+	}
+	static removeSavedData() {
+		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
@@ -13037,13 +13026,13 @@ class Thread {
 		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
+	get top() {
+		return this.op.top;
+	}
 	get userTouched() {
 		const value = new Map();
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
-	}
-	get top() {
-		return this.op.top;
 	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
@@ -13122,9 +13111,9 @@ class Thread {
 		});
 	}
 	updateHidden(data) {
-		var thr = this;
+		let thr = this;
 		do {
-			var realHid = data ? data.hasOwnProperty(thr.num) : false;
+			const realHid = data ? data.hasOwnProperty(thr.num) : false;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
@@ -13137,9 +13126,9 @@ class Thread {
 	}
 
 	_addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el),
-			wrap = doc.adoptNode(aib.getPostWrap(el, false));
-		post = new Post(el, this, num, i, false, prev);
+		const num = aib.getPNum(el);
+		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
+		const post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(post.el, 'de-post-new');
@@ -13172,34 +13161,11 @@ class Thread {
 			}
 		}
 	}
-	_toggleReplies(repBtn, updBtn) {
-		var isHide = !this.last.omitted;
-		for(var i = 0, post = this.op; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
-		}
-		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
-		$toggle(updBtn, !isHide);
-		var colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
-		if(i) {
-			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
-		}
-	}
 	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
-		var fragm, newCount = end - begin,
-			newVisCount = newCount,
-			nums = [];
+		const nums = [];
+		const newCount = end - begin;
+		let newVisCount = newCount;
+		let fragm;
 		if(aib.JsonBuilder && nav.hasTemplate) {
 			const html = [];
 			for(let i = begin; i < end; ++i) {
@@ -13245,9 +13211,10 @@ class Thread {
 		}
 		this.loadCount++;
 		this._parsePosts(pBuilder);
-		var needToHide, needToOmit, needToShow, post = op.next,
-			needRMUpdate = false,
-			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+		let needToHide, needToOmit, needToShow;
+		let post = op.next;
+		let needRMUpdate = false;
+		let existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
@@ -13309,14 +13276,14 @@ class Thread {
 			post = post.next;
 		}
 		maybeSpells.end();
-		thrEl.style.counterReset = 'de-cnt ' + (needToOmit - needToHide + 1);
-		var btn = this.btns;
+		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
+		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
 		}
 		if(!$q('.de-thread-collapse', btn)) {
-			$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrUrl(aib.b, this.thrId) + '"></a>]</span>'
+			$bEnd(btn, `<span class="de-thread-collapse"> [<a class="de-abtn" href="${
+				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`
 			).onclick = e => {
 				$pd(e);
 				this.loadPosts(visPosts, true);
@@ -13330,7 +13297,7 @@ class Thread {
 			$hide(btn.lastChild);
 		}
 		if(needToOmit > 0) {
-			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
+			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
 		}
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
@@ -13345,8 +13312,8 @@ class Thread {
 		closePopup('load-thr');
 	}
 	_loadNewFromBuilder(pBuilder) {
-		var lastOffset = pr.isVisible ? pr.top : null,
-			[newPosts, newVisPosts] = this._parsePosts(pBuilder);
+		const lastOffset = pr.isVisible ? pr.top : null;
+		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
@@ -13365,18 +13332,19 @@ class Thread {
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
-		var maybeSpells = new Maybe(SpellsRunner),
-			newPosts = 0,
-			newVisPosts = 0,
-			len = pBuilder.length,
-			post = this.lastNotDeleted,
-			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+		let newPosts = 0;
+		let newVisPosts = 0;
+		let post = this.lastNotDeleted;
+		const len = pBuilder.length;
+		const maybeSpells = new Maybe(SpellsRunner);
+		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(post.count !== 0 && (
 			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
 		)) {
 			post = this.op.nextNotDeleted;
-			var i, firstChangedPost = null;
-			for(i = post.count - 1; i < len && post;) {
+			let i = post.count - 1;
+			let firstChangedPost = null;
+			for(; i < len && post;) {
 				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
@@ -13386,7 +13354,7 @@ class Thread {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
-					var cnt = 0;
+					let cnt = 0;
 					do {
 						cnt++;
 						i++;
@@ -13399,7 +13367,7 @@ class Thread {
 					res[3].next = post;
 					post.prev = res[3];
 					DollchanAPI.notify('newpost', res[4]);
-					for(var temp = post; temp; temp = temp.nextInThread) {
+					for(let temp = post; temp; temp = temp.nextInThread) {
 						temp.count += cnt;
 					}
 				} else {
@@ -13434,15 +13402,15 @@ class Thread {
 			this.pcount = len + 1;
 		}
 		readFavorites().then(fav => {
-			var f = fav[aib.host];
+			let f = fav[aib.host];
 			if(!f || !f[aib.b]) {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $q('#de-win-fav > .de-win-body');
+				let el = $q('#de-win-fav > .de-win-body');
 				if(el && el.hasChildNodes()) {
-					el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' +
-						this.op.num + '"] .de-fav-inf-new', el);
+					el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+						this.op.num }"] .de-fav-inf-new`, el);
 					$hide(el);
 					el.textContent = 0;
 					el = el.nextElementSibling; // .de-fav-inf-old
@@ -13459,9 +13427,35 @@ class Thread {
 		maybeSpells.end();
 		return [newPosts, newVisPosts];
 	}
+	_toggleReplies(repBtn, updBtn) {
+		const isHide = !this.last.omitted;
+		let post = this.op;
+		let i = 0;
+		for(; post !== this.last; i++) {
+			post = post.next;
+			if(isHide) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+			} else {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+		}
+		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
+		$toggle(updBtn, !isHide);
+		const colBtn = $q('.de-thread-collapse', this.el);
+		if(colBtn) {
+			$toggle(colBtn, !isHide);
+		}
+		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		i = this.pcount - 1 - (isHide ? 0 : i);
+		if(i) {
+			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);
+		}
+	}
 }
 
-var navPanel = {
+const navPanel = {
 	addThr(thr) {
 		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
@@ -13480,7 +13474,7 @@ var navPanel = {
 		}
 	},
 	init() {
-		var el = $bEnd(docBody, `
+		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
 			<div id="de-thr-navup">
@@ -13512,7 +13506,7 @@ var navPanel = {
 	_thrs       : null,
 	_visible    : false,
 	_checkThreads() {
-		var el = this._findCurrentThread();
+		const el = this._findCurrentThread();
 		if(el) {
 			if(!this._visible) {
 				this._showHide(true);
@@ -13520,6 +13514,15 @@ var navPanel = {
 			this._currentThr = el;
 		} else if(this._visible) {
 			this._showHide(false);
+		}
+	},
+	_expandCollapse(expand, rt) {
+		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
+			clearTimeout(this._showhideTO);
+			this._showhideTO = setTimeout(
+				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+				() => this._el.classList.add('de-thr-navpanel-hidden'),
+				Cfg.linksOver);
 		}
 	},
 	_findCurrentThread() {
@@ -13534,7 +13537,7 @@ var navPanel = {
 		}
 		Object.defineProperty(this, '_findCurrentThread', {
 			value() {
-				var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+				let el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 				while(el) {
 					if(this._thrs.has(el)) {
 						return el;
@@ -13547,7 +13550,7 @@ var navPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		var el = fixEventEl(e.target);
+		let el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
 		}
@@ -13562,20 +13565,13 @@ var navPanel = {
 			break;
 		}
 	},
-	_expandCollapse(expand, rt) {
-		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-			clearTimeout(this._showhideTO);
-			this._showhideTO = setTimeout(
-				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
-				() => this._el.classList.add('de-thr-navpanel-hidden'),
-				Cfg.linksOver);
-		}
-	},
 	_showHide(show) {
 		this._el.style.display = show ? 'initial' : 'none';
 		this._visible = show;
 	}
 };
+
+/* eslint-disable no-var *//* , prefer-template */
 
 /* ==[ ThreadUpdater.js ]=====================================================================================
                                                 THREAD UPDATER
@@ -14494,9 +14490,10 @@ class BaseBoard {
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
-		this.qFormPassw = 'tr input[type="password"]'; // Differs Tinyboard only
+		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qFormSubm = 'tr input[type="submit"]'; // Differs LynxChan only
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -14517,6 +14514,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
+		this.formTd = 'td';
 		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
@@ -14535,7 +14533,7 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() {
+	get qFormMail() { // Differs Iichan only
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
@@ -14570,6 +14568,9 @@ class BaseBoard {
 	}
 	get catalogUrl() {
 		return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+	}
+	get changeReplyMode() {
+		return null;
 	}
 	get css() {
 		return '';
@@ -14615,6 +14616,9 @@ class BaseBoard {
 			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
+	}
+	get sendHTML5Post() { // Differs LynxChan only
+		return null;
 	}
 	get thrId() { // Differs _0chanHk only
 		return null;
@@ -14681,7 +14685,7 @@ class BaseBoard {
 		data.innerHTML = str;
 		return data;
 	}
-	fixVideo(isPost, data) {
+	fixVideo(isPost, data) { // Differs Tinyboard only
 		var videos = [],
 			els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
@@ -14702,6 +14706,9 @@ class BaseBoard {
 	}
 	getBanId(postEl) { // Differs Makaba only
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
+	}
+	getCapParent(el) { // Differs LynxChan only
+		return $parent(el, 'TR');
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -14792,6 +14799,9 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) {
 		return $bBegin(msg, playerHtml);
 	}
+	isAjaxStatusOK(status) {
+		return status === 200;
+	}
 	parseURL() {
 		const url = (window.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
@@ -14807,6 +14817,9 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
+	}
+	updSubmitButton(el) {
+		el.value = Lng.reply[lang];
 	}
 }
 
@@ -15034,7 +15047,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.tiny = true;
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
@@ -15055,6 +15067,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.formParent = 'thread';
+			this.formTd = 'th';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
@@ -15072,6 +15085,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
+		}
+		changeReplyMode(form, tNum) {
+			if(tNum) {
+				$del($q('input[name="page"]', form));
+			} else if(!$q('input[name="page"]', form)) {
+				$q('input[name="board"]', form).insertAdjacentHTML('afterend',
+					'<input name="page" value="1" type="hidden">');
+			}
 		}
 		fixVideo(isPost, data) {
 			var videos = [],
@@ -15103,8 +15124,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(form) {
 				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
 			}
+			$each($Q('br.clear'), el => {
+				const hr = el.nextElementSibling;
+				if(hr && hr.tagName === 'HR') {
+					$after(el.parentNode, hr);
+				}
+				$del(el);
+			});
 			return false;
 		}
+		isAjaxStatusOK(status) {
+			return status === 200 || status === 400;
+		}
+		updSubmitButton() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
@@ -15216,6 +15248,180 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
+
+	class LynxChan extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'innerPost';
+			this.qDForm = 'form[action$="contentActions.js"]';
+			this.qError = '#errorLabel, #labelMessage';
+			this.qForm = '.form-post';
+			this.qFormPassw = 'input[name="password"]';
+			this.qFormRules = '.form-post > .small';
+			this.qFormSubm = '#formButton';
+			this.qImgInfo = '.uploadDetails';
+			this.qOmitted = '.labelOmission';
+			this.qOPost = '.innerOP';
+			this.qPages = '#divPages';
+			this.qPostHeader = '.postInfo, .de-post-btns';
+			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+			this.qPostMsg = '.divMessage';
+			this.qPostRef = '.linkQuote';
+			this.qRPost = '.innerPost';
+			this.qTrunc = '.contentOmissionIndicator';
+
+			this.firstPage = 1;
+			this.formParent = 'threadId';
+			this.formTd = 'th';
+			this.hasCatalog = true;
+			this.jsonSubmit = true;
+			this.multiFile = true;
+
+			this._qTable = '.divPosts';
+		}
+		get qImgNameLink() {
+			return '.originalNameLink';
+		}
+		get qThread() {
+			return '.opCell';
+		}
+		get css() {
+			return `.de-video-link + div[style="display: inline;"] > .embedButton, .de-parea > hr,
+					.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,
+					body > div[style^="display: inline;"] { display: none !important; }
+				.divPosts { margin: 0 0; }
+				#formButton { display: initial !important; }`;
+		}
+		get markupTags() {
+			return ["'''", "''", '__', '~~', '**', '[code'];
+		}
+		changeReplyMode(form, tNum) {
+			const action = form.getAttribute('action');
+			form.setAttribute('action', tNum ? action.replace('newThread', 'replyThread') :
+				action.replace('replyThread', 'newThread'));
+		}
+		fixFileInputs(el) {
+			const str = '><input name="files" type="file"></div>';
+			el.innerHTML = '<div' + str +
+				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+		}
+		getCapParent(el) {
+			return $id('captchaDiv');
+		}
+		getImgRealName(wrap) {
+			return $q('.originalNameLink', wrap).textContent;
+		}
+		getImgSrcLink(img) {
+			const el = img.parentNode;
+			return el.tagName === 'A' ? el : $q('.originalNameLink', el.parentNode);
+		}
+		getImgWrap(img) {
+			return $parent(img, 'FIGURE');
+		}
+		getPageUrl(b, p) {
+			return fixBrd(b) + (p > 1 ? p + this.docExt : 'index.html');
+		}
+		getPNum(post) {
+			return +$q('.deletionCheckBox', post).name.split('-')[2];
+		}
+		getPostWrap(el, isOp) {
+			return isOp ? el : el.parentNode;
+		}
+		getSubmitData(json) {
+			return {
+				error   : json.status === 'error' ? json.data : null,
+				postNum : json.status === 'ok' ? +json.data : null
+			};
+		}
+		getTNum(op) {
+			return +$q('.deletionCheckBox', op).name.split('-')[1];
+		}
+		init() {
+			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
+			if(!$q(this.qForm + ' > td')) {
+				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
+				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
+					'#fieldPostingPassword, #divUpload');
+				for(let i = 0, len = els.length; i < len; ++i) {
+					const td = $bEnd(table, '<tr><th></th><td></td></tr>').lastChild;
+					td.appendChild(els[i]);
+				}
+			}
+			return false;
+		}
+		isAjaxStatusOK(status) {
+			return status === 200 || status === 400 || status === 500;
+		}
+		async sendHTML5Post(form, data, needProgress, hasFiles) {
+			const getBase64 = async function(file) {
+				return new Promise((resolve, reject) => {
+					const reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onload = () => resolve(reader.result);
+					reader.onerror = error => reject(error);
+				});
+			};
+			const getCookies = function() {
+				const parsedCookies = {};
+				const cookies = document.cookie.split(';');
+				for(let i = 0; i < cookies.length; i++) {
+					const parts = cookies[i].split('=');
+					parsedCookies[parts.shift().trim()] = decodeURI(parts.join('='));
+				}
+				return parsedCookies;
+			};
+			const dataObj = { files: [] };
+			const files = [];
+			data.forEach(async function(value, key) {
+				if(key !== 'files') {
+					dataObj[key] = value;
+				} else {
+					files.push(value);
+				}
+			});
+			for(let i = 0, len = files.length; i < len; ++i) {
+				const file = files[i];
+				if(file.type) {
+					dataObj.files.push({
+						content: `data:${ file.type };base64,${
+							await getBase64(file).then(data => data.split(',')[1]) }`,
+						name    : file.name,
+						spoiler : false
+					});
+				}
+			}
+			const cookieObj = getCookies();
+			const ajaxParams = {
+				data: JSON.stringify({
+					captchaId  : cookieObj.captchaid,
+					bypassId   : cookieObj.bypass,
+					parameters : dataObj,
+					auth       : { login: cookieObj.login, hash: cookieObj.hash }
+				}),
+				headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
+				method  : 'POST'
+			};
+			if(needProgress && hasFiles) {
+				ajaxParams.onprogress = getUploadFunc();
+			}
+			try {
+				const xhr = await $ajax(
+					'/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams);
+				return xhr.responseText;
+			} catch(err) {
+				return Promise.reject(err);
+			}
+		}
+		updateCaptcha() {
+			$script('reloadCaptcha();');
+			return null;
+		}
+		updSubmitButton(el) {
+			el.textContent = Lng.reply[lang];
+		}
+	}
+	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
 	// DOMAINS
 	class _0chanHk extends BaseBoard {
@@ -16029,6 +16235,30 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
+	class EndChan extends LynxChan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qTrunc = '.contentOmissionIndicator > p';
+		}
+		get css() {
+			return super.css + `.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
+					.linkPreview, #modeBanner, .watchButton { display: none !important; }
+				#de-main, .de-pview { font-size: 75%; }
+				.de-cfg-label { display: initial !important; }`;
+		}
+		init() {
+			super.init();
+			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
+			$each($Q('.youtube_wrapper'), el => {
+				const src = $q('a', el).href;
+				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
+			});
+			return false;
+		}
+	}
+	ibDomains['endchan.xyz'] = EndChan;
+
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16124,7 +16354,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Krautchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.krau = true;
 
 			this.cReply = 'postreply';
 			this.qBan = '.ban_mark';

@@ -31,7 +31,7 @@ class PostForm {
 		this.form = form;
 		this.files = null;
 		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
-		this.subm = $q('tr input[type="submit"]', form);
+		this.subm = $q(aib.qFormSubm, form);
 		this.name = $q(aib.qFormName, form);
 		this.mail = $q(aib.qFormMail, form);
 		this.subj = $q(aib.qFormSubj, form);
@@ -307,9 +307,7 @@ class PostForm {
 	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
-		if(!aib.tiny) {
-			this.subm.value = Lng.reply[lang];
-		}
+		aib.updSubmitButton(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -600,13 +598,8 @@ class PostForm {
 			}
 		}
 		if(this.form) {
-			if(aib.tiny) {
-				if(tNum) {
-					$del($q('input[name="page"]', this.form));
-				} else if(!$q('input[name="page"]', this.form)) {
-					$q('input[name="board"]', this.form).insertAdjacentHTML('afterend',
-						'<input name="page" value="1" type="hidden">');
-				}
+			if(aib.changeReplyMode) {
+				aib.changeReplyMode(this.form, tNum);
 			}
 			$del($q(`input[name="${ aib.formParent }"]`, this.form));
 			if(tNum) {

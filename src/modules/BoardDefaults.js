@@ -13,9 +13,10 @@ class BaseBoard {
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
-		this.qFormPassw = 'tr input[type="password"]'; // Differs Tinyboard only
+		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qFormSubm = 'tr input[type="submit"]'; // Differs LynxChan only
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -36,6 +37,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
+		this.formTd = 'td';
 		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
@@ -54,7 +56,7 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() {
+	get qFormMail() { // Differs Iichan only
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
@@ -89,6 +91,9 @@ class BaseBoard {
 	}
 	get catalogUrl() {
 		return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+	}
+	get changeReplyMode() {
+		return null;
 	}
 	get css() {
 		return '';
@@ -134,6 +139,9 @@ class BaseBoard {
 			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
+	}
+	get sendHTML5Post() { // Differs LynxChan only
+		return null;
 	}
 	get thrId() { // Differs _0chanHk only
 		return null;
@@ -200,7 +208,7 @@ class BaseBoard {
 		data.innerHTML = str;
 		return data;
 	}
-	fixVideo(isPost, data) {
+	fixVideo(isPost, data) { // Differs Tinyboard only
 		var videos = [],
 			els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(var i = 0, len = els.length; i < len; ++i) {
@@ -221,6 +229,9 @@ class BaseBoard {
 	}
 	getBanId(postEl) { // Differs Makaba only
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
+	}
+	getCapParent(el) { // Differs LynxChan only
+		return $parent(el, 'TR');
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -311,6 +322,9 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) {
 		return $bBegin(msg, playerHtml);
 	}
+	isAjaxStatusOK(status) {
+		return status === 200;
+	}
 	parseURL() {
 		const url = (window.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
@@ -326,5 +340,8 @@ class BaseBoard {
 		if(this.docExt === null) {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
+	}
+	updSubmitButton(el) {
+		el.value = Lng.reply[lang];
 	}
 }

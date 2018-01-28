@@ -13,7 +13,7 @@ function getSubmitError(dc) {
 		err += els[i].innerHTML + '\n';
 	}
 	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|post deleted|обновл|удален[о.]/i.test(err) ? null : err;
+	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
 function getUploadFunc() {
@@ -181,21 +181,25 @@ async function html5Submit(form, submitter, needProgress = false) {
 			const fileName = value.name;
 			const newFileName = Cfg.removeFName ?
 				' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
-				value.type === 'image/jpeg' ||
-				value.type === 'image/png' ||
-				value.type === 'video/webm' && !aib.mak)
+				mime === 'image/jpeg' ||
+				mime === 'image/png' ||
+				mime === 'video/webm' && !aib.mak)
 			) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
 				if(!cleanData) {
 					return Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName));
 				}
-				val = new File(cleanData, newFileName);
+				val = new File(cleanData, newFileName, { type: mime });
 			} else if(Cfg.removeFName) {
-				val = new File([value], newFileName);
+				val = new File([value], newFileName, { type: mime });
 			}
 		}
 		data.append(name, val);
+	}
+	if(aib.sendHTML5Post) {
+		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
 	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {

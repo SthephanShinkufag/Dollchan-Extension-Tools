@@ -205,5 +205,3 @@ class RefMap {
 		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }
-
-/* eslint-disable no-var *//* , prefer-template */

@@ -29,7 +29,7 @@ class Files {
 			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
 			$after(this.fileTd.parentNode, value);
 		} else {
-			value = $q(aib.tiny ? 'th' : 'td', $parent(this._form.txta, 'TR'));
+			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}

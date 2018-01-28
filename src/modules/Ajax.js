@@ -23,7 +23,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 					clearTimeout(loadTO);
 				}
 				if(e.readyState === 4) {
-					if(e.status === 200 || aib.tiny && e.status === 400) {
+					if(aib.isAjaxStatusOK(e.status)) {
 						resolve(e);
 					} else {
 						reject(new AjaxError(e.status, e.statusText));
@@ -71,8 +71,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				if(target.status === 200 ||
-					(aib.tiny && target.status === 400) ||
+				if(aib.isAjaxStatusOK(target.status) ||
 					(target.status === 0 && target.responseType === 'arraybuffer')
 				) {
 					resolve(target);

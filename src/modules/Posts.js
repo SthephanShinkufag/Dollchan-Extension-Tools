@@ -87,7 +87,7 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form &&
-						this._pref === (aib.tiny ? el : temp) &&
+						(this._pref === temp || this.btns === el.nextElementSibling) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) {
 						$pd(e);
@@ -103,7 +103,7 @@ class AbstractPost {
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
-							window.location = el.href.replace(/#i/, '#');
+							window.location.assign(el.href.replace(/#i/, '#'));
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')

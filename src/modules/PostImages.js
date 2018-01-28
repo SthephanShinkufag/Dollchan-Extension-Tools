@@ -280,8 +280,8 @@ class AttachmentViewer {
 		this._height = height;
 		this._elStyle.width = width + 'px';
 		this._elStyle.height = height + 'px';
-		this._elStyle.left = (this._oldL = parseInt(cPointX - width / 2, 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(cPointY - height / 2, 10)) + 'px';
+		this._elStyle.left = `${ this._oldL = parseInt(cPointX - width / 2, 10) }px`;
+		this._elStyle.top = `${ this._oldT = parseInt(cPointY - height / 2, 10) }px`;
 	}
 	_rotate(el) {
 		if(el !== this._fullEl) {
@@ -294,8 +294,8 @@ class AttachmentViewer {
 		this._elStyle.height = _width + 'px';
 		const halfWidth = _width / 2;
 		const halfHeight = _height / 2;
-		this._elStyle.left = (this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10)) + 'px';
-		this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
+		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
+		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
 	}
 }
 
@@ -668,7 +668,7 @@ class Attachment extends ExpandableMedia {
 	_getImageSize() {
 		if(this.info) {
 			const size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
-			return [size[1], size[2]];
+			return size ? [size[1], size[2]] : null;
 		}
 		return null;
 	}

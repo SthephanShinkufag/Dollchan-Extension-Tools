@@ -243,6 +243,7 @@ const CfgWindow = {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
+					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));

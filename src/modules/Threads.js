@@ -3,19 +3,7 @@
 =========================================================================================================== */
 
 class Thread {
-	static get first() {
-		return DelForm.first.firstThr;
-	}
-	static get last() {
-		return DelForm.last.lastThr;
-	}
-	static removeSavedData() {
-		// TODO: remove relevant spells, hidden posts and user posts
-	}
 	constructor(el, num, prev, form) {
-		var els = $Q(aib.qRPost, el),
-			len = els.length,
-			omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.hasNew = false;
 		this.hidden = false;
 		this.hidCounter = 0;
@@ -23,6 +11,9 @@ class Thread {
 		this.next = null;
 		this.num = num;
 		this.thrId = aib.thrId ? aib.thrId(el) : num;
+		const els = $Q(aib.qRPost, el);
+		const len = els.length;
+		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.pcount = omt + len;
 		this.el = el;
 		this.prev = prev;
@@ -31,45 +22,48 @@ class Thread {
 		if(prev) {
 			prev.next = this;
 		}
-		var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
+		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByEl.set(el, lastPost);
-		for(var i = 0; i < len; i++) {
-			var pEl = els[i];
+		for(let i = 0; i < len; i++) {
+			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
 		el.style.counterReset = 'de-cnt ' + omt;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
-		if(aib.tiny) {
-			var temp = el.lastChild;
-			if(temp !== this.op.el) {
-				$after(el, temp);
-			}
-			$del($q('.clear', el));
+		if(aib.t) {
+			return;
 		}
-		if(!aib.t) {
-			this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
-				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
-			var updBtn = this.btns.firstChild;
-			updBtn.onclick = e => {
+		this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
+			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
+		const updBtn = this.btns.firstChild;
+		updBtn.onclick = e => {
+			$pd(e);
+			this.loadPosts('new');
+		};
+		if(Cfg.hideReplies) {
+			const repBtn = $bEnd(this.btns,
+				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
+			repBtn.onclick = e => {
 				$pd(e);
-				this.loadPosts('new');
-			};
-			if(Cfg.hideReplies) {
-				var repBtn = $bEnd(this.btns,
-					' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-				repBtn.onclick = e => {
-					$pd(e);
-					var nextCoord = !this.next || this.last.omitted ? null : this.next.top;
-					this._toggleReplies(repBtn, updBtn);
-					if(nextCoord) {
-						scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
-					}
-				};
+				const nextCoord = !this.next || this.last.omitted ? null : this.next.top;
 				this._toggleReplies(repBtn, updBtn);
-			}
+				if(nextCoord) {
+					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
+				}
+			};
+			this._toggleReplies(repBtn, updBtn);
 		}
+	}
+	static get first() {
+		return DelForm.first.firstThr;
+	}
+	static get last() {
+		return DelForm.last.lastThr;
+	}
+	static removeSavedData() {
+		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
@@ -91,13 +85,13 @@ class Thread {
 		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
+	get top() {
+		return this.op.top;
+	}
 	get userTouched() {
 		const value = new Map();
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
-	}
-	get top() {
-		return this.op.top;
 	}
 	deletePost(post, delAll, removePost) {
 		SpellsRunner.cachedData = null;
@@ -176,9 +170,9 @@ class Thread {
 		});
 	}
 	updateHidden(data) {
-		var thr = this;
+		let thr = this;
 		do {
-			var realHid = data ? data.hasOwnProperty(thr.num) : false;
+			const realHid = data ? data.hasOwnProperty(thr.num) : false;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
@@ -191,9 +185,9 @@ class Thread {
 	}
 
 	_addPost(parent, el, i, prev, maybeVParser) {
-		var post, num = aib.getPNum(el),
-			wrap = doc.adoptNode(aib.getPostWrap(el, false));
-		post = new Post(el, this, num, i, false, prev);
+		const num = aib.getPNum(el);
+		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
+		const post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(post.el, 'de-post-new');
@@ -226,34 +220,11 @@ class Thread {
 			}
 		}
 	}
-	_toggleReplies(repBtn, updBtn) {
-		var isHide = !this.last.omitted;
-		for(var i = 0, post = this.op; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
-		}
-		repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
-		$toggle(updBtn, !isHide);
-		var colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
-		$del($q(aib.qOmitted + ', .de-omitted', this.el));
-		i = this.pcount - 1 - (isHide ? 0 : i);
-		if(i) {
-			this.op.el.insertAdjacentHTML('afterend', '<span class="de-omitted">' + i + '</span> ');
-		}
-	}
 	_importPosts(last, pBuilder, begin, end, maybeVParser, maybeSpells) {
-		var fragm, newCount = end - begin,
-			newVisCount = newCount,
-			nums = [];
+		const nums = [];
+		const newCount = end - begin;
+		let newVisCount = newCount;
+		let fragm;
 		if(aib.JsonBuilder && nav.hasTemplate) {
 			const html = [];
 			for(let i = begin; i < end; ++i) {
@@ -299,9 +270,10 @@ class Thread {
 		}
 		this.loadCount++;
 		this._parsePosts(pBuilder);
-		var needToHide, needToOmit, needToShow, post = op.next,
-			needRMUpdate = false,
-			existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+		let needToHide, needToOmit, needToShow;
+		let post = op.next;
+		let needRMUpdate = false;
+		let existed = this.pcount === 1 ? 0 : this.pcount - post.count;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
@@ -363,14 +335,14 @@ class Thread {
 			post = post.next;
 		}
 		maybeSpells.end();
-		thrEl.style.counterReset = 'de-cnt ' + (needToOmit - needToHide + 1);
-		var btn = this.btns;
+		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
+		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
 		}
 		if(!$q('.de-thread-collapse', btn)) {
-			$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' +
-				aib.getThrUrl(aib.b, this.thrId) + '"></a>]</span>'
+			$bEnd(btn, `<span class="de-thread-collapse"> [<a class="de-abtn" href="${
+				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`
 			).onclick = e => {
 				$pd(e);
 				this.loadPosts(visPosts, true);
@@ -384,7 +356,7 @@ class Thread {
 			$hide(btn.lastChild);
 		}
 		if(needToOmit > 0) {
-			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
+			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
 		}
 		if(smartScroll) {
 			scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
@@ -399,8 +371,8 @@ class Thread {
 		closePopup('load-thr');
 	}
 	_loadNewFromBuilder(pBuilder) {
-		var lastOffset = pr.isVisible ? pr.top : null,
-			[newPosts, newVisPosts] = this._parsePosts(pBuilder);
+		const lastOffset = pr.isVisible ? pr.top : null;
+		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		if(lastOffset !== null) {
 			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 		}
@@ -419,18 +391,19 @@ class Thread {
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
-		var maybeSpells = new Maybe(SpellsRunner),
-			newPosts = 0,
-			newVisPosts = 0,
-			len = pBuilder.length,
-			post = this.lastNotDeleted,
-			maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+		let newPosts = 0;
+		let newVisPosts = 0;
+		let post = this.lastNotDeleted;
+		const len = pBuilder.length;
+		const maybeSpells = new Maybe(SpellsRunner);
+		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
 		if(post.count !== 0 && (
 			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
 		)) {
 			post = this.op.nextNotDeleted;
-			var i, firstChangedPost = null;
-			for(i = post.count - 1; i < len && post;) {
+			let i = post.count - 1;
+			let firstChangedPost = null;
+			for(; i < len && post;) {
 				if(post.num === pBuilder.getPNum(i)) {
 					i++;
 					post = post.nextNotDeleted;
@@ -440,7 +413,7 @@ class Thread {
 					if(!firstChangedPost) {
 						firstChangedPost = post.prev;
 					}
-					var cnt = 0;
+					let cnt = 0;
 					do {
 						cnt++;
 						i++;
@@ -453,7 +426,7 @@ class Thread {
 					res[3].next = post;
 					post.prev = res[3];
 					DollchanAPI.notify('newpost', res[4]);
-					for(var temp = post; temp; temp = temp.nextInThread) {
+					for(let temp = post; temp; temp = temp.nextInThread) {
 						temp.count += cnt;
 					}
 				} else {
@@ -488,15 +461,15 @@ class Thread {
 			this.pcount = len + 1;
 		}
 		readFavorites().then(fav => {
-			var f = fav[aib.host];
+			let f = fav[aib.host];
 			if(!f || !f[aib.b]) {
 				return;
 			}
 			if((f = f[aib.b][this.op.num])) {
-				var el = $q('#de-win-fav > .de-win-body');
+				let el = $q('#de-win-fav > .de-win-body');
 				if(el && el.hasChildNodes()) {
-					el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' +
-						this.op.num + '"] .de-fav-inf-new', el);
+					el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+						this.op.num }"] .de-fav-inf-new`, el);
 					$hide(el);
 					el.textContent = 0;
 					el = el.nextElementSibling; // .de-fav-inf-old
@@ -513,9 +486,35 @@ class Thread {
 		maybeSpells.end();
 		return [newPosts, newVisPosts];
 	}
+	_toggleReplies(repBtn, updBtn) {
+		const isHide = !this.last.omitted;
+		let post = this.op;
+		let i = 0;
+		for(; post !== this.last; i++) {
+			post = post.next;
+			if(isHide) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+			} else {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+		}
+		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
+		$toggle(updBtn, !isHide);
+		const colBtn = $q('.de-thread-collapse', this.el);
+		if(colBtn) {
+			$toggle(colBtn, !isHide);
+		}
+		$del($q(aib.qOmitted + ', .de-omitted', this.el));
+		i = this.pcount - 1 - (isHide ? 0 : i);
+		if(i) {
+			this.op.el.insertAdjacentHTML('afterend', `<span class="de-omitted">${ i }</span> `);
+		}
+	}
 }
 
-var navPanel = {
+const navPanel = {
 	addThr(thr) {
 		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
@@ -534,7 +533,7 @@ var navPanel = {
 		}
 	},
 	init() {
-		var el = $bEnd(docBody, `
+		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
 			<div id="de-thr-navup">
@@ -566,7 +565,7 @@ var navPanel = {
 	_thrs       : null,
 	_visible    : false,
 	_checkThreads() {
-		var el = this._findCurrentThread();
+		const el = this._findCurrentThread();
 		if(el) {
 			if(!this._visible) {
 				this._showHide(true);
@@ -574,6 +573,15 @@ var navPanel = {
 			this._currentThr = el;
 		} else if(this._visible) {
 			this._showHide(false);
+		}
+	},
+	_expandCollapse(expand, rt) {
+		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
+			clearTimeout(this._showhideTO);
+			this._showhideTO = setTimeout(
+				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+				() => this._el.classList.add('de-thr-navpanel-hidden'),
+				Cfg.linksOver);
 		}
 	},
 	_findCurrentThread() {
@@ -588,7 +596,7 @@ var navPanel = {
 		}
 		Object.defineProperty(this, '_findCurrentThread', {
 			value() {
-				var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+				let el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 				while(el) {
 					if(this._thrs.has(el)) {
 						return el;
@@ -601,7 +609,7 @@ var navPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		var el = fixEventEl(e.target);
+		let el = fixEventEl(e.target);
 		if(el.tagName.toLowerCase() === 'svg') {
 			el = el.parentNode;
 		}
@@ -616,17 +624,10 @@ var navPanel = {
 			break;
 		}
 	},
-	_expandCollapse(expand, rt) {
-		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-			clearTimeout(this._showhideTO);
-			this._showhideTO = setTimeout(
-				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
-				() => this._el.classList.add('de-thr-navpanel-hidden'),
-				Cfg.linksOver);
-		}
-	},
 	_showHide(show) {
 		this._el.style.display = show ? 'initial' : 'none';
 		this._visible = show;
 	}
 };
+
+/* eslint-disable no-var *//* , prefer-template */

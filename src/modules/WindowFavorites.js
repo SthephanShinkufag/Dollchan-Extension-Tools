@@ -170,7 +170,7 @@ function showFavoritesWindow(body, data) {
 				if(!aib.iichan) {
 					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, aib.iichan);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
 				}
 				last404 = false;
 			} catch(e) {
