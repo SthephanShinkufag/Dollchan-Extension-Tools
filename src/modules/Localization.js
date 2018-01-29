@@ -389,10 +389,6 @@ const Lng = {
 			'Помнить сажу',
 			'Remember sage',
 			'Памʼятати сажу'],
-		cap4chanAlt: [
-			'4chan: альтернативная капча*',
-			'4chan: use alternative captcha*',
-			'4chan: альтернативна капча*'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',

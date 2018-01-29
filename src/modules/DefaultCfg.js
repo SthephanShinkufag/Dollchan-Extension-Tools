@@ -87,7 +87,6 @@ const defaultCfg = {
 	addSageBtn   : 1,    // replace "Email" with Sage button
 	saveSage     : 1,    // remember sage
 	sageReply    : 0,    //    reply with sage
-	cap4chanAlt  : 1,    // 4chan: use alternative captcha
 	capUpdTime   : 300,  // captcha update interval (sec)
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]

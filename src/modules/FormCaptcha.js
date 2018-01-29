@@ -176,7 +176,7 @@ class Captcha {
 	}
 
 	_isOldRecap() {
-		return !!$id('recaptcha_widget_div') || aib.fch && Cfg.cap4chanAlt && pr.tNum;
+		return !!$id('recaptcha_widget_div');
 	}
 	_setUpdateError(e) {
 		if(e) {

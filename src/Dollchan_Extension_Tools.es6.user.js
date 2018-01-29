@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = 'a734b07';
+const commit = 'c07d839';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -122,7 +122,6 @@ const defaultCfg = {
 	addSageBtn   : 1,    // replace "Email" with Sage button
 	saveSage     : 1,    // remember sage
 	sageReply    : 0,    //    reply with sage
-	cap4chanAlt  : 1,    // 4chan: use alternative captcha
 	capUpdTime   : 300,  // captcha update interval (sec)
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
@@ -562,10 +561,6 @@ const Lng = {
 			'Помнить сажу',
 			'Remember sage',
 			'Памʼятати сажу'],
-		cap4chanAlt: [
-			'4chan: альтернативная капча*',
-			'4chan: use alternative captcha*',
-			'4chan: альтернативна капча*'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
@@ -4736,8 +4731,7 @@ const CfgWindow = {
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ pr.cap ? `${ aib.fch ? `${ this._getBox('cap4chanAlt') }<br>` : '' }
-				${ this._getInp('capUpdTime') }<br>
+			${ pr.cap ? `${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
@@ -9800,7 +9794,7 @@ class Captcha {
 	}
 
 	_isOldRecap() {
-		return !!$id('recaptcha_widget_div') || aib.fch && Cfg.cap4chanAlt && pr.tNum;
+		return !!$id('recaptcha_widget_div');
 	}
 	_setUpdateError(e) {
 		if(e) {
@@ -15813,7 +15807,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				const altCapClick = $bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>');
 				const waitForReload = () => setTimeout(function() {
 					const input = $id('recaptcha_response_field');
 					if(input) {
@@ -15823,21 +15816,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}, 1e3);
 				value = function() {
-					if(!Cfg.cap4chanAlt || !pr.tNum) {
-						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
-						capClick.click();
-						tr.removeAttribute('onclick');
-						return null;
-					}
-					const container = $id('qrCaptchaContainerAlt');
-					if(container) {
-						container.click();
-						return null;
-					}
-					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
-					altCapClick.click();
-					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') Recaptcha.reload();");
-					waitForReload();
+					$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
+					capClick.click();
+					tr.removeAttribute('onclick');
 					return null;
 				};
 			}

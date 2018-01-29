@@ -988,7 +988,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				const altCapClick = $bEnd(docBody, '<div onclick="QR.initCaptchaAlt();"></div>');
 				const waitForReload = () => setTimeout(function() {
 					const input = $id('recaptcha_response_field');
 					if(input) {
@@ -998,21 +997,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					}
 				}, 1e3);
 				value = function() {
-					if(!Cfg.cap4chanAlt || !pr.tNum) {
-						$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
-						capClick.click();
-						tr.removeAttribute('onclick');
-						return null;
-					}
-					const container = $id('qrCaptchaContainerAlt');
-					if(container) {
-						container.click();
-						return null;
-					}
-					$replace($id('g-recaptcha'), '<div id="qrCaptchaContainerAlt"></div>');
-					altCapClick.click();
-					tr.setAttribute('onclick', "if(event.target.tagName !== 'INPUT') Recaptcha.reload();");
-					waitForReload();
+					$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
+					capClick.click();
+					tr.removeAttribute('onclick');
 					return null;
 				};
 			}
