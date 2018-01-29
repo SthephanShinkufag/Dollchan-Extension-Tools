@@ -86,8 +86,7 @@ class AbstractPost {
 						this._getFullMsg(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form &&
-						(this._pref === temp || this.btns === el.nextElementSibling) &&
+					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) {
 						$pd(e);

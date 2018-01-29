@@ -3693,7 +3693,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.15.0';
-	var commit = 'a98b209';
+	var commit = '0fd0fd3';
 
 
 	var defaultCfg = {
@@ -13687,7 +13687,7 @@ true, true];
 									this._getFullMsg(temp, false);
 									$pd(e);
 									e.stopPropagation();
-								} else if (Cfg.insertNum && pr.form && (this._pref === temp || this.btns === el.nextElementSibling) && !/Reply|Ответ/.test(el.textContent)) {
+								} else if (Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
