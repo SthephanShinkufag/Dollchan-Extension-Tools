@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = 'c07d839';
+const commit = 'a98b209';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -122,6 +122,7 @@ const defaultCfg = {
 	addSageBtn   : 1,    // replace "Email" with Sage button
 	saveSage     : 1,    // remember sage
 	sageReply    : 0,    //    reply with sage
+	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
@@ -561,6 +562,10 @@ const Lng = {
 			'Помнить сажу',
 			'Remember sage',
 			'Памʼятати сажу'],
+		altCaptcha: [
+			'Использовать альтернативную капчу',
+			'Use alternative captcha',
+			'Використовувати альтернативну капчу'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
@@ -4731,7 +4736,8 @@ const CfgWindow = {
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ pr.cap ? `${ this._getInp('capUpdTime') }<br>
+			${ pr.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
@@ -14509,6 +14515,7 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.formParent = 'parent';
 		this.formTd = 'td';
+		this.hasAltCaptcha = false; // Differs _4chanOrg only
 		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;
@@ -15777,6 +15784,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 			this.firstPage = 1;
 			this.formParent = 'resto';
+			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
 			this.JsonBuilder = _4chanPostsBuilder;
@@ -15795,6 +15803,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,
 					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
+				#g-recaptcha { height: initial; }
 				.postForm { display: table !important; width: auto !important; }
 				textarea { margin-right: 0 !important; }
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
@@ -15807,17 +15816,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				const waitForReload = () => setTimeout(function() {
-					const input = $id('recaptcha_response_field');
-					if(input) {
-						input.tabIndex = 5;
-					} else {
-						waitForReload();
-					}
-				}, 1e3);
 				value = function() {
-					$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
-					capClick.click();
+					if(Cfg.altCaptcha) {
+						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
+					} else {
+						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+						capClick.click();
+					}
 					tr.removeAttribute('onclick');
 					return null;
 				};

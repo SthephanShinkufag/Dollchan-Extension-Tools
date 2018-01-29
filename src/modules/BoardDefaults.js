@@ -38,6 +38,7 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.formParent = 'parent';
 		this.formTd = 'td';
+		this.hasAltCaptcha = false; // Differs _4chanOrg only
 		this.hasCatalog = false;
 		this.hasOPNum = false; // Sets in Makaba only
 		this.hasPicWrap = false;

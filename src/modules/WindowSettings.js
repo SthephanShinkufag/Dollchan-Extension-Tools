@@ -732,7 +732,8 @@ const CfgWindow = {
 			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
 			${ pr.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ pr.cap ? `${ this._getInp('capUpdTime') }<br>
+			${ pr.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
+				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }

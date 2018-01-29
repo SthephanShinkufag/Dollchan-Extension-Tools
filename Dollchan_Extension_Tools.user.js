@@ -3693,7 +3693,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.1.15.0';
-	var commit = 'c07d839';
+	var commit = 'a98b209';
 
 
 	var defaultCfg = {
@@ -3781,6 +3781,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		addSageBtn: 1, 
 		saveSage: 1, 
 		sageReply: 0, 
+		altCaptcha: 0, 
 		capUpdTime: 300, 
 		captchaLang: 1, 
 		addTextBtns: 1, 
@@ -3951,6 +3952,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			warnSubjTrip: ['Оповещать о трипкоде в поле "Тема"', 'Warn about a tripcode in "Subject" field', 'Сповіщувати про трипкод в полі "Тема"'],
 			addSageBtn: ['Кнопка Sage вместо поля "Email" ', 'Replace "Email" with Sage button ', 'Кнопка Sage замість "E-mail" '],
 			saveSage: ['Помнить сажу', 'Remember sage', 'Памʼятати сажу'],
+			altCaptcha: ['Использовать альтернативную капчу', 'Use alternative captcha', 'Використовувати альтернативну капчу'],
 			capUpdTime: ['Интервал обновления капчи (сек)', 'Captcha update interval (sec)', 'Інтервал оновлення капчі (сек)'],
 			captchaLang: {
 				sel: [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus'], ['Вимк.', 'Eng', 'Ukr']],
@@ -7758,7 +7760,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib.fch ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + '<input type="button" id="de-cfg-btn-pass' + ('" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.hasAltCaptcha ? this._getBox('altCaptcha') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib.fch ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + '<input type="button" id="de-cfg-btn-pass' + ('" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
@@ -19086,6 +19088,7 @@ true, true];
 			this.firstPage = 0;
 			this.formParent = 'parent';
 			this.formTd = 'td';
+			this.hasAltCaptcha = false; 
 			this.hasCatalog = false;
 			this.hasOPNum = false; 
 			this.hasPicWrap = false;
@@ -20802,6 +20805,7 @@ true, true];
 				_this87.docExt = '';
 				_this87.firstPage = 1;
 				_this87.formParent = 'resto';
+				_this87.hasAltCaptcha = true;
 				_this87.hasCatalog = true;
 				_this87.hasTextLinks = true;
 				_this87.JsonBuilder = _4chanPostsBuilder;
@@ -20897,7 +20901,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,\n\t\t\t\t\t#togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
+					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,\n\t\t\t\t\t#togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
 				}
 			}, {
 				key: 'markupTags',
@@ -20911,19 +20915,13 @@ true, true];
 					var tr = $id('captchaFormPart');
 					if (tr) {
 						var capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-						var waitForReload = function waitForReload() {
-							return setTimeout(function () {
-								var input = $id('recaptcha_response_field');
-								if (input) {
-									input.tabIndex = 5;
-								} else {
-									waitForReload();
-								}
-							}, 1e3);
-						};
 						value = function value() {
-							$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
-							capClick.click();
+							if (Cfg.altCaptcha) {
+								$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
+							} else {
+								$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+								capClick.click();
+							}
 							tr.removeAttribute('onclick');
 							return null;
 						};

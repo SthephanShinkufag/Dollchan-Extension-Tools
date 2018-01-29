@@ -958,6 +958,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 			this.firstPage = 1;
 			this.formParent = 'resto';
+			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
 			this.JsonBuilder = _4chanPostsBuilder;
@@ -976,6 +977,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,
 					#togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
+				#g-recaptcha { height: initial; }
 				.postForm { display: table !important; width: auto !important; }
 				textarea { margin-right: 0 !important; }
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
@@ -988,17 +990,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				const waitForReload = () => setTimeout(function() {
-					const input = $id('recaptcha_response_field');
-					if(input) {
-						input.tabIndex = 5;
-					} else {
-						waitForReload();
-					}
-				}, 1e3);
 				value = function() {
-					$replace($q('#g-recaptcha, #qrCaptchaContainerAlt'), '<div id="g-recaptcha"></div>');
-					capClick.click();
+					if(Cfg.altCaptcha) {
+						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
+					} else {
+						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
+						capClick.click();
+					}
 					tr.removeAttribute('onclick');
 					return null;
 				};

@@ -389,6 +389,10 @@ const Lng = {
 			'Помнить сажу',
 			'Remember sage',
 			'Памʼятати сажу'],
+		altCaptcha: [
+			'Использовать альтернативную капчу',
+			'Use alternative captcha',
+			'Використовувати альтернативну капчу'],
 		capUpdTime: [
 			'Интервал обновления капчи (сек)',
 			'Captcha update interval (sec)',
