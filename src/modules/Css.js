@@ -268,7 +268,7 @@ function scriptCSS() {
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
 	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
-	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
+	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }
 	.de-win-inpost > .de-resizer { display: none; }
 	.de-win-inpost > .de-win-head { background: none; color: inherit; }
