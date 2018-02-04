@@ -29,6 +29,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
+			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -49,7 +50,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
 					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
 					.toolbar-area, .top-user-boards + hr { display: none !important; }
-				.captcha-image > img { cursor: pointer; }
+				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
@@ -160,19 +161,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			if(cap.textEl) {
-				cap.textEl.tabIndex = 999;
+			const box = $q('.captcha-box', cap.parentEl);
+			if(Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
+				box.innerHTML = `<img>
+					<input name="2chaptcha_value" maxlength="6" type="text">
+					<input name="captcha_type" value="2chaptcha" type="hidden">
+					<input name="2chaptcha_id" type="hidden">`;
+				const [img, inp] = [...box.children];
+				img.onclick = () => this.updateCaptcha(cap);
+				inp.tabIndex = 999;
+				cap.textEl = inp;
+			} else {
+				box.innerHTML = `<div id="captcha-widget-main"></div>
+					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
 			}
-			return this.updateCaptcha(cap);
+			return null;
 		}
 		updateCaptcha(cap) {
-			let type;
-			try {
-				type = JSON.parse(locStorage.store).other.captcha_provider || '2chaptcha';
-			} catch(e) {
-				type = '2chaptcha';
-			}
-			const url = cap.textEl ? `/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum :
+			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
 				'/api/captcha/invisible_recaptcha/id';
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
@@ -207,6 +213,12 @@ function getImageBoard(checkDomains, checkEngines) {
 							$script(`grecaptcha.reset(deCapWidget);
 								grecaptcha.execute(deCapWidget);`);
 						}
+						break;
+					} else if(data.type === '2chaptcha') {
+						const img = box.firstChild;
+						img.src = '';
+						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
+						box.lastChild.value = data.id;
 						break;
 					}
 					/* falls through */
@@ -466,7 +478,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,
 					body > div[style^="display: inline;"] { display: none !important; }
 				.divPosts { margin: 0 0; }
-				#formButton { display: initial !important; }`;
+				#formButton { display: initial !important; }
+				.form-post button, .form-post input, .form-post img { width: initial; }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];

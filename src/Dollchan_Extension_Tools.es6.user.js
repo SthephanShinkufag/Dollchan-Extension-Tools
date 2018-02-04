@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.1.15.0';
-const commit = 'dfd0156';
+const commit = 'a303c50';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3237,16 +3237,19 @@ class WinResizer {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.height = Math.max(parseInt(this.tStyle.height, 10) + (
-					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
-				), 90) + 'px';
+				this.tStyle.cssText = `width: ${ this.tStyle.width } !important; height: ` +
+					Math.max(parseInt(this.tStyle.height, 10) + (
+						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+					), 90) + 'px !important;';
 			} else {
 				val = e.clientX;
-				this.tStyle.width = Math.max(parseInt(this.tStyle.width, 10) + (
-					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-					(val > maxX - 20 ? maxX : val) - cr.right
-				), this.name === 'reply' ? 275 : 400) + 'px';
+				this.tStyle.cssText = 'width: ' +
+					Math.max(parseInt(this.tStyle.width, 10) + (
+						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+						(val > maxX - 20 ? maxX : val) - cr.right
+					), this.name === 'reply' ? 275 : 400) +
+					`px !important; height: ${ this.tStyle.height } !important;`;
 			}
 			return;
 		default: // mouseup
@@ -4399,6 +4402,7 @@ const CfgWindow = {
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
 				break;
+			case 'altCaptcha': pr.cap.initCapPromise(); break;
 			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
@@ -8620,7 +8624,8 @@ class PostForm {
 			el.removeAttribute('id');
 		}
 		el.classList.add('de-textarea');
-		el.style.cssText = `width: ${ Cfg.textaWidth }px; height: ${ Cfg.textaHeight }px;`;
+		el.style.cssText = `width: ${ Cfg.textaWidth }px !important; height: ${
+			Cfg.textaHeight }px !important;`;
 		// Allow to scroll page on PgUp/PgDn
 		el.addEventListener('keypress', e => {
 			const code = e.charCode || e.keyCode;
@@ -8650,8 +8655,10 @@ class PostForm {
 		// Make textarea resizer
 		if(nav.isFirefox) {
 			el.addEventListener('mouseup', ({ target }) => {
-				saveCfg('textaWidth', parseInt(target.style.width, 10));
-				saveCfg('textaHeight', parseInt(target.style.height, 10));
+				const { width, height } = target.style;
+				target.style.cssText = `width: ${ width } !important; height: ${ height } !important;`;
+				saveCfg('textaWidth', parseInt(width, 10));
+				saveCfg('textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -8667,8 +8674,8 @@ class PostForm {
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
-					this._elStyle.width = `${ e.clientX - cr.left }px`;
-					this._elStyle.height = `${ e.clientY - cr.top }px`;
+					this._elStyle.cssText = `width: ${ e.clientX - cr.left }px !important; height: ${
+						e.clientY - cr.top }px !important;`;
 					return;
 				}
 				default: // mouseup
@@ -9656,18 +9663,7 @@ class Captcha {
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
 		}
-		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
-		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), e => {
-				if(e instanceof AjaxError) {
-					this._setUpdateError(e);
-				} else {
-					this.hasCaptcha = false;
-				}
-			});
-		} else if(this.hasCaptcha) {
-			this.showCaptcha(true);
-		}
+		this.initCapPromise();
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -9697,6 +9693,20 @@ class Captcha {
 		}
 		$pd(e);
 		e.stopPropagation();
+	}
+	initCapPromise() {
+		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
+		if(initPromise) {
+			initPromise.then(() => this.showCaptcha(), e => {
+				if(e instanceof AjaxError) {
+					this._setUpdateError(e);
+				} else {
+					this.hasCaptcha = false;
+				}
+			});
+		} else if(this.hasCaptcha) {
+			this.showCaptcha(true);
+		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];
@@ -14854,6 +14864,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
+			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -14874,7 +14885,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
 					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
 					.toolbar-area, .top-user-boards + hr { display: none !important; }
-				.captcha-image > img { cursor: pointer; }
+				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
@@ -14985,19 +14996,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			if(cap.textEl) {
-				cap.textEl.tabIndex = 999;
+			const box = $q('.captcha-box', cap.parentEl);
+			if(Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
+				box.innerHTML = `<img>
+					<input name="2chaptcha_value" maxlength="6" type="text">
+					<input name="captcha_type" value="2chaptcha" type="hidden">
+					<input name="2chaptcha_id" type="hidden">`;
+				const [img, inp] = [...box.children];
+				img.onclick = () => this.updateCaptcha(cap);
+				inp.tabIndex = 999;
+				cap.textEl = inp;
+			} else {
+				box.innerHTML = `<div id="captcha-widget-main"></div>
+					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
 			}
-			return this.updateCaptcha(cap);
+			return null;
 		}
 		updateCaptcha(cap) {
-			let type;
-			try {
-				type = JSON.parse(locStorage.store).other.captcha_provider || '2chaptcha';
-			} catch(e) {
-				type = '2chaptcha';
-			}
-			const url = cap.textEl ? `/api/captcha/${ type }/id?board=${ this.b }&thread=` + pr.tNum :
+			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
 				'/api/captcha/invisible_recaptcha/id';
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
@@ -15032,6 +15048,12 @@ function getImageBoard(checkDomains, checkEngines) {
 							$script(`grecaptcha.reset(deCapWidget);
 								grecaptcha.execute(deCapWidget);`);
 						}
+						break;
+					} else if(data.type === '2chaptcha') {
+						const img = box.firstChild;
+						img.src = '';
+						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
+						box.lastChild.value = data.id;
 						break;
 					}
 					/* falls through */
@@ -15291,7 +15313,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,
 					body > div[style^="display: inline;"] { display: none !important; }
 				.divPosts { margin: 0 0; }
-				#formButton { display: initial !important; }`;
+				#formButton { display: initial !important; }
+				.form-post button, .form-post input, .form-post img { width: initial; }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];

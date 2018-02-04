@@ -32,18 +32,7 @@ class Captcha {
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
 		}
-		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
-		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), e => {
-				if(e instanceof AjaxError) {
-					this._setUpdateError(e);
-				} else {
-					this.hasCaptcha = false;
-				}
-			});
-		} else if(this.hasCaptcha) {
-			this.showCaptcha(true);
-		}
+		this.initCapPromise();
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -73,6 +62,20 @@ class Captcha {
 		}
 		$pd(e);
 		e.stopPropagation();
+	}
+	initCapPromise() {
+		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
+		if(initPromise) {
+			initPromise.then(() => this.showCaptcha(), e => {
+				if(e instanceof AjaxError) {
+					this._setUpdateError(e);
+				} else {
+					this.hasCaptcha = false;
+				}
+			});
+		} else if(this.hasCaptcha) {
+			this.showCaptcha(true);
+		}
 	}
 	initImage(img) {
 		img.title = Lng.refresh[lang];

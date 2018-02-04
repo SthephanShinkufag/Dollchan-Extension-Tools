@@ -395,6 +395,7 @@ const CfgWindow = {
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
 				updateCSS();
 				break;
+			case 'altCaptcha': pr.cap.initCapPromise(); break;
 			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
