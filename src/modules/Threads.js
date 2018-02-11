@@ -199,7 +199,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImagesLinks(el);
+		processImgInfoLinks(el);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {

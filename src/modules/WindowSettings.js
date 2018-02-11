@@ -277,9 +277,7 @@ const CfgWindow = {
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
-				if(Attachment.viewer) {
-					Attachment.viewer.close();
-				}
+				Attachment.close();
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
@@ -364,7 +362,7 @@ const CfgWindow = {
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
-						processImagesLinks(el, 1, 0);
+						processImgInfoLinks(el, 1, 0);
 					}
 				} else {
 					$each($Q('.de-btn-src'), el => el.remove());
@@ -373,7 +371,7 @@ const CfgWindow = {
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
 					for(const { el } of DelForm) {
-						processImagesLinks(el, 0, 1);
+						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
 					$each($Q('.de-img-name'), link => {

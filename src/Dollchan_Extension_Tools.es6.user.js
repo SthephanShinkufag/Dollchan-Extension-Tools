@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '199df2f';
+const commit = '4d7a593';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4292,9 +4292,7 @@ const CfgWindow = {
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
-				if(Attachment.viewer) {
-					Attachment.viewer.close();
-				}
+				Attachment.close();
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
@@ -4379,7 +4377,7 @@ const CfgWindow = {
 			case 'imgSrcBtns':
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
-						processImagesLinks(el, 1, 0);
+						processImgInfoLinks(el, 1, 0);
 					}
 				} else {
 					$each($Q('.de-btn-src'), el => el.remove());
@@ -4388,7 +4386,7 @@ const CfgWindow = {
 			case 'delImgNames':
 				if(Cfg.delImgNames) {
 					for(const { el } of DelForm) {
-						processImagesLinks(el, 0, 1);
+						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
 					$each($Q('.de-img-name'), link => {
@@ -5192,15 +5190,11 @@ const HotKeys = {
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
 			}
-			if(Attachment.viewer) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = null;
-			}
+			Attachment.close();
 			Pages.load(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
 			if(Attachment.viewer) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = null;
+				Attachment.close();
 				return;
 			}
 			if(this.cPost) {
@@ -6816,10 +6810,7 @@ const Pages = {
 		pByEl = new Map();
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
-		if(Attachment.viewer) {
-			Attachment.viewer.close(null);
-			Attachment.viewer = null;
-		}
+		Attachment.close();
 		if(pr.isQuick) {
 			pr.clearForm();
 		}
@@ -9906,7 +9897,7 @@ class AbstractPost {
 		RefMap.upd(this, true);
 		embedMediaLinks(this);
 		if(Cfg.addImgs) {
-			embedImagesLinks(this.el);
+			embedPostMsgImages(this.el);
 		}
 	}
 	handleEvent(e) {
@@ -11057,8 +11048,8 @@ class Pview extends AbstractPost {
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = vPost = null;
+				Attachment.close();
+				vPost = null;
 			}
 			const { el } = pv;
 			pByEl.delete(el);
@@ -11248,9 +11239,9 @@ class Pview extends AbstractPost {
 				new VideosParser().parse(this).end();
 			}
 			if(Cfg.addImgs) {
-				embedImagesLinks(pviewEl);
+				embedPostMsgImages(pviewEl);
 			}
-			processImagesLinks(pviewEl);
+			processImgInfoLinks(pviewEl);
 		} else {
 			let el = this._pref.nextSibling;
 			this.btns = el;
@@ -11387,8 +11378,9 @@ PviewsCache.purgeSecs = 3e5;
                images expanding (in post / by center), navigate buttons, image-links embedding
 =========================================================================================================== */
 
-class ImgBtnsShowHider {
-	constructor(nextFn, prevFn, autoFn) {
+// Navigation buttons for expanding of images/videos by center
+class ImagesNavigation {
+	constructor(viewerObj) {
 		const btns = $bEnd(docBody, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
@@ -11397,16 +11389,13 @@ class ImgBtnsShowHider {
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
-		this._autoFn = autoFn;
 		this._btns = btns;
 		this._btnsStyle = btns.style;
-		this._hasEvents = false;
 		this._hidden = true;
 		this._hideTmt = 0;
-		this._nextFn = nextFn;
 		this._oldX = -1;
 		this._oldY = -1;
-		this._prevFn = prevFn;
+		this._viewer = viewerObj;
 		doc.defaultView.addEventListener('mousemove', this);
 		btns.addEventListener('mouseover', this);
 	}
@@ -11429,18 +11418,21 @@ class ImgBtnsShowHider {
 			}
 			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
-				KeyEditListener.setTitle(this.nextBtn, 17);
 				KeyEditListener.setTitle(this.prevBtn, 4);
+				KeyEditListener.setTitle(this.nextBtn, 17);
 			}
 			return;
 		case 'mouseout': this._setHideTmt(); return;
 		case 'click': {
 			const parent = e.target.parentNode;
+			const viewer = this._viewer;
 			switch(parent.id) {
-			case 'de-img-btn-prev': this._prevFn(); return;
-			case 'de-img-btn-next': this._nextFn(); return;
+			case 'de-img-btn-prev': viewer.navigate(false); return;
+			case 'de-img-btn-next': viewer.navigate(true); return;
 			case 'de-img-btn-auto':
-				this._autoFn();
+				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
+					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
+				viewer.toggleVideoLoop();
 				parent.classList.toggle('de-img-btn-auto-on');
 			}
 		}
@@ -11470,6 +11462,7 @@ class ImgBtnsShowHider {
 	}
 }
 
+// Expanding of images/videos BY CENTER: resizing, moving, opening, closing
 class AttachmentViewer {
 	constructor(data) {
 		this.data = null;
@@ -11564,21 +11557,23 @@ class AttachmentViewer {
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
 	}
+	toggleVideoLoop() {
+		if(this.data.isVideo) {
+			const el = this._fullEl.firstElementChild;
+			if(this.isAutoPlay) {
+				el.removeAttribute('loop');
+			} else {
+				el.setAttribute('loop', '');
+			}
+		}
+	}
 	update(data, showButtons, e) {
 		this._remove(e);
 		this._show(data, showButtons);
 	}
 
 	get _btns() {
-		const value = new ImgBtnsShowHider(
-			() => this.navigate(true),
-			() => this.navigate(false),
-			() => {
-				this.isAutoPlay = !this.isAutoPlay;
-				this._toggleAutoPlay();
-				this._btns.autoBtn.title = this.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
-			}
-		);
+		const value = new ImagesNavigation(this);
 		Object.defineProperty(this, '_btns', { value });
 		return value;
 	}
@@ -11696,29 +11691,20 @@ class AttachmentViewer {
 		}
 		if(!data.inPview) {
 			this._btns.show();
+			if(data.isVideo) {
+				this._btns.autoBtn.classList.remove('de-img-btn-none');
+			} else {
+				this._btns.autoBtn.classList.add('de-img-btn-none');
+			}
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
 		}
 		data.post.thr.form.el.appendChild(obj);
-		this._toggleAutoPlay();
-		if(data.isVideo) {
-			this._btns.autoBtn.classList.remove('de-img-btn-none');
-		} else {
-			this._btns.autoBtn.classList.add('de-img-btn-none');
-		}
-	}
-	_toggleAutoPlay() {
-		if(this.data.isVideo) {
-			const el = this._fullEl.firstElementChild;
-			if(this.isAutoPlay) {
-				el.removeAttribute('loop');
-			} else {
-				el.setAttribute('loop', '');
-			}
-		}
+		this.toggleVideoLoop();
 	}
 }
 
+// Post images/videos main initialization
 class ExpandableMedia {
 	constructor(post, el, prev) {
 		this.el = el;
@@ -12049,6 +12035,7 @@ class ExpandableMedia {
 	}
 }
 
+// Initialization of embedded previews in post message
 class EmbeddedImage extends ExpandableMedia {
 	_getImageParent() {
 		return this.el.parentNode;
@@ -12061,7 +12048,14 @@ class EmbeddedImage extends ExpandableMedia {
 	}
 }
 
+// Initialization of post attachment images/videos
 class Attachment extends ExpandableMedia {
+	static close() {
+		if(Attachment.viewer) {
+			Attachment.viewer.close(null);
+			Attachment.viewer = null;
+		}
+	}
 	get info() {
 		const value = aib.getImgInfo(aib.getImgWrap(this.el));
 		Object.defineProperty(this, 'info', { value });
@@ -12176,7 +12170,8 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
+// Adding features for info links of images
+function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {
 		return;
 	}
@@ -12203,7 +12198,8 @@ function processImagesLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNa
 	}
 }
 
-function embedImagesLinks(el) {
+// Adding image previews before links in post message
+function embedPostMsgImages(el) {
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
@@ -13194,7 +13190,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImagesLinks(el);
+		processImgInfoLinks(el);
 		post.addFuncs();
 		preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -14334,10 +14330,10 @@ class DelForm {
 			Logger.log('Video links');
 		}
 		if(Cfg.addImgs) {
-			embedImagesLinks(el);
+			embedPostMsgImages(el);
 			Logger.log('Image-links');
 		}
-		processImagesLinks(el);
+		processImgInfoLinks(el);
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');

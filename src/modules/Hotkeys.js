@@ -85,15 +85,11 @@ const HotKeys = {
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
 			}
-			if(Attachment.viewer) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = null;
-			}
+			Attachment.close();
 			Pages.load(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
 			if(Attachment.viewer) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = null;
+				Attachment.close();
 				return;
 			}
 			if(this.cPost) {

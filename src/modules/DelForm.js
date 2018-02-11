@@ -134,10 +134,10 @@ class DelForm {
 			Logger.log('Video links');
 		}
 		if(Cfg.addImgs) {
-			embedImagesLinks(el);
+			embedPostMsgImages(el);
 			Logger.log('Image-links');
 		}
-		processImagesLinks(el);
+		processImgInfoLinks(el);
 		Logger.log('Image names');
 		RefMap.init(this);
 		Logger.log('Reflinks map');

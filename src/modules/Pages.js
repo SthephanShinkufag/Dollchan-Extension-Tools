@@ -37,10 +37,7 @@ const Pages = {
 		pByEl = new Map();
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
-		if(Attachment.viewer) {
-			Attachment.viewer.close(null);
-			Attachment.viewer = null;
-		}
+		Attachment.close();
 		if(pr.isQuick) {
 			pr.clearForm();
 		}

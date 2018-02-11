@@ -52,7 +52,7 @@ class AbstractPost {
 		RefMap.upd(this, true);
 		embedMediaLinks(this);
 		if(Cfg.addImgs) {
-			embedImagesLinks(this.el);
+			embedPostMsgImages(this.el);
 		}
 	}
 	handleEvent(e) {

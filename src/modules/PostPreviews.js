@@ -144,8 +144,8 @@ class Pview extends AbstractPost {
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
-				Attachment.viewer.close(null);
-				Attachment.viewer = vPost = null;
+				Attachment.close();
+				vPost = null;
 			}
 			const { el } = pv;
 			pByEl.delete(el);
@@ -335,9 +335,9 @@ class Pview extends AbstractPost {
 				new VideosParser().parse(this).end();
 			}
 			if(Cfg.addImgs) {
-				embedImagesLinks(pviewEl);
+				embedPostMsgImages(pviewEl);
 			}
-			processImagesLinks(pviewEl);
+			processImgInfoLinks(pviewEl);
 		} else {
 			let el = this._pref.nextSibling;
 			this.btns = el;
