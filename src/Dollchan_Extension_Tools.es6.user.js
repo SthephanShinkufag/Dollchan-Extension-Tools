@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = 'bb7d00a';
+const commit = '199df2f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1316,6 +1316,14 @@ const Lng = {
 		'Предыдущая картинка',
 		'Previous image',
 		'Попереднє зображення'],
+	autoPlayOn: [
+		'Автоматически воспроизводить следующее видео',
+		'Automatically play the next video',
+		'Автоматично відтворювати наступне відео'],
+	autoPlayOff: [
+		'Отключить автовоспроизведение',
+		'Disable autoplay',
+		'Відключити автовідтворення'],
 	downloadFile: [
 		'Скачать содержащийся в картинке файл',
 		'Download embedded file from the image',
@@ -11380,10 +11388,16 @@ PviewsCache.purgeSecs = 3e5;
 =========================================================================================================== */
 
 class ImgBtnsShowHider {
-	constructor(nextFn, prevFn) {
-		const btns = $bEnd(docBody, '<div style="display: none;">' +
-			`<div id="de-img-btn-next" de-title="${ Lng.nextImg[lang] }"></div>` +
-			`<div id="de-img-btn-prev" de-title="${ Lng.prevImg[lang] }"></div></div>`);
+	constructor(nextFn, prevFn, autoFn) {
+		const btns = $bEnd(docBody, `<div style="display: none;">
+			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
+			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
+			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>`);
+		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
+		this._autoFn = autoFn;
 		this._btns = btns;
 		this._btnsStyle = btns.style;
 		this._hasEvents = false;
@@ -11415,16 +11429,21 @@ class ImgBtnsShowHider {
 			}
 			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
-				KeyEditListener.setTitle(this._btns.firstChild, 17);
-				KeyEditListener.setTitle(this._btns.lastChild, 4);
+				KeyEditListener.setTitle(this.nextBtn, 17);
+				KeyEditListener.setTitle(this.prevBtn, 4);
 			}
 			return;
 		case 'mouseout': this._setHideTmt(); return;
-		case 'click':
-			switch(e.target.id) {
+		case 'click': {
+			const parent = e.target.parentNode;
+			switch(parent.id) {
+			case 'de-img-btn-prev': this._prevFn(); return;
 			case 'de-img-btn-next': this._nextFn(); return;
-			case 'de-img-btn-prev': this._prevFn();
+			case 'de-img-btn-auto':
+				this._autoFn();
+				parent.classList.toggle('de-img-btn-auto-on');
 			}
+		}
 		}
 	}
 	hide() {
@@ -11454,6 +11473,7 @@ class ImgBtnsShowHider {
 class AttachmentViewer {
 	constructor(data) {
 		this.data = null;
+		this.isAutoPlay = false;
 		this._data = null;
 		this._elStyle = null;
 		this._fullEl = null;
@@ -11533,12 +11553,12 @@ class AttachmentViewer {
 		}
 		$pd(e);
 	}
-	navigate(isForward) {
+	navigate(isForward, isVideoOnly = false) {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
 			data = data.getFollow(isForward);
-		} while(data && !data.isVideo && !data.isImage);
+		} while(data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 		if(data) {
 			this.update(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
@@ -11550,7 +11570,15 @@ class AttachmentViewer {
 	}
 
 	get _btns() {
-		const value = new ImgBtnsShowHider(() => this.navigate(true), () => this.navigate(false));
+		const value = new ImgBtnsShowHider(
+			() => this.navigate(true),
+			() => this.navigate(false),
+			() => {
+				this.isAutoPlay = !this.isAutoPlay;
+				this._toggleAutoPlay();
+				this._btns.autoBtn.title = this.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
+			}
+		);
 		Object.defineProperty(this, '_btns', { value });
 		return value;
 	}
@@ -11583,35 +11611,6 @@ class AttachmentViewer {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
-	}
-	_show(data) {
-		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
-		this._width = width;
-		this._height = height;
-		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
-		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
-		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const obj = $add(`<div class="de-fullimg-center" style="top:${
-			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
-			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
-			.appendChild(this._fullEl);
-		this._elStyle = obj.style;
-		this.data = data;
-		this._obj = obj;
-		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-		obj.addEventListener('mousedown', this, true);
-		obj.addEventListener('click', this, true);
-		if(data.inPview && !data.post.isSticky) {
-			this.data.post.setSticky(true);
-		}
-		if(!data.inPview) {
-			this._btns.show();
-		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hide();
-		}
-		data.post.thr.form.el.appendChild(obj);
 	}
 	_remove(e) {
 		const { data } = this;
@@ -11672,6 +11671,51 @@ class AttachmentViewer {
 		const halfHeight = _height / 2;
 		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
+	}
+	_show(data) {
+		const [width, height, minSize] = data.computeFullSize();
+		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
+		this._width = width;
+		this._height = height;
+		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
+		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
+		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+		const obj = $add(`<div class="de-fullimg-center" style="top:${
+			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
+			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
+		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+			.appendChild(this._fullEl);
+		this._elStyle = obj.style;
+		this.data = data;
+		this._obj = obj;
+		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
+		obj.addEventListener('mousedown', this, true);
+		obj.addEventListener('click', this, true);
+		if(data.inPview && !data.post.isSticky) {
+			this.data.post.setSticky(true);
+		}
+		if(!data.inPview) {
+			this._btns.show();
+		} else if(this.hasOwnProperty('_btns')) {
+			this._btns.hide();
+		}
+		data.post.thr.form.el.appendChild(obj);
+		this._toggleAutoPlay();
+		if(data.isVideo) {
+			this._btns.autoBtn.classList.remove('de-img-btn-none');
+		} else {
+			this._btns.autoBtn.classList.add('de-img-btn-none');
+		}
+	}
+	_toggleAutoPlay() {
+		if(this.data.isVideo) {
+			const el = this._fullEl.firstElementChild;
+			if(this.isAutoPlay) {
+				el.removeAttribute('loop');
+			} else {
+				el.setAttribute('loop', '');
+			}
+		}
 	}
 }
 
@@ -11911,6 +11955,7 @@ class ExpandableMedia {
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
+		videoEl.addEventListener('ended', () => Attachment.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
 				target.load();
@@ -13485,12 +13530,12 @@ const navPanel = {
 	init() {
 		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
-			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
+			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
 			<div id="de-thr-navup">
-				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg>
+				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-up"/></svg>
 			</div>
 			<div id="de-thr-navdown">
-				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>
+				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>
 			</div>
 		</div>`);
 		el.addEventListener('mouseover', this, true);
@@ -16910,15 +16955,24 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
 	</symbol>
 
-	<!-- NAVIGATION PANEL ICONS -->
-	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
+	<!-- THREAD NAVIGATION ICONS -->
+	<symbol viewBox="0 0 7 7" id="de-symbol-thr-nav-arrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
 	</symbol>
-	<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">
-		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
+	<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-up">
+		<path class="de-svg-stroke" stroke-width="3" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
 	</symbol>
-	<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">
-		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
+	<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-down">
+		<path class="de-svg-stroke" stroke-width="3" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
+	</symbol>
+
+	<!-- IMAGE BUTTON ICONS -->
+	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-arrow">
+		<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>
+		<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>
+	</symbol>
+	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-auto">
+		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
 	</symbol>
 
 	<!-- MAIN PANEL -->
@@ -17087,22 +17141,22 @@ function scriptCSS() {
 
 	switch(Cfg.scriptStyle) {
 	case 0: // Gradient darkblue
-		x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
+		x += '.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
 		break;
 	case 1: // gradient blue
-		x += `#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
+		x += `.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
 			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`;
 		break;
 	case 2: // solid grey
-		x += `#de-panel, .de-win-head { background-color: #777; }
+		x += `.de-img-btn, #de-panel, .de-win-head { background-color: #777; }
 			#de-panel-buttons, #de-panel-info { border-color: #ccc; }
 			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`;
 		break;
 	case 3: // transparent blue
-		x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
+		x += '.de-img-btn, #de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
 		break;
 	case 4: // square dark
-		x += `#de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
+		x += `.de-img-btn, #de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
 			#de-win-reply.de-win { border-radius: 0 !important; }
 			#de-panel-buttons, #de-panel-info { border-color: #666; }`;
 	}
@@ -17265,9 +17319,12 @@ function scriptCSS() {
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
-	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
-	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }
-	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }` +
+	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
+	#de-img-btn-auto { right: 0; margin-top: 20px; }
+	.de-img-btn-auto-on { color: #ffe100; }
+	#de-img-btn-next { right: 0; margin-top: -18px; }
+	.de-img-btn-none { display: none; }
+	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }` +
 
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
@@ -17462,7 +17519,7 @@ function updateCSS() {
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
-	${ Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ' }
+	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }
 	${ Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }

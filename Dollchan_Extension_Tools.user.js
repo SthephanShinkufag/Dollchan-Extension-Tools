@@ -3451,8 +3451,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var runMain = function () {
-		var _ref109 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(checkDomains, dataPromise) {
-			var formEl, eList, fav, _ref110, _ref111, _ref112, _ref113, oldMain, storageName, firstThr;
+		var _ref110 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(checkDomains, dataPromise) {
+			var formEl, eList, fav, _ref111, _ref112, _ref113, _ref114, oldMain, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee20$(_context25) {
 				while (1) {
@@ -3526,10 +3526,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise;
 
 						case 21:
-							_ref110 = _context25.sent;
-							_ref111 = _slicedToArray(_ref110, 2);
-							eList = _ref111[0];
-							fav = _ref111[1];
+							_ref111 = _context25.sent;
+							_ref112 = _slicedToArray(_ref111, 2);
+							eList = _ref112[0];
+							fav = _ref112[1];
 							_context25.next = 33;
 							break;
 
@@ -3538,10 +3538,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return readData();
 
 						case 29:
-							_ref112 = _context25.sent;
-							_ref113 = _slicedToArray(_ref112, 2);
-							eList = _ref113[0];
-							fav = _ref113[1];
+							_ref113 = _context25.sent;
+							_ref114 = _slicedToArray(_ref113, 2);
+							eList = _ref114[0];
+							fav = _ref114[1];
 
 						case 33:
 							if (!(eList && eList.includes(aib.dm))) {
@@ -3683,8 +3683,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee20, this, [[61, 66]]);
 		}));
 
-		return function runMain(_x77, _x78) {
-			return _ref109.apply(this, arguments);
+		return function runMain(_x78, _x79) {
+			return _ref110.apply(this, arguments);
 		};
 	}();
 
@@ -3693,7 +3693,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.8.0';
-	var commit = 'bb7d00a';
+	var commit = '199df2f';
 
 
 	var defaultCfg = {
@@ -4152,6 +4152,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		expImgFull: ['[Click] открыть по центру, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post', '[Click] розгорнути в центрі, [Ctrl+Click] в пості'],
 		nextImg: ['Следующая картинка', 'Next image', 'Наступне зображення'],
 		prevImg: ['Предыдущая картинка', 'Previous image', 'Попереднє зображення'],
+		autoPlayOn: ['Автоматически воспроизводить следующее видео', 'Automatically play the next video', 'Автоматично відтворювати наступне відео'],
+		autoPlayOff: ['Отключить автовоспроизведение', 'Disable autoplay', 'Відключити автовідтворення'],
 		downloadFile: ['Скачать содержащийся в картинке файл', 'Download embedded file from the image', 'Завантажити файл, що міститься в зображенні'],
 		openOriginal: ['Открыть оригинал в новой вкладке', 'Open the original image in new tab', 'Відкрити оригінал в новій вкладці'],
 
@@ -15441,10 +15443,18 @@ true, true];
 
 
 	var ImgBtnsShowHider = function () {
-		function ImgBtnsShowHider(nextFn, prevFn) {
+		function ImgBtnsShowHider(nextFn, prevFn, autoFn) {
 			_classCallCheck(this, ImgBtnsShowHider);
 
-			var btns = $bEnd(docBody, '<div style="display: none;">' + ('<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"></div>') + ('<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"></div></div>'));
+			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>');
+
+			var _ref77 = [].concat(_toConsumableArray(btns.children));
+
+			this.prevBtn = _ref77[0];
+			this.nextBtn = _ref77[1];
+			this.autoBtn = _ref77[2];
+
+			this._autoFn = autoFn;
 			this._btns = btns;
 			this._btnsStyle = btns.style;
 			this._hasEvents = false;
@@ -15482,18 +15492,24 @@ true, true];
 						}
 						if (!this._hidden) {
 							clearTimeout(this._hideTmt);
-							KeyEditListener.setTitle(this._btns.firstChild, 17);
-							KeyEditListener.setTitle(this._btns.lastChild, 4);
+							KeyEditListener.setTitle(this.nextBtn, 17);
+							KeyEditListener.setTitle(this.prevBtn, 4);
 						}
 						return;
 					case 'mouseout':
 						this._setHideTmt();return;
 					case 'click':
-						switch (e.target.id) {
-							case 'de-img-btn-next':
-								this._nextFn();return;
-							case 'de-img-btn-prev':
-								this._prevFn();
+						{
+							var parent = e.target.parentNode;
+							switch (parent.id) {
+								case 'de-img-btn-prev':
+									this._prevFn();return;
+								case 'de-img-btn-next':
+									this._nextFn();return;
+								case 'de-img-btn-auto':
+									this._autoFn();
+									parent.classList.toggle('de-img-btn-auto-on');
+							}
 						}
 				}
 			}
@@ -15540,6 +15556,7 @@ true, true];
 			_classCallCheck(this, AttachmentViewer);
 
 			this.data = null;
+			this.isAutoPlay = false;
 			this._data = null;
 			this._elStyle = null;
 			this._fullEl = null;
@@ -15625,12 +15642,13 @@ true, true];
 		}, {
 			key: 'navigate',
 			value: function navigate(isForward) {
+				var isVideoOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var data = this.data;
 
 				data.cancelWebmLoad(this._fullEl);
 				do {
 					data = data.getFollow(isForward);
-				} while (data && !data.isVideo && !data.isImage);
+				} while (data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 				if (data) {
 					this.update(data, true, null);
 					data.post.selectAndScrollTo(data.post.images.first.el);
@@ -15673,45 +15691,6 @@ true, true];
 				this._elStyle.top = this._oldT + 'px';
 			}
 		}, {
-			key: '_show',
-			value: function _show(data) {
-				var _this51 = this;
-
-				var _data$computeFullSize = data.computeFullSize(),
-				    _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
-				    width = _data$computeFullSize2[0],
-				    height = _data$computeFullSize2[1],
-				    minSize = _data$computeFullSize2[2];
-
-				this._fullEl = data.getFullObject(false, function (el) {
-					return _this51._resize(el);
-				}, function (el) {
-					return _this51._rotate(el);
-				});
-				this._width = width;
-				this._height = height;
-				this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
-				this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
-				this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-				var obj = $add('<div class="de-fullimg-center" style="top:' + (this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
-				(data.isImage ? $aBegin(obj, '<a class="de-fullimg-wrap-link" href="' + data.src + '"></a>') : obj).appendChild(this._fullEl);
-				this._elStyle = obj.style;
-				this.data = data;
-				this._obj = obj;
-				obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-				obj.addEventListener('mousedown', this, true);
-				obj.addEventListener('click', this, true);
-				if (data.inPview && !data.post.isSticky) {
-					this.data.post.setSticky(true);
-				}
-				if (!data.inPview) {
-					this._btns.show();
-				} else if (this.hasOwnProperty('_btns')) {
-					this._btns.hide();
-				}
-				data.post.thr.form.el.appendChild(obj);
-			}
-		}, {
 			key: '_remove',
 			value: function _remove(e) {
 				var data = this.data;
@@ -15732,11 +15711,11 @@ true, true];
 					return;
 				}
 
-				var _data$computeFullSize3 = this.data.computeFullSize(),
-				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
-				    width = _data$computeFullSize4[0],
-				    height = _data$computeFullSize4[1],
-				    minSize = _data$computeFullSize4[2];
+				var _data$computeFullSize = this.data.computeFullSize(),
+				    _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
+				    width = _data$computeFullSize2[0],
+				    height = _data$computeFullSize2[1],
+				    minSize = _data$computeFullSize2[2];
 
 				this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 				if (Post.sizing.wWidth - this._oldL - this._width < 5 || Post.sizing.wHeight - this._oldT - this._height < 5) {
@@ -15785,6 +15764,63 @@ true, true];
 				this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 			}
 		}, {
+			key: '_show',
+			value: function _show(data) {
+				var _this51 = this;
+
+				var _data$computeFullSize3 = data.computeFullSize(),
+				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
+				    width = _data$computeFullSize4[0],
+				    height = _data$computeFullSize4[1],
+				    minSize = _data$computeFullSize4[2];
+
+				this._fullEl = data.getFullObject(false, function (el) {
+					return _this51._resize(el);
+				}, function (el) {
+					return _this51._rotate(el);
+				});
+				this._width = width;
+				this._height = height;
+				this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
+				this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
+				this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+				var obj = $add('<div class="de-fullimg-center" style="top:' + (this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
+				(data.isImage ? $aBegin(obj, '<a class="de-fullimg-wrap-link" href="' + data.src + '"></a>') : obj).appendChild(this._fullEl);
+				this._elStyle = obj.style;
+				this.data = data;
+				this._obj = obj;
+				obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
+				obj.addEventListener('mousedown', this, true);
+				obj.addEventListener('click', this, true);
+				if (data.inPview && !data.post.isSticky) {
+					this.data.post.setSticky(true);
+				}
+				if (!data.inPview) {
+					this._btns.show();
+				} else if (this.hasOwnProperty('_btns')) {
+					this._btns.hide();
+				}
+				data.post.thr.form.el.appendChild(obj);
+				this._toggleAutoPlay();
+				if (data.isVideo) {
+					this._btns.autoBtn.classList.remove('de-img-btn-none');
+				} else {
+					this._btns.autoBtn.classList.add('de-img-btn-none');
+				}
+			}
+		}, {
+			key: '_toggleAutoPlay',
+			value: function _toggleAutoPlay() {
+				if (this.data.isVideo) {
+					var el = this._fullEl.firstElementChild;
+					if (this.isAutoPlay) {
+						el.removeAttribute('loop');
+					} else {
+						el.setAttribute('loop', '');
+					}
+				}
+			}
+		}, {
 			key: '_btns',
 			get: function get() {
 				var _this52 = this;
@@ -15793,6 +15829,10 @@ true, true];
 					return _this52.navigate(true);
 				}, function () {
 					return _this52.navigate(false);
+				}, function () {
+					_this52.isAutoPlay = !_this52.isAutoPlay;
+					_this52._toggleAutoPlay();
+					_this52._btns.autoBtn.title = _this52.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
 				});
 				Object.defineProperty(this, '_btns', { value: value });
 				return value;
@@ -15984,8 +16024,8 @@ true, true];
 					var waitEl = inPost || this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</div>\n\t\t\t</div>');
 					var img = $q('.de-fullimg', wrapEl);
-					img.onload = img.onerror = function (_ref77) {
-						var target = _ref77.target;
+					img.onload = img.onerror = function (_ref78) {
+						var target = _ref78.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -16032,8 +16072,11 @@ true, true];
 				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '"' + inPostSize + '>\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" loop autoplay ' + ('' + (Cfg.webmControl ? 'controls ' : '')) + ((Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + '\n\t\t\t\t' + (needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
 				var videoEl = wrapEl.firstElementChild;
 				videoEl.volume = Cfg.webmVolume / 100;
-				videoEl.addEventListener('error', function (_ref78) {
-					var target = _ref78.target;
+				videoEl.addEventListener('ended', function () {
+					return Attachment.viewer.navigate(true, true);
+				});
+				videoEl.addEventListener('error', function (_ref79) {
+					var target = _ref79.target;
 
 					if (!target.onceLoaded) {
 						target.load();
@@ -16300,11 +16343,11 @@ true, true];
 			return value;
 		},
 		_getHashHelper: function () {
-			var _ref80 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref79) {
+			var _ref81 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref80) {
 				var _this57 = this;
 
-				var el = _ref79.el,
-				    src = _ref79.src;
+				var el = _ref80.el,
+				    src = _ref80.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee16$(_context17) {
 					while (1) {
@@ -16401,8 +16444,8 @@ true, true];
 				}, _callee16, this);
 			}));
 
-			function _getHashHelper(_x53) {
-				return _ref80.apply(this, arguments);
+			function _getHashHelper(_x54) {
+				return _ref81.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -16453,11 +16496,11 @@ true, true];
 		}
 	}
 
-	function genImgHash(_ref81) {
-		var _ref82 = _slicedToArray(_ref81, 3),
-		    arrBuf = _ref82[0],
-		    oldw = _ref82[1],
-		    oldh = _ref82[2];
+	function genImgHash(_ref82) {
+		var _ref83 = _slicedToArray(_ref82, 3),
+		    arrBuf = _ref83[0],
+		    oldw = _ref83[1],
+		    oldh = _ref83[2];
 
 		var buf = new Uint8Array(arrBuf);
 		var size = oldw * oldh;
@@ -16759,26 +16802,26 @@ true, true];
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i38 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref83;
+					var _ref84;
 
 					if (_isArray27) {
 						if (_i38 >= _iterator27.length) break;
-						_ref83 = _iterator27[_i38++];
+						_ref84 = _iterator27[_i38++];
 					} else {
 						_i38 = _iterator27.next();
 						if (_i38.done) break;
-						_ref83 = _i38.value;
+						_ref84 = _i38.value;
 					}
 
-					var _ref84 = _ref83,
-					    file_id = _ref84.file_id,
-					    metadata = _ref84.metadata,
-					    rating = _ref84.rating,
-					    size = _ref84.size,
-					    src = _ref84.src,
-					    thumb = _ref84.thumb,
-					    thumb_height = _ref84.thumb_height,
-					    thumb_width = _ref84.thumb_width;
+					var _ref85 = _ref84,
+					    file_id = _ref85.file_id,
+					    metadata = _ref85.metadata,
+					    rating = _ref85.rating,
+					    size = _ref85.size,
+					    src = _ref85.src,
+					    thumb = _ref85.thumb,
+					    thumb_height = _ref85.thumb_height,
+					    thumb_width = _ref85.thumb_width;
 
 					var fileName = void 0,
 					    fullFileName = void 0,
@@ -16885,18 +16928,18 @@ true, true];
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images images-' + (data.files.length === 1 ? 'single' : 'multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i39 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref85;
+						var _ref86;
 
 						if (_isArray28) {
 							if (_i39 >= _iterator28.length) break;
-							_ref85 = _iterator28[_i39++];
+							_ref86 = _iterator28[_i39++];
 						} else {
 							_i39 = _iterator28.next();
 							if (_i39.done) break;
-							_ref85 = _i39.value;
+							_ref86 = _i39.value;
 						}
 
-						var file = _ref85;
+						var file = _ref86;
 
 						var imgId = num + '-' + file.md5;
 						var _file$fullname = file.fullname,
@@ -16926,7 +16969,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i40, _ref86, _ref87, banned, num;
+				var _iterator29, _isArray29, _i40, _ref87, _ref88, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -16948,7 +16991,7 @@ true, true];
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref86 = _iterator29[_i40++];
+								_ref87 = _iterator29[_i40++];
 								_context21.next = 11;
 								break;
 
@@ -16963,10 +17006,10 @@ true, true];
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref86 = _i40.value;
+								_ref87 = _i40.value;
 
 							case 11:
-								_ref87 = _ref86, banned = _ref87.banned, num = _ref87.num;
+								_ref88 = _ref87, banned = _ref88.banned, num = _ref88.num;
 								_context21.t0 = banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -17060,19 +17103,19 @@ true, true];
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i41 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref88;
+						var _ref89;
 
 						if (_isArray30) {
 							if (_i41 >= _iterator30.length) break;
-							_ref88 = _iterator30[_i41++];
+							_ref89 = _iterator30[_i41++];
 						} else {
 							_i41 = _iterator30.next();
 							if (_i41.done) break;
-							_ref88 = _i41.value;
+							_ref89 = _i41.value;
 						}
 
-						var _ref89 = _ref88,
-						    images = _ref89.images;
+						var _ref90 = _ref89,
+						    images = _ref90.images;
 						var orig = images.original,
 						    thumb200 = images.thumb_200px,
 						    thumb400 = images.thumb_400px;
@@ -17142,18 +17185,18 @@ true, true];
 				}
 				this._hidden = true;
 				for (var _iterator31 = this._set, _isArray31 = Array.isArray(_iterator31), _i42 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref90;
+					var _ref91;
 
 					if (_isArray31) {
 						if (_i42 >= _iterator31.length) break;
-						_ref90 = _iterator31[_i42++];
+						_ref91 = _iterator31[_i42++];
 					} else {
 						_i42 = _iterator31.next();
 						if (_i42.done) break;
-						_ref90 = _i42.value;
+						_ref91 = _i42.value;
 					}
 
-					var num = _ref90;
+					var num = _ref91;
 
 					var post = pByNum.get(num);
 					if (post && !post.hidden) {
@@ -17172,18 +17215,18 @@ true, true];
 			value: function init(tUrl, strNums) {
 				var html = '';
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i43 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref91;
+					var _ref92;
 
 					if (_isArray32) {
 						if (_i43 >= _iterator32.length) break;
-						_ref91 = _iterator32[_i43++];
+						_ref92 = _iterator32[_i43++];
 					} else {
 						_i43 = _iterator32.next();
 						if (_i43.done) break;
-						_ref91 = _i43.value;
+						_ref92 = _i43.value;
 					}
 
-					var num = _ref91;
+					var num = _ref92;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -17229,18 +17272,18 @@ true, true];
 				}
 				this._hidden = false;
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i44 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref92;
+					var _ref93;
 
 					if (_isArray33) {
 						if (_i44 >= _iterator33.length) break;
-						_ref92 = _iterator33[_i44++];
+						_ref93 = _iterator33[_i44++];
 					} else {
 						_i44 = _iterator33.next();
 						if (_i44.done) break;
-						_ref92 = _i44.value;
+						_ref93 = _i44.value;
 					}
 
-					var num = _ref92;
+					var num = _ref93;
 
 					var post = pByNum.get(num);
 					if (post && post.hidden && !post.spellHidden) {
@@ -17289,21 +17332,21 @@ true, true];
 				var tNums = DelForm.tNums;
 
 				for (var _iterator34 = posts, _isArray34 = Array.isArray(_iterator34), _i45 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref93;
+					var _ref94;
 
 					if (_isArray34) {
 						if (_i45 >= _iterator34.length) break;
-						_ref93 = _iterator34[_i45++];
+						_ref94 = _iterator34[_i45++];
 					} else {
 						_i45 = _iterator34.next();
 						if (_i45.done) break;
-						_ref93 = _i45.value;
+						_ref94 = _i45.value;
 					}
 
-					var _ref94 = _ref93,
-					    _ref95 = _slicedToArray(_ref94, 2),
-					    pNum = _ref95[0],
-					    post = _ref95[1];
+					var _ref95 = _ref94,
+					    _ref96 = _slicedToArray(_ref95, 2),
+					    pNum = _ref96[0],
+					    post = _ref96[1];
 
 					var links = $Q('a', post.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -17585,22 +17628,22 @@ true, true];
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i46 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref96;
+					var _ref97;
 
 					if (_isArray35) {
 						if (_i46 >= _iterator35.length) break;
-						_ref96 = _iterator35[_i46++];
+						_ref97 = _iterator35[_i46++];
 					} else {
 						_i46 = _iterator35.next();
 						if (_i46.done) break;
-						_ref96 = _i46.value;
+						_ref97 = _i46.value;
 					}
 
-					var _ref97 = _ref96,
-					    _ref98 = _slicedToArray(_ref97, 3),
-					    banId = _ref98[0],
-					    bNum = _ref98[1],
-					    bEl = _ref98[2];
+					var _ref98 = _ref97,
+					    _ref99 = _slicedToArray(_ref98, 3),
+					    banId = _ref99[0],
+					    bNum = _ref99[1],
+					    bEl = _ref99[2];
 
 					var post = bNum ? pByNum.get(bNum) : this.op;
 					if (post && post.banned !== banId) {
@@ -18003,7 +18046,7 @@ true, true];
 			}
 		},
 		init: function init() {
-			var el = $bEnd(docBody, '\n\t\t<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg>\n\t\t\t</div>\n\t\t\t<div id="de-thr-navdown">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>\n\t\t\t</div>\n\t\t</div>');
+			var el = $bEnd(docBody, '\n\t\t<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-up"/></svg>\n\t\t\t</div>\n\t\t\t<div id="de-thr-navdown">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>\n\t\t\t</div>\n\t\t</div>');
 			el.addEventListener('mouseover', this, true);
 			el.addEventListener('mouseout', this, true);
 			el.addEventListener('click', this, true);
@@ -18527,9 +18570,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref99) {
-								var newCount = _ref99.newCount,
-								    locked = _ref99.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref100) {
+								var newCount = _ref100.newCount,
+								    locked = _ref100.locked;
 								return _this73._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this73._handleNewPosts(0, e);
@@ -19656,9 +19699,9 @@ true, true];
 					if (Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref100 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref100[0],
-						    inp = _ref100[1];
+						var _ref101 = [].concat(_toConsumableArray(box.children)),
+						    img = _ref101[0],
+						    inp = _ref101[1];
 
 						img.onclick = function () {
 							return _this75.updateCaptcha(cap);
@@ -20142,7 +20185,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref101 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(form, data, needProgress, hasFiles) {
+					var _ref102 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(form, data, needProgress, hasFiles) {
 						var getBase64, getCookies, dataObj, files, _i52, _len12, file, cookieObj, ajaxParams, xhr;
 
 						return regeneratorRuntime.wrap(function _callee19$(_context24) {
@@ -20150,7 +20193,7 @@ true, true];
 								switch (_context24.prev = _context24.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref102 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(file) {
+											var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(file) {
 												return regeneratorRuntime.wrap(function _callee17$(_context22) {
 													while (1) {
 														switch (_context22.prev = _context22.next) {
@@ -20174,8 +20217,8 @@ true, true];
 												}, _callee17, this);
 											}));
 
-											return function getBase64(_x74) {
-												return _ref102.apply(this, arguments);
+											return function getBase64(_x75) {
+												return _ref103.apply(this, arguments);
 											};
 										}();
 
@@ -20193,7 +20236,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(value, key) {
+											var _ref104 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(value, key) {
 												return regeneratorRuntime.wrap(function _callee18$(_context23) {
 													while (1) {
 														switch (_context23.prev = _context23.next) {
@@ -20212,8 +20255,8 @@ true, true];
 												}, _callee18, this);
 											}));
 
-											return function (_x75, _x76) {
-												return _ref103.apply(this, arguments);
+											return function (_x76, _x77) {
+												return _ref104.apply(this, arguments);
 											};
 										}());
 										_i52 = 0, _len12 = files.length;
@@ -20292,8 +20335,8 @@ true, true];
 						}, _callee19, this, [[24, 31]]);
 					}));
 
-					function sendHTML5Post(_x70, _x71, _x72, _x73) {
-						return _ref101.apply(this, arguments);
+					function sendHTML5Post(_x71, _x72, _x73, _x74) {
+						return _ref102.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -20405,8 +20448,8 @@ true, true];
 						var el = mutations[0].addedNodes[0];
 						if (el && el.id === 'app') {
 							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref104) {
-								var data = _ref104.data;
+							doc.defaultView.addEventListener('message', function (_ref105) {
+								var data = _ref105.data;
 
 								if (data !== '0chan-content-done') {
 									return;
@@ -21744,18 +21787,18 @@ true, true];
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i56 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref105;
+							var _ref106;
 
 							if (_isArray36) {
 								if (_i56 >= _iterator36.length) break;
-								_ref105 = _iterator36[_i56++];
+								_ref106 = _iterator36[_i56++];
 							} else {
 								_i56 = _iterator36.next();
 								if (_i56.done) break;
-								_ref105 = _i56.value;
+								_ref106 = _i56.value;
 							}
 
-							var c = _ref105;
+							var c = _ref106;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -22131,8 +22174,8 @@ true, true];
 			this.port.onmessage = this._handleMessage;
 			this.activeListeners = new Set();
 			var port = channel.port2;
-			doc.defaultView.addEventListener('message', function (_ref106) {
-				var data = _ref106.data;
+			doc.defaultView.addEventListener('message', function (_ref107) {
+				var data = _ref107.data;
 
 				if (data === 'de-request-api-message') {
 					_this108.hasListeners = true;
@@ -22148,8 +22191,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref107) {
-			var arg = _ref107.data;
+		_handleMessage: function _handleMessage(_ref108) {
+			var arg = _ref108.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22163,18 +22206,18 @@ true, true];
 					if (data) {
 						rv = {};
 						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i58 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref108;
+							var _ref109;
 
 							if (_isArray37) {
 								if (_i58 >= _iterator37.length) break;
-								_ref108 = _iterator37[_i58++];
+								_ref109 = _iterator37[_i58++];
 							} else {
 								_i58 = _iterator37.next();
 								if (_i58.done) break;
-								_ref108 = _i58.value;
+								_ref109 = _i58.value;
 							}
 
-							var aName = _ref108;
+							var aName = _ref109;
 
 							rv[aName] = DollchanAPI._register(aName.toLowerCase());
 						}
@@ -22282,7 +22325,7 @@ true, true];
 
 
 	function addSVGIcons() {
-		docBody.insertAdjacentHTML('beforeend', '\n\t<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-post-btns-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>\n\t</symbol>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>\n\t\t<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>\n\t</symbol>\n\n\t<!-- NAVIGATION PANEL ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h12"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>\n\t\t<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>\n\t\t<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M13.5 9V4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle cx="12.5" cy="10.8" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" d="M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4l5 5z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6m0-6l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>\n\t\t<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">\n\t\t<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>\n\t\t<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>\n\t\t<path stroke="#444" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<path stroke="#666" stroke-width="10" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5" y="17" style="font-family: \'Lucida Console\', monospace; font-size: 18px; font-weight: 600;">C</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-wait">\n\t\t<circle fill="#929087" cx="8" cy="2" r="2"/>\n\t\t<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>\n\t\t<circle fill="#ACAAA0" cx="2" cy="8" r="2"/>\n\t\t<circle fill="#79766C" cx="14" cy="8" r="2"/>\n\t\t<circle fill="#D2CFC6" cx="12.25" cy="12.25" r="2"/>\n\t\t<circle fill="#9F9C93" cx="3.75" cy="3.75" r="2"/>\n\t\t<circle fill="#B9B6AE" cx="3.75" cy="12.25" r="2"/>\n\t\t<circle fill="#868379" cx="12.25" cy="3.75" r="2"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-closed">\n\t\t<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-unavail">\n\t\t<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		docBody.insertAdjacentHTML('beforeend', '\n\t<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-post-btns-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>\n\t\t<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>\n\t\t<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>\n\t</symbol>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>\n\t\t<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>\n\t</symbol>\n\n\t<!-- THREAD NAVIGATION ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-thr-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\n\t<!-- IMAGE BUTTON ICONS -->\n\t<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>\n\t\t<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>\n\t</symbol>\n\t<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-auto">\n\t\t<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h12"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>\n\t\t<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>\n\t\t<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M13.5 9V4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle cx="12.5" cy="10.8" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" d="M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4l5 5z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6m0-6l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>\n\t\t<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">\n\t\t<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>\n\t\t<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>\n\t\t<path stroke="#444" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<path stroke="#666" stroke-width="10" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5" y="17" style="font-family: \'Lucida Console\', monospace; font-size: 18px; font-weight: 600;">C</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-wait">\n\t\t<circle fill="#929087" cx="8" cy="2" r="2"/>\n\t\t<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>\n\t\t<circle fill="#ACAAA0" cx="2" cy="8" r="2"/>\n\t\t<circle fill="#79766C" cx="14" cy="8" r="2"/>\n\t\t<circle fill="#D2CFC6" cx="12.25" cy="12.25" r="2"/>\n\t\t<circle fill="#9F9C93" cx="3.75" cy="3.75" r="2"/>\n\t\t<circle fill="#B9B6AE" cx="3.75" cy="12.25" r="2"/>\n\t\t<circle fill="#868379" cx="12.25" cy="3.75" r="2"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-closed">\n\t\t<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-unavail">\n\t\t<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 	}
 
 
@@ -22301,19 +22344,19 @@ true, true];
 
 		switch (Cfg.scriptStyle) {
 			case 0:
-				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
+				x += '.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
 				break;
 			case 1:
-				x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }';
+				x += '.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }';
 				break;
 			case 2:
-				x += '#de-panel, .de-win-head { background-color: #777; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #ccc; }\n\t\t\t.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
+				x += '.de-img-btn, #de-panel, .de-win-head { background-color: #777; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #ccc; }\n\t\t\t.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
 				break;
 			case 3:
-				x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
+				x += '.de-img-btn, #de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
 				break;
 			case 4:
-				x += '#de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }\n\t\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #666; }';
+				x += '.de-img-btn, #de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }\n\t\t\t#de-win-reply.de-win { border-radius: 0 !important; }\n\t\t\t#de-panel-buttons, #de-panel-info { border-color: #666; }';
 		}
 		if (Cfg.scriptStyle === 2) {
 			x += '.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
@@ -22362,7 +22405,7 @@ true, true];
 		}
 
 		p = Math.max(Cfg.minImgSize || 0, 50);
-		x += '.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-pre { max-width: 200px; max-height: 200px; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-fullimg-info { text-align: center; }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }\n\t.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t' + (nav.firefoxVer > 57 ? '.de-fullimg-video { position: relative; }\n\t\t.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }' : '') + '\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }\n\t.de-fullimg-wrap-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }\n\t#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }\n\t#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }\n\t#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }' +
+		x += '.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-pre { max-width: 200px; max-height: 200px; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-fullimg-info { text-align: center; }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }\n\t.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t' + (nav.firefoxVer > 57 ? '.de-fullimg-video { position: relative; }\n\t\t.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }' : '') + '\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }\n\t.de-fullimg-wrap-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t#de-img-btn-auto { right: 0; margin-top: 20px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }' +
 
 		cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }' + (
 
@@ -22383,7 +22426,7 @@ true, true];
 	}
 
 	function updateCSS() {
-		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { width: ' + (Cfg.resizeImgs ? '100%' : 'auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + '\n\t\tbody > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
+		var str = '.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + '; }\n\t.de-selected, .de-error-input { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + '; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + '; }\n\t\t.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }\n\t\t.de-mypost .de-post-deleted::after { content: "' + Lng.deleted[lang] + ' (You)"; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t' + (Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { width: ' + (Cfg.resizeImgs ? '100%' : 'auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + (', .de-img-pre, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }') : '') + '\n\t' + (Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '') + '\n\t' + (Cfg.widePosts ? '.' + aib.cReply.replace(/\s/, '.') + ':not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + '\n\t\tbody > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }';
 		$id('de-css-dynamic').textContent = str + '\n' + aib.css;
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

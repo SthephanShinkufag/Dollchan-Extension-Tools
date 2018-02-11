@@ -30,22 +30,22 @@ function scriptCSS() {
 
 	switch(Cfg.scriptStyle) {
 	case 0: // Gradient darkblue
-		x += '#de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
+		x += '.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
 		break;
 	case 1: // gradient blue
-		x += `#de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
+		x += `.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
 			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`;
 		break;
 	case 2: // solid grey
-		x += `#de-panel, .de-win-head { background-color: #777; }
+		x += `.de-img-btn, #de-panel, .de-win-head { background-color: #777; }
 			#de-panel-buttons, #de-panel-info { border-color: #ccc; }
 			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`;
 		break;
 	case 3: // transparent blue
-		x += '#de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
+		x += '.de-img-btn, #de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
 		break;
 	case 4: // square dark
-		x += `#de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
+		x += `.de-img-btn, #de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
 			#de-win-reply.de-win { border-radius: 0 !important; }
 			#de-panel-buttons, #de-panel-info { border-color: #666; }`;
 	}
@@ -208,9 +208,12 @@ function scriptCSS() {
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
-	#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; margin-top: -18px; background-repeat: no-repeat; background-position: center; background-color: black; cursor: pointer; }
-	#de-img-btn-next { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7); right: 0; border-radius: 10px 0 0 10px; }
-	#de-img-btn-prev { background-image: url(data:image/gif;base64,R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=); left: 0; border-radius: 0 10px 10px 0; }` +
+	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
+	#de-img-btn-auto { right: 0; margin-top: 20px; }
+	.de-img-btn-auto-on { color: #ffe100; }
+	#de-img-btn-next { right: 0; margin-top: -18px; }
+	.de-img-btn-none { display: none; }
+	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }` +
 
 	// Embedders
 	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
@@ -405,7 +408,7 @@ function updateCSS() {
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
-	${ Cfg.imgNavBtns ? '' : '#de-img-btn-next, #de-img-btn-prev, ' }
+	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }
 	${ Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }

@@ -65,15 +65,24 @@ function addSVGIcons() {
 		<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>
 	</symbol>
 
-	<!-- NAVIGATION PANEL ICONS -->
-	<symbol viewBox="0 0 7 7" id="de-symbol-nav-arrow">
+	<!-- THREAD NAVIGATION ICONS -->
+	<symbol viewBox="0 0 7 7" id="de-symbol-thr-nav-arrow">
 		<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>
 	</symbol>
-	<symbol viewBox="0 0 24 24" id="de-symbol-nav-up">
-		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
+	<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-up">
+		<path class="de-svg-stroke" stroke-width="3" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>
 	</symbol>
-	<symbol viewBox="0 0 24 24" id="de-symbol-nav-down">
-		<path class="de-svg-stroke" stroke-width="3" stroke-miterlimit="10" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
+	<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-down">
+		<path class="de-svg-stroke" stroke-width="3" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>
+	</symbol>
+
+	<!-- IMAGE BUTTON ICONS -->
+	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-arrow">
+		<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>
+		<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>
+	</symbol>
+	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-auto">
+		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
 	</symbol>
 
 	<!-- MAIN PANEL -->

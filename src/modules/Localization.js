@@ -1143,6 +1143,14 @@ const Lng = {
 		'Предыдущая картинка',
 		'Previous image',
 		'Попереднє зображення'],
+	autoPlayOn: [
+		'Автоматически воспроизводить следующее видео',
+		'Automatically play the next video',
+		'Автоматично відтворювати наступне відео'],
+	autoPlayOff: [
+		'Отключить автовоспроизведение',
+		'Disable autoplay',
+		'Відключити автовідтворення'],
 	downloadFile: [
 		'Скачать содержащийся в картинке файл',
 		'Download embedded file from the image',

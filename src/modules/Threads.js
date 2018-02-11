@@ -535,12 +535,12 @@ const navPanel = {
 	init() {
 		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
-			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-nav-arrow"/></svg>
+			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
 			<div id="de-thr-navup">
-				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-up"/></svg>
+				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-up"/></svg>
 			</div>
 			<div id="de-thr-navdown">
-				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-nav-down"/></svg>
+				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>
 			</div>
 		</div>`);
 		el.addEventListener('mouseover', this, true);
