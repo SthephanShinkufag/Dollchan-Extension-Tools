@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '4d7a593';
+const commit = '96560c3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16963,11 +16963,11 @@ function addSVGIcons() {
 	</symbol>
 
 	<!-- IMAGE BUTTON ICONS -->
-	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-arrow">
+	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-arrow">
 		<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>
 		<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>
 	</symbol>
-	<symbol width="36" height="36" viewBox="-2 -2 36 36" id="de-symbol-img-btn-auto">
+	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">
 		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
 	</symbol>
 
@@ -17316,6 +17316,7 @@ function scriptCSS() {
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
+	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 20px; }
 	.de-img-btn-auto-on { color: #ffe100; }
 	#de-img-btn-next { right: 0; margin-top: -18px; }
