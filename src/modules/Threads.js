@@ -629,5 +629,3 @@ const navPanel = {
 		this._visible = show;
 	}
 };
-
-/* eslint-disable no-var *//* , prefer-template */

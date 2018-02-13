@@ -1800,7 +1800,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
-			var val = '{"simpleNavbar":true}';
+			var val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
 				window.location.reload();
@@ -1834,7 +1834,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new ibDomains[dm](prot, dm);
 		}
 	}
-	dm = window.location.hostname;
+	if(!dm) {
+		dm = window.location.hostname;
+	}
 	if(!dm) {
 		return null;
 	}

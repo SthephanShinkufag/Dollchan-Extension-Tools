@@ -76,11 +76,14 @@ const HotKeys = {
 		}
 		let idx;
 		const isThr = aib.t;
-		const tag = e.target.tagName;
-		const kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) |
-			(e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (
-				tag === 'TEXTAREA' || (tag === 'INPUT' &&
-				(e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
+		const el = e.target;
+		const tag = el.tagName;
+		const kc = e.keyCode |
+			(e.ctrlKey ? 0x1000 : 0) |
+			(e.shiftKey ? 0x2000 : 0) |
+			(e.altKey ? 0x4000 : 0) | (
+				tag === 'TEXTAREA' ||
+				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
@@ -101,7 +104,7 @@ const HotKeys = {
 			}
 			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
-			e.target.blur();
+			el.blur();
 		} else {
 			let post;
 			const globIdx = this.gKeys.indexOf(kc);
@@ -129,7 +132,7 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(e.target !== pr.txta && e.target !== pr.cap.textEl) {
+				if(el !== pr.txta && el !== pr.cap.textEl) {
 					return;
 				}
 				pr.subm.click();
@@ -157,31 +160,31 @@ const HotKeys = {
 				}
 				break;
 			case 12: // Bold text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-bold').click();
 				break;
 			case 13: // Italic text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-italic').click();
 				break;
 			case 14: // Strike text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-strike').click();
 				break;
 			case 15: // Spoiler text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-spoil').click();
 				break;
 			case 16: // Code text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-code').click();

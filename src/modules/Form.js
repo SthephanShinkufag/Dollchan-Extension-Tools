@@ -170,7 +170,7 @@ class PostForm {
 	}
 	handleEvent(e) {
 		let el = e.target;
-		if(el.tagName !== 'SPAN') {
+		if(el.tagName !== 'DIV') {
 			el = el.parentNode;
 		}
 		const { id } = el;

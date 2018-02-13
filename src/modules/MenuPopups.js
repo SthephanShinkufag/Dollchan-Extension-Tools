@@ -182,7 +182,7 @@ function addMenu(el) {
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
 			const i = aProto.indexOf.call(el.parentNode.children, el);
 			updater.enable();
-			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
+			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][i]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}

@@ -62,27 +62,18 @@ function addImgFileIcon(nameLink, fName, info) {
 	if(typeof type === 'undefined') {
 		return;
 	}
-	let app, ext;
-	if(type === 2) {
-		app = 'application/x-rar-compressed';
-		ext = 'rar';
-	} else if(type === 1) {
-		app = 'application/zip';
-		ext = 'zip';
-	} else if(type === 0) {
-		app = 'application/x-7z-compressed';
-		ext = '7z';
-	} else if(type === 3) {
-		app = 'audio/ogg';
-		ext = 'ogg';
-	} else {
-		app = 'audio/mpeg';
-		ext = 'mp3';
-	}
+	const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
-		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
+		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			type: [
+				'application/x-7z-compressed',
+				'application/zip',
+				'application/x-rar-compressed',
+				'audio/ogg',
+				'audio/mpeg'][type]
+		})
 	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }'</a>`);
+		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
 }
 
 function downloadImgData(url, repeatOnError = true) {

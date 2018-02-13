@@ -65,7 +65,7 @@ const DollchanAPI = {
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
-		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {
+		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1e3 * 60 * 60 * 24) {
 			return Promise.reject();
 		}
 	}

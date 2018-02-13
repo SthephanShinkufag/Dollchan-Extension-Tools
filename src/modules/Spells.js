@@ -272,7 +272,7 @@ const Spells = Object.create({
 				SpellsRunner.unhideAll();
 				this.disable();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{"hide": false, "data": null}';
+				locStorage['__de-spells'] = '{ "hide": false, "data": null }';
 				locStorage.removeItem('__de-spells');
 			}
 			$q('input[info="hideBySpell"]').checked = false;

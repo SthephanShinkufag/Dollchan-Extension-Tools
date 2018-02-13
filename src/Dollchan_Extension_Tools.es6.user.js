@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '96560c3';
+const commit = '347d6fd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2044,7 +2044,7 @@ class TarBuilder {
 		TarBuilder._padSet(header, 108, '0', 8); // uid
 		TarBuilder._padSet(header, 116, '0', 8); // gid
 		TarBuilder._padSet(header, 124, fileSize.toString(8), 13); // fileSize
-		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
+		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1e3).toString(8), 12); // mtime
 		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
@@ -2688,8 +2688,8 @@ class PostsStorage {
 	}
 	set(num, thrNum, data = true) {
 		const storage = this._readStorage();
-		if(storage && storage.$count > 5000) {
-			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
+		if(storage && storage.$count > 5e3) {
+			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 			for(const b in storage) {
 				if(storage.hasOwnProperty(b)) {
 					const data = storage[b];
@@ -3488,16 +3488,13 @@ function showVideosWindow(body) {
 			const el = e.target;
 			if(el.classList.contains('de-abtn')) {
 				let node;
-				switch(e.target.id) {
-				case 'de-video-btn-hide': // Fold/unfold list of links
-					if((this.listHidden = !this.listHidden)) {
-						$hide(this.linkList);
-						e.target.textContent = '\u25BC';
-					} else {
-						$show(this.linkList);
-						e.target.textContent = '\u25B2';
-					}
+				switch(el.id) {
+				case 'de-video-btn-hide': { // Fold/unfold list of links
+					const isHide = (this.listHidden = !this.listHidden);
+					$toggle(this.linkList, !isHide);
+					el.textContent = isHide ? '\u25BC' : '\u25B2';
 					break;
+				}
 				case 'de-video-btn-prev': // Play previous video
 					node = this.currentLink.parentNode;
 					node = node.previousElementSibling || node.parentNode.lastElementChild;
@@ -3520,7 +3517,7 @@ function showVideosWindow(body) {
 				return;
 			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
-				pByNum.get(+e.target.getAttribute('de-num')).selectAndScrollTo();
+				pByNum.get(+el.getAttribute('de-num')).selectAndScrollTo();
 				return;
 			}
 			const info = el.videoInfo;
@@ -5097,7 +5094,7 @@ function addMenu(el) {
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
 			const i = aProto.indexOf.call(el.parentNode.children, el);
 			updater.enable();
-			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
+			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][i]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}
@@ -5181,11 +5178,14 @@ const HotKeys = {
 		}
 		let idx;
 		const isThr = aib.t;
-		const tag = e.target.tagName;
-		const kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) |
-			(e.shiftKey ? 0x2000 : 0) | (e.altKey ? 0x4000 : 0) | (
-				tag === 'TEXTAREA' || (tag === 'INPUT' &&
-				(e.target.type === 'text' || e.target.type === 'password')) ? 0x8000 : 0);
+		const el = e.target;
+		const tag = el.tagName;
+		const kc = e.keyCode |
+			(e.ctrlKey ? 0x1000 : 0) |
+			(e.shiftKey ? 0x2000 : 0) |
+			(e.altKey ? 0x4000 : 0) | (
+				tag === 'TEXTAREA' ||
+				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
@@ -5206,7 +5206,7 @@ const HotKeys = {
 			}
 			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
-			e.target.blur();
+			el.blur();
 		} else {
 			let post;
 			const globIdx = this.gKeys.indexOf(kc);
@@ -5234,7 +5234,7 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(e.target !== pr.txta && e.target !== pr.cap.textEl) {
+				if(el !== pr.txta && el !== pr.cap.textEl) {
 					return;
 				}
 				pr.subm.click();
@@ -5262,31 +5262,31 @@ const HotKeys = {
 				}
 				break;
 			case 12: // Bold text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-bold').click();
 				break;
 			case 13: // Italic text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-italic').click();
 				break;
 			case 14: // Strike text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-strike').click();
 				break;
 			case 15: // Spoiler text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-spoil').click();
 				break;
 			case 16: // Code text (txt)
-				if(e.target !== pr.txta) {
+				if(el !== pr.txta) {
 					return;
 				}
 				$id('de-btn-code').click();
@@ -5761,27 +5761,18 @@ function addImgFileIcon(nameLink, fName, info) {
 	if(typeof type === 'undefined') {
 		return;
 	}
-	let app, ext;
-	if(type === 2) {
-		app = 'application/x-rar-compressed';
-		ext = 'rar';
-	} else if(type === 1) {
-		app = 'application/zip';
-		ext = 'zip';
-	} else if(type === 0) {
-		app = 'application/x-7z-compressed';
-		ext = '7z';
-	} else if(type === 3) {
-		app = 'audio/ogg';
-		ext = 'ogg';
-	} else {
-		app = 'audio/mpeg';
-		ext = 'mp3';
-	}
+	const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
-		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], { type: app })
+		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			type: [
+				'application/x-7z-compressed',
+				'application/zip',
+				'application/x-rar-compressed',
+				'audio/ogg',
+				'audio/mpeg'][type]
+		})
 	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }'</a>`);
+		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
 }
 
 function downloadImgData(url, repeatOnError = true) {
@@ -7168,7 +7159,7 @@ const Spells = Object.create({
 				SpellsRunner.unhideAll();
 				this.disable();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{"hide": false, "data": null}';
+				locStorage['__de-spells'] = '{ "hide": false, "data": null }';
 				locStorage.removeItem('__de-spells');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -8365,7 +8356,7 @@ class PostForm {
 	}
 	handleEvent(e) {
 		let el = e.target;
-		if(el.tagName !== 'SPAN') {
+		if(el.tagName !== 'DIV') {
 			el = el.parentNode;
 		}
 		const { id } = el;
@@ -13621,23 +13612,21 @@ const navPanel = {
 	}
 };
 
-/* eslint-disable no-var *//* , prefer-template */
-
 /* ==[ ThreadUpdater.js ]=====================================================================================
                                                 THREAD UPDATER
 =========================================================================================================== */
 
 function initThreadUpdater(title, enableUpdate) {
-	var focusLoadTime, paused = false,
-		enabled = false,
-		disabledByUser = true,
-		lastECode = 200,
-		sendError = false,
-		newPosts = 0,
-		hasYouRefs = false,
-		storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
+	let focusLoadTime, disabledByUser = true;
+	let enabled = false;
+	let hasYouRefs = false;
+	let lastECode = 200;
+	let newPosts = 0;
+	let paused = false;
+	let sendError = false;
+	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
 
-	var audio = {
+	const audio = {
 		enabled  : false,
 		repeatMS : 0,
 		disable() {
@@ -13664,43 +13653,43 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 
 		get _el() {
-			const val = doc.createElement('audio');
-			val.setAttribute('preload', 'auto');
-			val.src = gitRaw + 'signal.ogg';
-			Object.defineProperty(this, '_el', { val });
-			return val;
+			const value = doc.createElement('audio');
+			value.setAttribute('preload', 'auto');
+			value.src = gitRaw + 'signal.ogg';
+			Object.defineProperty(this, '_el', { value });
+			return value;
 		}
 	};
 
-	var counter = {
-		enable() {
-			this._enabled = true;
-			$show(this._el);
+	const counter = {
+		count(delayMS, useCounter, callback) {
+			if(!this._enabled || !useCounter) {
+				this._countingTO = setTimeout(() => {
+					this._countingTO = null;
+					callback();
+				}, delayMS);
+				return;
+			}
+			let seconds = delayMS / 1e3;
+			this._set(seconds);
+			this._countingIV = setInterval(() => {
+				seconds--;
+				if(seconds === 0) {
+					this._stop();
+					callback();
+				} else {
+					this._set(seconds);
+				}
+			}, 1e3);
 		},
 		disable() {
 			this._enabled = false;
 			this._stop();
 			$hide(this._el);
 		},
-		count(delayMS, useCounter, callback) {
-			if(this._enabled && useCounter) {
-				var seconds = delayMS / 1000;
-				this._set(seconds);
-				this._countingIV = setInterval(() => {
-					seconds--;
-					if(seconds === 0) {
-						this._stop();
-						callback();
-					} else {
-						this._set(seconds);
-					}
-				}, 1000);
-			} else {
-				this._countingTO = setTimeout(() => {
-					this._countingTO = null;
-					callback();
-				}, delayMS);
-			}
+		enable() {
+			this._enabled = true;
+			$show(this._el);
 		},
 		setWait() {
 			this._stop();
@@ -13717,7 +13706,6 @@ function initThreadUpdater(title, enableUpdate) {
 			Object.defineProperty(this, '_el', { value });
 			return value;
 		},
-
 		_set(seconds) {
 			this._el.innerHTML = seconds;
 		},
@@ -13733,7 +13721,7 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	};
 
-	var favicon = {
+	const favicon = {
 		get canBlink() {
 			return Cfg.favIcoBlink && !!this.originalIcon;
 		},
@@ -13745,7 +13733,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			this._isInited = true;
-			var icon = new Image();
+			const icon = new Image();
 			icon.onload = e => {
 				try {
 					this._initIconsHelper(e.target);
@@ -13756,29 +13744,25 @@ function initThreadUpdater(title, enableUpdate) {
 			if(aib.fch) {
 				// Due to CORS we cannot apply href to icon.src directly
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
-					icon.src = 'response' in xhr ?
-						window.URL.createObjectURL(xhr.response) : '/favicon.ico';
+					icon.src = 'response' in xhr ? window.URL.createObjectURL(xhr.response) : '/favicon.ico';
 				}, emptyFn);
 				return;
 			}
 			icon.src = this._iconEl.href;
 		},
-		updateIcon(isError) {
-			if(!isError && !newPosts) {
-				this._setIcon(this.originalIcon);
-			} else if(this._hasIcons) {
-				this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
+		startBlink(isError) {
+			const iconUrl = !this._hasIcons ? this._emptyIcon :
+				isError ? this._iconError :
+				hasYouRefs ? this._iconYou : this._iconNew;
+			if(this._blinkInterv) {
+				if(this._currentIcon === iconUrl) {
+					return;
+				}
+				clearInterval(this._blinkInterv);
 			}
-		},
-		startBlinkNew() {
-			if(this._hasIcons) {
-				this._startBlink(hasYouRefs ? this._iconYou : this._iconNew);
-			} else {
-				this._startBlink(this._emptyIcon);
-			}
-		},
-		startBlinkError() {
-			this._startBlink(this._hasIcons ? this._iconError : this._emptyIcon);
+			this._currentIcon = iconUrl;
+			this._blinkInterv = setInterval(() => this._setIcon((this._isOrigIcon = !this._isOrigIcon) ?
+				this.originalIcon : this._currentIcon), this._blinkMS);
 		},
 		stopBlink() {
 			if(this._blinkInterv) {
@@ -13788,6 +13772,13 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!this._isOrigIcon) {
 				this._setIcon(this.originalIcon);
 				this._isOrigIcon = true;
+			}
+		},
+		updateIcon(isError) {
+			if(!isError && !newPosts) {
+				this._setIcon(this.originalIcon);
+			} else if(this._hasIcons) {
+				this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
 			}
 		},
 
@@ -13802,7 +13793,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_isInited    : false,
 		_isOrigIcon  : true,
 		get _iconEl() {
-			var el = $q('link[rel="shortcut icon"]', doc.head) ||
+			const el = $q('link[rel="shortcut icon"]', doc.head) ||
 				$bEnd(doc.head, '<link href="/favicon.ico" rel="shortcut icon"/>');
 			Object.defineProperties(this, {
 				_iconEl      : { value: el, writable: true },
@@ -13821,13 +13812,13 @@ function initThreadUpdater(title, enableUpdate) {
 				ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
 				ctx.stroke();
 			}
-			var canvas = doc.createElement('canvas'),
-				ctx = canvas.getContext('2d'),
-				wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1)),
-				scale = wh / 16;
+			const canvas = doc.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
+			const scale = wh / 16;
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
-			var original = ctx.getImageData(0, 0, wh, wh);
+			const original = ctx.getImageData(0, 0, wh, wh);
 			drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
 			drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
@@ -13843,24 +13834,11 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		_setIcon(iconUrl) {
 			$del(this._iconEl);
-			this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
-		},
-		_startBlink(iconUrl) {
-			if(this._blinkInterv) {
-				if(this._currentIcon === iconUrl) {
-					return;
-				}
-				clearInterval(this._blinkInterv);
-			}
-			this._currentIcon = iconUrl;
-			this._blinkInterv = setInterval(() => {
-				this._setIcon(this._isOrigIcon ? this._currentIcon : this.originalIcon);
-				this._isOrigIcon = !this._isOrigIcon;
-			}, this._blinkMS);
+			this._iconEl = $aBegin(doc.head, `<link rel="shortcut icon" href="${ iconUrl }">`);
 		}
 	};
 
-	var notification = {
+	const notification = {
 		get canShow() {
 			return Cfg.desktNotif && this._granted;
 		},
@@ -13872,7 +13850,12 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 		},
-
+		close() {
+			if(this._notifEl) {
+				this._notifEl.close();
+				this._notifEl = null;
+			}
+		},
 		show() {
 			const new10 = newPosts % 10;
 			const quantity = lang !== 0 ? +(newPosts !== 1) :
@@ -13898,17 +13881,10 @@ function initThreadUpdater(title, enableUpdate) {
 			};
 			this._notifEl = notif;
 		},
-		close() {
-			if(this._notifEl) {
-				this._notifEl.close();
-				this._notifEl = null;
-			}
-		},
 
 		_closeTO : null,
 		_granted : true,
 		_notifEl : null,
-
 		_requestPermission() {
 			this._granted = false;
 			Notification.requestPermission(state => {
@@ -13921,7 +13897,7 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	};
 
-	var updMachine = {
+	const updMachine = {
 		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
 				this.stop(false);
@@ -13961,16 +13937,15 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			return value;
 		},
-
 		_handleNewPosts(lPosts, error) {
 			if(error instanceof CancelError) {
 				return;
 			}
 			infoLoadErrors(error, false);
-			var eCode = (error instanceof AjaxError) ? error.code : 0;
+			const eCode = (error instanceof AjaxError) ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
-					favicon.startBlinkError();
+					favicon.startBlink(true);
 				}
 				if(eCode === -1 || (eCode === 404 && lastECode === 404)) {
 					Thread.removeSavedData(aib.b, aib.t);
@@ -13999,7 +13974,7 @@ function initThreadUpdater(title, enableUpdate) {
 					newPosts += lPosts;
 					updateTitle();
 					if(favicon.canBlink) {
-						favicon.startBlinkNew();
+						favicon.startBlink(false);
 					}
 					if(notification.canShow) {
 						notification.show();
@@ -14050,7 +14025,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_setUpdateStatus(status) {
 			if(this._panelButton) {
 				this._panelButton.id = 'de-panel-upd-' + status;
-				this._panelButton.title = Lng.panelBtn['upd-' + (status === 'off' ? 'off' : 'on')][lang];
+				this._panelButton.title = Lng.panelBtn[`upd-${ status === 'off' ? 'off' : 'on' }`][lang];
 				if(nav.isPresto) {
 					this._panelButton.innerHTML =
 						'<svg class="de-panel-svg"><use xlink:href="#de-symbol-panel-upd"/></svg>';
@@ -14091,15 +14066,15 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function updateTitle(eCode = lastECode) {
-		doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
-			(eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') +
-			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
+			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
+			(newPosts === 0 ? '' : `[${ newPosts }] `) + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
 	doc.addEventListener('visibilitychange', e => {
 		if(!doc.hidden) {
-			var focusTime = e.timeStamp;
+			const focusTime = e.timeStamp;
 			favicon.stopBlink();
 			audio.stop();
 			notification.close();
@@ -14123,21 +14098,20 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
-		enable() {
-			if(!enabled) {
-				enableUpdater();
-				updMachine.start();
+		continue(needSleep = false) {
+			if(enabled && paused) {
+				updMachine.start(needSleep);
+				paused = false;
 			}
 		},
 		disable() {
 			disabledByUser = true;
 			disableUpdater();
 		},
-		toggle() {
-			if(enabled) {
-				this.disable();
-			} else {
-				this.enable();
+		enable() {
+			if(!enabled) {
+				enableUpdater();
+				updMachine.start();
 			}
 		},
 		forceLoad(e) {
@@ -14157,10 +14131,16 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = true;
 			}
 		},
-		continue(needSleep = false) {
-			if(enabled && paused) {
-				updMachine.start(needSleep);
-				paused = false;
+		refToYou() {
+			if(doc.hidden) {
+				hasYouRefs = true;
+			}
+		},
+		toggle() {
+			if(enabled) {
+				this.disable();
+			} else {
+				this.enable();
 			}
 		},
 		toggleAudio(repeatMS) {
@@ -14185,14 +14165,11 @@ function initThreadUpdater(title, enableUpdate) {
 				sendError = true;
 				updateTitle();
 			}
-		},
-		refToYou() {
-			if(doc.hidden) {
-				hasYouRefs = true;
-			}
 		}
 	};
 }
+
+/* eslint-disable no-var *//* , prefer-template */
 
 /* ==[ DelForm.js ]===========================================================================================
                                                    DELFORM
@@ -16676,7 +16653,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
-			var val = '{"simpleNavbar":true}';
+			var val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
 				window.location.reload();
@@ -16710,7 +16687,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new ibDomains[dm](prot, dm);
 		}
 	}
-	dm = window.location.hostname;
+	if(!dm) {
+		dm = window.location.hostname;
+	}
 	if(!dm) {
 		return null;
 	}
@@ -16794,7 +16773,7 @@ const DollchanAPI = {
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
-		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1000 * 60 * 60 * 24) {
+		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1e3 * 60 * 60 * 24) {
 			return Promise.reject();
 		}
 	}

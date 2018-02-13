@@ -518,7 +518,7 @@ class TarBuilder {
 		TarBuilder._padSet(header, 108, '0', 8); // uid
 		TarBuilder._padSet(header, 116, '0', 8); // gid
 		TarBuilder._padSet(header, 124, fileSize.toString(8), 13); // fileSize
-		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12); // mtime
+		TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1e3).toString(8), 12); // mtime
 		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;

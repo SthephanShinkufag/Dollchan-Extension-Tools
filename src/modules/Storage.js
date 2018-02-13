@@ -344,8 +344,8 @@ class PostsStorage {
 	}
 	set(num, thrNum, data = true) {
 		const storage = this._readStorage();
-		if(storage && storage.$count > 5000) {
-			const minDate = Date.now() - 5 * 24 * 3600 * 1000;
+		if(storage && storage.$count > 5e3) {
+			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 			for(const b in storage) {
 				if(storage.hasOwnProperty(b)) {
 					const data = storage[b];

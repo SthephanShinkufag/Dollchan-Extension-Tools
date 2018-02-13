@@ -76,16 +76,13 @@ function showVideosWindow(body) {
 			const el = e.target;
 			if(el.classList.contains('de-abtn')) {
 				let node;
-				switch(e.target.id) {
-				case 'de-video-btn-hide': // Fold/unfold list of links
-					if((this.listHidden = !this.listHidden)) {
-						$hide(this.linkList);
-						e.target.textContent = '\u25BC';
-					} else {
-						$show(this.linkList);
-						e.target.textContent = '\u25B2';
-					}
+				switch(el.id) {
+				case 'de-video-btn-hide': { // Fold/unfold list of links
+					const isHide = (this.listHidden = !this.listHidden);
+					$toggle(this.linkList, !isHide);
+					el.textContent = isHide ? '\u25BC' : '\u25B2';
 					break;
+				}
 				case 'de-video-btn-prev': // Play previous video
 					node = this.currentLink.parentNode;
 					node = node.previousElementSibling || node.parentNode.lastElementChild;
@@ -108,7 +105,7 @@ function showVideosWindow(body) {
 				return;
 			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
-				pByNum.get(+e.target.getAttribute('de-num')).selectAndScrollTo();
+				pByNum.get(+el.getAttribute('de-num')).selectAndScrollTo();
 				return;
 			}
 			const info = el.videoInfo;
