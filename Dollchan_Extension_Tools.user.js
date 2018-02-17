@@ -3851,7 +3851,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.8.0';
-	var commit = 'c70e940';
+	var commit = 'bec1720';
 
 
 	var defaultCfg = {
@@ -22075,6 +22075,11 @@ true, true];
 			}
 
 			_createClass(Kropyvach, [{
+				key: 'css',
+				get: function get() {
+					return _get(Kropyvach.prototype.__proto__ || Object.getPrototypeOf(Kropyvach.prototype), 'css', this) + (this.t ? '' : '.de-btn-rep { display: none !important; }');
+				}
+			}, {
 				key: 'markupTags',
 				get: function get() {
 					return ['b', 'i', 'u', 's', 'spoiler', 'code'];

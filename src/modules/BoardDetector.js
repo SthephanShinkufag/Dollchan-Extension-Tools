@@ -1700,6 +1700,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.markupBB = true;
 		}
+		get css() {
+			return super.css + (this.t ? '' : '.de-btn-rep { display: none !important; }');
+		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}

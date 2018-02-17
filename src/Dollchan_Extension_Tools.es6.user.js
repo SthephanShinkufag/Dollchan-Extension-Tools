@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = 'c70e940';
+const commit = 'bec1720';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16557,6 +16557,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.markupBB = true;
+		}
+		get css() {
+			return super.css + (this.t ? '' : '.de-btn-rep { display: none !important; }');
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
