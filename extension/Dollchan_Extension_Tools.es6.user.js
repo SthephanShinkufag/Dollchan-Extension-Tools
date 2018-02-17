@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '01a61a2';
+const commit = 'c70e940';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1426,6 +1426,11 @@ const Lng = {
 		'Загрузите скрипт для воспроизведения WebM (VP9/Opus)',
 		'Please load a script to play WebM (VP9/Opus)',
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
+	errFormLoad: [
+		'Не удаётся загрузить форму ответа',
+		'Can not load the reply form',
+		'Не вдалося завантажити форму відповіді'
+	],
 
 	// Single words
 	second    : ['с', 's', 'с'],
@@ -8787,7 +8792,7 @@ class PostForm {
 			}
 		}
 		if(this.form) {
-			if(aib.changeReplyMode) {
+			if(aib.changeReplyMode && tNum !== this.tNum) {
 				aib.changeReplyMode(this.form, tNum);
 			}
 			$del($q(`input[name="${ aib.formParent }"]`, this.form));
@@ -15112,6 +15117,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
+			this._origInputs = null;
 			this._qTable = '.post.reply';
 		}
 		get qImgNameLink() {
@@ -15127,7 +15133,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ["'''", "''", '__', '~~', '**', '[code'];
 		}
 		async changeReplyMode(form, tNum) {
-			if(!$q('input[name="hash"]', form)) {
+			if(!this._origInputs && !$q('input[name="hash"]', form)) {
+				// Board without antibot protection
 				pr.subm.value = Lng.reply[lang];
 				const pageInp = $q('input[name="page"]', form);
 				if(tNum) {
@@ -15141,28 +15148,34 @@ function getImageBoard(checkDomains, checkEngines) {
 				'span[style="display:none"], textarea[style="display:none"], ' +
 				'input[type="hidden"]:not([name="json_response"])';
 			if(!$q('input[name="thread"]', form)) {
-				this._origSubmVal = pr.subm.value;
-				this._origInputs = doc.createElement('div');
-				$each($Q(query, form), el => this._origInputs.appendChild(el));
+				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
+				this._origInputs = [doc.createElement('div'), pr.subm.value];
+				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
 			} else if(!tNum) {
-				pr.subm.value = this._origSubmVal;
+				// Switching from the post reply to thread creation occurs. Restoring the original fields.
+				pr.subm.value = this._origInputs[1];
 				$each($Q(query, form), $del);
-				form.insertAdjacentHTML('beforeend', this._origInputs.innerHTML);
+				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
 			}
+			// Post reply mode. Loading a thread with a form that contains the correct hidden fields.
+			const errFn = () => {
+				$popup('load-form', Lng.errFormLoad[lang]);
+				pr.closeReply();
+			};
 			$popup('load-form', Lng.loading[lang], true);
 			await ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(loadedDoc => {
 				const loadedForm = $q(this.qForm, loadedDoc);
 				if(!loadedForm) {
-					$popup('load-form', 'Error while loading form');
+					errFn();
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
 				$each($Q(query, form), $del);
 				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
-			}, () => $popup('load-form', 'Error while loading form'));
+			}, errFn);
 		}
 		fixVideo(isPost, data) {
 			const videos = [];

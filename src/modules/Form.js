@@ -601,7 +601,7 @@ class PostForm {
 			}
 		}
 		if(this.form) {
-			if(aib.changeReplyMode) {
+			if(aib.changeReplyMode && tNum !== this.tNum) {
 				aib.changeReplyMode(this.form, tNum);
 			}
 			$del($q(`input[name="${ aib.formParent }"]`, this.form));

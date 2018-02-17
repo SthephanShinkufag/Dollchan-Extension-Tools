@@ -1253,6 +1253,11 @@ const Lng = {
 		'Загрузите скрипт для воспроизведения WebM (VP9/Opus)',
 		'Please load a script to play WebM (VP9/Opus)',
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
+	errFormLoad: [
+		'Не удаётся загрузить форму ответа',
+		'Can not load the reply form',
+		'Не вдалося завантажити форму відповіді'
+	],
 
 	// Single words
 	second    : ['с', 's', 'с'],

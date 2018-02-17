@@ -3851,7 +3851,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.8.0';
-	var commit = '01a61a2';
+	var commit = 'c70e940';
 
 
 	var defaultCfg = {
@@ -4339,6 +4339,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		noGlobalCfg: ['Глобальные настройки не найдены', 'Global config not found', 'Глобальні налаштування не знайдено'],
 		subjHasTrip: ['Поле "Тема" содержит трипкод!', '"Subject" field contains a tripcode!', 'Поле "Тема" містить трипкод!'],
 		errMsEdgeWebm: ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)', 'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
+		errFormLoad: ['Не удаётся загрузить форму ответа', 'Can not load the reply form', 'Не вдалося завантажити форму відповіді'],
 
 		second: ['с', 's', 'с'],
 		sizeByte: [' Байт', ' Byte', ' Байт'],
@@ -12559,7 +12560,7 @@ true, true];
 					}
 				}
 				if (this.form) {
-					if (aib.changeReplyMode) {
+					if (aib.changeReplyMode && tNum !== this.tNum) {
 						aib.changeReplyMode(this.form, tNum);
 					}
 					$del($q('input[name="' + aib.formParent + '"]', this.form));
@@ -19943,6 +19944,7 @@ true, true];
 				_this75.jsonSubmit = true;
 				_this75.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
+				_this75._origInputs = null;
 				_this75._qTable = '.post.reply';
 				return _this75;
 			}
@@ -19953,12 +19955,12 @@ true, true];
 					var _ref102 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
 						var _this76 = this;
 
-						var pageInp, query;
+						var pageInp, query, errFn;
 						return regeneratorRuntime.wrap(function _callee17$(_context22) {
 							while (1) {
 								switch (_context22.prev = _context22.next) {
 									case 0:
-										if ($q('input[name="hash"]', form)) {
+										if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
 											_context22.next = 5;
 											break;
 										}
@@ -19977,37 +19979,41 @@ true, true];
 										query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not([name="json_response"])';
 
 										if ($q('input[name="thread"]', form)) {
-											_context22.next = 12;
+											_context22.next = 11;
 											break;
 										}
 
-										this._origSubmVal = pr.subm.value;
-										this._origInputs = doc.createElement('div');
+										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this76._origInputs.appendChild(el);
+											return _this76._origInputs[0].appendChild(el);
 										});
-										_context22.next = 18;
+										_context22.next = 17;
 										break;
 
-									case 12:
+									case 11:
 										if (tNum) {
-											_context22.next = 18;
+											_context22.next = 17;
 											break;
 										}
 
-										pr.subm.value = this._origSubmVal;
+										pr.subm.value = this._origInputs[1];
 										$each($Q(query, form), $del);
-										form.insertAdjacentHTML('beforeend', this._origInputs.innerHTML);
+										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
 										return _context22.abrupt('return');
 
-									case 18:
+									case 17:
+										errFn = function errFn() {
+											$popup('load-form', Lng.errFormLoad[lang]);
+											pr.closeReply();
+										};
+
 										$popup('load-form', Lng.loading[lang], true);
 										_context22.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
 											var loadedForm = $q(_this76.qForm, loadedDoc);
 											if (!loadedForm) {
-												$popup('load-form', 'Error while loading form');
+												errFn();
 												return;
 											}
 											pr.subm.value = $q(_this76.qFormSubm, loadedDoc).value;
@@ -20016,9 +20022,7 @@ true, true];
 												return form.appendChild(doc.adoptNode(el));
 											});
 											closePopup('load-form');
-										}, function () {
-											return $popup('load-form', 'Error while loading form');
-										});
+										}, errFn);
 
 									case 21:
 									case 'end':
