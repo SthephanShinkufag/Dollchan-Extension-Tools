@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '347d6fd';
+const commit = '01a61a2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15118,7 +15118,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get css() {
-			return `.banner, ${ this.t ? '' : '.de-btn-rep,' } .hide-thread-link, .mentioned,
+			return `.banner, .hide-thread-link, .mentioned,
 					.post-hover { display: none !important; }
 				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
 					float: left !important; clear: left; display: block; }`;
@@ -15126,19 +15126,49 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
 		}
-		changeReplyMode(form, tNum) {
-			if(tNum) {
-				$del($q('input[name="page"]', form));
-			} else if(!$q('input[name="page"]', form)) {
-				$q('input[name="board"]', form).insertAdjacentHTML('afterend',
-					'<input name="page" value="1" type="hidden">');
+		async changeReplyMode(form, tNum) {
+			if(!$q('input[name="hash"]', form)) {
+				pr.subm.value = Lng.reply[lang];
+				const pageInp = $q('input[name="page"]', form);
+				if(tNum) {
+					$del(pageInp);
+				} else if(!pageInp) {
+					form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
+				}
+				return;
 			}
+			const query = 'div[style="display:none"], input[style="display:none"], ' +
+				'span[style="display:none"], textarea[style="display:none"], ' +
+				'input[type="hidden"]:not([name="json_response"])';
+			if(!$q('input[name="thread"]', form)) {
+				this._origSubmVal = pr.subm.value;
+				this._origInputs = doc.createElement('div');
+				$each($Q(query, form), el => this._origInputs.appendChild(el));
+			} else if(!tNum) {
+				pr.subm.value = this._origSubmVal;
+				$each($Q(query, form), $del);
+				form.insertAdjacentHTML('beforeend', this._origInputs.innerHTML);
+				this._origInputs = null;
+				return;
+			}
+			$popup('load-form', Lng.loading[lang], true);
+			await ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(loadedDoc => {
+				const loadedForm = $q(this.qForm, loadedDoc);
+				if(!loadedForm) {
+					$popup('load-form', 'Error while loading form');
+					return;
+				}
+				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
+				$each($Q(query, form), $del);
+				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
+				closePopup('load-form');
+			}, () => $popup('load-form', 'Error while loading form'));
 		}
 		fixVideo(isPost, data) {
-			var videos = [],
-				els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-			for(var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i];
+			const videos = [];
+			const els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
 				videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
 					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 				$del(el);
@@ -15160,7 +15190,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0');
-			var form = $q('form[name="post"]');
+			const form = $q('form[name="post"]');
 			if(form) {
 				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
 			}
@@ -15194,8 +15224,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { padding: 0 5px !important; }
 				.fileinfo { width: 250px; }
 				.multifile { width: auto !important; }
-				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > .unimportant + span,
-					.fileinfo > .unimportant + span + span, .post-btn, small { display: none !important; }`;
+				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
+					.post-btn, small { display: none !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -15204,6 +15234,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
 			}
 			el.innerHTML = str;
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
 		}
 		init() {
 			super.init();
@@ -15218,14 +15251,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(textarea) {
 				textarea.removeAttribute('id');
 			}
-			// #upload can contain hidden field, we must to save it from deletion
-			const el = $q('#upload > td > input:not([name="file"])');
-			if(el) {
-				$q(this.qForm).appendChild(el);
-			}
-			$each($Q('.file[href^="/player.php?v="]'), link => {
-				link.href = $q('.fileinfo > a', link.parentNode).href;
-			});
 			return false;
 		}
 	}
@@ -15932,7 +15957,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return super.css + '#post-moderation-fields { display: initial !important; }';
+			return super.css + 'input.delete, #post-moderation-fields { display: initial !important; }';
 		}
 		initCaptcha(cap) {
 			$q('td', cap.parentEl).innerHTML =
@@ -16616,6 +16641,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qOPost = '.opContainer';
+
+			this.jsonSubmit = false;
 		}
 		get css() {
 			return super.css + `.mature_thread { display: block !important; }
