@@ -53,6 +53,7 @@
 		"no-tabs": "off",
 		"no-unsafe-finally": "off",
 		"no-useless-concat": "error",
+		"no-var": "error",
 		"object-curly-newline": ["error", { "multiline": true }],
 		"object-shorthand": ["error", "always"],
 		"one-var": "off",

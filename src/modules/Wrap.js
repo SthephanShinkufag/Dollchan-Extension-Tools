@@ -1,13 +1,13 @@
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0
-}], no-var: "error" *//* , prefer-template: "error" */
+}] *//* , prefer-template: "error" */
 
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.2.8.0';
-const commit = 'f8d00fe';
+const version = '18.2.19.0';
+const commit = '7d74ff9';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
