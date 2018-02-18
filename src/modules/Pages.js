@@ -92,6 +92,7 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
+		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}

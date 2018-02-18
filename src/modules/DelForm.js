@@ -132,10 +132,6 @@ class DelForm {
 			new VideosParser().parse(el).end();
 			Logger.log('Video links');
 		}
-		if(Cfg.addImgs) {
-			embedPostMsgImages(el);
-			Logger.log('Image-links');
-		}
 		processImgInfoLinks(el);
 		Logger.log('Image names');
 		RefMap.init(this);

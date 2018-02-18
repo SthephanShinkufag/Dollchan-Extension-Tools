@@ -286,7 +286,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			const query = 'div[style="display:none"], input[style="display:none"], ' +
 				'span[style="display:none"], textarea[style="display:none"], ' +
-				'input[type="hidden"]:not([name="json_response"])';
+				'input[type="hidden"]:not(.de-input-hidden)';
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
@@ -345,7 +345,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('window.FormData = void 0');
 			const form = $q('form[name="post"]');
 			if(form) {
-				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
+				form.insertAdjacentHTML('beforeend',
+					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
 			$each($Q('br.clear'), el => {
 				const hr = el.nextElementSibling;
@@ -368,7 +369,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
-			this.qPostImg = '.post-image[alt]';
+			this.qPostImg = '.post-image[alt]:not(.deleted)';
 
 			this.multiFile = true;
 		}
@@ -1119,7 +1120,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$q('td', cap.parentEl).innerHTML =
 				'<input placeholder="' + Lng.cap[lang] + '" class="captcha_text" type="text" ' +
 					'name="captcha_text" size="25" maxlength="8" autocomplete="off">' +
-				'<input class="captcha_cookie" name="captcha_cookie" type="hidden">' +
+				'<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">' +
 				'<div class="captcha_html"></div>';
 			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);

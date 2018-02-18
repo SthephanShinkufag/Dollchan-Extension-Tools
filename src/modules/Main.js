@@ -125,6 +125,8 @@ async function runMain(checkDomains, dataPromise) {
 		readPostsData(firstThr.op, fav);
 	}
 	Logger.log('Hide posts');
+	embedPostMsgImages(DelForm.first.el);
+	Logger.log('Image-links');
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {

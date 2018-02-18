@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = 'ef4fe9a';
+const commit = '075ff7a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6861,6 +6861,7 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
+		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
@@ -9892,9 +9893,6 @@ class AbstractPost {
 	addFuncs() {
 		RefMap.upd(this, true);
 		embedMediaLinks(this);
-		if(Cfg.addImgs) {
-			embedPostMsgImages(this.el);
-		}
 	}
 	handleEvent(e) {
 		let temp, el = fixEventEl(e.target);
@@ -10129,6 +10127,7 @@ class AbstractPost {
 		}
 		this.addFuncs();
 		sRunner.run(this);
+		embedPostMsgImages(this.el);
 		closePopup('load-fullmsg');
 	}
 
@@ -11234,9 +11233,7 @@ class Pview extends AbstractPost {
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
 			}
-			if(Cfg.addImgs) {
-				embedPostMsgImages(pviewEl);
-			}
+			embedPostMsgImages(pviewEl);
 			processImgInfoLinks(pviewEl);
 		} else {
 			let el = this._pref.nextSibling;
@@ -12196,12 +12193,15 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 
 // Adding image previews before links in post message
 function embedPostMsgImages(el) {
+	if(!Cfg.addImgs) {
+		return;
+	}
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		const url = link.href;
-		if(link.parentNode.tagName === 'SMALL' || url.includes('?')) {
-			return;
+		if(url.includes('?') || link.parentNode.tagName === 'SMALL' || aib.getPostOfEl(link).hidden) {
+			continue;
 		}
 		const a = link.cloneNode(false);
 		a.target = '_blank';
@@ -13225,6 +13225,7 @@ class Thread {
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.run(last);
+				embedPostMsgImages(last.el);
 			}
 		} else {
 			fragm = doc.createDocumentFragment();
@@ -13232,6 +13233,7 @@ class Thread {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
 				newVisCount -= maybeSpells.value.run(last);
+				embedPostMsgImages(last.el);
 			}
 		}
 		return [newCount, newVisCount, fragm, last, nums];
@@ -14308,10 +14310,6 @@ class DelForm {
 			new VideosParser().parse(el).end();
 			Logger.log('Video links');
 		}
-		if(Cfg.addImgs) {
-			embedPostMsgImages(el);
-			Logger.log('Image-links');
-		}
 		processImgInfoLinks(el);
 		Logger.log('Image names');
 		RefMap.init(this);
@@ -15144,7 +15142,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			const query = 'div[style="display:none"], input[style="display:none"], ' +
 				'span[style="display:none"], textarea[style="display:none"], ' +
-				'input[type="hidden"]:not([name="json_response"])';
+				'input[type="hidden"]:not(.de-input-hidden)';
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
@@ -15203,7 +15201,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('window.FormData = void 0');
 			const form = $q('form[name="post"]');
 			if(form) {
-				form.insertAdjacentHTML('beforeend', '<input name="json_response" value="1" type="hidden">');
+				form.insertAdjacentHTML('beforeend',
+					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
 			$each($Q('br.clear'), el => {
 				const hr = el.nextElementSibling;
@@ -15226,7 +15225,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qDelPassw = '#password';
-			this.qPostImg = '.post-image[alt]';
+			this.qPostImg = '.post-image[alt]:not(.deleted)';
 
 			this.multiFile = true;
 		}
@@ -15977,7 +15976,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$q('td', cap.parentEl).innerHTML =
 				'<input placeholder="' + Lng.cap[lang] + '" class="captcha_text" type="text" ' +
 					'name="captcha_text" size="25" maxlength="8" autocomplete="off">' +
-				'<input class="captcha_cookie" name="captcha_cookie" type="hidden">' +
+				'<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">' +
 				'<div class="captcha_html"></div>';
 			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);
@@ -17684,6 +17683,8 @@ async function runMain(checkDomains, dataPromise) {
 		readPostsData(firstThr.op, fav);
 	}
 	Logger.log('Hide posts');
+	embedPostMsgImages(DelForm.first.el);
+	Logger.log('Image-links');
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {

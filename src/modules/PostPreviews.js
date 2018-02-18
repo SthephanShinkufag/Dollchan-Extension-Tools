@@ -334,9 +334,7 @@ class Pview extends AbstractPost {
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
 			}
-			if(Cfg.addImgs) {
-				embedPostMsgImages(pviewEl);
-			}
+			embedPostMsgImages(pviewEl);
 			processImgInfoLinks(pviewEl);
 		} else {
 			let el = this._pref.nextSibling;

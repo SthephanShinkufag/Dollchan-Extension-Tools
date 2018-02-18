@@ -825,12 +825,15 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 
 // Adding image previews before links in post message
 function embedPostMsgImages(el) {
+	if(!Cfg.addImgs) {
+		return;
+	}
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		const url = link.href;
-		if(link.parentNode.tagName === 'SMALL' || url.includes('?')) {
-			return;
+		if(url.includes('?') || link.parentNode.tagName === 'SMALL' || aib.getPostOfEl(link).hidden) {
+			continue;
 		}
 		const a = link.cloneNode(false);
 		a.target = '_blank';

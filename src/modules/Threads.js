@@ -238,6 +238,7 @@ class Thread {
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.run(last);
+				embedPostMsgImages(last.el);
 			}
 		} else {
 			fragm = doc.createDocumentFragment();
@@ -245,6 +246,7 @@ class Thread {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
 				newVisCount -= maybeSpells.value.run(last);
+				embedPostMsgImages(last.el);
 			}
 		}
 		return [newCount, newVisCount, fragm, last, nums];

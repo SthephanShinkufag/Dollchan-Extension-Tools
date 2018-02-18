@@ -51,9 +51,6 @@ class AbstractPost {
 	addFuncs() {
 		RefMap.upd(this, true);
 		embedMediaLinks(this);
-		if(Cfg.addImgs) {
-			embedPostMsgImages(this.el);
-		}
 	}
 	handleEvent(e) {
 		let temp, el = fixEventEl(e.target);
@@ -288,6 +285,7 @@ class AbstractPost {
 		}
 		this.addFuncs();
 		sRunner.run(this);
+		embedPostMsgImages(this.el);
 		closePopup('load-fullmsg');
 	}
 
