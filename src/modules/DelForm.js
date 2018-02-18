@@ -3,6 +3,64 @@
 =========================================================================================================== */
 
 class DelForm {
+	constructor(formEl, pageNum, prev = null) {
+		let thr = null;
+		this.el = formEl;
+		this.firstThr = null;
+		this.lastThr = null;
+		this.next = null;
+		this.pageNum = pageNum;
+		this.prev = prev;
+		if(prev) {
+			prev.next = this;
+			thr = prev.lastThr;
+		}
+		formEl.setAttribute('de-form', '');
+		formEl.removeAttribute('id');
+		$each($Q('script', this.el), $del);
+		const threads = DelForm.getThreads(this.el);
+		for(let i = 0, len = threads.length; i < len; ++i) {
+			const num = aib.getTNum(threads[i]);
+			if(DelForm.tNums.has(num)) {
+				const el = threads[i];
+				const thrNext = threads[i + 1];
+				let elNext = el.nextSibling;
+				while(elNext && elNext !== thrNext) {
+					$del(elNext);
+					elNext = el.nextSibling;
+				}
+				$del(el);
+				console.log('Repeated thread: ' + num);
+			} else {
+				DelForm.tNums.add(num);
+				thr = new Thread(threads[i], num, thr, this);
+				if(this.firstThr === null) {
+					this.firstThr = thr;
+				}
+			}
+		}
+		if(this.firstThr === null) {
+			if(prev) {
+				this.lastThr = prev.lastThr;
+			}
+			return;
+		}
+		this.lastThr = thr;
+	}
+	static getThreads(formEl) {
+		let threads = $Q(aib.qThread, formEl);
+		let len = threads.length;
+		if(len === 0) {
+			if(localData) {
+				threads = $Q('div[de-thread]');
+				len = threads.length;
+			}
+			if(len === 0) {
+				threads = DelForm._parseClasslessThreads(formEl);
+			}
+		}
+		return threads;
+	}
 	static [Symbol.iterator]() {
 		return {
 			_data: this.first,
@@ -15,20 +73,6 @@ class DelForm {
 				return { done: true };
 			}
 		};
-	}
-	static getThreads(formEl) {
-		var threads = $Q(aib.qThread, formEl),
-			len = threads.length;
-		if(len === 0) {
-			if(localData) {
-				threads = $Q('div[de-thread]');
-				len = threads.length;
-			}
-			if(len === 0) {
-				threads = DelForm._parseClasslessThreads(formEl);
-			}
-		}
-		return threads;
 	}
 
 	static _parseClasslessThreads(formEl) {
@@ -58,51 +102,6 @@ class DelForm {
 		cThr.appendChild(fNodes[i]);
 		formEl.appendChild(cThr);
 		return threads;
-	}
-	constructor(formEl, pageNum, prev = null) {
-		var thr = null;
-		this.el = formEl;
-		this.firstThr = null;
-		this.lastThr = null;
-		this.next = null;
-		this.pageNum = pageNum;
-		this.prev = prev;
-		if(prev) {
-			prev.next = this;
-			thr = prev.lastThr;
-		}
-		formEl.setAttribute('de-form', '');
-		formEl.removeAttribute('id');
-		$each($Q('script', this.el), $del);
-		var threads = DelForm.getThreads(this.el),
-			len = threads.length;
-		for(var i = 0; i < len; ++i) {
-			var num = aib.getTNum(threads[i]);
-			if(DelForm.tNums.has(num)) {
-				var el = threads[i],
-					thrNext = threads[i + 1],
-					elNext = el.nextSibling;
-				while(elNext && elNext !== thrNext) {
-					$del(elNext);
-					elNext = el.nextSibling;
-				}
-				$del(el);
-				console.log('Repeated thread: ' + num);
-			} else {
-				DelForm.tNums.add(num);
-				thr = new Thread(threads[i], num, thr, this);
-				if(this.firstThr === null) {
-					this.firstThr = thr;
-				}
-			}
-		}
-		if(this.firstThr === null) {
-			if(prev) {
-				this.lastThr = prev.lastThr;
-			}
-			return;
-		}
-		this.lastThr = thr;
 	}
 	get passEl() {
 		const value = $q(aib.qDelPassw, this.el);

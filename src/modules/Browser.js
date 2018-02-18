@@ -80,7 +80,7 @@ function initNavFuncs() {
 	}
 	nav = {
 		get ua() {
-			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
+			return navigator.userAgent + (this.isFirefox ? ` [${ navigator.buildID }]` : '');
 		},
 		firefoxVer,
 		isChrome,
@@ -93,26 +93,13 @@ function initNavFuncs() {
 		isWebkit,
 		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		isMsEdge : ua.includes('Edge/'),
 		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		isMsEdge : ua.includes('Edge/'),
 		isPresto : !!window.opera,
-		get isESNext() {
-			return typeof deMainFuncOuter === 'undefined';
-		},
-		get scriptInstall() {
-			if(this.isNewGM) {
-				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
-			}
-			if(this.isFirefox) {
-				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-			}
-			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
-		},
-		cssMatches(leftSel, ...rules) {
-			return leftSel + rules.join(', ' + leftSel);
-		},
-		fixLink: isSafari ? getAbsLink : function fixLink(url) {
-			return url;
+		get canPlayMP3() {
+			const value = !!new Audio().canPlayType('audio/mpeg;');
+			Object.defineProperty(this, 'canPlayMP3', { value });
+			return value;
 		},
 		get hasTemplate() {
 			const value = 'content' in document.createElement('template');
@@ -130,10 +117,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
-		get canPlayMP3() {
-			const value = !!new Audio().canPlayType('audio/mpeg;');
-			Object.defineProperty(this, 'canPlayMP3', { value });
-			return value;
+		get isESNext() {
+			return typeof deMainFuncOuter === 'undefined';
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -142,6 +127,15 @@ function initNavFuncs() {
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
+		},
+		get scriptInstall() {
+			if(this.isNewGM) {
+				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
+			}
+			if(this.isFirefox) {
+				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		get viewportHeight() {
 			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
@@ -154,6 +148,12 @@ function initNavFuncs() {
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
+		},
+		cssMatches(leftSel, ...rules) {
+			return leftSel + rules.join(', ' + leftSel);
+		},
+		fixLink: isSafari ? getAbsLink : function fixLink(url) {
+			return url;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {

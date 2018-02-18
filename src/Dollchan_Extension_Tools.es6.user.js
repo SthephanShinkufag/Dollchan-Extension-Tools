@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = 'bec1720';
+const commit = 'ef4fe9a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14174,13 +14174,69 @@ function initThreadUpdater(title, enableUpdate) {
 	};
 }
 
-/* eslint-disable no-var *//* , prefer-template */
-
 /* ==[ DelForm.js ]===========================================================================================
                                                    DELFORM
 =========================================================================================================== */
 
 class DelForm {
+	constructor(formEl, pageNum, prev = null) {
+		let thr = null;
+		this.el = formEl;
+		this.firstThr = null;
+		this.lastThr = null;
+		this.next = null;
+		this.pageNum = pageNum;
+		this.prev = prev;
+		if(prev) {
+			prev.next = this;
+			thr = prev.lastThr;
+		}
+		formEl.setAttribute('de-form', '');
+		formEl.removeAttribute('id');
+		$each($Q('script', this.el), $del);
+		const threads = DelForm.getThreads(this.el);
+		for(let i = 0, len = threads.length; i < len; ++i) {
+			const num = aib.getTNum(threads[i]);
+			if(DelForm.tNums.has(num)) {
+				const el = threads[i];
+				const thrNext = threads[i + 1];
+				let elNext = el.nextSibling;
+				while(elNext && elNext !== thrNext) {
+					$del(elNext);
+					elNext = el.nextSibling;
+				}
+				$del(el);
+				console.log('Repeated thread: ' + num);
+			} else {
+				DelForm.tNums.add(num);
+				thr = new Thread(threads[i], num, thr, this);
+				if(this.firstThr === null) {
+					this.firstThr = thr;
+				}
+			}
+		}
+		if(this.firstThr === null) {
+			if(prev) {
+				this.lastThr = prev.lastThr;
+			}
+			return;
+		}
+		this.lastThr = thr;
+	}
+	static getThreads(formEl) {
+		let threads = $Q(aib.qThread, formEl);
+		let len = threads.length;
+		if(len === 0) {
+			if(localData) {
+				threads = $Q('div[de-thread]');
+				len = threads.length;
+			}
+			if(len === 0) {
+				threads = DelForm._parseClasslessThreads(formEl);
+			}
+		}
+		return threads;
+	}
 	static [Symbol.iterator]() {
 		return {
 			_data: this.first,
@@ -14193,20 +14249,6 @@ class DelForm {
 				return { done: true };
 			}
 		};
-	}
-	static getThreads(formEl) {
-		var threads = $Q(aib.qThread, formEl),
-			len = threads.length;
-		if(len === 0) {
-			if(localData) {
-				threads = $Q('div[de-thread]');
-				len = threads.length;
-			}
-			if(len === 0) {
-				threads = DelForm._parseClasslessThreads(formEl);
-			}
-		}
-		return threads;
 	}
 
 	static _parseClasslessThreads(formEl) {
@@ -14236,51 +14278,6 @@ class DelForm {
 		cThr.appendChild(fNodes[i]);
 		formEl.appendChild(cThr);
 		return threads;
-	}
-	constructor(formEl, pageNum, prev = null) {
-		var thr = null;
-		this.el = formEl;
-		this.firstThr = null;
-		this.lastThr = null;
-		this.next = null;
-		this.pageNum = pageNum;
-		this.prev = prev;
-		if(prev) {
-			prev.next = this;
-			thr = prev.lastThr;
-		}
-		formEl.setAttribute('de-form', '');
-		formEl.removeAttribute('id');
-		$each($Q('script', this.el), $del);
-		var threads = DelForm.getThreads(this.el),
-			len = threads.length;
-		for(var i = 0; i < len; ++i) {
-			var num = aib.getTNum(threads[i]);
-			if(DelForm.tNums.has(num)) {
-				var el = threads[i],
-					thrNext = threads[i + 1],
-					elNext = el.nextSibling;
-				while(elNext && elNext !== thrNext) {
-					$del(elNext);
-					elNext = el.nextSibling;
-				}
-				$del(el);
-				console.log('Repeated thread: ' + num);
-			} else {
-				DelForm.tNums.add(num);
-				thr = new Thread(threads[i], num, thr, this);
-				if(this.firstThr === null) {
-					this.firstThr = thr;
-				}
-			}
-		}
-		if(this.firstThr === null) {
-			if(prev) {
-				this.lastThr = prev.lastThr;
-			}
-			return;
-		}
-		this.lastThr = thr;
 	}
 	get passEl() {
 		const value = $q(aib.qDelPassw, this.el);
@@ -14405,7 +14402,7 @@ function initNavFuncs() {
 	}
 	nav = {
 		get ua() {
-			return navigator.userAgent + (this.isFirefox ? ' [' + navigator.buildID + ']' : '');
+			return navigator.userAgent + (this.isFirefox ? ` [${ navigator.buildID }]` : '');
 		},
 		firefoxVer,
 		isChrome,
@@ -14418,26 +14415,13 @@ function initNavFuncs() {
 		isWebkit,
 		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		isMsEdge : ua.includes('Edge/'),
 		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		isMsEdge : ua.includes('Edge/'),
 		isPresto : !!window.opera,
-		get isESNext() {
-			return typeof deMainFuncOuter === 'undefined';
-		},
-		get scriptInstall() {
-			if(this.isNewGM) {
-				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
-			}
-			if(this.isFirefox) {
-				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-			}
-			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
-		},
-		cssMatches(leftSel, ...rules) {
-			return leftSel + rules.join(', ' + leftSel);
-		},
-		fixLink: isSafari ? getAbsLink : function fixLink(url) {
-			return url;
+		get canPlayMP3() {
+			const value = !!new Audio().canPlayType('audio/mpeg;');
+			Object.defineProperty(this, 'canPlayMP3', { value });
+			return value;
 		},
 		get hasTemplate() {
 			const value = 'content' in document.createElement('template');
@@ -14455,10 +14439,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
-		get canPlayMP3() {
-			const value = !!new Audio().canPlayType('audio/mpeg;');
-			Object.defineProperty(this, 'canPlayMP3', { value });
-			return value;
+		get isESNext() {
+			return typeof deMainFuncOuter === 'undefined';
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -14467,6 +14449,15 @@ function initNavFuncs() {
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
+		},
+		get scriptInstall() {
+			if(this.isNewGM) {
+				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
+			}
+			if(this.isFirefox) {
+				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
+			}
+			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		get viewportHeight() {
 			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
@@ -14479,6 +14470,12 @@ function initNavFuncs() {
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
+		},
+		cssMatches(leftSel, ...rules) {
+			return leftSel + rules.join(', ' + leftSel);
+		},
+		fixLink: isSafari ? getAbsLink : function fixLink(url) {
+			return url;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
@@ -14669,7 +14666,7 @@ class BaseBoard {
 		) {
 			return data;
 		}
-		var str;
+		let str;
 		if(typeof data === 'string') {
 			str = data;
 		} else if(isForm) {
@@ -14719,20 +14716,22 @@ class BaseBoard {
 		return data;
 	}
 	fixVideo(isPost, data) { // Differs Tinyboard only
-		var videos = [],
-			els = $Q('embed, object, iframe', isPost ? data.el : data);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var m, el = els[i],
-				src = el.src || el.data;
-			if(src) {
-				if((m = src.match(Videos.ytReg))) {
-					videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-					$del(el);
-				}
-				if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-					videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-					$del(el);
-				}
+		const videos = [];
+		const els = $Q('embed, object, iframe', isPost ? data.el : data);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			const src = el.src || el.data;
+			if(!src) {
+				continue;
+			}
+			let m = src.match(Videos.ytReg);
+			if(m) {
+				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+				$del(el);
+			}
+			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
+				$del(el);
 			}
 		}
 		return videos;
@@ -14763,17 +14762,18 @@ class BaseBoard {
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
-		var txt;
+		let txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
 	getOp(thr) { // Differs Arhivach only
-		var op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
 		}
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
-		var el, opEnd = $q(this._qTable, thr);
+		let el;
+		const opEnd = $q(this._qTable, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
@@ -14791,7 +14791,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
 	}
 	getPostElOfEl(el) {
-		var sel = this.qRPost + ', [de-thread]';
+		const sel = this.qRPost + ', [de-thread]';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}
@@ -14820,8 +14820,8 @@ class BaseBoard {
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
-		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-		return !!a && /sage/i.test(a.href);
+		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
+		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
@@ -14861,8 +14861,8 @@ class BaseBoard {
 =========================================================================================================== */
 
 function getImageBoard(checkDomains, checkEngines) {
-	var ibDomains = {};
-	var ibEngines = [];
+	const ibDomains = {};
+	const ibEngines = [];
 
 	// ENGINES
 	class Makaba extends BaseBoard {
@@ -14947,11 +14947,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = str;
 		}
 		getBanId(postEl) {
-			var el = $q(this.qBan, postEl);
-			if(!el) {
-				return 0;
-			}
-			return el.textContent.includes('предупрежден') ? 2 : 1;
+			const el = $q(this.qBan, postEl);
+			return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -14968,7 +14965,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
 				this.getSage = function(post) {
-					var name = $q(this.qPostName, post);
+					const name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 				};
 			} else {
@@ -14977,7 +14974,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
-			var error = null, postNum = null;
+			let error = null;
+			let postNum = null;
 			if(json.Status === 'OK') {
 				postNum = +json.Num;
 			} else if(json.Status === 'Redirect') {
@@ -15002,7 +15000,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$(function() { $(window).off(); });
 			})();`);
 			$each($Q('.autorefresh'), $del);
-			var el = $q('td > .anoniconsselectlist');
+			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);
 			}
@@ -15294,7 +15292,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !el && super.getImgRealName(wrap) || el.replace(')', '');
 		}
 		init() {
-			var el = $id('posttypeindicator');
+			const el = $id('posttypeindicator');
 			if(el) {
 				[el.previousSibling, el.nextSibling, el].forEach($del);
 			}
@@ -15671,7 +15669,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		init() {
-			var el = $id('submit_button');
+			const el = $id('submit_button');
 			if(el) {
 				$del(el.previousElementSibling);
 				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
@@ -15729,14 +15727,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getOmitted(el, len) {
-			var txt;
+			let txt;
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 		}
 		getSubmitData(json) {
-			var error, postNum;
+			let error = null;
+			let postNum = null;
 			if(json.post) {
 				postNum = +json.post;
 			} else {
@@ -15748,13 +15747,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
-			var el = $q('#postform input[type="button"]');
-			if(el) {
-				$replace(el, '<input type="submit" value="Отправить">');
+			const btnEl = $q('#postform input[type="button"]');
+			if(btnEl) {
+				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
-			el = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', el), $del);
-			el.appendChild($q('.userdelete'));
+			const dFormEl = $q(this.qDForm);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
+			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
 	}
@@ -15810,7 +15809,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
 		getSage(post) {
-			var el = $q('.filetitle', post);
+			const el = $q('.filetitle', post);
 			return el && el.textContent.includes('\u21E9');
 		}
 		init() {
@@ -15937,7 +15936,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
 		getSubmitData(data) {
-			var error = null, postNum = null, errEl = $q('#errmsg', data);
+			let error = null;
+			let postNum = null;
+			const errEl = $q('#errmsg', data);
 			if(errEl) {
 				error = errEl.textContent;
 			} else {
@@ -16085,10 +16086,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(function() {
-				var delPosts = $Q('.post[postid=""]');
-				for(var i = 0, len = delPosts.length; i < len; ++i) {
+				const delPosts = $Q('.post[postid=""]');
+				for(let i = 0, len = delPosts.length; i < len; ++i) {
 					try {
-						var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+						const post = pByNum.get(+$q('blockquote', delPosts[i])
+							.getAttribute('id').substring(1));
 						if(post) {
 							post.deleted = true;
 							post.btns.classList.remove('de-post-counter');
@@ -16253,7 +16255,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('window.UploadProgress = Function.prototype');
-			var el = $id('postform');
+			const el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
 			}
@@ -16267,7 +16269,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
-			var prev = msg.previousElementSibling;
+			const prev = msg.previousElementSibling;
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 		updateCaptcha(cap, isErr) {
@@ -16515,8 +16517,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
-			var pMsg = msg.parentNode,
-				prev = pMsg.previousElementSibling;
+			const pMsg = msg.parentNode;
+			const prev = pMsg.previousElementSibling;
 			return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 		}
 		parseURL() {
@@ -16696,7 +16698,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
-			var val = '{ "simpleNavbar": true }';
+			const val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
 				window.location.reload();
@@ -16738,8 +16740,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkEngines) {
-		for(var i = ibEngines.length - 1; i >= 0; --i) {
-			var [path, Ctor] = ibEngines[i];
+		for(let i = ibEngines.length - 1; i >= 0; --i) {
+			const [path, Ctor] = ibEngines[i];
 			if($q(path, doc)) {
 				return new Ctor(prot, dm);
 			}

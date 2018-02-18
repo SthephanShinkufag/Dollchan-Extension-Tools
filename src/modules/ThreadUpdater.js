@@ -554,5 +554,3 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 	};
 }
-
-/* eslint-disable no-var *//* , prefer-template */

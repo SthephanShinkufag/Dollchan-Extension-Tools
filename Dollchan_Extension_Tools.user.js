@@ -3851,7 +3851,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.8.0';
-	var commit = 'bec1720';
+	var commit = 'ef4fe9a';
 
 
 	var defaultCfg = {
@@ -18867,73 +18867,7 @@ true, true];
 	}
 
 
-
 	var DelForm = function () {
-		_createClass(DelForm, null, [{
-			key: Symbol.iterator,
-			value: function value() {
-				return {
-					_data: this.first,
-					next: function next() {
-						var value = this._data;
-						if (value) {
-							this._data = value.next;
-							return { value: value, done: false };
-						}
-						return { done: true };
-					}
-				};
-			}
-		}, {
-			key: 'getThreads',
-			value: function getThreads(formEl) {
-				var threads = $Q(aib.qThread, formEl),
-				    len = threads.length;
-				if (len === 0) {
-					if (localData) {
-						threads = $Q('div[de-thread]');
-						len = threads.length;
-					}
-					if (len === 0) {
-						threads = DelForm._parseClasslessThreads(formEl);
-					}
-				}
-				return threads;
-			}
-		}, {
-			key: '_parseClasslessThreads',
-			value: function _parseClasslessThreads(formEl) {
-				var i = void 0,
-				    len = void 0,
-				    cThr = doc.createElement('div');
-				var threads = [];
-				var fNodes = [].concat(_toConsumableArray(formEl.childNodes));
-				for (i = 0, len = fNodes.length - 1; i < len; ++i) {
-					var node = fNodes[i];
-					if (node.tagName === 'HR') {
-						formEl.insertBefore(cThr, node);
-						if (!aib.tinyib) {
-							formEl.insertBefore(cThr.lastElementChild, node);
-						}
-						var el = cThr.lastElementChild;
-						if (el.tagName === 'BR') {
-							formEl.insertBefore(el, node);
-						}
-						try {
-							aib.getTNum(cThr);
-							threads.push(cThr);
-						} catch (e) {}
-						cThr = doc.createElement('div');
-					} else {
-						cThr.appendChild(node);
-					}
-				}
-				cThr.appendChild(fNodes[i]);
-				formEl.appendChild(cThr);
-				return threads;
-			}
-		}]);
-
 		function DelForm(formEl, pageNum) {
 			var prev = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
@@ -18953,14 +18887,13 @@ true, true];
 			formEl.setAttribute('de-form', '');
 			formEl.removeAttribute('id');
 			$each($Q('script', this.el), $del);
-			var threads = DelForm.getThreads(this.el),
-			    len = threads.length;
-			for (var i = 0; i < len; ++i) {
+			var threads = DelForm.getThreads(this.el);
+			for (var i = 0, _len10 = threads.length; i < _len10; ++i) {
 				var num = aib.getTNum(threads[i]);
 				if (DelForm.tNums.has(num)) {
-					var el = threads[i],
-					    thrNext = threads[i + 1],
-					    elNext = el.nextSibling;
+					var el = threads[i];
+					var thrNext = threads[i + 1];
+					var elNext = el.nextSibling;
 					while (elNext && elNext !== thrNext) {
 						$del(elNext);
 						elNext = el.nextSibling;
@@ -19027,6 +18960,69 @@ true, true];
 				var value = $q(aib.qDelPassw, this.el);
 				Object.defineProperty(this, 'passEl', { value: value });
 				return value;
+			}
+		}], [{
+			key: 'getThreads',
+			value: function getThreads(formEl) {
+				var threads = $Q(aib.qThread, formEl);
+				var len = threads.length;
+				if (len === 0) {
+					if (localData) {
+						threads = $Q('div[de-thread]');
+						len = threads.length;
+					}
+					if (len === 0) {
+						threads = DelForm._parseClasslessThreads(formEl);
+					}
+				}
+				return threads;
+			}
+		}, {
+			key: Symbol.iterator,
+			value: function value() {
+				return {
+					_data: this.first,
+					next: function next() {
+						var value = this._data;
+						if (value) {
+							this._data = value.next;
+							return { value: value, done: false };
+						}
+						return { done: true };
+					}
+				};
+			}
+		}, {
+			key: '_parseClasslessThreads',
+			value: function _parseClasslessThreads(formEl) {
+				var i = void 0,
+				    len = void 0,
+				    cThr = doc.createElement('div');
+				var threads = [];
+				var fNodes = [].concat(_toConsumableArray(formEl.childNodes));
+				for (i = 0, len = fNodes.length - 1; i < len; ++i) {
+					var node = fNodes[i];
+					if (node.tagName === 'HR') {
+						formEl.insertBefore(cThr, node);
+						if (!aib.tinyib) {
+							formEl.insertBefore(cThr.lastElementChild, node);
+						}
+						var el = cThr.lastElementChild;
+						if (el.tagName === 'BR') {
+							formEl.insertBefore(el, node);
+						}
+						try {
+							aib.getTNum(cThr);
+							threads.push(cThr);
+						} catch (e) {}
+						cThr = doc.createElement('div');
+					} else {
+						cThr.appendChild(node);
+					}
+				}
+				cThr.appendChild(fNodes[i]);
+				formEl.appendChild(cThr);
+				return threads;
 			}
 		}]);
 
@@ -19128,31 +19124,13 @@ true, true];
 			isScriptStorage: isScriptStorage,
 			isWebkit: isWebkit,
 			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || isNewGM && typeof GM.xmlHttpRequest === 'function',
-			isMsEdge: ua.includes('Edge/'),
 			isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
+			isMsEdge: ua.includes('Edge/'),
 			isPresto: !!window.opera,
-			get isESNext() {
-				return typeof deMainFuncOuter === 'undefined';
-			},
-			get scriptInstall() {
-				if (this.isNewGM) {
-					return GM.info ? GM.info.scriptHandler + ' ' + GM.info.version : 'Greasemonkey';
-				}
-				if (this.isFirefox) {
-					return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-				}
-				return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
-			},
-			cssMatches: function cssMatches(leftSel) {
-				for (var _len10 = arguments.length, rules = Array(_len10 > 1 ? _len10 - 1 : 0), _key3 = 1; _key3 < _len10; _key3++) {
-					rules[_key3 - 1] = arguments[_key3];
-				}
-
-				return leftSel + rules.join(', ' + leftSel);
-			},
-
-			fixLink: isSafari ? getAbsLink : function fixLink(url) {
-				return url;
+			get canPlayMP3() {
+				var value = !!new Audio().canPlayType('audio/mpeg;');
+				Object.defineProperty(this, 'canPlayMP3', { value: value });
+				return value;
 			},
 			get hasTemplate() {
 				var value = 'content' in document.createElement('template');
@@ -19170,10 +19148,8 @@ true, true];
 				Object.defineProperty(this, 'hasWorker', { value: value });
 				return value;
 			},
-			get canPlayMP3() {
-				var value = !!new Audio().canPlayType('audio/mpeg;');
-				Object.defineProperty(this, 'canPlayMP3', { value: value });
-				return value;
+			get isESNext() {
+				return typeof deMainFuncOuter === 'undefined';
 			},
 			get matchesSelector() {
 				var dE = doc.documentElement;
@@ -19183,6 +19159,15 @@ true, true];
 				};
 				Object.defineProperty(this, 'matchesSelector', { value: value });
 				return value;
+			},
+			get scriptInstall() {
+				if (this.isNewGM) {
+					return GM.info ? GM.info.scriptHandler + ' ' + GM.info.version : 'Greasemonkey';
+				}
+				if (this.isFirefox) {
+					return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
+				}
+				return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 			},
 			get viewportHeight() {
 				var value = document.compatMode && document.compatMode === 'CSS1Compat' ? function () {
@@ -19201,6 +19186,17 @@ true, true];
 				};
 				Object.defineProperty(this, 'viewportWidth', { value: value });
 				return value;
+			},
+			cssMatches: function cssMatches(leftSel) {
+				for (var _len11 = arguments.length, rules = Array(_len11 > 1 ? _len11 - 1 : 0), _key3 = 1; _key3 < _len11; _key3++) {
+					rules[_key3 - 1] = arguments[_key3];
+				}
+
+				return leftSel + rules.join(', ' + leftSel);
+			},
+
+			fixLink: isSafari ? getAbsLink : function fixLink(url) {
+				return url;
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var Ctor = Uint8Array;
@@ -19302,7 +19298,7 @@ true, true];
 				if (!(dTime || Spells.reps || Cfg.crossLinks || Cfg.decodeLinks || this.fixHTMLHelper || this.fixDeadLinks || this.hasTextLinks)) {
 					return data;
 				}
-				var str;
+				var str = void 0;
 				if (typeof data === 'string') {
 					str = data;
 				} else if (isForm) {
@@ -19358,21 +19354,22 @@ true, true];
 		}, {
 			key: 'fixVideo',
 			value: function fixVideo(isPost, data) {
-				var videos = [],
-				    els = $Q('embed, object, iframe', isPost ? data.el : data);
-				for (var i = 0, len = els.length; i < len; ++i) {
-					var m,
-					    el = els[i],
-					    src = el.src || el.data;
-					if (src) {
-						if (m = src.match(Videos.ytReg)) {
-							videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-							$del(el);
-						}
-						if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-							videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-							$del(el);
-						}
+				var videos = [];
+				var els = $Q('embed, object, iframe', isPost ? data.el : data);
+				for (var i = 0, _len12 = els.length; i < _len12; ++i) {
+					var el = els[i];
+					var src = el.src || el.data;
+					if (!src) {
+						continue;
+					}
+					var m = src.match(Videos.ytReg);
+					if (m) {
+						videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+						$del(el);
+					}
+					if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+						videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
+						$del(el);
 					}
 				}
 				return videos;
@@ -19420,7 +19417,7 @@ true, true];
 		}, {
 			key: 'getOmitted',
 			value: function getOmitted(el) {
-				var txt;
+				var txt = void 0;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 			}
 		}, {
@@ -19432,8 +19429,8 @@ true, true];
 				}
 				op = thr.ownerDocument.createElement('div');
 				op.setAttribute('de-oppost', '');
-				var el,
-				    opEnd = $q(this._qTable, thr);
+				var el = void 0;
+				var opEnd = $q(this._qTable, thr);
 				while ((el = thr.firstChild) && el !== opEnd) {
 					op.appendChild(el);
 				}
@@ -19492,8 +19489,8 @@ true, true];
 		}, {
 			key: 'getSage',
 			value: function getSage(post) {
-				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-				return !!a && /sage/i.test(a.href);
+				var el = $q('a[href^="mailto:"], a[href="sage"]', post);
+				return !!el && /sage/i.test(el.href);
 			}
 		}, {
 			key: 'getThrUrl',
@@ -19735,8 +19732,8 @@ true, true];
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i48 = 0; _i48 < 8; ++_i48) {
-						str += '<div' + (_i48 ? ' style="display: none;"' : '') + '><input type="file" name="image' + (_i48 + 1) + '"></div>';
+					for (var i = 0; i < 8; ++i) {
+						str += '<div' + (i ? ' style="display: none;"' : '') + '><input type="file" name="image' + (i + 1) + '"></div>';
 					}
 					el.innerHTML = str;
 				}
@@ -19744,10 +19741,7 @@ true, true];
 				key: 'getBanId',
 				value: function getBanId(postEl) {
 					var el = $q(this.qBan, postEl);
-					if (!el) {
-						return 0;
-					}
-					return el.textContent.includes('предупрежден') ? 2 : 1;
+					return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 				}
 			}, {
 				key: 'getImgWrap',
@@ -19785,8 +19779,8 @@ true, true];
 			}, {
 				key: 'getSubmitData',
 				value: function getSubmitData(json) {
-					var error = null,
-					    postNum = null;
+					var error = null;
+					var postNum = null;
 					if (json.Status === 'OK') {
 						postNum = +json.Num;
 					} else if (json.Status === 'Redirect') {
@@ -20043,8 +20037,8 @@ true, true];
 				value: function fixVideo(isPost, data) {
 					var videos = [];
 					var els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-					for (var _i49 = 0, _len11 = els.length; _i49 < _len11; ++_i49) {
-						var el = els[_i49];
+					for (var i = 0, _len13 = els.length; i < _len13; ++i) {
+						var el = els[i];
 						videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 						$del(el);
 					}
@@ -20136,8 +20130,8 @@ true, true];
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i50 = 0; _i50 < 5; ++_i50) {
-						str += '<div' + (_i50 ? ' style="display: none;"' : '') + '><input type="file" name="file' + (_i50 ? _i50 + 1 : '') + '"></div>';
+					for (var i = 0; i < 5; ++i) {
+						str += '<div' + (i ? ' style="display: none;"' : '') + '><input type="file" name="file' + (i ? i + 1 : '') + '"></div>';
 					}
 					el.innerHTML = str;
 				}
@@ -20376,9 +20370,9 @@ true, true];
 					if (!$q(this.qForm + ' td')) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 						var _els4 = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' + '#fieldPostingPassword, #divUpload');
-						for (var _i51 = 0, _len12 = _els4.length; _i51 < _len12; ++_i51) {
+						for (var i = 0, _len14 = _els4.length; i < _len14; ++i) {
 							var td = $bEnd(table, '<tr><th></th><td></td></tr>').lastChild;
-							td.appendChild(_els4[_i51]);
+							td.appendChild(_els4[i]);
 						}
 					}
 					return false;
@@ -20392,7 +20386,7 @@ true, true];
 				key: 'sendHTML5Post',
 				value: function () {
 					var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
-						var getBase64, getCookies, dataObj, files, _i53, _len13, file, cookieObj, ajaxParams, xhr;
+						var getBase64, getCookies, dataObj, files, i, _len15, file, cookieObj, ajaxParams, xhr;
 
 						return regeneratorRuntime.wrap(function _callee20$(_context25) {
 							while (1) {
@@ -20431,8 +20425,8 @@ true, true];
 										getCookies = function getCookies() {
 											var parsedCookies = {};
 											var cookies = document.cookie.split(';');
-											for (var _i52 = 0; _i52 < cookies.length; _i52++) {
-												var parts = cookies[_i52].split('=');
+											for (var i = 0; i < cookies.length; i++) {
+												var parts = cookies[i].split('=');
 												parsedCookies[parts.shift().trim()] = decodeURI(parts.join('='));
 											}
 											return parsedCookies;
@@ -20465,15 +20459,15 @@ true, true];
 												return _ref105.apply(this, arguments);
 											};
 										}());
-										_i53 = 0, _len13 = files.length;
+										i = 0, _len15 = files.length;
 
 									case 6:
-										if (!(_i53 < _len13)) {
+										if (!(i < _len15)) {
 											_context25.next = 21;
 											break;
 										}
 
-										file = files[_i53];
+										file = files[i];
 
 										if (!file.type) {
 											_context25.next = 18;
@@ -20500,7 +20494,7 @@ true, true];
 										_context25.t0.push.call(_context25.t0, _context25.t5);
 
 									case 18:
-										++_i53;
+										++i;
 										_context25.next = 6;
 										break;
 
@@ -20893,7 +20887,7 @@ true, true];
 			}, {
 				key: 'getOmitted',
 				value: function getOmitted(el, len) {
-					var txt;
+					var txt = void 0;
 					return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 				}
 			}, {
@@ -20904,7 +20898,8 @@ true, true];
 			}, {
 				key: 'getSubmitData',
 				value: function getSubmitData(json) {
-					var error, postNum;
+					var error = null;
+					var postNum = null;
 					if (json.post) {
 						postNum = +json.post;
 					} else {
@@ -20918,13 +20913,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var el = $q('#postform input[type="button"]');
-					if (el) {
-						$replace(el, '<input type="submit" value="Отправить">');
+					var btnEl = $q('#postform input[type="button"]');
+					if (btnEl) {
+						$replace(btnEl, '<input type="submit" value="Отправить">');
 					}
-					el = $q(this.qDForm);
-					$each($Q('input[type="hidden"]', el), $del);
-					el.appendChild($q('.userdelete'));
+					var dFormEl = $q(this.qDForm);
+					$each($Q('input[type="hidden"]', dFormEl), $del);
+					dFormEl.appendChild($q('.userdelete'));
 					return false;
 				}
 			}, {
@@ -21135,9 +21130,9 @@ true, true];
 			}, {
 				key: 'getSubmitData',
 				value: function getSubmitData(data) {
-					var error = null,
-					    postNum = null,
-					    errEl = $q('#errmsg', data);
+					var error = null;
+					var postNum = null;
+					var errEl = $q('#errmsg', data);
 					if (errEl) {
 						error = errEl.textContent;
 					} else {
@@ -21333,8 +21328,8 @@ true, true];
 					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					try {
 						var _els5 = $Q('.expand_image', el);
-						for (var _i54 = 0, tLen = _els5.length; _i54 < tLen; ++_i54) {
-							_els5[_i54].href = _els5[_i54].getAttribute('onclick').match(/http:\/[^']+/)[0];
+						for (var i = 0, tLen = _els5.length; i < tLen; ++i) {
+							_els5[i].href = _els5[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
 						}
 					} catch (e) {}
 					return el;
@@ -21381,7 +21376,7 @@ true, true];
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post[postid=""]');
-						for (var i = 0, len = delPosts.length; i < len; ++i) {
+						for (var i = 0, _len16 = delPosts.length; i < _len16; ++i) {
 							try {
 								var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
 								if (post) {
@@ -21918,8 +21913,8 @@ true, true];
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '';
-					for (var _i55 = 0; _i55 < 4; ++_i55) {
-						str += '<div' + (_i55 ? ' style="display: none;"' : '') + '>' + ('<input type="file" name="file_' + _i55 + '" tabindex="7"></div>');
+					for (var i = 0; i < 4; ++i) {
+						str += '<div' + (i ? ' style="display: none;"' : '') + '>' + ('<input type="file" name="file_' + i + '" tabindex="7"></div>');
 					}
 					el.innerHTML = str;
 					el.removeAttribute('id');
@@ -21955,8 +21950,8 @@ true, true];
 				value: function initCaptcha(cap) {
 					cap.hasCaptcha = false;
 					var scripts = $Q('script:not([src])', doc);
-					for (var _i56 = 0, _len14 = scripts.length; _i56 < _len14; ++_i56) {
-						var m = scripts[_i56].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
+					for (var i = 0, _len17 = scripts.length; i < _len17; ++i) {
+						var m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
 						if (m) {
 							if (m[1] === 'true') {
 								cap.hasCaptcha = true;
@@ -21969,8 +21964,8 @@ true, true];
 			}, {
 				key: 'insertYtPlayer',
 				value: function insertYtPlayer(msg, playerHtml) {
-					var pMsg = msg.parentNode,
-					    prev = pMsg.previousElementSibling;
+					var pMsg = msg.parentNode;
+					var prev = pMsg.previousElementSibling;
 					return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 				}
 			}, {
@@ -21992,16 +21987,16 @@ true, true];
 					var cookie = doc.cookie;
 
 					if (cookie.includes('desuchan.session')) {
-						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i57 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
+						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
 							var _ref107;
 
 							if (_isArray36) {
-								if (_i57 >= _iterator36.length) break;
-								_ref107 = _iterator36[_i57++];
+								if (_i48 >= _iterator36.length) break;
+								_ref107 = _iterator36[_i48++];
 							} else {
-								_i57 = _iterator36.next();
-								if (_i57.done) break;
-								_ref107 = _i57.value;
+								_i48 = _iterator36.next();
+								if (_i48.done) break;
+								_ref107 = _i48.value;
 							}
 
 							var c = _ref107;
@@ -22341,10 +22336,10 @@ true, true];
 		if (checkDomains) {
 			if (!dm) {
 				var ibKeys = Object.keys(ibDomains);
-				var _i58 = ibKeys.length;
+				var i = ibKeys.length;
 				var host = window.location.hostname.toLowerCase();
-				while (_i58--) {
-					dm = ibKeys[_i58];
+				while (i--) {
+					dm = ibKeys[i];
 					if (host === dm || host.endsWith('.' + dm)) {
 						return new ibDomains[dm](prot, dm);
 					}
@@ -22361,10 +22356,10 @@ true, true];
 		}
 		dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		if (checkEngines) {
-			for (var i = ibEngines.length - 1; i >= 0; --i) {
-				var _ibEngines$i = _slicedToArray(ibEngines[i], 2),
-				    path = _ibEngines$i[0],
-				    Ctor = _ibEngines$i[1];
+			for (var _i49 = ibEngines.length - 1; _i49 >= 0; --_i49) {
+				var _ibEngines$_i = _slicedToArray(ibEngines[_i49], 2),
+				    path = _ibEngines$_i[0],
+				    Ctor = _ibEngines$_i[1];
 
 				if ($q(path, doc)) {
 					return new Ctor(prot, dm);
@@ -22420,16 +22415,16 @@ true, true];
 				case 'registerapi':
 					if (data) {
 						rv = {};
-						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i59 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
+						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
 							var _ref110;
 
 							if (_isArray37) {
-								if (_i59 >= _iterator37.length) break;
-								_ref110 = _iterator37[_i59++];
+								if (_i50 >= _iterator37.length) break;
+								_ref110 = _iterator37[_i50++];
 							} else {
-								_i59 = _iterator37.next();
-								if (_i59.done) break;
-								_ref110 = _i59.value;
+								_i50 = _iterator37.next();
+								if (_i50.done) break;
+								_ref110 = _i50.value;
 							}
 
 							var aName = _ref110;
@@ -22470,7 +22465,7 @@ true, true];
 				var src = '' + gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isESNext ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
 				var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
-				for (var i = 0, _len15 = Math.max(currentVer.length, remoteVer.length); i < _len15; ++i) {
+				for (var i = 0, _len18 = Math.max(currentVer.length, remoteVer.length); i < _len18; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 						return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>';
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {

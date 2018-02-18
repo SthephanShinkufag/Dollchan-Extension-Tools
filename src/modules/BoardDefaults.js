@@ -160,7 +160,7 @@ class BaseBoard {
 		) {
 			return data;
 		}
-		var str;
+		let str;
 		if(typeof data === 'string') {
 			str = data;
 		} else if(isForm) {
@@ -210,20 +210,22 @@ class BaseBoard {
 		return data;
 	}
 	fixVideo(isPost, data) { // Differs Tinyboard only
-		var videos = [],
-			els = $Q('embed, object, iframe', isPost ? data.el : data);
-		for(var i = 0, len = els.length; i < len; ++i) {
-			var m, el = els[i],
-				src = el.src || el.data;
-			if(src) {
-				if((m = src.match(Videos.ytReg))) {
-					videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-					$del(el);
-				}
-				if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-					videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-					$del(el);
-				}
+		const videos = [];
+		const els = $Q('embed, object, iframe', isPost ? data.el : data);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			const src = el.src || el.data;
+			if(!src) {
+				continue;
+			}
+			let m = src.match(Videos.ytReg);
+			if(m) {
+				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
+				$del(el);
+			}
+			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
+				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
+				$del(el);
 			}
 		}
 		return videos;
@@ -254,17 +256,18 @@ class BaseBoard {
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
-		var txt;
+		let txt;
 		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
 	}
 	getOp(thr) { // Differs Arhivach only
-		var op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
 		}
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
-		var el, opEnd = $q(this._qTable, thr);
+		let el;
+		const opEnd = $q(this._qTable, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
@@ -282,7 +285,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
 	}
 	getPostElOfEl(el) {
-		var sel = this.qRPost + ', [de-thread]';
+		const sel = this.qRPost + ', [de-thread]';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}
@@ -311,8 +314,8 @@ class BaseBoard {
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
-		var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-		return !!a && /sage/i.test(a.href);
+		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
+		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(b, tNum) { // Differs Arhivach only
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;

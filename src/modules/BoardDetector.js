@@ -3,8 +3,8 @@
 =========================================================================================================== */
 
 function getImageBoard(checkDomains, checkEngines) {
-	var ibDomains = {};
-	var ibEngines = [];
+	const ibDomains = {};
+	const ibEngines = [];
 
 	// ENGINES
 	class Makaba extends BaseBoard {
@@ -89,11 +89,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = str;
 		}
 		getBanId(postEl) {
-			var el = $q(this.qBan, postEl);
-			if(!el) {
-				return 0;
-			}
-			return el.textContent.includes('предупрежден') ? 2 : 1;
+			const el = $q(this.qBan, postEl);
+			return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -110,7 +107,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
 				this.getSage = function(post) {
-					var name = $q(this.qPostName, post);
+					const name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 				};
 			} else {
@@ -119,7 +116,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
-			var error = null, postNum = null;
+			let error = null;
+			let postNum = null;
 			if(json.Status === 'OK') {
 				postNum = +json.Num;
 			} else if(json.Status === 'Redirect') {
@@ -144,7 +142,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$(function() { $(window).off(); });
 			})();`);
 			$each($Q('.autorefresh'), $del);
-			var el = $q('td > .anoniconsselectlist');
+			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);
 			}
@@ -436,7 +434,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !el && super.getImgRealName(wrap) || el.replace(')', '');
 		}
 		init() {
-			var el = $id('posttypeindicator');
+			const el = $id('posttypeindicator');
 			if(el) {
 				[el.previousSibling, el.nextSibling, el].forEach($del);
 			}
@@ -813,7 +811,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		init() {
-			var el = $id('submit_button');
+			const el = $id('submit_button');
 			if(el) {
 				$del(el.previousElementSibling);
 				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
@@ -871,14 +869,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getOmitted(el, len) {
-			var txt;
+			let txt;
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 		}
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 		}
 		getSubmitData(json) {
-			var error, postNum;
+			let error = null;
+			let postNum = null;
 			if(json.post) {
 				postNum = +json.post;
 			} else {
@@ -890,13 +889,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
-			var el = $q('#postform input[type="button"]');
-			if(el) {
-				$replace(el, '<input type="submit" value="Отправить">');
+			const btnEl = $q('#postform input[type="button"]');
+			if(btnEl) {
+				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
-			el = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', el), $del);
-			el.appendChild($q('.userdelete'));
+			const dFormEl = $q(this.qDForm);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
+			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
 	}
@@ -952,7 +951,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
 		}
 		getSage(post) {
-			var el = $q('.filetitle', post);
+			const el = $q('.filetitle', post);
 			return el && el.textContent.includes('\u21E9');
 		}
 		init() {
@@ -1079,7 +1078,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
 		getSubmitData(data) {
-			var error = null, postNum = null, errEl = $q('#errmsg', data);
+			let error = null;
+			let postNum = null;
+			const errEl = $q('#errmsg', data);
 			if(errEl) {
 				error = errEl.textContent;
 			} else {
@@ -1227,10 +1228,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(function() {
-				var delPosts = $Q('.post[postid=""]');
-				for(var i = 0, len = delPosts.length; i < len; ++i) {
+				const delPosts = $Q('.post[postid=""]');
+				for(let i = 0, len = delPosts.length; i < len; ++i) {
 					try {
-						var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
+						const post = pByNum.get(+$q('blockquote', delPosts[i])
+							.getAttribute('id').substring(1));
 						if(post) {
 							post.deleted = true;
 							post.btns.classList.remove('de-post-counter');
@@ -1395,7 +1397,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('window.UploadProgress = Function.prototype');
-			var el = $id('postform');
+			const el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
 			}
@@ -1409,7 +1411,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
-			var prev = msg.previousElementSibling;
+			const prev = msg.previousElementSibling;
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 		updateCaptcha(cap, isErr) {
@@ -1657,8 +1659,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		insertYtPlayer(msg, playerHtml) {
-			var pMsg = msg.parentNode,
-				prev = pMsg.previousElementSibling;
+			const pMsg = msg.parentNode;
+			const prev = pMsg.previousElementSibling;
 			return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
 		}
 		parseURL() {
@@ -1838,7 +1840,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
 		}
 		init() {
-			var val = '{ "simpleNavbar": true }';
+			const val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
 				window.location.reload();
@@ -1880,8 +1882,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkEngines) {
-		for(var i = ibEngines.length - 1; i >= 0; --i) {
-			var [path, Ctor] = ibEngines[i];
+		for(let i = ibEngines.length - 1; i >= 0; --i) {
+			const [path, Ctor] = ibEngines[i];
 			if($q(path, doc)) {
 				return new Ctor(prot, dm);
 			}
