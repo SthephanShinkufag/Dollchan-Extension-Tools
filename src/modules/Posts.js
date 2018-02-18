@@ -126,10 +126,7 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(
-					Cfg.webmControl &&
-					e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)
-				)) {
+				if(Cfg.expandImgs !== 0 && !ExpandableMedia.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -541,7 +538,7 @@ class Post extends AbstractPost {
 	addFuncs() {
 		super.addFuncs();
 		if(isExpImg) {
-			this.toggleImages(true);
+			this.toggleImages(true, false);
 		}
 	}
 	delete(removeEl) {
@@ -693,9 +690,9 @@ class Post extends AbstractPost {
 			this.ref.unhide();
 		}
 	}
-	toggleImages(expand = !this.images.expanded) {
+	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
 		for(const image of this.images) {
-			if(image.isImage && (image.expanded ^ expand)) {
+			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
 				} else {

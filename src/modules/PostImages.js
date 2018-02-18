@@ -464,7 +464,7 @@ class ExpandableMedia {
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapse(e));
+		this._fullEl.addEventListener('click', e => this.collapse(e), true);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
@@ -503,9 +503,9 @@ class ExpandableMedia {
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
 			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
-		const wrapClass = (inPost ? ' de-fullimg-wrap-inpost' :
-			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`) +
-			(this.isVideo ? ' de-fullimg-video' : '');
+		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
+			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
+			this.isVideo ? ' de-fullimg-video' : '' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
 			const waitEl = inPost || this._size ? '' :

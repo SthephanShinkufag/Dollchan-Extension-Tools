@@ -758,7 +758,7 @@ class SpellsCodegen {
 		// #ihash
 		case 4:
 			m = str.match(/^\((\d+)\)/);
-			if(+m[1] === +m[1]) {
+			if(!isNaN(+m[1])) {
 				return [i + m[0].length, [spellType, +m[1], scope]];
 			}
 			break;

@@ -95,7 +95,7 @@ const Panel = Object.create({
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
 				for(let post = Thread.first.op; post; post = post.next) {
-					post.toggleImages(isExpImg);
+					post.toggleImages(isExpImg, false);
 				}
 				break;
 			case 'de-panel-preimg':

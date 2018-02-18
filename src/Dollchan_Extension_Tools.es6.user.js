@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '18.2.8.0';
-const commit = '075ff7a';
+const commit = 'f8d00fe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2990,7 +2990,7 @@ const Panel = Object.create({
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
 				for(let post = Thread.first.op; post; post = post.next) {
-					post.toggleImages(isExpImg);
+					post.toggleImages(isExpImg, false);
 				}
 				break;
 			case 'de-panel-preimg':
@@ -7651,7 +7651,7 @@ class SpellsCodegen {
 		// #ihash
 		case 4:
 			m = str.match(/^\((\d+)\)/);
-			if(+m[1] === +m[1]) {
+			if(!isNaN(+m[1])) {
 				return [i + m[0].length, [spellType, +m[1], scope]];
 			}
 			break;
@@ -9968,10 +9968,7 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !(
-					Cfg.webmControl &&
-					e.clientY > (el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)
-				)) {
+				if(Cfg.expandImgs !== 0 && !ExpandableMedia.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -10383,7 +10380,7 @@ class Post extends AbstractPost {
 	addFuncs() {
 		super.addFuncs();
 		if(isExpImg) {
-			this.toggleImages(true);
+			this.toggleImages(true, false);
 		}
 	}
 	delete(removeEl) {
@@ -10535,9 +10532,9 @@ class Post extends AbstractPost {
 			this.ref.unhide();
 		}
 	}
-	toggleImages(expand = !this.images.expanded) {
+	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
 		for(const image of this.images) {
-			if(image.isImage && (image.expanded ^ expand)) {
+			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
 				} else {
@@ -11832,7 +11829,7 @@ class ExpandableMedia {
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullObject(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapse(e));
+		this._fullEl.addEventListener('click', e => this.collapse(e), true);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
@@ -11871,9 +11868,9 @@ class ExpandableMedia {
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
 			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
-		const wrapClass = (inPost ? ' de-fullimg-wrap-inpost' :
-			` de-fullimg-wrap-center${ this._size ? '' : ' de-fullimg-wrap-nosize' }`) +
-			(this.isVideo ? ' de-fullimg-video' : '');
+		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
+			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
+			this.isVideo ? ' de-fullimg-video' : '' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
 			const waitEl = inPost || this._size ? '' :
@@ -17333,7 +17330,7 @@ function scriptCSS() {
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
-	${ nav.firefoxVer > 57 ? `.de-fullimg-video { position: relative; }
+	${ nav.firefoxVer > 59 ? `.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
@@ -17498,13 +17495,13 @@ function updateCSS() {
 	const str = `.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
 	.de-new-post { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
-		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' }; }
+		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' } !important; }
 	.de-selected, .de-error-input { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
-		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' }; }
+		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' } !important; }
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
-		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' }; }
+		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
 		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }
 		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
