@@ -1,7 +1,7 @@
 ## ![dE](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/Icon.png) Dollchan Extension Tools
 
 >
-**Get as userscript: [ES5 version](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) or [ESNext version](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)** (Firefox 54+, Chrome 59+)
+**Get as userscript: [ES5 version](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) or [ESNext version](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)** (Firefox 52+, Chrome 55+, Opera 42+)
 >
 **Get as Chrome [Extension](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad)**
 
