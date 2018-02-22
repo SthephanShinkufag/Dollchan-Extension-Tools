@@ -4,15 +4,8 @@
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.init();
-	docBody = doc.body;
-	if(!docBody) {
+	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
-	}
-	if(!aib) {
-		aib = getImageBoard(checkDomains, true);
-		if(!aib) {
-			return;
-		}
 	}
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
@@ -28,32 +21,24 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let eList, fav;
-	if(dataPromise) {
-		[eList, fav] = await dataPromise;
-	} else {
-		[eList, fav] = await readData();
-	}
-	if(eList && eList.includes(aib.dm)) {
-		return;
-	}
-	excludeList = eList || '';
-	Logger.log('Data loading');
-	let oldMain;
-	if(!Cfg.disabled && ((aib.init && aib.init())) ||
+	let fav, oldMain;
+	[excludeList = '', fav] = await (dataPromise || readData());
+	if(excludeList.includes(aib.dm) ||
+		!Cfg.disabled && aib.init && aib.init() ||
 		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
 	) {
 		return;
 	}
+	Logger.log('Storage loading');
 	$del(oldMain);
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	addSVGIcons();
 	if(Cfg.disabled) {
 		Panel.init(formEl);
 		scriptCSS();
 		return;
+	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
 	}
 	initStorageEvent();
 	DollchanAPI.init();
@@ -95,12 +80,10 @@ async function runMain(checkDomains, dataPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	const storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
-	if(aib.t && !!sesStorage[storageName]) {
-		if(sesStorage[storageName] > Thread.first.pcount) {
-			sesStorage.removeItem(storageName);
-			window.location.reload();
-		}
+	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
+	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
+		sesStorage.removeItem(storageName);
+		window.location.reload();
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
@@ -148,19 +131,19 @@ if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);
-} else {
-	let dataPromise = null;
-	if((aib = getImageBoard(true, false))) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
-		dataPromise = readData();
-	}
-	needScroll = true;
-	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
-		needScroll = false;
-		doc.removeEventListener(e.type, wFunc);
-	});
-	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
+	return;
 }
+let dataPromise = null;
+if((aib = getImageBoard(true, false))) {
+	if(!checkStorage()) {
+		return;
+	}
+	initNavFuncs();
+	dataPromise = readData();
+}
+needScroll = true;
+doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
+	needScroll = false;
+	doc.removeEventListener(e.type, wFunc);
+});
+doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));

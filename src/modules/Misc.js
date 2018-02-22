@@ -105,16 +105,16 @@ function checkForUpdates(isManual, lastUpdateTime) {
 function initPage() {
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
-			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
+			doc.title = `/${ aib.b } - ${ Thread.first.op.title }`;
 		}
 		if(!localData) {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
-			Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
-				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
-				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
-				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
-				'</div>');
+			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
+				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>
+				<span id="de-updater-count" style="display: none;"></span>]</span>
+				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
+			</div>`);
 		}
 	} else {
 		navPanel.init();
@@ -122,8 +122,7 @@ function initPage() {
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
 		if(aib.t) {
-			Thread.first.el.nextSibling.firstChild.firstElementChild
-				.addEventListener('click', updater.forceLoad);
+			$q('.de-thread-updater > .de-abtn').addEventListener('click', updater.forceLoad);
 		}
 	}
 }
@@ -139,10 +138,11 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(function() {
-		const val = +sesStorage['de-scroll-' + aib.b + aib.t];
+		const id = 'de-scroll-' + aib.b + aib.t;
+		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
-			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
+			sesStorage.removeItem(id);
 		} else {
 			let post, num;
 			const { hash } = window.location;

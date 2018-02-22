@@ -374,12 +374,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get css() {
-			return super.css + `.boardlist { position: static !important; }
-				body { padding: 0 5px !important; }
-				.fileinfo { width: 250px; }
-				.multifile { width: auto !important; }
+			return `${ super.css }
 				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
-					.post-btn, small { display: none !important; }`;
+					.post-btn, small { display: none !important; }
+				body { padding: 0 5px !important; }
+				.boardlist { position: static !important; }
+				.fileinfo { width: 250px; }
+				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -852,8 +853,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'span[id$="_display"], #fastload { display: none; }';
 		}
 		get initCaptcha() {
-			$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() +
-				'" style="vertical-align: bottom;" id="imgcaptcha">';
+			$id('captchadiv').innerHTML =
+				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
 			return null;
 		}
 		fixFileInputs(el) {
@@ -864,7 +865,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/data-original="\//g, 'src="/');
 		}
 		getCaptchaSrc() {
-			return '/' + this.b + '/captcha.fpl?' + Math.random();
+			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -874,7 +875,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 		}
 		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -921,12 +922,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 0;
 		}
 		get css() {
-			return super.css + `body { margin: 0 }
+			return `${ super.css }
 				#resizer { display: none; }
-				.topmenu { position: static; }
-				.de-thr-hid { display: inherit; }
+				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thread-buttons { float: left; } `;
+				form > .de-thread-buttons { float: left; }
+				.de-thr-hid { display: inherit; }
+				.topmenu { position: static; }`;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -949,7 +951,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el;
 		}
 		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
 		}
 		getSage(post) {
 			const el = $q('.filetitle', post);
@@ -1114,14 +1116,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return super.css + 'input.delete, #post-moderation-fields { display: initial !important; }';
+			return `${ super.css }
+				input.delete, #post-moderation-fields { display: initial !important; }`;
 		}
 		initCaptcha(cap) {
-			$q('td', cap.parentEl).innerHTML =
-				'<input placeholder="' + Lng.cap[lang] + '" class="captcha_text" type="text" ' +
-					'name="captcha_text" size="25" maxlength="8" autocomplete="off">' +
-				'<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">' +
-				'<div class="captcha_html"></div>';
+			$q('td', cap.parentEl).innerHTML = `<input placeholder="${ Lng.cap[lang] }" class="captcha_text` +
+				`" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
+				<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">
+				<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);
 		}
@@ -1274,11 +1276,12 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Lolifox extends Brchan {
 		get css() {
-			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-				'color: inherit !important' }; transition: none !important; }` : '' }
-			#thread-interactions { display: none; }
-			.reflink::after { content: "" !important; }`;
+			return `${ super.css }\r\n\t${
+				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+					'color: inherit !important' }; transition: none !important; }` : '' }
+				#thread-interactions { display: none; }
+				.reflink::after { content: "" !important; }`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -1303,7 +1306,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get css() {
-			return super.css + '.resize, .postblock { display: none; }';
+			return `${ super.css }
+				.resize, .postblock { display: none; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
@@ -1451,10 +1455,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.contentOmissionIndicator > p';
 		}
 		get css() {
-			return super.css + `.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
+			return `${ super.css }
+				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				#de-main, .de-pview { font-size: 75%; }
-				.de-cfg-label { display: initial !important; }`;
+				.de-cfg-label { display: initial !important; }
+				#de-main, .de-pview { font-size: 75%; }`;
 		}
 		init() {
 			super.init();
@@ -1539,7 +1544,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya3"]';
 		}
 		get catalogUrl() {
-			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
+			return `${ this.prot }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
 			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
@@ -1602,7 +1607,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_body';
 		}
 		get catalogUrl() {
-			return this.prot + '//' + this.host + '/catalog/' + this.b;
+			return `${ this.prot }//${ this.host }/catalog/${ this.b }`;
 		}
 		get css() {
 			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr,
@@ -1630,7 +1635,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.removeAttribute('id');
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
+			return str.replace(/href="(#\d+)"/g, `href="/${ aib.b }/thread-${ aib.t }.html$1"`);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -1704,7 +1709,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return super.css + (this.t ? '' : '.de-btn-rep { display: none !important; }');
+			return super.css + (this.t ? '' : '\r\n.de-btn-rep { display: none !important; }');
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
@@ -1719,7 +1724,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qOPost = '.op';
 		}
 		get css() {
-			return super.css + `.sidearrows { display: none !important; }
+			return `${ super.css }
+				.sidearrows { display: none !important; }
 				.bar { position: static; }`;
 		}
 		init() {
@@ -1732,7 +1738,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Niuchan extends Kusaba {
 		get css() {
-			return super.css + '.replybacklinks, .resize { display: none; }';
+			return `${ super.css }
+				.replybacklinks, .resize { display: none; }`;
 		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
@@ -1806,7 +1813,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = false;
 		}
 		get css() {
-			return super.css + `.mature_thread { display: block !important; }
+			return `${ super.css }
+				.mature_thread { display: block !important; }
 				.mature_warning { display: none; }`;
 		}
 		getImgRealName(wrap) {
@@ -1834,7 +1842,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-info > .btn-group > .btn-xs > a';
 		}
 		get css() {
-			return super.css + `.fa-sort { display: none; }
+			return `${ super.css }
+				.fa-sort { display: none; }
 				time::after { content: none; }`;
 		}
 		get markupTags() {

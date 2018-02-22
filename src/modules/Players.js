@@ -334,7 +334,7 @@ class VideosParser {
 }
 
 // Embed .mp3 and Vocaroo links
-function embedMediaLinks(data) {
+function embedAudioLinks(data) {
 	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
 		const els = $Q('a[href*=".mp3"]', isPost ? data.el : data);

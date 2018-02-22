@@ -406,16 +406,6 @@ const CfgWindow = {
 				} else {
 					HotKeys.disable();
 				}
-				break;
-			case 'turnOff': getStoredObj('DESU_Config').then(data => {
-				for(const dm in data) {
-					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-						data[dm].disabled = Cfg.turnOff;
-					}
-				}
-				data[aib.dm].turnOff = Cfg.turnOff;
-				setStored('DESU_Config', JSON.stringify(data));
-			});
 			}
 			return;
 		}
@@ -771,7 +761,7 @@ const CfgWindow = {
 				</div>` : '' }
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
-				` width: 80%;" placeholder="4chan.org, 8ch.net, …">${ this._getBox('turnOff') }` : '' }
+				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
 		</div>`;
 	},
 

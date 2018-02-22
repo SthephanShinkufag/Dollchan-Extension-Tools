@@ -50,7 +50,7 @@ class AbstractPost {
 	}
 	addFuncs() {
 		RefMap.upd(this, true);
-		embedMediaLinks(this);
+		embedAudioLinks(this);
 	}
 	handleEvent(e) {
 		let temp, el = fixEventEl(e.target);

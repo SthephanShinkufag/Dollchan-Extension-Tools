@@ -114,7 +114,6 @@ const defaultCfg = {
 	loadPages    : 1,    //    number of pages that are loaded on F5
 	updScript    : 1,    // auto check for Dollchan updates
 	scrUpdIntrv  : 1,    //    interval in days (every val+1 day)
-	turnOff      : 0,    // enable Dollchan only on this site
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
 	replyWinDrag : 0,          // draggable "Quick Reply" form

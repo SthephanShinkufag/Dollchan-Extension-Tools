@@ -330,7 +330,7 @@ class Pview extends AbstractPost {
 				post.isOp ? 'OP' : post.count + +!aib.JsonBuilder }${ isMyPost ? ' (You)' : '' }</span>` }`;
 		if(post instanceof CacheItem) {
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
-			embedMediaLinks(this);
+			embedAudioLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).end();
 			}

@@ -112,9 +112,9 @@ class DelForm {
 		const { el } = this;
 		if(!localData && Cfg.ajaxPosting) {
 			el.onsubmit = $pd;
-			const btn = $q(aib.qDelBut, el);
-			if(btn) {
-				btn.onclick = e => {
+			const delBtn = $q(aib.qDelBut, el);
+			if(delBtn) {
+				delBtn.onclick = e => {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
@@ -122,11 +122,11 @@ class DelForm {
 						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
+			Logger.log('Init AJAX');
 		}
-		Logger.log('Init AJAX');
 		preloadImages(el);
 		Logger.log('Preload images');
-		embedMediaLinks(el);
+		embedAudioLinks(el);
 		Logger.log('Audio links');
 		if(Cfg.addYouTube) {
 			new VideosParser().parse(el).end();

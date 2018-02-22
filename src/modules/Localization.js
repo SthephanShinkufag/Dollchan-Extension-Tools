@@ -505,11 +505,7 @@ const Lng = {
 		excludeList: [
 			'Не запускать Dollchan на:',
 			'Prevent Dollchan launch on:',
-			'Не запускати Dollchan на:'],
-		turnOff: [
-			'Запускать Dollchan только на этом сайте',
-			'Run Dollchan only on this site',
-			'Запускати Dollchan лише на цьому сайті']
+			'Не запускати Dollchan на:']
 	},
 
 	// Main panel buttons: tooltips
@@ -1255,7 +1251,7 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Can not load the reply form',
+		'Can`t load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 

@@ -91,7 +91,7 @@ class BaseBoard {
 		return this.ru ? 2 : 1;
 	}
 	get catalogUrl() {
-		return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
 		return null;
@@ -136,8 +136,8 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/` +
-			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
+			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
@@ -180,14 +180,13 @@ class BaseBoard {
 		}
 		if(this.hasTextLinks) {
 			str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,
-				(x, a, b, c) => c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>');
+				(x, a, b, c) => c ? x : `${ a }<a rel="noreferrer" href="${ b }">${ b }</a>`);
 		}
 		if(Spells.reps) {
 			str = Spells.replace(str);
 		}
 		if(Cfg.crossLinks) {
-			str = str.replace(aib.reCrossLinks,
-				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
 			str = str.replace(/>https?:\/\/[^<]+</ig, function(match) {
