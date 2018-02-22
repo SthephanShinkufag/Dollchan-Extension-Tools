@@ -825,7 +825,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? function(el) {
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;
@@ -833,7 +833,7 @@ class Post extends AbstractPost {
 					$hide(refmap);
 				}
 			}
-		} : function(el) {
+		} : el => {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;

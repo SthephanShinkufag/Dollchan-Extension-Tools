@@ -70,9 +70,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), function(el) {
-						el.classList.remove('de-link-pview');
-					});
+					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -235,7 +233,7 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el), function(el) {
+		$each($Q(`a[href*="${ num }"]`, el), el => {
 			if(el.textContent.startsWith('>>' + num)) {
 				el.classList.add('de-link-pview');
 			}
@@ -366,7 +364,7 @@ class Pview extends AbstractPost {
 				$each($Q('.de-img-pre', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(post) {
+				this._readDelay = setTimeout(post => {
 					if(!post.viewed) {
 						post.el.classList.add('de-viewed');
 						post.viewed = true;

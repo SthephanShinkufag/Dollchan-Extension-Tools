@@ -594,7 +594,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 			const dataObj = { files: [] };
 			const files = [];
-			data.forEach(async function(value, key) {
+			data.forEach(async (value, key) => {
 				if(key !== 'files') {
 					dataObj[key] = value;
 				} else {
@@ -1230,7 +1230,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			setTimeout(function() {
+			setTimeout(() => {
 				const delPosts = $Q('.post[postid=""]');
 				for(let i = 0, len = delPosts.length; i < len; ++i) {
 					try {
@@ -1822,9 +1822,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), function(el) {
-				el.src = el.getAttribute('data-mature-src');
-			});
+			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}

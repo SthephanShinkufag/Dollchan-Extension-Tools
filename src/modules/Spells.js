@@ -77,7 +77,7 @@ const Spells = Object.create({
 			if(spells[1]) {
 				const sScope = String(scope);
 				const sArg = String(arg);
-				spells[1].some(scope && isNeg ? function(spell, i) {
+				spells[1].some(scope && isNeg ? (spell, i) => {
 					let data;
 					if(spell[0] === 0xFF &&
 						((data = spell[1]) instanceof Array) &&
@@ -92,7 +92,7 @@ const Spells = Object.create({
 						return true;
 					}
 					return (spell[0] & 0x200) !== 0;
-				} : function(spell, i) {
+				} : (spell, i) => {
 					if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
 						idx = i;
 						return true;
@@ -777,7 +777,7 @@ class SpellsCodegen {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = m[1].split(/, */).reduce(function(val, str) {
+				val = m[1].split(/, */).reduce((val, str) => {
 					switch(str) {
 					case 'samelines': return (val |= 1);
 					case 'samewords': return (val |= 2);

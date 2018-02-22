@@ -411,7 +411,7 @@ class KeyEditListener {
 		return [allKeys, `${ Lng.hotKeyEdit[lang].join('')
 			.replace(/%l/g, '<label class="de-block">')
 			.replace(/%\/l/g, '</label>')
-			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+			.replace(/%i([2-4])([0-9]+)(t)?/g, (all, id1, id2, isText) => {
 				const key = keys[+id1][+id2];
 				allKeys.push(key);
 				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +

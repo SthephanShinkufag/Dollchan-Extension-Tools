@@ -137,20 +137,20 @@ function scrollPage() {
 	if(!needScroll) {
 		return;
 	}
-	setTimeout(function() {
+	setTimeout(() => {
 		const id = 'de-scroll-' + aib.b + aib.t;
 		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
 			sesStorage.removeItem(id);
-		} else {
-			let post, num;
-			const { hash } = window.location;
-			if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
-				(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
-			) {
-				post.selectAndScrollTo();
-			}
+			return;
+		}
+		let post, num;
+		const { hash } = window.location;
+		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
+			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
+		) {
+			post.selectAndScrollTo();
 		}
 	}, 0);
 }

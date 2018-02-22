@@ -11,13 +11,11 @@ async function getStored(id) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		const value = await new Promise(resolve => chrome.storage.local.get(id, function(obj) {
+		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
-				chrome.storage.sync.get(id, function(obj) {
-					resolve(obj[id]);
-				});
+				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
 		return value;
@@ -37,7 +35,7 @@ function setStored(id, value) {
 	} else if(nav.isChromeStorage) {
 		const obj = {};
 		obj[id] = value;
-		chrome.storage.sync.set(obj, function() {
+		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
 				chrome.storage.local.set(obj, emptyFn);
@@ -296,7 +294,7 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		const data = sesStorage['de-viewed'];
 		if(data) {
-			data.split(',').forEach(function(pNum) {
+			data.split(',').forEach(pNum => {
 				const post = pByNum.get(+pNum);
 				if(post) {
 					post.el.classList.add('de-viewed');

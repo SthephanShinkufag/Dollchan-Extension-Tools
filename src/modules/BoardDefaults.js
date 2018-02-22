@@ -189,7 +189,7 @@ class BaseBoard {
 			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
-			str = str.replace(/>https?:\/\/[^<]+</ig, function(match) {
+			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
 				} catch(e) {}

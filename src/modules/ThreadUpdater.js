@@ -467,7 +467,7 @@ function initThreadUpdater(title, enableUpdate) {
 			newPosts = 0;
 			hasYouRefs = false;
 			sendError = false;
-			setTimeout(function() {
+			setTimeout(() => {
 				updateTitle();
 				if(enabled && focusTime - focusLoadTime > 1e4) {
 					focusLoadTime = focusTime;

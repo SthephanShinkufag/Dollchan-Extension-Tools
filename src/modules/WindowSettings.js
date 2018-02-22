@@ -33,7 +33,7 @@ const CfgWindow = {
 		})));
 
 		// "Global" button. Allows to save/load global settings.
-		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
+		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
 			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
@@ -447,7 +447,7 @@ const CfgWindow = {
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getData(true)
-				}, function(key, value) {
+				}, (key, value) => {
 					switch(key) {
 					case 'stats':
 					case 'nameValue':

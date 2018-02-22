@@ -138,7 +138,7 @@ function showFavoritesWindow(body, data) {
 		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
+	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
 		const fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
@@ -253,7 +253,7 @@ function showFavoritesWindow(body, data) {
 	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
+	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		const thrInfo = [];
@@ -328,7 +328,7 @@ function showFavoritesWindow(body, data) {
 	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
+	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
 		// Sequentially load threads, and remove inaccessible
 		let last404 = false;
 		const els = $Q('.de-entry'), len = els.length;

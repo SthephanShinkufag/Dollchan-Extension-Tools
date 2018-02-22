@@ -48,7 +48,7 @@ function $popup(id, txt, isWait = false) {
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.
 function getEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
@@ -152,7 +152,7 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		function(el) {
+		el => {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
@@ -160,29 +160,28 @@ function addMenu(el) {
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
-		return new Menu(el, fn(Lng.selAjaxPages[lang]), function(el) {
-			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
-		});
+		return new Menu(el, fn(Lng.selAjaxPages[lang]),
+			el => Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
-		function(el) {
-			if(!$id('de-popup-savethr')) {
-				const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-				if(Images_.preloading) {
-					$popup('savethr', Lng.loading[lang], true);
-					Images_.afterpreload = () => loadDocFiles(imgOnly);
-					Images_.progressId = 'savethr';
-				} else {
-					loadDocFiles(imgOnly);
-				}
+		el => {
+			if($id('de-popup-savethr')) {
+				return;
+			}
+			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			if(Images_.preloading) {
+				$popup('savethr', Lng.loading[lang], true);
+				Images_.afterpreload = () => loadDocFiles(imgOnly);
+				Images_.progressId = 'savethr';
+			} else {
+				loadDocFiles(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':
-		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
-			const i = aProto.indexOf.call(el.parentNode.children, el);
+		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
 			updater.enable();
-			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][i]);
+			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}

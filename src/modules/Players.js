@@ -183,7 +183,7 @@ class Videos {
 		];
 	}
 	static _getTitlesLoader() {
-		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+		return Cfg.YTubeTitles && new TasksPool(4, (num, info) => {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
 				if(Cfg.ytApiKey) {

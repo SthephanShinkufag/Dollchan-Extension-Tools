@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'e6289bd';
+const commit = '59a3c66';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2353,13 +2353,11 @@ async function getStored(id) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		const value = await new Promise(resolve => chrome.storage.local.get(id, function(obj) {
+		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
-				chrome.storage.sync.get(id, function(obj) {
-					resolve(obj[id]);
-				});
+				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
 		return value;
@@ -2379,7 +2377,7 @@ function setStored(id, value) {
 	} else if(nav.isChromeStorage) {
 		const obj = {};
 		obj[id] = value;
-		chrome.storage.sync.set(obj, function() {
+		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
 				chrome.storage.local.set(obj, emptyFn);
@@ -2638,7 +2636,7 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		const data = sesStorage['de-viewed'];
 		if(data) {
-			data.split(',').forEach(function(pNum) {
+			data.split(',').forEach(pNum => {
 				const post = pByNum.get(+pNum);
 				if(post) {
 					post.el.classList.add('de-viewed');
@@ -3582,7 +3580,7 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -3762,7 +3760,7 @@ function showFavoritesWindow(body, data) {
 		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
+	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
 		const fav = await getStoredObj('DESU_Favorites');
 		if(!fav[aib.host]) {
 			return;
@@ -3877,7 +3875,7 @@ function showFavoritesWindow(body, data) {
 	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
+	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		const thrInfo = [];
@@ -3952,7 +3950,7 @@ function showFavoritesWindow(body, data) {
 	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
+	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
 		// Sequentially load threads, and remove inaccessible
 		let last404 = false;
 		const els = $Q('.de-entry'), len = els.length;
@@ -4043,7 +4041,7 @@ const CfgWindow = {
 		})));
 
 		// "Global" button. Allows to save/load global settings.
-		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
+		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
 			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
@@ -4457,7 +4455,7 @@ const CfgWindow = {
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getData(true)
-				}, function(key, value) {
+				}, (key, value) => {
 					switch(key) {
 					case 'stats':
 					case 'nameValue':
@@ -4948,7 +4946,7 @@ function $popup(id, txt, isWait = false) {
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.
 function getEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
@@ -5052,7 +5050,7 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		function(el) {
+		el => {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
@@ -5060,29 +5058,28 @@ function addMenu(el) {
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
-		return new Menu(el, fn(Lng.selAjaxPages[lang]), function(el) {
-			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
-		});
+		return new Menu(el, fn(Lng.selAjaxPages[lang]),
+			el => Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
-		function(el) {
-			if(!$id('de-popup-savethr')) {
-				const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-				if(Images_.preloading) {
-					$popup('savethr', Lng.loading[lang], true);
-					Images_.afterpreload = () => loadDocFiles(imgOnly);
-					Images_.progressId = 'savethr';
-				} else {
-					loadDocFiles(imgOnly);
-				}
+		el => {
+			if($id('de-popup-savethr')) {
+				return;
+			}
+			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			if(Images_.preloading) {
+				$popup('savethr', Lng.loading[lang], true);
+				Images_.afterpreload = () => loadDocFiles(imgOnly);
+				Images_.progressId = 'savethr';
+			} else {
+				loadDocFiles(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':
-		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
-			const i = aProto.indexOf.call(el.parentNode.children, el);
+		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
 			updater.enable();
-			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][i]);
+			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}
@@ -5501,7 +5498,7 @@ class KeyEditListener {
 		return [allKeys, `${ Lng.hotKeyEdit[lang].join('')
 			.replace(/%l/g, '<label class="de-block">')
 			.replace(/%\/l/g, '</label>')
-			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+			.replace(/%i([2-4])([0-9]+)(t)?/g, (all, id1, id2, isText) => {
 				const key = keys[+id1][+id2];
 				allKeys.push(key);
 				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
@@ -5823,7 +5820,7 @@ function preloadImages(data) {
 				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
 			}
 			cImg++;
-		}), function() {
+		}), () => {
 			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
@@ -5916,7 +5913,7 @@ function loadDocFiles(imgOnly) {
 		} else {
 			$del(el);
 		}
-	}), function() {
+	}), () => {
 		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
@@ -5943,7 +5940,7 @@ function loadDocFiles(imgOnly) {
 	});
 	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 	count += els.length;
-	els.forEach(function(el) {
+	els.forEach(el => {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
 			const url = imgLink.href;
@@ -5955,7 +5952,7 @@ function loadDocFiles(imgOnly) {
 		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
 			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), function(el) {
+		$each($Q('a', dc), el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -5967,13 +5964,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$each($Q(aib.qRPost, dc), function(post, i) {
-			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
-		});
+		$each($Q(aib.qRPost, dc),
+			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), function(el) {
+		$each($Q('link, *[src]', dc), el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
@@ -6304,7 +6300,7 @@ class Videos {
 		];
 	}
 	static _getTitlesLoader() {
-		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+		return Cfg.YTubeTitles && new TasksPool(4, (num, info) => {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
 				if(Cfg.ytApiKey) {
@@ -6953,7 +6949,7 @@ const Spells = Object.create({
 			if(spells[1]) {
 				const sScope = String(scope);
 				const sArg = String(arg);
-				spells[1].some(scope && isNeg ? function(spell, i) {
+				spells[1].some(scope && isNeg ? (spell, i) => {
 					let data;
 					if(spell[0] === 0xFF &&
 						((data = spell[1]) instanceof Array) &&
@@ -6968,7 +6964,7 @@ const Spells = Object.create({
 						return true;
 					}
 					return (spell[0] & 0x200) !== 0;
-				} : function(spell, i) {
+				} : (spell, i) => {
 					if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
 						idx = i;
 						return true;
@@ -7653,7 +7649,7 @@ class SpellsCodegen {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = m[1].split(/, */).reduce(function(val, str) {
+				val = m[1].split(/, */).reduce((val, str) => {
 					switch(str) {
 					case 'samelines': return (val |= 1);
 					case 'samewords': return (val |= 2);
@@ -10650,7 +10646,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? function(el) {
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;
@@ -10658,7 +10654,7 @@ class Post extends AbstractPost {
 					$hide(refmap);
 				}
 			}
-		} : function(el) {
+		} : el => {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;
@@ -10949,9 +10945,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), function(el) {
-						el.classList.remove('de-link-pview');
-					});
+					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -11114,7 +11108,7 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el), function(el) {
+		$each($Q(`a[href*="${ num }"]`, el), el => {
 			if(el.textContent.startsWith('>>' + num)) {
 				el.classList.add('de-link-pview');
 			}
@@ -11245,7 +11239,7 @@ class Pview extends AbstractPost {
 				$each($Q('.de-img-pre', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(post) {
+				this._readDelay = setTimeout(post => {
 					if(!post.viewed) {
 						post.el.classList.add('de-viewed');
 						post.viewed = true;
@@ -14068,7 +14062,7 @@ function initThreadUpdater(title, enableUpdate) {
 			newPosts = 0;
 			hasYouRefs = false;
 			sendError = false;
-			setTimeout(function() {
+			setTimeout(() => {
 				updateTitle();
 				if(enabled && focusTime - focusLoadTime > 1e4) {
 					focusLoadTime = focusTime;
@@ -14673,7 +14667,7 @@ class BaseBoard {
 			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
-			str = str.replace(/>https?:\/\/[^<]+</ig, function(match) {
+			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
 				} catch(e) {}
@@ -15429,7 +15423,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 			const dataObj = { files: [] };
 			const files = [];
-			data.forEach(async function(value, key) {
+			data.forEach(async (value, key) => {
 				if(key !== 'files') {
 					dataObj[key] = value;
 				} else {
@@ -16065,7 +16059,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			setTimeout(function() {
+			setTimeout(() => {
 				const delPosts = $Q('.post[postid=""]');
 				for(let i = 0, len = delPosts.length; i < len; ++i) {
 					try {
@@ -16657,9 +16651,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), function(el) {
-				el.src = el.getAttribute('data-mature-src');
-			});
+			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -16877,20 +16869,20 @@ function scrollPage() {
 	if(!needScroll) {
 		return;
 	}
-	setTimeout(function() {
+	setTimeout(() => {
 		const id = 'de-scroll-' + aib.b + aib.t;
 		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
 			sesStorage.removeItem(id);
-		} else {
-			let post, num;
-			const { hash } = window.location;
-			if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
-				(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
-			) {
-				post.selectAndScrollTo();
-			}
+			return;
+		}
+		let post, num;
+		const { hash } = window.location;
+		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
+			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
+		) {
+			post.selectAndScrollTo();
 		}
 	}, 0);
 }

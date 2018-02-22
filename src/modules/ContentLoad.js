@@ -136,7 +136,7 @@ function preloadImages(data) {
 				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
 			}
 			cImg++;
-		}), function() {
+		}), () => {
 			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
@@ -229,7 +229,7 @@ function loadDocFiles(imgOnly) {
 		} else {
 			$del(el);
 		}
-	}), function() {
+	}), () => {
 		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
@@ -256,7 +256,7 @@ function loadDocFiles(imgOnly) {
 	});
 	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 	count += els.length;
-	els.forEach(function(el) {
+	els.forEach(el => {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
 			const url = imgLink.href;
@@ -268,7 +268,7 @@ function loadDocFiles(imgOnly) {
 		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
 			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), function(el) {
+		$each($Q('a', dc), el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -280,13 +280,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$each($Q(aib.qRPost, dc), function(post, i) {
-			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
-		});
+		$each($Q(aib.qRPost, dc),
+			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), function(el) {
+		$each($Q('link, *[src]', dc), el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
