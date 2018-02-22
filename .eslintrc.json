@@ -48,6 +48,11 @@
 			"ignoreEOLComments": true,
 			"exceptions": { "VariableDeclarator": true }
 		}],
+		"no-extra-parens": ["error", "all", {
+			"conditionalAssign": false,
+			"nestedBinaryExpressions": false,
+			"returnAssign": false
+		}],
 		"no-extra-semi": "error",
 		"no-new": "off",
 		"no-tabs": "off",

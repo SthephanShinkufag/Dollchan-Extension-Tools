@@ -294,7 +294,7 @@ const Spells = Object.create({
 				hScope = true;
 				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					const str = `${ (spell[0] & 0x100) ? '!(\n' : '(\n' }${ indent }    ` +
+					const str = `${ spell[0] & 0x100 ? '!(\n' : '(\n' }${ indent }    ` +
 						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
 					if(j === 0) {
 						dScope[0] = str;
@@ -302,13 +302,13 @@ const Spells = Object.create({
 						dScope[--j] += ' ' + str;
 					}
 				} else {
-					dScope[j] = `${ (spell[0] & 0x100) ? '!(' : '(' }${ temp[0].join(' ') })`;
+					dScope[j] = `${ spell[0] & 0x100 ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 			}
 			if(i !== len - 1) {
-				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
+				dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
@@ -414,7 +414,7 @@ const Spells = Object.create({
 				const scope = spell[2];
 				if(!scope || (
 					scope[0] === aib.b &&
-					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
+					(scope[1] === -1 ? !aib.t : !scope[1] || +scope[1] === aib.t)
 				)) {
 					if(type === 12) {
 						neg = !neg;
@@ -1059,7 +1059,7 @@ class SpellsInterpreter {
 	}
 	async _ihash(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
+			if((image instanceof Attachment) && await ImagesHashStorage.getHash(image) === val) {
 				return true;
 			}
 		}

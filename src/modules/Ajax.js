@@ -208,8 +208,8 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
-		return el ? (!checkArch ? el : [el, (xhr.responseURL || '').includes('/arch/')]) :
-			CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '19a50ca';
+const commit = 'e6289bd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1690,10 +1690,9 @@ const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
-const getAbsLink = url => (
+const getAbsLink = url =>
 	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url
-);
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -2131,7 +2130,7 @@ class WebmParser {
 		if(this.error || !data) {
 			return this;
 		}
-		const size = (typeof data === 'string') ? data.length : data.byteLength;
+		const size = typeof data === 'string' ? data.length : data.byteLength;
 		if(size > 127) {
 			this.error = true;
 			return;
@@ -2284,7 +2283,7 @@ function * getFormElements(form, submitter) {
 				el    : field,
 				name  : fixName(dirname),
 				type  : 'direction',
-				value : (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr')
+				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -2317,7 +2316,7 @@ function prettifySize(val) {
 		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
 	}
 	if(val > 512) {
-		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
+		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
 }
@@ -2414,7 +2413,7 @@ function delStored(id) {
 
 // Receives and parses JSON data into an object
 async function getStoredObj(id) {
-	return JSON.parse((await getStored(id)) || '{}') || {};
+	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
@@ -2740,7 +2739,7 @@ class PostsStorage {
 	}
 }
 
-const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
+const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-posts';
@@ -2749,9 +2748,9 @@ const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
+const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-threads';
@@ -2776,9 +2775,9 @@ const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const MyPosts = new (class MyPostsClass extends PostsStorage {
+const MyPosts = new class MyPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-myposts';
@@ -2811,7 +2810,7 @@ const MyPosts = new (class MyPostsClass extends PostsStorage {
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
-})();
+}();
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
@@ -2904,7 +2903,7 @@ const Panel = Object.create({
 					</svg>
 				</div>
 				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
+				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
@@ -2932,7 +2931,7 @@ const Panel = Object.create({
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`)) }
+					</span>`) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
@@ -3489,7 +3488,7 @@ function showVideosWindow(body) {
 				let node;
 				switch(el.id) {
 				case 'de-video-btn-hide': { // Fold/unfold list of links
-					const isHide = (this.listHidden = !this.listHidden);
+					const isHide = this.listHidden = !this.listHidden;
 					$toggle(this.linkList, !isHide);
 					el.textContent = isHide ? '\u25BC' : '\u25B2';
 					break;
@@ -4167,7 +4166,7 @@ const CfgWindow = {
 						break;
 					}
 					case 1: name.push('Fav');
-						val.push(`"favorites":${ (await getStored('DESU_Favorites')) || '{}' }`);
+						val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
 						break;
 					case 2: nameDm.push('Hid');
 						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
@@ -4500,7 +4499,7 @@ const CfgWindow = {
 			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			case 'excludeList': setStored('DESU_Exclude', (excludeList = el.value)); break;
+			case 'excludeList': setStored('DESU_Exclude', excludeList = el.value); break;
 			default: saveCfg(info, el.value);
 			}
 			return;
@@ -5050,9 +5049,9 @@ function addMenu(el) {
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(','))
+			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
-			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) }</div>`,
+			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
 		function(el) {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
@@ -5448,7 +5447,7 @@ const HotKeys = {
 		if(!next) {
 			if(!aib.t) {
 				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
-				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
+				if(toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
 			}
@@ -6321,7 +6320,7 @@ class Videos {
 					entry.title,
 					entry.user_name,
 					entry.stats_number_of_plays,
-					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					/(.*)\s(.*)?/.exec(entry.upload_date)[1],
 					Videos._fixTime(entry.duration)[0]);
 			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
@@ -6709,8 +6708,8 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
-		return el ? (!checkArch ? el : [el, (xhr.responseURL || '').includes('/arch/')]) :
-			CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -6806,7 +6805,7 @@ const Pages = {
 		DelForm.first = DelForm.last;
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
-				this._addForm((await ajaxLoad(aib.getPageUrl(aib.b, i))), i);
+				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
@@ -6824,7 +6823,7 @@ const Pages = {
 	_addPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
-		$hide((formEl = aib.fixHTML(formEl)));
+		$hide(formEl = aib.fixHTML(formEl));
 		$after(DelForm.last.el, formEl);
 		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
@@ -6844,7 +6843,7 @@ const Pages = {
 		this._addPromise = null;
 	},
 	async _updateForms(newForm) {
-		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
+		readPostsData(newForm.firstThr.op, await getStoredObj('DESU_Favorites'));
 		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
@@ -7171,7 +7170,7 @@ const Spells = Object.create({
 				hScope = true;
 				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					const str = `${ (spell[0] & 0x100) ? '!(\n' : '(\n' }${ indent }    ` +
+					const str = `${ spell[0] & 0x100 ? '!(\n' : '(\n' }${ indent }    ` +
 						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
 					if(j === 0) {
 						dScope[0] = str;
@@ -7179,13 +7178,13 @@ const Spells = Object.create({
 						dScope[--j] += ' ' + str;
 					}
 				} else {
-					dScope[j] = `${ (spell[0] & 0x100) ? '!(' : '(' }${ temp[0].join(' ') })`;
+					dScope[j] = `${ spell[0] & 0x100 ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 			}
 			if(i !== len - 1) {
-				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
+				dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
@@ -7291,7 +7290,7 @@ const Spells = Object.create({
 				const scope = spell[2];
 				if(!scope || (
 					scope[0] === aib.b &&
-					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
+					(scope[1] === -1 ? !aib.t : !scope[1] || +scope[1] === aib.t)
 				)) {
 					if(type === 12) {
 						neg = !neg;
@@ -7936,7 +7935,7 @@ class SpellsInterpreter {
 	}
 	async _ihash(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
+			if((image instanceof Attachment) && await ImagesHashStorage.getHash(image) === val) {
 				return true;
 			}
 		}
@@ -9021,8 +9020,8 @@ function cleanFile(data, extraData) {
 	const img = nav.getUnsafeUint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
-		(rand ? [img, extraData, rand] : [img, extraData]) :
-		(rand ? [img, rand] : [img]);
+		rand ? [img, extraData, rand] : [img, extraData] :
+		rand ? [img, rand] : [img];
 	const rExif = !!Cfg.removeEXIF;
 	if(!rand && !rExif && !extraData) {
 		return rv;
@@ -9323,7 +9322,7 @@ class FileInput {
 				let j = allowedLen;
 				for(let i = 0; i < allowedLen; ++i) {
 					FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(() => {
-						if(!(--j)) { // Clear original file input after all allowed files will be read.
+						if(!--j) { // Clear original file input after all allowed files will be read.
 							this._removeFileHelper();
 						}
 					});
@@ -9354,7 +9353,7 @@ class FileInput {
 			} else if(el === this._btnRarJpg) {
 				this._addRarJpeg();
 			} else if(el === this._btnTxt) {
-				this._showDelBtn((this._isTxtEditable = true));
+				this._showDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);
@@ -11151,7 +11150,7 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10));
+		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
 		if(isAnim) {
 			oldCSS = pv.style.cssText;
@@ -13930,7 +13929,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			infoLoadErrors(error, false);
-			const eCode = (error instanceof AjaxError) ? error.code : 0;
+			const eCode = error instanceof AjaxError ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);

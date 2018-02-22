@@ -156,7 +156,7 @@ const CfgWindow = {
 						break;
 					}
 					case 1: name.push('Fav');
-						val.push(`"favorites":${ (await getStored('DESU_Favorites')) || '{}' }`);
+						val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
 						break;
 					case 2: nameDm.push('Hid');
 						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
@@ -489,7 +489,7 @@ const CfgWindow = {
 			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			case 'excludeList': setStored('DESU_Exclude', (excludeList = el.value)); break;
+			case 'excludeList': setStored('DESU_Exclude', excludeList = el.value); break;
 			default: saveCfg(info, el.value);
 			}
 			return;

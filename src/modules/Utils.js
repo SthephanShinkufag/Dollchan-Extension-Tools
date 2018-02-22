@@ -165,10 +165,9 @@ const $join = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
-const getAbsLink = url => (
+const getAbsLink = url =>
 	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url
-);
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -606,7 +605,7 @@ class WebmParser {
 		if(this.error || !data) {
 			return this;
 		}
-		const size = (typeof data === 'string') ? data.length : data.byteLength;
+		const size = typeof data === 'string' ? data.length : data.byteLength;
 		if(size > 127) {
 			this.error = true;
 			return;
@@ -759,7 +758,7 @@ function * getFormElements(form, submitter) {
 				el    : field,
 				name  : fixName(dirname),
 				type  : 'direction',
-				value : (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr')
+				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -792,7 +791,7 @@ function prettifySize(val) {
 		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
 	}
 	if(val > 512) {
-		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
+		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
 }

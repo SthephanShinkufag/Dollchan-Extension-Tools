@@ -71,7 +71,7 @@ function delStored(id) {
 
 // Receives and parses JSON data into an object
 async function getStoredObj(id) {
-	return JSON.parse((await getStored(id)) || '{}') || {};
+	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
@@ -397,7 +397,7 @@ class PostsStorage {
 	}
 }
 
-const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
+const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-posts';
@@ -406,9 +406,9 @@ const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
+const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-threads';
@@ -433,9 +433,9 @@ const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const MyPosts = new (class MyPostsClass extends PostsStorage {
+const MyPosts = new class MyPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-myposts';
@@ -468,7 +468,7 @@ const MyPosts = new (class MyPostsClass extends PostsStorage {
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
-})();
+}();
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {

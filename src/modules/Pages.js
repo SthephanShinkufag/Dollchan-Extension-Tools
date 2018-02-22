@@ -53,7 +53,7 @@ const Pages = {
 		DelForm.first = DelForm.last;
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
-				this._addForm((await ajaxLoad(aib.getPageUrl(aib.b, i))), i);
+				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
@@ -71,7 +71,7 @@ const Pages = {
 	_addPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
-		$hide((formEl = aib.fixHTML(formEl)));
+		$hide(formEl = aib.fixHTML(formEl));
 		$after(DelForm.last.el, formEl);
 		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
@@ -91,7 +91,7 @@ const Pages = {
 		this._addPromise = null;
 	},
 	async _updateForms(newForm) {
-		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
+		readPostsData(newForm.firstThr.op, await getStoredObj('DESU_Favorites'));
 		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();

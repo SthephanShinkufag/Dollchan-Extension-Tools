@@ -15,7 +15,7 @@ const Panel = Object.create({
 					</svg>
 				</div>
 				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
+				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
@@ -43,7 +43,7 @@ const Panel = Object.create({
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`)) }
+					</span>`) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }

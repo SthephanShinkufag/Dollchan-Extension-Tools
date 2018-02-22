@@ -271,7 +271,7 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10));
+		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
 		if(isAnim) {
 			oldCSS = pv.style.cssText;

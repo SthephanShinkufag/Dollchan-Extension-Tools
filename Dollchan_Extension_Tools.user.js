@@ -3806,7 +3806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '19a50ca';
+	var commit = 'e6289bd';
 
 
 	var defaultCfg = {
@@ -9902,7 +9902,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (text.includes('</html>')) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
-			return el ? !checkArch ? el : [el, (xhr.responseURL || '').includes('/arch/')] : CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+			return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
 		}, function (err) {
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});

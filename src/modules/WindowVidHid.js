@@ -78,7 +78,7 @@ function showVideosWindow(body) {
 				let node;
 				switch(el.id) {
 				case 'de-video-btn-hide': { // Fold/unfold list of links
-					const isHide = (this.listHidden = !this.listHidden);
+					const isHide = this.listHidden = !this.listHidden;
 					$toggle(this.linkList, !isHide);
 					el.textContent = isHide ? '\u25BC' : '\u25B2';
 					break;

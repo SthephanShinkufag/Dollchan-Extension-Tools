@@ -199,7 +199,7 @@ class Videos {
 					entry.title,
 					entry.user_name,
 					entry.stats_number_of_plays,
-					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					/(.*)\s(.*)?/.exec(entry.upload_date)[1],
 					Videos._fixTime(entry.duration)[0]);
 			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));

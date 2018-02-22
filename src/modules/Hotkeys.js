@@ -357,7 +357,7 @@ const HotKeys = {
 		if(!next) {
 			if(!aib.t) {
 				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
-				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
+				if(toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
 			}

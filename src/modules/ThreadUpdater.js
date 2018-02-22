@@ -328,7 +328,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			infoLoadErrors(error, false);
-			const eCode = (error instanceof AjaxError) ? error.code : 0;
+			const eCode = error instanceof AjaxError ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);

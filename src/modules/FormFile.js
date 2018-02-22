@@ -181,7 +181,7 @@ class FileInput {
 				let j = allowedLen;
 				for(let i = 0; i < allowedLen; ++i) {
 					FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(() => {
-						if(!(--j)) { // Clear original file input after all allowed files will be read.
+						if(!--j) { // Clear original file input after all allowed files will be read.
 							this._removeFileHelper();
 						}
 					});
@@ -212,7 +212,7 @@ class FileInput {
 			} else if(el === this._btnRarJpg) {
 				this._addRarJpeg();
 			} else if(el === this._btnTxt) {
-				this._showDelBtn((this._isTxtEditable = true));
+				this._showDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);

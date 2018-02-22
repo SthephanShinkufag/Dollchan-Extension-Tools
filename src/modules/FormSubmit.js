@@ -230,8 +230,8 @@ function cleanFile(data, extraData) {
 	const img = nav.getUnsafeUint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
-		(rand ? [img, extraData, rand] : [img, extraData]) :
-		(rand ? [img, rand] : [img]);
+		rand ? [img, extraData, rand] : [img, extraData] :
+		rand ? [img, rand] : [img];
 	const rExif = !!Cfg.removeEXIF;
 	if(!rand && !rExif && !extraData) {
 		return rv;

@@ -149,9 +149,9 @@ function addMenu(el) {
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(','))
+			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
-			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) }</div>`,
+			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
 		function(el) {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
