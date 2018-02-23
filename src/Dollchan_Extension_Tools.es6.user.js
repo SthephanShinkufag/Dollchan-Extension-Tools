@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '6ba5e2a';
+const commit = '84953e0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2500,7 +2500,7 @@ async function readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.updScript) {
+	if(Cfg.updScript && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
 				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
@@ -4293,7 +4293,8 @@ const CfgWindow = {
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
 			case 'addTextBtns': pr.addMarkupPanel(); break;
-			case 'scriptStyle': this._updateCSS();
+			case 'scriptStyle':
+			case 'panelCounter': this._updateCSS();
 			}
 			return;
 		}
@@ -4313,7 +4314,6 @@ const CfgWindow = {
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
-			case 'panelCounter':
 			case 'userCSS': updateCSS(); break;
 			case 'hideBySpell': Spells.toggle(); break;
 			case 'sortSpells':
@@ -4626,11 +4626,11 @@ const CfgWindow = {
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
-			${ this._getBox('hideReplies') }<br>
-			${ this._getBox('expandTrunc') }<br>
-			${ this._getBox('updThrBtns') }<br>
+			${ !localData ? `${ this._getBox('hideReplies') }<br>
+				${ this._getBox('expandTrunc') }<br>
+				${ this._getBox('updThrBtns') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
-			${ this._getBox('showRepBtn') }<br>
+			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
@@ -4690,8 +4690,8 @@ const CfgWindow = {
 			${ this._getBox('crossLinks') }<br>
 			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>
-			${ this._getBox('addOPLink') }<br>
-			${ this._getBox('addImgs') }<br>
+			${ !localData ? `${ this._getBox('addOPLink') }<br>
+				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
@@ -4752,12 +4752,13 @@ const CfgWindow = {
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('closePopups') }<br>
-			${ this._getBox('inftyScroll') }<br>
-			${ this._getBox('scrollToTop') }<br>
+			${ !localData ? `${ this._getBox('inftyScroll') }<br>
+				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.isPresto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				${ this._getBox('updScript') }
 				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
@@ -5914,6 +5915,7 @@ function loadDocFiles(imgOnly) {
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+			$q('body', dc).classList.add('de-mode-local');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
@@ -10817,8 +10819,8 @@ class PostImages {
 				first = last;
 			}
 		}
-		if(Cfg.addImgs) {
-			els = $Q('.de-img-pre', post.el);
+		if(Cfg.addImgs || localData) {
+			els = $Q('.de-img-embed', post.el);
 			for(let i = 0, len = els.length; i < len; ++i) {
 				const el = els[i];
 				last = new EmbeddedImage(post, el, last);
@@ -11223,7 +11225,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-pre', pviewEl), $show);
+				$each($Q('.de-img-embed', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -11822,7 +11824,7 @@ class ExpandableMedia {
 		let wrapEl, name, origSrc;
 		const { src } = this;
 		const parent = this._getImageParent();
-		if(this.el.className !== 'de-img-pre') {
+		if(this.el.className !== 'de-img-embed') {
 			const nameEl = $q(aib.qImgNameLink, parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
@@ -12154,19 +12156,19 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 
 // Adding image previews before links in post message
 function embedPostMsgImages(el) {
-	if(!Cfg.addImgs) {
+	if(!Cfg.addImgs || localData) {
 		return;
 	}
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		const url = link.href;
-		if(url.includes('?') || link.parentNode.tagName === 'SMALL' || aib.getPostOfEl(link).hidden) {
+		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
 		const a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = `<img class="de-img-pre" src="${ url }">`;
+		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
 		$before(link, a);
 	}
 }
@@ -14245,7 +14247,7 @@ class DelForm {
 	}
 	addStuff() {
 		const { el } = this;
-		if(!localData && Cfg.ajaxPosting) {
+		if(Cfg.ajaxPosting && !localData) {
 			el.onsubmit = $pd;
 			const delBtn = $q(aib.qDelBut, el);
 			if(delBtn) {
@@ -17118,6 +17120,9 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
+	.de-svg-fill { stroke: none; fill: currentColor; }
+	.de-svg-stroke { stroke: currentColor; fill: none; }
+	use { fill: inherit; pointer-events: none; }
 
 	/* Panel theme */
 	${ [/* Gradient darkblue */
@@ -17303,8 +17308,8 @@ function scriptCSS() {
 	let p = Math.max(Cfg.minImgSize || 0, 50);
 	x += `
 	/* Full images */
-	.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
-	.de-img-pre { max-width: 200px; max-height: 200px; }
+	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
+	.de-img-embed { max-width: 200px; max-height: 200px; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { text-align: center; }
@@ -17431,8 +17436,6 @@ function scriptCSS() {
 	.de-refmap::before { content: "${ Lng.replies[lang] } "; }
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
-	.de-svg-fill { stroke: none; fill: currentColor; }
-	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-thread-buttons { clear: left; margin-top: 5px; }
 	.de-thread-collapse > a::after { content: "${ Lng.collapseThr[lang] }"; }
 	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
@@ -17442,8 +17445,7 @@ function scriptCSS() {
 	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
 	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
 	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	form > hr { clear: both }
-	use { fill: inherit; pointer-events: none; }`;
+	form > hr { clear: both }`;
 
 	$css(x).id = 'de-css';
 	$css('').id = 'de-css-dynamic';
@@ -17482,8 +17484,8 @@ function updateCSS() {
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
-	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
-		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
+	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
+		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
 	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
@@ -17541,6 +17543,7 @@ async function runMain(checkDomains, dataPromise) {
 	[excludeList = '', fav] = await (dataPromise || readData());
 	if(excludeList.includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
+		!localData && docBody.classList.contains('de-mode-local') ||
 		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
 	) {
 		return;

@@ -1007,8 +1007,8 @@ class PostImages {
 				first = last;
 			}
 		}
-		if(Cfg.addImgs) {
-			els = $Q('.de-img-pre', post.el);
+		if(Cfg.addImgs || localData) {
+			els = $Q('.de-img-embed', post.el);
 			for(let i = 0, len = els.length; i < len; ++i) {
 				const el = els[i];
 				last = new EmbeddedImage(post, el, last);

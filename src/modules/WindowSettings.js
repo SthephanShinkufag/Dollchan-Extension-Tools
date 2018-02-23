@@ -289,7 +289,8 @@ const CfgWindow = {
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
 			case 'addTextBtns': pr.addMarkupPanel(); break;
-			case 'scriptStyle': this._updateCSS();
+			case 'scriptStyle':
+			case 'panelCounter': this._updateCSS();
 			}
 			return;
 		}
@@ -309,7 +310,6 @@ const CfgWindow = {
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
-			case 'panelCounter':
 			case 'userCSS': updateCSS(); break;
 			case 'hideBySpell': Spells.toggle(); break;
 			case 'sortSpells':
@@ -622,11 +622,11 @@ const CfgWindow = {
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
-			${ this._getBox('hideReplies') }<br>
-			${ this._getBox('expandTrunc') }<br>
-			${ this._getBox('updThrBtns') }<br>
+			${ !localData ? `${ this._getBox('hideReplies') }<br>
+				${ this._getBox('expandTrunc') }<br>
+				${ this._getBox('updThrBtns') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
-			${ this._getBox('showRepBtn') }<br>
+			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
@@ -686,8 +686,8 @@ const CfgWindow = {
 			${ this._getBox('crossLinks') }<br>
 			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>
-			${ this._getBox('addOPLink') }<br>
-			${ this._getBox('addImgs') }<br>
+			${ !localData ? `${ this._getBox('addOPLink') }<br>
+				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
@@ -748,12 +748,13 @@ const CfgWindow = {
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('closePopups') }<br>
-			${ this._getBox('inftyScroll') }<br>
-			${ this._getBox('scrollToTop') }<br>
+			${ !localData ? `${ this._getBox('inftyScroll') }<br>
+				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.isPresto || nav.hasGMXHR ? `${ this._getBox('updScript') }
+			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				${ this._getBox('updScript') }
 				<div class="de-cfg-depend">
 					${ this._getSel('scrUpdIntrv') }
 					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +

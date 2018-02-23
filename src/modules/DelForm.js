@@ -110,7 +110,7 @@ class DelForm {
 	}
 	addStuff() {
 		const { el } = this;
-		if(!localData && Cfg.ajaxPosting) {
+		if(Cfg.ajaxPosting && !localData) {
 			el.onsubmit = $pd;
 			const delBtn = $q(aib.qDelBut, el);
 			if(delBtn) {

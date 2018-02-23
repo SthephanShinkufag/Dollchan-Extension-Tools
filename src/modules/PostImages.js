@@ -493,7 +493,7 @@ class ExpandableMedia {
 		let wrapEl, name, origSrc;
 		const { src } = this;
 		const parent = this._getImageParent();
-		if(this.el.className !== 'de-img-pre') {
+		if(this.el.className !== 'de-img-embed') {
 			const nameEl = $q(aib.qImgNameLink, parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
@@ -825,19 +825,19 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 
 // Adding image previews before links in post message
 function embedPostMsgImages(el) {
-	if(!Cfg.addImgs) {
+	if(!Cfg.addImgs || localData) {
 		return;
 	}
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		const url = link.href;
-		if(url.includes('?') || link.parentNode.tagName === 'SMALL' || aib.getPostOfEl(link).hidden) {
+		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
 		const a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = `<img class="de-img-pre" src="${ url }">`;
+		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
 		$before(link, a);
 	}
 }

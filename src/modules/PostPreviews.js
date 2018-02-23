@@ -359,7 +359,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-pre', pviewEl), $show);
+				$each($Q('.de-img-embed', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {

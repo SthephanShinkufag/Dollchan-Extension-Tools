@@ -159,7 +159,7 @@ async function readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.updScript) {
+	if(Cfg.updScript && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
 				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));

@@ -234,6 +234,7 @@ function loadDocFiles(imgOnly) {
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+			$q('body', dc).classList.add('de-mode-local');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
