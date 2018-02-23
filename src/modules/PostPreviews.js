@@ -36,19 +36,17 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
-			pBuilder => {
-				if(aib.JsonBuilder) {
-					const html = [];
-					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-					}
-					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-				} else {
-					this._onload(pBuilder._form);
-				}
-			},
-			e => this._onerror(e));
+		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(pBuilder => {
+			if(!aib.JsonBuilder) {
+				this._onload(pBuilder._form);
+				return;
+			}
+			const html = [];
+			for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
+				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
+			}
+			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
+		}, e => this._onerror(e));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;

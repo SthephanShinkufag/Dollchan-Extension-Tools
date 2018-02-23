@@ -13,12 +13,12 @@ const Pages = {
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			if(!this._addForm(formEl, pageNum).firstThr) {
-				this._endAdding();
-				this.add();
-				return CancelablePromise.reject(new CancelError());
+			if(this._addForm(formEl, pageNum).firstThr) {
+				return this._updateForms(DelForm.last);
 			}
-			return this._updateForms(DelForm.last);
+			this._endAdding();
+			this.add();
+			return CancelablePromise.reject(new CancelError());
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
 				$popup('add-page', getErrorMessage(e));

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '59a3c66';
+const commit = '6ba5e2a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1825,8 +1825,7 @@ class CancelablePromise {
 			return child;
 		};
 		return new CancelablePromise(
-			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
-			() => {
+			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))), () => {
 				for(const child of children) {
 					child.cancel();
 				}
@@ -3990,11 +3989,8 @@ function showFavoritesWindow(body, data) {
 
 	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
-			if(el.checked) {
-				el.parentNode.setAttribute('de-removed', '');
-			}
-		});
+		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
+			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
@@ -6761,12 +6757,12 @@ const Pages = {
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
 		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			if(!this._addForm(formEl, pageNum).firstThr) {
-				this._endAdding();
-				this.add();
-				return CancelablePromise.reject(new CancelError());
+			if(this._addForm(formEl, pageNum).firstThr) {
+				return this._updateForms(DelForm.last);
 			}
-			return this._updateForms(DelForm.last);
+			this._endAdding();
+			this.add();
+			return CancelablePromise.reject(new CancelError());
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
 				$popup('add-page', getErrorMessage(e));
@@ -8552,11 +8548,8 @@ class PostForm {
 		}
 		this.files = new Files(this, $q('tr input[type="file"]', this.form));
 		// We need to clear file inputs in case if session was restored.
-		window.addEventListener('load', () => setTimeout(() => {
-			if(!this.files.filesCount) {
-				this.files.clear();
-			}
-		}, 0));
+		window.addEventListener('load',
+			() => setTimeout(() => !this.files.filesCount && this.files.clear(), 0));
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
@@ -8724,11 +8717,7 @@ class PostForm {
 			this._setSage();
 			this.files.clear();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				node => {
-					if(node) {
-						node.value = '';
-					}
-				});
+				node => node && (node.value = ''));
 		};
 		toggleBtn.onclick = () => {
 			toggleCfg('replyWinDrag');
@@ -10911,19 +10900,17 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
-			pBuilder => {
-				if(aib.JsonBuilder) {
-					const html = [];
-					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-					}
-					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-				} else {
-					this._onload(pBuilder._form);
-				}
-			},
-			e => this._onerror(e));
+		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(pBuilder => {
+			if(!aib.JsonBuilder) {
+				this._onload(pBuilder._form);
+				return;
+			}
+			const html = [];
+			for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
+				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
+			}
+			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
+		}, e => this._onerror(e));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -13850,11 +13837,7 @@ function initThreadUpdater(title, enableUpdate) {
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
-			notif.onshow = () => setTimeout(() => {
-				if(notif === this._notifEl) {
-					this.close();
-				}
-			}, 12e3);
+			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.close(), 12e3);
 			notif.onclick = () => window.focus();
 			notif.onerror = () => {
 				window.focus();
@@ -15532,23 +15515,24 @@ function getImageBoard(checkDomains, checkEngines) {
 		observeContent(checkDomains, dataPromise) {
 			const initObserver = new MutationObserver(mutations => {
 				const el = mutations[0].addedNodes[0];
-				if(el && el.id === 'app') {
-					initObserver.disconnect();
-					doc.defaultView.addEventListener('message', ({ data }) => {
-						if(data !== '0chan-content-done') {
-							return;
-						}
-						if(updater) {
-							updater.disable();
-						}
-						DelForm.tNums = new Set();
-						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel',
-							doc), $del);
-						runMain(checkDomains, dataPromise);
-					});
-					$script(`window.app.$bus.on('refreshContentDone',
-						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
+				if(!el || el.id !== 'app') {
+					return;
 				}
+				initObserver.disconnect();
+				doc.defaultView.addEventListener('message', ({ data }) => {
+					if(data !== '0chan-content-done') {
+						return;
+					}
+					if(updater) {
+						updater.disable();
+					}
+					DelForm.tNums = new Set();
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
+						$del);
+					runMain(checkDomains, dataPromise);
+				});
+				$script(`window.app.$bus.on('refreshContentDone',
+					() => document.defaultView.postMessage('0chan-content-done', '*'))`);
 			});
 			initObserver.observe(docBody, { childList: true });
 		}
@@ -15650,8 +15634,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', xhr => {
-				const id = xhr.responseText;
+			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
 				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 				$id('captchaid').value = id;
 			});
@@ -15796,14 +15779,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(xhr.responseText === '1') {
 					cap.textEl.disabled = true;
 					setTimeout(() => (cap.textEl.value = 'проезд оплачен'), 0);
-				} else {
-					cap.textEl.disabled = false;
-					cap.textEl.value = '';
-					const img = $q('img', cap.parentEl);
-					const src = img.getAttribute('src');
-					img.src = '';
-					img.src = this.getCaptchaSrc(src);
+					return;
 				}
+				cap.textEl.disabled = false;
+				cap.textEl.value = '';
+				const img = $q('img', cap.parentEl);
+				const src = img.getAttribute('src');
+				img.src = '';
+				img.src = this.getCaptchaSrc(src);
 			});
 		}
 	}
@@ -16803,8 +16786,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 	}
 	return $ajax(
 		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
-	).then(xhr => {
-		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+	).then(({ responseText }) => {
+		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
@@ -16820,7 +16803,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				}
 			}
 			if(isManual) {
-				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
 				return c === commit ?
 					Lng.haveLatestCommit[lang].replace('%s', vc) :

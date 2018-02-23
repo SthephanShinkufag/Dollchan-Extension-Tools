@@ -255,11 +255,7 @@ function initThreadUpdater(title, enableUpdate) {
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
-			notif.onshow = () => setTimeout(() => {
-				if(notif === this._notifEl) {
-					this.close();
-				}
-			}, 12e3);
+			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.close(), 12e3);
 			notif.onclick = () => window.focus();
 			notif.onerror = () => {
 				window.focus();

@@ -703,23 +703,24 @@ function getImageBoard(checkDomains, checkEngines) {
 		observeContent(checkDomains, dataPromise) {
 			const initObserver = new MutationObserver(mutations => {
 				const el = mutations[0].addedNodes[0];
-				if(el && el.id === 'app') {
-					initObserver.disconnect();
-					doc.defaultView.addEventListener('message', ({ data }) => {
-						if(data !== '0chan-content-done') {
-							return;
-						}
-						if(updater) {
-							updater.disable();
-						}
-						DelForm.tNums = new Set();
-						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel',
-							doc), $del);
-						runMain(checkDomains, dataPromise);
-					});
-					$script(`window.app.$bus.on('refreshContentDone',
-						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
+				if(!el || el.id !== 'app') {
+					return;
 				}
+				initObserver.disconnect();
+				doc.defaultView.addEventListener('message', ({ data }) => {
+					if(data !== '0chan-content-done') {
+						return;
+					}
+					if(updater) {
+						updater.disable();
+					}
+					DelForm.tNums = new Set();
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
+						$del);
+					runMain(checkDomains, dataPromise);
+				});
+				$script(`window.app.$bus.on('refreshContentDone',
+					() => document.defaultView.postMessage('0chan-content-done', '*'))`);
 			});
 			initObserver.observe(docBody, { childList: true });
 		}
@@ -821,8 +822,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', xhr => {
-				const id = xhr.responseText;
+			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
 				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 				$id('captchaid').value = id;
 			});
@@ -967,14 +967,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(xhr.responseText === '1') {
 					cap.textEl.disabled = true;
 					setTimeout(() => (cap.textEl.value = 'проезд оплачен'), 0);
-				} else {
-					cap.textEl.disabled = false;
-					cap.textEl.value = '';
-					const img = $q('img', cap.parentEl);
-					const src = img.getAttribute('src');
-					img.src = '';
-					img.src = this.getCaptchaSrc(src);
+					return;
 				}
+				cap.textEl.disabled = false;
+				cap.textEl.value = '';
+				const img = $q('img', cap.parentEl);
+				const src = img.getAttribute('src');
+				img.src = '';
+				img.src = this.getCaptchaSrc(src);
 			});
 		}
 	}

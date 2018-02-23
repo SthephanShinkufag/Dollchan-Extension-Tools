@@ -300,8 +300,7 @@ class CancelablePromise {
 			return child;
 		};
 		return new CancelablePromise(
-			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
-			() => {
+			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))), () => {
 				for(const child of children) {
 					child.cancel();
 				}

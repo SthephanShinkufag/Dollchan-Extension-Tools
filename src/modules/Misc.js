@@ -71,8 +71,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 	}
 	return $ajax(
 		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
-	).then(xhr => {
-		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+	).then(({ responseText }) => {
+		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
@@ -88,7 +88,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				}
 			}
 			if(isManual) {
-				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
 				return c === commit ?
 					Lng.haveLatestCommit[lang].replace('%s', vc) :

@@ -3609,8 +3609,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var runMain = function () {
-		var _ref111 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
-			var formEl, fav, oldMain, _ref112, _ref113, _ref113$, storageName, firstThr;
+		var _ref113 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
+			var formEl, fav, oldMain, _ref114, _ref115, _ref115$, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee21$(_context26) {
 				while (1) {
@@ -3662,11 +3662,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 15:
-							_ref112 = _context26.sent;
-							_ref113 = _slicedToArray(_ref112, 2);
-							_ref113$ = _ref113[0];
-							excludeList = _ref113$ === undefined ? '' : _ref113$;
-							fav = _ref113[1];
+							_ref114 = _context26.sent;
+							_ref115 = _slicedToArray(_ref114, 2);
+							_ref115$ = _ref115[0];
+							excludeList = _ref115$ === undefined ? '' : _ref115$;
+							fav = _ref115[1];
 
 							if (!(excludeList.includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
 								_context26.next = 22;
@@ -3797,7 +3797,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x81, _x82) {
-			return _ref111.apply(this, arguments);
+			return _ref113.apply(this, arguments);
 		};
 	}();
 
@@ -3806,7 +3806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '59a3c66';
+	var commit = '6ba5e2a';
 
 
 	var defaultCfg = {
@@ -7153,10 +7153,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
 		div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], function () {
-			$each($Q('.de-entry > input[type="checkbox"]', body), function (el) {
-				if (el.checked) {
-					el.parentNode.setAttribute('de-removed', '');
-				}
+			$each($Q('.de-entry > input[type="checkbox"]', body), 
+			function (el) {
+				return el.checked && el.parentNode.setAttribute('de-removed', '');
 			});
 			cleanFavorites(); 
 			body.classList.remove('de-fav-del'); 
@@ -9966,12 +9965,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + ('<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 			MyPosts.purge();
 			this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
-				if (!_this19._addForm(formEl, pageNum).firstThr) {
-					_this19._endAdding();
-					_this19.add();
-					return CancelablePromise.reject(new CancelError());
+				if (_this19._addForm(formEl, pageNum).firstThr) {
+					return _this19._updateForms(DelForm.last);
 				}
-				return _this19._updateForms(DelForm.last);
+				_this19._endAdding();
+				_this19.add();
+				return CancelablePromise.reject(new CancelError());
 			}).then(function () {
 				return _this19._endAdding();
 			}).catch(function (e) {
@@ -12253,9 +12252,7 @@ true, true];
 				this.files = new Files(this, $q('tr input[type="file"]', this.form));
 				window.addEventListener('load', function () {
 					return setTimeout(function () {
-						if (!_this26.files.filesCount) {
-							_this26.files.clear();
-						}
+						return !_this26.files.filesCount && _this26.files.clear();
 					}, 0);
 				});
 			}
@@ -12453,9 +12450,7 @@ true, true];
 					_this31._setSage();
 					_this31.files.clear();
 					[_this31.txta, _this31.name, _this31.mail, _this31.subj, _this31.video, _this31.cap && _this31.cap.textEl].forEach(function (node) {
-						if (node) {
-							node.value = '';
-						}
+						return node && (node.value = '');
 					});
 				};
 				toggleBtn.onclick = function () {
@@ -15022,15 +15017,15 @@ true, true];
 			_this48._showPview(_this48.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
 			_this48._loadPromise = ajaxPostsLoad(_this48._brd, tNum, false).then(function (pBuilder) {
-				if (aib.JsonBuilder) {
-					var html = [];
-					for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
-						html.push(pBuilder.getPostHTML(i - 1)); 
-					}
-					_this48._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
-				} else {
+				if (!aib.JsonBuilder) {
 					_this48._onload(pBuilder._form);
+					return;
 				}
+				var html = [];
+				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
+					html.push(pBuilder.getPostHTML(i - 1)); 
+				}
+				_this48._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
 			}, function (e) {
 				return _this48._onerror(e);
 			});
@@ -18495,9 +18490,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						if (notif === _this72._notifEl) {
-							_this72.close();
-						}
+						return notif === _this72._notifEl && _this72.close();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -20593,23 +20586,24 @@ true, true];
 				value: function observeContent(checkDomains, dataPromise) {
 					var initObserver = new MutationObserver(function (mutations) {
 						var el = mutations[0].addedNodes[0];
-						if (el && el.id === 'app') {
-							initObserver.disconnect();
-							doc.defaultView.addEventListener('message', function (_ref106) {
-								var data = _ref106.data;
-
-								if (data !== '0chan-content-done') {
-									return;
-								}
-								if (updater) {
-									updater.disable();
-								}
-								DelForm.tNums = new Set();
-								$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel', doc), $del);
-								runMain(checkDomains, dataPromise);
-							});
-							$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
+						if (!el || el.id !== 'app') {
+							return;
 						}
+						initObserver.disconnect();
+						doc.defaultView.addEventListener('message', function (_ref106) {
+							var data = _ref106.data;
+
+							if (data !== '0chan-content-done') {
+								return;
+							}
+							if (updater) {
+								updater.disable();
+							}
+							DelForm.tNums = new Set();
+							$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'), $del);
+							runMain(checkDomains, dataPromise);
+						});
+						$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
 					});
 					initObserver.observe(docBody, { childList: true });
 				}
@@ -20775,8 +20769,9 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (xhr) {
-						var id = xhr.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref107) {
+						var id = _ref107.responseText;
+
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
 					});
@@ -20959,14 +20954,14 @@ true, true];
 							setTimeout(function () {
 								return cap.textEl.value = 'проезд оплачен';
 							}, 0);
-						} else {
-							cap.textEl.disabled = false;
-							cap.textEl.value = '';
-							var img = $q('img', cap.parentEl);
-							var src = img.getAttribute('src');
-							img.src = '';
-							img.src = _this90.getCaptchaSrc(src);
+							return;
 						}
+						cap.textEl.disabled = false;
+						cap.textEl.value = '';
+						var img = $q('img', cap.parentEl);
+						var src = img.getAttribute('src');
+						img.src = '';
+						img.src = _this90.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -21935,18 +21930,18 @@ true, true];
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref107;
+							var _ref108;
 
 							if (_isArray36) {
 								if (_i48 >= _iterator36.length) break;
-								_ref107 = _iterator36[_i48++];
+								_ref108 = _iterator36[_i48++];
 							} else {
 								_i48 = _iterator36.next();
 								if (_i48.done) break;
-								_ref107 = _i48.value;
+								_ref108 = _i48.value;
 							}
 
-							var c = _ref107;
+							var c = _ref108;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -22331,8 +22326,8 @@ true, true];
 			this.port.onmessage = this._handleMessage;
 			this.activeListeners = new Set();
 			var port = channel.port2;
-			doc.defaultView.addEventListener('message', function (_ref108) {
-				var data = _ref108.data;
+			doc.defaultView.addEventListener('message', function (_ref109) {
+				var data = _ref109.data;
 
 				if (data === 'de-request-api-message') {
 					_this111.hasListeners = true;
@@ -22348,8 +22343,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref109) {
-			var arg = _ref109.data;
+		_handleMessage: function _handleMessage(_ref110) {
+			var arg = _ref110.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22363,18 +22358,18 @@ true, true];
 					if (data) {
 						rv = {};
 						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref110;
+							var _ref111;
 
 							if (_isArray37) {
 								if (_i50 >= _iterator37.length) break;
-								_ref110 = _iterator37[_i50++];
+								_ref111 = _iterator37[_i50++];
 							} else {
 								_i50 = _iterator37.next();
 								if (_i50.done) break;
-								_ref110 = _i50.value;
+								_ref111 = _i50.value;
 							}
 
-							var aName = _ref110;
+							var aName = _ref111;
 
 							rv[aName] = DollchanAPI._register(aName.toLowerCase());
 						}
@@ -22404,8 +22399,10 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (xhr) {
-			var v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref112) {
+			var responseText = _ref112.responseText;
+
+			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
 			if (remoteVer) {
 				var currentVer = version.split('.');
@@ -22420,7 +22417,7 @@ true, true];
 					}
 				}
 				if (isManual) {
-					var c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+					var c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 					var vc = version + '.' + c;
 					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
 				}

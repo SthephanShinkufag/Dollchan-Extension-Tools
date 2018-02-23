@@ -368,11 +368,8 @@ function showFavoritesWindow(body, data) {
 
 	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
-			if(el.checked) {
-				el.parentNode.setAttribute('de-removed', '');
-			}
-		});
+		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
+			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
