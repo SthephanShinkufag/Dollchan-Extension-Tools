@@ -3610,7 +3610,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var runMain = function () {
 		var _ref113 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
-			var formEl, fav, oldMain, _ref114, _ref115, _ref115$, storageName, firstThr;
+			var formEl, fav, oldMain, _ref114, _ref115, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee21$(_context26) {
 				while (1) {
@@ -3664,24 +3664,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 15:
 							_ref114 = _context26.sent;
 							_ref115 = _slicedToArray(_ref114, 2);
-							_ref115$ = _ref115[0];
-							excludeList = _ref115$ === undefined ? '' : _ref115$;
+							excludeList = _ref115[0];
 							fav = _ref115[1];
 
-							if (!(excludeList.includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
-								_context26.next = 22;
+							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
+								_context26.next = 21;
 								break;
 							}
 
 							return _context26.abrupt('return');
 
-						case 22:
+						case 21:
 							Logger.log('Storage loading');
 							$del(oldMain);
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context26.next = 29;
+								_context26.next = 28;
 								break;
 							}
 
@@ -3689,7 +3688,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scriptCSS();
 							return _context26.abrupt('return');
 
-						case 29:
+						case 28:
 							if ('toJSON' in aProto) {
 								delete aProto.toJSON;
 							}
@@ -3724,24 +3723,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context26.prev = 44;
+							_context26.prev = 43;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context26.next = 54;
+							_context26.next = 53;
 							break;
 
-						case 49:
-							_context26.prev = 49;
-							_context26.t0 = _context26['catch'](44);
+						case 48:
+							_context26.prev = 48;
+							_context26.t0 = _context26['catch'](43);
 
 							console.error('Delform parsing error:', getErrorMessage(_context26.t0));
 							$show(docBody);
 							return _context26.abrupt('return');
 
-						case 54:
+						case 53:
 							Logger.log('Parse delform');
 							storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -3788,12 +3787,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							Logger.finish();
 
-						case 81:
+						case 80:
 						case 'end':
 							return _context26.stop();
 					}
 				}
-			}, _callee21, this, [[44, 49]]);
+			}, _callee21, this, [[43, 48]]);
 		}));
 
 		return function runMain(_x81, _x82) {
@@ -3806,7 +3805,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '301770e';
+	var commit = '2af2b33';
 
 
 	var defaultCfg = {

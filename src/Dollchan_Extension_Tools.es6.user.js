@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '301770e';
+const commit = '2af2b33';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17545,8 +17545,8 @@ async function runMain(checkDomains, dataPromise) {
 		initNavFuncs();
 	}
 	let fav, oldMain;
-	[excludeList = '', fav] = await (dataPromise || readData());
-	if(excludeList.includes(aib.dm) ||
+	[excludeList, fav] = await (dataPromise || readData());
+	if((excludeList = excludeList || '').includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
 		!localData && docBody.classList.contains('de-mode-local') ||
 		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
