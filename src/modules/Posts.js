@@ -415,7 +415,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
+			$Q('.de-new-post').forEach(el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -475,7 +475,7 @@ class Post extends AbstractPost {
 			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+			$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(
 				el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
@@ -825,7 +825,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
+		$Q(`[de-form] a[href*="${ aib.anchor + num }"]`).forEach(isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;

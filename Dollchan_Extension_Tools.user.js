@@ -3778,7 +3778,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scrollPage();
 							Logger.log('Scroll page');
 							if (localData) {
-								$each($Q('.de-post-removed'), function (el) {
+								$Q('.de-post-removed').forEach(function (el) {
 									var post = pByEl.get(el);
 									if (post) {
 										post.delete(false);
@@ -3806,7 +3806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '84953e0';
+	var commit = 'c67e276';
 
 
 	var defaultCfg = {
@@ -4387,10 +4387,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var $id = function $id(id) {
 		return doc.getElementById(id);
-	};
-
-	var $each = function $each(els, cb) {
-		return aProto.forEach.call(els, cb);
 	};
 
 	function $parent(el, tagName) {
@@ -6545,7 +6541,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				var block = $bEnd(body, '<div class="de-fold-block"><input type="checkbox"><b>/' + b + '</b></div>');
 				block.firstChild.onclick = function (e) {
-					return $each($Q('.de-entry > input', block), function (el) {
+					return $Q('.de-entry > input', block).forEach(function (el) {
 						return el.checked = e.target.checked;
 					});
 				};
@@ -6627,7 +6623,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}()));
 
 		body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], function () {
-			$each($Q('.de-entry[info]', body), function (el) {
+			$Q('.de-entry[info]', body).forEach(function (el) {
 				if (!$q('input', el).checked) {
 					return;
 				}
@@ -6719,8 +6715,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							    checked = _el3.checked;
 
 							el = el.parentNode.nextElementSibling;
-							$each($Q('.de-entry > input', el), function (checkBox) {
-								return checkBox.checked = checked;
+							$Q('.de-entry > input', el).forEach(function (el) {
+								return el.checked = checked;
 							});
 							if (!checked || el.hasAttribute('de-opened')) {
 								return;
@@ -7153,7 +7149,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
 		div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], function () {
-			$each($Q('.de-entry > input[type="checkbox"]', body), 
+			$Q('.de-entry > input[type="checkbox"]', body).forEach( 
 			function (el) {
 				return el.checked && el.parentNode.setAttribute('de-removed', '');
 			});
@@ -7162,7 +7158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.cancel[lang], '', function () {
-			$each($Q('input[type="checkbox"]', body), function (el) {
+			$Q('input[type="checkbox"]', body).forEach(function (el) {
 				return el.checked = false;
 			}); 
 			body.classList.remove('de-fav-del'); 
@@ -7445,7 +7441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							pr.updateLanguage();
 							aib.updSubmitButton(pr.subm);
 							if (pr.files) {
-								$each($Q('.de-file-img, .de-file-txt-input', pr.form), function (el) {
+								$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(function (el) {
 									return el.title = Lng.youCanDrag[lang];
 								});
 							}
@@ -7591,9 +7587,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								processImgInfoLinks(_el4, 1, 0);
 							}
 						} else {
-							$each($Q('.de-btn-src'), function (el) {
-								return el.remove();
-							});
+							$Q('.de-btn-src').forEach($del);
 						}
 						break;
 					case 'delImgNames':
@@ -7616,10 +7610,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								processImgInfoLinks(_el5, 0, 1);
 							}
 						} else {
-							$each($Q('.de-img-name'), function (link) {
-								link.classList.remove('de-img-name');
-								link.textContent = link.title;
-								link.removeAttribute('title');
+							$Q('.de-img-name').forEach(function (el) {
+								el.classList.remove('de-img-name');
+								el.textContent = el.title;
+								el.removeAttribute('title');
 							});
 						}
 						updateCSS();
@@ -7921,7 +7915,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		_updateCSS: function _updateCSS() {
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+			$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
 			scriptCSS();
 		},
 		_updateDependant: function _updateDependant() {
@@ -8997,11 +8991,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function loadDocFiles(imgOnly) {
 		var progress = void 0,
 		    counter = void 0,
-		    count = 0,
 		    current = 1,
 		    warnings = '',
 		    tar = new TarBuilder();
 		var dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+		var els = [].concat(_toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc))));
+		var count = els.length;
 		Images_.pool = new TasksPool(4, function (num, data) {
 			return downloadImgData(data[0]).then(function (imgData) {
 				var _data4 = _slicedToArray(data, 4),
@@ -9049,7 +9044,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 				$q('body', dc).classList.add('de-mode-local');
-				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
 				var scriptStr = void 0;
 				var _localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 				if (nav.isESNext) {
@@ -9065,8 +9060,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			$del($id('de-popup-load-files'));
 			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
-		var els = [].concat(_toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc))));
-		count += els.length;
 		els.forEach(function (el) {
 			var imgLink = $parent(el, 'A');
 			if (imgLink) {
@@ -9075,8 +9068,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		});
 		if (!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' + '.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' + 'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-			$each($Q('a', dc), function (el) {
+			$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' + '.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' + 'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
+			$Q('a', dc).forEach(function (el) {
 				var num = void 0;
 				var tc = el.textContent;
 				if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -9088,12 +9081,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el.href = getAbsLink(el.href);
 				}
 			});
-			$each($Q(aib.qRPost, dc), function (post, i) {
+			$Q(aib.qRPost, dc).forEach(function (post, i) {
 				return post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
 			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' + quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
-			$each($Q('link, *[src]', dc), function (el) {
+			$Q('link, *[src]', dc).forEach(function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;
 				}
@@ -10040,8 +10033,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							case 21:
 								form = _ref30;
 
-								$each($Q('a[href^="blob:"]', form.el), function (a) {
-									return URL.revokeObjectURL(a.href);
+								$Q('a[href^="blob:"]', form.el).forEach(function (el) {
+									return URL.revokeObjectURL(el.href);
 								});
 								$hide(form.el);
 
@@ -12450,8 +12443,8 @@ true, true];
 					saveCfg('sageReply', 0);
 					_this31._setSage();
 					_this31.files.clear();
-					[_this31.txta, _this31.name, _this31.mail, _this31.subj, _this31.video, _this31.cap && _this31.cap.textEl].forEach(function (node) {
-						return node && (node.value = '');
+					[_this31.txta, _this31.name, _this31.mail, _this31.subj, _this31.video, _this31.cap && _this31.cap.textEl].forEach(function (el) {
+						return el && (el.value = '');
 					});
 				};
 				toggleBtn.onclick = function () {
@@ -14526,7 +14519,7 @@ true, true];
 				} else {
 					Post.hiddenNums.delete(+num);
 				}
-				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), isHide ? function (el) {
+				$Q('[de-form] a[href*="' + (aib.anchor + num) + '"]').forEach(isHide ? function (el) {
 					el.classList.add('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 						var refmap = el.parentNode;
@@ -14646,7 +14639,7 @@ true, true];
 			value: function clearMarks() {
 				if (Post.hasNew) {
 					Post.hasNew = false;
-					$each($Q('.de-new-post'), function (el) {
+					$Q('.de-new-post').forEach(function (el) {
 						return el.classList.remove('de-new-post');
 					});
 					doc.removeEventListener('click', Post.clearMarks, true);
@@ -14714,7 +14707,7 @@ true, true];
 					}
 				} else {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-					$each($Q('.de-post-hiddencontent', headerEl.parentNode), function (el) {
+					$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(function (el) {
 						return el.classList.remove('de-post-hiddencontent');
 					});
 				}
@@ -15089,7 +15082,7 @@ true, true];
 					pv.classList.remove('de-pview-anim');
 					pv.style.cssText = this._newPos;
 					this._newPos = null;
-					$each($Q('.de-css-move', doc.head), $del);
+					$Q('.de-css-move', doc.head).forEach($del);
 					pv.removeEventListener('animationend', this);
 					return;
 				}
@@ -15147,7 +15140,7 @@ true, true];
 				var post = pByNum.get(this.num);
 				post.setUserVisib(!post.hidden);
 				Pview.updatePosition(true);
-				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), function (el) {
+				$Q('.de-btn-pview-hide[de-num="' + this.num + '"]').forEach(function (el) {
 					if (post.hidden) {
 						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 						el.parentNode.classList.add('de-post-hide');
@@ -15245,8 +15238,8 @@ true, true];
 				pByEl.set(pviewEl, this);
 				pviewEl.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
 				$show(pviewEl);
-				$each($Q('.de-post-hiddencontent', pviewEl), function (node) {
-					return node.classList.remove('de-post-hiddencontent');
+				$Q('.de-post-hiddencontent', pviewEl).forEach(function (el) {
+					return el.classList.remove('de-post-hiddencontent');
 				});
 				if (Cfg.linksNavig) {
 					Pview._markLink(pviewEl, this.parent.num);
@@ -15271,9 +15264,9 @@ true, true];
 						el.classList.add('de-post-hide');
 					}
 					el.innerHTML = '<svg class="de-btn-' + (post.hidden ? 'unhide' : 'hide') + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><!--\n\t\t\t\t--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--\n\t\t\t\t--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
-					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pviewEl), $del);
-					$each($Q(aib.qPostImg, pviewEl), function (img) {
-						return $show(img.parentNode);
+					$Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pviewEl).forEach($del);
+					$Q(aib.qPostImg, pviewEl).forEach(function (el) {
+						return $show(el.parentNode);
 					});
 					el = $q('.de-link-parent', pviewEl);
 					if (el) {
@@ -15286,7 +15279,7 @@ true, true];
 						this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 					}
 					if (Cfg.addImgs) {
-						$each($Q('.de-img-embed', pviewEl), $show);
+						$Q('.de-img-embed', pviewEl).forEach($show);
 					}
 					if (Cfg.markViewed) {
 						this._readDelay = setTimeout(function (post) {
@@ -15345,7 +15338,7 @@ true, true];
 						link.classList.add('de-link-parent');
 						pv._link = link;
 						if (pv.parent.num !== parent.num) {
-							$each($Q('.de-link-pview', pv.el), function (el) {
+							$Q('.de-link-pview', pv.el).forEach(function (el) {
 								return el.classList.remove('de-link-pview');
 							});
 							Pview._markLink(pv.el, parent.num);
@@ -15403,10 +15396,8 @@ true, true];
 		}, {
 			key: '_markLink',
 			value: function _markLink(el, num) {
-				$each($Q('a[href*="' + num + '"]', el), function (el) {
-					if (el.textContent.startsWith('>>' + num)) {
-						el.classList.add('de-link-pview');
-					}
+				$Q('a[href*="' + num + '"]', el).forEach(function (el) {
+					return el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview');
 				});
 			}
 		}, {
@@ -18829,7 +18820,7 @@ true, true];
 			}
 			formEl.setAttribute('de-form', '');
 			formEl.removeAttribute('id');
-			$each($Q('script', this.el), $del);
+			$Q('script', this.el).forEach($del);
 			var threads = DelForm.getThreads(this.el);
 			for (var i = 0, _len10 = threads.length; i < _len10; ++i) {
 				var num = aib.getTNum(threads[i]);
@@ -19018,6 +19009,9 @@ true, true];
 					this.parentNode.removeChild(this);
 				}
 			};
+		}
+		if (!('forEach' in NodeList.prototype)) {
+			NodeList.prototype.forEach = Array.prototype.forEach;
 		}
 		var needFileHack = false;
 		try {
@@ -19733,7 +19727,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('(function() {\n\t\t\t\tvar emptyFn = Function.prototype;\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
-					$each($Q('.autorefresh'), $del);
+					$Q('.autorefresh').forEach($del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
 						$q('.option-area > td:last-child').appendChild(el);
@@ -19917,7 +19911,7 @@ true, true];
 										}
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
-										$each($Q(query, form), function (el) {
+										$Q(query, form).forEach(function (el) {
 											return _this78._origInputs[0].appendChild(el);
 										});
 										_context22.next = 17;
@@ -19930,7 +19924,7 @@ true, true];
 										}
 
 										pr.subm.value = this._origInputs[1];
-										$each($Q(query, form), $del);
+										$Q(query, form).forEach($del);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
 										return _context22.abrupt('return');
@@ -19950,8 +19944,8 @@ true, true];
 												return;
 											}
 											pr.subm.value = $q(_this78.qFormSubm, loadedDoc).value;
-											$each($Q(query, form), $del);
-											$each($Q(query, loadedForm), function (el) {
+											$Q(query, form).forEach($del);
+											$Q(query, loadedForm).forEach(function (el) {
 												return form.appendChild(doc.adoptNode(el));
 											});
 											closePopup('load-form');
@@ -20011,7 +20005,7 @@ true, true];
 					if (form) {
 						form.insertAdjacentHTML('beforeend', '<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 					}
-					$each($Q('br.clear'), function (el) {
+					$Q('br.clear').forEach(function (el) {
 						var hr = el.nextElementSibling;
 						if (hr && hr.tagName === 'HR') {
 							$after(el.parentNode, hr);
@@ -20187,7 +20181,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					$each($Q('.message > .omittedposts'), function (el) {
+					$Q('.message > .omittedposts').forEach(function (el) {
 						return $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>');
 					});
 					return false;
@@ -20577,7 +20571,7 @@ true, true];
 				value: function init() {
 					defaultCfg.postBtnsCSS = 0;
 					$del($q('base', doc.head)); 
-					$each($Q('a[data-post]'), function (el) {
+					$Q('a[data-post]').forEach(function (el) {
 						return el.href = $q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling).href.split('#')[0] + '#' + el.getAttribute('data-post');
 					});
 					return false;
@@ -20601,7 +20595,7 @@ true, true];
 								updater.disable();
 							}
 							DelForm.tNums = new Set();
-							$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'), $del);
+							$Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel').forEach($del);
 							runMain(checkDomains, dataPromise);
 						});
 						$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
@@ -20861,7 +20855,7 @@ true, true];
 						$replace(btnEl, '<input type="submit" value="Отправить">');
 					}
 					var dFormEl = $q(this.qDForm);
-					$each($Q('input[type="hidden"]', dFormEl), $del);
+					$Q('input[type="hidden"]', dFormEl).forEach($del);
 					dFormEl.appendChild($q('.userdelete'));
 					return false;
 				}
@@ -20919,8 +20913,8 @@ true, true];
 							if (backBtn) {
 								var modBtn = $q('a[accesskey="m"]', el);
 								$after(backBtn.parentElement, backBtn);
-								[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (elm) {
-									return $after(backBtn.lastChild, elm);
+								[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (el) {
+									return $after(backBtn.lastChild, el);
 								});
 							}
 						} catch (e) {}
@@ -21457,7 +21451,7 @@ true, true];
 				value: function fixFileInputs(el) {
 					var str = '><input type="file" name="imagefile[]"></div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+					$Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3').forEach($del);
 				}
 			}, {
 				key: 'css',
@@ -21523,8 +21517,8 @@ true, true];
 			}, {
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					$each($Q('input[type="file"]', el), function (input) {
-						return input.removeAttribute('onchange');
+					$Q('input[type="file"]', el).forEach(function (el) {
+						return el.removeAttribute('onchange');
 					});
 					el.firstElementChild.value = 1;
 				}
@@ -21654,10 +21648,10 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(EndChan.prototype.__proto__ || Object.getPrototypeOf(EndChan.prototype), 'init', this).call(this);
-					$each($Q('.imgLink > img[src^="/.youtube/"]'), function (el) {
+					$Q('.imgLink > img[src^="/.youtube/"]').forEach(function (el) {
 						return $del($parent(el, 'FIGURE'));
 					});
-					$each($Q('.youtube_wrapper'), function (el) {
+					$Q('.youtube_wrapper').forEach(function (el) {
 						var src = $q('a', el).href;
 						$del($bBegin(el, '<a href="' + src + '">' + src + '</a>').nextSibling);
 					});
@@ -22045,7 +22039,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'init', this).call(this);
-					$each($Q('.files + .post.op'), function (el) {
+					$Q('.files + .post.op').forEach(function (el) {
 						return el.insertBefore(el.previousElementSibling, el.firstChild);
 					});
 					return false;
@@ -22204,7 +22198,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(Ponychan.prototype.__proto__ || Object.getPrototypeOf(Ponychan.prototype), 'init', this).call(this);
-					$each($Q('img[data-mature-src]'), function (el) {
+					$Q('img[data-mature-src]').forEach(function (el) {
 						return el.src = el.getAttribute('data-mature-src');
 					});
 					return false;

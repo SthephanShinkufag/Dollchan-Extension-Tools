@@ -68,7 +68,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
+					$Q('.de-link-pview', pv.el).forEach(el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -173,7 +173,7 @@ class Pview extends AbstractPost {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
 			this._newPos = null;
-			$each($Q('.de-css-move', doc.head), $del);
+			$Q('.de-css-move', doc.head).forEach($del);
 			pv.removeEventListener('animationend', this);
 			return;
 		}
@@ -219,7 +219,7 @@ class Pview extends AbstractPost {
 		const post = pByNum.get(this.num);
 		post.setUserVisib(!post.hidden);
 		Pview.updatePosition(true);
-		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
+		$Q(`.de-btn-pview-hide[de-num="${ this.num }"]`).forEach(el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -231,11 +231,8 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el), el => {
-			if(el.textContent.startsWith('>>' + num)) {
-				el.classList.add('de-link-pview');
-			}
-		});
+		$Q(`a[href*="${ num }"]`, el).forEach(
+			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	_onerror(e) {
 		if(!(e instanceof CancelError)) {
@@ -313,7 +310,7 @@ class Pview extends AbstractPost {
 		pviewEl.className = `${ aib.cReply } de-pview${
 			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
 		$show(pviewEl);
-		$each($Q('.de-post-hiddencontent', pviewEl), node => node.classList.remove('de-post-hiddencontent'));
+		$Q('.de-post-hiddencontent', pviewEl).forEach(el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pviewEl, this.parent.num);
 		}
@@ -344,9 +341,9 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				pviewEl), $del);
-			$each($Q(aib.qPostImg, pviewEl), img => $show(img.parentNode));
+			$Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
+				pviewEl).forEach($del);
+			$Q(aib.qPostImg, pviewEl).forEach(el => $show(el.parentNode));
 			el = $q('.de-link-parent', pviewEl);
 			if(el) {
 				el.classList.remove('de-link-parent');
@@ -359,7 +356,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pviewEl), $show);
+				$Q('.de-img-embed', pviewEl).forEach($show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {

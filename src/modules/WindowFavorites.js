@@ -106,7 +106,7 @@ function showFavoritesWindow(body, data) {
 				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
+				$Q('.de-entry > input', el).forEach(el => (el.checked = checked));
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
@@ -368,7 +368,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
+		$Q('.de-entry > input[type="checkbox"]', body).forEach( // Mark checked entries as deleted
 			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
 		body.classList.remove('de-fav-del'); // Show all control buttons
@@ -376,7 +376,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
+		$Q('input[type="checkbox"]', body).forEach(el => (el.checked = false)); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }

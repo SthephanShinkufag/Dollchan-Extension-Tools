@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '84953e0';
+const commit = 'c67e276';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1534,8 +1534,6 @@ const $Q = (path, root = docBody) => root.querySelectorAll(path);
 const $q = (path, root = docBody) => root.querySelector(path);
 
 const $id = id => doc.getElementById(id);
-
-const $each = (els, cb) => aProto.forEach.call(els, cb);
 
 function $parent(el, tagName) {
 	do {
@@ -3559,7 +3557,7 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
+				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
 			for(const tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
 					<input type="checkbox">
@@ -3598,7 +3596,7 @@ function showHiddenWindow(body) {
 
 	// "Delete" button. Allows to delete selected threads
 	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry[info]', body), el => {
+		$Q('.de-entry[info]', body).forEach(el => {
 			if(!$q('input', el).checked) {
 				return;
 			}
@@ -3727,7 +3725,7 @@ function showFavoritesWindow(body, data) {
 				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
+				$Q('.de-entry > input', el).forEach(el => (el.checked = checked));
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
@@ -3989,7 +3987,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
+		$Q('.de-entry > input[type="checkbox"]', body).forEach( // Mark checked entries as deleted
 			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
 		body.classList.remove('de-fav-del'); // Show all control buttons
@@ -3997,7 +3995,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
+		$Q('input[type="checkbox"]', body).forEach(el => (el.checked = false)); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }
@@ -4249,7 +4247,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
-						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -4369,7 +4367,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 1, 0);
 					}
 				} else {
-					$each($Q('.de-btn-src'), el => el.remove());
+					$Q('.de-btn-src').forEach($del);
 				}
 				break;
 			case 'delImgNames':
@@ -4378,10 +4376,10 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
-					$each($Q('.de-img-name'), link => {
-						link.classList.remove('de-img-name');
-						link.textContent = link.title;
-						link.removeAttribute('title');
+					$Q('.de-img-name').forEach(el => {
+						el.classList.remove('de-img-name');
+						el.textContent = el.title;
+						el.removeAttribute('title');
 					});
 				}
 				updateCSS();
@@ -4841,7 +4839,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
 		scriptCSS();
 	},
 	_updateDependant() {
@@ -5873,11 +5871,12 @@ function getDataFromImg(el) {
 }
 
 function loadDocFiles(imgOnly) {
-	let progress, counter, count = 0,
-		current = 1,
+	let progress, counter, current = 1,
 		warnings = '',
 		tar = new TarBuilder();
 	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
+	let count = els.length;
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
@@ -5916,7 +5915,7 @@ function loadDocFiles(imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$q('body', dc).classList.add('de-mode-local');
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+			$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
@@ -5936,8 +5935,6 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
-	count += els.length;
 	els.forEach(el => {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
@@ -5947,10 +5944,10 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+		$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), el => {
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
+		$Q('a', dc).forEach(el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -5962,12 +5959,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$each($Q(aib.qRPost, dc),
+		$Q(aib.qRPost, dc).forEach(
 			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), el => {
+		$Q('link, *[src]', dc).forEach(el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
@@ -6789,7 +6786,7 @@ const Pages = {
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
+			$Q('a[href^="blob:"]', form.el).forEach(el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;
@@ -8719,7 +8716,7 @@ class PostForm {
 			this._setSage();
 			this.files.clear();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				node => node && (node.value = ''));
+				el => el && (el.value = ''));
 		};
 		toggleBtn.onclick = () => {
 			toggleCfg('replyWinDrag');
@@ -10227,7 +10224,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
+			$Q('.de-new-post').forEach(el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -10287,7 +10284,7 @@ class Post extends AbstractPost {
 			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+			$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(
 				el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
@@ -10637,7 +10634,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
+		$Q(`[de-form] a[href*="${ aib.anchor + num }"]`).forEach(isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;
@@ -10934,7 +10931,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
+					$Q('.de-link-pview', pv.el).forEach(el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -11039,7 +11036,7 @@ class Pview extends AbstractPost {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
 			this._newPos = null;
-			$each($Q('.de-css-move', doc.head), $del);
+			$Q('.de-css-move', doc.head).forEach($del);
 			pv.removeEventListener('animationend', this);
 			return;
 		}
@@ -11085,7 +11082,7 @@ class Pview extends AbstractPost {
 		const post = pByNum.get(this.num);
 		post.setUserVisib(!post.hidden);
 		Pview.updatePosition(true);
-		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
+		$Q(`.de-btn-pview-hide[de-num="${ this.num }"]`).forEach(el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -11097,11 +11094,8 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el), el => {
-			if(el.textContent.startsWith('>>' + num)) {
-				el.classList.add('de-link-pview');
-			}
-		});
+		$Q(`a[href*="${ num }"]`, el).forEach(
+			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	_onerror(e) {
 		if(!(e instanceof CancelError)) {
@@ -11179,7 +11173,7 @@ class Pview extends AbstractPost {
 		pviewEl.className = `${ aib.cReply } de-pview${
 			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
 		$show(pviewEl);
-		$each($Q('.de-post-hiddencontent', pviewEl), node => node.classList.remove('de-post-hiddencontent'));
+		$Q('.de-post-hiddencontent', pviewEl).forEach(el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pviewEl, this.parent.num);
 		}
@@ -11210,9 +11204,9 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				pviewEl), $del);
-			$each($Q(aib.qPostImg, pviewEl), img => $show(img.parentNode));
+			$Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
+				pviewEl).forEach($del);
+			$Q(aib.qPostImg, pviewEl).forEach(el => $show(el.parentNode));
 			el = $q('.de-link-parent', pviewEl);
 			if(el) {
 				el.classList.remove('de-link-parent');
@@ -11225,7 +11219,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pviewEl), $show);
+				$Q('.de-img-embed', pviewEl).forEach($show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -14154,7 +14148,7 @@ class DelForm {
 		}
 		formEl.setAttribute('de-form', '');
 		formEl.removeAttribute('id');
-		$each($Q('script', this.el), $del);
+		$Q('script', this.el).forEach($del);
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);
@@ -14328,6 +14322,9 @@ function initNavFuncs() {
 				this.parentNode.removeChild(this);
 			}
 		};
+	}
+	if(!('forEach' in NodeList.prototype)) {
+		NodeList.prototype.forEach = Array.prototype.forEach;
 	}
 	let needFileHack = false;
 	try {
@@ -14955,7 +14952,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$each($Q('.autorefresh'), $del);
+			$Q('.autorefresh').forEach($del);
 			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);
@@ -15104,11 +15101,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
-				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
+				$Q(query, form).forEach(el => this._origInputs[0].appendChild(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
-				$each($Q(query, form), $del);
+				$Q(query, form).forEach($del);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
@@ -15126,8 +15123,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
-				$each($Q(query, form), $del);
-				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
+				$Q(query, form).forEach($del);
+				$Q(query, loadedForm).forEach(el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
 		}
@@ -15162,7 +15159,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				form.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
-			$each($Q('br.clear'), el => {
+			$Q('br.clear').forEach(el => {
 				const hr = el.nextElementSibling;
 				if(hr && hr.tagName === 'HR') {
 					$after(el.parentNode, hr);
@@ -15276,7 +15273,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		init() {
-			$each($Q('.message > .omittedposts'),
+			$Q('.message > .omittedposts').forEach(
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
@@ -15508,8 +15505,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.postBtnsCSS = 0;
-			$del($q('base', doc.head)); // <base> is not compartible with SVG
-			$each($Q('a[data-post]'), el => (el.href =
+			$del($q('base', doc.head)); // <base> is not compatible with SVG
+			$Q('a[data-post]').forEach(el => (el.href =
 				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
 					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
 			return false;
@@ -15529,7 +15526,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						updater.disable();
 					}
 					DelForm.tNums = new Set();
-					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
+					$Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel').forEach(
 						$del);
 					runMain(checkDomains, dataPromise);
 				});
@@ -15710,7 +15707,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
 			const dFormEl = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', dFormEl), $del);
+			$Q('input[type="hidden"]', dFormEl).forEach($del);
 			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
@@ -15758,7 +15755,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						const modBtn = $q('a[accesskey="m"]', el);
 						$after(backBtn.parentElement, backBtn);
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
-							elm => $after(backBtn.lastChild, elm));
+							el => $after(backBtn.lastChild, el));
 					}
 				} catch(e) {}
 			}
@@ -16126,7 +16123,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+			$Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3').forEach($del);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -16176,7 +16173,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$each($Q('input[type="file"]', el), input => input.removeAttribute('onchange'));
+			$Q('input[type="file"]', el).forEach(el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -16277,8 +16274,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
-			$each($Q('.youtube_wrapper'), el => {
+			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del($parent(el, 'FIGURE')));
+			$Q('.youtube_wrapper').forEach(el => {
 				const src = $q('a', el).href;
 				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
 			});
@@ -16544,7 +16541,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			$Q('.files + .post.op').forEach(el => el.insertBefore(el.previousElementSibling, el.firstChild));
 			return false;
 		}
 	}
@@ -16636,7 +16633,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
+			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -17632,7 +17629,7 @@ async function runMain(checkDomains, dataPromise) {
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {
-		$each($Q('.de-post-removed'), el => {
+		$Q('.de-post-removed').forEach(el => {
 			const post = pByEl.get(el);
 			if(post) {
 				post.delete(false);

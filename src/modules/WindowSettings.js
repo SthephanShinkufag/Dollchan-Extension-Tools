@@ -245,7 +245,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
-						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -365,7 +365,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 1, 0);
 					}
 				} else {
-					$each($Q('.de-btn-src'), el => el.remove());
+					$Q('.de-btn-src').forEach($del);
 				}
 				break;
 			case 'delImgNames':
@@ -374,10 +374,10 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
-					$each($Q('.de-img-name'), link => {
-						link.classList.remove('de-img-name');
-						link.textContent = link.title;
-						link.removeAttribute('title');
+					$Q('.de-img-name').forEach(el => {
+						el.classList.remove('de-img-name');
+						el.textContent = el.title;
+						el.removeAttribute('title');
 					});
 				}
 				updateCSS();
@@ -837,7 +837,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
 		scriptCSS();
 	},
 	_updateDependant() {

@@ -192,11 +192,12 @@ function getDataFromImg(el) {
 }
 
 function loadDocFiles(imgOnly) {
-	let progress, counter, count = 0,
-		current = 1,
+	let progress, counter, current = 1,
 		warnings = '',
 		tar = new TarBuilder();
 	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
+	let count = els.length;
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
@@ -235,7 +236,7 @@ function loadDocFiles(imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$q('body', dc).classList.add('de-mode-local');
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+			$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
@@ -255,8 +256,6 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
-	count += els.length;
 	els.forEach(el => {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
@@ -266,10 +265,10 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+		$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), el => {
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
+		$Q('a', dc).forEach(el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -281,12 +280,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$each($Q(aib.qRPost, dc),
+		$Q(aib.qRPost, dc).forEach(
 			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), el => {
+		$Q('link, *[src]', dc).forEach(el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}

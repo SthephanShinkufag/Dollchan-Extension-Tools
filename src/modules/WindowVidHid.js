@@ -152,7 +152,7 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
+				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
 			for(const tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
 					<input type="checkbox">
@@ -191,7 +191,7 @@ function showHiddenWindow(body) {
 
 	// "Delete" button. Allows to delete selected threads
 	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry[info]', body), el => {
+		$Q('.de-entry[info]', body).forEach(el => {
 			if(!$q('input', el).checked) {
 				return;
 			}

@@ -550,7 +550,7 @@ class PostForm {
 			this._setSage();
 			this.files.clear();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				node => node && (node.value = ''));
+				el => el && (el.value = ''));
 		};
 		toggleBtn.onclick = () => {
 			toggleCfg('replyWinDrag');

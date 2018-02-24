@@ -10,8 +10,6 @@ const $q = (path, root = docBody) => root.querySelector(path);
 
 const $id = id => doc.getElementById(id);
 
-const $each = (els, cb) => aProto.forEach.call(els, cb);
-
 function $parent(el, tagName) {
 	do {
 		el = el.parentElement;
