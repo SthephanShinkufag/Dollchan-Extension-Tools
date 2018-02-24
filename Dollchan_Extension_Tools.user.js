@@ -3806,7 +3806,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'c67e276';
+	var commit = '301770e';
 
 
 	var defaultCfg = {
@@ -7585,6 +7585,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								    _el4 = _ref18.el;
 
 								processImgInfoLinks(_el4, 1, 0);
+								$Q('.de-img-embed').forEach(function (el) {
+									return addImgSrcButtons(el.parentNode.nextSibling);
+								});
 							}
 						} else {
 							$Q('.de-btn-src').forEach($del);
@@ -16523,6 +16526,10 @@ true, true];
 		}()
 	});
 
+	function addImgSrcButtons(link) {
+		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+	}
+
 	function processImgInfoLinks(el) {
 		var addSrc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Cfg.imgSrcBtns;
 		var delNames = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Cfg.delImgNames;
@@ -16541,7 +16548,7 @@ true, true];
 				continue;
 			}
 			if (addSrc) {
-				link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+				addImgSrcButtons(link);
 			}
 			if (delNames) {
 				link.classList.add('de-img-name');
@@ -16567,6 +16574,9 @@ true, true];
 			a.target = '_blank';
 			a.innerHTML = '<img class="de-img-embed" src="' + _url3 + '">';
 			$before(link, a);
+			if (Cfg.imgSrcBtns) {
+				addImgSrcButtons(link);
+			}
 		}
 	}
 

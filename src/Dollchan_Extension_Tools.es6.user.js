@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'c67e276';
+const commit = '301770e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4365,6 +4365,7 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
+						$Q('.de-img-embed').forEach(el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
 					$Q('.de-btn-src').forEach($del);
@@ -12120,6 +12121,11 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
+function addImgSrcButtons(link) {
+	link.insertAdjacentHTML('beforebegin',
+		'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+}
+
 // Adding features for info links of images
 function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
 	if(!addSrc && !delNames) {
@@ -12136,8 +12142,7 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 			continue;
 		}
 		if(addSrc) {
-			link.insertAdjacentHTML('beforebegin',
-				'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+			addImgSrcButtons(link);
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
@@ -12164,6 +12169,9 @@ function embedPostMsgImages(el) {
 		a.target = '_blank';
 		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
 		$before(link, a);
+		if(Cfg.imgSrcBtns) {
+			addImgSrcButtons(link);
+		}
 	}
 }
 

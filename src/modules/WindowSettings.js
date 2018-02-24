@@ -363,6 +363,7 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
+						$Q('.de-img-embed').forEach(el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
 					$Q('.de-btn-src').forEach($del);
