@@ -17,7 +17,7 @@ class DelForm {
 		}
 		formEl.setAttribute('de-form', '');
 		formEl.removeAttribute('id');
-		$Q('script', this.el).forEach($del);
+		$each($Q('script', this.el), $del);
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);

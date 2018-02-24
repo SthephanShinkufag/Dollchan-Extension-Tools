@@ -7,8 +7,8 @@ const Images_ = { preloading: false, afterpreload: null, progressId: null, canva
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
-	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
+let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lang, locStorage, nav,
+	needScroll, pByEl, pByNum, pr, sesStorage, updater;
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;

@@ -43,7 +43,7 @@ const Pages = {
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$Q('a[href^="blob:"]', form.el).forEach(el => URL.revokeObjectURL(el.href));
+			$each($Q('a[href^="blob:"]', form.el), el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '2af2b33';
+const commit = '4d5d9fb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1516,8 +1516,8 @@ const Images_ = { preloading: false, afterpreload: null, progressId: null, canva
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
-	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
+let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lang, locStorage, nav,
+	needScroll, pByEl, pByNum, pr, sesStorage, updater;
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;
@@ -3557,7 +3557,7 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
 			block.firstChild.onclick =
-				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
+				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
 			for(const tNum in hThr[b]) {
 				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
 					<input type="checkbox">
@@ -3596,7 +3596,7 @@ function showHiddenWindow(body) {
 
 	// "Delete" button. Allows to delete selected threads
 	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$Q('.de-entry[info]', body).forEach(el => {
+		$each($Q('.de-entry[info]', body), el => {
 			if(!$q('input', el).checked) {
 				return;
 			}
@@ -3725,7 +3725,7 @@ function showFavoritesWindow(body, data) {
 				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$Q('.de-entry > input', el).forEach(el => (el.checked = checked));
+				$each($Q('.de-entry > input', el), el => (el.checked = checked));
 				if(!checked || el.hasAttribute('de-opened')) {
 					return;
 				}
@@ -3987,7 +3987,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Apply" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$Q('.de-entry > input[type="checkbox"]', body).forEach( // Mark checked entries as deleted
+		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
 			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
 		body.classList.remove('de-fav-del'); // Show all control buttons
@@ -3995,7 +3995,7 @@ function showFavoritesWindow(body, data) {
 
 	// "Cancel" button, depends to "Deleting…"
 	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$Q('input[type="checkbox"]', body).forEach(el => (el.checked = false)); // Unselect all checkboxes
+		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
 		body.classList.remove('de-fav-del'); // Show all control buttons
 	}));
 }
@@ -4247,7 +4247,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
-						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
+						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -4365,10 +4365,10 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
-						$Q('.de-img-embed').forEach(el => addImgSrcButtons(el.parentNode.nextSibling));
+						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
-					$Q('.de-btn-src').forEach($del);
+					$each($Q('.de-btn-src'), $del);
 				}
 				break;
 			case 'delImgNames':
@@ -4377,7 +4377,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
-					$Q('.de-img-name').forEach(el => {
+					$each($Q('.de-img-name'), el => {
 						el.classList.remove('de-img-name');
 						el.textContent = el.title;
 						el.removeAttribute('title');
@@ -4840,7 +4840,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
+		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
 	},
 	_updateDependant() {
@@ -5916,7 +5916,7 @@ function loadDocFiles(imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$q('body', dc).classList.add('de-mode-local');
-			$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
@@ -5945,10 +5945,10 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
-		$Q('a', dc).forEach(el => {
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+		$each($Q('a', dc), el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -5960,12 +5960,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$Q(aib.qRPost, dc).forEach(
+		$each($Q(aib.qRPost, dc),
 			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$Q('link, *[src]', dc).forEach(el => {
+		$each($Q('link, *[src]', dc), el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
@@ -6787,7 +6787,7 @@ const Pages = {
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$Q('a[href^="blob:"]', form.el).forEach(el => URL.revokeObjectURL(el.href));
+			$each($Q('a[href^="blob:"]', form.el), el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;
@@ -10225,7 +10225,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$Q('.de-new-post').forEach(el => el.classList.remove('de-new-post'));
+			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -10285,7 +10285,7 @@ class Post extends AbstractPost {
 			}
 		} else {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(
+			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
 		}
 	}
@@ -10635,7 +10635,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$Q(`[de-form] a[href*="${ aib.anchor + num }"]`).forEach(isHide ? el => {
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refmap = el.parentNode;
@@ -10932,7 +10932,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$Q('.de-link-pview', pv.el).forEach(el => el.classList.remove('de-link-pview'));
+					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -11037,7 +11037,7 @@ class Pview extends AbstractPost {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
 			this._newPos = null;
-			$Q('.de-css-move', doc.head).forEach($del);
+			$each($Q('.de-css-move', doc.head), $del);
 			pv.removeEventListener('animationend', this);
 			return;
 		}
@@ -11083,7 +11083,7 @@ class Pview extends AbstractPost {
 		const post = pByNum.get(this.num);
 		post.setUserVisib(!post.hidden);
 		Pview.updatePosition(true);
-		$Q(`.de-btn-pview-hide[de-num="${ this.num }"]`).forEach(el => {
+		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
 			if(post.hidden) {
 				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 				el.parentNode.classList.add('de-post-hide');
@@ -11095,7 +11095,7 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$Q(`a[href*="${ num }"]`, el).forEach(
+		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	_onerror(e) {
@@ -11174,7 +11174,7 @@ class Pview extends AbstractPost {
 		pviewEl.className = `${ aib.cReply } de-pview${
 			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
 		$show(pviewEl);
-		$Q('.de-post-hiddencontent', pviewEl).forEach(el => el.classList.remove('de-post-hiddencontent'));
+		$each($Q('.de-post-hiddencontent', pviewEl), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pviewEl, this.parent.num);
 		}
@@ -11205,9 +11205,9 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				pviewEl).forEach($del);
-			$Q(aib.qPostImg, pviewEl).forEach(el => $show(el.parentNode));
+			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
+				pviewEl), $del);
+			$each($Q(aib.qPostImg, pviewEl), el => $show(el.parentNode));
 			el = $q('.de-link-parent', pviewEl);
 			if(el) {
 				el.classList.remove('de-link-parent');
@@ -11220,7 +11220,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$Q('.de-img-embed', pviewEl).forEach($show);
+				$each($Q('.de-img-embed', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -14156,7 +14156,7 @@ class DelForm {
 		}
 		formEl.setAttribute('de-form', '');
 		formEl.removeAttribute('id');
-		$Q('script', this.el).forEach($del);
+		$each($Q('script', this.el), $del);
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);
@@ -14331,9 +14331,10 @@ function initNavFuncs() {
 			}
 		};
 	}
-	if(!('forEach' in NodeList.prototype)) {
-		NodeList.prototype.forEach = Array.prototype.forEach;
-	}
+	const nlProto = NodeList.prototype;
+	$each = 'forEach' in nlProto ?
+		(els, cb) => nlProto.forEach.call(els, cb) :
+		(els, cb) => aProto.forEach.call(els, cb);
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -14960,7 +14961,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$Q('.autorefresh').forEach($del);
+			$each($Q('.autorefresh'), $del);
 			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);
@@ -15109,11 +15110,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
-				$Q(query, form).forEach(el => this._origInputs[0].appendChild(el));
+				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
-				$Q(query, form).forEach($del);
+				$each($Q(query, form), $del);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
@@ -15131,8 +15132,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
-				$Q(query, form).forEach($del);
-				$Q(query, loadedForm).forEach(el => form.appendChild(doc.adoptNode(el)));
+				$each($Q(query, form), $del);
+				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
 		}
@@ -15167,7 +15168,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				form.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
-			$Q('br.clear').forEach(el => {
+			$each($Q('br.clear'), el => {
 				const hr = el.nextElementSibling;
 				if(hr && hr.tagName === 'HR') {
 					$after(el.parentNode, hr);
@@ -15281,7 +15282,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		init() {
-			$Q('.message > .omittedposts').forEach(
+			$each($Q('.message > .omittedposts'),
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
@@ -15514,7 +15515,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.postBtnsCSS = 0;
 			$del($q('base', doc.head)); // <base> is not compatible with SVG
-			$Q('a[data-post]').forEach(el => (el.href =
+			$each($Q('a[data-post]'), el => (el.href =
 				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
 					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
 			return false;
@@ -15534,7 +15535,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						updater.disable();
 					}
 					DelForm.tNums = new Set();
-					$Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel').forEach(
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
 						$del);
 					runMain(checkDomains, dataPromise);
 				});
@@ -15715,7 +15716,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
 			const dFormEl = $q(this.qDForm);
-			$Q('input[type="hidden"]', dFormEl).forEach($del);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
 			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
@@ -16131,7 +16132,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3').forEach($del);
+			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -16181,7 +16182,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$Q('input[type="file"]', el).forEach(el => el.removeAttribute('onchange'));
+			$each($Q('input[type="file"]', el), el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -16282,8 +16283,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del($parent(el, 'FIGURE')));
-			$Q('.youtube_wrapper').forEach(el => {
+			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
+			$each($Q('.youtube_wrapper'), el => {
 				const src = $q('a', el).href;
 				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
 			});
@@ -16549,7 +16550,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.files + .post.op').forEach(el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
 			return false;
 		}
 	}
@@ -16641,7 +16642,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
+			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -17637,7 +17638,7 @@ async function runMain(checkDomains, dataPromise) {
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {
-		$Q('.de-post-removed').forEach(el => {
+		$each($Q('.de-post-removed'), el => {
 			const post = pByEl.get(el);
 			if(post) {
 				post.delete(false);

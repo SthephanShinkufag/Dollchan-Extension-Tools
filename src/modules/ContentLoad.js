@@ -236,7 +236,7 @@ function loadDocFiles(imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 			$q('body', dc).classList.add('de-mode-local');
-			$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 			if(nav.isESNext) {
@@ -265,10 +265,10 @@ function loadDocFiles(imgOnly) {
 		}
 	});
 	if(!imgOnly) {
-		$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
+		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
-		$Q('a', dc).forEach(el => {
+			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+		$each($Q('a', dc), el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -280,12 +280,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$Q(aib.qRPost, dc).forEach(
+		$each($Q(aib.qRPost, dc),
 			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$Q('link, *[src]', dc).forEach(el => {
+		$each($Q('link, *[src]', dc), el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}

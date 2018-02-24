@@ -141,7 +141,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$Q('.autorefresh').forEach($del);
+			$each($Q('.autorefresh'), $del);
 			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);
@@ -290,11 +290,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
-				$Q(query, form).forEach(el => this._origInputs[0].appendChild(el));
+				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
-				$Q(query, form).forEach($del);
+				$each($Q(query, form), $del);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
@@ -312,8 +312,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
-				$Q(query, form).forEach($del);
-				$Q(query, loadedForm).forEach(el => form.appendChild(doc.adoptNode(el)));
+				$each($Q(query, form), $del);
+				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
 		}
@@ -348,7 +348,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				form.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
-			$Q('br.clear').forEach(el => {
+			$each($Q('br.clear'), el => {
 				const hr = el.nextElementSibling;
 				if(hr && hr.tagName === 'HR') {
 					$after(el.parentNode, hr);
@@ -462,7 +462,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		init() {
-			$Q('.message > .omittedposts').forEach(
+			$each($Q('.message > .omittedposts'),
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
@@ -695,7 +695,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.postBtnsCSS = 0;
 			$del($q('base', doc.head)); // <base> is not compatible with SVG
-			$Q('a[data-post]').forEach(el => (el.href =
+			$each($Q('a[data-post]'), el => (el.href =
 				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
 					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
 			return false;
@@ -715,7 +715,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						updater.disable();
 					}
 					DelForm.tNums = new Set();
-					$Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel').forEach(
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
 						$del);
 					runMain(checkDomains, dataPromise);
 				});
@@ -896,7 +896,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
 			const dFormEl = $q(this.qDForm);
-			$Q('input[type="hidden"]', dFormEl).forEach($del);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
 			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
@@ -1312,7 +1312,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3').forEach($del);
+			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -1362,7 +1362,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$Q('input[type="file"]', el).forEach(el => el.removeAttribute('onchange'));
+			$each($Q('input[type="file"]', el), el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -1463,8 +1463,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del($parent(el, 'FIGURE')));
-			$Q('.youtube_wrapper').forEach(el => {
+			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
+			$each($Q('.youtube_wrapper'), el => {
 				const src = $q('a', el).href;
 				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
 			});
@@ -1730,7 +1730,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('.files + .post.op').forEach(el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
 			return false;
 		}
 	}
@@ -1822,7 +1822,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
+			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}

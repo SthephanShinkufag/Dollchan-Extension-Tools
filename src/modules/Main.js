@@ -114,7 +114,7 @@ async function runMain(checkDomains, dataPromise) {
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {
-		$Q('.de-post-removed').forEach(el => {
+		$each($Q('.de-post-removed'), el => {
 			const post = pByEl.get(el);
 			if(post) {
 				post.delete(false);

@@ -50,9 +50,10 @@ function initNavFuncs() {
 			}
 		};
 	}
-	if(!('forEach' in NodeList.prototype)) {
-		NodeList.prototype.forEach = Array.prototype.forEach;
-	}
+	const nlProto = NodeList.prototype;
+	$each = 'forEach' in nlProto ?
+		(els, cb) => nlProto.forEach.call(els, cb) :
+		(els, cb) => aProto.forEach.call(els, cb);
 	let needFileHack = false;
 	try {
 		new File([''], '');

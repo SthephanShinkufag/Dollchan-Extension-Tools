@@ -245,7 +245,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updSubmitButton(pr.subm);
 					if(pr.files) {
-						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
+						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -363,10 +363,10 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
-						$Q('.de-img-embed').forEach(el => addImgSrcButtons(el.parentNode.nextSibling));
+						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
-					$Q('.de-btn-src').forEach($del);
+					$each($Q('.de-btn-src'), $del);
 				}
 				break;
 			case 'delImgNames':
@@ -375,7 +375,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
-					$Q('.de-img-name').forEach(el => {
+					$each($Q('.de-img-name'), el => {
 						el.classList.remove('de-img-name');
 						el.textContent = el.title;
 						el.removeAttribute('title');
@@ -838,7 +838,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
+		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 		scriptCSS();
 	},
 	_updateDependant() {

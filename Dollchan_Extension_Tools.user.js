@@ -3777,7 +3777,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scrollPage();
 							Logger.log('Scroll page');
 							if (localData) {
-								$Q('.de-post-removed').forEach(function (el) {
+								$each($Q('.de-post-removed'), function (el) {
 									var post = pByEl.get(el);
 									if (post) {
 										post.delete(false);
@@ -3805,7 +3805,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '2af2b33';
+	var commit = '4d5d9fb';
 
 
 	var defaultCfg = {
@@ -4350,23 +4350,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 	var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-	var docBody = void 0,
-	    locStorage = void 0,
-	    sesStorage = void 0,
-	    Cfg = void 0,
-	    pByEl = void 0,
-	    pByNum = void 0,
+	var $each = void 0,
 	    aib = void 0,
-	    nav = void 0,
-	    updater = void 0,
+	    Cfg = void 0,
+	    docBody = void 0,
 	    dTime = void 0,
-	    pr = void 0,
 	    dummy = void 0,
-	    lang = void 0,
+	    excludeList = void 0,
 	    isExpImg = void 0,
 	    isPreImg = void 0,
+	    lang = void 0,
+	    locStorage = void 0,
+	    nav = void 0,
 	    needScroll = void 0,
-	    excludeList = void 0;
+	    pByEl = void 0,
+	    pByNum = void 0,
+	    pr = void 0,
+	    sesStorage = void 0,
+	    updater = void 0;
 	var quotetxt = '';
 	var nativeXHRworks = true;
 	var visPosts = 2;
@@ -6540,7 +6541,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				var block = $bEnd(body, '<div class="de-fold-block"><input type="checkbox"><b>/' + b + '</b></div>');
 				block.firstChild.onclick = function (e) {
-					return $Q('.de-entry > input', block).forEach(function (el) {
+					return $each($Q('.de-entry > input', block), function (el) {
 						return el.checked = e.target.checked;
 					});
 				};
@@ -6622,7 +6623,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}()));
 
 		body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], function () {
-			$Q('.de-entry[info]', body).forEach(function (el) {
+			$each($Q('.de-entry[info]', body), function (el) {
 				if (!$q('input', el).checked) {
 					return;
 				}
@@ -6714,7 +6715,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							    checked = _el3.checked;
 
 							el = el.parentNode.nextElementSibling;
-							$Q('.de-entry > input', el).forEach(function (el) {
+							$each($Q('.de-entry > input', el), function (el) {
 								return el.checked = checked;
 							});
 							if (!checked || el.hasAttribute('de-opened')) {
@@ -7148,7 +7149,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
 
 		div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], function () {
-			$Q('.de-entry > input[type="checkbox"]', body).forEach( 
+			$each($Q('.de-entry > input[type="checkbox"]', body), 
 			function (el) {
 				return el.checked && el.parentNode.setAttribute('de-removed', '');
 			});
@@ -7157,7 +7158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.cancel[lang], '', function () {
-			$Q('input[type="checkbox"]', body).forEach(function (el) {
+			$each($Q('input[type="checkbox"]', body), function (el) {
 				return el.checked = false;
 			}); 
 			body.classList.remove('de-fav-del'); 
@@ -7440,7 +7441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							pr.updateLanguage();
 							aib.updSubmitButton(pr.subm);
 							if (pr.files) {
-								$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(function (el) {
+								$each($Q('.de-file-img, .de-file-txt-input', pr.form), function (el) {
 									return el.title = Lng.youCanDrag[lang];
 								});
 							}
@@ -7584,12 +7585,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								    _el4 = _ref18.el;
 
 								processImgInfoLinks(_el4, 1, 0);
-								$Q('.de-img-embed').forEach(function (el) {
+								$each($Q('.de-img-embed'), function (el) {
 									return addImgSrcButtons(el.parentNode.nextSibling);
 								});
 							}
 						} else {
-							$Q('.de-btn-src').forEach($del);
+							$each($Q('.de-btn-src'), $del);
 						}
 						break;
 					case 'delImgNames':
@@ -7612,7 +7613,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								processImgInfoLinks(_el5, 0, 1);
 							}
 						} else {
-							$Q('.de-img-name').forEach(function (el) {
+							$each($Q('.de-img-name'), function (el) {
 								el.classList.remove('de-img-name');
 								el.textContent = el.title;
 								el.removeAttribute('title');
@@ -7917,7 +7918,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		_updateCSS: function _updateCSS() {
-			$Q('#de-css, #de-css-dynamic, #de-css-user', doc.head).forEach($del);
+			$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
 			scriptCSS();
 		},
 		_updateDependant: function _updateDependant() {
@@ -9046,7 +9047,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
 				$q('body', dc).classList.add('de-mode-local');
-				$Q('#de-css, #de-css-dynamic, #de-css-user', dc).forEach($del);
+				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 				var scriptStr = void 0;
 				var _localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
 				if (nav.isESNext) {
@@ -9070,8 +9071,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		});
 		if (!imgOnly) {
-			$Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' + '.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' + 'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc).forEach($del);
-			$Q('a', dc).forEach(function (el) {
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' + '.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' + 'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+			$each($Q('a', dc), function (el) {
 				var num = void 0;
 				var tc = el.textContent;
 				if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -9083,12 +9084,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el.href = getAbsLink(el.href);
 				}
 			});
-			$Q(aib.qRPost, dc).forEach(function (post, i) {
+			$each($Q(aib.qRPost, dc), function (post, i) {
 				return post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
 			});
 			var files = [];
 			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' + quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
-			$Q('link, *[src]', dc).forEach(function (el) {
+			$each($Q('link, *[src]', dc), function (el) {
 				if (els.indexOf(el) !== -1) {
 					return;
 				}
@@ -10035,7 +10036,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							case 21:
 								form = _ref30;
 
-								$Q('a[href^="blob:"]', form.el).forEach(function (el) {
+								$each($Q('a[href^="blob:"]', form.el), function (el) {
 									return URL.revokeObjectURL(el.href);
 								});
 								$hide(form.el);
@@ -14521,7 +14522,7 @@ true, true];
 				} else {
 					Post.hiddenNums.delete(+num);
 				}
-				$Q('[de-form] a[href*="' + (aib.anchor + num) + '"]').forEach(isHide ? function (el) {
+				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), isHide ? function (el) {
 					el.classList.add('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 						var refmap = el.parentNode;
@@ -14641,7 +14642,7 @@ true, true];
 			value: function clearMarks() {
 				if (Post.hasNew) {
 					Post.hasNew = false;
-					$Q('.de-new-post').forEach(function (el) {
+					$each($Q('.de-new-post'), function (el) {
 						return el.classList.remove('de-new-post');
 					});
 					doc.removeEventListener('click', Post.clearMarks, true);
@@ -14709,7 +14710,7 @@ true, true];
 					}
 				} else {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-					$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(function (el) {
+					$each($Q('.de-post-hiddencontent', headerEl.parentNode), function (el) {
 						return el.classList.remove('de-post-hiddencontent');
 					});
 				}
@@ -15084,7 +15085,7 @@ true, true];
 					pv.classList.remove('de-pview-anim');
 					pv.style.cssText = this._newPos;
 					this._newPos = null;
-					$Q('.de-css-move', doc.head).forEach($del);
+					$each($Q('.de-css-move', doc.head), $del);
 					pv.removeEventListener('animationend', this);
 					return;
 				}
@@ -15142,7 +15143,7 @@ true, true];
 				var post = pByNum.get(this.num);
 				post.setUserVisib(!post.hidden);
 				Pview.updatePosition(true);
-				$Q('.de-btn-pview-hide[de-num="' + this.num + '"]').forEach(function (el) {
+				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), function (el) {
 					if (post.hidden) {
 						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
 						el.parentNode.classList.add('de-post-hide');
@@ -15240,7 +15241,7 @@ true, true];
 				pByEl.set(pviewEl, this);
 				pviewEl.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '') + (isMyPost ? ' de-mypost' : '');
 				$show(pviewEl);
-				$Q('.de-post-hiddencontent', pviewEl).forEach(function (el) {
+				$each($Q('.de-post-hiddencontent', pviewEl), function (el) {
 					return el.classList.remove('de-post-hiddencontent');
 				});
 				if (Cfg.linksNavig) {
@@ -15266,8 +15267,8 @@ true, true];
 						el.classList.add('de-post-hide');
 					}
 					el.innerHTML = '<svg class="de-btn-' + (post.hidden ? 'unhide' : 'hide') + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + this.num + '"><!--\n\t\t\t\t--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--\n\t\t\t\t--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
-					$Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pviewEl).forEach($del);
-					$Q(aib.qPostImg, pviewEl).forEach(function (el) {
+					$each($Q((!aib.t && post.isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pviewEl), $del);
+					$each($Q(aib.qPostImg, pviewEl), function (el) {
 						return $show(el.parentNode);
 					});
 					el = $q('.de-link-parent', pviewEl);
@@ -15281,7 +15282,7 @@ true, true];
 						this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 					}
 					if (Cfg.addImgs) {
-						$Q('.de-img-embed', pviewEl).forEach($show);
+						$each($Q('.de-img-embed', pviewEl), $show);
 					}
 					if (Cfg.markViewed) {
 						this._readDelay = setTimeout(function (post) {
@@ -15340,7 +15341,7 @@ true, true];
 						link.classList.add('de-link-parent');
 						pv._link = link;
 						if (pv.parent.num !== parent.num) {
-							$Q('.de-link-pview', pv.el).forEach(function (el) {
+							$each($Q('.de-link-pview', pv.el), function (el) {
 								return el.classList.remove('de-link-pview');
 							});
 							Pview._markLink(pv.el, parent.num);
@@ -15398,7 +15399,7 @@ true, true];
 		}, {
 			key: '_markLink',
 			value: function _markLink(el, num) {
-				$Q('a[href*="' + num + '"]', el).forEach(function (el) {
+				$each($Q('a[href*="' + num + '"]', el), function (el) {
 					return el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview');
 				});
 			}
@@ -18829,7 +18830,7 @@ true, true];
 			}
 			formEl.setAttribute('de-form', '');
 			formEl.removeAttribute('id');
-			$Q('script', this.el).forEach($del);
+			$each($Q('script', this.el), $del);
 			var threads = DelForm.getThreads(this.el);
 			for (var i = 0, _len10 = threads.length; i < _len10; ++i) {
 				var num = aib.getTNum(threads[i]);
@@ -19019,9 +19020,12 @@ true, true];
 				}
 			};
 		}
-		if (!('forEach' in NodeList.prototype)) {
-			NodeList.prototype.forEach = Array.prototype.forEach;
-		}
+		var nlProto = NodeList.prototype;
+		$each = 'forEach' in nlProto ? function (els, cb) {
+			return nlProto.forEach.call(els, cb);
+		} : function (els, cb) {
+			return aProto.forEach.call(els, cb);
+		};
 		var needFileHack = false;
 		try {
 			new File([''], '');
@@ -19736,7 +19740,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('(function() {\n\t\t\t\tvar emptyFn = Function.prototype;\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
-					$Q('.autorefresh').forEach($del);
+					$each($Q('.autorefresh'), $del);
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
 						$q('.option-area > td:last-child').appendChild(el);
@@ -19920,7 +19924,7 @@ true, true];
 										}
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
-										$Q(query, form).forEach(function (el) {
+										$each($Q(query, form), function (el) {
 											return _this78._origInputs[0].appendChild(el);
 										});
 										_context22.next = 17;
@@ -19933,7 +19937,7 @@ true, true];
 										}
 
 										pr.subm.value = this._origInputs[1];
-										$Q(query, form).forEach($del);
+										$each($Q(query, form), $del);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
 										return _context22.abrupt('return');
@@ -19953,8 +19957,8 @@ true, true];
 												return;
 											}
 											pr.subm.value = $q(_this78.qFormSubm, loadedDoc).value;
-											$Q(query, form).forEach($del);
-											$Q(query, loadedForm).forEach(function (el) {
+											$each($Q(query, form), $del);
+											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
 											});
 											closePopup('load-form');
@@ -20014,7 +20018,7 @@ true, true];
 					if (form) {
 						form.insertAdjacentHTML('beforeend', '<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 					}
-					$Q('br.clear').forEach(function (el) {
+					$each($Q('br.clear'), function (el) {
 						var hr = el.nextElementSibling;
 						if (hr && hr.tagName === 'HR') {
 							$after(el.parentNode, hr);
@@ -20190,7 +20194,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					$Q('.message > .omittedposts').forEach(function (el) {
+					$each($Q('.message > .omittedposts'), function (el) {
 						return $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>');
 					});
 					return false;
@@ -20580,7 +20584,7 @@ true, true];
 				value: function init() {
 					defaultCfg.postBtnsCSS = 0;
 					$del($q('base', doc.head)); 
-					$Q('a[data-post]').forEach(function (el) {
+					$each($Q('a[data-post]'), function (el) {
 						return el.href = $q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling).href.split('#')[0] + '#' + el.getAttribute('data-post');
 					});
 					return false;
@@ -20604,7 +20608,7 @@ true, true];
 								updater.disable();
 							}
 							DelForm.tNums = new Set();
-							$Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel').forEach($del);
+							$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'), $del);
 							runMain(checkDomains, dataPromise);
 						});
 						$script('window.app.$bus.on(\'refreshContentDone\',\n\t\t\t\t\t() => document.defaultView.postMessage(\'0chan-content-done\', \'*\'))');
@@ -20864,7 +20868,7 @@ true, true];
 						$replace(btnEl, '<input type="submit" value="Отправить">');
 					}
 					var dFormEl = $q(this.qDForm);
-					$Q('input[type="hidden"]', dFormEl).forEach($del);
+					$each($Q('input[type="hidden"]', dFormEl), $del);
 					dFormEl.appendChild($q('.userdelete'));
 					return false;
 				}
@@ -21460,7 +21464,7 @@ true, true];
 				value: function fixFileInputs(el) {
 					var str = '><input type="file" name="imagefile[]"></div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-					$Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3').forEach($del);
+					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 				}
 			}, {
 				key: 'css',
@@ -21526,7 +21530,7 @@ true, true];
 			}, {
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					$Q('input[type="file"]', el).forEach(function (el) {
+					$each($Q('input[type="file"]', el), function (el) {
 						return el.removeAttribute('onchange');
 					});
 					el.firstElementChild.value = 1;
@@ -21657,10 +21661,10 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(EndChan.prototype.__proto__ || Object.getPrototypeOf(EndChan.prototype), 'init', this).call(this);
-					$Q('.imgLink > img[src^="/.youtube/"]').forEach(function (el) {
+					$each($Q('.imgLink > img[src^="/.youtube/"]'), function (el) {
 						return $del($parent(el, 'FIGURE'));
 					});
-					$Q('.youtube_wrapper').forEach(function (el) {
+					$each($Q('.youtube_wrapper'), function (el) {
 						var src = $q('a', el).href;
 						$del($bBegin(el, '<a href="' + src + '">' + src + '</a>').nextSibling);
 					});
@@ -22048,7 +22052,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'init', this).call(this);
-					$Q('.files + .post.op').forEach(function (el) {
+					$each($Q('.files + .post.op'), function (el) {
 						return el.insertBefore(el.previousElementSibling, el.firstChild);
 					});
 					return false;
@@ -22207,7 +22211,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(Ponychan.prototype.__proto__ || Object.getPrototypeOf(Ponychan.prototype), 'init', this).call(this);
-					$Q('img[data-mature-src]').forEach(function (el) {
+					$each($Q('img[data-mature-src]'), function (el) {
 						return el.src = el.getAttribute('data-mature-src');
 					});
 					return false;
