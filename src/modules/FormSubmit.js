@@ -26,7 +26,7 @@ function getUploadFunc() {
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return function({ total, loaded: i }) {
+	return ({ total, loaded: i }) => {
 		if(!inited) {
 			progress.setAttribute('max', total);
 			$show(progress);
@@ -201,7 +201,12 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	const ajaxParams = { data, method: 'POST' };
+	const ajaxParams = {
+		data,
+		// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
+		// headers: { Referer: aib.prot + '//' + aib.host },
+		method: 'POST'
+	};
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}

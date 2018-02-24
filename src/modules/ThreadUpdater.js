@@ -187,17 +187,17 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
+		_drawLines(ctx, line1, line2, color, width, scaleFactor) {
+			ctx.beginPath();
+			ctx.strokeStyle = color;
+			ctx.lineWidth = width * scaleFactor;
+			ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+			ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+			ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+			ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+			ctx.stroke();
+		},
 		_initIconsHelper(icon) {
-			function drawLines(ctx, line1, line2, color, width, scaleFactor) {
-				ctx.beginPath();
-				ctx.strokeStyle = color;
-				ctx.lineWidth = width * scaleFactor;
-				ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-				ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-				ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-				ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
-				ctx.stroke();
-			}
 			const canvas = doc.createElement('canvas');
 			const ctx = canvas.getContext('2d');
 			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
@@ -205,16 +205,16 @@ function initThreadUpdater(title, enableUpdate) {
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
-			drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-			drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
 			this._iconNew = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
 			this._iconYou = canvas.toDataURL('image/png');
 			this._hasIcons = true;
 		},

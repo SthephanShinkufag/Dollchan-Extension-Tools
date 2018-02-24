@@ -106,7 +106,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-				this.getSage = function(post) {
+				this.getSage = post => {
 					const name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 				};
@@ -575,22 +575,20 @@ function getImageBoard(checkDomains, checkEngines) {
 			return status === 200 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
-			const getBase64 = async function(file) {
-				return new Promise((resolve, reject) => {
-					const reader = new FileReader();
-					reader.readAsDataURL(file);
-					reader.onload = () => resolve(reader.result);
-					reader.onerror = error => reject(error);
-				});
-			};
-			const getCookies = function() {
-				const parsedCookies = {};
+			const getBase64 = async file => new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload = () => resolve(reader.result);
+				reader.onerror = error => reject(error);
+			});
+			const getCookies = () => {
+				const obj = {};
 				const cookies = document.cookie.split(';');
-				for(let i = 0; i < cookies.length; i++) {
+				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
-					parsedCookies[parts.shift().trim()] = decodeURI(parts.join('='));
+					obj[parts.shift().trim()] = decodeURI(parts.join('='));
 				}
-				return parsedCookies;
+				return obj;
 			};
 			const dataObj = { files: [] };
 			const files = [];
@@ -1038,7 +1036,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				value = function() {
+				value = () => {
 					if(Cfg.altCaptcha) {
 						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 					} else {

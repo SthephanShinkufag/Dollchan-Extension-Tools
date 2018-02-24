@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '4d5d9fb';
+const commit = '4def898';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8801,7 +8801,7 @@ function getUploadFunc() {
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return function({ total, loaded: i }) {
+	return ({ total, loaded: i }) => {
 		if(!inited) {
 			progress.setAttribute('max', total);
 			$show(progress);
@@ -8976,7 +8976,12 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	const ajaxParams = { data, method: 'POST' };
+	const ajaxParams = {
+		data,
+		// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
+		// headers: { Referer: aib.prot + '//' + aib.host },
+		method: 'POST'
+	};
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
@@ -13773,17 +13778,17 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
+		_drawLines(ctx, line1, line2, color, width, scaleFactor) {
+			ctx.beginPath();
+			ctx.strokeStyle = color;
+			ctx.lineWidth = width * scaleFactor;
+			ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+			ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+			ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+			ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+			ctx.stroke();
+		},
 		_initIconsHelper(icon) {
-			function drawLines(ctx, line1, line2, color, width, scaleFactor) {
-				ctx.beginPath();
-				ctx.strokeStyle = color;
-				ctx.lineWidth = width * scaleFactor;
-				ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-				ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-				ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-				ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
-				ctx.stroke();
-			}
 			const canvas = doc.createElement('canvas');
 			const ctx = canvas.getContext('2d');
 			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
@@ -13791,16 +13796,16 @@ function initThreadUpdater(title, enableUpdate) {
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
-			drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-			drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
 			this._iconNew = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
 			this._iconYou = canvas.toDataURL('image/png');
 			this._hasIcons = true;
 		},
@@ -14326,8 +14331,9 @@ function initNavFuncs() {
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
-			if(this.parentNode) {
-				this.parentNode.removeChild(this);
+			const el = this.parentNode;
+			if(el) {
+				el.removeChild(this);
 			}
 		};
 	}
@@ -14926,7 +14932,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-				this.getSage = function(post) {
+				this.getSage = post => {
 					const name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 				};
@@ -15395,22 +15401,20 @@ function getImageBoard(checkDomains, checkEngines) {
 			return status === 200 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
-			const getBase64 = async function(file) {
-				return new Promise((resolve, reject) => {
-					const reader = new FileReader();
-					reader.readAsDataURL(file);
-					reader.onload = () => resolve(reader.result);
-					reader.onerror = error => reject(error);
-				});
-			};
-			const getCookies = function() {
-				const parsedCookies = {};
+			const getBase64 = async file => new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload = () => resolve(reader.result);
+				reader.onerror = error => reject(error);
+			});
+			const getCookies = () => {
+				const obj = {};
 				const cookies = document.cookie.split(';');
-				for(let i = 0; i < cookies.length; i++) {
+				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
-					parsedCookies[parts.shift().trim()] = decodeURI(parts.join('='));
+					obj[parts.shift().trim()] = decodeURI(parts.join('='));
 				}
-				return parsedCookies;
+				return obj;
 			};
 			const dataObj = { files: [] };
 			const files = [];
@@ -15858,7 +15862,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				value = function() {
+				value = () => {
 					if(Cfg.altCaptcha) {
 						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 					} else {

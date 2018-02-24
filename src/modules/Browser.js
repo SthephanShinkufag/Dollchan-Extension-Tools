@@ -45,8 +45,9 @@ function initNavFuncs() {
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
-			if(this.parentNode) {
-				this.parentNode.removeChild(this);
+			const el = this.parentNode;
+			if(el) {
+				el.removeChild(this);
 			}
 		};
 	}
