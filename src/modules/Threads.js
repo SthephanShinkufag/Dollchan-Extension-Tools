@@ -386,7 +386,7 @@ class Thread {
 			Pview.updatePosition(true);
 		}
 		if(pBuilder.isClosed) {
-			AjaxCache.clear();
+			AjaxCache.clearCache();
 			return { newCount: newVisPosts, locked: true };
 		}
 		return { newCount: newVisPosts, locked: false };

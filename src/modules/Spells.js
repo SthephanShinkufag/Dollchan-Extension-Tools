@@ -272,7 +272,7 @@ const Spells = Object.create({
 				SpellsRunner.unhideAll();
 				this.disable();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{ "hide": false, "data": null }';
+				locStorage['__de-spells'] = '{ hide: false, data: null }';
 				locStorage.removeItem('__de-spells');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -1077,13 +1077,13 @@ class SpellsInterpreter {
 			}
 			if(weightVals) {
 				const w = image.weight;
-				let hide;
+				let isHide;
 				switch(compareRule) {
-				case 0: hide = w >= weightVals[0] && w <= weightVals[1]; break;
-				case 1: hide = w < weightVals[0]; break;
-				case 2: hide = w > weightVals[0]; break;
+				case 0: isHide = w >= weightVals[0] && w <= weightVals[1]; break;
+				case 1: isHide = w < weightVals[0]; break;
+				case 2: isHide = w > weightVals[0]; break;
 				}
-				if(!hide) {
+				if(!isHide) {
 					continue;
 				} else if(!sizeVals) {
 					return true;

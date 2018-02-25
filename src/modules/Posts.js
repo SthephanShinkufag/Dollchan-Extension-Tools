@@ -462,21 +462,21 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, hide) {
-		if(hide) {
-			if(aib.t) {
-				Thread.first.hidCounter++;
-			}
-			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
-			if(headerEl) {
-				for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-					el.classList.add('de-post-hiddencontent');
-				}
-			}
-		} else {
+	static hideContent(headerEl, hideBtn, isUser, isHide) {
+		if(!isHide) {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
+			return;
+		}
+		if(aib.t) {
+			Thread.first.hidCounter++;
+		}
+		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		if(headerEl) {
+			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+				el.classList.add('de-post-hiddencontent');
+			}
 		}
 	}
 	get banned() {
@@ -547,7 +547,7 @@ class Post extends AbstractPost {
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
 			if(this.hidden) {
-				this.ref.unhide();
+				this.ref.unhideRef();
 			}
 			RefMap.upd(this, false);
 			if((this.prev.next = this.next)) {
@@ -611,50 +611,51 @@ class Post extends AbstractPost {
 		}
 		this.select();
 	}
-	setUserVisib(hide, save = true, note = null) {
+	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
-		this.setVisib(hide, note);
-		if(this.isOp || this.hidden === hide) {
-			this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+		this.setVisib(isHide, note);
+		if(this.isOp || this.hidden === isHide) {
+			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
-		if(save) {
-			HiddenPosts.set(this.num, this.thr.num, hide);
+		if(isSave) {
+			const { num } = this;
+			HiddenPosts.set(num, this.thr.num, isHide);
 			if(this.isOp) {
-				if(hide) {
-					HiddenThreads.set(this.num, this.num, this.title);
+				if(isHide) {
+					HiddenThreads.set(num, num, this.title);
 				} else {
-					HiddenThreads.remove(this.num);
+					HiddenThreads.remove(num);
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
-				hide,
+				hide   : isHide,
 				brd    : aib.b,
-				num    : this.num,
+				num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
 			});
 			locStorage.removeItem('__de-post');
 		}
-		this.ref.toggleRef(!hide, false);
+		this.ref.toggleRef(isHide, false);
 	}
-	setVisib(hide, note = null) {
-		if(this.hidden === hide) {
-			if(hide && note) {
+	setVisib(isHide, note = null) {
+		if(this.hidden === isHide) {
+			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = hide;
+			this.thr.hidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-				if(hide) {
+				if(isHide) {
 					this.wrap.classList.add('de-hidden');
 				} else {
 					this.wrap.classList.remove('de-hidden');
 				}
 			} else {
-				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : e => {
+				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
 					const yOffset = window.pageYOffset;
 					this.hideContent(e.type === 'mouseout');
 					scrollTo(window.pageXOffset, yOffset);
@@ -662,28 +663,28 @@ class Post extends AbstractPost {
 			}
 		}
 		if(Cfg.strikeHidd) {
-			setTimeout(() => this._strikePostNum(hide), 50);
+			setTimeout(() => this._strikePostNum(isHide), 50);
 		}
-		if(hide) {
+		if(isHide) {
 			this.note.set(note);
 		} else {
-			this.note.hide();
+			this.note.hideNote();
 		}
-		this.hidden = hide;
-		this.hideContent(hide);
+		this.hidden = isHide;
+		this.hideContent(isHide);
 	}
 	spellHide(note) {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			this.ref.hide();
+			this.ref.hideRef();
 		}
 	}
 	spellUnhide() {
 		this.spellHidden = false;
 		if(!this.userToggled) {
 			this.setVisib(false);
-			this.ref.unhide();
+			this.ref.unhideRef();
 		}
 	}
 	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
@@ -710,7 +711,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const { hidden } = this;
+		const isHide = !this.hidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -761,16 +762,16 @@ class Post extends AbstractPost {
 			const { num } = this;
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, hidden, words, post);
+				Post.findSameText(num, !isHide, words, post);
 			}
 			return;
 		}
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			this.ref.toggleRef(hidden, true);
-			this.setUserVisib(!hidden);
+			this.ref.toggleRef(isHide, true);
+			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': this.ref.toggleRef(null, true); return;
+		case 'hide-refsonly': Spells.add(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
 			const task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -821,17 +822,17 @@ class Post extends AbstractPost {
 		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$hide(refmap);
+				const refMapEl = el.parentNode;
+				if(!$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$hide(refMapEl);
 				}
 			}
 		} : el => {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$show(refmap);
+				const refMapEl = el.parentNode;
+				if($q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$show(refMapEl);
 				}
 			}
 		});
@@ -916,7 +917,7 @@ Post.Note = class PostNote {
 		this._aEl = $q('a', this._noteEl);
 		this.textEl = this._aEl.nextElementSibling;
 	}
-	hide() {
+	hideNote() {
 		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 		}
@@ -927,7 +928,7 @@ Post.Note = class PostNote {
 		if(this.isHideThr) {
 			this.set(null);
 		} else {
-			this.hide();
+			this.hideNote();
 		}
 	}
 	set(note) {

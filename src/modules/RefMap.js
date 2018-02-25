@@ -103,7 +103,7 @@ class RefMap {
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 			if(Cfg.hideRefPsts && this._post.hidden) {
 				post.setVisib(true, 'reference to >>' + num);
-				post.ref.hide();
+				post.ref.hideRef();
 			}
 		}
 	}
@@ -113,7 +113,7 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide(isForced = false) {
+	hideRef(isForced = false) {
 		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 			return;
 		}
@@ -123,10 +123,10 @@ class RefMap {
 			if(post && !post.hidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					post.ref.hide(true);
+					post.ref.hideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(true, 'reference to >>' + this._post.num);
-					post.ref.hide();
+					post.ref.hideRef();
 				}
 			}
 		}
@@ -161,13 +161,13 @@ class RefMap {
 		this.hasMap = false;
 	}
 	toggleRef(isHide, isForced) {
-		if(isHide === true || isHide === null && this._hidden) {
-			this.unhide(isForced);
+		if(isHide) {
+			this.hideRef(isForced);
 		} else {
-			this.hide(isForced);
+			this.unhideRef(isForced);
 		}
 	}
-	unhide(isForced = false) {
+	unhideRef(isForced = false) {
 		if(this._hidden && !this.hasMap) {
 			return;
 		}
@@ -177,10 +177,10 @@ class RefMap {
 			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
-					post.ref.unhide(true);
+					post.ref.unhideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(false);
-					post.ref.unhide();
+					post.ref.unhideRef();
 				}
 			}
 		}

@@ -152,7 +152,7 @@ class PostForm {
 			this.txta.value = '';
 		}
 		if(this.files) {
-			this.files.clear();
+			this.files.clearInputs();
 		}
 		if(this.video) {
 			this.video.value = '';
@@ -382,7 +382,7 @@ class PostForm {
 		this.files = new Files(this, $q('tr input[type="file"]', this.form));
 		// We need to clear file inputs in case if session was restored.
 		window.addEventListener('load',
-			() => setTimeout(() => !this.files.filesCount && this.files.clear(), 0));
+			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
@@ -548,7 +548,7 @@ class PostForm {
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
 			this._setSage();
-			this.files.clear();
+			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
 		};

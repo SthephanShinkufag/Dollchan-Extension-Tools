@@ -146,7 +146,7 @@ const AjaxCache = {
 	fixURL(url) {
 		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
 	},
-	clear() {
+	clearCache() {
 		this._data = new Map();
 	},
 	runCachedAjax(url, useCache) {

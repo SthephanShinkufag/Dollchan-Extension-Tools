@@ -16,7 +16,7 @@ class Files {
 		}
 		this._inputs = inputs;
 		this._files = [];
-		this.hide();
+		this.hideEmpty();
 	}
 	get rarInput() {
 		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
@@ -41,15 +41,15 @@ class Files {
 		for(const inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	clear() {
+	clearInputs() {
 		for(const inp of this._inputs) {
-			inp.clear();
+			inp.clearInp();
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	hide() {
+	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
 			const inp = els[i];
 			if(inp.hasFile) {
@@ -58,7 +58,7 @@ class Files {
 				inp.show();
 				break;
 			}
-			inp.hide();
+			inp.hideInp();
 		}
 	}
 }
@@ -139,7 +139,7 @@ class FileInput {
 		$del(this._thumb);
 		this._thumb = this._mediaEl = null;
 	}
-	clear() {
+	clearInp() {
 		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
@@ -202,8 +202,8 @@ class FileInput {
 			if(isThumb) {
 				this._input.click();
 			} else if(el === this._btnDel) {
-				this.clear();
-				this._parent.hide();
+				this.clearInp();
+				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
 			} else if(el === this._btnSpoil) {
@@ -262,7 +262,7 @@ class FileInput {
 		}
 		}
 	}
-	hide() {
+	hideInp() {
 		if(FileInput._isThumb) {
 			this._showDelBtn(false);
 			$hide(this._thumb);
@@ -417,7 +417,7 @@ class FileInput {
 			this._txtInput.classList.add('de-file-txt-noedit');
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
-		this._parent.hide();
+		this._parent.hideEmpty();
 		if(!nav.isPresto && !aib.fch &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
 		) {

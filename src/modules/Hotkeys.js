@@ -10,7 +10,7 @@ const HotKeys = {
 	ntKeys         : null,
 	tKeys          : null,
 	version        : 7,
-	clear() {
+	clearCPost() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
 	},
@@ -20,7 +20,7 @@ const HotKeys = {
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
-			this.clear();
+			this.clearCPost();
 			this.gKeys = this.ntKeys = this.tKeys = null;
 			doc.removeEventListener('keydown', this, true);
 		}

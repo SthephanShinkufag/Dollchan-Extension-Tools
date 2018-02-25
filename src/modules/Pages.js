@@ -97,7 +97,7 @@ const Pages = {
 			PostForm.setUserPassw();
 		}
 		if(HotKeys.enabled) {
-			HotKeys.clear();
+			HotKeys.clearCPost();
 		}
 	}
 };

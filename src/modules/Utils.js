@@ -470,7 +470,7 @@ class WorkerPool {
 			this._freeWorkers.push(new Worker(url));
 		}
 	}
-	clear() {
+	clearWorkers() {
 		window.URL.revokeObjectURL(this._url);
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];

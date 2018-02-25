@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '6586137';
+const commit = '0a1dda8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -892,9 +892,9 @@ const Lng = {
 			'Hide with answers',
 			'Сховати з відповідями'],
 		refsonly: [
-			'Скрыть только ответы',
+			'Скрывать только ответы',
 			'Hide answers only',
-			'Сховати лише відповіді']
+			'Ховати лише відповіді']
 	},
 	selExpandThr: [ // "Expand thread" post button
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
@@ -2005,7 +2005,7 @@ class WorkerPool {
 			this._freeWorkers.push(new Worker(url));
 		}
 	}
-	clear() {
+	clearWorkers() {
 		window.URL.revokeObjectURL(this._url);
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
@@ -3875,7 +3875,7 @@ function showFavoritesWindow(body, data) {
 				}
 			}
 		}
-		AjaxCache.clear();
+		AjaxCache.clearCache();
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
@@ -4332,9 +4332,9 @@ const CfgWindow = {
 			case 'hideRefPsts':
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
-						post.ref.unhide();
+						post.ref.unhideRef();
 					} else if(post.hidden) {
-						post.ref.hide();
+						post.ref.hideRef();
 					}
 				}
 				break;
@@ -5103,7 +5103,7 @@ const HotKeys = {
 	ntKeys         : null,
 	tKeys          : null,
 	version        : 7,
-	clear() {
+	clearCPost() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
 	},
@@ -5113,7 +5113,7 @@ const HotKeys = {
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
-			this.clear();
+			this.clearCPost();
 			this.gKeys = this.ntKeys = this.tKeys = null;
 			doc.removeEventListener('keydown', this, true);
 		}
@@ -5833,7 +5833,7 @@ function preloadImages(data) {
 				Images_.afterpreload = Images_.progressId = null;
 			}
 			if(rjf) {
-				rjf.clear();
+				rjf.clearWorkers();
 			}
 		});
 		Images_.preloading = true;
@@ -6649,7 +6649,7 @@ const AjaxCache = {
 	fixURL(url) {
 		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
 	},
-	clear() {
+	clearCache() {
 		this._data = new Map();
 	},
 	runCachedAjax(url, useCache) {
@@ -6852,7 +6852,7 @@ const Pages = {
 			PostForm.setUserPassw();
 		}
 		if(HotKeys.enabled) {
-			HotKeys.clear();
+			HotKeys.clearCPost();
 		}
 	}
 };
@@ -7151,7 +7151,7 @@ const Spells = Object.create({
 				SpellsRunner.unhideAll();
 				this.disable();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{ "hide": false, "data": null }';
+				locStorage['__de-spells'] = '{ hide: false, data: null }';
 				locStorage.removeItem('__de-spells');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -7956,13 +7956,13 @@ class SpellsInterpreter {
 			}
 			if(weightVals) {
 				const w = image.weight;
-				let hide;
+				let isHide;
 				switch(compareRule) {
-				case 0: hide = w >= weightVals[0] && w <= weightVals[1]; break;
-				case 1: hide = w < weightVals[0]; break;
-				case 2: hide = w > weightVals[0]; break;
+				case 0: isHide = w >= weightVals[0] && w <= weightVals[1]; break;
+				case 1: isHide = w < weightVals[0]; break;
+				case 2: isHide = w > weightVals[0]; break;
 				}
-				if(!hide) {
+				if(!isHide) {
 					continue;
 				} else if(!sizeVals) {
 					return true;
@@ -8330,7 +8330,7 @@ class PostForm {
 			this.txta.value = '';
 		}
 		if(this.files) {
-			this.files.clear();
+			this.files.clearInputs();
 		}
 		if(this.video) {
 			this.video.value = '';
@@ -8560,7 +8560,7 @@ class PostForm {
 		this.files = new Files(this, $q('tr input[type="file"]', this.form));
 		// We need to clear file inputs in case if session was restored.
 		window.addEventListener('load',
-			() => setTimeout(() => !this.files.filesCount && this.files.clear(), 0));
+			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
@@ -8726,7 +8726,7 @@ class PostForm {
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
 			this._setSage();
-			this.files.clear();
+			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
 		};
@@ -9158,7 +9158,7 @@ class Files {
 		}
 		this._inputs = inputs;
 		this._files = [];
-		this.hide();
+		this.hideEmpty();
 	}
 	get rarInput() {
 		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
@@ -9183,15 +9183,15 @@ class Files {
 		for(const inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	clear() {
+	clearInputs() {
 		for(const inp of this._inputs) {
-			inp.clear();
+			inp.clearInp();
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	hide() {
+	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
 			const inp = els[i];
 			if(inp.hasFile) {
@@ -9200,7 +9200,7 @@ class Files {
 				inp.show();
 				break;
 			}
-			inp.hide();
+			inp.hideInp();
 		}
 	}
 }
@@ -9281,7 +9281,7 @@ class FileInput {
 		$del(this._thumb);
 		this._thumb = this._mediaEl = null;
 	}
-	clear() {
+	clearInp() {
 		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
@@ -9344,8 +9344,8 @@ class FileInput {
 			if(isThumb) {
 				this._input.click();
 			} else if(el === this._btnDel) {
-				this.clear();
-				this._parent.hide();
+				this.clearInp();
+				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
 			} else if(el === this._btnSpoil) {
@@ -9404,7 +9404,7 @@ class FileInput {
 		}
 		}
 	}
-	hide() {
+	hideInp() {
 		if(FileInput._isThumb) {
 			this._showDelBtn(false);
 			$hide(this._thumb);
@@ -9559,7 +9559,7 @@ class FileInput {
 			this._txtInput.classList.add('de-file-txt-noedit');
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
-		this._parent.hide();
+		this._parent.hideEmpty();
 		if(!nav.isPresto && !aib.fch &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
 		) {
@@ -10288,21 +10288,21 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, hide) {
-		if(hide) {
-			if(aib.t) {
-				Thread.first.hidCounter++;
-			}
-			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
-			if(headerEl) {
-				for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-					el.classList.add('de-post-hiddencontent');
-				}
-			}
-		} else {
+	static hideContent(headerEl, hideBtn, isUser, isHide) {
+		if(!isHide) {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
+			return;
+		}
+		if(aib.t) {
+			Thread.first.hidCounter++;
+		}
+		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		if(headerEl) {
+			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+				el.classList.add('de-post-hiddencontent');
+			}
 		}
 	}
 	get banned() {
@@ -10373,7 +10373,7 @@ class Post extends AbstractPost {
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
 			if(this.hidden) {
-				this.ref.unhide();
+				this.ref.unhideRef();
 			}
 			RefMap.upd(this, false);
 			if((this.prev.next = this.next)) {
@@ -10437,50 +10437,51 @@ class Post extends AbstractPost {
 		}
 		this.select();
 	}
-	setUserVisib(hide, save = true, note = null) {
+	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
-		this.setVisib(hide, note);
-		if(this.isOp || this.hidden === hide) {
-			this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+		this.setVisib(isHide, note);
+		if(this.isOp || this.hidden === isHide) {
+			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
-		if(save) {
-			HiddenPosts.set(this.num, this.thr.num, hide);
+		if(isSave) {
+			const { num } = this;
+			HiddenPosts.set(num, this.thr.num, isHide);
 			if(this.isOp) {
-				if(hide) {
-					HiddenThreads.set(this.num, this.num, this.title);
+				if(isHide) {
+					HiddenThreads.set(num, num, this.title);
 				} else {
-					HiddenThreads.remove(this.num);
+					HiddenThreads.remove(num);
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
-				hide,
+				hide   : isHide,
 				brd    : aib.b,
-				num    : this.num,
+				num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
 			});
 			locStorage.removeItem('__de-post');
 		}
-		this.ref.toggleRef(!hide, false);
+		this.ref.toggleRef(isHide, false);
 	}
-	setVisib(hide, note = null) {
-		if(this.hidden === hide) {
-			if(hide && note) {
+	setVisib(isHide, note = null) {
+		if(this.hidden === isHide) {
+			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = hide;
+			this.thr.hidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-				if(hide) {
+				if(isHide) {
 					this.wrap.classList.add('de-hidden');
 				} else {
 					this.wrap.classList.remove('de-hidden');
 				}
 			} else {
-				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : e => {
+				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
 					const yOffset = window.pageYOffset;
 					this.hideContent(e.type === 'mouseout');
 					scrollTo(window.pageXOffset, yOffset);
@@ -10488,28 +10489,28 @@ class Post extends AbstractPost {
 			}
 		}
 		if(Cfg.strikeHidd) {
-			setTimeout(() => this._strikePostNum(hide), 50);
+			setTimeout(() => this._strikePostNum(isHide), 50);
 		}
-		if(hide) {
+		if(isHide) {
 			this.note.set(note);
 		} else {
-			this.note.hide();
+			this.note.hideNote();
 		}
-		this.hidden = hide;
-		this.hideContent(hide);
+		this.hidden = isHide;
+		this.hideContent(isHide);
 	}
 	spellHide(note) {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			this.ref.hide();
+			this.ref.hideRef();
 		}
 	}
 	spellUnhide() {
 		this.spellHidden = false;
 		if(!this.userToggled) {
 			this.setVisib(false);
-			this.ref.unhide();
+			this.ref.unhideRef();
 		}
 	}
 	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
@@ -10536,7 +10537,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const { hidden } = this;
+		const isHide = !this.hidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -10587,16 +10588,16 @@ class Post extends AbstractPost {
 			const { num } = this;
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, hidden, words, post);
+				Post.findSameText(num, !isHide, words, post);
 			}
 			return;
 		}
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			this.ref.toggleRef(hidden, true);
-			this.setUserVisib(!hidden);
+			this.ref.toggleRef(isHide, true);
+			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': this.ref.toggleRef(null, true); return;
+		case 'hide-refsonly': Spells.add(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
 			const task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -10647,17 +10648,17 @@ class Post extends AbstractPost {
 		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
 			el.classList.add('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$hide(refmap);
+				const refMapEl = el.parentNode;
+				if(!$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$hide(refMapEl);
 				}
 			}
 		} : el => {
 			el.classList.remove('de-link-hid');
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$show(refmap);
+				const refMapEl = el.parentNode;
+				if($q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$show(refMapEl);
 				}
 			}
 		});
@@ -10742,7 +10743,7 @@ Post.Note = class PostNote {
 		this._aEl = $q('a', this._noteEl);
 		this.textEl = this._aEl.nextElementSibling;
 	}
-	hide() {
+	hideNote() {
 		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 		}
@@ -10753,7 +10754,7 @@ Post.Note = class PostNote {
 		if(this.isHideThr) {
 			this.set(null);
 		} else {
-			this.hide();
+			this.hideNote();
 		}
 	}
 	set(note) {
@@ -11398,7 +11399,7 @@ class ImagesNavigation {
 		}
 		}
 	}
-	hide() {
+	hideBtns() {
 		this._btnsStyle.display = 'none';
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
@@ -11418,7 +11419,7 @@ class ImagesNavigation {
 
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(() => this.hide(), 2e3);
+		this._hideTmt = setTimeout(() => this.hideBtns(), 2e3);
 	}
 }
 
@@ -11657,7 +11658,7 @@ class AttachmentViewer {
 				this._btns.autoBtn.classList.add('de-img-btn-none');
 			}
 		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hide();
+			this._btns.hideBtns();
 		}
 		data.post.thr.form.el.appendChild(obj);
 		this.toggleVideoLoop();
@@ -12066,7 +12067,7 @@ const ImagesHashStorage = Object.create({
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 		}
 		if(this.hasOwnProperty('_workers')) {
-			this._workers.clear();
+			this._workers.clearWorkers();
 			delete this._workers;
 		}
 	},
@@ -12856,7 +12857,7 @@ class RefMap {
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 			if(Cfg.hideRefPsts && this._post.hidden) {
 				post.setVisib(true, 'reference to >>' + num);
-				post.ref.hide();
+				post.ref.hideRef();
 			}
 		}
 	}
@@ -12866,7 +12867,7 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide(isForced = false) {
+	hideRef(isForced = false) {
 		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 			return;
 		}
@@ -12876,10 +12877,10 @@ class RefMap {
 			if(post && !post.hidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					post.ref.hide(true);
+					post.ref.hideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(true, 'reference to >>' + this._post.num);
-					post.ref.hide();
+					post.ref.hideRef();
 				}
 			}
 		}
@@ -12914,13 +12915,13 @@ class RefMap {
 		this.hasMap = false;
 	}
 	toggleRef(isHide, isForced) {
-		if(isHide === true || isHide === null && this._hidden) {
-			this.unhide(isForced);
+		if(isHide) {
+			this.hideRef(isForced);
 		} else {
-			this.hide(isForced);
+			this.unhideRef(isForced);
 		}
 	}
-	unhide(isForced = false) {
+	unhideRef(isForced = false) {
 		if(this._hidden && !this.hasMap) {
 			return;
 		}
@@ -12930,10 +12931,10 @@ class RefMap {
 			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
-					post.ref.unhide(true);
+					post.ref.unhideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(false);
-					post.ref.unhide();
+					post.ref.unhideRef();
 				}
 			}
 		}
@@ -13354,7 +13355,7 @@ class Thread {
 			Pview.updatePosition(true);
 		}
 		if(pBuilder.isClosed) {
-			AjaxCache.clear();
+			AjaxCache.clearCache();
 			return { newCount: newVisPosts, locked: true };
 		}
 		return { newCount: newVisPosts, locked: false };

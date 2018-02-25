@@ -320,9 +320,9 @@ const CfgWindow = {
 			case 'hideRefPsts':
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
-						post.ref.unhide();
+						post.ref.unhideRef();
 					} else if(post.hidden) {
-						post.ref.hide();
+						post.ref.hideRef();
 					}
 				}
 				break;

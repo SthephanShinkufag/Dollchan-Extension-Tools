@@ -246,7 +246,7 @@ function showFavoritesWindow(body, data) {
 				}
 			}
 		}
-		AjaxCache.clear();
+		AjaxCache.clearCache();
 		if(isUpdate) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}

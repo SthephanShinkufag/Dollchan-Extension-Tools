@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '6586137';
+	var commit = '0a1dda8';
 
 
 	var defaultCfg = {
@@ -4164,7 +4164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			notext: ['Скрывать без текста', 'Hide without text', 'Ховати без тексту'],
 			text: ['Скрыть схожий текст', 'Hide similar text', 'Сховати схожий текст'],
 			refs: ['Скрыть с ответами', 'Hide with answers', 'Сховати з відповідями'],
-			refsonly: ['Скрыть только ответы', 'Hide answers only', 'Сховати лише відповіді']
+			refsonly: ['Скрывать только ответы', 'Hide answers only', 'Ховати лише відповіді']
 		},
 		selExpandThr: [
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
@@ -4957,8 +4957,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(WorkerPool, [{
-			key: 'clear',
-			value: function clear() {
+			key: 'clearWorkers',
+			value: function clearWorkers() {
 				window.URL.revokeObjectURL(this._url);
 				this._freeWorkers.forEach(function (w) {
 					return w.terminate();
@@ -6938,7 +6938,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 
 						case 66:
-							AjaxCache.clear();
+							AjaxCache.clearCache();
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
@@ -7531,9 +7531,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'hideRefPsts':
 						for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
 							if (!Cfg.hideRefPsts) {
-								_post3.ref.unhide();
+								_post3.ref.unhideRef();
 							} else if (_post3.hidden) {
-								_post3.ref.hide();
+								_post3.ref.hideRef();
 							}
 						}
 						break;
@@ -8169,7 +8169,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		ntKeys: null,
 		tKeys: null,
 		version: 7,
-		clear: function clear() {
+		clearCPost: function clearCPost() {
 			this.cPost = null;
 			this.lastPageOffset = 0;
 		},
@@ -8179,7 +8179,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.cPost) {
 					this.cPost.unselect();
 				}
-				this.clear();
+				this.clearCPost();
 				this.gKeys = this.ntKeys = this.tKeys = null;
 				doc.removeEventListener('keydown', this, true);
 			}
@@ -8951,7 +8951,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Images_.afterpreload = Images_.progressId = null;
 				}
 				if (rjf) {
-					rjf.clear();
+					rjf.clearWorkers();
 				}
 			});
 			Images_.preloading = true;
@@ -9829,7 +9829,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		fixURL: function fixURL(url) {
 			return '' + url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 		},
-		clear: function clear() {
+		clearCache: function clearCache() {
 			this._data = new Map();
 		},
 		runCachedAjax: function runCachedAjax(url, useCache) {
@@ -10172,7 +10172,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									PostForm.setUserPassw();
 								}
 								if (HotKeys.enabled) {
-									HotKeys.clear();
+									HotKeys.clearCPost();
 								}
 
 							case 9:
@@ -10529,7 +10529,7 @@ true, true];
 					SpellsRunner.unhideAll();
 					this.disable();
 					saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-					locStorage['__de-spells'] = '{ "hide": false, "data": null }';
+					locStorage['__de-spells'] = '{ hide: false, data: null }';
 					locStorage.removeItem('__de-spells');
 				}
 				$q('input[info="hideBySpell"]').checked = false;
@@ -11586,16 +11586,16 @@ true, true];
 					}
 					if (weightVals) {
 						var w = image.weight;
-						var hide = void 0;
+						var isHide = void 0;
 						switch (compareRule) {
 							case 0:
-								hide = w >= weightVals[0] && w <= weightVals[1];break;
+								isHide = w >= weightVals[0] && w <= weightVals[1];break;
 							case 1:
-								hide = w < weightVals[0];break;
+								isHide = w < weightVals[0];break;
 							case 2:
-								hide = w > weightVals[0];break;
+								isHide = w > weightVals[0];break;
 						}
-						if (!hide) {
+						if (!isHide) {
 							continue;
 						} else if (!sizeVals) {
 							return true;
@@ -12018,7 +12018,7 @@ true, true];
 					this.txta.value = '';
 				}
 				if (this.files) {
-					this.files.clear();
+					this.files.clearInputs();
 				}
 				if (this.video) {
 					this.video.value = '';
@@ -12259,7 +12259,7 @@ true, true];
 				this.files = new Files(this, $q('tr input[type="file"]', this.form));
 				window.addEventListener('load', function () {
 					return setTimeout(function () {
-						return !_this26.files.filesCount && _this26.files.clear();
+						return !_this26.files.filesCount && _this26.files.clearInputs();
 					}, 0);
 				});
 			}
@@ -12455,7 +12455,7 @@ true, true];
 				clearBtn.onclick = function () {
 					saveCfg('sageReply', 0);
 					_this31._setSage();
-					_this31.files.clear();
+					_this31.files.clearInputs();
 					[_this31.txta, _this31.name, _this31.mail, _this31.subj, _this31.video, _this31.cap && _this31.cap.textEl].forEach(function (el) {
 						return el && (el.value = '');
 					});
@@ -12890,7 +12890,7 @@ true, true];
 			}
 			this._inputs = inputs;
 			this._files = [];
-			this.hide();
+			this.hideEmpty();
 		}
 
 		_createClass(Files, [{
@@ -12913,11 +12913,11 @@ true, true];
 
 					inp.changeMode(cfg);
 				}
-				this.hide();
+				this.hideEmpty();
 			}
 		}, {
-			key: 'clear',
-			value: function clear() {
+			key: 'clearInputs',
+			value: function clearInputs() {
 				for (var _iterator25 = this._inputs, _isArray25 = Array.isArray(_iterator25), _i34 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
 					var _ref69;
 
@@ -12932,13 +12932,13 @@ true, true];
 
 					var inp = _ref69;
 
-					inp.clear();
+					inp.clearInp();
 				}
-				this.hide();
+				this.hideEmpty();
 			}
 		}, {
-			key: 'hide',
-			value: function hide() {
+			key: 'hideEmpty',
+			value: function hideEmpty() {
 				for (var _els2 = this._inputs, i = _els2.length - 1; i > 0; --i) {
 					var inp = _els2[i];
 					if (inp.hasFile) {
@@ -12947,7 +12947,7 @@ true, true];
 						inp.show();
 						break;
 					}
-					inp.hide();
+					inp.hideInp();
 				}
 			}
 		}, {
@@ -13061,8 +13061,8 @@ true, true];
 				this._thumb = this._mediaEl = null;
 			}
 		}, {
-			key: 'clear',
-			value: function clear() {
+			key: 'clearInp',
+			value: function clearInp() {
 				if (FileInput._isThumb) {
 					this._thumb.classList.add('de-file-off');
 					if (this._mediaEl) {
@@ -13134,8 +13134,8 @@ true, true];
 						if (isThumb) {
 							this._input.click();
 						} else if (el === this._btnDel) {
-							this.clear();
-							this._parent.hide();
+							this.clearInp();
+							this._parent.hideEmpty();
 							delete this._parent._files[this._parent._inputs.indexOf(this)];
 							DollchanAPI.notify('filechange', this._parent._files);
 						} else if (el === this._btnSpoil) {
@@ -13198,8 +13198,8 @@ true, true];
 				}
 			}
 		}, {
-			key: 'hide',
-			value: function hide() {
+			key: 'hideInp',
+			value: function hideInp() {
 				if (FileInput._isThumb) {
 					this._showDelBtn(false);
 					$hide(this._thumb);
@@ -13363,7 +13363,7 @@ true, true];
 					this._txtInput.classList.add('de-file-txt-noedit');
 					this._txtInput.placeholder = Lng.dropFileHere[lang];
 				}
-				this._parent.hide();
+				this._parent.hideEmpty();
 				if (!nav.isPresto && !aib.fch && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)) {
 					$del(this._rarMsg);
 					$show(this._btnRarJpg);
@@ -14187,7 +14187,7 @@ true, true];
 					pByEl.delete(this.el);
 					pByNum.delete(this.num);
 					if (this.hidden) {
-						this.ref.unhide();
+						this.ref.unhideRef();
 					}
 					RefMap.upd(this, false);
 					if (this.prev.next = this.next) {
@@ -14262,59 +14262,61 @@ true, true];
 			}
 		}, {
 			key: 'setUserVisib',
-			value: function setUserVisib(hide) {
-				var save = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+			value: function setUserVisib(isHide) {
+				var isSave = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 				var note = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 				this.userToggled = true;
-				this.setVisib(hide, note);
-				if (this.isOp || this.hidden === hide) {
-					this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+				this.setVisib(isHide, note);
+				if (this.isOp || this.hidden === isHide) {
+					this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 				}
-				if (save) {
-					HiddenPosts.set(this.num, this.thr.num, hide);
+				if (isSave) {
+					var num = this.num;
+
+					HiddenPosts.set(num, this.thr.num, isHide);
 					if (this.isOp) {
-						if (hide) {
-							HiddenThreads.set(this.num, this.num, this.title);
+						if (isHide) {
+							HiddenThreads.set(num, num, this.title);
 						} else {
-							HiddenThreads.remove(this.num);
+							HiddenThreads.remove(num);
 						}
 					}
 					locStorage['__de-post'] = JSON.stringify({
-						hide: hide,
+						hide: isHide,
 						brd: aib.b,
-						num: this.num,
+						num: num,
 						thrNum: this.thr.num,
 						title: this.isOp ? this.title : ''
 					});
 					locStorage.removeItem('__de-post');
 				}
-				this.ref.toggleRef(!hide, false);
+				this.ref.toggleRef(isHide, false);
 			}
 		}, {
 			key: 'setVisib',
-			value: function setVisib(hide) {
+			value: function setVisib(isHide) {
 				var _this45 = this;
 
 				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-				if (this.hidden === hide) {
-					if (hide && note) {
+				if (this.hidden === isHide) {
+					if (isHide && note) {
 						this.note.set(note);
 					}
 					return;
 				}
 				if (this.isOp) {
-					this.thr.hidden = hide;
+					this.thr.hidden = isHide;
 				} else {
 					if (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-						if (hide) {
+						if (isHide) {
 							this.wrap.classList.add('de-hidden');
 						} else {
 							this.wrap.classList.remove('de-hidden');
 						}
 					} else {
-						this._pref.onmouseover = this._pref.onmouseout = !hide ? null : function (e) {
+						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
 							var yOffset = window.pageYOffset;
 							_this45.hideContent(e.type === 'mouseout');
 							scrollTo(window.pageXOffset, yOffset);
@@ -14323,16 +14325,16 @@ true, true];
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this45._strikePostNum(hide);
+						return _this45._strikePostNum(isHide);
 					}, 50);
 				}
-				if (hide) {
+				if (isHide) {
 					this.note.set(note);
 				} else {
-					this.note.hide();
+					this.note.hideNote();
 				}
-				this.hidden = hide;
-				this.hideContent(hide);
+				this.hidden = isHide;
+				this.hideContent(isHide);
 			}
 		}, {
 			key: 'spellHide',
@@ -14340,7 +14342,7 @@ true, true];
 				this.spellHidden = true;
 				if (!this.userToggled) {
 					this.setVisib(true, note);
-					this.ref.hide();
+					this.ref.hideRef();
 				}
 			}
 		}, {
@@ -14349,7 +14351,7 @@ true, true];
 				this.spellHidden = false;
 				if (!this.userToggled) {
 					this.setVisib(false);
-					this.ref.unhide();
+					this.ref.unhideRef();
 				}
 			}
 		}, {
@@ -14397,8 +14399,7 @@ true, true];
 		}, {
 			key: '_clickMenu',
 			value: function _clickMenu(el) {
-				var hidden = this.hidden;
-
+				var isHide = !this.hidden;
 				switch (el.getAttribute('info')) {
 					case 'hide-sel':
 						{
@@ -14460,18 +14461,18 @@ true, true];
 
 							var words = Post.getWrds(this.text);
 							for (var post = Thread.first.op; post; post = post.next) {
-								Post.findSameText(num, hidden, words, post);
+								Post.findSameText(num, !isHide, words, post);
 							}
 							return;
 						}
 					case 'hide-notext':
 						Spells.add(0x10B , '', true);return;
 					case 'hide-refs':
-						this.ref.toggleRef(hidden, true);
-						this.setUserVisib(!hidden);
+						this.ref.toggleRef(isHide, true);
+						this.setUserVisib(isHide);
 						return;
 					case 'hide-refsonly':
-						this.ref.toggleRef(null, true);return;
+						Spells.add(0 , '>>' + this.num, false);return;
 					case 'thr-exp':
 						{
 							var task = parseInt(el.textContent.match(/\d+/), 10);
@@ -14529,17 +14530,17 @@ true, true];
 				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), isHide ? function (el) {
 					el.classList.add('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-						var refmap = el.parentNode;
-						if (!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-							$hide(refmap);
+						var refMapEl = el.parentNode;
+						if (!$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+							$hide(refMapEl);
 						}
 					}
 				} : function (el) {
 					el.classList.remove('de-link-hid');
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-						var refmap = el.parentNode;
-						if ($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-							$show(refmap);
+						var refMapEl = el.parentNode;
+						if ($q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+							$show(refMapEl);
 						}
 					}
 				});
@@ -14701,22 +14702,22 @@ true, true];
 			}
 		}, {
 			key: 'hideContent',
-			value: function hideContent(headerEl, hideBtn, isUser, hide) {
-				if (hide) {
-					if (aib.t) {
-						Thread.first.hidCounter++;
-					}
-					hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
-					if (headerEl) {
-						for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-							el.classList.add('de-post-hiddencontent');
-						}
-					}
-				} else {
+			value: function hideContent(headerEl, hideBtn, isUser, isHide) {
+				if (!isHide) {
 					hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 					$each($Q('.de-post-hiddencontent', headerEl.parentNode), function (el) {
 						return el.classList.remove('de-post-hiddencontent');
 					});
+					return;
+				}
+				if (aib.t) {
+					Thread.first.hidCounter++;
+				}
+				hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+				if (headerEl) {
+					for (var el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+						el.classList.add('de-post-hiddencontent');
+					}
 				}
 			}
 		}]);
@@ -14823,8 +14824,8 @@ true, true];
 		}
 
 		_createClass(PostNote, [{
-			key: 'hide',
-			value: function hide() {
+			key: 'hideNote',
+			value: function hideNote() {
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 				}
@@ -14837,7 +14838,7 @@ true, true];
 				if (this.isHideThr) {
 					this.set(null);
 				} else {
-					this.hide();
+					this.hideNote();
 				}
 			}
 		}, {
@@ -15586,8 +15587,8 @@ true, true];
 				}
 			}
 		}, {
-			key: 'hide',
-			value: function hide() {
+			key: 'hideBtns',
+			value: function hideBtns() {
 				this._btnsStyle.display = 'none';
 				this._hidden = true;
 				this._oldX = this._oldY = -1;
@@ -15615,7 +15616,7 @@ true, true];
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this52.hide();
+					return _this52.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -15889,7 +15890,7 @@ true, true];
 						this._btns.autoBtn.classList.add('de-img-btn-none');
 					}
 				} else if (this.hasOwnProperty('_btns')) {
-					this._btns.hide();
+					this._btns.hideBtns();
 				}
 				data.post.thr.form.el.appendChild(obj);
 				this.toggleVideoLoop();
@@ -16392,7 +16393,7 @@ true, true];
 				sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 			}
 			if (this.hasOwnProperty('_workers')) {
-				this._workers.clear();
+				this._workers.clearWorkers();
 				delete this._workers;
 			}
 		},
@@ -17249,7 +17250,7 @@ true, true];
 					this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 					if (Cfg.hideRefPsts && this._post.hidden) {
 						post.setVisib(true, 'reference to >>' + num);
-						post.ref.hide();
+						post.ref.hideRef();
 					}
 				}
 			}
@@ -17264,8 +17265,8 @@ true, true];
 				return this._set.has(num);
 			}
 		}, {
-			key: 'hide',
-			value: function hide() {
+			key: 'hideRef',
+			value: function hideRef() {
 				var isForced = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
@@ -17290,10 +17291,10 @@ true, true];
 					if (post && !post.hidden) {
 						if (isForced) {
 							post.setUserVisib(true, true, 'reference to >>' + this._post.num);
-							post.ref.hide(true);
+							post.ref.hideRef(true);
 						} else if (!post.userToggled) {
 							post.setVisib(true, 'reference to >>' + this._post.num);
-							post.ref.hide();
+							post.ref.hideRef();
 						}
 					}
 				}
@@ -17353,15 +17354,15 @@ true, true];
 		}, {
 			key: 'toggleRef',
 			value: function toggleRef(isHide, isForced) {
-				if (isHide === true || isHide === null && this._hidden) {
-					this.unhide(isForced);
+				if (isHide) {
+					this.hideRef(isForced);
 				} else {
-					this.hide(isForced);
+					this.unhideRef(isForced);
 				}
 			}
 		}, {
-			key: 'unhide',
-			value: function unhide() {
+			key: 'unhideRef',
+			value: function unhideRef() {
 				var isForced = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (this._hidden && !this.hasMap) {
@@ -17386,10 +17387,10 @@ true, true];
 					if (post && post.hidden && !post.spellHidden) {
 						if (isForced) {
 							post.setUserVisib(false);
-							post.ref.unhide(true);
+							post.ref.unhideRef(true);
 						} else if (!post.userToggled) {
 							post.setVisib(false);
-							post.ref.unhide();
+							post.ref.unhideRef();
 						}
 					}
 				}
@@ -17929,7 +17930,7 @@ true, true];
 					Pview.updatePosition(true);
 				}
 				if (pBuilder.isClosed) {
-					AjaxCache.clear();
+					AjaxCache.clearCache();
 					return { newCount: newVisPosts, locked: true };
 				}
 				return { newCount: newVisPosts, locked: false };

@@ -63,7 +63,7 @@ class ImagesNavigation {
 		}
 		}
 	}
-	hide() {
+	hideBtns() {
 		this._btnsStyle.display = 'none';
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
@@ -83,7 +83,7 @@ class ImagesNavigation {
 
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(() => this.hide(), 2e3);
+		this._hideTmt = setTimeout(() => this.hideBtns(), 2e3);
 	}
 }
 
@@ -322,7 +322,7 @@ class AttachmentViewer {
 				this._btns.autoBtn.classList.add('de-img-btn-none');
 			}
 		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hide();
+			this._btns.hideBtns();
 		}
 		data.post.thr.form.el.appendChild(obj);
 		this.toggleVideoLoop();
@@ -731,7 +731,7 @@ const ImagesHashStorage = Object.create({
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 		}
 		if(this.hasOwnProperty('_workers')) {
-			this._workers.clear();
+			this._workers.clearWorkers();
 			delete this._workers;
 		}
 	},

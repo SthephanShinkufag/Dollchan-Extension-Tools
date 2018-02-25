@@ -143,7 +143,7 @@ function preloadImages(data) {
 				Images_.afterpreload = Images_.progressId = null;
 			}
 			if(rjf) {
-				rjf.clear();
+				rjf.clearWorkers();
 			}
 		});
 		Images_.preloading = true;
