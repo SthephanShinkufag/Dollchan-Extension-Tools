@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '0a1dda8';
+	var commit = '3b66b3c';
 
 
 	var defaultCfg = {
@@ -4164,7 +4164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			notext: ['Скрывать без текста', 'Hide without text', 'Ховати без тексту'],
 			text: ['Скрыть схожий текст', 'Hide similar text', 'Сховати схожий текст'],
 			refs: ['Скрыть с ответами', 'Hide with answers', 'Сховати з відповідями'],
-			refsonly: ['Скрывать только ответы', 'Hide answers only', 'Ховати лише відповіді']
+			refsonly: ['Скрывать ответы', 'Hide answers', 'Ховати відповіді']
 		},
 		selExpandThr: [
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
@@ -14483,39 +14483,16 @@ true, true];
 		}, {
 			key: '_getMenuHide',
 			value: function _getMenuHide() {
-				var str = '';
-				var sel = window.getSelection();
-				var ssel = sel.toString().trim();
-				var getItem = function getItem(name) {
+				var item = function item(name) {
 					return '<span info="hide-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
 				};
+				var sel = window.getSelection();
+				var ssel = sel.toString().trim();
 				if (ssel) {
 					this._selText = ssel;
 					this._selRange = sel.getRangeAt(0);
-					str += getItem('sel');
 				}
-				if (this.posterName) {
-					str += getItem('name');
-				}
-				if (this.posterTrip) {
-					str += getItem('trip');
-				}
-				if (this.images.hasAttachments) {
-					str += getItem('img');
-					str += getItem('imgn');
-					str += getItem('ihash');
-				} else {
-					str += getItem('noimg');
-				}
-				if (this.text) {
-					str += getItem('text');
-				} else {
-					str += getItem('notext');
-				}
-				if (!Cfg.hideRefPsts && this.ref.hasMap) {
-					str += getItem('refs') + getItem('refsonly');
-				}
-				return str;
+				return '' + (ssel ? item('sel') : '') + (this.posterName ? item('name') : '') + (this.posterTrip ? item('trip') : '') + (this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg')) + (this.text ? item('text') : item('notext')) + (!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '') + item('refsonly');
 			}
 		}, {
 			key: '_strikePostNum',

@@ -779,38 +779,21 @@ class Post extends AbstractPost {
 		}
 	}
 	_getMenuHide() {
-		let str = '';
+		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
+			Lng.selHiderMenu[name][lang] }</span>`;
 		const sel = window.getSelection();
 		const ssel = sel.toString().trim();
-		const getItem = name => `<span info="hide-${ name }" class="de-menu-item">${
-			Lng.selHiderMenu[name][lang] }</span>`;
 		if(ssel) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
-			str += getItem('sel');
 		}
-		if(this.posterName) {
-			str += getItem('name');
-		}
-		if(this.posterTrip) {
-			str += getItem('trip');
-		}
-		if(this.images.hasAttachments) {
-			str += getItem('img');
-			str += getItem('imgn');
-			str += getItem('ihash');
-		} else {
-			str += getItem('noimg');
-		}
-		if(this.text) {
-			str += getItem('text');
-		} else {
-			str += getItem('notext');
-		}
-		if(!Cfg.hideRefPsts && this.ref.hasMap) {
-			str += getItem('refs') + getItem('refsonly');
-		}
-		return str;
+		return `${ ssel ? item('sel') : '' }${
+			this.posterName ? item('name') : '' }${
+			this.posterTrip ? item('trip') : '' }${
+			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
+			this.text ? item('text') : item('notext') }${
+			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
+			item('refsonly') }`;
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
