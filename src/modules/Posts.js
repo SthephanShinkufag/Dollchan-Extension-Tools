@@ -635,11 +635,7 @@ class Post extends AbstractPost {
 			});
 			locStorage.removeItem('__de-post');
 		}
-		if(hide) {
-			this.ref.hide();
-		} else {
-			this.ref.unhide();
-		}
+		this.ref.toggleRef(!hide, false);
 	}
 	setVisib(hide, note = null) {
 		if(this.hidden === hide) {
@@ -771,13 +767,10 @@ class Post extends AbstractPost {
 		}
 		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			if(hidden) {
-				this.ref.unhide(true);
-			} else {
-				this.ref.hide(true);
-			}
+			this.ref.toggleRef(hidden, true);
 			this.setUserVisib(!hidden);
 			return;
+		case 'hide-refsonly': this.ref.toggleRef(null, true); return;
 		case 'thr-exp': {
 			const task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -814,7 +807,7 @@ class Post extends AbstractPost {
 			str += getItem('notext');
 		}
 		if(!Cfg.hideRefPsts && this.ref.hasMap) {
-			str += getItem('refs');
+			str += getItem('refs') + getItem('refsonly');
 		}
 		return str;
 	}

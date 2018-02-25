@@ -160,6 +160,13 @@ class RefMap {
 		delete this._el;
 		this.hasMap = false;
 	}
+	toggleRef(isHide, isForced) {
+		if(isHide === true || isHide === null && this._hidden) {
+			this.unhide(isForced);
+		} else {
+			this.hide(isForced);
+		}
+	}
 	unhide(isForced = false) {
 		if(this._hidden && !this.hasMap) {
 			return;

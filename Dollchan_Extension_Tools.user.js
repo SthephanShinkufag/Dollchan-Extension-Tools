@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '1f8d352';
+	var commit = '6586137';
 
 
 	var defaultCfg = {
@@ -4163,7 +4163,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			noimg: ['Скрывать без картинок', 'Hide without images', 'Ховати без зображень'],
 			notext: ['Скрывать без текста', 'Hide without text', 'Ховати без тексту'],
 			text: ['Скрыть схожий текст', 'Hide similar text', 'Сховати схожий текст'],
-			refs: ['Скрыть с ответами', 'Hide with answers', 'Сховати з відповідями']
+			refs: ['Скрыть с ответами', 'Hide with answers', 'Сховати з відповідями'],
+			refsonly: ['Скрыть только ответы', 'Hide answers only', 'Сховати лише відповіді']
 		},
 		selExpandThr: [
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
@@ -14288,11 +14289,7 @@ true, true];
 					});
 					locStorage.removeItem('__de-post');
 				}
-				if (hide) {
-					this.ref.hide();
-				} else {
-					this.ref.unhide();
-				}
+				this.ref.toggleRef(!hide, false);
 			}
 		}, {
 			key: 'setVisib',
@@ -14470,13 +14467,11 @@ true, true];
 					case 'hide-notext':
 						Spells.add(0x10B , '', true);return;
 					case 'hide-refs':
-						if (hidden) {
-							this.ref.unhide(true);
-						} else {
-							this.ref.hide(true);
-						}
+						this.ref.toggleRef(hidden, true);
 						this.setUserVisib(!hidden);
 						return;
+					case 'hide-refsonly':
+						this.ref.toggleRef(null, true);return;
 					case 'thr-exp':
 						{
 							var task = parseInt(el.textContent.match(/\d+/), 10);
@@ -14517,7 +14512,7 @@ true, true];
 					str += getItem('notext');
 				}
 				if (!Cfg.hideRefPsts && this.ref.hasMap) {
-					str += getItem('refs');
+					str += getItem('refs') + getItem('refsonly');
 				}
 				return str;
 			}
@@ -17354,6 +17349,15 @@ true, true];
 				$del(this._el);
 				delete this._el;
 				this.hasMap = false;
+			}
+		}, {
+			key: 'toggleRef',
+			value: function toggleRef(isHide, isForced) {
+				if (isHide === true || isHide === null && this._hidden) {
+					this.unhide(isForced);
+				} else {
+					this.hide(isForced);
+				}
 			}
 		}, {
 			key: 'unhide',
