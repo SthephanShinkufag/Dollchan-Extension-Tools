@@ -81,7 +81,7 @@ class RefMap {
 				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
 			if(!isAdd) {
-				lPost.ref.remove(pNum);
+				lPost.ref.removeLink(pNum);
 				return;
 			}
 			if(strNums && strNums.has(lNum)) {
@@ -142,7 +142,7 @@ class RefMap {
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
-	remove(num) {
+	removeLink(num) {
 		this._set.delete(num);
 		if(this._set.size === 0) {
 			this.removeMap();

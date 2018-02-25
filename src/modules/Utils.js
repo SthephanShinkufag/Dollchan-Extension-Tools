@@ -124,10 +124,10 @@ function $hide(el) {
 	el.style.display = 'none';
 }
 
-function $animate(el, cName, remove = false) {
+function $animate(el, cName, isRemove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
-		if(remove) {
+		if(isRemove) {
 			el.remove();
 		} else {
 			el.classList.remove(cName);
@@ -357,7 +357,7 @@ class TemporaryContent {
 		}
 		this.data = null;
 	}
-	static remove(key) {
+	static removeTempData(key) {
 		if(this.data) {
 			this.data.delete(key);
 		}

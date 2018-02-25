@@ -117,7 +117,7 @@ async function runMain(checkDomains, dataPromise) {
 		$each($Q('.de-post-removed'), el => {
 			const post = pByEl.get(el);
 			if(post) {
-				post.delete(false);
+				post.deletePost(false);
 			}
 		});
 		Logger.log('Local changings');

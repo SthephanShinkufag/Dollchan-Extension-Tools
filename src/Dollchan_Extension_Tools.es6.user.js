@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '3b66b3c';
+const commit = '550fd0d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1659,10 +1659,10 @@ function $hide(el) {
 	el.style.display = 'none';
 }
 
-function $animate(el, cName, remove = false) {
+function $animate(el, cName, isRemove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
-		if(remove) {
+		if(isRemove) {
 			el.remove();
 		} else {
 			el.classList.remove(cName);
@@ -1892,7 +1892,7 @@ class TemporaryContent {
 		}
 		this.data = null;
 	}
-	static remove(key) {
+	static removeTempData(key) {
 		if(this.data) {
 			this.data.delete(key);
 		}
@@ -2678,7 +2678,7 @@ class PostsStorage {
 	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
-	remove(num, board = aib.b) {
+	removeStorage(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {
@@ -2948,7 +2948,7 @@ const Panel = Object.create({
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
 	},
-	remove() {
+	removeMain() {
 		this._el.removeEventListener('click', this, true);
 		this._el.removeEventListener('mouseover', this);
 		this._el.removeEventListener('mouseout', this);
@@ -3353,8 +3353,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	let remove = !isUpd && isActive;
-	if(!remove && !win.classList.contains('de-win') &&
+	let isRemove = !isUpd && isActive;
+	if(!isRemove && !win.classList.contains('de-win') &&
 		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
@@ -3364,19 +3364,19 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent(e) {
 			e.target.removeEventListener('animationend', aEvent);
-			showWindow(win, body, name, remove, data, Cfg.animation);
-			win = body = name = remove = data = null;
+			showWindow(win, body, name, isRemove, data, Cfg.animation);
+			win = body = name = isRemove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, remove, data, isAnim);
+		showWindow(win, body, name, isRemove, data, isAnim);
 	}
 }
 
-function showWindow(win, body, name, remove, data, isAnim) {
+function showWindow(win, body, name, isRemove, data, isAnim) {
 	body.innerHTML = '';
-	if(remove) {
+	if(isRemove) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		$hide(win);
@@ -3596,8 +3596,8 @@ function showHiddenWindow(body) {
 				await $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
-					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
-					HiddenPosts.remove(tNum, b); // Remove oppost from posts storage
+					HiddenThreads.removeStorage(tNum, b);
+					HiddenPosts.removeStorage(tNum, b);
 				}
 			}
 		}
@@ -3620,7 +3620,7 @@ function showHiddenWindow(body) {
 				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
 				locStorage.removeItem('__de-post');
 			}
-			HiddenThreads.remove(num, brd); // Remove thread from hidden threads storage
+			HiddenThreads.removeStorage(num, brd);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);
@@ -4250,7 +4250,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'language':
 				lang = el.selectedIndex;
-				Panel.remove();
+				Panel.removeMain();
 				if(pr.form) {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
@@ -5004,7 +5004,7 @@ class Menu {
 		switch(e.type) {
 		case 'click':
 			if(e.target.className === 'de-menu-item') {
-				this.remove();
+				this.removeMenu();
 				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
@@ -5023,7 +5023,7 @@ class Menu {
 						this.onover();
 					}
 				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-					this._closeTO = setTimeout(() => this.remove(), 75);
+					this._closeTO = setTimeout(() => this.removeMenu(), 75);
 					if(this.onout) {
 						this.onout();
 					}
@@ -5032,7 +5032,7 @@ class Menu {
 		}
 		}
 	}
-	remove() {
+	removeMenu() {
 		if(!this._el) {
 			return;
 		}
@@ -9891,7 +9891,7 @@ class AbstractPost {
 			default: return;
 			}
 			if(this._menu) {
-				this._menu.remove();
+				this._menu.removeMenu();
 				this._menu = null;
 			}
 			switch(el.tagName) {
@@ -10099,7 +10099,7 @@ class AbstractPost {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
 		});
-		Post.Сontent.remove(this);
+		Post.Сontent.removeTempData(this);
 		if(Cfg.addYouTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -10175,7 +10175,7 @@ class AbstractPost {
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
-			this._menu.remove();
+			this._menu.removeMenu();
 		}
 		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
 		this._menu.onremove = () => (this._menu = null);
@@ -10277,7 +10277,7 @@ class Post extends AbstractPost {
 				curPost.setVisib(false);
 			}
 			if(curPost.userToggled) {
-				HiddenPosts.remove(curPost.num);
+				HiddenPosts.removeStorage(curPost.num);
 				curPost.userToggled = false;
 			}
 		} else {
@@ -10367,8 +10367,8 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
-	delete(removeEl) {
-		if(removeEl) {
+	deletePost(isRemovePost) {
+		if(isRemovePost) {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
@@ -10379,14 +10379,14 @@ class Post extends AbstractPost {
 			if((this.prev.next = this.next)) {
 				this.next.prev = this.prev;
 			}
-		} else {
-			this.deleted = true;
-			this.btns.classList.remove('de-post-counter');
-			this.btns.classList.add('de-post-deleted');
-			this.el.classList.add('de-post-removed');
-			this.wrap.classList.add('de-wrap-removed');
-			($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+			return;
 		}
+		this.deleted = true;
+		this.btns.classList.remove('de-post-counter');
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
@@ -10450,7 +10450,7 @@ class Post extends AbstractPost {
 				if(isHide) {
 					HiddenThreads.set(num, num, this.title);
 				} else {
-					HiddenThreads.remove(num);
+					HiddenThreads.removeStorage(num);
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({
@@ -10916,7 +10916,7 @@ class Pview extends AbstractPost {
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
-				pv.kid.delete();
+				pv.kid.deletePView();
 			}
 			if(pv._link !== link) {
 				// If cursor hovers new link with the same number - move old preview here
@@ -10933,7 +10933,7 @@ class Pview extends AbstractPost {
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			// Show new preview under new link
 			if(pv) {
-				pv.delete();
+				pv.deletePView();
 			}
 			pv = new Pview(parent, link, pNum, tNum);
 			if(isTop) {
@@ -10951,17 +10951,16 @@ class Pview extends AbstractPost {
 		}
 		const { parent } = pv;
 		if(parent.omitted) {
-			pv.delete();
+			pv.deletePView();
 			return;
 		}
 		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 			const el = parent.ref.getElByNum(pv.num);
-			if(el) {
-				pv._link = el;
-			} else {
-				pv.delete();
+			if(!el) {
+				pv.deletePView();
 				return;
 			}
+			pv._link = el;
 		}
 		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
@@ -10982,7 +10981,7 @@ class Pview extends AbstractPost {
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
-	delete() {
+	deletePView() {
 		this.parent.kid = null;
 		this._link.classList.remove('de-link-parent');
 		if(Pview.top === this) {
@@ -11019,9 +11018,9 @@ class Pview extends AbstractPost {
 			}
 		} while((pv = pv.kid));
 		if(!lastSticky) {
-			this.delete();
+			this.deletePView();
 		} else if(lastSticky.kid) {
-			lastSticky.kid.delete();
+			lastSticky.kid.deletePView();
 		}
 	}
 	handleEvent(e) {
@@ -11387,7 +11386,7 @@ class ImagesNavigation {
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
 	}
-	remove() {
+	removeBtns() {
 		$del(this._btns);
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
@@ -11427,9 +11426,9 @@ class AttachmentViewer {
 	}
 	close(e) {
 		if(this.hasOwnProperty('_btns')) {
-			this._btns.remove();
+			this._btns.removeBtns();
 		}
-		this._remove(e);
+		this._removeFullImg(e);
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -11512,7 +11511,7 @@ class AttachmentViewer {
 		}
 	}
 	update(data, showButtons, e) {
-		this._remove(e);
+		this._removeFullImg(e);
 		this._show(data, showButtons);
 	}
 
@@ -11551,7 +11550,7 @@ class AttachmentViewer {
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
 	}
-	_remove(e) {
+	_removeFullImg(e) {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
@@ -12818,7 +12817,7 @@ class RefMap {
 				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
 			if(!isAdd) {
-				lPost.ref.remove(pNum);
+				lPost.ref.removeLink(pNum);
 				return;
 			}
 			if(strNums && strNums.has(lNum)) {
@@ -12879,7 +12878,7 @@ class RefMap {
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
-	remove(num) {
+	removeLink(num) {
 		this._set.delete(num);
 		if(this._set.size === 0) {
 			this.removeMap();
@@ -13045,14 +13044,14 @@ class Thread {
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
 	}
-	deletePost(post, delAll, removePost) {
+	deletePosts(post, delAll, isRemovePost) {
 		SpellsRunner.cachedData = null;
 		let count = 0;
 		do {
-			if(removePost && this.last === post) {
+			if(isRemovePost && this.last === post) {
 				this.last = post.prev;
 			}
-			post.delete(removePost);
+			post.deletePost(isRemovePost);
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
@@ -13351,47 +13350,48 @@ class Thread {
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
 		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 && (
-			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
-		)) {
+		const { count } = post;
+		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			let i = post.count - 1;
 			let firstChangedPost = null;
 			for(; i < len && post;) {
-				if(post.num === pBuilder.getPNum(i)) {
+				const { num, prev } = post;
+				const iNum = pBuilder.getPNum(i);
+				if(num === iNum) {
 					i++;
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(post.num > pBuilder.getPNum(i)) {
-					if(!firstChangedPost) {
-						firstChangedPost = post.prev;
-					}
-					let cnt = 0;
-					do {
-						cnt++;
-						i++;
-					} while(pBuilder.getPNum(i) < post.num);
-					const res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
-					newPosts += res[0];
-					this.pcount += res[0];
-					newVisPosts += res[1];
-					$after(post.prev.wrap, res[2]);
-					res[3].next = post;
-					post.prev = res[3];
-					DollchanAPI.notify('newpost', res[4]);
-					for(let temp = post; temp; temp = temp.nextInThread) {
-						temp.count += cnt;
-					}
-				} else {
+				if(num <= iNum) {
 					if(!firstChangedPost) {
 						firstChangedPost = post;
 					}
-					post = this.deletePost(post, false, !aib.t);
+					post = this.deletePosts(post, false, !aib.t);
+					continue;
+				}
+				if(!firstChangedPost) {
+					firstChangedPost = prev;
+				}
+				let cnt = 0;
+				do {
+					cnt++;
+					i++;
+				} while(pBuilder.getPNum(i) < num);
+				const res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
+				newPosts += res[0];
+				this.pcount += res[0];
+				newVisPosts += res[1];
+				$after(prev.wrap, res[2]);
+				res[3].next = post;
+				post.prev = res[3];
+				DollchanAPI.notify('newpost', res[4]);
+				for(let temp = post; temp; temp = temp.nextInThread) {
+					temp.count += cnt;
 				}
 			}
 			if(i === len && post) {
-				this.deletePost(post, true, !aib.t);
+				this.deletePosts(post, true, !aib.t);
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
@@ -13414,27 +13414,25 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		readFavorites().then(fav => {
-			let f = fav[aib.host];
-			if(!f || !f[aib.b]) {
+		readFavorites().then(data => {
+			let f = data[aib.host];
+			if(!f || !f[aib.b] || !(f = f[aib.b][this.op.num])) {
 				return;
 			}
-			if((f = f[aib.b][this.op.num])) {
-				let el = $q('#de-win-fav > .de-win-body');
-				if(el && el.hasChildNodes()) {
-					el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-						this.op.num }"] .de-fav-inf-new`, el);
-					$hide(el);
-					el.textContent = 0;
-					el = el.nextElementSibling; // .de-fav-inf-old
-					el.textContent = this.pcount;
-				}
-				f.cnt = this.pcount;
-				f.new = 0;
-				f.you = 0;
-				f.last = aib.anchor + this.last.num;
-				setStored('DESU_Favorites', JSON.stringify(fav));
+			const winEl = $q('#de-win-fav > .de-win-body');
+			if(winEl && winEl.hasChildNodes()) {
+				let el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+					this.op.num }"] .de-fav-inf-new`, winEl);
+				$hide(el);
+				el.textContent = 0;
+				el = el.nextElementSibling; // .de-fav-inf-old
+				el.textContent = this.pcount;
 			}
+			f.cnt = this.pcount;
+			f.new = 0;
+			f.you = 0;
+			f.last = aib.anchor + this.last.num;
+			setStored('DESU_Favorites', JSON.stringify(data));
 		});
 		maybeVParser.end();
 		maybeSpells.end();
@@ -17642,7 +17640,7 @@ async function runMain(checkDomains, dataPromise) {
 		$each($Q('.de-post-removed'), el => {
 			const post = pByEl.get(el);
 			if(post) {
-				post.delete(false);
+				post.deletePost(false);
 			}
 		});
 		Logger.log('Local changings');

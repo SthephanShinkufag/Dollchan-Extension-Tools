@@ -329,7 +329,7 @@ class PostsStorage {
 	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
-	remove(num, board = aib.b) {
+	removeStorage(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {

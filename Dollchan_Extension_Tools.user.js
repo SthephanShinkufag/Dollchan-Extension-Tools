@@ -3784,7 +3784,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								$each($Q('.de-post-removed'), function (el) {
 									var post = pByEl.get(el);
 									if (post) {
-										post.delete(false);
+										post.deletePost(false);
 									}
 								});
 								Logger.log('Local changings');
@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '3b66b3c';
+	var commit = '550fd0d';
 
 
 	var defaultCfg = {
@@ -4514,11 +4514,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $animate(el, cName) {
-		var remove = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+		var isRemove = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		el.addEventListener('animationend', function aEvent() {
 			el.removeEventListener('animationend', aEvent);
-			if (remove) {
+			if (isRemove) {
 				el.remove();
 			} else {
 				el.classList.remove(cName);
@@ -4810,8 +4810,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.data = null;
 			}
 		}, {
-			key: 'remove',
-			value: function remove(key) {
+			key: 'removeTempData',
+			value: function removeTempData(key) {
 				if (this.data) {
 					this.data.delete(key);
 				}
@@ -5656,8 +5656,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 			}
 		}, {
-			key: 'remove',
-			value: function remove(num) {
+			key: 'removeStorage',
+			value: function removeStorage(num) {
 				var board = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : aib.b;
 
 				var storage = this._readStorage();
@@ -5956,7 +5956,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._buttons = $id('de-panel-buttons');
 			this.isNew = true;
 		},
-		remove: function remove() {
+		removeMain: function removeMain() {
 			this._el.removeEventListener('click', this, true);
 			this._el.removeEventListener('mouseover', this);
 			this._el.removeEventListener('mouseout', this);
@@ -6386,8 +6386,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			makeDraggable(name, win, $q('.de-win-head', win));
 		}
 		updateWinZ(win.style);
-		var remove = !isUpd && isActive;
-		if (!remove && !win.classList.contains('de-win') && (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))) {
+		var isRemove = !isUpd && isActive;
+		if (!isRemove && !win.classList.contains('de-win') && (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
 		var isAnim = !noAnim && !isUpd && Cfg.animation;
@@ -6395,19 +6395,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (isAnim && body.hasChildNodes()) {
 			win.addEventListener('animationend', function aEvent(e) {
 				e.target.removeEventListener('animationend', aEvent);
-				showWindow(win, body, name, remove, data, Cfg.animation);
-				win = body = name = remove = data = null;
+				showWindow(win, body, name, isRemove, data, Cfg.animation);
+				win = body = name = isRemove = data = null;
 			});
 			win.classList.remove('de-win-open');
 			win.classList.add('de-win-close');
 		} else {
-			showWindow(win, body, name, remove, data, isAnim);
+			showWindow(win, body, name, isRemove, data, isAnim);
 		}
 	}
 
-	function showWindow(win, body, name, remove, data, isAnim) {
+	function showWindow(win, body, name, isRemove, data, isAnim) {
 		body.innerHTML = '';
-		if (remove) {
+		if (isRemove) {
 			win.classList.remove('de-win-active');
 			win.classList.remove('de-win-close');
 			$hide(win);
@@ -6605,8 +6605,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								_context5.t0 = _context5['catch'](4);
 
 								if (_context5.t0.code === 404) {
-									HiddenThreads.remove(tNum, b); 
-									HiddenPosts.remove(tNum, b); 
+									HiddenThreads.removeStorage(tNum, b);
+									HiddenPosts.removeStorage(tNum, b);
 								}
 
 							case 12:
@@ -6648,7 +6648,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					locStorage['__de-post'] = JSON.stringify({ brd: brd, num: num, hide: false, thrNum: num });
 					locStorage.removeItem('__de-post');
 				}
-				HiddenThreads.remove(num, brd); 
+				HiddenThreads.removeStorage(num, brd);
 				HiddenPosts.set(num, num, false); 
 			});
 			toggleWindow('hid', true);
@@ -7442,7 +7442,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				switch (_info) {
 					case 'language':
 						lang = el.selectedIndex;
-						Panel.remove();
+						Panel.removeMain();
 						if (pr.form) {
 							pr.addMarkupPanel();
 							pr.setPlaceholders();
@@ -8069,7 +8069,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				switch (e.type) {
 					case 'click':
 						if (e.target.className === 'de-menu-item') {
-							this.remove();
+							this.removeMenu();
 							this._clickFn(e.target);
 							if (!Cfg.expandPanel && !$q('.de-win-active')) {
 								$hide($id('de-panel-buttons'));
@@ -8090,7 +8090,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								} else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
 									this._closeTO = setTimeout(function () {
-										return _this15.remove();
+										return _this15.removeMenu();
 									}, 75);
 									if (this.onout) {
 										this.onout();
@@ -8101,8 +8101,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
-			key: 'remove',
-			value: function remove() {
+			key: 'removeMenu',
+			value: function removeMenu() {
 				if (!this._el) {
 					return;
 				}
@@ -13761,7 +13761,7 @@ true, true];
 							return;
 					}
 					if (this._menu) {
-						this._menu.remove();
+						this._menu.removeMenu();
 						this._menu = null;
 					}
 					switch (el.tagName) {
@@ -13980,7 +13980,7 @@ true, true];
 					msg: { configurable: true, value: newMsg },
 					trunc: { configurable: true, value: null }
 				});
-				Post.Сontent.remove(this);
+				Post.Сontent.removeTempData(this);
 				if (Cfg.addYouTube) {
 					this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 					if (videoExt) {
@@ -14055,7 +14055,7 @@ true, true];
 				var _this43 = this;
 
 				if (this._menu) {
-					this._menu.remove();
+					this._menu.removeMenu();
 				}
 				this._menu = new Menu(el, html, function (el) {
 					return _this43._clickMenu(el);
@@ -14180,9 +14180,9 @@ true, true];
 				}
 			}
 		}, {
-			key: 'delete',
-			value: function _delete(removeEl) {
-				if (removeEl) {
+			key: 'deletePost',
+			value: function deletePost(isRemovePost) {
+				if (isRemovePost) {
 					$del(this.wrap);
 					pByEl.delete(this.el);
 					pByNum.delete(this.num);
@@ -14193,14 +14193,14 @@ true, true];
 					if (this.prev.next = this.next) {
 						this.next.prev = this.prev;
 					}
-				} else {
-					this.deleted = true;
-					this.btns.classList.remove('de-post-counter');
-					this.btns.classList.add('de-post-deleted');
-					this.el.classList.add('de-post-removed');
-					this.wrap.classList.add('de-wrap-removed');
-					($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+					return;
 				}
+				this.deleted = true;
+				this.btns.classList.remove('de-post-counter');
+				this.btns.classList.add('de-post-deleted');
+				this.el.classList.add('de-post-removed');
+				this.wrap.classList.add('de-wrap-removed');
+				($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 			}
 		}, {
 			key: 'getAdjacentVisPost',
@@ -14279,7 +14279,7 @@ true, true];
 						if (isHide) {
 							HiddenThreads.set(num, num, this.title);
 						} else {
-							HiddenThreads.remove(num);
+							HiddenThreads.removeStorage(num);
 						}
 					}
 					locStorage['__de-post'] = JSON.stringify({
@@ -14664,7 +14664,7 @@ true, true];
 						curPost.setVisib(false);
 					}
 					if (curPost.userToggled) {
-						HiddenPosts.remove(curPost.num);
+						HiddenPosts.removeStorage(curPost.num);
 						curPost.userToggled = false;
 					}
 				} else {
@@ -15012,8 +15012,8 @@ true, true];
 		}
 
 		_createClass(Pview, [{
-			key: 'delete',
-			value: function _delete() {
+			key: 'deletePView',
+			value: function deletePView() {
 				this.parent.kid = null;
 				this._link.classList.remove('de-link-parent');
 				if (Pview.top === this) {
@@ -15054,9 +15054,9 @@ true, true];
 					}
 				} while (pv = pv.kid);
 				if (!lastSticky) {
-					this.delete();
+					this.deletePView();
 				} else if (lastSticky.kid) {
-					lastSticky.kid.delete();
+					lastSticky.kid.deletePView();
 				}
 			}
 		}, {
@@ -15315,7 +15315,7 @@ true, true];
 				clearTimeout(Pview._delTO);
 				if (pv && pv.num === pNum) {
 					if (pv.kid) {
-						pv.kid.delete();
+						pv.kid.deletePView();
 					}
 					if (pv._link !== link) {
 						pv._setPosition(link, Cfg.animation);
@@ -15332,7 +15332,7 @@ true, true];
 					pv.parent = parent;
 				} else if (!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 					if (pv) {
-						pv.delete();
+						pv.deletePView();
 					}
 					pv = new Pview(parent, link, pNum, tNum);
 					if (isTop) {
@@ -15354,17 +15354,16 @@ true, true];
 				    parent = _pv2.parent;
 
 				if (parent.omitted) {
-					pv.delete();
+					pv.deletePView();
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 					var el = parent.ref.getElByNum(pv.num);
-					if (el) {
-						pv._link = el;
-					} else {
-						pv.delete();
+					if (!el) {
+						pv.deletePView();
 						return;
 					}
+					pv._link = el;
 				}
 				var cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
 				var diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
@@ -15571,8 +15570,8 @@ true, true];
 				this._oldX = this._oldY = -1;
 			}
 		}, {
-			key: 'remove',
-			value: function remove() {
+			key: 'removeBtns',
+			value: function removeBtns() {
 				$del(this._btns);
 				doc.defaultView.removeEventListener('mousemove', this);
 				clearTimeout(this._hideTmt);
@@ -15628,9 +15627,9 @@ true, true];
 			key: 'close',
 			value: function close(e) {
 				if (this.hasOwnProperty('_btns')) {
-					this._btns.remove();
+					this._btns.removeBtns();
 				}
-				this._remove(e);
+				this._removeFullImg(e);
 			}
 		}, {
 			key: 'handleEvent',
@@ -15721,7 +15720,7 @@ true, true];
 		}, {
 			key: 'update',
 			value: function update(data, showButtons, e) {
-				this._remove(e);
+				this._removeFullImg(e);
 				this._show(data, showButtons);
 			}
 		}, {
@@ -15755,8 +15754,8 @@ true, true];
 				this._elStyle.top = this._oldT + 'px';
 			}
 		}, {
-			key: '_remove',
-			value: function _remove(e) {
+			key: '_removeFullImg',
+			value: function _removeFullImg(e) {
 				var data = this.data;
 
 				data.cancelWebmLoad(this._fullEl);
@@ -17307,8 +17306,8 @@ true, true];
 				}));
 			}
 		}, {
-			key: 'remove',
-			value: function remove(num) {
+			key: 'removeLink',
+			value: function removeLink(num) {
 				this._set.delete(num);
 				if (this._set.size === 0) {
 					this.removeMap();
@@ -17498,7 +17497,7 @@ true, true];
 						link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 					}
 					if (!isAdd) {
-						lPost.ref.remove(pNum);
+						lPost.ref.removeLink(pNum);
 						return;
 					}
 					if (strNums && strNums.has(lNum)) {
@@ -17574,15 +17573,15 @@ true, true];
 		}
 
 		_createClass(Thread, [{
-			key: 'deletePost',
-			value: function deletePost(post, delAll, removePost) {
+			key: 'deletePosts',
+			value: function deletePosts(post, delAll, isRemovePost) {
 				SpellsRunner.cachedData = null;
 				var count = 0;
 				do {
-					if (removePost && this.last === post) {
+					if (isRemovePost && this.last === post) {
 						this.last = post.prev;
 					}
-					post.delete(removePost);
+					post.deletePost(isRemovePost);
 					post = post.nextNotDeleted;
 					count++;
 				} while (delAll && post);
@@ -17924,45 +17923,53 @@ true, true];
 				var len = pBuilder.length;
 				var maybeSpells = new Maybe(SpellsRunner);
 				var maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-				if (post.count !== 0 && (aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num)) {
+				var _post4 = post,
+				    count = _post4.count;
+
+				if (count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 					post = this.op.nextNotDeleted;
 					var i = post.count - 1;
 					var firstChangedPost = null;
 					for (; i < len && post;) {
-						if (post.num === pBuilder.getPNum(i)) {
+						var _post5 = post,
+						    num = _post5.num,
+						    prev = _post5.prev;
+
+						var iNum = pBuilder.getPNum(i);
+						if (num === iNum) {
 							i++;
 							post = post.nextNotDeleted;
 							continue;
 						}
-						if (post.num > pBuilder.getPNum(i)) {
-							if (!firstChangedPost) {
-								firstChangedPost = post.prev;
-							}
-							var cnt = 0;
-							do {
-								cnt++;
-								i++;
-							} while (pBuilder.getPNum(i) < post.num);
-							var res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
-							newPosts += res[0];
-							this.pcount += res[0];
-							newVisPosts += res[1];
-							$after(post.prev.wrap, res[2]);
-							res[3].next = post;
-							post.prev = res[3];
-							DollchanAPI.notify('newpost', res[4]);
-							for (var temp = post; temp; temp = temp.nextInThread) {
-								temp.count += cnt;
-							}
-						} else {
+						if (num <= iNum) {
 							if (!firstChangedPost) {
 								firstChangedPost = post;
 							}
-							post = this.deletePost(post, false, !aib.t);
+							post = this.deletePosts(post, false, !aib.t);
+							continue;
+						}
+						if (!firstChangedPost) {
+							firstChangedPost = prev;
+						}
+						var cnt = 0;
+						do {
+							cnt++;
+							i++;
+						} while (pBuilder.getPNum(i) < num);
+						var res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
+						newPosts += res[0];
+						this.pcount += res[0];
+						newVisPosts += res[1];
+						$after(prev.wrap, res[2]);
+						res[3].next = post;
+						post.prev = res[3];
+						DollchanAPI.notify('newpost', res[4]);
+						for (var temp = post; temp; temp = temp.nextInThread) {
+							temp.count += cnt;
 						}
 					}
 					if (i === len && post) {
-						this.deletePost(post, true, !aib.t);
+						this.deletePosts(post, true, !aib.t);
 					}
 					if (firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 						for (post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
@@ -17984,26 +17991,24 @@ true, true];
 					DollchanAPI.notify('newpost', _res[4]);
 					this.pcount = len + 1;
 				}
-				readFavorites().then(function (fav) {
-					var f = fav[aib.host];
-					if (!f || !f[aib.b]) {
+				readFavorites().then(function (data) {
+					var f = data[aib.host];
+					if (!f || !f[aib.b] || !(f = f[aib.b][_this64.op.num])) {
 						return;
 					}
-					if (f = f[aib.b][_this64.op.num]) {
-						var el = $q('#de-win-fav > .de-win-body');
-						if (el && el.hasChildNodes()) {
-							el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this64.op.num + '"] .de-fav-inf-new', el);
-							$hide(el);
-							el.textContent = 0;
-							el = el.nextElementSibling; 
-							el.textContent = _this64.pcount;
-						}
-						f.cnt = _this64.pcount;
-						f.new = 0;
-						f.you = 0;
-						f.last = aib.anchor + _this64.last.num;
-						setStored('DESU_Favorites', JSON.stringify(fav));
+					var winEl = $q('#de-win-fav > .de-win-body');
+					if (winEl && winEl.hasChildNodes()) {
+						var el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this64.op.num + '"] .de-fav-inf-new', winEl);
+						$hide(el);
+						el.textContent = 0;
+						el = el.nextElementSibling; 
+						el.textContent = _this64.pcount;
 					}
+					f.cnt = _this64.pcount;
+					f.new = 0;
+					f.you = 0;
+					f.last = aib.anchor + _this64.last.num;
+					setStored('DESU_Favorites', JSON.stringify(data));
 				});
 				maybeVParser.end();
 				maybeSpells.end();

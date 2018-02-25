@@ -181,8 +181,8 @@ function showHiddenWindow(body) {
 				await $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
-					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
-					HiddenPosts.remove(tNum, b); // Remove oppost from posts storage
+					HiddenThreads.removeStorage(tNum, b);
+					HiddenPosts.removeStorage(tNum, b);
 				}
 			}
 		}
@@ -205,7 +205,7 @@ function showHiddenWindow(body) {
 				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
 				locStorage.removeItem('__de-post');
 			}
-			HiddenThreads.remove(num, brd); // Remove thread from hidden threads storage
+			HiddenThreads.removeStorage(num, brd);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);

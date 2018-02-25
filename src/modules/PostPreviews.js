@@ -59,7 +59,7 @@ class Pview extends AbstractPost {
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
-				pv.kid.delete();
+				pv.kid.deletePView();
 			}
 			if(pv._link !== link) {
 				// If cursor hovers new link with the same number - move old preview here
@@ -76,7 +76,7 @@ class Pview extends AbstractPost {
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			// Show new preview under new link
 			if(pv) {
-				pv.delete();
+				pv.deletePView();
 			}
 			pv = new Pview(parent, link, pNum, tNum);
 			if(isTop) {
@@ -94,17 +94,16 @@ class Pview extends AbstractPost {
 		}
 		const { parent } = pv;
 		if(parent.omitted) {
-			pv.delete();
+			pv.deletePView();
 			return;
 		}
 		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 			const el = parent.ref.getElByNum(pv.num);
-			if(el) {
-				pv._link = el;
-			} else {
-				pv.delete();
+			if(!el) {
+				pv.deletePView();
 				return;
 			}
+			pv._link = el;
 		}
 		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
@@ -125,7 +124,7 @@ class Pview extends AbstractPost {
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
-	delete() {
+	deletePView() {
 		this.parent.kid = null;
 		this._link.classList.remove('de-link-parent');
 		if(Pview.top === this) {
@@ -162,9 +161,9 @@ class Pview extends AbstractPost {
 			}
 		} while((pv = pv.kid));
 		if(!lastSticky) {
-			this.delete();
+			this.deletePView();
 		} else if(lastSticky.kid) {
-			lastSticky.kid.delete();
+			lastSticky.kid.deletePView();
 		}
 	}
 	handleEvent(e) {

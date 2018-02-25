@@ -55,7 +55,7 @@ const Panel = Object.create({
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
 	},
-	remove() {
+	removeMain() {
 		this._el.removeEventListener('click', this, true);
 		this._el.removeEventListener('mouseover', this);
 		this._el.removeEventListener('mouseout', this);

@@ -100,7 +100,7 @@ class Menu {
 		switch(e.type) {
 		case 'click':
 			if(e.target.className === 'de-menu-item') {
-				this.remove();
+				this.removeMenu();
 				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
@@ -119,7 +119,7 @@ class Menu {
 						this.onover();
 					}
 				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-					this._closeTO = setTimeout(() => this.remove(), 75);
+					this._closeTO = setTimeout(() => this.removeMenu(), 75);
 					if(this.onout) {
 						this.onout();
 					}
@@ -128,7 +128,7 @@ class Menu {
 		}
 		}
 	}
-	remove() {
+	removeMenu() {
 		if(!this._el) {
 			return;
 		}

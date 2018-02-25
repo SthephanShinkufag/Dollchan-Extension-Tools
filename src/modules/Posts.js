@@ -65,7 +65,7 @@ class AbstractPost {
 			default: return;
 			}
 			if(this._menu) {
-				this._menu.remove();
+				this._menu.removeMenu();
 				this._menu = null;
 			}
 			switch(el.tagName) {
@@ -273,7 +273,7 @@ class AbstractPost {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
 		});
-		Post.Сontent.remove(this);
+		Post.Сontent.removeTempData(this);
 		if(Cfg.addYouTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -349,7 +349,7 @@ class AbstractPost {
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
-			this._menu.remove();
+			this._menu.removeMenu();
 		}
 		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
 		this._menu.onremove = () => (this._menu = null);
@@ -451,7 +451,7 @@ class Post extends AbstractPost {
 				curPost.setVisib(false);
 			}
 			if(curPost.userToggled) {
-				HiddenPosts.remove(curPost.num);
+				HiddenPosts.removeStorage(curPost.num);
 				curPost.userToggled = false;
 			}
 		} else {
@@ -541,8 +541,8 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
-	delete(removeEl) {
-		if(removeEl) {
+	deletePost(isRemovePost) {
+		if(isRemovePost) {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
@@ -553,14 +553,14 @@ class Post extends AbstractPost {
 			if((this.prev.next = this.next)) {
 				this.next.prev = this.prev;
 			}
-		} else {
-			this.deleted = true;
-			this.btns.classList.remove('de-post-counter');
-			this.btns.classList.add('de-post-deleted');
-			this.el.classList.add('de-post-removed');
-			this.wrap.classList.add('de-wrap-removed');
-			($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+			return;
 		}
+		this.deleted = true;
+		this.btns.classList.remove('de-post-counter');
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
@@ -624,7 +624,7 @@ class Post extends AbstractPost {
 				if(isHide) {
 					HiddenThreads.set(num, num, this.title);
 				} else {
-					HiddenThreads.remove(num);
+					HiddenThreads.removeStorage(num);
 				}
 			}
 			locStorage['__de-post'] = JSON.stringify({

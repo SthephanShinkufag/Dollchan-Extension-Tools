@@ -68,7 +68,7 @@ class ImagesNavigation {
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
 	}
-	remove() {
+	removeBtns() {
 		$del(this._btns);
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
@@ -108,9 +108,9 @@ class AttachmentViewer {
 	}
 	close(e) {
 		if(this.hasOwnProperty('_btns')) {
-			this._btns.remove();
+			this._btns.removeBtns();
 		}
-		this._remove(e);
+		this._removeFullImg(e);
 	}
 	handleEvent(e) {
 		switch(e.type) {
@@ -193,7 +193,7 @@ class AttachmentViewer {
 		}
 	}
 	update(data, showButtons, e) {
-		this._remove(e);
+		this._removeFullImg(e);
 		this._show(data, showButtons);
 	}
 
@@ -232,7 +232,7 @@ class AttachmentViewer {
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
 	}
-	_remove(e) {
+	_removeFullImg(e) {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {

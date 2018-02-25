@@ -93,14 +93,14 @@ class Thread {
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
 	}
-	deletePost(post, delAll, removePost) {
+	deletePosts(post, delAll, isRemovePost) {
 		SpellsRunner.cachedData = null;
 		let count = 0;
 		do {
-			if(removePost && this.last === post) {
+			if(isRemovePost && this.last === post) {
 				this.last = post.prev;
 			}
-			post.delete(removePost);
+			post.deletePost(isRemovePost);
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
@@ -399,47 +399,48 @@ class Thread {
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
 		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 && (
-			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
-		)) {
+		const { count } = post;
+		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			let i = post.count - 1;
 			let firstChangedPost = null;
 			for(; i < len && post;) {
-				if(post.num === pBuilder.getPNum(i)) {
+				const { num, prev } = post;
+				const iNum = pBuilder.getPNum(i);
+				if(num === iNum) {
 					i++;
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(post.num > pBuilder.getPNum(i)) {
-					if(!firstChangedPost) {
-						firstChangedPost = post.prev;
-					}
-					let cnt = 0;
-					do {
-						cnt++;
-						i++;
-					} while(pBuilder.getPNum(i) < post.num);
-					const res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
-					newPosts += res[0];
-					this.pcount += res[0];
-					newVisPosts += res[1];
-					$after(post.prev.wrap, res[2]);
-					res[3].next = post;
-					post.prev = res[3];
-					DollchanAPI.notify('newpost', res[4]);
-					for(let temp = post; temp; temp = temp.nextInThread) {
-						temp.count += cnt;
-					}
-				} else {
+				if(num <= iNum) {
 					if(!firstChangedPost) {
 						firstChangedPost = post;
 					}
-					post = this.deletePost(post, false, !aib.t);
+					post = this.deletePosts(post, false, !aib.t);
+					continue;
+				}
+				if(!firstChangedPost) {
+					firstChangedPost = prev;
+				}
+				let cnt = 0;
+				do {
+					cnt++;
+					i++;
+				} while(pBuilder.getPNum(i) < num);
+				const res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
+				newPosts += res[0];
+				this.pcount += res[0];
+				newVisPosts += res[1];
+				$after(prev.wrap, res[2]);
+				res[3].next = post;
+				post.prev = res[3];
+				DollchanAPI.notify('newpost', res[4]);
+				for(let temp = post; temp; temp = temp.nextInThread) {
+					temp.count += cnt;
 				}
 			}
 			if(i === len && post) {
-				this.deletePost(post, true, !aib.t);
+				this.deletePosts(post, true, !aib.t);
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
@@ -462,27 +463,25 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		readFavorites().then(fav => {
-			let f = fav[aib.host];
-			if(!f || !f[aib.b]) {
+		readFavorites().then(data => {
+			let f = data[aib.host];
+			if(!f || !f[aib.b] || !(f = f[aib.b][this.op.num])) {
 				return;
 			}
-			if((f = f[aib.b][this.op.num])) {
-				let el = $q('#de-win-fav > .de-win-body');
-				if(el && el.hasChildNodes()) {
-					el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-						this.op.num }"] .de-fav-inf-new`, el);
-					$hide(el);
-					el.textContent = 0;
-					el = el.nextElementSibling; // .de-fav-inf-old
-					el.textContent = this.pcount;
-				}
-				f.cnt = this.pcount;
-				f.new = 0;
-				f.you = 0;
-				f.last = aib.anchor + this.last.num;
-				setStored('DESU_Favorites', JSON.stringify(fav));
+			const winEl = $q('#de-win-fav > .de-win-body');
+			if(winEl && winEl.hasChildNodes()) {
+				let el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+					this.op.num }"] .de-fav-inf-new`, winEl);
+				$hide(el);
+				el.textContent = 0;
+				el = el.nextElementSibling; // .de-fav-inf-old
+				el.textContent = this.pcount;
 			}
+			f.cnt = this.pcount;
+			f.new = 0;
+			f.you = 0;
+			f.last = aib.anchor + this.last.num;
+			setStored('DESU_Favorites', JSON.stringify(data));
 		});
 		maybeVParser.end();
 		maybeSpells.end();

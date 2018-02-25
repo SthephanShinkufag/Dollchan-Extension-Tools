@@ -238,7 +238,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'language':
 				lang = el.selectedIndex;
-				Panel.remove();
+				Panel.removeMain();
 				if(pr.form) {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();

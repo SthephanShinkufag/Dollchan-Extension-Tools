@@ -209,8 +209,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	let remove = !isUpd && isActive;
-	if(!remove && !win.classList.contains('de-win') &&
+	let isRemove = !isUpd && isActive;
+	if(!isRemove && !win.classList.contains('de-win') &&
 		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
@@ -220,19 +220,19 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent(e) {
 			e.target.removeEventListener('animationend', aEvent);
-			showWindow(win, body, name, remove, data, Cfg.animation);
-			win = body = name = remove = data = null;
+			showWindow(win, body, name, isRemove, data, Cfg.animation);
+			win = body = name = isRemove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, remove, data, isAnim);
+		showWindow(win, body, name, isRemove, data, isAnim);
 	}
 }
 
-function showWindow(win, body, name, remove, data, isAnim) {
+function showWindow(win, body, name, isRemove, data, isAnim) {
 	body.innerHTML = '';
-	if(remove) {
+	if(isRemove) {
 		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		$hide(win);
