@@ -3611,6 +3611,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 
+
 	var runMain = function () {
 		var _ref113 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
 			var formEl, fav, oldMain, _ref114, _ref115, storageName, firstThr;
@@ -3808,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '4def898';
+	var commit = '1f8d352';
 
 
 	var defaultCfg = {
@@ -4014,10 +4015,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			webmTitles: ['Получать названия WebM из метаданных', 'Load titles from WebM metadata', 'Отримувати назви WebM з метаданих'],
 			webmVolume: ['Громкость WebM по умолчанию [0-100%]', 'Default volume for WebM [0-100%]', 'Гучність WebM по замовчуванню [0-100%]'],
 			minWebmWidth: ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)', 'Мінімальна ширина WebM (px)'],
-			preLoadImgs: ['Предварительно загружать картинки*', 'Preload images*', 'Наперед завантажувати зображення *'],
+			preLoadImgs: {
+				sel: [['Откл.', 'Все', 'Без WebM'], ['Disable', 'All', 'Non-WebM'], ['Вимк.', 'Всі', 'Крім WebM']],
+				txt: ['Предварительно загружать картинки*', 'Preload images*', 'Наперед завантажувати зображення *']
+			},
 			findImgFile: ['Распознавать файлы, встроенные в картинках*', 'Detect embedded files in images*', 'Розпізнавати файли, що вбудовані в зображення*'],
 			openImgs: {
-				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF'], ['Вимк.', 'Всі', 'Лише GIF', 'Окрім GIF']],
+				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF'], ['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 				txt: ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*', 'Замінювати зображення на оригінали*']
 			},
 			imgSrcBtns: ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки "Пошук" для зображень'],
@@ -7854,7 +7858,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgImages: function _getCfgImages() {
-			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.isPresto ? '' : this._getBox('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.isPresto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
+			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.isPresto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getBox('delImgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
 		},
 
 
@@ -8907,12 +8911,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
 				return downloadImgData(data[0]).then(function (imageData) {
-					var _data3 = _slicedToArray(data, 5),
+					var _data3 = _slicedToArray(data, 6),
 					    url = _data3[0],
 					    imgLink = _data3[1],
 					    iType = _data3[2],
-					    nExp = _data3[3],
-					    el = _data3[4];
+					    isRepToOrig = _data3[3],
+					    el = _data3[4],
+					    isVideo = _data3[5];
 
 					if (imageData) {
 						var fName = url.substring(url.lastIndexOf('/') + 1);
@@ -8921,10 +8926,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						nameLink.setAttribute('download', fName);
 						nameLink.setAttribute('de-href', nameLink.href);
 						imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						if (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
+						if (isVideo) {
 							el.setAttribute('de-video', '');
 						}
-						if (nExp) {
+						if (isRepToOrig) {
 							el.src = imgLink.href;
 						}
 						if (rjf) {
@@ -8956,23 +8961,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (!imgLink) {
 				continue;
 			}
-			var nExp = !!Cfg.openImgs;
+			var isRepToOrig = !!Cfg.openImgs;
 			var _url = imgLink.href;
 			var iType = getFileType(_url);
-			if (!iType) {
+			var isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
+			if (!iType || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
 			} else if (iType === 'image/gif') {
-				nExp &= Cfg.openImgs !== 3;
+				isRepToOrig &= Cfg.openImgs !== 3;
 			} else {
-				if (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
-					nExp = false;
+				if (isVideo) {
+					isRepToOrig = false;
 				}
-				nExp &= Cfg.openImgs !== 2;
+				isRepToOrig &= Cfg.openImgs !== 2;
 			}
 			if (pool) {
-				pool.run([_url, imgLink, iType, nExp, el]);
-			} else if (nExp) {
-				el.src = _url; 
+				pool.run([_url, imgLink, iType, isRepToOrig, el, isVideo]);
+			} else if (isRepToOrig) {
+				el.src = _url;
 			}
 		}
 		if (pool) {

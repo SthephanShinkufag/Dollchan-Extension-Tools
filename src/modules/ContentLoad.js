@@ -112,7 +112,7 @@ function preloadImages(data) {
 		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
 			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			const [url, imgLink, iType, nExp, el] = data;
+			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
 			if(imageData) {
 				const fName = url.substring(url.lastIndexOf('/') + 1);
 				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
@@ -121,10 +121,10 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
+				if(isVideo) {
 					el.setAttribute('de-video', '');
 				}
-				if(nExp) {
+				if(isRepToOrig) {
 					el.src = imgLink.href;
 				}
 				if(rjf) {
@@ -154,23 +154,24 @@ function preloadImages(data) {
 		if(!imgLink) {
 			continue;
 		}
-		let nExp = !!Cfg.openImgs;
+		let isRepToOrig = !!Cfg.openImgs;
 		const url = imgLink.href;
 		const iType = getFileType(url);
-		if(!iType) {
+		const isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
+		if(!iType || isVideo && Cfg.preLoadImgs === 2) {
 			continue;
 		} else if(iType === 'image/gif') {
-			nExp &= Cfg.openImgs !== 3;
+			isRepToOrig &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
-				nExp = false;
+			if(isVideo) {
+				isRepToOrig = false;
 			}
-			nExp &= Cfg.openImgs !== 2;
+			isRepToOrig &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, imgLink, iType, nExp, el]);
-		} else if(nExp) {
-			el.src = url; // !
+			pool.run([url, imgLink, iType, isRepToOrig, el, isVideo]);
+		} else if(isRepToOrig) {
+			el.src = url;
 		}
 	}
 	if(pool) {

@@ -660,7 +660,7 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getBox('preLoadImgs') + '<br>' }
+			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
 			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }

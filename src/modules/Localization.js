@@ -209,10 +209,16 @@ const Lng = {
 			'Минимальная ширина WebM (px)',
 			'Minimal width for WebM (px)',
 			'Мінімальна ширина WebM (px)'],
-		preLoadImgs: [
-			'Предварительно загружать картинки*',
-			'Preload images*',
-			'Наперед завантажувати зображення *'],
+		preLoadImgs: {
+			sel: [
+				['Откл.', 'Все', 'Без WebM'],
+				['Disable', 'All', 'Non-WebM'],
+				['Вимк.', 'Всі', 'Крім WebM']],
+			txt: [
+				'Предварительно загружать картинки*',
+				'Preload images*',
+				'Наперед завантажувати зображення *']
+		},
 		findImgFile: [
 			'Распознавать файлы, встроенные в картинках*',
 			'Detect embedded files in images*',
@@ -221,7 +227,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
-				['Вимк.', 'Всі', 'Лише GIF', 'Окрім GIF']],
+				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
 				'Заменять картинки на оригиналы*',
 				'Replace thumbnails with original images*',

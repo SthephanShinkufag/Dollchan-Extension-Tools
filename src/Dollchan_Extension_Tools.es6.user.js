@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '4def898';
+const commit = '1f8d352';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -79,7 +79,7 @@ const defaultCfg = {
 	webmTitles   : 0,    //    load titles from WebM metadata
 	webmVolume   : 100,  //    default volume for WebM [0-100%]
 	minWebmWidth : 320,  //    minimal width for WebM (px)
-	preLoadImgs  : 0,    // preload images
+	preLoadImgs  : 0,    // preload images [0=off, 1=all, 2=non-WebM]
 	findImgFile  : 0,    //    detect embedded files in images
 	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
 	imgSrcBtns   : 1,    // add "Search" buttons for images
@@ -380,10 +380,16 @@ const Lng = {
 			'Минимальная ширина WebM (px)',
 			'Minimal width for WebM (px)',
 			'Мінімальна ширина WebM (px)'],
-		preLoadImgs: [
-			'Предварительно загружать картинки*',
-			'Preload images*',
-			'Наперед завантажувати зображення *'],
+		preLoadImgs: {
+			sel: [
+				['Откл.', 'Все', 'Без WebM'],
+				['Disable', 'All', 'Non-WebM'],
+				['Вимк.', 'Всі', 'Крім WebM']],
+			txt: [
+				'Предварительно загружать картинки*',
+				'Preload images*',
+				'Наперед завантажувати зображення *']
+		},
 		findImgFile: [
 			'Распознавать файлы, встроенные в картинках*',
 			'Detect embedded files in images*',
@@ -392,7 +398,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
-				['Вимк.', 'Всі', 'Лише GIF', 'Окрім GIF']],
+				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
 				'Заменять картинки на оригиналы*',
 				'Replace thumbnails with original images*',
@@ -4662,7 +4668,7 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getBox('preLoadImgs') + '<br>' }
+			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
 			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
@@ -5792,7 +5798,7 @@ function preloadImages(data) {
 		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
 			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			const [url, imgLink, iType, nExp, el] = data;
+			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
 			if(imageData) {
 				const fName = url.substring(url.lastIndexOf('/') + 1);
 				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
@@ -5801,10 +5807,10 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
+				if(isVideo) {
 					el.setAttribute('de-video', '');
 				}
-				if(nExp) {
+				if(isRepToOrig) {
 					el.src = imgLink.href;
 				}
 				if(rjf) {
@@ -5834,23 +5840,24 @@ function preloadImages(data) {
 		if(!imgLink) {
 			continue;
 		}
-		let nExp = !!Cfg.openImgs;
+		let isRepToOrig = !!Cfg.openImgs;
 		const url = imgLink.href;
 		const iType = getFileType(url);
-		if(!iType) {
+		const isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
+		if(!iType || isVideo && Cfg.preLoadImgs === 2) {
 			continue;
 		} else if(iType === 'image/gif') {
-			nExp &= Cfg.openImgs !== 3;
+			isRepToOrig &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
-				nExp = false;
+			if(isVideo) {
+				isRepToOrig = false;
 			}
-			nExp &= Cfg.openImgs !== 2;
+			isRepToOrig &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, imgLink, iType, nExp, el]);
-		} else if(nExp) {
-			el.src = url; // !
+			pool.run([url, imgLink, iType, isRepToOrig, el, isVideo]);
+		} else if(isRepToOrig) {
+			el.src = url;
 		}
 	}
 	if(pool) {
@@ -17525,6 +17532,8 @@ function updateCSS() {
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
+
+/* eslint-enable max-len */
 
 /* ==[ Main.js ]==============================================================================================
                                                      MAIN

@@ -45,7 +45,7 @@ const defaultCfg = {
 	webmTitles   : 0,    //    load titles from WebM metadata
 	webmVolume   : 100,  //    default volume for WebM [0-100%]
 	minWebmWidth : 320,  //    minimal width for WebM (px)
-	preLoadImgs  : 0,    // preload images
+	preLoadImgs  : 0,    // preload images [0=off, 1=all, 2=non-WebM]
 	findImgFile  : 0,    //    detect embedded files in images
 	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
 	imgSrcBtns   : 1,    // add "Search" buttons for images
