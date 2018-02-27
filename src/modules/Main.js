@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 async function runMain(checkDomains, dataPromise) {
-	Logger.init();
+	Logger.initLogger();
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
@@ -34,7 +34,7 @@ async function runMain(checkDomains, dataPromise) {
 	$del(oldMain);
 	addSVGIcons();
 	if(Cfg.disabled) {
-		Panel.init(formEl);
+		Panel.initPanel(formEl);
 		scriptCSS();
 		return;
 	}
@@ -42,7 +42,7 @@ async function runMain(checkDomains, dataPromise) {
 		delete aProto.toJSON;
 	}
 	initStorageEvent();
-	DollchanAPI.init();
+	DollchanAPI.initAPI();
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -62,7 +62,7 @@ async function runMain(checkDomains, dataPromise) {
 			rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	MyPosts.read();
+	MyPosts.readStorage();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
@@ -89,12 +89,12 @@ async function runMain(checkDomains, dataPromise) {
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
-		HotKeys.enable();
+		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
 	initPage();
 	Logger.log('Init page');
-	Panel.init(formEl);
+	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();

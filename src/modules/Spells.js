@@ -5,7 +5,7 @@
 const Spells = Object.create({
 	hash: null,
 	get hiders() {
-		this._init();
+		this._initSpells();
 		return this.hiders;
 	},
 	get list() {
@@ -53,14 +53,14 @@ const Spells = Object.create({
 		];
 	},
 	get outreps() {
-		this._init();
+		this._initSpells();
 		return this.outreps;
 	},
 	get reps() {
-		this._init();
+		this._initSpells();
 		return this.reps;
 	},
-	add(type, arg, isNeg) {
+	addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld && fld.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -202,7 +202,7 @@ const Spells = Object.create({
 			return `${ spell }(${ String(val) })`;
 		}
 	},
-	disable() {
+	disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -243,16 +243,16 @@ const Spells = Object.create({
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disable();
+			this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
 		if(this.hiders) {
 			const sRunner = new SpellsRunner();
 			for(let post = Thread.first.op; post; post = post.next) {
-				sRunner.run(post);
+				sRunner.runSpells(post);
 			}
-			sRunner.end();
+			sRunner.endSpells();
 		} else {
 			SpellsRunner.unhideAll();
 		}
@@ -270,7 +270,7 @@ const Spells = Object.create({
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disable();
+				this.disableSpells();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				locStorage['__de-spells'] = '{ hide: false, data: null }';
 				locStorage.removeItem('__de-spells');
@@ -313,7 +313,7 @@ const Spells = Object.create({
 		}
 		return [dScope, dScope.length > 2 || hScope];
 	},
-	_init() {
+	_initSpells() {
 		if(!Cfg.hideBySpell) {
 			const value = null;
 			const configurable = true;
@@ -337,7 +337,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disable();
+			this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -846,7 +846,7 @@ class SpellsRunner {
 		this._endPromise = null;
 		this._spells = Spells.hiders;
 		if(!this._spells) {
-			this.run = SpellsRunner._unhidePost;
+			this.runSpells = SpellsRunner._unhidePost;
 			SpellsRunner.cachedData = null;
 		}
 	}
@@ -860,15 +860,15 @@ class SpellsRunner {
 			}
 		}
 	}
-	end() {
+	endSpells() {
 		if(this._endPromise) {
 			this._endPromise.then(() => this._savePostsHelper());
 		} else {
 			this._savePostsHelper();
 		}
 	}
-	run(post) {
-		let res = (new SpellsInterpreter(post, this._spells)).run();
+	runSpells(post) {
+		let res = (new SpellsInterpreter(post, this._spells)).runInterpreter();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -937,7 +937,7 @@ class SpellsInterpreter {
 		this._triggeredSpellsStack = [this._lastTSpells];
 		this._wipeMsg = null;
 	}
-	run() {
+	runInterpreter() {
 		let rv, stopCheck;
 		let isNegScope = this._ctx.pop();
 		let i = this._ctx.pop();
@@ -1002,7 +1002,7 @@ class SpellsInterpreter {
 		const cl = this._ctx.length;
 		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 		const [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.runInterpreter();
 	}
 	_checkRes(spell, val, isNegScope) {
 		const flags = spell[0];
@@ -1059,7 +1059,7 @@ class SpellsInterpreter {
 	}
 	async _ihash(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && await ImagesHashStorage.getHash(image) === val) {
+			if((image instanceof AttachedImage) && await ImagesHashStorage.getHash(image) === val) {
 				return true;
 			}
 		}
@@ -1072,7 +1072,7 @@ class SpellsInterpreter {
 			return images.hasAttachments;
 		}
 		for(const image of images) {
-			if(!(image instanceof Attachment)) {
+			if(!(image instanceof AttachedImage)) {
 				continue;
 			}
 			if(weightVals) {
@@ -1113,7 +1113,7 @@ class SpellsInterpreter {
 	}
 	_imgn(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && val.test(image.name)) {
+			if((image instanceof AttachedImage) && val.test(image.name)) {
 				return true;
 			}
 		}

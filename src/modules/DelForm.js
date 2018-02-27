@@ -129,12 +129,12 @@ class DelForm {
 		embedAudioLinks(el);
 		Logger.log('Audio links');
 		if(Cfg.addYouTube) {
-			new VideosParser().parse(el).end();
+			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}
 		processImgInfoLinks(el);
 		Logger.log('Image names');
-		RefMap.init(this);
+		RefMap.initRefMap(this);
 		Logger.log('Reflinks map');
 	}
 }

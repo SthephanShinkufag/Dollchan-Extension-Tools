@@ -307,7 +307,7 @@ class PostForm {
 	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
-		aib.updSubmitButton(this.subm);
+		aib.updateSubmitBtn(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -363,7 +363,7 @@ class PostForm {
 		this.cap = new Captcha(capEl, this.tNum);
 		const updCapFn = () => {
 			this.cap.addCaptcha();
-			this.cap.updOutdated();
+			this.cap.updateOutdated();
 		};
 		this.txta.addEventListener('focus', updCapFn);
 		if(this.files) {
@@ -416,7 +416,7 @@ class PostForm {
 				$hide(this.qArea);
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
-			updater.pause();
+			updater.pauseUpdater();
 		});
 	}
 	_initTextarea() {

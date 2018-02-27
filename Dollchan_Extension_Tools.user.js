@@ -3620,7 +3620,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				while (1) {
 					switch (_context26.prev = _context26.next) {
 						case 0:
-							Logger.init();
+							Logger.initLogger();
 
 							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
 								_context26.next = 3;
@@ -3688,7 +3688,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							Panel.init(formEl);
+							Panel.initPanel(formEl);
 							scriptCSS();
 							return _context26.abrupt('return');
 
@@ -3697,7 +3697,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								delete aProto.toJSON;
 							}
 							initStorageEvent();
-							DollchanAPI.init();
+							DollchanAPI.initAPI();
 							if (localData) {
 								aib.prot = 'http:';
 								aib.host = aib.dm;
@@ -3719,7 +3719,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								});
 								Logger.log('Time correction');
 							}
-							MyPosts.read();
+							MyPosts.readStorage();
 							Logger.log('Read my posts');
 							$hide(docBody);
 							dummy = doc.createElement('div');
@@ -3755,12 +3755,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							pr = new PostForm($q(aib.qForm));
 							Logger.log('Parse postform');
 							if (Cfg.hotKeys) {
-								HotKeys.enable();
+								HotKeys.enableHotKeys();
 								Logger.log('Init keybinds');
 							}
 							initPage();
 							Logger.log('Init page');
-							Panel.init(formEl);
+							Panel.initPanel(formEl);
 							Logger.log('Add panel');
 							DelForm.first.addStuff();
 							readViewedPosts();
@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '550fd0d';
+	var commit = 'f21250f';
 
 
 	var defaultCfg = {
@@ -4550,7 +4550,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return (i < 10 ? '0' : '') + i;
 	};
 
-	var $join = function $join(arr, start, end) {
+	var arrTags = function arrTags(arr, start, end) {
 		return start + arr.join(end + start) + end;
 	};
 
@@ -4634,7 +4634,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			timeLog.push([Lng.total[lang], duration]);
 			return timeLog;
 		},
-		init: function init() {
+		initLogger: function initLogger() {
 			this._marks.push(['LoggerInit', Date.now()]);
 		},
 		log: function log(text) {
@@ -4671,8 +4671,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(CancelablePromise, [{
-			key: 'cancel',
-			value: function cancel() {
+			key: 'cancelPromise',
+			value: function cancelPromise() {
 				this._reject(new CancelError());
 				if (!this._isResolved && this._cancelFn) {
 					this._cancelFn();
@@ -4715,9 +4715,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						var child = _ref;
 
-						child.cancel();
+						child.cancelPromise();
 					}
-					_this2.cancel();
+					_this2.cancelPromise();
 				});
 			}
 		}], [{
@@ -4748,13 +4748,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(Maybe, [{
-			key: 'end',
-			value: function end() {
-				if (this.hasValue) {
-					this.value.end();
-				}
-			}
-		}, {
 			key: 'value',
 			get: function get() {
 				var Ctor = this._ctor;
@@ -4837,8 +4830,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(TasksPool, [{
-			key: 'complete',
-			value: function complete() {
+			key: 'completeTasks',
+			value: function completeTasks() {
 				if (!this.stopped) {
 					if (this.array.length === 0 && this.running === 0) {
 						this.endFn();
@@ -4848,8 +4841,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
-			key: 'continue',
-			value: function _continue() {
+			key: 'pauseTasks',
+			value: function pauseTasks() {
+				this.paused = true;
+			}
+		}, {
+			key: 'runTask',
+			value: function runTask(data) {
+				if (!this.stopped) {
+					if (this.paused || this.running === this.max) {
+						this.array.push(data);
+					} else {
+						this._runTask(data);
+						this.running++;
+					}
+				}
+			}
+		}, {
+			key: 'stopTasks',
+			value: function stopTasks() {
+				this.stopped = true;
+				this.endFn();
+			}
+		}, {
+			key: '_continueTasks',
+			value: function _continueTasks() {
 				if (!this.stopped) {
 					this.paused = false;
 					if (this.array.length === 0) {
@@ -4859,40 +4875,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					}
 					while (this.array.length !== 0 && this.running !== this.max) {
-						this._run(this.array.shift());
+						this._runTask(this.array.shift());
 						this.running++;
 					}
 				}
 			}
 		}, {
-			key: 'pause',
-			value: function pause() {
-				this.paused = true;
-			}
-		}, {
-			key: 'run',
-			value: function run(data) {
-				if (!this.stopped) {
-					if (this.paused || this.running === this.max) {
-						this.array.push(data);
-					} else {
-						this._run(data);
-						this.running++;
-					}
-				}
-			}
-		}, {
-			key: 'stop',
-			value: function stop() {
-				this.stopped = true;
-				this.endFn();
-			}
-		}, {
-			key: '_end',
-			value: function _end() {
+			key: '_endTask',
+			value: function _endTask() {
 				if (!this.stopped) {
 					if (!this.paused && this.array.length !== 0) {
-						this._run(this.array.shift());
+						this._runTask(this.array.shift());
 						return;
 					}
 					this.running--;
@@ -4902,22 +4895,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}, {
-			key: '_run',
-			value: function _run(data) {
+			key: '_runTask',
+			value: function _runTask(data) {
 				var _this3 = this;
 
 				this.func(this.num++, data).then(function () {
-					return _this3._end();
+					return _this3._endTask();
 				}, function (e) {
 					if (e instanceof TasksPool.PauseError) {
-						_this3.pause();
+						_this3.pauseTasks();
 						if (e.duration !== -1) {
 							setTimeout(function () {
-								return _this3.continue();
+								return _this3._continueTasks();
 							}, e.duration);
 						}
 					} else {
-						_this3._end();
+						_this3._endTask();
 						throw e;
 					}
 				});
@@ -4939,7 +4932,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_classCallCheck(this, WorkerPool);
 
 			if (!nav.hasWorker) {
-				this.run = function (data, transferObjs, fn) {
+				this.runWorker = function (data, transferObjs, fn) {
 					return fn(wrkFn(data));
 				};
 				return;
@@ -4966,9 +4959,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._freeWorkers = [];
 			}
 		}, {
-			key: 'run',
-			value: function run(data, transferObjs, fn) {
-				this._pool.run([data, transferObjs, fn]);
+			key: 'runWorker',
+			value: function runWorker(data, transferObjs, fn) {
+				this._pool.runTask([data, transferObjs, fn]);
 			}
 		}, {
 			key: '_createWorker',
@@ -5429,7 +5422,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function downloadBlob(blob, name) {
 		var url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
-		var link = docBody.appendChild($add('<a href="' + url + '" download="' + name + '"></a>'));
+		var link = $bEnd(docBody, '<a href="' + url + '" download="' + name + '"></a>');
 		link.click();
 		setTimeout(function () {
 			window.URL.revokeObjectURL(url);
@@ -5565,7 +5558,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				continue;
 			}
 			if (!hideData) {
-				maybeSpells.value.run(post); 
+				maybeSpells.value.runSpells(post); 
 			} else if (hideData[0]) {
 				if (post.hidden) {
 					post.spellHidden = true;
@@ -5574,7 +5567,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 		}
-		maybeSpells.end();
+		if (maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		if (Cfg.panelCounter === 2) {
 			$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 		}
@@ -5834,8 +5829,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._readStorage();
 			}
 		}, {
-			key: 'read',
-			value: function read() {
+			key: 'readStorage',
+			value: function readStorage() {
 				this._readStorage();
 			}
 		}, {
@@ -5930,7 +5925,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						} else {
 							SpellsRunner.unhideAll();
-							Spells.disable();
+							Spells.disableSpells();
 							temp = $id('de-spell-txt');
 							if (temp) {
 								temp.value = '';
@@ -5945,7 +5940,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var Panel = Object.create({
 		isVidEnabled: false,
-		init: function init(formEl) {
+		initPanel: function initPanel(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length;
 			var isThr = aib.t;
 			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.isPresto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.isSafari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">\n\t\t\t\t\t\t<span id="de-panel-info-pcount" title="' + (Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">') + (Thread.first.pcount + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">\n\t\t\t\t\t\t\t' + imgLen + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>\n\t\t\t\t\t</span>'))) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
@@ -6041,7 +6036,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-audio-on':
 						case 'de-panel-audio-off':
 							if (updater.toggleAudio(0)) {
-								updater.enable();
+								updater.enableUpdater();
 								el.id = 'de-panel-audio-on';
 							} else {
 								el.id = 'de-panel-audio-off';
@@ -6435,7 +6430,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				return;
 			case 'cfg':
-				CfgWindow.init(body);break;
+				CfgWindow.initCfgWindow(body);break;
 			case 'hid':
 				showHiddenWindow(body);break;
 			case 'vid':
@@ -7175,7 +7170,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var CfgWindow = {
-		init: function init(body) {
+		initCfgWindow: function initCfgWindow(body) {
 			var _this14 = this;
 
 			body.addEventListener('click', this);
@@ -7447,7 +7442,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							pr.addMarkupPanel();
 							pr.setPlaceholders();
 							pr.updateLanguage();
-							aib.updSubmitButton(pr.subm);
+							aib.updateSubmitBtn(pr.subm);
 							if (pr.files) {
 								$each($Q('.de-file-img, .de-file-txt-input', pr.form), function (el) {
 									return el.title = Lng.youCanDrag[lang];
@@ -7455,7 +7450,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 						}
 						this._updateCSS();
-						Panel.init(DelForm.first.el);
+						Panel.initPanel(DelForm.first.el);
 						toggleWindow('cfg', false);
 						break;
 					case 'delHiddPost':
@@ -7484,7 +7479,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						updateCSS();break;
 					case 'expandImgs':
 						updateCSS();
-						Attachment.close();
+						AttachedImage.closeImg();
 						break;
 					case 'fileInputs':
 						pr.files.changeMode();
@@ -7540,9 +7535,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'ajaxUpdThr':
 						if (aib.t) {
 							if (Cfg.ajaxUpdThr) {
-								updater.enable();
+								updater.enableUpdater();
 							} else {
-								updater.disable();
+								updater.disableUpdater();
 							}
 						}
 						break;
@@ -7656,9 +7651,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						toggleInfinityScroll();break;
 					case 'hotKeys':
 						if (Cfg.hotKeys) {
-							HotKeys.enable();
+							HotKeys.enableHotKeys();
 						} else {
-							HotKeys.disable();
+							HotKeys.disableHotKeys();
 						}
 				}
 				return;
@@ -7902,7 +7897,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 
 		_getList: function _getList(a) {
-			return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+			return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 		},
 
 		_getSel: function _getSel(id) {
@@ -7986,7 +7981,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$animate(el, 'de-blink');
 			}
 		} else {
-			el = $id('de-wrapper-popup').appendChild($add('\n\t\t<div class="' + aib.cReply + ' de-popup" id="de-popup-' + id + '">\n\t\t\t<span class="de-popup-btn">' + buttonHTML + '</span>\n\t\t\t<div class="de-popup-msg">' + txt.trim() + '</div>\n\t\t</div>'));
+			el = $bEnd($id('de-wrapper-popup'), '<div class="' + aib.cReply + ' de-popup" id="de-popup-' + id + '">\n\t\t\t<span class="de-popup-btn">' + buttonHTML + '</span>\n\t\t\t<div class="de-popup-msg">' + txt.trim() + '</div>\n\t\t</div>');
 			el.onclick = function (_ref21) {
 				var target = _ref21.target;
 
@@ -8123,7 +8118,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function addMenu(el) {
 		var fn = function fn(a) {
-			return $join(a, '<span class="de-menu-item">', '</span>');
+			return arrTags(a, '<span class="de-menu-item">', '</span>');
 		};
 		switch (el.id) {
 			case 'de-btn-spell-add':
@@ -8133,7 +8128,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			case 'de-panel-refresh':
 				return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
-					return Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
+					return Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 				});
 			case 'de-panel-savethr':
 				return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ? Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]), function (el) {
@@ -8153,7 +8148,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			case 'de-panel-audio-off':
 				return new Menu(el, fn(Lng.selAudioNotif[lang]), function (el) {
-					updater.enable();
+					updater.enableUpdater();
 					updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 					$id('de-panel-audio-off').id = 'de-panel-audio-on';
 				});
@@ -8173,7 +8168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.cPost = null;
 			this.lastPageOffset = 0;
 		},
-		disable: function disable() {
+		disableHotKeys: function disableHotKeys() {
 			if (this.enabled) {
 				this.enabled = false;
 				if (this.cPost) {
@@ -8184,7 +8179,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				doc.removeEventListener('keydown', this, true);
 			}
 		},
-		enable: function enable() {
+		enableHotKeys: function enableHotKeys() {
 			var _this16 = this;
 
 			if (!this.enabled) {
@@ -8249,11 +8244,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (isThr || $id('de-popup-load-pages')) {
 					return;
 				}
-				Attachment.close();
-				Pages.load(+Cfg.loadPages);
+				AttachedImage.closeImg();
+				Pages.loadPages(+Cfg.loadPages);
 			} else if (kc === 0x1B) {
-				if (Attachment.viewer) {
-					Attachment.close();
+				if (AttachedImage.viewer) {
+					AttachedImage.closeImg();
 					return;
 				}
 				if (this.cPost) {
@@ -8286,8 +8281,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						break;
 					case 4:
-						if (Attachment.viewer) {
-							Attachment.viewer.navigate(false);
+						if (AttachedImage.viewer) {
+							AttachedImage.viewer.navigate(false);
 						} else if (isThr || aib.page !== aib.firstPage) {
 							window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 						}
@@ -8351,8 +8346,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						$id('de-btn-code').click();
 						break;
 					case 17:
-						if (Attachment.viewer) {
-							Attachment.viewer.navigate(true);
+						if (AttachedImage.viewer) {
+							AttachedImage.viewer.navigate(true);
 						} else if (!isThr) {
 							var pageNum = DelForm.last.pageNum + 1;
 							if (pageNum <= aib.lastPage) {
@@ -8414,7 +8409,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			e.stopPropagation();
 			$pd(e);
 		},
-		pause: function pause() {
+		pauseHotKeys: function pauseHotKeys() {
 			this._paused = true;
 		},
 		readKeys: function () {
@@ -8631,7 +8626,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					case 'focus':
 						if (HotKeys.enabled) {
-							HotKeys.pause();
+							HotKeys.pauseHotKeys();
 						}
 						this.cEl = el;
 						return;
@@ -8907,7 +8902,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (isPreImg || Cfg.preLoadImgs) {
 			var cImg = 1;
 			var mReqs = isPost ? 1 : 4;
-			var rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
+			var rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
 				return console.error('File detector error:', 'line: ' + e.lineno + ' - ' + e.message);
 			});
 			pool = new TasksPool(mReqs, function (num, data) {
@@ -8933,8 +8928,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (isRepToOrig) {
 							el.src = imgLink.href;
 						}
-						if (rjf) {
-							rjf.run(imageData.buffer, [imageData.buffer], function (info) {
+						if (rarJpgFinder) {
+							rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
 								return addImgFileIcon(nameLink, fName, info);
 							});
 						}
@@ -8950,8 +8945,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					Images_.afterpreload();
 					Images_.afterpreload = Images_.progressId = null;
 				}
-				if (rjf) {
-					rjf.clearWorkers();
+				if (rarJpgFinder) {
+					rarJpgFinder.clearWorkers();
 				}
 			});
 			Images_.preloading = true;
@@ -8977,13 +8972,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				isRepToOrig &= Cfg.openImgs !== 2;
 			}
 			if (pool) {
-				pool.run([_url, imgLink, iType, isRepToOrig, el, isVideo]);
+				pool.runTask([_url, imgLink, iType, isRepToOrig, el, isVideo]);
 			} else if (isRepToOrig) {
 				el.src = _url;
 			}
 		}
 		if (pool) {
-			pool.complete();
+			pool.completeTasks();
 		}
 	}
 
@@ -9077,7 +9072,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var imgLink = $parent(el, 'A');
 			if (imgLink) {
 				var _url2 = imgLink.href;
-				Images_.pool.run([_url2, imgLink.getAttribute('download') || _url2.substring(_url2.lastIndexOf('/') + 1), el, imgLink]);
+				Images_.pool.runTask([_url2, imgLink.getAttribute('download') || _url2.substring(_url2.lastIndexOf('/') + 1), el, imgLink]);
 			}
 		});
 		if (!imgOnly) {
@@ -9123,14 +9118,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					fName = temp;
 				}
 				files.push(fName);
-				Images_.pool.run([url, fName, el, null]);
+				Images_.pool.runTask([url, fName, el, null]);
 				count++;
 			});
 		}
 		$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + ':<br>' + ('<progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count), true);
 		progress = $id('de-loadprogress');
 		counter = progress.nextElementSibling;
-		Images_.pool.complete();
+		Images_.pool.completeTasks();
 		els = null;
 	}
 
@@ -9328,7 +9323,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					updateVideoList($id('de-video-list'), link, this.post.num);
 				}
 				if (loader && !dataObj) {
-					loader.run([link, isYtube, this, m[1]]);
+					loader.runTask([link, isYtube, this, m[1]]);
 				}
 			}
 		}, {
@@ -9390,7 +9385,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				this.currentLink = this.currentLink || newLinks[0];
 				if (loader) {
-					loader.complete();
+					loader.completeTasks();
 				}
 			}
 		}, {
@@ -9589,10 +9584,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(VideosParser, [{
-			key: 'end',
-			value: function end() {
+			key: 'endParser',
+			value: function endParser() {
 				if (this._loader) {
-					this._loader.complete();
+					this._loader.completeTasks();
 				}
 			}
 		}, {
@@ -9961,7 +9956,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var Pages = {
-		add: function add() {
+		addPage: function addPage() {
 			var _this19 = this;
 
 			var pageNum = DelForm.last.pageNum + 1;
@@ -9971,12 +9966,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._adding = true;
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + ('<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 			MyPosts.purge();
-			this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
+			this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
 				if (_this19._addForm(formEl, pageNum).firstThr) {
 					return _this19._updateForms(DelForm.last);
 				}
 				_this19._endAdding();
-				_this19.add();
+				_this19.addPage();
 				return CancelablePromise.reject(new CancelError());
 			}).then(function () {
 				return _this19._endAdding();
@@ -9987,7 +9982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 		},
-		load: function () {
+		loadPages: function () {
 			var _ref29 = _asyncToGenerator( regeneratorRuntime.mark(function _callee10(count) {
 				var _iterator6, _isArray6, _i11, _ref30, form, i, len, first;
 
@@ -9996,8 +9991,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						switch (_context11.prev = _context11.next) {
 							case 0:
 								$popup('load-pages', Lng.loading[lang], true);
-								if (this._addPromise) {
-									this._addPromise.cancel();
+								if (this._addingPromise) {
+									this._addingPromise.cancelPromise();
 									this._endAdding();
 								}
 								PviewsCache.purge();
@@ -10005,7 +10000,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								pByEl = new Map();
 								pByNum = new Map();
 								Post.hiddenNums = new Set();
-								Attachment.close();
+								AttachedImage.closeImg();
 								if (pr.isQuick) {
 									pr.clearForm();
 								}
@@ -10124,16 +10119,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee10, this, [[32, 41]]);
 			}));
 
-			function load(_x31) {
+			function loadPages(_x31) {
 				return _ref29.apply(this, arguments);
 			}
 
-			return load;
+			return loadPages;
 		}(),
 
 
 		_adding: false,
-		_addPromise: null,
+		_addingPromise: null,
 		_addForm: function _addForm(formEl, pageNum) {
 			formEl = doc.adoptNode(formEl);
 			$hide(formEl = aib.fixHTML(formEl));
@@ -10150,7 +10145,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_endAdding: function _endAdding() {
 			$del($q('.de-addpage-wait'));
 			this._adding = false;
-			this._addPromise = null;
+			this._addingPromise = null;
 		},
 		_updateForms: function () {
 			var _ref31 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(newForm) {
@@ -10205,7 +10200,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if ((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 			window.requestAnimationFrame(function () {
 				if (Thread.last.bottom - 150 < Post.sizing.wHeight) {
-					Pages.add();
+					Pages.addPage();
 				}
 			});
 		}
@@ -10215,7 +10210,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var Spells = Object.create({
 		hash: null,
 		get hiders() {
-			this._init();
+			this._initSpells();
 			return this.hiders;
 		},
 		get list() {
@@ -10291,14 +10286,14 @@ false, false, false, false, false,
 true, true];
 		},
 		get outreps() {
-			this._init();
+			this._initSpells();
 			return this.outreps;
 		},
 		get reps() {
-			this._init();
+			this._initSpells();
 			return this.reps;
 		},
-		add: function add(type, arg, isNeg) {
+		addSpell: function addSpell(type, arg, isNeg) {
 			var fld = $id('de-spell-txt');
 			var val = fld && fld.value;
 			var chk = $q('input[info="hideBySpell"]');
@@ -10433,7 +10428,7 @@ true, true];
 				return spell + '(' + String(val) + ')';
 			}
 		},
-		disable: function disable() {
+		disableSpells: function disableSpells() {
 			var value = null;
 			var configurable = true;
 			Object.defineProperties(this, {
@@ -10500,16 +10495,16 @@ true, true];
 			}
 			if (!Cfg.hideBySpell) {
 				SpellsRunner.unhideAll();
-				this.disable();
+				this.disableSpells();
 				return;
 			}
 			this._optimize(spells);
 			if (this.hiders) {
 				var sRunner = new SpellsRunner();
 				for (var post = Thread.first.op; post; post = post.next) {
-					sRunner.run(post);
+					sRunner.runSpells(post);
 				}
-				sRunner.end();
+				sRunner.endSpells();
 			} else {
 				SpellsRunner.unhideAll();
 			}
@@ -10527,7 +10522,7 @@ true, true];
 				if (!val) {
 					closePopup('err-spell');
 					SpellsRunner.unhideAll();
-					this.disable();
+					this.disableSpells();
 					saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 					locStorage['__de-spells'] = '{ hide: false, data: null }';
 					locStorage.removeItem('__de-spells');
@@ -10566,7 +10561,7 @@ true, true];
 			}
 			return [dScope, dScope.length > 2 || hScope];
 		},
-		_init: function _init() {
+		_initSpells: function _initSpells() {
 			if (!Cfg.hideBySpell) {
 				var value = null;
 				var configurable = true;
@@ -10591,7 +10586,7 @@ true, true];
 			if (spells) {
 				this._optimize(spells);
 			} else {
-				this.disable();
+				this.disableSpells();
 			}
 		},
 		_initHiders: function _initHiders(data) {
@@ -11156,14 +11151,14 @@ true, true];
 			this._endPromise = null;
 			this._spells = Spells.hiders;
 			if (!this._spells) {
-				this.run = SpellsRunner._unhidePost;
+				this.runSpells = SpellsRunner._unhidePost;
 				SpellsRunner.cachedData = null;
 			}
 		}
 
 		_createClass(SpellsRunner, [{
-			key: 'end',
-			value: function end() {
+			key: 'endSpells',
+			value: function endSpells() {
 				var _this20 = this;
 
 				if (this._endPromise) {
@@ -11175,11 +11170,11 @@ true, true];
 				}
 			}
 		}, {
-			key: 'run',
-			value: function run(post) {
+			key: 'runSpells',
+			value: function runSpells(post) {
 				var _this21 = this;
 
-				var res = new SpellsInterpreter(post, this._spells).run();
+				var res = new SpellsInterpreter(post, this._spells).runInterpreter();
 				if (res instanceof Promise) {
 					res = res.then(function (val) {
 						return _this21._checkRes(post, val);
@@ -11282,8 +11277,8 @@ true, true];
 		}
 
 		_createClass(SpellsInterpreter, [{
-			key: 'run',
-			value: function run() {
+			key: 'runInterpreter',
+			value: function runInterpreter() {
 				var _this22 = this;
 
 				var rv = void 0,
@@ -11353,7 +11348,7 @@ true, true];
 				    rv = _checkRes5[0],
 				    stopCheck = _checkRes5[1];
 
-				return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
+				return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.runInterpreter();
 			}
 		}, {
 			key: '_checkRes',
@@ -11510,7 +11505,7 @@ true, true];
 
 								case 11:
 									image = _ref50;
-									_context13.t0 = image instanceof Attachment;
+									_context13.t0 = image instanceof AttachedImage;
 
 									if (!_context13.t0) {
 										_context13.next = 19;
@@ -11581,7 +11576,7 @@ true, true];
 
 					var image = _ref51;
 
-					if (!(image instanceof Attachment)) {
+					if (!(image instanceof AttachedImage)) {
 						continue;
 					}
 					if (weightVals) {
@@ -11642,7 +11637,7 @@ true, true];
 
 					var image = _ref52;
 
-					if (image instanceof Attachment && val.test(image.name)) {
+					if (image instanceof AttachedImage && val.test(image.name)) {
 						return true;
 					}
 				}
@@ -12194,7 +12189,7 @@ true, true];
 			key: 'updateLanguage',
 			value: function updateLanguage() {
 				this.txta.title = Lng.pasteImage[lang];
-				aib.updSubmitButton(this.subm);
+				aib.updateSubmitBtn(this.subm);
 			}
 		}, {
 			key: 'updatePAreaBtns',
@@ -12234,7 +12229,7 @@ true, true];
 				this.cap = new Captcha(capEl, this.tNum);
 				var updCapFn = function updCapFn() {
 					_this25.cap.addCaptcha();
-					_this25.cap.updOutdated();
+					_this25.cap.updateOutdated();
 				};
 				this.txta.addEventListener('focus', updCapFn);
 				if (this.files) {
@@ -12296,7 +12291,7 @@ true, true];
 						$hide(_this27.qArea);
 						$after(_this27._pBtn[+_this27.isBottom], _this27.pForm);
 					}
-					updater.pause();
+					updater.pauseUpdater();
 				});
 			}
 		}, {
@@ -12678,7 +12673,7 @@ true, true];
 							pr.setReply(true, false);
 						}
 						updater.sendErrNotif();
-						updater.continue();
+						updater.continueUpdater();
 					});
 					return;
 				}
@@ -12706,7 +12701,7 @@ true, true];
 			}
 			$popup('upload', error);
 			updater.sendErrNotif();
-			updater.continue();
+			updater.continueUpdater();
 			DollchanAPI.notify('submitform', { success: false, error: error });
 			return;
 		}
@@ -12745,7 +12740,7 @@ true, true];
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
-				updater.continue(true);
+				updater.continueUpdater(true);
 				closePopup('upload');
 			});
 		} else {
@@ -12944,7 +12939,7 @@ true, true];
 					if (inp.hasFile) {
 						break;
 					} else if (_els2[i - 1].hasFile) {
-						inp.show();
+						inp.showInp();
 						break;
 					}
 					inp.hideInp();
@@ -12962,8 +12957,7 @@ true, true];
 			get: function get() {
 				var value = void 0;
 				if (aib.multiFile) {
-					value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-					$after(this.fileTd.parentNode, value);
+					value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
 				} else {
 					value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 					value.innerHTML = '<div style="display: none;">' + value.innerHTML + '</div><div></div>';
@@ -13208,8 +13202,8 @@ true, true];
 				$hide(this._wrap);
 			}
 		}, {
-			key: 'show',
-			value: function show() {
+			key: 'showInp',
+			value: function showInp() {
 				if (FileInput._isThumb) {
 					$show(this._thumb);
 				}
@@ -13330,7 +13324,7 @@ true, true];
 				this._thumb.appendChild(this._utils);
 				this._toggleDragEvents(this._thumb, true);
 				if (this.hasFile) {
-					this._showPviewImage();
+					this._showFileThumb();
 				}
 			}
 		}, {
@@ -13344,7 +13338,7 @@ true, true];
 					this._parent.onchange();
 				}
 				if (FileInput._isThumb) {
-					this._showPviewImage();
+					this._showFileThumb();
 				}
 				if (this.hasFile) {
 					this.extraFile = null;
@@ -13394,8 +13388,8 @@ true, true];
 				$toggle(this._btnTxt, !isShow);
 			}
 		}, {
-			key: '_showPviewImage',
-			value: function _showPviewImage() {
+			key: '_showFileThumb',
+			value: function _showFileThumb() {
 				var _this35 = this;
 
 				var imgFile = this.imgFile;
@@ -13417,8 +13411,8 @@ true, true];
 			}
 		}, {
 			key: '_toggleDragEvents',
-			value: function _toggleDragEvents(el, add) {
-				var name = add ? 'addEventListener' : 'removeEventListener';
+			value: function _toggleDragEvents(el, isAdd) {
+				var name = isAdd ? 'addEventListener' : 'removeEventListener';
 				el[name]('dragover', $pd);
 				el[name]('dragenter', this);
 				el[name]('dragleave', this);
@@ -13436,7 +13430,7 @@ true, true];
 					var data = _ref75.data;
 
 					input.imgFile = [data, file.name, file.type];
-					input.show();
+					input.showInp();
 					input._onFileChange(true);
 				});
 			}
@@ -13516,7 +13510,7 @@ true, true];
 							break;
 						}
 					case 'focus':
-						this.updOutdated();
+						this.updateOutdated();
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -13649,7 +13643,7 @@ true, true];
 			key: 'updateHelper',
 			value: function updateHelper(url, fn) {
 				if (aib._capUpdPromise) {
-					aib._capUpdPromise.cancel();
+					aib._capUpdPromise.cancelPromise();
 				}
 				return aib._capUpdPromise = $ajax(url).then(function (xhr) {
 					aib._capUpdPromise = null;
@@ -13662,8 +13656,8 @@ true, true];
 				});
 			}
 		}, {
-			key: 'updOutdated',
-			value: function updOutdated() {
+			key: 'updateOutdated',
+			value: function updateOutdated() {
 				if (this._lastUpdate && Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3) {
 					this.refreshCaptcha(false);
 				}
@@ -13737,7 +13731,7 @@ true, true];
 		_createClass(AbstractPost, [{
 			key: 'addFuncs',
 			value: function addFuncs() {
-				RefMap.upd(this, true);
+				RefMap.updateRefMap(this, true);
 				embedAudioLinks(this);
 			}
 		}, {
@@ -13818,7 +13812,7 @@ true, true];
 							return;
 						case 'OBJECT':
 						case 'VIDEO':
-							if (Cfg.expandImgs !== 0 && !ExpandableMedia.isControlClick(e)) {
+							if (Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 								this._clickImage(el, e);
 							}
 							return;
@@ -13877,7 +13871,7 @@ true, true];
 							quotetxt = '';
 							return;
 						case 'de-btn-sage':
-							Spells.add(9, '', false);return;
+							Spells.addSpell(9, '', false);return;
 						case 'de-btn-stick':
 							this.setSticky(true);return;
 						case 'de-btn-stick-on':
@@ -13914,7 +13908,7 @@ true, true];
 					case 'de-btn-expthr':
 						this.btns.title = Lng.expandThr[lang];
 						if (!(this instanceof Pview)) {
-							this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
+							this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang], '<span class="de-menu-item" info="thr-exp">', '</span>'));
 						}
 						return;
 					case 'de-btn-fav':
@@ -13950,7 +13944,7 @@ true, true];
 							}
 						} else {
 							this._linkDelay = setTimeout(function () {
-								return _this40.kid = Pview.show(_this40, el);
+								return _this40.kid = Pview.showPview(_this40, el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -13988,7 +13982,7 @@ true, true];
 					}
 				}
 				this.addFuncs();
-				sRunner.run(this);
+				sRunner.runSpells(this);
 				embedPostMsgImages(this.el);
 				closePopup('load-fullmsg');
 			}
@@ -14015,7 +14009,7 @@ true, true];
 				if (!data || !data.isImage && !data.isVideo) {
 					return;
 				}
-				data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
+				data.expandImg(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
 				$pd(e);
 				e.stopPropagation();
 			}
@@ -14024,8 +14018,8 @@ true, true];
 			value: function _getFullMsg(el, isInit) {
 				var _this42 = this;
 
-				if (aib.delTruncMsg) {
-					aib.delTruncMsg(this, el, isInit);
+				if (aib.deleteTruncMsg) {
+					aib.deleteTruncMsg(this, el, isInit);
 					return;
 				}
 				if (!isInit) {
@@ -14046,7 +14040,9 @@ true, true];
 							}
 						}
 					}
-					maybeSpells.end();
+					if (maybeSpells.hasValue) {
+						maybeSpells.value.endSpells();
+					}
 				}, emptyFn);
 			}
 		}, {
@@ -14189,7 +14185,7 @@ true, true];
 					if (this.hidden) {
 						this.ref.unhideRef();
 					}
-					RefMap.upd(this, false);
+					RefMap.updateRefMap(this, false);
 					if (this.prev.next = this.next) {
 						this.next.prev = this.prev;
 					}
@@ -14357,7 +14353,7 @@ true, true];
 		}, {
 			key: 'toggleImages',
 			value: function toggleImages() {
-				var expand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
+				var isExpand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 				var isExpandVideos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i35 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
@@ -14374,11 +14370,11 @@ true, true];
 
 					var image = _ref76;
 
-					if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ expand) {
-						if (expand) {
-							image.expand(true, null);
+					if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ isExpand) {
+						if (isExpand) {
+							image.expandImg(true, null);
 						} else {
-							image.collapse(null);
+							image.collapseImg(null);
 						}
 					}
 				}
@@ -14416,23 +14412,23 @@ true, true];
 							var inMsgSel = aib.qPostMsg + ', ' + aib.qPostMsg + ' *';
 							if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj)) {
 								if (this._selText.includes('\n')) {
-									Spells.add(1 
+									Spells.addSpell(1 
 									, '/' + quoteReg(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 								} else {
-									Spells.add(0 , this._selText.toLowerCase(), false);
+									Spells.addSpell(0 , this._selText.toLowerCase(), false);
 								}
 							} else {
 								dummy.innerHTML = '';
 								dummy.appendChild(this._selRange.cloneContents());
-								Spells.add(2 
+								Spells.addSpell(2 
 								, '/' + quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 							}
 							return;
 						}
 					case 'hide-name':
-						Spells.add(6 , this.posterName, false);return;
+						Spells.addSpell(6 , this.posterName, false);return;
 					case 'hide-trip':
-						Spells.add(7 , this.posterTrip, false);return;
+						Spells.addSpell(7 , this.posterTrip, false);return;
 					case 'hide-img':
 						{
 							var _images$firstAttach = this.images.firstAttach,
@@ -14440,21 +14436,21 @@ true, true];
 							    wi = _images$firstAttach.width,
 							    h = _images$firstAttach.height;
 
-							Spells.add(8 , [0, [w, w], [wi, wi, h, h]], false);
+							Spells.addSpell(8 , [0, [w, w], [wi, wi, h, h]], false);
 							return;
 						}
 					case 'hide-imgn':
-						Spells.add(3 , '/' + quoteReg(this.images.firstAttach.name) + '/', false);
+						Spells.addSpell(3 , '/' + quoteReg(this.images.firstAttach.name) + '/', false);
 						return;
 					case 'hide-ihash':
 						ImagesHashStorage.getHash(this.images.firstAttach).then(function (hash) {
 							if (hash !== -1) {
-								Spells.add(4 , hash, false);
+								Spells.addSpell(4 , hash, false);
 							}
 						});
 						return;
 					case 'hide-noimg':
-						Spells.add(0x108 , '', true);return;
+						Spells.addSpell(0x108 , '', true);return;
 					case 'hide-text':
 						{
 							var num = this.num;
@@ -14466,13 +14462,13 @@ true, true];
 							return;
 						}
 					case 'hide-notext':
-						Spells.add(0x10B , '', true);return;
+						Spells.addSpell(0x10B , '', true);return;
 					case 'hide-refs':
 						this.ref.toggleRef(isHide, true);
 						this.setUserVisib(isHide);
 						return;
 					case 'hide-refsonly':
-						Spells.add(0 , '>>' + this.num, false);return;
+						Spells.addSpell(0 , '>>' + this.num, false);return;
 					case 'thr-exp':
 						{
 							var task = parseInt(el.textContent.match(/\d+/), 10);
@@ -14883,81 +14879,6 @@ true, true];
 		_enabled: false
 	};
 
-	var PostImages = function () {
-		function PostImages(post) {
-			_classCallCheck(this, PostImages);
-
-			var first = null,
-			    last = null,
-			    els = $Q(aib.qPostImg, post.el);
-			var hasAttachments = false;
-			var filesMap = new Map();
-			for (var i = 0, len = els.length; i < len; ++i) {
-				var el = els[i];
-				last = new Attachment(post, el, last);
-				filesMap.set(el, last);
-				hasAttachments = true;
-				if (!first) {
-					first = last;
-				}
-			}
-			if (Cfg.addImgs || localData) {
-				els = $Q('.de-img-embed', post.el);
-				for (var _i36 = 0, _len8 = els.length; _i36 < _len8; ++_i36) {
-					var _el9 = els[_i36];
-					last = new EmbeddedImage(post, _el9, last);
-					filesMap.set(_el9, last);
-					if (!first) {
-						first = last;
-					}
-				}
-			}
-			this.first = first;
-			this.last = last;
-			this.hasAttachments = hasAttachments;
-			this._map = filesMap;
-		}
-
-		_createClass(PostImages, [{
-			key: 'getImageByEl',
-			value: function getImageByEl(el) {
-				return this._map.get(el);
-			}
-		}, {
-			key: Symbol.iterator,
-			value: function value() {
-				return {
-					_img: this.first,
-					next: function next() {
-						var value = this._img;
-						if (value) {
-							this._img = value.next;
-							return { value: value, done: false };
-						}
-						return { done: true };
-					}
-				};
-			}
-		}, {
-			key: 'expanded',
-			get: function get() {
-				for (var img = this.first; img; img = img.next) {
-					if (img.expanded) {
-						return true;
-					}
-				}
-				return false;
-			}
-		}, {
-			key: 'firstAttach',
-			get: function get() {
-				return this.hasAttachments ? this.first : null;
-			}
-		}]);
-
-		return PostImages;
-	}();
-
 
 	var Pview = function (_AbstractPost2) {
 		_inherits(Pview, _AbstractPost2);
@@ -15012,23 +14933,23 @@ true, true];
 		}
 
 		_createClass(Pview, [{
-			key: 'deletePView',
-			value: function deletePView() {
+			key: 'deletePview',
+			value: function deletePview() {
 				this.parent.kid = null;
 				this._link.classList.remove('de-link-parent');
 				if (Pview.top === this) {
 					Pview.top = null;
 				}
 				if (this._loadPromise) {
-					this._loadPromise.cancel();
+					this._loadPromise.cancelPromise();
 					this._loadPromise = null;
 				}
-				var vPost = Attachment.viewer && Attachment.viewer.data.post;
+				var vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
 				var pv = this;
 				do {
 					clearTimeout(pv._readDelay);
 					if (vPost === pv) {
-						Attachment.close();
+						AttachedImage.closeImg();
 						vPost = null;
 					}
 					var _pv = pv,
@@ -15054,9 +14975,9 @@ true, true];
 					}
 				} while (pv = pv.kid);
 				if (!lastSticky) {
-					this.deletePView();
+					this.deletePview();
 				} else if (lastSticky.kid) {
-					lastSticky.kid.deletePView();
+					lastSticky.kid.deletePview();
 				}
 			}
 		}, {
@@ -15236,7 +15157,7 @@ true, true];
 					this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span>');
 					embedAudioLinks(this);
 					if (Cfg.addYouTube) {
-						new VideosParser().parse(this).end();
+						new VideosParser().parse(this).endParser();
 					}
 					embedPostMsgImages(pviewEl);
 					processImgInfoLinks(pviewEl);
@@ -15306,8 +15227,8 @@ true, true];
 				return value;
 			}
 		}], [{
-			key: 'show',
-			value: function show(parent, link) {
+			key: 'showPview',
+			value: function showPview(parent, link) {
 				var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 				var pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 				var isTop = !(parent instanceof Pview);
@@ -15315,7 +15236,7 @@ true, true];
 				clearTimeout(Pview._delTO);
 				if (pv && pv.num === pNum) {
 					if (pv.kid) {
-						pv.kid.deletePView();
+						pv.kid.deletePview();
 					}
 					if (pv._link !== link) {
 						pv._setPosition(link, Cfg.animation);
@@ -15332,7 +15253,7 @@ true, true];
 					pv.parent = parent;
 				} else if (!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 					if (pv) {
-						pv.deletePView();
+						pv.deletePview();
 					}
 					pv = new Pview(parent, link, pNum, tNum);
 					if (isTop) {
@@ -15354,13 +15275,13 @@ true, true];
 				    parent = _pv2.parent;
 
 				if (parent.omitted) {
-					pv.deletePView();
+					pv.deletePview();
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 					var el = parent.ref.getElByNum(pv.num);
 					if (!el) {
-						pv.deletePView();
+						pv.deletePview();
 						return;
 					}
 					pv._link = el;
@@ -15478,7 +15399,7 @@ true, true];
 				post.el = aib.fixHTML(post.el);
 				delete post.msg;
 				if (post.ref.hasMap) {
-					post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+					post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 				}
 				post.itemInited = true;
 				return post;
@@ -15492,9 +15413,9 @@ true, true];
 
 
 
-	var ImagesNavigation = function () {
-		function ImagesNavigation(viewerObj) {
-			_classCallCheck(this, ImagesNavigation);
+	var ImagesNavigBtns = function () {
+		function ImagesNavigBtns(viewerObj) {
+			_classCallCheck(this, ImagesNavigBtns);
 
 			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>');
 
@@ -15515,7 +15436,7 @@ true, true];
 			btns.addEventListener('mouseover', this);
 		}
 
-		_createClass(ImagesNavigation, [{
+		_createClass(ImagesNavigBtns, [{
 			key: 'handleEvent',
 			value: function handleEvent(e) {
 				switch (e.type) {
@@ -15527,7 +15448,7 @@ true, true];
 							if (this._oldX !== curX || this._oldY !== curY) {
 								this._oldX = curX;
 								this._oldY = curY;
-								this.show();
+								this.showBtns();
 							}
 							return;
 						}
@@ -15577,8 +15498,8 @@ true, true];
 				clearTimeout(this._hideTmt);
 			}
 		}, {
-			key: 'show',
-			value: function show() {
+			key: 'showBtns',
+			value: function showBtns() {
 				if (this._hidden) {
 					this._btnsStyle.removeProperty('display');
 					this._hidden = false;
@@ -15597,14 +15518,14 @@ true, true];
 			}
 		}]);
 
-		return ImagesNavigation;
+		return ImagesNavigBtns;
 	}();
 
 
 
-	var AttachmentViewer = function () {
-		function AttachmentViewer(data) {
-			_classCallCheck(this, AttachmentViewer);
+	var ImagesViewer = function () {
+		function ImagesViewer(data) {
+			_classCallCheck(this, ImagesViewer);
 
 			this.data = null;
 			this.isAutoPlay = false;
@@ -15620,12 +15541,12 @@ true, true];
 			this._oldX = 0;
 			this._oldY = 0;
 			this._width = 0;
-			this._show(data);
+			this._showFullImg(data);
 		}
 
-		_createClass(AttachmentViewer, [{
-			key: 'close',
-			value: function close(e) {
+		_createClass(ImagesViewer, [{
+			key: 'closeImgViewer',
+			value: function closeImgViewer(e) {
 				if (this.hasOwnProperty('_btns')) {
 					this._btns.removeBtns();
 				}
@@ -15636,7 +15557,7 @@ true, true];
 			value: function handleEvent(e) {
 				switch (e.type) {
 					case 'mousedown':
-						if (this.data.isVideo && ExpandableMedia.isControlClick(e)) {
+						if (this.data.isVideo && ExpandableImage.isControlClick(e)) {
 							return;
 						}
 						this._oldX = e.clientX;
@@ -15667,15 +15588,15 @@ true, true];
 					case 'click':
 						{
 							var el = e.target;
-							if (this.data.isVideo && ExpandableMedia.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load') {
+							if (this.data.isVideo && ExpandableImage.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load') {
 								return;
 							}
 							if (e.button === 0) {
 								if (this._moved) {
 									this._moved = false;
 								} else {
-									this.close(e);
-									Attachment.viewer = null;
+									this.closeImgViewer(e);
+									AttachedImage.viewer = null;
 								}
 								e.stopPropagation();
 								break;
@@ -15698,10 +15619,10 @@ true, true];
 
 				data.cancelWebmLoad(this._fullEl);
 				do {
-					data = data.getFollow(isForward);
+					data = data.getFollowImg(isForward);
 				} while (data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 				if (data) {
-					this.update(data, true, null);
+					this.updateImgViewer(data, true, null);
 					data.post.selectAndScrollTo(data.post.images.first.el);
 				}
 			}
@@ -15718,10 +15639,10 @@ true, true];
 				}
 			}
 		}, {
-			key: 'update',
-			value: function update(data, showButtons, e) {
+			key: 'updateImgViewer',
+			value: function updateImgViewer(data, showButtons, e) {
 				this._removeFullImg(e);
-				this._show(data, showButtons);
+				this._showFullImg(data, showButtons);
 			}
 		}, {
 			key: '_handleWheelEvent',
@@ -15768,8 +15689,8 @@ true, true];
 				}
 			}
 		}, {
-			key: '_resize',
-			value: function _resize(el) {
+			key: '_resizeFullImg',
+			value: function _resizeFullImg(el) {
 				if (el !== this._fullEl) {
 					return;
 				}
@@ -15827,8 +15748,8 @@ true, true];
 				this._elStyle.top = (this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10)) + 'px';
 			}
 		}, {
-			key: '_show',
-			value: function _show(data) {
+			key: '_showFullImg',
+			value: function _showFullImg(data) {
 				var _this53 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
@@ -15837,8 +15758,8 @@ true, true];
 				    height = _data$computeFullSize4[1],
 				    minSize = _data$computeFullSize4[2];
 
-				this._fullEl = data.getFullObject(false, function (el) {
-					return _this53._resize(el);
+				this._fullEl = data.getFullImg(false, function (el) {
+					return _this53._resizeFullImg(el);
 				}, function (el) {
 					return _this53._rotate(el);
 				});
@@ -15847,34 +15768,35 @@ true, true];
 				this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 				this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 				this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-				var obj = $add('<div class="de-fullimg-center" style="top:' + (this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
-				(data.isImage ? $aBegin(obj, '<a class="de-fullimg-wrap-link" href="' + data.src + '"></a>') : obj).appendChild(this._fullEl);
-				this._elStyle = obj.style;
+				var el = $add('<div class="de-fullimg-center" style="top:' + (this._oldT - (Cfg.imgInfoLink ? 11 : 0)) + 'px; left:' + this._oldL + 'px; width:' + width + 'px; height:' + height + 'px; display: block"></div>');
+				(data.isImage ? $aBegin(el, '<a class="de-fullimg-wrap-link" href="' + data.src + '"></a>') : el).appendChild(this._fullEl);
+				this._elStyle = el.style;
 				this.data = data;
-				this._obj = obj;
-				obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-				obj.addEventListener('mousedown', this, true);
-				obj.addEventListener('click', this, true);
+				this._obj = el;
+				el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
+				el.addEventListener('mousedown', this, true);
+				el.addEventListener('click', this, true);
 				if (data.inPview && !data.post.isSticky) {
 					this.data.post.setSticky(true);
 				}
+				var btns = this._btns;
 				if (!data.inPview) {
-					this._btns.show();
+					btns.showBtns();
 					if (data.isVideo) {
-						this._btns.autoBtn.classList.remove('de-img-btn-none');
+						btns.autoBtn.classList.remove('de-img-btn-none');
 					} else {
-						this._btns.autoBtn.classList.add('de-img-btn-none');
+						btns.autoBtn.classList.add('de-img-btn-none');
 					}
 				} else if (this.hasOwnProperty('_btns')) {
-					this._btns.hideBtns();
+					btns.hideBtns();
 				}
-				data.post.thr.form.el.appendChild(obj);
+				data.post.thr.form.el.appendChild(el);
 				this.toggleVideoLoop();
 			}
 		}, {
 			key: '_btns',
 			get: function get() {
-				var value = new ImagesNavigation(this);
+				var value = new ImagesNavigBtns(this);
 				Object.defineProperty(this, '_btns', { value: value });
 				return value;
 			}
@@ -15887,14 +15809,14 @@ true, true];
 			}
 		}]);
 
-		return AttachmentViewer;
+		return ImagesViewer;
 	}();
 
 
 
-	var ExpandableMedia = function () {
-		function ExpandableMedia(post, el, prev) {
-			_classCallCheck(this, ExpandableMedia);
+	var ExpandableImage = function () {
+		function ExpandableImage(post, el, prev) {
+			_classCallCheck(this, ExpandableImage);
 
 			this.el = el;
 			this.expanded = false;
@@ -15908,7 +15830,7 @@ true, true];
 			}
 		}
 
-		_createClass(ExpandableMedia, [{
+		_createClass(ExpandableImage, [{
 			key: 'cancelWebmLoad',
 			value: function cancelWebmLoad(fullEl) {
 				if (this.isVideo) {
@@ -15918,14 +15840,14 @@ true, true];
 					videoEl.load();
 				}
 				if (this._webmTitleLoad) {
-					this._webmTitleLoad.cancel();
+					this._webmTitleLoad.cancelPromise();
 					this._webmTitleLoad = null;
 				}
 			}
 		}, {
-			key: 'collapse',
-			value: function collapse(e) {
-				if (e && this.isVideo && ExpandableMedia.isControlClick(e)) {
+			key: 'collapseImg',
+			value: function collapseImg(e) {
+				if (e && this.isVideo && ExpandableImage.isControlClick(e)) {
 					return;
 				}
 				this.cancelWebmLoad(this._fullEl);
@@ -15987,40 +15909,42 @@ true, true];
 				return [width, height, null];
 			}
 		}, {
-			key: 'expand',
-			value: function expand(inPost, e) {
+			key: 'expandImg',
+			value: function expandImg(inPost, e) {
 				var _this54 = this;
 
 				if (e && !e.bubbles) {
 					return;
 				}
 				if (!inPost) {
-					if (Attachment.viewer) {
-						if (Attachment.viewer.data === this) {
-							Attachment.viewer.close(e);
-							Attachment.viewer = null;
-							return;
-						}
-						Attachment.viewer.update(this, e);
-					} else {
-						Attachment.viewer = new AttachmentViewer(this);
+					var viewer = AttachedImage.viewer;
+
+					if (!viewer) {
+						AttachedImage.viewer = new ImagesViewer(this);
+						return;
 					}
+					if (viewer.data === this) {
+						viewer.closeImgViewer(e);
+						AttachedImage.viewer = null;
+						return;
+					}
+					viewer.updateImgViewer(this, e);
 					return;
 				}
 				this.expanded = true;
 				var el = this.el;
 
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
-				this._fullEl = this.getFullObject(true, null, null);
+				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this54.collapse(e);
+					return _this54.collapseImg(e);
 				}, true);
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 			}
 		}, {
-			key: 'getFollow',
-			value: function getFollow(isForward) {
+			key: 'getFollowImg',
+			value: function getFollowImg(isForward) {
 				var nImage = isForward ? this.next : this.prev;
 				if (nImage) {
 					return nImage;
@@ -16043,8 +15967,8 @@ true, true];
 				return isForward ? imgs.first : imgs.last;
 			}
 		}, {
-			key: 'getFullObject',
-			value: function getFullObject(inPost, onsizechange, onrotate) {
+			key: 'getFullImg',
+			value: function getFullImg(inPost, onsizechange, onrotate) {
 				var _this55 = this;
 
 				var wrapEl = void 0,
@@ -16116,7 +16040,7 @@ true, true];
 				var videoEl = wrapEl.firstElementChild;
 				videoEl.volume = Cfg.webmVolume / 100;
 				videoEl.addEventListener('ended', function () {
-					return Attachment.viewer.navigate(true, true);
+					return AttachedImage.viewer.navigate(true, true);
 				});
 				videoEl.addEventListener('error', function (_ref79) {
 					var target = _ref79.target;
@@ -16253,13 +16177,13 @@ true, true];
 			}
 		}]);
 
-		return ExpandableMedia;
+		return ExpandableImage;
 	}();
 
 
 
-	var EmbeddedImage = function (_ExpandableMedia) {
-		_inherits(EmbeddedImage, _ExpandableMedia);
+	var EmbeddedImage = function (_ExpandableImage) {
+		_inherits(EmbeddedImage, _ExpandableImage);
 
 		function EmbeddedImage() {
 			_classCallCheck(this, EmbeddedImage);
@@ -16285,20 +16209,20 @@ true, true];
 		}]);
 
 		return EmbeddedImage;
-	}(ExpandableMedia);
+	}(ExpandableImage);
 
 
 
-	var Attachment = function (_ExpandableMedia2) {
-		_inherits(Attachment, _ExpandableMedia2);
+	var AttachedImage = function (_ExpandableImage2) {
+		_inherits(AttachedImage, _ExpandableImage2);
 
-		function Attachment() {
-			_classCallCheck(this, Attachment);
+		function AttachedImage() {
+			_classCallCheck(this, AttachedImage);
 
-			return _possibleConstructorReturn(this, (Attachment.__proto__ || Object.getPrototypeOf(Attachment)).apply(this, arguments));
+			return _possibleConstructorReturn(this, (AttachedImage.__proto__ || Object.getPrototypeOf(AttachedImage)).apply(this, arguments));
 		}
 
-		_createClass(Attachment, [{
+		_createClass(AttachedImage, [{
 			key: '_getImageParent',
 			value: function _getImageParent() {
 				return aib.getImgWrap(this.el);
@@ -16344,19 +16268,97 @@ true, true];
 				return value;
 			}
 		}], [{
-			key: 'close',
-			value: function close() {
-				if (Attachment.viewer) {
-					Attachment.viewer.close(null);
-					Attachment.viewer = null;
+			key: 'closeImg',
+			value: function closeImg() {
+				var viewer = AttachedImage.viewer;
+
+				if (viewer) {
+					viewer.closeImgViewer(null);
+					AttachedImage.viewer = null;
 				}
 			}
 		}]);
 
-		return Attachment;
-	}(ExpandableMedia);
+		return AttachedImage;
+	}(ExpandableImage);
 
-	Attachment.viewer = null;
+	AttachedImage.viewer = null;
+
+
+	var PostImages = function () {
+		function PostImages(post) {
+			_classCallCheck(this, PostImages);
+
+			var first = null,
+			    last = null,
+			    els = $Q(aib.qPostImg, post.el);
+			var hasAttachments = false;
+			var filesMap = new Map();
+			for (var i = 0, len = els.length; i < len; ++i) {
+				var el = els[i];
+				last = new AttachedImage(post, el, last);
+				filesMap.set(el, last);
+				hasAttachments = true;
+				if (!first) {
+					first = last;
+				}
+			}
+			if (Cfg.addImgs || localData) {
+				els = $Q('.de-img-embed', post.el);
+				for (var _i36 = 0, _len8 = els.length; _i36 < _len8; ++_i36) {
+					var _el9 = els[_i36];
+					last = new EmbeddedImage(post, _el9, last);
+					filesMap.set(_el9, last);
+					if (!first) {
+						first = last;
+					}
+				}
+			}
+			this.first = first;
+			this.last = last;
+			this.hasAttachments = hasAttachments;
+			this._map = filesMap;
+		}
+
+		_createClass(PostImages, [{
+			key: 'getImageByEl',
+			value: function getImageByEl(el) {
+				return this._map.get(el);
+			}
+		}, {
+			key: Symbol.iterator,
+			value: function value() {
+				return {
+					_img: this.first,
+					next: function next() {
+						var value = this._img;
+						if (value) {
+							this._img = value.next;
+							return { value: value, done: false };
+						}
+						return { done: true };
+					}
+				};
+			}
+		}, {
+			key: 'expanded',
+			get: function get() {
+				for (var img = this.first; img; img = img.next) {
+					if (img.expanded) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}, {
+			key: 'firstAttach',
+			get: function get() {
+				return this.hasAttachments ? this.first : null;
+			}
+		}]);
+
+		return PostImages;
+	}();
 
 	var ImagesHashStorage = Object.create({
 		get getHash() {
@@ -16475,7 +16477,7 @@ true, true];
 
 								_context17.next = 25;
 								return new Promise(function (resolve) {
-									return _this58._workers.run([buffer, w, h], [buffer], function (val) {
+									return _this58._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
@@ -17213,8 +17215,8 @@ true, true];
 		}
 
 		_createClass(RefMap, [{
-			key: 'add',
-			value: function add(post, num) {
+			key: 'addRefNum',
+			value: function addRefNum(post, num) {
 				var isHidden = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 				if (isHidden === null) {
@@ -17276,8 +17278,8 @@ true, true];
 				}
 			}
 		}, {
-			key: 'init',
-			value: function init(tUrl, strNums) {
+			key: 'initPostRef',
+			value: function initPostRef(tUrl, strNums) {
 				var html = '';
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i43 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
 					var _ref92;
@@ -17441,7 +17443,7 @@ true, true];
 						    ref = _posts$get.ref;
 
 						if (ref._inited) {
-							ref.add(post, pNum);
+							ref.addRefNum(post, pNum);
 						} else {
 							ref._set.add(pNum);
 							ref.hasMap = true;
@@ -17459,22 +17461,22 @@ true, true];
 				}
 			}
 		}, {
-			key: 'init',
-			value: function init(form) {
+			key: 'initRefMap',
+			value: function initRefMap(form) {
 				var post = form.firstThr && form.firstThr.op;
 				if (post && Cfg.linksNavig) {
 					this.gen(pByNum, '');
 					var strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 					for (; post; post = post.next) {
 						if (post.ref.hasMap) {
-							post.ref.init('', strNums);
+							post.ref.initPostRef('', strNums);
 						}
 					}
 				}
 			}
 		}, {
-			key: 'upd',
-			value: function upd(post, isAdd) {
+			key: 'updateRefMap',
+			value: function updateRefMap(post, isAdd) {
 				var pNum = post.num;
 				var strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 				var links = $Q('a', post.msg);
@@ -17506,7 +17508,7 @@ true, true];
 					if (!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 						link.classList.add('de-ref-op');
 					}
-					lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
+					lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 				}
 			}
 		}]);
@@ -17746,7 +17748,7 @@ true, true];
 					var _posts = $Q(aib.qRPost, fragm);
 					for (var _i47 = 0, _len9 = _posts.length; _i47 < _len9; ++_i47) {
 						last = this._addPost(fragm, _posts[_i47], begin + _i47 + 1, last, maybeVParser);
-						newVisCount -= maybeSpells.value.run(last);
+						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
 				} else {
@@ -17754,7 +17756,7 @@ true, true];
 					for (; begin < end; ++begin) {
 						last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 						nums.push(last.num);
-						newVisCount -= maybeSpells.value.run(last);
+						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
 				}
@@ -17830,7 +17832,9 @@ true, true];
 					    _last = _importPosts3[3],
 					    nums = _importPosts3[4];
 
-					maybeVParser.end();
+					if (maybeVParser.hasValue) {
+						maybeVParser.value.endParser();
+					}
 					$after(op.wrap, fragm);
 					DollchanAPI.notify('newpost', nums);
 					_last.next = post;
@@ -17850,11 +17854,13 @@ true, true];
 						post.omitted = false;
 					}
 					if (needRMUpdate) {
-						RefMap.upd(post, true);
+						RefMap.updateRefMap(post, true);
 					}
 					post = post.next;
 				}
-				maybeSpells.end();
+				if (maybeSpells.hasValue) {
+					maybeSpells.value.endSpells();
+				}
 				thrEl.style.counterReset = 'de-cnt ' + (needToOmit - needToHide + 1);
 				var btn = this.btns;
 				if (btn !== thrEl.lastChild) {
@@ -17867,10 +17873,10 @@ true, true];
 					};
 				}
 				if (needToShow > visPosts) {
-					navPanel.addThr(this);
+					thrNavPanel.addThr(this);
 					btn.lastChild.style.display = 'initial';
 				} else {
-					navPanel.removeThr(this);
+					thrNavPanel.removeThr(this);
 					$hide(btn.lastChild);
 				}
 				if (needToOmit > 0) {
@@ -17973,12 +17979,12 @@ true, true];
 					}
 					if (firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 						for (post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-							maybeSpells.value.run(post);
+							maybeSpells.value.runSpells(post);
 						}
 					}
 					if (newPosts !== 0) {
 						for (post = firstChangedPost; post; post = post.nextInThread) {
-							RefMap.upd(post, true);
+							RefMap.updateRefMap(post, true);
 						}
 					}
 				}
@@ -18010,8 +18016,12 @@ true, true];
 					f.last = aib.anchor + _this64.last.num;
 					setStored('DESU_Favorites', JSON.stringify(data));
 				});
-				maybeVParser.end();
-				maybeSpells.end();
+				if (maybeVParser.hasValue) {
+					maybeVParser.value.endParser();
+				}
+				if (maybeSpells.hasValue) {
+					maybeSpells.value.endSpells();
+				}
 				return [newPosts, newVisPosts];
 			}
 		}, {
@@ -18101,7 +18111,7 @@ true, true];
 		return Thread;
 	}();
 
-	var navPanel = {
+	var thrNavPanel = {
 		addThr: function addThr(thr) {
 			this._thrs.add(thr.el);
 			if (this._thrs.size === 1) {
@@ -18127,7 +18137,7 @@ true, true];
 					this._handleClick(e);break;
 			}
 		},
-		init: function init() {
+		initThrNav: function initThrNav() {
 			var el = $bEnd(docBody, '\n\t\t<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">\n\t\t\t<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>\n\t\t\t<div id="de-thr-navup">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-up"/></svg>\n\t\t\t</div>\n\t\t\t<div id="de-thr-navdown">\n\t\t\t\t<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>\n\t\t\t</div>\n\t\t</div>');
 			el.addEventListener('mouseover', this, true);
 			el.addEventListener('mouseout', this, true);
@@ -18148,26 +18158,26 @@ true, true];
 
 		_currentThr: null,
 		_el: null,
-		_showhideTO: 0,
+		_toggleTO: 0,
 		_thrs: null,
 		_visible: false,
 		_checkThreads: function _checkThreads() {
 			var el = this._findCurrentThread();
 			if (el) {
 				if (!this._visible) {
-					this._showHide(true);
+					this._toggleNavPanel(false);
 				}
 				this._currentThr = el;
 			} else if (this._visible) {
-				this._showHide(false);
+				this._toggleNavPanel(true);
 			}
 		},
-		_expandCollapse: function _expandCollapse(expand, rt) {
+		_expandCollapse: function _expandCollapse(isExpand, rt) {
 			var _this66 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-				clearTimeout(this._showhideTO);
-				this._showhideTO = setTimeout(expand ? function () {
+				clearTimeout(this._toggleTO);
+				this._toggleTO = setTimeout(isExpand ? function () {
 					return _this66._el.classList.remove('de-thr-navpanel-hidden');
 				} : function () {
 					return _this66._el.classList.add('de-thr-navpanel-hidden');
@@ -18215,9 +18225,9 @@ true, true];
 					break;
 			}
 		},
-		_showHide: function _showHide(show) {
-			this._el.style.display = show ? 'initial' : 'none';
-			this._visible = show;
+		_toggleNavPanel: function _toggleNavPanel(isHide) {
+			this._el.style.display = isHide ? 'none' : 'initial';
+			this._visible = isHide;
 		}
 	};
 
@@ -18236,18 +18246,18 @@ true, true];
 		var audio = {
 			enabled: false,
 			repeatMS: 0,
-			disable: function disable() {
-				this.stop();
+			disableAudio: function disableAudio() {
+				this.stopAudio();
 				this.enabled = false;
 				var btn = $id('de-panel-audio-on');
 				if (btn) {
 					btn.id = 'de-panel-audio-off';
 				}
 			},
-			play: function play() {
+			playAudio: function playAudio() {
 				var _this68 = this;
 
-				this.stop();
+				this.stopAudio();
 				if (this.repeatMS === 0) {
 					this._el.play();
 					return;
@@ -18256,7 +18266,7 @@ true, true];
 					return _this68._el.play();
 				}, this.repeatMS);
 			},
-			stop: function stop() {
+			stopAudio: function stopAudio() {
 				if (this._playInterval) {
 					clearInterval(this._playInterval);
 					this._playInterval = null;
@@ -18289,24 +18299,24 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this69._stop();
+						_this69._stopCounter();
 						callback();
 					} else {
 						_this69._set(seconds);
 					}
 				}, 1e3);
 			},
-			disable: function disable() {
+			disableCounter: function disableCounter() {
 				this._enabled = false;
-				this._stop();
+				this._stopCounter();
 				$hide(this._el);
 			},
-			enable: function enable() {
+			enableCounter: function enableCounter() {
 				this._enabled = true;
 				$show(this._el);
 			},
 			setWait: function setWait() {
-				this._stop();
+				this._stopCounter();
 				if (this._enabled) {
 					this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 				}
@@ -18324,7 +18334,7 @@ true, true];
 			_set: function _set(seconds) {
 				this._el.innerHTML = seconds;
 			},
-			_stop: function _stop() {
+			_stopCounter: function _stopCounter() {
 				if (this._countingIV) {
 					clearInterval(this._countingIV);
 					this._countingIV = null;
@@ -18469,13 +18479,13 @@ true, true];
 					}
 				}
 			},
-			close: function close() {
+			closeNotif: function closeNotif() {
 				if (this._notifEl) {
 					this._notifEl.close();
 					this._notifEl = null;
 				}
 			},
-			show: function show() {
+			showNotif: function showNotif() {
 				var _this72 = this;
 
 				var new10 = newPosts % 10;
@@ -18488,7 +18498,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this72._notifEl && _this72.close();
+						return notif === _this72._notifEl && _this72.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -18525,7 +18535,7 @@ true, true];
 				var loadOnce = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 				if (this._state !== -1) {
-					this.stop(false);
+					this.stopUpdater(false);
 				}
 				this._state = 0;
 				this._loadOnce = loadOnce;
@@ -18535,13 +18545,13 @@ true, true];
 				}
 				this._makeStep(needSleep);
 			},
-			stop: function stop() {
+			stopUpdater: function stopUpdater() {
 				var updateStatus = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
 				if (this._state !== -1) {
 					this._state = -1;
 					if (this._loadPromise) {
-						this._loadPromise.cancel();
+						this._loadPromise.cancelPromise();
 						this._loadPromise = null;
 					}
 					counter.setWait();
@@ -18578,7 +18588,7 @@ true, true];
 					if (eCode === -1 || eCode === 404 && lastECode === 404) {
 						Thread.removeSavedData(aib.b, aib.t);
 						updateTitle(eCode);
-						disableUpdater();
+						_disableUpdater();
 					} else {
 						this._setUpdateStatus('warn');
 						if (!Cfg.noErrInTitle) {
@@ -18605,10 +18615,10 @@ true, true];
 							favicon.startBlink(false);
 						}
 						if (notification.canShow) {
-							notification.show();
+							notification.showNotif();
 						}
 						if (audio.enabled) {
-							audio.play();
+							audio.playAudio();
 						}
 						sesStorage[storageName] = Thread.first.pcount;
 						this._delay = this._initDelay;
@@ -18669,23 +18679,23 @@ true, true];
 			}
 		};
 
-		function enableUpdater() {
+		function _enableUpdater() {
 			enabled = true;
 			disabledByUser = paused = hasYouRefs = false;
 			newPosts = 0;
 			focusLoadTime = -1e4;
 			notification.checkPermission();
 			if (Cfg.updCount) {
-				counter.enable();
+				counter.enableCounter();
 			}
 			favicon.initIcons();
 		}
 
-		function disableUpdater() {
+		function _disableUpdater() {
 			if (enabled) {
-				audio.disable();
-				counter.disable();
-				updMachine.stop();
+				audio.disableAudio();
+				counter.disableCounter();
+				updMachine.stopUpdater();
 				enabled = false;
 			}
 		}
@@ -18695,7 +18705,7 @@ true, true];
 				return;
 			}
 			if (!enabled && !disabledByUser) {
-				enableUpdater();
+				_enableUpdater();
 			}
 			updMachine.start(false, !enabled);
 		}
@@ -18711,8 +18721,8 @@ true, true];
 			if (!doc.hidden) {
 				var focusTime = e.timeStamp;
 				favicon.stopBlink();
-				audio.stop();
-				notification.close();
+				audio.stopAudio();
+				notification.closeNotif();
 				newPosts = 0;
 				hasYouRefs = false;
 				sendError = false;
@@ -18728,12 +18738,12 @@ true, true];
 			}
 		});
 		if (enableUpdate) {
-			enableUpdater();
+			_enableUpdater();
 			updMachine.start(true);
 		}
 
 		return {
-			continue: function _continue() {
+			continueUpdater: function continueUpdater() {
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
 				if (enabled && paused) {
@@ -18741,13 +18751,13 @@ true, true];
 					paused = false;
 				}
 			},
-			disable: function disable() {
+			disableUpdater: function disableUpdater() {
 				disabledByUser = true;
-				disableUpdater();
+				_disableUpdater();
 			},
-			enable: function enable() {
+			enableUpdater: function enableUpdater() {
 				if (!enabled) {
-					enableUpdater();
+					_enableUpdater();
 					updMachine.start();
 				}
 			},
@@ -18762,9 +18772,9 @@ true, true];
 				$popup('newposts', Lng.loading[lang], true);
 				forceLoadPosts();
 			},
-			pause: function pause() {
+			pauseUpdater: function pauseUpdater() {
 				if (enabled && !paused) {
-					updMachine.stop();
+					updMachine.stopUpdater();
 					paused = true;
 				}
 			},
@@ -18775,14 +18785,14 @@ true, true];
 			},
 			toggle: function toggle() {
 				if (enabled) {
-					this.disable();
+					this.disableUpdater();
 				} else {
-					this.enable();
+					this.enableUpdater();
 				}
 			},
 			toggleAudio: function toggleAudio(repeatMS) {
 				if (audio.enabled) {
-					audio.stop();
+					audio.stopAudio();
 					return audio.enabled = false;
 				}
 				audio.repeatMS = repeatMS;
@@ -18790,10 +18800,10 @@ true, true];
 			},
 			toggleCounter: function toggleCounter(enableCnt) {
 				if (enableCnt) {
-					counter.enable();
+					counter.enableCounter();
 					counter.setWait();
 				} else {
-					counter.disable();
+					counter.disableCounter();
 				}
 				forceLoadPosts();
 			},
@@ -18882,12 +18892,12 @@ true, true];
 				embedAudioLinks(el);
 				Logger.log('Audio links');
 				if (Cfg.addYouTube) {
-					new VideosParser().parse(el).end();
+					new VideosParser().parse(el).endParser();
 					Logger.log('Video links');
 				}
 				processImgInfoLinks(el);
 				Logger.log('Image names');
-				RefMap.init(this);
+				RefMap.initRefMap(this);
 				Logger.log('Reflinks map');
 			}
 		}, {
@@ -19474,8 +19484,8 @@ true, true];
 				}
 			}
 		}, {
-			key: 'updSubmitButton',
-			value: function updSubmitButton(el) {
+			key: 'updateSubmitBtn',
+			value: function updateSubmitBtn(el) {
 				el.value = Lng.reply[lang];
 			}
 		}, {
@@ -19535,7 +19545,7 @@ true, true];
 				return '';
 			}
 		}, {
-			key: 'delTruncMsg',
+			key: 'deleteTruncMsg',
 			get: function get() {
 				return null;
 			}
@@ -19665,8 +19675,8 @@ true, true];
 			}
 
 			_createClass(Makaba, [{
-				key: 'delTruncMsg',
-				value: function delTruncMsg(post, el) {
+				key: 'deleteTruncMsg',
+				value: function deleteTruncMsg(post, el) {
 					$del(el.previousSibling);
 					$show(el.previousSibling);
 					$del(el);
@@ -20032,8 +20042,8 @@ true, true];
 					return status === 200 || status === 400;
 				}
 			}, {
-				key: 'updSubmitButton',
-				value: function updSubmitButton() {}
+				key: 'updateSubmitBtn',
+				value: function updateSubmitBtn() {}
 			}, {
 				key: 'qImgNameLink',
 				get: function get() {
@@ -20495,8 +20505,8 @@ true, true];
 					return null;
 				}
 			}, {
-				key: 'updSubmitButton',
-				value: function updSubmitButton(el) {
+				key: 'updateSubmitBtn',
+				value: function updateSubmitBtn(el) {
 					el.textContent = Lng.reply[lang];
 				}
 			}, {
@@ -20604,7 +20614,7 @@ true, true];
 								return;
 							}
 							if (updater) {
-								updater.disable();
+								updater.disableUpdater();
 							}
 							DelForm.tNums = new Set();
 							$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'), $del);
@@ -21509,15 +21519,15 @@ true, true];
 			}
 
 			_createClass(Dobrochan, [{
-				key: 'delTruncMsg',
-				value: function delTruncMsg(post, el, isInit) {
+				key: 'deleteTruncMsg',
+				value: function deleteTruncMsg(post, el, isInit) {
 					[el.previousSibling, el.nextSibling, el].forEach($del);
 					if (isInit) {
 						$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 					} else {
 						var sRunner = new SpellsRunner();
 						post.updateMsg($q('.alternate > div', post.el), sRunner);
-						sRunner.end();
+						sRunner.endSpells();
 					}
 				}
 			}, {
@@ -22321,7 +22331,7 @@ true, true];
 
 
 	var DollchanAPI = {
-		init: function init() {
+		initAPI: function initAPI() {
 			var _this112 = this;
 
 			this.hasListeners = false;
@@ -22446,7 +22456,7 @@ true, true];
 				Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">\n\t\t\t\t<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>\n\t\t\t\t<span id="de-updater-count" style="display: none;"></span>]</span>\n\t\t\t\t' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '\n\t\t\t</div>');
 			}
 		} else {
-			navPanel.init();
+			thrNavPanel.initThrNav();
 		}
 		if (!localData) {
 			updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);

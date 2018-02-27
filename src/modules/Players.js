@@ -106,7 +106,7 @@ class Videos {
 			updateVideoList($id('de-video-list'), link, this.post.num);
 		}
 		if(loader && !dataObj) {
-			loader.run([link, isYtube, this, m[1]]);
+			loader.runTask([link, isYtube, this, m[1]]);
 		}
 	}
 	clickLink(el, mode) {
@@ -162,7 +162,7 @@ class Videos {
 		}
 		this.currentLink = this.currentLink || newLinks[0];
 		if(loader) {
-			loader.complete();
+			loader.completeTasks();
 		}
 	}
 
@@ -290,9 +290,9 @@ class VideosParser {
 	constructor() {
 		this._loader = Videos._getTitlesLoader();
 	}
-	end() {
+	endParser() {
 		if(this._loader) {
-			this._loader.complete();
+			this._loader.completeTasks();
 		}
 	}
 	parse(data) {

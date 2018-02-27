@@ -109,7 +109,7 @@ function preloadImages(data) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		let cImg = 1;
 		const mReqs = isPost ? 1 : 4;
-		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+		const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
 			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
@@ -127,8 +127,8 @@ function preloadImages(data) {
 				if(isRepToOrig) {
 					el.src = imgLink.href;
 				}
-				if(rjf) {
-					rjf.run(imageData.buffer, [imageData.buffer],
+				if(rarJpgFinder) {
+					rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
 						info => addImgFileIcon(nameLink, fName, info));
 				}
 			}
@@ -142,8 +142,8 @@ function preloadImages(data) {
 				Images_.afterpreload();
 				Images_.afterpreload = Images_.progressId = null;
 			}
-			if(rjf) {
-				rjf.clearWorkers();
+			if(rarJpgFinder) {
+				rarJpgFinder.clearWorkers();
 			}
 		});
 		Images_.preloading = true;
@@ -169,13 +169,13 @@ function preloadImages(data) {
 			isRepToOrig &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, imgLink, iType, isRepToOrig, el, isVideo]);
+			pool.runTask([url, imgLink, iType, isRepToOrig, el, isVideo]);
 		} else if(isRepToOrig) {
 			el.src = url;
 		}
 	}
 	if(pool) {
-		pool.complete();
+		pool.completeTasks();
 	}
 }
 
@@ -261,7 +261,7 @@ function loadDocFiles(imgOnly) {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
 			const url = imgLink.href;
-			Images_.pool.run([url, imgLink.getAttribute('download') ||
+			Images_.pool.runTask([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
 	});
@@ -310,7 +310,7 @@ function loadDocFiles(imgOnly) {
 				fName = temp;
 			}
 			files.push(fName);
-			Images_.pool.run([url, fName, el, null]);
+			Images_.pool.runTask([url, fName, el, null]);
 			count++;
 		});
 	}
@@ -319,6 +319,6 @@ function loadDocFiles(imgOnly) {
 			count }`, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
-	Images_.pool.complete();
+	Images_.pool.completeTasks();
 	els = null;
 }

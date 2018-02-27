@@ -75,7 +75,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		delTruncMsg(post, el) {
+		deleteTruncMsg(post, el) {
 			$del(el.previousSibling);
 			$show(el.previousSibling);
 			$del(el);
@@ -360,7 +360,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 400;
 		}
-		updSubmitButton() {}
+		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
@@ -636,7 +636,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('reloadCaptcha();');
 			return null;
 		}
-		updSubmitButton(el) {
+		updateSubmitBtn(el) {
 			el.textContent = Lng.reply[lang];
 		}
 	}
@@ -710,7 +710,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						return;
 					}
 					if(updater) {
-						updater.disable();
+						updater.disableUpdater();
 					}
 					DelForm.tNums = new Set();
 					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
@@ -1345,14 +1345,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete { background: none; }
 				.delete_checkbox { position: static !important; }`;
 		}
-		delTruncMsg(post, el, isInit) {
+		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
 				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 			} else {
 				const sRunner = new SpellsRunner();
 				post.updateMsg($q('.alternate > div', post.el), sRunner);
-				sRunner.end();
+				sRunner.endSpells();
 			}
 		}
 		disableRedirection(el) {

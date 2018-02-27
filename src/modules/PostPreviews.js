@@ -51,7 +51,7 @@ class Pview extends AbstractPost {
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
-	static show(parent, link) {
+	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 		const isTop = !(parent instanceof Pview);
@@ -59,7 +59,7 @@ class Pview extends AbstractPost {
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
-				pv.kid.deletePView();
+				pv.kid.deletePview();
 			}
 			if(pv._link !== link) {
 				// If cursor hovers new link with the same number - move old preview here
@@ -76,7 +76,7 @@ class Pview extends AbstractPost {
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			// Show new preview under new link
 			if(pv) {
-				pv.deletePView();
+				pv.deletePview();
 			}
 			pv = new Pview(parent, link, pNum, tNum);
 			if(isTop) {
@@ -94,13 +94,13 @@ class Pview extends AbstractPost {
 		}
 		const { parent } = pv;
 		if(parent.omitted) {
-			pv.deletePView();
+			pv.deletePview();
 			return;
 		}
 		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 			const el = parent.ref.getElByNum(pv.num);
 			if(!el) {
-				pv.deletePView();
+				pv.deletePview();
 				return;
 			}
 			pv._link = el;
@@ -124,22 +124,22 @@ class Pview extends AbstractPost {
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
-	deletePView() {
+	deletePview() {
 		this.parent.kid = null;
 		this._link.classList.remove('de-link-parent');
 		if(Pview.top === this) {
 			Pview.top = null;
 		}
 		if(this._loadPromise) {
-			this._loadPromise.cancel();
+			this._loadPromise.cancelPromise();
 			this._loadPromise = null;
 		}
-		let vPost = Attachment.viewer && Attachment.viewer.data.post;
+		let vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
 		let pv = this;
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
-				Attachment.close();
+				AttachedImage.closeImg();
 				vPost = null;
 			}
 			const { el } = pv;
@@ -161,9 +161,9 @@ class Pview extends AbstractPost {
 			}
 		} while((pv = pv.kid));
 		if(!lastSticky) {
-			this.deletePView();
+			this.deletePview();
 		} else if(lastSticky.kid) {
-			lastSticky.kid.deletePView();
+			lastSticky.kid.deletePview();
 		}
 	}
 	handleEvent(e) {
@@ -324,7 +324,7 @@ class Pview extends AbstractPost {
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
 			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).end();
+				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pviewEl);
 			processImgInfoLinks(pviewEl);
@@ -451,7 +451,8 @@ class PviewsCache extends TemporaryContent {
 		post.el = aib.fixHTML(post.el);
 		delete post.msg;
 		if(post.ref.hasMap) {
-			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl,
+				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
 		post.itemInited = true;
 		return post;

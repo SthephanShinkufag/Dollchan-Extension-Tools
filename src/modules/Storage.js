@@ -245,7 +245,7 @@ function readPostsData(firstPost, fav) {
 			continue;
 		}
 		if(!hideData) {
-			maybeSpells.value.run(post); // Apply spells if posts not hidden
+			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
 			if(post.hidden) {
 				post.spellHidden = true;
@@ -254,7 +254,9 @@ function readPostsData(firstPost, fav) {
 			}
 		}
 	}
-	maybeSpells.end();
+	if(maybeSpells.hasValue) {
+		maybeSpells.value.endSpells();
+	}
 	if(Cfg.panelCounter === 2) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
@@ -447,7 +449,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		this._cachedData = null;
 		this._readStorage();
 	}
-	read() {
+	readStorage() {
 		this._readStorage();
 	}
 	set(num, thrNum) {
@@ -530,7 +532,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disable();
+				Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';

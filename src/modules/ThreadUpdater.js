@@ -15,23 +15,23 @@ function initThreadUpdater(title, enableUpdate) {
 	const audio = {
 		enabled  : false,
 		repeatMS : 0,
-		disable() {
-			this.stop();
+		disableAudio() {
+			this.stopAudio();
 			this.enabled = false;
 			const btn = $id('de-panel-audio-on');
 			if(btn) {
 				btn.id = 'de-panel-audio-off';
 			}
 		},
-		play() {
-			this.stop();
+		playAudio() {
+			this.stopAudio();
 			if(this.repeatMS === 0) {
 				this._el.play();
 				return;
 			}
 			this._playInterval = setInterval(() => this._el.play(), this.repeatMS);
 		},
-		stop() {
+		stopAudio() {
 			if(this._playInterval) {
 				clearInterval(this._playInterval);
 				this._playInterval = null;
@@ -61,24 +61,24 @@ function initThreadUpdater(title, enableUpdate) {
 			this._countingIV = setInterval(() => {
 				seconds--;
 				if(seconds === 0) {
-					this._stop();
+					this._stopCounter();
 					callback();
 				} else {
 					this._set(seconds);
 				}
 			}, 1e3);
 		},
-		disable() {
+		disableCounter() {
 			this._enabled = false;
-			this._stop();
+			this._stopCounter();
 			$hide(this._el);
 		},
-		enable() {
+		enableCounter() {
 			this._enabled = true;
 			$show(this._el);
 		},
 		setWait() {
-			this._stop();
+			this._stopCounter();
 			if(this._enabled) {
 				this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 			}
@@ -95,7 +95,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_set(seconds) {
 			this._el.innerHTML = seconds;
 		},
-		_stop() {
+		_stopCounter() {
 			if(this._countingIV) {
 				clearInterval(this._countingIV);
 				this._countingIV = null;
@@ -236,13 +236,13 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 		},
-		close() {
+		closeNotif() {
 			if(this._notifEl) {
 				this._notifEl.close();
 				this._notifEl = null;
 			}
 		},
-		show() {
+		showNotif() {
 			const new10 = newPosts % 10;
 			const quantity = lang !== 0 ? +(newPosts !== 1) :
 				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -255,7 +255,7 @@ function initThreadUpdater(title, enableUpdate) {
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
-			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.close(), 12e3);
+			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => window.focus();
 			notif.onerror = () => {
 				window.focus();
@@ -282,7 +282,7 @@ function initThreadUpdater(title, enableUpdate) {
 	const updMachine = {
 		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
-				this.stop(false);
+				this.stopUpdater(false);
 			}
 			this._state = 0;
 			this._loadOnce = loadOnce;
@@ -292,11 +292,11 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			this._makeStep(needSleep);
 		},
-		stop(updateStatus = true) {
+		stopUpdater(updateStatus = true) {
 			if(this._state !== -1) {
 				this._state = -1;
 				if(this._loadPromise) {
-					this._loadPromise.cancel();
+					this._loadPromise.cancelPromise();
 					this._loadPromise = null;
 				}
 				counter.setWait();
@@ -359,10 +359,10 @@ function initThreadUpdater(title, enableUpdate) {
 						favicon.startBlink(false);
 					}
 					if(notification.canShow) {
-						notification.show();
+						notification.showNotif();
 					}
 					if(audio.enabled) {
-						audio.play();
+						audio.playAudio();
 					}
 					sesStorage[storageName] = Thread.first.pcount;
 					this._delay = this._initDelay;
@@ -423,16 +423,16 @@ function initThreadUpdater(title, enableUpdate) {
 		focusLoadTime = -1e4;
 		notification.checkPermission();
 		if(Cfg.updCount) {
-			counter.enable();
+			counter.enableCounter();
 		}
 		favicon.initIcons();
 	}
 
 	function disableUpdater() {
 		if(enabled) {
-			audio.disable();
-			counter.disable();
-			updMachine.stop();
+			audio.disableAudio();
+			counter.disableCounter();
+			updMachine.stopUpdater();
 			enabled = false;
 		}
 	}
@@ -458,8 +458,8 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!doc.hidden) {
 			const focusTime = e.timeStamp;
 			favicon.stopBlink();
-			audio.stop();
-			notification.close();
+			audio.stopAudio();
+			notification.closeNotif();
 			newPosts = 0;
 			hasYouRefs = false;
 			sendError = false;
@@ -480,17 +480,17 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
-		continue(needSleep = false) {
+		continueUpdater(needSleep = false) {
 			if(enabled && paused) {
 				updMachine.start(needSleep);
 				paused = false;
 			}
 		},
-		disable() {
+		disableUpdater() {
 			disabledByUser = true;
 			disableUpdater();
 		},
-		enable() {
+		enableUpdater() {
 			if(!enabled) {
 				enableUpdater();
 				updMachine.start();
@@ -507,9 +507,9 @@ function initThreadUpdater(title, enableUpdate) {
 			$popup('newposts', Lng.loading[lang], true);
 			forceLoadPosts();
 		},
-		pause() {
+		pauseUpdater() {
 			if(enabled && !paused) {
-				updMachine.stop();
+				updMachine.stopUpdater();
 				paused = true;
 			}
 		},
@@ -520,14 +520,14 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggle() {
 			if(enabled) {
-				this.disable();
+				this.disableUpdater();
 			} else {
-				this.enable();
+				this.enableUpdater();
 			}
 		},
 		toggleAudio(repeatMS) {
 			if(audio.enabled) {
-				audio.stop();
+				audio.stopAudio();
 				return (audio.enabled = false);
 			}
 			audio.repeatMS = repeatMS;
@@ -535,10 +535,10 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggleCounter(enableCnt) {
 			if(enableCnt) {
-				counter.enable();
+				counter.enableCounter();
 				counter.setWait();
 			} else {
-				counter.disable();
+				counter.disableCounter();
 			}
 			forceLoadPosts();
 		},

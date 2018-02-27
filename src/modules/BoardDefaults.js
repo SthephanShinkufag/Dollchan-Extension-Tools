@@ -99,7 +99,7 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
-	get delTruncMsg() {
+	get deleteTruncMsg() {
 		return null;
 	}
 	get fixDeadLinks() {
@@ -344,7 +344,7 @@ class BaseBoard {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
-	updSubmitButton(el) {
+	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];
 	}
 }

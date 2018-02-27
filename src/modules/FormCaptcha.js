@@ -58,7 +58,7 @@ class Captcha {
 			$txtInsert(e.target, chr);
 			break;
 		}
-		case 'focus': this.updOutdated();
+		case 'focus': this.updateOutdated();
 		}
 		$pd(e);
 		e.stopPropagation();
@@ -160,7 +160,7 @@ class Captcha {
 	}
 	updateHelper(url, fn) {
 		if(aib._capUpdPromise) {
-			aib._capUpdPromise.cancel();
+			aib._capUpdPromise.cancelPromise();
 		}
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
@@ -172,7 +172,7 @@ class Captcha {
 			}
 		}));
 	}
-	updOutdated() {
+	updateOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}

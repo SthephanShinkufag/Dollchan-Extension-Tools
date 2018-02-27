@@ -237,7 +237,7 @@ class Thread {
 			const posts = $Q(aib.qRPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		} else {
@@ -245,7 +245,7 @@ class Thread {
 			for(; begin < end; ++begin) {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		}
@@ -312,7 +312,9 @@ class Thread {
 				nonExisted,
 				maybeVParser,
 				maybeSpells);
-			maybeVParser.end();
+			if(maybeVParser.hasValue) {
+				maybeVParser.value.endParser();
+			}
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
@@ -332,11 +334,13 @@ class Thread {
 				post.omitted = false;
 			}
 			if(needRMUpdate) {
-				RefMap.upd(post, true);
+				RefMap.updateRefMap(post, true);
 			}
 			post = post.next;
 		}
-		maybeSpells.end();
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
 		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
@@ -351,10 +355,10 @@ class Thread {
 			};
 		}
 		if(needToShow > visPosts) {
-			navPanel.addThr(this);
+			thrNavPanel.addThr(this);
 			btn.lastChild.style.display = 'initial';
 		} else {
-			navPanel.removeThr(this);
+			thrNavPanel.removeThr(this);
 			$hide(btn.lastChild);
 		}
 		if(needToOmit > 0) {
@@ -444,12 +448,12 @@ class Thread {
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-					maybeSpells.value.run(post);
+					maybeSpells.value.runSpells(post);
 				}
 			}
 			if(newPosts !== 0) {
 				for(post = firstChangedPost; post; post = post.nextInThread) {
-					RefMap.upd(post, true);
+					RefMap.updateRefMap(post, true);
 				}
 			}
 		}
@@ -483,8 +487,12 @@ class Thread {
 			f.last = aib.anchor + this.last.num;
 			setStored('DESU_Favorites', JSON.stringify(data));
 		});
-		maybeVParser.end();
-		maybeSpells.end();
+		if(maybeVParser.hasValue) {
+			maybeVParser.value.endParser();
+		}
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		return [newPosts, newVisPosts];
 	}
 	_toggleReplies(repBtn, updBtn) {
@@ -515,7 +523,7 @@ class Thread {
 	}
 }
 
-const navPanel = {
+const thrNavPanel = {
 	addThr(thr) {
 		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
@@ -533,7 +541,7 @@ const navPanel = {
 		case 'click': this._handleClick(e); break;
 		}
 	},
-	init() {
+	initThrNav() {
 		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
@@ -562,25 +570,25 @@ const navPanel = {
 
 	_currentThr : null,
 	_el         : null,
-	_showhideTO : 0,
+	_toggleTO   : 0,
 	_thrs       : null,
 	_visible    : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
 			if(!this._visible) {
-				this._showHide(true);
+				this._toggleNavPanel(false);
 			}
 			this._currentThr = el;
 		} else if(this._visible) {
-			this._showHide(false);
+			this._toggleNavPanel(true);
 		}
 	},
-	_expandCollapse(expand, rt) {
+	_expandCollapse(isExpand, rt) {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-			clearTimeout(this._showhideTO);
-			this._showhideTO = setTimeout(
-				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+			clearTimeout(this._toggleTO);
+			this._toggleTO = setTimeout(
+				isExpand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
 				() => this._el.classList.add('de-thr-navpanel-hidden'),
 				Cfg.linksOver);
 		}
@@ -625,8 +633,8 @@ const navPanel = {
 			break;
 		}
 	},
-	_showHide(show) {
-		this._el.style.display = show ? 'initial' : 'none';
-		this._visible = show;
+	_toggleNavPanel(isHide) {
+		this._el.style.display = isHide ? 'none' : 'initial';
+		this._visible = isHide;
 	}
 };

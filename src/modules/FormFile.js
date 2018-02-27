@@ -26,8 +26,7 @@ class Files {
 	get thumbsEl() {
 		let value;
 		if(aib.multiFile) {
-			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-			$after(this.fileTd.parentNode, value);
+			value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
 		} else {
 			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
@@ -55,7 +54,7 @@ class Files {
 			if(inp.hasFile) {
 				break;
 			} else if(els[i - 1].hasFile) {
-				inp.show();
+				inp.showInp();
 				break;
 			}
 			inp.hideInp();
@@ -270,7 +269,7 @@ class FileInput {
 		}
 		$hide(this._wrap);
 	}
-	show() {
+	showInp() {
 		if(FileInput._isThumb) {
 			$show(this._thumb);
 		}
@@ -283,7 +282,7 @@ class FileInput {
 	static _readDroppedFile(input, file) {
 		return readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
-			input.show();
+			input.showInp();
 			input._onFileChange(true);
 		});
 	}
@@ -386,7 +385,7 @@ class FileInput {
 		this._thumb.appendChild(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 	}
 	_onFileChange(hasImgFile) {
@@ -398,7 +397,7 @@ class FileInput {
 			this._parent.onchange();
 		}
 		if(FileInput._isThumb) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 		if(this.hasFile) {
 			this.extraFile = null;
@@ -443,7 +442,7 @@ class FileInput {
 		$toggle(this._btnDel, isShow);
 		$toggle(this._btnTxt, !isShow);
 	}
-	_showPviewImage() {
+	_showFileThumb() {
 		const { imgFile } = this;
 		if(imgFile) {
 			this._addNewThumb(...imgFile, imgFile[0].byteLength);
@@ -458,8 +457,8 @@ class FileInput {
 			});
 		}
 	}
-	_toggleDragEvents(el, add) {
-		const name = add ? 'addEventListener' : 'removeEventListener';
+	_toggleDragEvents(el, isAdd) {
+		const name = isAdd ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', $pd);
 		el[name]('dragenter', this);
 		el[name]('dragleave', this);

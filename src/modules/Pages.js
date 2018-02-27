@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 const Pages = {
-	add() {
+	addPage() {
 		const pageNum = DelForm.last.pageNum + 1;
 		if(this._adding || pageNum > aib.lastPage) {
 			return;
@@ -12,12 +12,12 @@ const Pages = {
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
-		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
+		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			if(this._addForm(formEl, pageNum).firstThr) {
 				return this._updateForms(DelForm.last);
 			}
 			this._endAdding();
-			this.add();
+			this.addPage();
 			return CancelablePromise.reject(new CancelError());
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
@@ -26,10 +26,10 @@ const Pages = {
 			}
 		});
 	},
-	async load(count) {
+	async loadPages(count) {
 		$popup('load-pages', Lng.loading[lang], true);
-		if(this._addPromise) {
-			this._addPromise.cancel();
+		if(this._addingPromise) {
+			this._addingPromise.cancelPromise();
 			this._endAdding();
 		}
 		PviewsCache.purge();
@@ -37,7 +37,7 @@ const Pages = {
 		pByEl = new Map();
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
-		Attachment.close();
+		AttachedImage.closeImg();
 		if(pr.isQuick) {
 			pr.clearForm();
 		}
@@ -68,7 +68,7 @@ const Pages = {
 	},
 
 	_adding     : false,
-	_addPromise : null,
+	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
@@ -88,7 +88,7 @@ const Pages = {
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
 		this._adding = false;
-		this._addPromise = null;
+		this._addingPromise = null;
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await getStoredObj('DESU_Favorites'));
@@ -116,7 +116,7 @@ toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
-				Pages.add();
+				Pages.addPage();
 			}
 		});
 	}

@@ -159,7 +159,7 @@ function checkCSSColor(color) {
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
-const $join = (arr, start, end) => start + arr.join(end + start) + end;
+const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
@@ -241,7 +241,7 @@ const Logger = {
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
 	},
-	init() {
+	initLogger() {
 		this._marks.push(['LoggerInit', Date.now()]);
 	},
 	log(text) {
@@ -279,7 +279,7 @@ class CancelablePromise {
 	static resolve(val) {
 		return new CancelablePromise(res => res(val));
 	}
-	cancel() {
+	cancelPromise() {
 		this._reject(new CancelError());
 		if(!this._isResolved && this._cancelFn) {
 			this._cancelFn();
@@ -300,9 +300,9 @@ class CancelablePromise {
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))), () => {
 				for(const child of children) {
-					child.cancel();
+					child.cancelPromise();
 				}
-				this.cancel();
+				this.cancelPromise();
 			});
 	}
 }
@@ -319,11 +319,6 @@ class Maybe {
 		const value = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value });
 		return value;
-	}
-	end() {
-		if(this.hasValue) {
-			this.value.end();
-		}
 	}
 }
 
@@ -375,7 +370,7 @@ class TasksPool {
 		this.max = tasksCount;
 		this.completed = this.paused = this.stopped = false;
 	}
-	complete() {
+	completeTasks() {
 		if(!this.stopped) {
 			if(this.array.length === 0 && this.running === 0) {
 				this.endFn();
@@ -384,7 +379,25 @@ class TasksPool {
 			}
 		}
 	}
-	continue() {
+	pauseTasks() {
+		this.paused = true;
+	}
+	runTask(data) {
+		if(!this.stopped) {
+			if(this.paused || this.running === this.max) {
+				this.array.push(data);
+			} else {
+				this._runTask(data);
+				this.running++;
+			}
+		}
+	}
+	stopTasks() {
+		this.stopped = true;
+		this.endFn();
+	}
+
+	_continueTasks() {
 		if(!this.stopped) {
 			this.paused = false;
 			if(this.array.length === 0) {
@@ -394,33 +407,15 @@ class TasksPool {
 				return;
 			}
 			while(this.array.length !== 0 && this.running !== this.max) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				this.running++;
 			}
 		}
 	}
-	pause() {
-		this.paused = true;
-	}
-	run(data) {
-		if(!this.stopped) {
-			if(this.paused || this.running === this.max) {
-				this.array.push(data);
-			} else {
-				this._run(data);
-				this.running++;
-			}
-		}
-	}
-	stop() {
-		this.stopped = true;
-		this.endFn();
-	}
-
-	_end() {
+	_endTask() {
 		if(!this.stopped) {
 			if(!this.paused && this.array.length !== 0) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				return;
 			}
 			this.running--;
@@ -429,15 +424,15 @@ class TasksPool {
 			}
 		}
 	}
-	_run(data) {
-		this.func(this.num++, data).then(() => this._end(), e => {
+	_runTask(data) {
+		this.func(this.num++, data).then(() => this._endTask(), e => {
 			if(e instanceof TasksPool.PauseError) {
-				this.pause();
+				this.pauseTasks();
 				if(e.duration !== -1) {
-					setTimeout(() => this.continue(), e.duration);
+					setTimeout(() => this._continueTasks(), e.duration);
 				}
 			} else {
-				this._end();
+				this._endTask();
 				throw e;
 			}
 		});
@@ -451,7 +446,7 @@ TasksPool.PauseError = function(duration) {
 class WorkerPool {
 	constructor(mReqs, wrkFn, errFn) {
 		if(!nav.hasWorker) {
-			this.run = (data, transferObjs, fn) => fn(wrkFn(data));
+			this.runWorker = (data, transferObjs, fn) => fn(wrkFn(data));
 			return;
 		}
 		const url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
@@ -475,8 +470,8 @@ class WorkerPool {
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
 	}
-	run(data, transferObjs, fn) {
-		this._pool.run([data, transferObjs, fn]);
+	runWorker(data, transferObjs, fn) {
+		this._pool.runTask([data, transferObjs, fn]);
 	}
 
 	_createWorker(num, data) {
@@ -804,7 +799,7 @@ function getFileType(url) {
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
-	const link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
+	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);

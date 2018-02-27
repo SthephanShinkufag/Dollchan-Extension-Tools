@@ -14,7 +14,7 @@ const HotKeys = {
 		this.cPost = null;
 		this.lastPageOffset = 0;
 	},
-	disable() {
+	disableHotKeys() {
 		if(this.enabled) {
 			this.enabled = false;
 			if(this.cPost) {
@@ -25,7 +25,7 @@ const HotKeys = {
 			doc.removeEventListener('keydown', this, true);
 		}
 	},
-	enable() {
+	enableHotKeys() {
 		if(!this.enabled) {
 			this.enabled = true;
 			this._paused = false;
@@ -43,7 +43,7 @@ const HotKeys = {
 			/* One post/thread below      */ 0x004A /* = J          */,
 			/* Reply or create thread     */ 0x0052 /* = R          */,
 			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
 			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
 			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
 			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
@@ -56,7 +56,7 @@ const HotKeys = {
 			/* Strike text                */ 0xC054 /* = Alt+T      */,
 			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
 			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
 		];
 		const nonThrKeys = [
@@ -88,11 +88,11 @@ const HotKeys = {
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
 			}
-			Attachment.close();
-			Pages.load(+Cfg.loadPages);
+			AttachedImage.closeImg();
+			Pages.loadPages(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
-			if(Attachment.viewer) {
-				Attachment.close();
+			if(AttachedImage.viewer) {
+				AttachedImage.closeImg();
 				return;
 			}
 			if(this.cPost) {
@@ -124,9 +124,9 @@ const HotKeys = {
 					this._scroll(post, false, post.isOp);
 				}
 				break;
-			case 4: // Open previous page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(false);
+			case 4: // Open previous page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(false);
 				} else if(isThr || aib.page !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
@@ -189,9 +189,9 @@ const HotKeys = {
 				}
 				$id('de-btn-code').click();
 				break;
-			case 17: // Open next page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(true);
+			case 17: // Open next page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(true);
 				} else if(!isThr) {
 					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
@@ -254,7 +254,7 @@ const HotKeys = {
 		e.stopPropagation();
 		$pd(e);
 	},
-	pause() {
+	pauseHotKeys() {
 		this._paused = true;
 	},
 	async readKeys() {
@@ -453,7 +453,7 @@ class KeyEditListener {
 			return;
 		case 'focus':
 			if(HotKeys.enabled) {
-				HotKeys.pause();
+				HotKeys.pauseHotKeys();
 			}
 			this.cEl = el;
 			return;

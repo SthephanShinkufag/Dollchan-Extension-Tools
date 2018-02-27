@@ -24,11 +24,10 @@ function $popup(id, txt, isWait = false) {
 			$animate(el, 'de-blink');
 		}
 	} else {
-		el = $id('de-wrapper-popup').appendChild($add(`
-		<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
+		el = $bEnd($id('de-wrapper-popup'), `<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
-		</div>`));
+		</div>`);
 		el.onclick = ({ target }) => {
 			let el = fixEventEl(target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
@@ -145,7 +144,7 @@ class Menu {
 }
 
 function addMenu(el) {
-	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
+	const fn = a => arrTags(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
@@ -161,7 +160,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
-			el => Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1));
+			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
@@ -180,7 +179,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
-			updater.enable();
+			updater.enableUpdater();
 			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});

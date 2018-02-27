@@ -5,7 +5,7 @@
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
 const DollchanAPI = {
-	init() {
+	initAPI() {
 		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
@@ -117,7 +117,7 @@ function initPage() {
 			</div>`);
 		}
 	} else {
-		navPanel.init();
+		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);

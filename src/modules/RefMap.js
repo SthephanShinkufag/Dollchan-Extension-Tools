@@ -29,7 +29,7 @@ class RefMap {
 				}
 				const { ref } = posts.get(lNum);
 				if(ref._inited) {
-					ref.add(post, pNum);
+					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
 					ref.hasMap = true;
@@ -46,19 +46,19 @@ class RefMap {
 			}
 		}
 	}
-	static init(form) {
+	static initRefMap(form) {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
-					post.ref.init('', strNums);
+					post.ref.initPostRef('', strNums);
 				}
 			}
 		}
 	}
-	static upd(post, isAdd) {
+	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
 		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
@@ -90,10 +90,10 @@ class RefMap {
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
-			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
+			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 		}
 	}
-	add(post, num, isHidden = null) {
+	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
@@ -131,7 +131,7 @@ class RefMap {
 			}
 		}
 	}
-	init(tUrl, strNums) {
+	initPostRef(tUrl, strNums) {
 		let html = '';
 		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));

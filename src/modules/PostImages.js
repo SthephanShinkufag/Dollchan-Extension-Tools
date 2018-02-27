@@ -4,7 +4,7 @@
 =========================================================================================================== */
 
 // Navigation buttons for expanding of images/videos by center
-class ImagesNavigation {
+class ImagesNavigBtns {
 	constructor(viewerObj) {
 		const btns = $bEnd(docBody, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
@@ -31,7 +31,7 @@ class ImagesNavigation {
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
 				this._oldY = curY;
-				this.show();
+				this.showBtns();
 			}
 			return;
 		}
@@ -73,7 +73,7 @@ class ImagesNavigation {
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	}
-	show() {
+	showBtns() {
 		if(this._hidden) {
 			this._btnsStyle.removeProperty('display');
 			this._hidden = false;
@@ -88,7 +88,7 @@ class ImagesNavigation {
 }
 
 // Expanding of images/videos BY CENTER: resizing, moving, opening, closing
-class AttachmentViewer {
+class ImagesViewer {
 	constructor(data) {
 		this.data = null;
 		this.isAutoPlay = false;
@@ -104,9 +104,9 @@ class AttachmentViewer {
 		this._oldX = 0;
 		this._oldY = 0;
 		this._width = 0;
-		this._show(data);
+		this._showFullImg(data);
 	}
-	close(e) {
+	closeImgViewer(e) {
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.removeBtns();
 		}
@@ -115,7 +115,7 @@ class AttachmentViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e)) {
+			if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -142,7 +142,7 @@ class AttachmentViewer {
 			return;
 		case 'click': {
 			const el = e.target;
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e) ||
+			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
@@ -154,8 +154,8 @@ class AttachmentViewer {
 				if(this._moved) {
 					this._moved = false;
 				} else {
-					this.close(e);
-					Attachment.viewer = null;
+					this.closeImgViewer(e);
+					AttachedImage.viewer = null;
 				}
 				e.stopPropagation();
 				break;
@@ -175,10 +175,10 @@ class AttachmentViewer {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
-			data = data.getFollow(isForward);
+			data = data.getFollowImg(isForward);
 		} while(data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 		if(data) {
-			this.update(data, true, null);
+			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
 	}
@@ -192,13 +192,13 @@ class AttachmentViewer {
 			}
 		}
 	}
-	update(data, showButtons, e) {
+	updateImgViewer(data, showButtons, e) {
 		this._removeFullImg(e);
-		this._show(data, showButtons);
+		this._showFullImg(data, showButtons);
 	}
 
 	get _btns() {
-		const value = new ImagesNavigation(this);
+		const value = new ImagesNavigBtns(this);
 		Object.defineProperty(this, '_btns', { value });
 		return value;
 	}
@@ -243,7 +243,7 @@ class AttachmentViewer {
 			data.sendCloseEvent(e, false);
 		}
 	}
-	_resize(el) {
+	_resizeFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -292,45 +292,46 @@ class AttachmentViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
 	}
-	_show(data) {
+	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const obj = $add(`<div class="de-fullimg-center" style="top:${
+		const el = $add(`<div class="de-fullimg-center" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
 			.appendChild(this._fullEl);
-		this._elStyle = obj.style;
+		this._elStyle = el.style;
 		this.data = data;
-		this._obj = obj;
-		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-		obj.addEventListener('mousedown', this, true);
-		obj.addEventListener('click', this, true);
+		this._obj = el;
+		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
+		el.addEventListener('mousedown', this, true);
+		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.setSticky(true);
 		}
+		const btns = this._btns;
 		if(!data.inPview) {
-			this._btns.show();
+			btns.showBtns();
 			if(data.isVideo) {
-				this._btns.autoBtn.classList.remove('de-img-btn-none');
+				btns.autoBtn.classList.remove('de-img-btn-none');
 			} else {
-				this._btns.autoBtn.classList.add('de-img-btn-none');
+				btns.autoBtn.classList.add('de-img-btn-none');
 			}
 		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hideBtns();
+			btns.hideBtns();
 		}
-		data.post.thr.form.el.appendChild(obj);
+		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
 	}
 }
 
-// Post images/videos main initialization
-class ExpandableMedia {
+// Post image/video main initialization
+class ExpandableImage {
 	constructor(post, el, prev) {
 		this.el = el;
 		this.expanded = false;
@@ -382,12 +383,12 @@ class ExpandableMedia {
 			videoEl.load();
 		}
 		if(this._webmTitleLoad) {
-			this._webmTitleLoad.cancel();
+			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
 	}
-	collapse(e) {
-		if(e && this.isVideo && ExpandableMedia.isControlClick(e)) {
+	collapseImg(e) {
+		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}
 		this.cancelWebmLoad(this._fullEl);
@@ -442,33 +443,34 @@ class ExpandableMedia {
 		}
 		return [width, height, null];
 	}
-	expand(inPost, e) {
+	expandImg(inPost, e) {
 		if(e && !e.bubbles) {
 			return;
 		}
 		if(!inPost) {
-			if(Attachment.viewer) {
-				if(Attachment.viewer.data === this) {
-					Attachment.viewer.close(e);
-					Attachment.viewer = null;
-					return;
-				}
-				Attachment.viewer.update(this, e);
-			} else {
-				Attachment.viewer = new AttachmentViewer(this);
+			const { viewer } = AttachedImage;
+			if(!viewer) {
+				AttachedImage.viewer = new ImagesViewer(this);
+				return;
 			}
+			if(viewer.data === this) {
+				viewer.closeImgViewer(e);
+				AttachedImage.viewer = null;
+				return;
+			}
+			viewer.updateImgViewer(this, e);
 			return;
 		}
 		this.expanded = true;
 		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
-		this._fullEl = this.getFullObject(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapse(e), true);
+		this._fullEl = this.getFullImg(true, null, null);
+		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
-	getFollow(isForward) {
+	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;
 		if(nImage) {
 			return nImage;
@@ -489,7 +491,7 @@ class ExpandableMedia {
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
 	}
-	getFullObject(inPost, onsizechange, onrotate) {
+	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
 		const { src } = this;
 		const parent = this._getImageParent();
@@ -566,7 +568,7 @@ class ExpandableMedia {
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
-		videoEl.addEventListener('ended', () => Attachment.viewer.navigate(true, true));
+		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
 				target.load();
@@ -660,8 +662,8 @@ class ExpandableMedia {
 	}
 }
 
-// Initialization of embedded previews in post message
-class EmbeddedImage extends ExpandableMedia {
+// Initialization of embedded image that added to the link in post message
+class EmbeddedImage extends ExpandableImage {
 	_getImageParent() {
 		return this.el.parentNode;
 	}
@@ -673,12 +675,13 @@ class EmbeddedImage extends ExpandableMedia {
 	}
 }
 
-// Initialization of post attachment images/videos
-class Attachment extends ExpandableMedia {
-	static close() {
-		if(Attachment.viewer) {
-			Attachment.viewer.close(null);
-			Attachment.viewer = null;
+// Initialization of image/video that attached to the post
+class AttachedImage extends ExpandableImage {
+	static closeImg() {
+		const { viewer } = AttachedImage;
+		if(viewer) {
+			viewer.closeImgViewer(null);
+			AttachedImage.viewer = null;
 		}
 	}
 	get info() {
@@ -718,7 +721,67 @@ class Attachment extends ExpandableMedia {
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
-Attachment.viewer = null;
+AttachedImage.viewer = null;
+
+// A class that finds a set of images in a post
+class PostImages {
+	constructor(post) {
+		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let hasAttachments = false;
+		const filesMap = new Map();
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			last = new AttachedImage(post, el, last);
+			filesMap.set(el, last);
+			hasAttachments = true;
+			if(!first) {
+				first = last;
+			}
+		}
+		if(Cfg.addImgs || localData) {
+			els = $Q('.de-img-embed', post.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				last = new EmbeddedImage(post, el, last);
+				filesMap.set(el, last);
+				if(!first) {
+					first = last;
+				}
+			}
+		}
+		this.first = first;
+		this.last = last;
+		this.hasAttachments = hasAttachments;
+		this._map = filesMap;
+	}
+	get expanded() {
+		for(let img = this.first; img; img = img.next) {
+			if(img.expanded) {
+				return true;
+			}
+		}
+		return false;
+	}
+	get firstAttach() {
+		return this.hasAttachments ? this.first : null;
+	}
+	getImageByEl(el) {
+		return this._map.get(el);
+	}
+	[Symbol.iterator]() {
+		return {
+			_img: this.first,
+			next() {
+				const value = this._img;
+				if(value) {
+					this._img = value.next;
+					return { value, done: false };
+				}
+				return { done: true };
+			}
+		};
+	}
+}
 
 const ImagesHashStorage = Object.create({
 	get getHash() {
@@ -785,7 +848,7 @@ const ImagesHashStorage = Object.create({
 		}
 		if(buffer) {
 			data = await new Promise(resolve =>
-				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));
 			if(data && ('hash' in data)) {
 				val = data.hash;
 			}

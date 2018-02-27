@@ -4,7 +4,7 @@
 
 const Panel = Object.create({
 	isVidEnabled: false,
-	init(formEl) {
+	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
@@ -118,7 +118,7 @@ const Panel = Object.create({
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
 				if(updater.toggleAudio(0)) {
-					updater.enable();
+					updater.enableUpdater();
 					el.id = 'de-panel-audio-on';
 				} else {
 					el.id = 'de-panel-audio-off';

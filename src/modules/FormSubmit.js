@@ -70,7 +70,7 @@ function checkUpload(data) {
 						pr.setReply(true, false);
 					}
 					updater.sendErrNotif();
-					updater.continue();
+					updater.continueUpdater();
 				});
 				return;
 			}
@@ -95,7 +95,7 @@ function checkUpload(data) {
 		}
 		$popup('upload', error);
 		updater.sendErrNotif();
-		updater.continue();
+		updater.continueUpdater();
 		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
@@ -128,7 +128,7 @@ function checkUpload(data) {
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
-			updater.continue(true);
+			updater.continueUpdater(true);
 			closePopup('upload');
 		});
 	} else {

@@ -259,7 +259,7 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': CfgWindow.init(body); break;
+	case 'cfg': CfgWindow.initCfgWindow(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}

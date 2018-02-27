@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '550fd0d';
+const commit = 'f21250f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1694,7 +1694,7 @@ function checkCSSColor(color) {
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
-const $join = (arr, start, end) => start + arr.join(end + start) + end;
+const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
@@ -1776,7 +1776,7 @@ const Logger = {
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
 	},
-	init() {
+	initLogger() {
 		this._marks.push(['LoggerInit', Date.now()]);
 	},
 	log(text) {
@@ -1814,7 +1814,7 @@ class CancelablePromise {
 	static resolve(val) {
 		return new CancelablePromise(res => res(val));
 	}
-	cancel() {
+	cancelPromise() {
 		this._reject(new CancelError());
 		if(!this._isResolved && this._cancelFn) {
 			this._cancelFn();
@@ -1835,9 +1835,9 @@ class CancelablePromise {
 		return new CancelablePromise(
 			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))), () => {
 				for(const child of children) {
-					child.cancel();
+					child.cancelPromise();
 				}
-				this.cancel();
+				this.cancelPromise();
 			});
 	}
 }
@@ -1854,11 +1854,6 @@ class Maybe {
 		const value = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value });
 		return value;
-	}
-	end() {
-		if(this.hasValue) {
-			this.value.end();
-		}
 	}
 }
 
@@ -1910,7 +1905,7 @@ class TasksPool {
 		this.max = tasksCount;
 		this.completed = this.paused = this.stopped = false;
 	}
-	complete() {
+	completeTasks() {
 		if(!this.stopped) {
 			if(this.array.length === 0 && this.running === 0) {
 				this.endFn();
@@ -1919,7 +1914,25 @@ class TasksPool {
 			}
 		}
 	}
-	continue() {
+	pauseTasks() {
+		this.paused = true;
+	}
+	runTask(data) {
+		if(!this.stopped) {
+			if(this.paused || this.running === this.max) {
+				this.array.push(data);
+			} else {
+				this._runTask(data);
+				this.running++;
+			}
+		}
+	}
+	stopTasks() {
+		this.stopped = true;
+		this.endFn();
+	}
+
+	_continueTasks() {
 		if(!this.stopped) {
 			this.paused = false;
 			if(this.array.length === 0) {
@@ -1929,33 +1942,15 @@ class TasksPool {
 				return;
 			}
 			while(this.array.length !== 0 && this.running !== this.max) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				this.running++;
 			}
 		}
 	}
-	pause() {
-		this.paused = true;
-	}
-	run(data) {
-		if(!this.stopped) {
-			if(this.paused || this.running === this.max) {
-				this.array.push(data);
-			} else {
-				this._run(data);
-				this.running++;
-			}
-		}
-	}
-	stop() {
-		this.stopped = true;
-		this.endFn();
-	}
-
-	_end() {
+	_endTask() {
 		if(!this.stopped) {
 			if(!this.paused && this.array.length !== 0) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				return;
 			}
 			this.running--;
@@ -1964,15 +1959,15 @@ class TasksPool {
 			}
 		}
 	}
-	_run(data) {
-		this.func(this.num++, data).then(() => this._end(), e => {
+	_runTask(data) {
+		this.func(this.num++, data).then(() => this._endTask(), e => {
 			if(e instanceof TasksPool.PauseError) {
-				this.pause();
+				this.pauseTasks();
 				if(e.duration !== -1) {
-					setTimeout(() => this.continue(), e.duration);
+					setTimeout(() => this._continueTasks(), e.duration);
 				}
 			} else {
-				this._end();
+				this._endTask();
 				throw e;
 			}
 		});
@@ -1986,7 +1981,7 @@ TasksPool.PauseError = function(duration) {
 class WorkerPool {
 	constructor(mReqs, wrkFn, errFn) {
 		if(!nav.hasWorker) {
-			this.run = (data, transferObjs, fn) => fn(wrkFn(data));
+			this.runWorker = (data, transferObjs, fn) => fn(wrkFn(data));
 			return;
 		}
 		const url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
@@ -2010,8 +2005,8 @@ class WorkerPool {
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
 	}
-	run(data, transferObjs, fn) {
-		this._pool.run([data, transferObjs, fn]);
+	runWorker(data, transferObjs, fn) {
+		this._pool.runTask([data, transferObjs, fn]);
 	}
 
 	_createWorker(num, data) {
@@ -2339,7 +2334,7 @@ function getFileType(url) {
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
-	const link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
+	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
@@ -2594,7 +2589,7 @@ function readPostsData(firstPost, fav) {
 			continue;
 		}
 		if(!hideData) {
-			maybeSpells.value.run(post); // Apply spells if posts not hidden
+			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
 			if(post.hidden) {
 				post.spellHidden = true;
@@ -2603,7 +2598,9 @@ function readPostsData(firstPost, fav) {
 			}
 		}
 	}
-	maybeSpells.end();
+	if(maybeSpells.hasValue) {
+		maybeSpells.value.endSpells();
+	}
 	if(Cfg.panelCounter === 2) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
@@ -2796,7 +2793,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		this._cachedData = null;
 		this._readStorage();
 	}
-	read() {
+	readStorage() {
 		this._readStorage();
 	}
 	set(num, thrNum) {
@@ -2879,7 +2876,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disable();
+				Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';
@@ -2897,7 +2894,7 @@ function initStorageEvent() {
 
 const Panel = Object.create({
 	isVidEnabled: false,
-	init(formEl) {
+	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
@@ -3011,7 +3008,7 @@ const Panel = Object.create({
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
 				if(updater.toggleAudio(0)) {
-					updater.enable();
+					updater.enableUpdater();
 					el.id = 'de-panel-audio-on';
 				} else {
 					el.id = 'de-panel-audio-off';
@@ -3403,7 +3400,7 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 			}
 		});
 		return;
-	case 'cfg': CfgWindow.init(body); break;
+	case 'cfg': CfgWindow.initCfgWindow(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -4015,7 +4012,7 @@ function showFavoritesWindow(body, data) {
 =========================================================================================================== */
 
 const CfgWindow = {
-	init(body) {
+	initCfgWindow(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
 		body.addEventListener('mouseout', this);
@@ -4255,14 +4252,14 @@ const CfgWindow = {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
-					aib.updSubmitButton(pr.subm);
+					aib.updateSubmitBtn(pr.subm);
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
 				this._updateCSS();
-				Panel.init(DelForm.first.el);
+				Panel.initPanel(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
 			case 'delHiddPost': {
@@ -4289,7 +4286,7 @@ const CfgWindow = {
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
-				Attachment.close();
+				AttachedImage.closeImg();
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
@@ -4341,9 +4338,9 @@ const CfgWindow = {
 			case 'ajaxUpdThr':
 				if(aib.t) {
 					if(Cfg.ajaxUpdThr) {
-						updater.enable();
+						updater.enableUpdater();
 					} else {
-						updater.disable();
+						updater.disableUpdater();
 					}
 				}
 				break;
@@ -4415,9 +4412,9 @@ const CfgWindow = {
 			case 'inftyScroll': toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
-					HotKeys.enable();
+					HotKeys.enableHotKeys();
 				} else {
-					HotKeys.disable();
+					HotKeys.disableHotKeys();
 				}
 			}
 			return;
@@ -4824,7 +4821,7 @@ const CfgWindow = {
 	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
-		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 	},
 	// Creates a select for multiple option values
 	_getSel(id) {
@@ -4928,11 +4925,10 @@ function $popup(id, txt, isWait = false) {
 			$animate(el, 'de-blink');
 		}
 	} else {
-		el = $id('de-wrapper-popup').appendChild($add(`
-		<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
+		el = $bEnd($id('de-wrapper-popup'), `<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
-		</div>`));
+		</div>`);
 		el.onclick = ({ target }) => {
 			let el = fixEventEl(target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
@@ -5049,7 +5045,7 @@ class Menu {
 }
 
 function addMenu(el) {
-	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
+	const fn = a => arrTags(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
@@ -5065,7 +5061,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
-			el => Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1));
+			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
@@ -5084,7 +5080,7 @@ function addMenu(el) {
 		});
 	case 'de-panel-audio-off':
 		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
-			updater.enable();
+			updater.enableUpdater();
 			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
@@ -5107,7 +5103,7 @@ const HotKeys = {
 		this.cPost = null;
 		this.lastPageOffset = 0;
 	},
-	disable() {
+	disableHotKeys() {
 		if(this.enabled) {
 			this.enabled = false;
 			if(this.cPost) {
@@ -5118,7 +5114,7 @@ const HotKeys = {
 			doc.removeEventListener('keydown', this, true);
 		}
 	},
-	enable() {
+	enableHotKeys() {
 		if(!this.enabled) {
 			this.enabled = true;
 			this._paused = false;
@@ -5136,7 +5132,7 @@ const HotKeys = {
 			/* One post/thread below      */ 0x004A /* = J          */,
 			/* Reply or create thread     */ 0x0052 /* = R          */,
 			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
 			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
 			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
 			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
@@ -5149,7 +5145,7 @@ const HotKeys = {
 			/* Strike text                */ 0xC054 /* = Alt+T      */,
 			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
 			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
 		];
 		const nonThrKeys = [
@@ -5181,11 +5177,11 @@ const HotKeys = {
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
 			}
-			Attachment.close();
-			Pages.load(+Cfg.loadPages);
+			AttachedImage.closeImg();
+			Pages.loadPages(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
-			if(Attachment.viewer) {
-				Attachment.close();
+			if(AttachedImage.viewer) {
+				AttachedImage.closeImg();
 				return;
 			}
 			if(this.cPost) {
@@ -5217,9 +5213,9 @@ const HotKeys = {
 					this._scroll(post, false, post.isOp);
 				}
 				break;
-			case 4: // Open previous page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(false);
+			case 4: // Open previous page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(false);
 				} else if(isThr || aib.page !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
@@ -5282,9 +5278,9 @@ const HotKeys = {
 				}
 				$id('de-btn-code').click();
 				break;
-			case 17: // Open next page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(true);
+			case 17: // Open next page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(true);
 				} else if(!isThr) {
 					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
@@ -5347,7 +5343,7 @@ const HotKeys = {
 		e.stopPropagation();
 		$pd(e);
 	},
-	pause() {
+	pauseHotKeys() {
 		this._paused = true;
 	},
 	async readKeys() {
@@ -5546,7 +5542,7 @@ class KeyEditListener {
 			return;
 		case 'focus':
 			if(HotKeys.enabled) {
-				HotKeys.pause();
+				HotKeys.pauseHotKeys();
 			}
 			this.cEl = el;
 			return;
@@ -5799,7 +5795,7 @@ function preloadImages(data) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		let cImg = 1;
 		const mReqs = isPost ? 1 : 4;
-		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+		const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
 			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
 			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
@@ -5817,8 +5813,8 @@ function preloadImages(data) {
 				if(isRepToOrig) {
 					el.src = imgLink.href;
 				}
-				if(rjf) {
-					rjf.run(imageData.buffer, [imageData.buffer],
+				if(rarJpgFinder) {
+					rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
 						info => addImgFileIcon(nameLink, fName, info));
 				}
 			}
@@ -5832,8 +5828,8 @@ function preloadImages(data) {
 				Images_.afterpreload();
 				Images_.afterpreload = Images_.progressId = null;
 			}
-			if(rjf) {
-				rjf.clearWorkers();
+			if(rarJpgFinder) {
+				rarJpgFinder.clearWorkers();
 			}
 		});
 		Images_.preloading = true;
@@ -5859,13 +5855,13 @@ function preloadImages(data) {
 			isRepToOrig &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, imgLink, iType, isRepToOrig, el, isVideo]);
+			pool.runTask([url, imgLink, iType, isRepToOrig, el, isVideo]);
 		} else if(isRepToOrig) {
 			el.src = url;
 		}
 	}
 	if(pool) {
-		pool.complete();
+		pool.completeTasks();
 	}
 }
 
@@ -5951,7 +5947,7 @@ function loadDocFiles(imgOnly) {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
 			const url = imgLink.href;
-			Images_.pool.run([url, imgLink.getAttribute('download') ||
+			Images_.pool.runTask([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
 	});
@@ -6000,7 +5996,7 @@ function loadDocFiles(imgOnly) {
 				fName = temp;
 			}
 			files.push(fName);
-			Images_.pool.run([url, fName, el, null]);
+			Images_.pool.runTask([url, fName, el, null]);
 			count++;
 		});
 	}
@@ -6009,7 +6005,7 @@ function loadDocFiles(imgOnly) {
 			count }`, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
-	Images_.pool.complete();
+	Images_.pool.completeTasks();
 	els = null;
 }
 
@@ -6230,7 +6226,7 @@ class Videos {
 			updateVideoList($id('de-video-list'), link, this.post.num);
 		}
 		if(loader && !dataObj) {
-			loader.run([link, isYtube, this, m[1]]);
+			loader.runTask([link, isYtube, this, m[1]]);
 		}
 	}
 	clickLink(el, mode) {
@@ -6286,7 +6282,7 @@ class Videos {
 		}
 		this.currentLink = this.currentLink || newLinks[0];
 		if(loader) {
-			loader.complete();
+			loader.completeTasks();
 		}
 	}
 
@@ -6414,9 +6410,9 @@ class VideosParser {
 	constructor() {
 		this._loader = Videos._getTitlesLoader();
 	}
-	end() {
+	endParser() {
 		if(this._loader) {
-			this._loader.complete();
+			this._loader.completeTasks();
 		}
 	}
 	parse(data) {
@@ -6758,7 +6754,7 @@ function infoLoadErrors(e, showError = true) {
 =========================================================================================================== */
 
 const Pages = {
-	add() {
+	addPage() {
 		const pageNum = DelForm.last.pageNum + 1;
 		if(this._adding || pageNum > aib.lastPage) {
 			return;
@@ -6767,12 +6763,12 @@ const Pages = {
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
-		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
+		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
 			if(this._addForm(formEl, pageNum).firstThr) {
 				return this._updateForms(DelForm.last);
 			}
 			this._endAdding();
-			this.add();
+			this.addPage();
 			return CancelablePromise.reject(new CancelError());
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
@@ -6781,10 +6777,10 @@ const Pages = {
 			}
 		});
 	},
-	async load(count) {
+	async loadPages(count) {
 		$popup('load-pages', Lng.loading[lang], true);
-		if(this._addPromise) {
-			this._addPromise.cancel();
+		if(this._addingPromise) {
+			this._addingPromise.cancelPromise();
 			this._endAdding();
 		}
 		PviewsCache.purge();
@@ -6792,7 +6788,7 @@ const Pages = {
 		pByEl = new Map();
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
-		Attachment.close();
+		AttachedImage.closeImg();
 		if(pr.isQuick) {
 			pr.clearForm();
 		}
@@ -6823,7 +6819,7 @@ const Pages = {
 	},
 
 	_adding     : false,
-	_addPromise : null,
+	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
@@ -6843,7 +6839,7 @@ const Pages = {
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
 		this._adding = false;
-		this._addPromise = null;
+		this._addingPromise = null;
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await getStoredObj('DESU_Favorites'));
@@ -6871,7 +6867,7 @@ toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
-				Pages.add();
+				Pages.addPage();
 			}
 		});
 	}
@@ -6884,7 +6880,7 @@ toggleInfinityScroll.onwheel = e => {
 const Spells = Object.create({
 	hash: null,
 	get hiders() {
-		this._init();
+		this._initSpells();
 		return this.hiders;
 	},
 	get list() {
@@ -6932,14 +6928,14 @@ const Spells = Object.create({
 		];
 	},
 	get outreps() {
-		this._init();
+		this._initSpells();
 		return this.outreps;
 	},
 	get reps() {
-		this._init();
+		this._initSpells();
 		return this.reps;
 	},
-	add(type, arg, isNeg) {
+	addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld && fld.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -7081,7 +7077,7 @@ const Spells = Object.create({
 			return `${ spell }(${ String(val) })`;
 		}
 	},
-	disable() {
+	disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -7122,16 +7118,16 @@ const Spells = Object.create({
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disable();
+			this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
 		if(this.hiders) {
 			const sRunner = new SpellsRunner();
 			for(let post = Thread.first.op; post; post = post.next) {
-				sRunner.run(post);
+				sRunner.runSpells(post);
 			}
-			sRunner.end();
+			sRunner.endSpells();
 		} else {
 			SpellsRunner.unhideAll();
 		}
@@ -7149,7 +7145,7 @@ const Spells = Object.create({
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disable();
+				this.disableSpells();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				locStorage['__de-spells'] = '{ hide: false, data: null }';
 				locStorage.removeItem('__de-spells');
@@ -7192,7 +7188,7 @@ const Spells = Object.create({
 		}
 		return [dScope, dScope.length > 2 || hScope];
 	},
-	_init() {
+	_initSpells() {
 		if(!Cfg.hideBySpell) {
 			const value = null;
 			const configurable = true;
@@ -7216,7 +7212,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disable();
+			this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -7725,7 +7721,7 @@ class SpellsRunner {
 		this._endPromise = null;
 		this._spells = Spells.hiders;
 		if(!this._spells) {
-			this.run = SpellsRunner._unhidePost;
+			this.runSpells = SpellsRunner._unhidePost;
 			SpellsRunner.cachedData = null;
 		}
 	}
@@ -7739,15 +7735,15 @@ class SpellsRunner {
 			}
 		}
 	}
-	end() {
+	endSpells() {
 		if(this._endPromise) {
 			this._endPromise.then(() => this._savePostsHelper());
 		} else {
 			this._savePostsHelper();
 		}
 	}
-	run(post) {
-		let res = (new SpellsInterpreter(post, this._spells)).run();
+	runSpells(post) {
+		let res = (new SpellsInterpreter(post, this._spells)).runInterpreter();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -7816,7 +7812,7 @@ class SpellsInterpreter {
 		this._triggeredSpellsStack = [this._lastTSpells];
 		this._wipeMsg = null;
 	}
-	run() {
+	runInterpreter() {
 		let rv, stopCheck;
 		let isNegScope = this._ctx.pop();
 		let i = this._ctx.pop();
@@ -7881,7 +7877,7 @@ class SpellsInterpreter {
 		const cl = this._ctx.length;
 		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 		const [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.runInterpreter();
 	}
 	_checkRes(spell, val, isNegScope) {
 		const flags = spell[0];
@@ -7938,7 +7934,7 @@ class SpellsInterpreter {
 	}
 	async _ihash(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && await ImagesHashStorage.getHash(image) === val) {
+			if((image instanceof AttachedImage) && await ImagesHashStorage.getHash(image) === val) {
 				return true;
 			}
 		}
@@ -7951,7 +7947,7 @@ class SpellsInterpreter {
 			return images.hasAttachments;
 		}
 		for(const image of images) {
-			if(!(image instanceof Attachment)) {
+			if(!(image instanceof AttachedImage)) {
 				continue;
 			}
 			if(weightVals) {
@@ -7992,7 +7988,7 @@ class SpellsInterpreter {
 	}
 	_imgn(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && val.test(image.name)) {
+			if((image instanceof AttachedImage) && val.test(image.name)) {
 				return true;
 			}
 		}
@@ -8485,7 +8481,7 @@ class PostForm {
 	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
-		aib.updSubmitButton(this.subm);
+		aib.updateSubmitBtn(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -8541,7 +8537,7 @@ class PostForm {
 		this.cap = new Captcha(capEl, this.tNum);
 		const updCapFn = () => {
 			this.cap.addCaptcha();
-			this.cap.updOutdated();
+			this.cap.updateOutdated();
 		};
 		this.txta.addEventListener('focus', updCapFn);
 		if(this.files) {
@@ -8594,7 +8590,7 @@ class PostForm {
 				$hide(this.qArea);
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
-			updater.pause();
+			updater.pauseUpdater();
 		});
 	}
 	_initTextarea() {
@@ -8856,7 +8852,7 @@ function checkUpload(data) {
 						pr.setReply(true, false);
 					}
 					updater.sendErrNotif();
-					updater.continue();
+					updater.continueUpdater();
 				});
 				return;
 			}
@@ -8881,7 +8877,7 @@ function checkUpload(data) {
 		}
 		$popup('upload', error);
 		updater.sendErrNotif();
-		updater.continue();
+		updater.continueUpdater();
 		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
@@ -8914,7 +8910,7 @@ function checkUpload(data) {
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
-			updater.continue(true);
+			updater.continueUpdater(true);
 			closePopup('upload');
 		});
 	} else {
@@ -9168,8 +9164,7 @@ class Files {
 	get thumbsEl() {
 		let value;
 		if(aib.multiFile) {
-			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-			$after(this.fileTd.parentNode, value);
+			value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
 		} else {
 			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
@@ -9197,7 +9192,7 @@ class Files {
 			if(inp.hasFile) {
 				break;
 			} else if(els[i - 1].hasFile) {
-				inp.show();
+				inp.showInp();
 				break;
 			}
 			inp.hideInp();
@@ -9412,7 +9407,7 @@ class FileInput {
 		}
 		$hide(this._wrap);
 	}
-	show() {
+	showInp() {
 		if(FileInput._isThumb) {
 			$show(this._thumb);
 		}
@@ -9425,7 +9420,7 @@ class FileInput {
 	static _readDroppedFile(input, file) {
 		return readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
-			input.show();
+			input.showInp();
 			input._onFileChange(true);
 		});
 	}
@@ -9528,7 +9523,7 @@ class FileInput {
 		this._thumb.appendChild(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 	}
 	_onFileChange(hasImgFile) {
@@ -9540,7 +9535,7 @@ class FileInput {
 			this._parent.onchange();
 		}
 		if(FileInput._isThumb) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 		if(this.hasFile) {
 			this.extraFile = null;
@@ -9585,7 +9580,7 @@ class FileInput {
 		$toggle(this._btnDel, isShow);
 		$toggle(this._btnTxt, !isShow);
 	}
-	_showPviewImage() {
+	_showFileThumb() {
 		const { imgFile } = this;
 		if(imgFile) {
 			this._addNewThumb(...imgFile, imgFile[0].byteLength);
@@ -9600,8 +9595,8 @@ class FileInput {
 			});
 		}
 	}
-	_toggleDragEvents(el, add) {
-		const name = add ? 'addEventListener' : 'removeEventListener';
+	_toggleDragEvents(el, isAdd) {
+		const name = isAdd ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', $pd);
 		el[name]('dragenter', this);
 		el[name]('dragleave', this);
@@ -9669,7 +9664,7 @@ class Captcha {
 			$txtInsert(e.target, chr);
 			break;
 		}
-		case 'focus': this.updOutdated();
+		case 'focus': this.updateOutdated();
 		}
 		$pd(e);
 		e.stopPropagation();
@@ -9771,7 +9766,7 @@ class Captcha {
 	}
 	updateHelper(url, fn) {
 		if(aib._capUpdPromise) {
-			aib._capUpdPromise.cancel();
+			aib._capUpdPromise.cancelPromise();
 		}
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
@@ -9783,7 +9778,7 @@ class Captcha {
 			}
 		}));
 	}
-	updOutdated() {
+	updateOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
@@ -9875,7 +9870,7 @@ class AbstractPost {
 		return value;
 	}
 	addFuncs() {
-		RefMap.upd(this, true);
+		RefMap.updateRefMap(this, true);
 		embedAudioLinks(this);
 	}
 	handleEvent(e) {
@@ -9952,7 +9947,7 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !ExpandableMedia.isControlClick(e)) {
+				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -10003,7 +9998,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
-			case 'de-btn-sage': Spells.add(9, '', false); return;
+			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.setSticky(true); return;
 			case 'de-btn-stick-on': this.setSticky(false); return;
 			}
@@ -10042,7 +10037,7 @@ class AbstractPost {
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
 			if(!(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang],
+				this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
 					'<span class="de-menu-item" info="thr-exp">', '</span>'));
 			}
 			return;
@@ -10075,7 +10070,7 @@ class AbstractPost {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
 			} else { // We need to show a preview for this link
-				this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
+				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			$pd(e);
 			e.stopPropagation();
@@ -10107,7 +10102,7 @@ class AbstractPost {
 			}
 		}
 		this.addFuncs();
-		sRunner.run(this);
+		sRunner.runSpells(this);
 		embedPostMsgImages(this.el);
 		closePopup('load-fullmsg');
 	}
@@ -10141,13 +10136,13 @@ class AbstractPost {
 		if(!data || (!data.isImage && !data.isVideo)) {
 			return;
 		}
-		data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		data.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
 	_getFullMsg(el, isInit) {
-		if(aib.delTruncMsg) {
-			aib.delTruncMsg(this, el, isInit);
+		if(aib.deleteTruncMsg) {
+			aib.deleteTruncMsg(this, el, isInit);
 			return;
 		}
 		if(!isInit) {
@@ -10170,7 +10165,9 @@ class AbstractPost {
 					}
 				}
 			}
-			maybeSpells.end();
+			if(maybeSpells.hasValue) {
+				maybeSpells.value.endSpells();
+			}
 		}, emptyFn);
 	}
 	_showMenu(el, html) {
@@ -10375,7 +10372,7 @@ class Post extends AbstractPost {
 			if(this.hidden) {
 				this.ref.unhideRef();
 			}
-			RefMap.upd(this, false);
+			RefMap.updateRefMap(this, false);
 			if((this.prev.next = this.next)) {
 				this.next.prev = this.prev;
 			}
@@ -10513,13 +10510,13 @@ class Post extends AbstractPost {
 			this.ref.unhideRef();
 		}
 	}
-	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
+	toggleImages(isExpand = !this.images.expanded, isExpandVideos = true) {
 		for(const image of this.images) {
-			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ expand)) {
-				if(expand) {
-					image.expand(true, null);
+			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ isExpand)) {
+				if(isExpand) {
+					image.expandImg(true, null);
 				} else {
-					image.collapse(null);
+					image.collapseImg(null);
 				}
 			}
 		}
@@ -10553,37 +10550,37 @@ class Post extends AbstractPost {
 				nav.matchesSelector(end, aib.qPostSubj)
 			)) {
 				if(this._selText.includes('\n')) {
-					Spells.add(1 /* #exp */,
+					Spells.addSpell(1 /* #exp */,
 						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
-					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
+					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.appendChild(this._selRange.cloneContents());
-				Spells.add(2 /* #exph */,
+				Spells.addSpell(2 /* #exph */,
 					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
-		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		}
 		case 'hide-imgn':
-			Spells.add(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
 			return;
 		case 'hide-ihash':
 			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
-					Spells.add(4 /* #ihash */, hash, false);
+					Spells.addSpell(4 /* #ihash */, hash, false);
 				}
 			});
 			return;
-		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
 			const { num } = this;
 			const words = Post.getWrds(this.text);
@@ -10592,12 +10589,12 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
 			this.ref.toggleRef(isHide, true);
 			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': Spells.add(0 /* #words */, '>>' + this.num, false); return;
+		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
 			const task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -10796,65 +10793,6 @@ Post.sizing = {
 	_enabled: false
 };
 
-class PostImages {
-	constructor(post) {
-		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
-		let hasAttachments = false;
-		const filesMap = new Map();
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			last = new Attachment(post, el, last);
-			filesMap.set(el, last);
-			hasAttachments = true;
-			if(!first) {
-				first = last;
-			}
-		}
-		if(Cfg.addImgs || localData) {
-			els = $Q('.de-img-embed', post.el);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				last = new EmbeddedImage(post, el, last);
-				filesMap.set(el, last);
-				if(!first) {
-					first = last;
-				}
-			}
-		}
-		this.first = first;
-		this.last = last;
-		this.hasAttachments = hasAttachments;
-		this._map = filesMap;
-	}
-	get expanded() {
-		for(let img = this.first; img; img = img.next) {
-			if(img.expanded) {
-				return true;
-			}
-		}
-		return false;
-	}
-	get firstAttach() {
-		return this.hasAttachments ? this.first : null;
-	}
-	getImageByEl(el) {
-		return this._map.get(el);
-	}
-	[Symbol.iterator]() {
-		return {
-			_img: this.first,
-			next() {
-				const value = this._img;
-				if(value) {
-					this._img = value.next;
-					return { value, done: false };
-				}
-				return { done: true };
-			}
-		};
-	}
-}
-
 /* ==[ PostPreviews.js ]======================================================================================
                                                 POST PREVIEWS
 =========================================================================================================== */
@@ -10908,7 +10846,7 @@ class Pview extends AbstractPost {
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
-	static show(parent, link) {
+	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 		const isTop = !(parent instanceof Pview);
@@ -10916,7 +10854,7 @@ class Pview extends AbstractPost {
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
-				pv.kid.deletePView();
+				pv.kid.deletePview();
 			}
 			if(pv._link !== link) {
 				// If cursor hovers new link with the same number - move old preview here
@@ -10933,7 +10871,7 @@ class Pview extends AbstractPost {
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			// Show new preview under new link
 			if(pv) {
-				pv.deletePView();
+				pv.deletePview();
 			}
 			pv = new Pview(parent, link, pNum, tNum);
 			if(isTop) {
@@ -10951,13 +10889,13 @@ class Pview extends AbstractPost {
 		}
 		const { parent } = pv;
 		if(parent.omitted) {
-			pv.deletePView();
+			pv.deletePview();
 			return;
 		}
 		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 			const el = parent.ref.getElByNum(pv.num);
 			if(!el) {
-				pv.deletePView();
+				pv.deletePview();
 				return;
 			}
 			pv._link = el;
@@ -10981,22 +10919,22 @@ class Pview extends AbstractPost {
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
-	deletePView() {
+	deletePview() {
 		this.parent.kid = null;
 		this._link.classList.remove('de-link-parent');
 		if(Pview.top === this) {
 			Pview.top = null;
 		}
 		if(this._loadPromise) {
-			this._loadPromise.cancel();
+			this._loadPromise.cancelPromise();
 			this._loadPromise = null;
 		}
-		let vPost = Attachment.viewer && Attachment.viewer.data.post;
+		let vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
 		let pv = this;
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
-				Attachment.close();
+				AttachedImage.closeImg();
 				vPost = null;
 			}
 			const { el } = pv;
@@ -11018,9 +10956,9 @@ class Pview extends AbstractPost {
 			}
 		} while((pv = pv.kid));
 		if(!lastSticky) {
-			this.deletePView();
+			this.deletePview();
 		} else if(lastSticky.kid) {
-			lastSticky.kid.deletePView();
+			lastSticky.kid.deletePview();
 		}
 	}
 	handleEvent(e) {
@@ -11181,7 +11119,7 @@ class Pview extends AbstractPost {
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
 			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).end();
+				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pviewEl);
 			processImgInfoLinks(pviewEl);
@@ -11308,7 +11246,8 @@ class PviewsCache extends TemporaryContent {
 		post.el = aib.fixHTML(post.el);
 		delete post.msg;
 		if(post.ref.hasMap) {
-			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl,
+				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
 		post.itemInited = true;
 		return post;
@@ -11322,7 +11261,7 @@ PviewsCache.purgeSecs = 3e5;
 =========================================================================================================== */
 
 // Navigation buttons for expanding of images/videos by center
-class ImagesNavigation {
+class ImagesNavigBtns {
 	constructor(viewerObj) {
 		const btns = $bEnd(docBody, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
@@ -11349,7 +11288,7 @@ class ImagesNavigation {
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
 				this._oldY = curY;
-				this.show();
+				this.showBtns();
 			}
 			return;
 		}
@@ -11391,7 +11330,7 @@ class ImagesNavigation {
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	}
-	show() {
+	showBtns() {
 		if(this._hidden) {
 			this._btnsStyle.removeProperty('display');
 			this._hidden = false;
@@ -11406,7 +11345,7 @@ class ImagesNavigation {
 }
 
 // Expanding of images/videos BY CENTER: resizing, moving, opening, closing
-class AttachmentViewer {
+class ImagesViewer {
 	constructor(data) {
 		this.data = null;
 		this.isAutoPlay = false;
@@ -11422,9 +11361,9 @@ class AttachmentViewer {
 		this._oldX = 0;
 		this._oldY = 0;
 		this._width = 0;
-		this._show(data);
+		this._showFullImg(data);
 	}
-	close(e) {
+	closeImgViewer(e) {
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.removeBtns();
 		}
@@ -11433,7 +11372,7 @@ class AttachmentViewer {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e)) {
+			if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -11460,7 +11399,7 @@ class AttachmentViewer {
 			return;
 		case 'click': {
 			const el = e.target;
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e) ||
+			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
@@ -11472,8 +11411,8 @@ class AttachmentViewer {
 				if(this._moved) {
 					this._moved = false;
 				} else {
-					this.close(e);
-					Attachment.viewer = null;
+					this.closeImgViewer(e);
+					AttachedImage.viewer = null;
 				}
 				e.stopPropagation();
 				break;
@@ -11493,10 +11432,10 @@ class AttachmentViewer {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
-			data = data.getFollow(isForward);
+			data = data.getFollowImg(isForward);
 		} while(data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 		if(data) {
-			this.update(data, true, null);
+			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
 	}
@@ -11510,13 +11449,13 @@ class AttachmentViewer {
 			}
 		}
 	}
-	update(data, showButtons, e) {
+	updateImgViewer(data, showButtons, e) {
 		this._removeFullImg(e);
-		this._show(data, showButtons);
+		this._showFullImg(data, showButtons);
 	}
 
 	get _btns() {
-		const value = new ImagesNavigation(this);
+		const value = new ImagesNavigBtns(this);
 		Object.defineProperty(this, '_btns', { value });
 		return value;
 	}
@@ -11561,7 +11500,7 @@ class AttachmentViewer {
 			data.sendCloseEvent(e, false);
 		}
 	}
-	_resize(el) {
+	_resizeFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -11610,45 +11549,46 @@ class AttachmentViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
 	}
-	_show(data) {
+	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const obj = $add(`<div class="de-fullimg-center" style="top:${
+		const el = $add(`<div class="de-fullimg-center" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
 			.appendChild(this._fullEl);
-		this._elStyle = obj.style;
+		this._elStyle = el.style;
 		this.data = data;
-		this._obj = obj;
-		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-		obj.addEventListener('mousedown', this, true);
-		obj.addEventListener('click', this, true);
+		this._obj = el;
+		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
+		el.addEventListener('mousedown', this, true);
+		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.setSticky(true);
 		}
+		const btns = this._btns;
 		if(!data.inPview) {
-			this._btns.show();
+			btns.showBtns();
 			if(data.isVideo) {
-				this._btns.autoBtn.classList.remove('de-img-btn-none');
+				btns.autoBtn.classList.remove('de-img-btn-none');
 			} else {
-				this._btns.autoBtn.classList.add('de-img-btn-none');
+				btns.autoBtn.classList.add('de-img-btn-none');
 			}
 		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hideBtns();
+			btns.hideBtns();
 		}
-		data.post.thr.form.el.appendChild(obj);
+		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
 	}
 }
 
-// Post images/videos main initialization
-class ExpandableMedia {
+// Post image/video main initialization
+class ExpandableImage {
 	constructor(post, el, prev) {
 		this.el = el;
 		this.expanded = false;
@@ -11700,12 +11640,12 @@ class ExpandableMedia {
 			videoEl.load();
 		}
 		if(this._webmTitleLoad) {
-			this._webmTitleLoad.cancel();
+			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
 	}
-	collapse(e) {
-		if(e && this.isVideo && ExpandableMedia.isControlClick(e)) {
+	collapseImg(e) {
+		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}
 		this.cancelWebmLoad(this._fullEl);
@@ -11760,33 +11700,34 @@ class ExpandableMedia {
 		}
 		return [width, height, null];
 	}
-	expand(inPost, e) {
+	expandImg(inPost, e) {
 		if(e && !e.bubbles) {
 			return;
 		}
 		if(!inPost) {
-			if(Attachment.viewer) {
-				if(Attachment.viewer.data === this) {
-					Attachment.viewer.close(e);
-					Attachment.viewer = null;
-					return;
-				}
-				Attachment.viewer.update(this, e);
-			} else {
-				Attachment.viewer = new AttachmentViewer(this);
+			const { viewer } = AttachedImage;
+			if(!viewer) {
+				AttachedImage.viewer = new ImagesViewer(this);
+				return;
 			}
+			if(viewer.data === this) {
+				viewer.closeImgViewer(e);
+				AttachedImage.viewer = null;
+				return;
+			}
+			viewer.updateImgViewer(this, e);
 			return;
 		}
 		this.expanded = true;
 		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
-		this._fullEl = this.getFullObject(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapse(e), true);
+		this._fullEl = this.getFullImg(true, null, null);
+		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
-	getFollow(isForward) {
+	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;
 		if(nImage) {
 			return nImage;
@@ -11807,7 +11748,7 @@ class ExpandableMedia {
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
 	}
-	getFullObject(inPost, onsizechange, onrotate) {
+	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
 		const { src } = this;
 		const parent = this._getImageParent();
@@ -11884,7 +11825,7 @@ class ExpandableMedia {
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
-		videoEl.addEventListener('ended', () => Attachment.viewer.navigate(true, true));
+		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
 				target.load();
@@ -11978,8 +11919,8 @@ class ExpandableMedia {
 	}
 }
 
-// Initialization of embedded previews in post message
-class EmbeddedImage extends ExpandableMedia {
+// Initialization of embedded image that added to the link in post message
+class EmbeddedImage extends ExpandableImage {
 	_getImageParent() {
 		return this.el.parentNode;
 	}
@@ -11991,12 +11932,13 @@ class EmbeddedImage extends ExpandableMedia {
 	}
 }
 
-// Initialization of post attachment images/videos
-class Attachment extends ExpandableMedia {
-	static close() {
-		if(Attachment.viewer) {
-			Attachment.viewer.close(null);
-			Attachment.viewer = null;
+// Initialization of image/video that attached to the post
+class AttachedImage extends ExpandableImage {
+	static closeImg() {
+		const { viewer } = AttachedImage;
+		if(viewer) {
+			viewer.closeImgViewer(null);
+			AttachedImage.viewer = null;
 		}
 	}
 	get info() {
@@ -12036,7 +11978,67 @@ class Attachment extends ExpandableMedia {
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
-Attachment.viewer = null;
+AttachedImage.viewer = null;
+
+// A class that finds a set of images in a post
+class PostImages {
+	constructor(post) {
+		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let hasAttachments = false;
+		const filesMap = new Map();
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			last = new AttachedImage(post, el, last);
+			filesMap.set(el, last);
+			hasAttachments = true;
+			if(!first) {
+				first = last;
+			}
+		}
+		if(Cfg.addImgs || localData) {
+			els = $Q('.de-img-embed', post.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				last = new EmbeddedImage(post, el, last);
+				filesMap.set(el, last);
+				if(!first) {
+					first = last;
+				}
+			}
+		}
+		this.first = first;
+		this.last = last;
+		this.hasAttachments = hasAttachments;
+		this._map = filesMap;
+	}
+	get expanded() {
+		for(let img = this.first; img; img = img.next) {
+			if(img.expanded) {
+				return true;
+			}
+		}
+		return false;
+	}
+	get firstAttach() {
+		return this.hasAttachments ? this.first : null;
+	}
+	getImageByEl(el) {
+		return this._map.get(el);
+	}
+	[Symbol.iterator]() {
+		return {
+			_img: this.first,
+			next() {
+				const value = this._img;
+				if(value) {
+					this._img = value.next;
+					return { value, done: false };
+				}
+				return { done: true };
+			}
+		};
+	}
+}
 
 const ImagesHashStorage = Object.create({
 	get getHash() {
@@ -12103,7 +12105,7 @@ const ImagesHashStorage = Object.create({
 		}
 		if(buffer) {
 			data = await new Promise(resolve =>
-				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));
 			if(data && ('hash' in data)) {
 				val = data.hash;
 			}
@@ -12765,7 +12767,7 @@ class RefMap {
 				}
 				const { ref } = posts.get(lNum);
 				if(ref._inited) {
-					ref.add(post, pNum);
+					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
 					ref.hasMap = true;
@@ -12782,19 +12784,19 @@ class RefMap {
 			}
 		}
 	}
-	static init(form) {
+	static initRefMap(form) {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
-					post.ref.init('', strNums);
+					post.ref.initPostRef('', strNums);
 				}
 			}
 		}
 	}
-	static upd(post, isAdd) {
+	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
 		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
@@ -12826,10 +12828,10 @@ class RefMap {
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
-			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
+			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 		}
 	}
-	add(post, num, isHidden = null) {
+	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
@@ -12867,7 +12869,7 @@ class RefMap {
 			}
 		}
 	}
-	init(tUrl, strNums) {
+	initPostRef(tUrl, strNums) {
 		let html = '';
 		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
@@ -13188,7 +13190,7 @@ class Thread {
 			const posts = $Q(aib.qRPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		} else {
@@ -13196,7 +13198,7 @@ class Thread {
 			for(; begin < end; ++begin) {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		}
@@ -13263,7 +13265,9 @@ class Thread {
 				nonExisted,
 				maybeVParser,
 				maybeSpells);
-			maybeVParser.end();
+			if(maybeVParser.hasValue) {
+				maybeVParser.value.endParser();
+			}
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
@@ -13283,11 +13287,13 @@ class Thread {
 				post.omitted = false;
 			}
 			if(needRMUpdate) {
-				RefMap.upd(post, true);
+				RefMap.updateRefMap(post, true);
 			}
 			post = post.next;
 		}
-		maybeSpells.end();
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
 		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
@@ -13302,10 +13308,10 @@ class Thread {
 			};
 		}
 		if(needToShow > visPosts) {
-			navPanel.addThr(this);
+			thrNavPanel.addThr(this);
 			btn.lastChild.style.display = 'initial';
 		} else {
-			navPanel.removeThr(this);
+			thrNavPanel.removeThr(this);
 			$hide(btn.lastChild);
 		}
 		if(needToOmit > 0) {
@@ -13395,12 +13401,12 @@ class Thread {
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-					maybeSpells.value.run(post);
+					maybeSpells.value.runSpells(post);
 				}
 			}
 			if(newPosts !== 0) {
 				for(post = firstChangedPost; post; post = post.nextInThread) {
-					RefMap.upd(post, true);
+					RefMap.updateRefMap(post, true);
 				}
 			}
 		}
@@ -13434,8 +13440,12 @@ class Thread {
 			f.last = aib.anchor + this.last.num;
 			setStored('DESU_Favorites', JSON.stringify(data));
 		});
-		maybeVParser.end();
-		maybeSpells.end();
+		if(maybeVParser.hasValue) {
+			maybeVParser.value.endParser();
+		}
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		return [newPosts, newVisPosts];
 	}
 	_toggleReplies(repBtn, updBtn) {
@@ -13466,7 +13476,7 @@ class Thread {
 	}
 }
 
-const navPanel = {
+const thrNavPanel = {
 	addThr(thr) {
 		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
@@ -13484,7 +13494,7 @@ const navPanel = {
 		case 'click': this._handleClick(e); break;
 		}
 	},
-	init() {
+	initThrNav() {
 		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
@@ -13513,25 +13523,25 @@ const navPanel = {
 
 	_currentThr : null,
 	_el         : null,
-	_showhideTO : 0,
+	_toggleTO   : 0,
 	_thrs       : null,
 	_visible    : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
 			if(!this._visible) {
-				this._showHide(true);
+				this._toggleNavPanel(false);
 			}
 			this._currentThr = el;
 		} else if(this._visible) {
-			this._showHide(false);
+			this._toggleNavPanel(true);
 		}
 	},
-	_expandCollapse(expand, rt) {
+	_expandCollapse(isExpand, rt) {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-			clearTimeout(this._showhideTO);
-			this._showhideTO = setTimeout(
-				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
+			clearTimeout(this._toggleTO);
+			this._toggleTO = setTimeout(
+				isExpand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
 				() => this._el.classList.add('de-thr-navpanel-hidden'),
 				Cfg.linksOver);
 		}
@@ -13576,9 +13586,9 @@ const navPanel = {
 			break;
 		}
 	},
-	_showHide(show) {
-		this._el.style.display = show ? 'initial' : 'none';
-		this._visible = show;
+	_toggleNavPanel(isHide) {
+		this._el.style.display = isHide ? 'none' : 'initial';
+		this._visible = isHide;
 	}
 };
 
@@ -13599,23 +13609,23 @@ function initThreadUpdater(title, enableUpdate) {
 	const audio = {
 		enabled  : false,
 		repeatMS : 0,
-		disable() {
-			this.stop();
+		disableAudio() {
+			this.stopAudio();
 			this.enabled = false;
 			const btn = $id('de-panel-audio-on');
 			if(btn) {
 				btn.id = 'de-panel-audio-off';
 			}
 		},
-		play() {
-			this.stop();
+		playAudio() {
+			this.stopAudio();
 			if(this.repeatMS === 0) {
 				this._el.play();
 				return;
 			}
 			this._playInterval = setInterval(() => this._el.play(), this.repeatMS);
 		},
-		stop() {
+		stopAudio() {
 			if(this._playInterval) {
 				clearInterval(this._playInterval);
 				this._playInterval = null;
@@ -13645,24 +13655,24 @@ function initThreadUpdater(title, enableUpdate) {
 			this._countingIV = setInterval(() => {
 				seconds--;
 				if(seconds === 0) {
-					this._stop();
+					this._stopCounter();
 					callback();
 				} else {
 					this._set(seconds);
 				}
 			}, 1e3);
 		},
-		disable() {
+		disableCounter() {
 			this._enabled = false;
-			this._stop();
+			this._stopCounter();
 			$hide(this._el);
 		},
-		enable() {
+		enableCounter() {
 			this._enabled = true;
 			$show(this._el);
 		},
 		setWait() {
-			this._stop();
+			this._stopCounter();
 			if(this._enabled) {
 				this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 			}
@@ -13679,7 +13689,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_set(seconds) {
 			this._el.innerHTML = seconds;
 		},
-		_stop() {
+		_stopCounter() {
 			if(this._countingIV) {
 				clearInterval(this._countingIV);
 				this._countingIV = null;
@@ -13820,13 +13830,13 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 		},
-		close() {
+		closeNotif() {
 			if(this._notifEl) {
 				this._notifEl.close();
 				this._notifEl = null;
 			}
 		},
-		show() {
+		showNotif() {
 			const new10 = newPosts % 10;
 			const quantity = lang !== 0 ? +(newPosts !== 1) :
 				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -13839,7 +13849,7 @@ function initThreadUpdater(title, enableUpdate) {
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
-			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.close(), 12e3);
+			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => window.focus();
 			notif.onerror = () => {
 				window.focus();
@@ -13866,7 +13876,7 @@ function initThreadUpdater(title, enableUpdate) {
 	const updMachine = {
 		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
-				this.stop(false);
+				this.stopUpdater(false);
 			}
 			this._state = 0;
 			this._loadOnce = loadOnce;
@@ -13876,11 +13886,11 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			this._makeStep(needSleep);
 		},
-		stop(updateStatus = true) {
+		stopUpdater(updateStatus = true) {
 			if(this._state !== -1) {
 				this._state = -1;
 				if(this._loadPromise) {
-					this._loadPromise.cancel();
+					this._loadPromise.cancelPromise();
 					this._loadPromise = null;
 				}
 				counter.setWait();
@@ -13943,10 +13953,10 @@ function initThreadUpdater(title, enableUpdate) {
 						favicon.startBlink(false);
 					}
 					if(notification.canShow) {
-						notification.show();
+						notification.showNotif();
 					}
 					if(audio.enabled) {
-						audio.play();
+						audio.playAudio();
 					}
 					sesStorage[storageName] = Thread.first.pcount;
 					this._delay = this._initDelay;
@@ -14007,16 +14017,16 @@ function initThreadUpdater(title, enableUpdate) {
 		focusLoadTime = -1e4;
 		notification.checkPermission();
 		if(Cfg.updCount) {
-			counter.enable();
+			counter.enableCounter();
 		}
 		favicon.initIcons();
 	}
 
 	function disableUpdater() {
 		if(enabled) {
-			audio.disable();
-			counter.disable();
-			updMachine.stop();
+			audio.disableAudio();
+			counter.disableCounter();
+			updMachine.stopUpdater();
 			enabled = false;
 		}
 	}
@@ -14042,8 +14052,8 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!doc.hidden) {
 			const focusTime = e.timeStamp;
 			favicon.stopBlink();
-			audio.stop();
-			notification.close();
+			audio.stopAudio();
+			notification.closeNotif();
 			newPosts = 0;
 			hasYouRefs = false;
 			sendError = false;
@@ -14064,17 +14074,17 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
-		continue(needSleep = false) {
+		continueUpdater(needSleep = false) {
 			if(enabled && paused) {
 				updMachine.start(needSleep);
 				paused = false;
 			}
 		},
-		disable() {
+		disableUpdater() {
 			disabledByUser = true;
 			disableUpdater();
 		},
-		enable() {
+		enableUpdater() {
 			if(!enabled) {
 				enableUpdater();
 				updMachine.start();
@@ -14091,9 +14101,9 @@ function initThreadUpdater(title, enableUpdate) {
 			$popup('newposts', Lng.loading[lang], true);
 			forceLoadPosts();
 		},
-		pause() {
+		pauseUpdater() {
 			if(enabled && !paused) {
-				updMachine.stop();
+				updMachine.stopUpdater();
 				paused = true;
 			}
 		},
@@ -14104,14 +14114,14 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggle() {
 			if(enabled) {
-				this.disable();
+				this.disableUpdater();
 			} else {
-				this.enable();
+				this.enableUpdater();
 			}
 		},
 		toggleAudio(repeatMS) {
 			if(audio.enabled) {
-				audio.stop();
+				audio.stopAudio();
 				return (audio.enabled = false);
 			}
 			audio.repeatMS = repeatMS;
@@ -14119,10 +14129,10 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggleCounter(enableCnt) {
 			if(enableCnt) {
-				counter.enable();
+				counter.enableCounter();
 				counter.setWait();
 			} else {
-				counter.disable();
+				counter.disableCounter();
 			}
 			forceLoadPosts();
 		},
@@ -14266,12 +14276,12 @@ class DelForm {
 		embedAudioLinks(el);
 		Logger.log('Audio links');
 		if(Cfg.addYouTube) {
-			new VideosParser().parse(el).end();
+			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}
 		processImgInfoLinks(el);
 		Logger.log('Image names');
-		RefMap.init(this);
+		RefMap.initRefMap(this);
 		Logger.log('Reflinks map');
 	}
 }
@@ -14567,7 +14577,7 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
-	get delTruncMsg() {
+	get deleteTruncMsg() {
 		return null;
 	}
 	get fixDeadLinks() {
@@ -14812,7 +14822,7 @@ class BaseBoard {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
-	updSubmitButton(el) {
+	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];
 	}
 }
@@ -14894,7 +14904,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		delTruncMsg(post, el) {
+		deleteTruncMsg(post, el) {
 			$del(el.previousSibling);
 			$show(el.previousSibling);
 			$del(el);
@@ -15179,7 +15189,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 400;
 		}
-		updSubmitButton() {}
+		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
@@ -15455,7 +15465,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('reloadCaptcha();');
 			return null;
 		}
-		updSubmitButton(el) {
+		updateSubmitBtn(el) {
 			el.textContent = Lng.reply[lang];
 		}
 	}
@@ -15529,7 +15539,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						return;
 					}
 					if(updater) {
-						updater.disable();
+						updater.disableUpdater();
 					}
 					DelForm.tNums = new Set();
 					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
@@ -16164,14 +16174,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete { background: none; }
 				.delete_checkbox { position: static !important; }`;
 		}
-		delTruncMsg(post, el, isInit) {
+		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
 				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 			} else {
 				const sRunner = new SpellsRunner();
 				post.updateMsg($q('.alternate > div', post.el), sRunner);
-				sRunner.end();
+				sRunner.endSpells();
 			}
 		}
 		disableRedirection(el) {
@@ -16725,7 +16735,7 @@ function getImageBoard(checkDomains, checkEngines) {
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
 const DollchanAPI = {
-	init() {
+	initAPI() {
 		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
@@ -16837,7 +16847,7 @@ function initPage() {
 			</div>`);
 		}
 	} else {
-		navPanel.init();
+		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
@@ -17526,7 +17536,7 @@ function updateCSS() {
 =========================================================================================================== */
 
 async function runMain(checkDomains, dataPromise) {
-	Logger.init();
+	Logger.initLogger();
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
@@ -17557,7 +17567,7 @@ async function runMain(checkDomains, dataPromise) {
 	$del(oldMain);
 	addSVGIcons();
 	if(Cfg.disabled) {
-		Panel.init(formEl);
+		Panel.initPanel(formEl);
 		scriptCSS();
 		return;
 	}
@@ -17565,7 +17575,7 @@ async function runMain(checkDomains, dataPromise) {
 		delete aProto.toJSON;
 	}
 	initStorageEvent();
-	DollchanAPI.init();
+	DollchanAPI.initAPI();
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -17585,7 +17595,7 @@ async function runMain(checkDomains, dataPromise) {
 			rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	MyPosts.read();
+	MyPosts.readStorage();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
@@ -17612,12 +17622,12 @@ async function runMain(checkDomains, dataPromise) {
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
-		HotKeys.enable();
+		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
 	initPage();
 	Logger.log('Init page');
-	Panel.init(formEl);
+	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();

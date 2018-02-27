@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 const CfgWindow = {
-	init(body) {
+	initCfgWindow(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
 		body.addEventListener('mouseout', this);
@@ -243,14 +243,14 @@ const CfgWindow = {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
-					aib.updSubmitButton(pr.subm);
+					aib.updateSubmitBtn(pr.subm);
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
 				this._updateCSS();
-				Panel.init(DelForm.first.el);
+				Panel.initPanel(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
 			case 'delHiddPost': {
@@ -277,7 +277,7 @@ const CfgWindow = {
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
-				Attachment.close();
+				AttachedImage.closeImg();
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
@@ -329,9 +329,9 @@ const CfgWindow = {
 			case 'ajaxUpdThr':
 				if(aib.t) {
 					if(Cfg.ajaxUpdThr) {
-						updater.enable();
+						updater.enableUpdater();
 					} else {
-						updater.disable();
+						updater.disableUpdater();
 					}
 				}
 				break;
@@ -403,9 +403,9 @@ const CfgWindow = {
 			case 'inftyScroll': toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
-					HotKeys.enable();
+					HotKeys.enableHotKeys();
 				} else {
-					HotKeys.disable();
+					HotKeys.disableHotKeys();
 				}
 			}
 			return;
@@ -812,7 +812,7 @@ const CfgWindow = {
 	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
-		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 	},
 	// Creates a select for multiple option values
 	_getSel(id) {
