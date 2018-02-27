@@ -138,12 +138,12 @@ async function readCfg() {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
 		if(!nav.isGM) {
-			Cfg.updScript = 0;
+			Cfg.updDollchan = 0;
 		}
 		Cfg.fileInputs = 0;
 	}
 	if(nav.isChromeStorage) {
-		Cfg.updScript = 0;
+		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
@@ -159,7 +159,7 @@ async function readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.updScript && !localData) {
+	if(Cfg.updDollchan && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
 				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));

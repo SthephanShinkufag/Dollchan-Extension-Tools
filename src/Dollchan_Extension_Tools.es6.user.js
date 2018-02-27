@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f21250f';
+const commit = '5a16226';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -146,8 +146,7 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
-	updScript    : 1,    // auto check for Dollchan updates
-	scrUpdIntrv  : 1,    //    interval in days (every val+1 day)
+	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
 	replyWinDrag : 0,          // draggable "Quick Reply" form
@@ -668,16 +667,15 @@ const Lng = {
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
-		updScript: [
-			'Автоматически проверять обновления Dollchan',
-			'Auto check for Dollchan updates',
-			'Автоматично перевіряти оновлення Dollchan'],
-		scrUpdIntrv: {
+		updDollchan: {
 			sel: [
-				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
-				['Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
-				['Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
-			txt: ['', '', '']
+				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
+				['Disable', 'Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
+				['Вимкн.', 'Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
+			txt: [
+				'Проверять обновления Dollchan',
+				'Check for Dollchan updates',
+				'Перевіряти оновлення Dollchan']
 		},
 		excludeList: [
 			'Не запускать Dollchan на:',
@@ -2482,12 +2480,12 @@ async function readCfg() {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
 		if(!nav.isGM) {
-			Cfg.updScript = 0;
+			Cfg.updDollchan = 0;
 		}
 		Cfg.fileInputs = 0;
 	}
 	if(nav.isChromeStorage) {
-		Cfg.updScript = 0;
+		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
@@ -2503,7 +2501,7 @@ async function readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.updScript && !localData) {
+	if(Cfg.updDollchan && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
 				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
@@ -4763,13 +4761,6 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
-				${ this._getBox('updScript') }
-				<div class="de-cfg-depend">
-					${ this._getSel('scrUpdIntrv') }
-					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
-						`${ Lng.checkNow[lang] }">
-				</div>` : '' }
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
 				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
@@ -4787,16 +4778,23 @@ const CfgWindow = {
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
-					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
-				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
+					`${ nav.isESNext ? '.es6' : '' }</a> |
+				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
+				<div id="de-info-log">
+					${ this._getInfoTable(Logger.getData(false), true) }
+					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+				</div>
 			</div>
-			<input type="button" id="de-cfg-btn-debug" value="` +
-				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+					<input type="button" id="de-cfg-btn-updnow" value="${ Lng.checkNow[lang] }">
+				&lt;&lt;</div><br>
+				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
 	},
 
@@ -4878,7 +4876,6 @@ const CfgWindow = {
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},
 	// Updates row counter in spells editor
@@ -6818,7 +6815,7 @@ const Pages = {
 		}
 	},
 
-	_adding     : false,
+	_adding        : false,
 	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
@@ -16795,7 +16792,7 @@ const DollchanAPI = {
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
-		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1e3 * 60 * 60 * 24) {
+		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
 			return Promise.reject();
 		}
 	}
@@ -17196,6 +17193,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	.de-cfg-depend { padding-left: 17px; }
+	#de-cfg-info { display: flex; flex-direction: column; }
 	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }
@@ -17203,12 +17201,12 @@ function scriptCSS() {
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
 	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
-	.de-cfg-unvis { display: none; }
+	.de-cfg-unvis { display: none !important; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
 	.de-info-name { flex: 1 0 auto; }
 	.de-info-row { display: flex; }
-	#de-info-table { display: flex; height: 267px; }
+	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
 	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }

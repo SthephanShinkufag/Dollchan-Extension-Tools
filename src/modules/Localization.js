@@ -497,16 +497,15 @@ const Lng = {
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
-		updScript: [
-			'Автоматически проверять обновления Dollchan',
-			'Auto check for Dollchan updates',
-			'Автоматично перевіряти оновлення Dollchan'],
-		scrUpdIntrv: {
+		updDollchan: {
 			sel: [
-				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
-				['Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
-				['Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
-			txt: ['', '', '']
+				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
+				['Disable', 'Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
+				['Вимкн.', 'Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
+			txt: [
+				'Проверять обновления Dollchan',
+				'Check for Dollchan updates',
+				'Перевіряти оновлення Dollchan']
 		},
 		excludeList: [
 			'Не запускать Dollchan на:',

@@ -754,13 +754,6 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
-				${ this._getBox('updScript') }
-				<div class="de-cfg-depend">
-					${ this._getSel('scrUpdIntrv') }
-					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
-						`${ Lng.checkNow[lang] }">
-				</div>` : '' }
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
 				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
@@ -778,16 +771,23 @@ const CfgWindow = {
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
-					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
-				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
+					`${ nav.isESNext ? '.es6' : '' }</a> |
+				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
+				<div id="de-info-log">
+					${ this._getInfoTable(Logger.getData(false), true) }
+					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+				</div>
 			</div>
-			<input type="button" id="de-cfg-btn-debug" value="` +
-				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+					<input type="button" id="de-cfg-btn-updnow" value="${ Lng.checkNow[lang] }">
+				&lt;&lt;</div><br>
+				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
 	},
 
@@ -869,7 +869,6 @@ const CfgWindow = {
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
 		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
 		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},
 	// Updates row counter in spells editor

@@ -88,6 +88,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	.de-cfg-depend { padding-left: 17px; }
+	#de-cfg-info { display: flex; flex-direction: column; }
 	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }
@@ -95,12 +96,12 @@ function scriptCSS() {
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
 	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
-	.de-cfg-unvis { display: none; }
+	.de-cfg-unvis { display: none !important; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
 	.de-info-name { flex: 1 0 auto; }
 	.de-info-row { display: flex; }
-	#de-info-table { display: flex; height: 267px; }
+	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
 	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }

@@ -112,8 +112,7 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
-	updScript    : 1,    // auto check for Dollchan updates
-	scrUpdIntrv  : 1,    //    interval in days (every val+1 day)
+	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
 	replyWinDrag : 0,          // draggable "Quick Reply" form

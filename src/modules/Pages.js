@@ -67,7 +67,7 @@ const Pages = {
 		}
 	},
 
-	_adding     : false,
+	_adding        : false,
 	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
