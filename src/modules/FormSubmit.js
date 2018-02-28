@@ -314,7 +314,7 @@ function cleanFile(data, extraData) {
 	}
 	// WEBM
 	if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-		return new WebmParser(data).addData(rand).getData();
+		return new WebmParser(data).addWebmData(rand).getWebmData();
 	}
 	return null;
 }

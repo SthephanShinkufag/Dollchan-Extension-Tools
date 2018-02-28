@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '5a16226';
+	var commit = 'b9fc436';
 
 
 	var defaultCfg = {
@@ -4613,7 +4613,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._finished = true;
 			this._marks.push(['LoggerFinish', Date.now()]);
 		},
-		getData: function getData(full) {
+		getLogData: function getLogData(isFull) {
 			var marks = this._marks;
 			var timeLog = [];
 			var duration = void 0,
@@ -4621,7 +4621,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var lastExtra = 0;
 			for (var len = marks.length - 1; i < len; ++i) {
 				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-				if (full || duration > 1) {
+				if (isFull || duration > 1) {
 					lastExtra = 0;
 					timeLog.push([marks[i][0], duration]);
 				} else {
@@ -5108,8 +5108,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(WebmParser, [{
-			key: 'addData',
-			value: function addData(data) {
+			key: 'addWebmData',
+			value: function addWebmData(data) {
 				if (this.error || !data) {
 					return this;
 				}
@@ -5122,8 +5122,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return this;
 			}
 		}, {
-			key: 'getData',
-			value: function getData() {
+			key: 'getWebmData',
+			value: function getWebmData() {
 				if (this.error) {
 					return null;
 				}
@@ -7694,7 +7694,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Cfg: Cfg,
 							sSpells: Spells.list.split('\n'),
 							oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
-							perf: Logger.getData(true)
+							perf: Logger.getLogData(true).reduce(function (obj, el) {
+								obj[el[0]] = el[1];
+								return obj;
+							}, {})
 						}, function (key, value) {
 							switch (key) {
 								case 'stats':
@@ -7873,7 +7876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |\n\t\t\t\t<a href="' + gitWiki + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">\n\t\t\t\t\t' + this._getInfoTable(Logger.getData(false), true) + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |\n\t\t\t\t<a href="' + gitWiki + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">\n\t\t\t\t\t' + this._getInfoTable(Logger.getLogData(false), true) + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
 		},
 
 
@@ -7923,17 +7926,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			scriptCSS();
 		},
 		_updateDependant: function _updateDependant() {
-			this._toggleBox(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
-			this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-			this._toggleBox(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
-			this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-			this._toggleBox(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
-			this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-			this._toggleBox(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]', 'input[info="addVimeo"]']);
-			this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-			this._toggleBox(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
-			this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-			this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
+			var fn = this._toggleBox;
+			fn(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
+			fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
+			fn(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+			fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+			fn(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
+			fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
+			fn(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]', 'input[info="addVimeo"]']);
+			fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+			fn(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
+			fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+			fn(Cfg.hotKeys, ['input[info="loadPages"]']);
 		},
 
 		_updateRowMeter: function _updateRowMeter(node) {
@@ -12826,7 +12830,7 @@ true, true];
 			return rv;
 		}
 		if (img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-			return new WebmParser(data).addData(rand).getData();
+			return new WebmParser(data).addWebmData(rand).getWebmData();
 		}
 		return null;
 	}
@@ -16069,7 +16073,7 @@ true, true];
 							return;
 						}
 						var title = '',
-						    d = new WebmParser(data.buffer).getData();
+						    d = new WebmParser(data.buffer).getWebmData();
 						if (!d) {
 							return;
 						}

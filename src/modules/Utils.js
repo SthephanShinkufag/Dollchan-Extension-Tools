@@ -222,7 +222,7 @@ const Logger = {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
-	getData(full) {
+	getLogData(isFull) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -230,7 +230,7 @@ const Logger = {
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 			// Ignore logs equal to 0ms
-			if(full || duration > 1) {
+			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
 			} else {
@@ -593,7 +593,7 @@ class WebmParser {
 		} while(false);
 		this.error = true;
 	}
-	addData(data) {
+	addWebmData(data) {
 		if(this.error || !data) {
 			return this;
 		}
@@ -605,7 +605,7 @@ class WebmParser {
 		this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
 		return this;
 	}
-	getData() {
+	getWebmData() {
 		if(this.error) {
 			return null;
 		}

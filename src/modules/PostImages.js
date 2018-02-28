@@ -598,7 +598,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getData();
+				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}

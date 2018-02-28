@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '5a16226';
+const commit = 'b9fc436';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1755,7 +1755,7 @@ const Logger = {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
-	getData(full) {
+	getLogData(isFull) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -1763,7 +1763,7 @@ const Logger = {
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 			// Ignore logs equal to 0ms
-			if(full || duration > 1) {
+			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
 			} else {
@@ -2126,7 +2126,7 @@ class WebmParser {
 		} while(false);
 		this.error = true;
 	}
-	addData(data) {
+	addWebmData(data) {
 		if(this.error || !data) {
 			return this;
 		}
@@ -2138,7 +2138,7 @@ class WebmParser {
 		this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
 		return this;
 	}
-	getData() {
+	getWebmData() {
 		if(this.error) {
 			return null;
 		}
@@ -4454,7 +4454,10 @@ const CfgWindow = {
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
-					perf     : Logger.getData(true)
+					perf     : Logger.getLogData(true).reduce((obj, el) => {
+						obj[el[0]] = el[1];
+						return obj;
+					}, {})
 				}, (key, value) => {
 					switch(key) {
 					case 'stats':
@@ -4785,7 +4788,7 @@ const CfgWindow = {
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">
-					${ this._getInfoTable(Logger.getData(false), true) }
+					${ this._getInfoTable(Logger.getLogData(false), true) }
 					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
 						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 				</div>
@@ -4849,34 +4852,35 @@ const CfgWindow = {
 		scriptCSS();
 	},
 	_updateDependant() {
-		this._toggleBox(Cfg.ajaxUpdThr, [
+		const fn = this._toggleBox;
+		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
 		]);
-		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-		this._toggleBox(Cfg.expandImgs, [
+		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
+		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
 			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
 			'input[info="minWebmWidth"]'
 		]);
-		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-		this._toggleBox(Cfg.linksNavig, [
+		fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+		fn(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
-		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		this._toggleBox(Cfg.addYouTube, [
+		fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
+		fn(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
-		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-		this._toggleBox(Cfg.ajaxPosting, [
+		fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+		fn(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
-		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
+		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+		fn(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
@@ -9093,7 +9097,7 @@ function cleanFile(data, extraData) {
 	}
 	// WEBM
 	if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-		return new WebmParser(data).addData(rand).getData();
+		return new WebmParser(data).addWebmData(rand).getWebmData();
 	}
 	return null;
 }
@@ -11852,7 +11856,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getData();
+				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}
