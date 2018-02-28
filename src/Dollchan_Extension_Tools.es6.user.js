@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'bb09546';
+const commit = '5603c34';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13033,11 +13033,11 @@ class Thread {
 		if(!winEl || !winEl.hasChildNodes()) {
 			return;
 		}
-		let el = $q(`.de-fav-current .de-entry[de-num="${ tNum }"] .de-fav-inf-new`, winEl);
-		$hide(el);
-		el.textContent = 0;
-		el = el.nextElementSibling; // .de-fav-inf-old
-		el.textContent = pCount;
+		const [,, newEl, oldEl] = [...$q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+			tNum }"] > .de-fav-inf`, winEl).children];
+		$hide(newEl);
+		newEl.textContent = 0;
+		oldEl.textContent = pCount;
 	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;

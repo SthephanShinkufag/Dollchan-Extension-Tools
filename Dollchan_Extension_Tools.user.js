@@ -3613,8 +3613,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var runMain = function () {
-		var _ref113 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
-			var formEl, fav, oldMain, _ref114, _ref115, storageName, firstThr;
+		var _ref114 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
+			var formEl, fav, oldMain, _ref115, _ref116, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee21$(_context26) {
 				while (1) {
@@ -3666,10 +3666,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 15:
-							_ref114 = _context26.sent;
-							_ref115 = _slicedToArray(_ref114, 2);
-							excludeList = _ref115[0];
-							fav = _ref115[1];
+							_ref115 = _context26.sent;
+							_ref116 = _slicedToArray(_ref115, 2);
+							excludeList = _ref116[0];
+							fav = _ref116[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
 								_context26.next = 21;
@@ -3800,7 +3800,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x81, _x82) {
-			return _ref113.apply(this, arguments);
+			return _ref114.apply(this, arguments);
 		};
 	}();
 
@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'bb09546';
+	var commit = '5603c34';
 
 
 	var defaultCfg = {
@@ -18110,11 +18110,14 @@ true, true];
 				if (!winEl || !winEl.hasChildNodes()) {
 					return;
 				}
-				var el = $q('.de-fav-current .de-entry[de-num="' + tNum + '"] .de-fav-inf-new', winEl);
-				$hide(el);
-				el.textContent = 0;
-				el = el.nextElementSibling; 
-				el.textContent = pCount;
+
+				var _ref100 = [].concat(_toConsumableArray($q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + tNum + '"] > .de-fav-inf', winEl).children)),
+				    newEl = _ref100[2],
+				    oldEl = _ref100[3];
+
+				$hide(newEl);
+				newEl.textContent = 0;
+				oldEl.textContent = pCount;
 			}
 		}, {
 			key: 'first',
@@ -18666,9 +18669,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref100) {
-								var newCount = _ref100.newCount,
-								    locked = _ref100.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref101) {
+								var newCount = _ref101.newCount,
+								    locked = _ref101.locked;
 								return _this74._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this74._handleNewPosts(0, e);
@@ -19795,9 +19798,9 @@ true, true];
 					if (Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref101 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref101[0],
-						    inp = _ref101[1];
+						var _ref102 = [].concat(_toConsumableArray(box.children)),
+						    img = _ref102[0],
+						    inp = _ref102[1];
 
 						img.onclick = function () {
 							return _this77.updateCaptcha(cap);
@@ -19921,7 +19924,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref102 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
+					var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
 						var _this79 = this;
 
 						var pageInp, query, errFn;
@@ -20002,7 +20005,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x72, _x73) {
-						return _ref102.apply(this, arguments);
+						return _ref103.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20360,7 +20363,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
+					var _ref104 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
 						var _this84 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, ajaxParams, xhr;
@@ -20370,7 +20373,7 @@ true, true];
 								switch (_context25.prev = _context25.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref104 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
+											var _ref105 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
 												return regeneratorRuntime.wrap(function _callee18$(_context23) {
 													while (1) {
 														switch (_context23.prev = _context23.next) {
@@ -20395,7 +20398,7 @@ true, true];
 											}));
 
 											return function getBase64(_x78) {
-												return _ref104.apply(this, arguments);
+												return _ref105.apply(this, arguments);
 											};
 										}();
 
@@ -20413,7 +20416,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref105 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
+											var _ref106 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
 												return regeneratorRuntime.wrap(function _callee19$(_context24) {
 													while (1) {
 														switch (_context24.prev = _context24.next) {
@@ -20433,7 +20436,7 @@ true, true];
 											}));
 
 											return function (_x79, _x80) {
-												return _ref105.apply(this, arguments);
+												return _ref106.apply(this, arguments);
 											};
 										}());
 										i = 0, _len16 = files.length;
@@ -20513,7 +20516,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x74, _x75, _x76, _x77) {
-						return _ref103.apply(this, arguments);
+						return _ref104.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -20627,8 +20630,8 @@ true, true];
 							return;
 						}
 						initObserver.disconnect();
-						doc.defaultView.addEventListener('message', function (_ref106) {
-							var data = _ref106.data;
+						doc.defaultView.addEventListener('message', function (_ref107) {
+							var data = _ref107.data;
 
 							if (data !== '0chan-content-done') {
 								return;
@@ -20806,8 +20809,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref107) {
-						var id = _ref107.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref108) {
+						var id = _ref108.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -21967,18 +21970,18 @@ true, true];
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref108;
+							var _ref109;
 
 							if (_isArray36) {
 								if (_i48 >= _iterator36.length) break;
-								_ref108 = _iterator36[_i48++];
+								_ref109 = _iterator36[_i48++];
 							} else {
 								_i48 = _iterator36.next();
 								if (_i48.done) break;
-								_ref108 = _i48.value;
+								_ref109 = _i48.value;
 							}
 
-							var c = _ref108;
+							var c = _ref109;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -22363,8 +22366,8 @@ true, true];
 			this.port.onmessage = this._handleMessage;
 			this.activeListeners = new Set();
 			var port = channel.port2;
-			doc.defaultView.addEventListener('message', function (_ref109) {
-				var data = _ref109.data;
+			doc.defaultView.addEventListener('message', function (_ref110) {
+				var data = _ref110.data;
 
 				if (data === 'de-request-api-message') {
 					_this112.hasListeners = true;
@@ -22380,8 +22383,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref110) {
-			var arg = _ref110.data;
+		_handleMessage: function _handleMessage(_ref111) {
+			var arg = _ref111.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22395,18 +22398,18 @@ true, true];
 					if (data) {
 						rv = {};
 						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref111;
+							var _ref112;
 
 							if (_isArray37) {
 								if (_i50 >= _iterator37.length) break;
-								_ref111 = _iterator37[_i50++];
+								_ref112 = _iterator37[_i50++];
 							} else {
 								_i50 = _iterator37.next();
 								if (_i50.done) break;
-								_ref111 = _i50.value;
+								_ref112 = _i50.value;
 							}
 
-							var aName = _ref111;
+							var aName = _ref112;
 
 							rv[aName] = DollchanAPI._register(aName.toLowerCase());
 						}
@@ -22436,8 +22439,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref112) {
-			var responseText = _ref112.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref113) {
+			var responseText = _ref113.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
