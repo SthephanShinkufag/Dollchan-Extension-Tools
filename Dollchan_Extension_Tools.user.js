@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'b9fc436';
+	var commit = 'de1aeb4';
 
 
 	var defaultCfg = {
@@ -5866,6 +5866,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			switch (e.key) {
+				case '__de-favorites':
+					toggleWindow('fav', true);return;
 				case '__de-mypost':
 					MyPosts.purge();return;
 				case '__de-webmvolume':
@@ -18016,6 +18018,8 @@ true, true];
 					f.you = 0;
 					f.last = aib.anchor + _this64.last.num;
 					setStored('DESU_Favorites', JSON.stringify(data));
+					locStorage['__de-favorites'] = 1;
+					locStorage.removeItem('__de-favorites');
 				});
 				if (maybeVParser.hasValue) {
 					maybeVParser.value.endParser();

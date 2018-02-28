@@ -486,6 +486,8 @@ class Thread {
 			f.you = 0;
 			f.last = aib.anchor + this.last.num;
 			setStored('DESU_Favorites', JSON.stringify(data));
+			locStorage['__de-favorites'] = 1;
+			locStorage.removeItem('__de-favorites');
 		});
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
