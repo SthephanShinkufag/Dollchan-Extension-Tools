@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'de1aeb4';
+	var commit = 'bb09546';
 
 
 	var defaultCfg = {
@@ -5867,7 +5867,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			switch (e.key) {
 				case '__de-favorites':
-					toggleWindow('fav', true);return;
+					{
+						try {
+							data = JSON.parse(val);
+						} catch (err) {
+							return;
+						}
+						Thread.updateFavEntry.apply(Thread, _toConsumableArray(data));
+						return;
+					}
 				case '__de-mypost':
 					MyPosts.purge();return;
 				case '__de-webmvolume':
@@ -18005,20 +18013,14 @@ true, true];
 					if (!f || !f[aib.b] || !(f = f[aib.b][_this64.op.num])) {
 						return;
 					}
-					var winEl = $q('#de-win-fav > .de-win-body');
-					if (winEl && winEl.hasChildNodes()) {
-						var el = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + _this64.op.num + '"] .de-fav-inf-new', winEl);
-						$hide(el);
-						el.textContent = 0;
-						el = el.nextElementSibling; 
-						el.textContent = _this64.pcount;
-					}
+					var updVal = [_this64.op.num, _this64.pcount];
+					Thread.updateFavEntry.apply(Thread, updVal);
 					f.cnt = _this64.pcount;
 					f.new = 0;
 					f.you = 0;
 					f.last = aib.anchor + _this64.last.num;
 					setStored('DESU_Favorites', JSON.stringify(data));
-					locStorage['__de-favorites'] = 1;
+					locStorage['__de-favorites'] = JSON.stringify(updVal);
 					locStorage.removeItem('__de-favorites');
 				});
 				if (maybeVParser.hasValue) {
@@ -18100,6 +18102,19 @@ true, true];
 		}], [{
 			key: 'removeSavedData',
 			value: function removeSavedData() {
+			}
+		}, {
+			key: 'updateFavEntry',
+			value: function updateFavEntry(tNum, pCount) {
+				var winEl = $q('#de-win-fav > .de-win-body');
+				if (!winEl || !winEl.hasChildNodes()) {
+					return;
+				}
+				var el = $q('.de-fav-current .de-entry[de-num="' + tNum + '"] .de-fav-inf-new', winEl);
+				$hide(el);
+				el.textContent = 0;
+				el = el.nextElementSibling; 
+				el.textContent = pCount;
 			}
 		}, {
 			key: 'first',

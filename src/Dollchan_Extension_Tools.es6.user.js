@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'de1aeb4';
+const commit = 'bb09546';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2819,7 +2819,15 @@ function initStorageEvent() {
 			return;
 		}
 		switch(e.key) {
-		case '__de-favorites': toggleWindow('fav', true); return;
+		case '__de-favorites': {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			Thread.updateFavEntry(...data);
+			return;
+		}
 		case '__de-mypost': MyPosts.purge(); return;
 		case '__de-webmvolume':
 			val = +val || 0;
@@ -13020,6 +13028,17 @@ class Thread {
 	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
+	static updateFavEntry(tNum, pCount) {
+		const winEl = $q('#de-win-fav > .de-win-body');
+		if(!winEl || !winEl.hasChildNodes()) {
+			return;
+		}
+		let el = $q(`.de-fav-current .de-entry[de-num="${ tNum }"] .de-fav-inf-new`, winEl);
+		$hide(el);
+		el.textContent = 0;
+		el = el.nextElementSibling; // .de-fav-inf-old
+		el.textContent = pCount;
+	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
 	}
@@ -13427,21 +13446,14 @@ class Thread {
 			if(!f || !f[aib.b] || !(f = f[aib.b][this.op.num])) {
 				return;
 			}
-			const winEl = $q('#de-win-fav > .de-win-body');
-			if(winEl && winEl.hasChildNodes()) {
-				let el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-					this.op.num }"] .de-fav-inf-new`, winEl);
-				$hide(el);
-				el.textContent = 0;
-				el = el.nextElementSibling; // .de-fav-inf-old
-				el.textContent = this.pcount;
-			}
+			const updVal = [this.op.num, this.pcount];
+			Thread.updateFavEntry(...updVal);
 			f.cnt = this.pcount;
 			f.new = 0;
 			f.you = 0;
 			f.last = aib.anchor + this.last.num;
 			setStored('DESU_Favorites', JSON.stringify(data));
-			locStorage['__de-favorites'] = 1;
+			locStorage['__de-favorites'] = JSON.stringify(updVal);
 			locStorage.removeItem('__de-favorites');
 		});
 		if(maybeVParser.hasValue) {

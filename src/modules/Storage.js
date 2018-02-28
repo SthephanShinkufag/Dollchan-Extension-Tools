@@ -477,7 +477,15 @@ function initStorageEvent() {
 			return;
 		}
 		switch(e.key) {
-		case '__de-favorites': toggleWindow('fav', true); return;
+		case '__de-favorites': {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			Thread.updateFavEntry(...data);
+			return;
+		}
 		case '__de-mypost': MyPosts.purge(); return;
 		case '__de-webmvolume':
 			val = +val || 0;
