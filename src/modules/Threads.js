@@ -65,49 +65,6 @@ class Thread {
 	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
-	static updateFav(updVal) {
-		const [tNum, value, isError] = updVal;
-		readFavorites().then(data => {
-			let f = data[aib.host];
-			if(!f || !f[aib.b] || !(f = f[aib.b][tNum])) {
-				return;
-			}
-			if(isError) {
-				f.err = value;
-			} else {
-				f.cnt = value;
-				f.new = 0;
-				f.you = 0;
-				f.last = aib.anchor + this.last.num;
-			}
-			Thread.updateFavEntry(...updVal);
-			setStored('DESU_Favorites', JSON.stringify(data));
-			locStorage['__de-favorites'] = JSON.stringify(updVal);
-			locStorage.removeItem('__de-favorites');
-		});
-	}
-	static updateFavEntry(tNum, value, isError) {
-		const winEl = $q('#de-win-fav > .de-win-body');
-		if(!winEl || !winEl.hasChildNodes()) {
-			return;
-		}
-		const entry = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-			tNum }"] > .de-fav-inf`, winEl);
-		if(!entry) {
-			return;
-		}
-		const [iconEl, youEl, newEl, oldEl] = [...entry.children];
-		$hide(youEl);
-		$hide(newEl);
-		if(isError) {
-			iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-			iconEl.title = value;
-			return;
-		}
-		youEl.textContent = 0;
-		newEl.textContent = 0;
-		oldEl.textContent = value;
-	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
 	}
@@ -207,9 +164,9 @@ class Thread {
 					type
 				};
 			} else {
-				removeFavoriteEntry(fav, h, b, num);
+				removeFavEntry(fav, h, b, num);
 			}
-			saveFavorites(fav);
+			saveRenewFavorites(fav);
 		});
 	}
 	updateHidden(data) {
@@ -509,7 +466,7 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		Thread.updateFav([this.op.num, this.pcount, false]);
+		updateFavorites(this.op.num, [this.pcount, this.last.num], 'update');
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}

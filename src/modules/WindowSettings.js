@@ -109,7 +109,7 @@ const CfgWindow = {
 						} catch(e) {}
 					}
 					if(favObj) {
-						saveFavorites(favObj);
+						saveRenewFavorites(favObj);
 					}
 					if(dmObj) {
 						if(dmObj.posts) {

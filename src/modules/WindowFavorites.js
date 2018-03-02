@@ -2,6 +2,67 @@
                                               WINDOW: FAVORITES
 =========================================================================================================== */
 
+function saveRenewFavorites(data) {
+	saveFavorites(data);
+	toggleWindow('fav', true, data);
+}
+
+function removeFavEntry(data, h, b, num) {
+	if((h in data) && (b in data[h]) && (num in data[h][b])) {
+		delete data[h][b][num];
+		if(data[h][b].hasOwnProperty('url') && Object.keys(data[h][b]).length === 1) {
+			delete data[h][b];
+			if($isEmpty(data[h])) {
+				delete data[h];
+			}
+		}
+	}
+}
+
+function updateFavorites(num, value, mode) {
+	readFavorites().then(data => {
+		let f = data[aib.host];
+		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
+			return;
+		}
+		switch(mode) {
+		case 'error': f.err = value; break;
+		case 'update':
+			f.cnt = value[0];
+			f.new = 0;
+			f.you = 0;
+			f.last = aib.anchor + value[1];
+		}
+		const updVal = [aib.host, aib.b, num, value, mode];
+		updateFavWindow(...updVal);
+		saveFavorites(data);
+		locStorage['__de-favorites'] = JSON.stringify(updVal);
+		locStorage.removeItem('__de-favorites');
+	});
+}
+
+function updateFavWindow(h, b, num, value, mode) {
+	const winEl = $q('#de-win-fav > .de-win-body');
+	if(!winEl || !winEl.hasChildNodes()) {
+		return;
+	}
+	const el = $q(`.de-entry[de-host="${ h }"][de-board="${ b }"][de-num="${ num }"] > .de-fav-inf`, winEl);
+	if(!el) {
+		return;
+	}
+	const [iconEl, youEl, newEl, oldEl] = [...el.children];
+	$hide(youEl);
+	$hide(newEl);
+	if(mode === 'error') {
+		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+		iconEl.title = value;
+		return;
+	}
+	youEl.textContent = 0;
+	newEl.textContent = 0;
+	oldEl.textContent = value[0];
+}
+
 // Delete previously marked entries from Favorites
 function cleanFavorites() {
 	const els = $Q('.de-entry[de-removed]');
@@ -15,13 +76,13 @@ function cleanFavorites() {
 			const h = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
-			removeFavoriteEntry(data, h, b, num);
+			removeFavEntry(data, h, b, num);
 			// If there existed thread then switch its fav button
 			if(h === aib.host && b === aib.b && pByNum.has(num)) {
 				pByNum.get(num).thr.op.setFavBtn(false);
 			}
 		}
-		saveFavorites(data);
+		saveRenewFavorites(data);
 	});
 }
 
@@ -135,11 +196,11 @@ function showFavoritesWindow(body, data) {
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 	div.appendChild(getEditButton('favor',
-		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
+		fn => readFavorites().then(data => fn(data, true, saveRenewFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
-		const fav = await getStoredObj('DESU_Favorites');
+		const fav = await readFavorites();
 		if(!fav[aib.host]) {
 			return;
 		}
@@ -203,7 +264,7 @@ function showFavoritesWindow(body, data) {
 					fav[host][bArch] = { url: fav[host][b].url + 'arch/' };
 				}
 				fav[host][bArch][num] = Object.assign({}, f);
-				removeFavoriteEntry(fav, host, b, num);
+				removeFavEntry(fav, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -246,7 +307,7 @@ function showFavoritesWindow(body, data) {
 		}
 		AjaxCache.clearCache();
 		if(isUpdate) {
-			setStored('DESU_Favorites', JSON.stringify(fav));
+			saveFavorites(fav);
 		}
 	}));
 

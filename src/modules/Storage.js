@@ -261,7 +261,7 @@ function readPostsData(firstPost, fav) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
 	if(updateFav) {
-		setStored('DESU_Favorites', JSON.stringify(fav));
+		saveFavorites(fav);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-win-fav'] === '1') {
@@ -274,21 +274,8 @@ function readFavorites() {
 	return getStoredObj('DESU_Favorites');
 }
 
-function saveFavorites(fav) {
-	setStored('DESU_Favorites', JSON.stringify(fav));
-	toggleWindow('fav', true, fav);
-}
-
-function removeFavoriteEntry(fav, h, b, num) {
-	if((h in fav) && (b in fav[h]) && (num in fav[h][b])) {
-		delete fav[h][b][num];
-		if(fav[h][b].hasOwnProperty('url') && Object.keys(fav[h][b]).length === 1) {
-			delete fav[h][b];
-			if($isEmpty(fav[h])) {
-				delete fav[h];
-			}
-		}
-	}
+function saveFavorites(data) {
+	setStored('DESU_Favorites', JSON.stringify(data));
 }
 
 // Get posts that were read by posts previews
@@ -483,7 +470,7 @@ function initStorageEvent() {
 			} catch(err) {
 				return;
 			}
-			Thread.updateFavEntry(...data);
+			updateFavWindow(...data);
 			return;
 		}
 		case '__de-mypost': MyPosts.purge(); return;

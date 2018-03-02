@@ -341,7 +341,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
-				Thread.updateFav([aib.t, getErrorMessage(error), true]);
+				updateFavorites(aib.t, getErrorMessage(error), 'error');
 				return;
 			}
 			if(lastECode !== 200) {
