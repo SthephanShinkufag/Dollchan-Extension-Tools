@@ -65,16 +65,48 @@ class Thread {
 	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
-	static updateFavEntry(tNum, pCount) {
+	static updateFav(updVal) {
+		const [tNum, value, isError] = updVal;
+		readFavorites().then(data => {
+			let f = data[aib.host];
+			if(!f || !f[aib.b] || !(f = f[aib.b][tNum])) {
+				return;
+			}
+			if(isError) {
+				f.err = value;
+			} else {
+				f.cnt = value;
+				f.new = 0;
+				f.you = 0;
+				f.last = aib.anchor + this.last.num;
+			}
+			Thread.updateFavEntry(...updVal);
+			setStored('DESU_Favorites', JSON.stringify(data));
+			locStorage['__de-favorites'] = JSON.stringify(updVal);
+			locStorage.removeItem('__de-favorites');
+		});
+	}
+	static updateFavEntry(tNum, value, isError) {
 		const winEl = $q('#de-win-fav > .de-win-body');
 		if(!winEl || !winEl.hasChildNodes()) {
 			return;
 		}
-		const [,, newEl, oldEl] = [...$q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-			tNum }"] > .de-fav-inf`, winEl).children];
+		const entry = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+			tNum }"] > .de-fav-inf`, winEl);
+		if(!entry) {
+			return;
+		}
+		const [iconEl, youEl, newEl, oldEl] = [...entry.children];
+		$hide(youEl);
 		$hide(newEl);
+		if(isError) {
+			iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+			iconEl.title = value;
+			return;
+		}
+		youEl.textContent = 0;
 		newEl.textContent = 0;
-		oldEl.textContent = pCount;
+		oldEl.textContent = value;
 	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
@@ -402,9 +434,8 @@ class Thread {
 		}
 		if(pBuilder.isClosed) {
 			AjaxCache.clearCache();
-			return { newCount: newVisPosts, locked: true };
 		}
-		return { newCount: newVisPosts, locked: false };
+		return { newCount: newVisPosts, locked: pBuilder.isClosed };
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
@@ -478,21 +509,7 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		readFavorites().then(data => {
-			let f = data[aib.host];
-			if(!f || !f[aib.b] || !(f = f[aib.b][this.op.num])) {
-				return;
-			}
-			const updVal = [this.op.num, this.pcount];
-			Thread.updateFavEntry(...updVal);
-			f.cnt = this.pcount;
-			f.new = 0;
-			f.you = 0;
-			f.last = aib.anchor + this.last.num;
-			setStored('DESU_Favorites', JSON.stringify(data));
-			locStorage['__de-favorites'] = JSON.stringify(updVal);
-			locStorage.removeItem('__de-favorites');
-		});
+		Thread.updateFav([this.op.num, this.pcount, false]);
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}

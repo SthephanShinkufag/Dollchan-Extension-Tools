@@ -104,19 +104,16 @@ class WinResizer {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.cssText = `width: ${ this.tStyle.width } !important; height: ` +
-					Math.max(parseInt(this.tStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
-					), 90) + 'px !important;';
+				this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				), 90) + 'px', 'important');
 			} else {
 				val = e.clientX;
-				this.tStyle.cssText = 'width: ' +
-					Math.max(parseInt(this.tStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-						(val > maxX - 20 ? maxX : val) - cr.right
-					), this.name === 'reply' ? 275 : 400) +
-					`px !important; height: ${ this.tStyle.height } !important;`;
+				this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
+				), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 			}
 			return;
 		default: // mouseup

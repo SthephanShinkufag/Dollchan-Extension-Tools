@@ -24,9 +24,9 @@ function $before(el, node) {
 }
 
 function $after(el, node) {
-	const next = el.nextSibling;
-	if(next) {
-		el.parentNode.insertBefore(node, next);
+	const nextEl = el.nextSibling;
+	if(nextEl) {
+		el.parentNode.insertBefore(node, nextEl);
 	} else {
 		el.parentNode.appendChild(node);
 	}

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '5603c34';
+const commit = '1661324';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1557,9 +1557,9 @@ function $before(el, node) {
 }
 
 function $after(el, node) {
-	const next = el.nextSibling;
-	if(next) {
-		el.parentNode.insertBefore(node, next);
+	const nextEl = el.nextSibling;
+	if(nextEl) {
+		el.parentNode.insertBefore(node, nextEl);
 	} else {
 		el.parentNode.appendChild(node);
 	}
@@ -3252,19 +3252,16 @@ class WinResizer {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.cssText = `width: ${ this.tStyle.width } !important; height: ` +
-					Math.max(parseInt(this.tStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
-					), 90) + 'px !important;';
+				this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				), 90) + 'px', 'important');
 			} else {
 				val = e.clientX;
-				this.tStyle.cssText = 'width: ' +
-					Math.max(parseInt(this.tStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-						(val > maxX - 20 ? maxX : val) - cr.right
-					), this.name === 'reply' ? 275 : 400) +
-					`px !important; height: ${ this.tStyle.height } !important;`;
+				this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
+				), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 			}
 			return;
 		default: // mouseup
@@ -3791,10 +3788,8 @@ function showFavoritesWindow(body, data) {
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
 				continue;
 			}
-			const countEl = $q('.de-fav-inf-new', el);
-			const youEl = countEl.previousElementSibling;
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
+			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+			const iconEl = titleEl.firstElementChild;
 			// setAttribute for class is used because of SVG (for correct work in some browsers)
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
@@ -13028,16 +13023,48 @@ class Thread {
 	static removeSavedData() {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
-	static updateFavEntry(tNum, pCount) {
+	static updateFav(updVal) {
+		const [tNum, value, isError] = updVal;
+		readFavorites().then(data => {
+			let f = data[aib.host];
+			if(!f || !f[aib.b] || !(f = f[aib.b][tNum])) {
+				return;
+			}
+			if(isError) {
+				f.err = value;
+			} else {
+				f.cnt = value;
+				f.new = 0;
+				f.you = 0;
+				f.last = aib.anchor + this.last.num;
+			}
+			Thread.updateFavEntry(...updVal);
+			setStored('DESU_Favorites', JSON.stringify(data));
+			locStorage['__de-favorites'] = JSON.stringify(updVal);
+			locStorage.removeItem('__de-favorites');
+		});
+	}
+	static updateFavEntry(tNum, value, isError) {
 		const winEl = $q('#de-win-fav > .de-win-body');
 		if(!winEl || !winEl.hasChildNodes()) {
 			return;
 		}
-		const [,, newEl, oldEl] = [...$q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-			tNum }"] > .de-fav-inf`, winEl).children];
+		const entry = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
+			tNum }"] > .de-fav-inf`, winEl);
+		if(!entry) {
+			return;
+		}
+		const [iconEl, youEl, newEl, oldEl] = [...entry.children];
+		$hide(youEl);
 		$hide(newEl);
+		if(isError) {
+			iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+			iconEl.title = value;
+			return;
+		}
+		youEl.textContent = 0;
 		newEl.textContent = 0;
-		oldEl.textContent = pCount;
+		oldEl.textContent = value;
 	}
 	get bottom() {
 		return this.hidden ? this.op.bottom : this.last.bottom;
@@ -13365,9 +13392,8 @@ class Thread {
 		}
 		if(pBuilder.isClosed) {
 			AjaxCache.clearCache();
-			return { newCount: newVisPosts, locked: true };
 		}
-		return { newCount: newVisPosts, locked: false };
+		return { newCount: newVisPosts, locked: pBuilder.isClosed };
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
@@ -13441,21 +13467,7 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		readFavorites().then(data => {
-			let f = data[aib.host];
-			if(!f || !f[aib.b] || !(f = f[aib.b][this.op.num])) {
-				return;
-			}
-			const updVal = [this.op.num, this.pcount];
-			Thread.updateFavEntry(...updVal);
-			f.cnt = this.pcount;
-			f.new = 0;
-			f.you = 0;
-			f.last = aib.anchor + this.last.num;
-			setStored('DESU_Favorites', JSON.stringify(data));
-			locStorage['__de-favorites'] = JSON.stringify(updVal);
-			locStorage.removeItem('__de-favorites');
-		});
+		Thread.updateFav([this.op.num, this.pcount, false]);
 		if(maybeVParser.hasValue) {
 			maybeVParser.value.endParser();
 		}
@@ -13951,6 +13963,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
+				Thread.updateFav([aib.t, getErrorMessage(error), true]);
 				return;
 			}
 			if(lastECode !== 200) {
@@ -16857,8 +16870,8 @@ function initPage() {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
 			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
-				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>
-				<span id="de-updater-count" style="display: none;"></span>]</span>
+				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>` +
+				`<span id="de-updater-count" style="display: none;"></span>]</span>
 				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
 			</div>`);
 		}

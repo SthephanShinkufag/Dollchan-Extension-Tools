@@ -3353,7 +3353,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var checkDelete = function () {
-		var _ref63 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
+		var _ref64 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
 			var err, els, threads, isThr, i, len, el;
 			return regeneratorRuntime.wrap(function _callee13$(_context14) {
 				while (1) {
@@ -3426,15 +3426,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function checkDelete(_x38) {
-			return _ref63.apply(this, arguments);
+			return _ref64.apply(this, arguments);
 		};
 	}();
 
 	var html5Submit = function () {
-		var _ref64 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
+		var _ref65 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iterator23, _isArray23, _i32, _ref65, _ref66, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
+			var data, hasFiles, _iterator23, _isArray23, _i32, _ref66, _ref67, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
 
 			return regeneratorRuntime.wrap(function _callee14$(_context15) {
 				while (1) {
@@ -3458,7 +3458,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context15.abrupt('break', 38);
 
 						case 6:
-							_ref65 = _iterator23[_i32++];
+							_ref66 = _iterator23[_i32++];
 							_context15.next = 13;
 							break;
 
@@ -3473,10 +3473,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context15.abrupt('break', 38);
 
 						case 12:
-							_ref65 = _i32.value;
+							_ref66 = _i32.value;
 
 						case 13:
-							_ref66 = _ref65, name = _ref66.name, value = _ref66.value, type = _ref66.type, el = _ref66.el;
+							_ref67 = _ref66, name = _ref67.name, value = _ref67.value, type = _ref67.type, el = _ref67.el;
 							val = value;
 
 							if (!(name === 'de-file-txt')) {
@@ -3574,12 +3574,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function html5Submit(_x40, _x41) {
-			return _ref64.apply(this, arguments);
+			return _ref65.apply(this, arguments);
 		};
 	}();
 
 	var readFile = function () {
-		var _ref67 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(file) {
+		var _ref68 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(file) {
 			var asText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 			return regeneratorRuntime.wrap(function _callee15$(_context16) {
 				while (1) {
@@ -3606,15 +3606,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function readFile(_x43) {
-			return _ref67.apply(this, arguments);
+			return _ref68.apply(this, arguments);
 		};
 	}();
 
 
 
 	var runMain = function () {
-		var _ref114 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
-			var formEl, fav, oldMain, _ref115, _ref116, storageName, firstThr;
+		var _ref115 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
+			var formEl, fav, oldMain, _ref116, _ref117, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee21$(_context26) {
 				while (1) {
@@ -3666,10 +3666,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 15:
-							_ref115 = _context26.sent;
-							_ref116 = _slicedToArray(_ref115, 2);
-							excludeList = _ref116[0];
-							fav = _ref116[1];
+							_ref116 = _context26.sent;
+							_ref117 = _slicedToArray(_ref116, 2);
+							excludeList = _ref117[0];
+							fav = _ref117[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
 								_context26.next = 21;
@@ -3800,7 +3800,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x81, _x82) {
-			return _ref114.apply(this, arguments);
+			return _ref115.apply(this, arguments);
 		};
 	}();
 
@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '5603c34';
+	var commit = '1661324';
 
 
 	var defaultCfg = {
@@ -4408,9 +4408,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function $after(el, node) {
-		var next = el.nextSibling;
-		if (next) {
-			el.parentNode.insertBefore(node, next);
+		var nextEl = el.nextSibling;
+		if (nextEl) {
+			el.parentNode.insertBefore(node, nextEl);
 		} else {
 			el.parentNode.appendChild(node);
 		}
@@ -6301,10 +6301,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'mousemove':
 						if (this.vertical) {
 							val = e.clientY;
-							this.tStyle.cssText = 'width: ' + this.tStyle.width + ' !important; height: ' + Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px !important;';
+							this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) : (val > maxY - 45 ? maxY - 25 : val) - cr.bottom), 90) + 'px', 'important');
 						} else {
 							val = e.clientX;
-							this.tStyle.cssText = 'width: ' + Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + ('px !important; height: ' + this.tStyle.height + ' !important;');
+							this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 						}
 						return;
 					default:
@@ -6762,7 +6762,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee5() {
-			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b, num, f, countEl, youEl, iconEl, titleEl, form, isArchived, _ref10, _ref11, bArch, posts, cnt, j, links, a, _len, tc;
+			var fav, isUpdate, last404, myposts, els, i, len, el, host, _b, num, f, _ref10, titleEl, youEl, countEl, iconEl, form, isArchived, _ref11, _ref12, bArch, posts, cnt, j, links, a, _len, tc;
 
 			return regeneratorRuntime.wrap(function _callee5$(_context6) {
 				while (1) {
@@ -6790,7 +6790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 10:
 							if (!(i < len)) {
-								_context6.next = 66;
+								_context6.next = 64;
 								break;
 							}
 
@@ -6805,80 +6805,78 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context6.abrupt('continue', 63);
+							return _context6.abrupt('continue', 61);
 
 						case 18:
-							countEl = $q('.de-fav-inf-new', el);
-							youEl = countEl.previousElementSibling;
-							iconEl = $q('.de-fav-inf-icon', el);
-							titleEl = iconEl.parentNode;
+							_ref10 = [].concat(_toConsumableArray(el.lastElementChild.children)), titleEl = _ref10[0], youEl = _ref10[1], countEl = _ref10[2];
+							iconEl = titleEl.firstElementChild;
 
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 							titleEl.title = Lng.updating[lang];
 							form = void 0, isArchived = void 0;
-							_context6.prev = 25;
+							_context6.prev = 23;
 
 							if (aib.iichan) {
-								_context6.next = 32;
+								_context6.next = 30;
 								break;
 							}
 
-							_context6.next = 29;
+							_context6.next = 27;
 							return ajaxLoad(aib.getThrUrl(_b, num));
 
-						case 29:
+						case 27:
 							form = _context6.sent;
-							_context6.next = 38;
+							_context6.next = 36;
 							break;
 
-						case 32:
-							_context6.next = 34;
+						case 30:
+							_context6.next = 32;
 							return ajaxLoad(aib.getThrUrl(_b, num), true, false, true);
 
-						case 34:
-							_ref10 = _context6.sent;
-							_ref11 = _slicedToArray(_ref10, 2);
-							form = _ref11[0];
-							isArchived = _ref11[1];
+						case 32:
+							_ref11 = _context6.sent;
+							_ref12 = _slicedToArray(_ref11, 2);
+							form = _ref12[0];
+							isArchived = _ref12[1];
 
-						case 38:
+						case 36:
 							last404 = false;
-							_context6.next = 58;
+							_context6.next = 56;
 							break;
 
-						case 41:
-							_context6.prev = 41;
-							_context6.t0 = _context6['catch'](25);
+						case 39:
+							_context6.prev = 39;
+							_context6.t0 = _context6['catch'](23);
 
 							if (!(_context6.t0 instanceof AjaxError && _context6.t0.code === 404)) {
-								_context6.next = 51;
+								_context6.next = 49;
 								break;
 							}
 
 							if (!last404) {
-								_context6.next = 48;
+								_context6.next = 46;
 								break;
 							}
 
 							Thread.removeSavedData(_b, num); 
-							_context6.next = 51;
+							_context6.next = 49;
 							break;
 
-						case 48:
+						case 46:
 							last404 = true;
 							--i; 
-							return _context6.abrupt('continue', 63);
+							return _context6.abrupt('continue', 61);
 
-						case 51:
+						case 49:
 							last404 = false;
 							$hide(countEl);
 							$hide(youEl);
 							iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 							f.err = titleEl.title = getErrorMessage(_context6.t0);
 							isUpdate = true;
-							return _context6.abrupt('continue', 63);
+							return _context6.abrupt('continue', 61);
 
-						case 58:
+						case 56:
 							if (aib.qClosed && $q(aib.qClosed, form)) {
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrClosed[lang];
@@ -6935,23 +6933,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 							}
 
-						case 63:
+						case 61:
 							++i;
 							_context6.next = 10;
 							break;
 
-						case 66:
+						case 64:
 							AjaxCache.clearCache();
 							if (isUpdate) {
 								setStored('DESU_Favorites', JSON.stringify(fav));
 							}
 
-						case 68:
+						case 66:
 						case 'end':
 							return _context6.stop();
 					}
 				}
-			}, _callee5, _this13, [[25, 41]]);
+			}, _callee5, _this13, [[23, 39]]);
 		}))));
 
 		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
@@ -7237,8 +7235,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (!file) {
 						return;
 					}
-					readFile(file, true).then(function (_ref14) {
-						var data = _ref14.data;
+					readFile(file, true).then(function (_ref15) {
+						var data = _ref15.data;
 
 						var obj = void 0;
 						try {
@@ -7288,7 +7286,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var els = $Q('input', expFile.nextElementSibling);
 				els[0].checked = true;
 				expFile.addEventListener('click', function () {
-					var _ref15 = _asyncToGenerator( regeneratorRuntime.mark(function _callee8(e) {
+					var _ref16 = _asyncToGenerator( regeneratorRuntime.mark(function _callee8(e) {
 						var name, nameDm, d, val, valDm, i, len, cfgData;
 						return regeneratorRuntime.wrap(function _callee8$(_context9) {
 							while (1) {
@@ -7383,14 +7381,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}));
 
 					return function (_x11) {
-						return _ref15.apply(this, arguments);
+						return _ref16.apply(this, arguments);
 					};
 				}(), true);
 			}));
 
 			div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], function () {
-				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (_ref16) {
-					var target = _ref16.target;
+				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (_ref17) {
+					var target = _ref17.target;
 
 					var els = $Q('input[type="checkbox"]', target.parentNode);
 					for (var i = 1, len = els.length; i < len; ++i) {
@@ -7581,19 +7579,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'imgSrcBtns':
 						if (Cfg.imgSrcBtns) {
 							for (var _iterator3 = DelForm, _isArray3 = Array.isArray(_iterator3), _i5 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-								var _ref17;
+								var _ref18;
 
 								if (_isArray3) {
 									if (_i5 >= _iterator3.length) break;
-									_ref17 = _iterator3[_i5++];
+									_ref18 = _iterator3[_i5++];
 								} else {
 									_i5 = _iterator3.next();
 									if (_i5.done) break;
-									_ref17 = _i5.value;
+									_ref18 = _i5.value;
 								}
 
-								var _ref18 = _ref17,
-								    _el4 = _ref18.el;
+								var _ref19 = _ref18,
+								    _el4 = _ref19.el;
 
 								processImgInfoLinks(_el4, 1, 0);
 								$each($Q('.de-img-embed'), function (el) {
@@ -7607,19 +7605,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'delImgNames':
 						if (Cfg.delImgNames) {
 							for (var _iterator4 = DelForm, _isArray4 = Array.isArray(_iterator4), _i6 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-								var _ref19;
+								var _ref20;
 
 								if (_isArray4) {
 									if (_i6 >= _iterator4.length) break;
-									_ref19 = _iterator4[_i6++];
+									_ref20 = _iterator4[_i6++];
 								} else {
 									_i6 = _iterator4.next();
 									if (_i6.done) break;
-									_ref19 = _i6.value;
+									_ref20 = _i6.value;
 								}
 
-								var _ref20 = _ref19,
-								    _el5 = _ref20.el;
+								var _ref21 = _ref20,
+								    _el5 = _ref21.el;
 
 								processImgInfoLinks(_el5, 0, 1);
 							}
@@ -7993,8 +7991,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		} else {
 			el = $bEnd($id('de-wrapper-popup'), '<div class="' + aib.cReply + ' de-popup" id="de-popup-' + id + '">\n\t\t\t<span class="de-popup-btn">' + buttonHTML + '</span>\n\t\t\t<div class="de-popup-msg">' + txt.trim() + '</div>\n\t\t</div>');
-			el.onclick = function (_ref21) {
-				var target = _ref21.target;
+			el.onclick = function (_ref22) {
+				var target = _ref22.target;
 
 				var el = fixEventEl(target);
 				el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
@@ -8424,7 +8422,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._paused = true;
 		},
 		readKeys: function () {
-			var _ref22 = _asyncToGenerator( regeneratorRuntime.mark(function _callee9() {
+			var _ref23 = _asyncToGenerator( regeneratorRuntime.mark(function _callee9() {
 				var str, keys, tKeys, mapFunc;
 				return regeneratorRuntime.wrap(function _callee9$(_context10) {
 					while (1) {
@@ -8525,7 +8523,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function readKeys() {
-				return _ref22.apply(this, arguments);
+				return _ref23.apply(this, arguments);
 			}
 
 			return readKeys;
@@ -9445,8 +9443,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
 				$show(el);
 				if (!enableJsapi) {
-					el.lastChild.onclick = function (_ref23) {
-						var target = _ref23.target;
+					el.lastChild.onclick = function (_ref24) {
+						var target = _ref24.target;
 						return target.parentNode.classList.toggle('de-video-expanded');
 					};
 				}
@@ -9539,12 +9537,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_titlesLoaderHelper',
-			value: function _titlesLoaderHelper(_ref24, num) {
-				var _ref25 = _slicedToArray(_ref24, 4),
-				    link = _ref25[0],
-				    isYtube = _ref25[1],
-				    videoObj = _ref25[2],
-				    id = _ref25[3];
+			value: function _titlesLoaderHelper(_ref25, num) {
+				var _ref26 = _slicedToArray(_ref25, 4),
+				    link = _ref26[0],
+				    isYtube = _ref26[1],
+				    videoObj = _ref26[2],
+				    id = _ref26[3];
 
 				for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
 					data[_key2 - 2] = arguments[_key2];
@@ -9750,8 +9748,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onreadystatechange = function (_ref26) {
-				var target = _ref26.target;
+			xhr.onreadystatechange = function (_ref27) {
+				var target = _ref27.target;
 
 				if (needTO) {
 					clearTimeout(_loadTO);
@@ -9841,9 +9839,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		runCachedAjax: function runCachedAjax(url, useCache) {
 			var _this18 = this;
 
-			var _ref27 = this._data.get(url) || {},
-			    hasCacheControl = _ref27.hasCacheControl,
-			    params = _ref27.params;
+			var _ref28 = this._data.get(url) || {},
+			    hasCacheControl = _ref28.hasCacheControl,
+			    params = _ref28.params;
 
 			var ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
 			return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
@@ -9857,18 +9855,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var hasCacheControl = false;
 			var ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 			for (var _iterator5 = ajaxHeaders.split('\r\n'), _isArray5 = Array.isArray(_iterator5), _i10 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-				var _ref28;
+				var _ref29;
 
 				if (_isArray5) {
 					if (_i10 >= _iterator5.length) break;
-					_ref28 = _iterator5[_i10++];
+					_ref29 = _iterator5[_i10++];
 				} else {
 					_i10 = _iterator5.next();
 					if (_i10.done) break;
-					_ref28 = _i10.value;
+					_ref29 = _i10.value;
 				}
 
-				var header = _ref28;
+				var header = _ref29;
 
 				var lHeader = header.toLowerCase();
 				if (lHeader.startsWith('cache-control: ')) {
@@ -9994,8 +9992,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			});
 		},
 		loadPages: function () {
-			var _ref29 = _asyncToGenerator( regeneratorRuntime.mark(function _callee10(count) {
-				var _iterator6, _isArray6, _i11, _ref30, form, i, len, first;
+			var _ref30 = _asyncToGenerator( regeneratorRuntime.mark(function _callee10(count) {
+				var _iterator6, _isArray6, _i11, _ref31, form, i, len, first;
 
 				return regeneratorRuntime.wrap(function _callee10$(_context11) {
 					while (1) {
@@ -10032,7 +10030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return _context11.abrupt('break', 29);
 
 							case 14:
-								_ref30 = _iterator6[_i11++];
+								_ref31 = _iterator6[_i11++];
 								_context11.next = 21;
 								break;
 
@@ -10047,10 +10045,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return _context11.abrupt('break', 29);
 
 							case 20:
-								_ref30 = _i11.value;
+								_ref31 = _i11.value;
 
 							case 21:
-								form = _ref30;
+								form = _ref31;
 
 								$each($Q('a[href^="blob:"]', form.el), function (el) {
 									return URL.revokeObjectURL(el.href);
@@ -10131,7 +10129,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function loadPages(_x31) {
-				return _ref29.apply(this, arguments);
+				return _ref30.apply(this, arguments);
 			}
 
 			return loadPages;
@@ -10159,7 +10157,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._addingPromise = null;
 		},
 		_updateForms: function () {
-			var _ref31 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(newForm) {
+			var _ref32 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(newForm) {
 				return regeneratorRuntime.wrap(function _callee11$(_context12) {
 					while (1) {
 						switch (_context12.prev = _context12.next) {
@@ -10190,7 +10188,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function _updateForms(_x32) {
-				return _ref31.apply(this, arguments);
+				return _ref32.apply(this, arguments);
 			}
 
 			return _updateForms;
@@ -10248,36 +10246,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (reps) {
 					for (var _iterator7 = reps, _isArray7 = Array.isArray(_iterator7), _i12 = 0, _iterator7 = _isArray7 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
-						var _ref32;
+						var _ref33;
 
 						if (_isArray7) {
 							if (_i12 >= _iterator7.length) break;
-							_ref32 = _iterator7[_i12++];
+							_ref33 = _iterator7[_i12++];
 						} else {
 							_i12 = _iterator7.next();
 							if (_i12.done) break;
-							_ref32 = _i12.value;
+							_ref33 = _i12.value;
 						}
 
-						var rep = _ref32;
+						var rep = _ref33;
 
 						str += this._decompileRep(rep, false) + '\n';
 					}
 				}
 				if (oreps) {
 					for (var _iterator8 = oreps, _isArray8 = Array.isArray(_iterator8), _i13 = 0, _iterator8 = _isArray8 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-						var _ref33;
+						var _ref34;
 
 						if (_isArray8) {
 							if (_i13 >= _iterator8.length) break;
-							_ref33 = _iterator8[_i13++];
+							_ref34 = _iterator8[_i13++];
 						} else {
 							_i13 = _iterator8.next();
 							if (_i13.done) break;
-							_ref33 = _i13.value;
+							_ref34 = _i13.value;
 						}
 
-						var orep = _ref33;
+						var orep = _ref34;
 
 						str += this._decompileRep(orep, true) + '\n';
 					}
@@ -10390,10 +10388,10 @@ true, true];
 					return spell;
 				}
 
-				var _ref34 = wipeMsg || [],
-				    _ref35 = _slicedToArray(_ref34, 2),
-				    msgBit = _ref35[0],
-				    msgData = _ref35[1];
+				var _ref35 = wipeMsg || [],
+				    _ref36 = _slicedToArray(_ref35, 2),
+				    msgBit = _ref36[0],
+				    msgData = _ref36[1];
 
 				var names = [];
 				var bits = {
@@ -10451,18 +10449,18 @@ true, true];
 		},
 		outReplace: function outReplace(txt) {
 			for (var _iterator9 = this.outreps, _isArray9 = Array.isArray(_iterator9), _i14 = 0, _iterator9 = _isArray9 ? _iterator9 : _iterator9[Symbol.iterator]();;) {
-				var _ref36;
+				var _ref37;
 
 				if (_isArray9) {
 					if (_i14 >= _iterator9.length) break;
-					_ref36 = _iterator9[_i14++];
+					_ref37 = _iterator9[_i14++];
 				} else {
 					_i14 = _iterator9.next();
 					if (_i14.done) break;
-					_ref36 = _i14.value;
+					_ref37 = _i14.value;
 				}
 
-				var orep = _ref36;
+				var orep = _ref37;
 
 				txt = txt.replace(orep[0], orep[1]);
 			}
@@ -10483,18 +10481,18 @@ true, true];
 		},
 		replace: function replace(txt) {
 			for (var _iterator10 = this.reps, _isArray10 = Array.isArray(_iterator10), _i15 = 0, _iterator10 = _isArray10 ? _iterator10 : _iterator10[Symbol.iterator]();;) {
-				var _ref37;
+				var _ref38;
 
 				if (_isArray10) {
 					if (_i15 >= _iterator10.length) break;
-					_ref37 = _iterator10[_i15++];
+					_ref38 = _iterator10[_i15++];
 				} else {
 					_i15 = _iterator10.next();
 					if (_i15.done) break;
-					_ref37 = _i15.value;
+					_ref38 = _i15.value;
 				}
 
-				var rep = _ref37;
+				var rep = _ref38;
 
 				txt = txt.replace(rep[0], rep[1]);
 			}
@@ -10603,18 +10601,18 @@ true, true];
 		_initHiders: function _initHiders(data) {
 			if (data) {
 				for (var _iterator11 = data, _isArray11 = Array.isArray(_iterator11), _i16 = 0, _iterator11 = _isArray11 ? _iterator11 : _iterator11[Symbol.iterator]();;) {
-					var _ref38;
+					var _ref39;
 
 					if (_isArray11) {
 						if (_i16 >= _iterator11.length) break;
-						_ref38 = _iterator11[_i16++];
+						_ref39 = _iterator11[_i16++];
 					} else {
 						_i16 = _iterator11.next();
 						if (_i16.done) break;
-						_ref38 = _i16.value;
+						_ref39 = _i16.value;
 					}
 
-					var item = _ref38;
+					var item = _ref39;
 
 					var val = item[1];
 					if (val) {
@@ -10636,18 +10634,18 @@ true, true];
 		_initReps: function _initReps(data) {
 			if (data) {
 				for (var _iterator12 = data, _isArray12 = Array.isArray(_iterator12), _i17 = 0, _iterator12 = _isArray12 ? _iterator12 : _iterator12[Symbol.iterator]();;) {
-					var _ref39;
+					var _ref40;
 
 					if (_isArray12) {
 						if (_i17 >= _iterator12.length) break;
-						_ref39 = _iterator12[_i17++];
+						_ref40 = _iterator12[_i17++];
 					} else {
 						_i17 = _iterator12.next();
 						if (_i17.done) break;
-						_ref39 = _i17.value;
+						_ref40 = _i17.value;
 					}
 
-					var item = _ref39;
+					var item = _ref40;
 
 					item[0] = toRegExp(item[0], false);
 				}
@@ -10663,23 +10661,23 @@ true, true];
 		_optimizeReps: function _optimizeReps(data) {
 			var rv = [];
 			for (var _iterator13 = data, _isArray13 = Array.isArray(_iterator13), _i18 = 0, _iterator13 = _isArray13 ? _iterator13 : _iterator13[Symbol.iterator]();;) {
-				var _ref40;
+				var _ref41;
 
 				if (_isArray13) {
 					if (_i18 >= _iterator13.length) break;
-					_ref40 = _iterator13[_i18++];
+					_ref41 = _iterator13[_i18++];
 				} else {
 					_i18 = _iterator13.next();
 					if (_i18.done) break;
-					_ref40 = _i18.value;
+					_ref41 = _i18.value;
 				}
 
-				var _ref41 = _ref40,
-				    _ref42 = _slicedToArray(_ref41, 4),
-				    r0 = _ref42[0],
-				    r1 = _ref42[1],
-				    r2 = _ref42[2],
-				    r3 = _ref42[3];
+				var _ref42 = _ref41,
+				    _ref43 = _slicedToArray(_ref42, 4),
+				    r0 = _ref43[0],
+				    r1 = _ref43[1],
+				    r2 = _ref43[2],
+				    r3 = _ref43[3];
 
 				if (!r0 || r0 === aib.b && (r1 === -1 ? !aib.t : !r1 || +r1 === aib.t)) {
 					rv.push([r2, r3]);
@@ -11199,11 +11197,11 @@ true, true];
 			}
 		}, {
 			key: '_checkRes',
-			value: function _checkRes(post, _ref43) {
-				var _ref44 = _slicedToArray(_ref43, 3),
-				    hasNumSpell = _ref44[0],
-				    val = _ref44[1],
-				    msg = _ref44[2];
+			value: function _checkRes(post, _ref44) {
+				var _ref45 = _slicedToArray(_ref44, 3),
+				    hasNumSpell = _ref45[0],
+				    val = _ref45[1],
+				    msg = _ref45[2];
 
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
@@ -11379,36 +11377,36 @@ true, true];
 			value: function _getMsg() {
 				var rv = [];
 				for (var _iterator14 = this._triggeredSpellsStack, _isArray14 = Array.isArray(_iterator14), _i20 = 0, _iterator14 = _isArray14 ? _iterator14 : _iterator14[Symbol.iterator]();;) {
-					var _ref45;
+					var _ref46;
 
 					if (_isArray14) {
 						if (_i20 >= _iterator14.length) break;
-						_ref45 = _iterator14[_i20++];
+						_ref46 = _iterator14[_i20++];
 					} else {
 						_i20 = _iterator14.next();
 						if (_i20.done) break;
-						_ref45 = _i20.value;
+						_ref46 = _i20.value;
 					}
 
-					var spellEls = _ref45;
+					var spellEls = _ref46;
 
 					for (var _iterator15 = spellEls, _isArray15 = Array.isArray(_iterator15), _i21 = 0, _iterator15 = _isArray15 ? _iterator15 : _iterator15[Symbol.iterator]();;) {
-						var _ref46;
+						var _ref47;
 
 						if (_isArray15) {
 							if (_i21 >= _iterator15.length) break;
-							_ref46 = _iterator15[_i21++];
+							_ref47 = _iterator15[_i21++];
 						} else {
 							_i21 = _iterator15.next();
 							if (_i21.done) break;
-							_ref46 = _i21.value;
+							_ref47 = _i21.value;
 						}
 
-						var _ref47 = _ref46,
-						    _ref48 = _slicedToArray(_ref47, 3),
-						    isNeg = _ref48[0],
-						    spell = _ref48[1],
-						    wipeMsg = _ref48[2];
+						var _ref48 = _ref47,
+						    _ref49 = _slicedToArray(_ref48, 3),
+						    isNeg = _ref49[0],
+						    spell = _ref49[1],
+						    wipeMsg = _ref49[2];
 
 						rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 					}
@@ -11474,8 +11472,8 @@ true, true];
 		}, {
 			key: '_ihash',
 			value: function () {
-				var _ref49 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(val) {
-					var _iterator16, _isArray16, _i22, _ref50, image;
+				var _ref50 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(val) {
+					var _iterator16, _isArray16, _i22, _ref51, image;
 
 					return regeneratorRuntime.wrap(function _callee12$(_context13) {
 						while (1) {
@@ -11497,7 +11495,7 @@ true, true];
 									return _context13.abrupt('break', 23);
 
 								case 4:
-									_ref50 = _iterator16[_i22++];
+									_ref51 = _iterator16[_i22++];
 									_context13.next = 11;
 									break;
 
@@ -11512,10 +11510,10 @@ true, true];
 									return _context13.abrupt('break', 23);
 
 								case 10:
-									_ref50 = _i22.value;
+									_ref51 = _i22.value;
 
 								case 11:
-									image = _ref50;
+									image = _ref51;
 									_context13.t0 = image instanceof AttachedImage;
 
 									if (!_context13.t0) {
@@ -11555,7 +11553,7 @@ true, true];
 				}));
 
 				function _ihash(_x34) {
-					return _ref49.apply(this, arguments);
+					return _ref50.apply(this, arguments);
 				}
 
 				return _ihash;
@@ -11574,18 +11572,18 @@ true, true];
 					return images.hasAttachments;
 				}
 				for (var _iterator17 = images, _isArray17 = Array.isArray(_iterator17), _i23 = 0, _iterator17 = _isArray17 ? _iterator17 : _iterator17[Symbol.iterator]();;) {
-					var _ref51;
+					var _ref52;
 
 					if (_isArray17) {
 						if (_i23 >= _iterator17.length) break;
-						_ref51 = _iterator17[_i23++];
+						_ref52 = _iterator17[_i23++];
 					} else {
 						_i23 = _iterator17.next();
 						if (_i23.done) break;
-						_ref51 = _i23.value;
+						_ref52 = _i23.value;
 					}
 
-					var image = _ref51;
+					var image = _ref52;
 
 					if (!(image instanceof AttachedImage)) {
 						continue;
@@ -11635,18 +11633,18 @@ true, true];
 			key: '_imgn',
 			value: function _imgn(val) {
 				for (var _iterator18 = this._post.images, _isArray18 = Array.isArray(_iterator18), _i24 = 0, _iterator18 = _isArray18 ? _iterator18 : _iterator18[Symbol.iterator]();;) {
-					var _ref52;
+					var _ref53;
 
 					if (_isArray18) {
 						if (_i24 >= _iterator18.length) break;
-						_ref52 = _iterator18[_i24++];
+						_ref53 = _iterator18[_i24++];
 					} else {
 						_i24 = _iterator18.next();
 						if (_i24.done) break;
-						_ref52 = _i24.value;
+						_ref53 = _i24.value;
 					}
 
-					var image = _ref52;
+					var image = _ref53;
 
 					if (image instanceof AttachedImage && val.test(image.name)) {
 						return true;
@@ -11715,32 +11713,32 @@ true, true];
 					return false;
 				}
 				for (var _iterator19 = videos.vData, _isArray19 = Array.isArray(_iterator19), _i25 = 0, _iterator19 = _isArray19 ? _iterator19 : _iterator19[Symbol.iterator]();;) {
-					var _ref53;
+					var _ref54;
 
 					if (_isArray19) {
 						if (_i25 >= _iterator19.length) break;
-						_ref53 = _iterator19[_i25++];
+						_ref54 = _iterator19[_i25++];
 					} else {
 						_i25 = _iterator19.next();
 						if (_i25.done) break;
-						_ref53 = _i25.value;
+						_ref54 = _i25.value;
 					}
 
-					var siteData = _ref53;
+					var siteData = _ref54;
 
 					for (var _iterator20 = siteData, _isArray20 = Array.isArray(_iterator20), _i26 = 0, _iterator20 = _isArray20 ? _iterator20 : _iterator20[Symbol.iterator]();;) {
-						var _ref54;
+						var _ref55;
 
 						if (_isArray20) {
 							if (_i26 >= _iterator20.length) break;
-							_ref54 = _iterator20[_i26++];
+							_ref55 = _iterator20[_i26++];
 						} else {
 							_i26 = _iterator20.next();
 							if (_i26.done) break;
-							_ref54 = _i26.value;
+							_ref55 = _i26.value;
 						}
 
-						var data = _ref54;
+						var data = _ref55;
 
 						if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 							return true;
@@ -12326,18 +12324,18 @@ true, true];
 				el.addEventListener('paste', function (e) {
 					if ('clipboardData' in e) {
 						for (var _iterator21 = e.clipboardData.items, _isArray21 = Array.isArray(_iterator21), _i30 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
-							var _ref55;
+							var _ref56;
 
 							if (_isArray21) {
 								if (_i30 >= _iterator21.length) break;
-								_ref55 = _iterator21[_i30++];
+								_ref56 = _iterator21[_i30++];
 							} else {
 								_i30 = _iterator21.next();
 								if (_i30.done) break;
-								_ref55 = _i30.value;
+								_ref56 = _i30.value;
 							}
 
-							var item = _ref55;
+							var item = _ref56;
 
 							if (item.kind === 'file') {
 								var inputs = _this28.files._inputs;
@@ -12354,8 +12352,8 @@ true, true];
 					}
 				});
 				if (nav.isFirefox) {
-					el.addEventListener('mouseup', function (_ref56) {
-						var target = _ref56.target;
+					el.addEventListener('mouseup', function (_ref57) {
+						var target = _ref57.target;
 						var _target$style = target.style,
 						    width = _target$style.width,
 						    height = _target$style.height;
@@ -12439,8 +12437,8 @@ true, true];
 
 				makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t\t<span class="de-win-title"></span>\n\t\t\t<span class="de-win-buttons">\n\t\t\t\t<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>\n\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class="de-resizer de-resizer-top"></div>\n\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t<div class="de-resizer de-resizer-right"></div>\n\t\t<div class="de-resizer de-resizer-bottom"></div>'));
 				var buttons = $q('.de-win-buttons', this.qArea);
-				buttons.onmouseover = function (_ref57) {
-					var target = _ref57.target;
+				buttons.onmouseover = function (_ref58) {
+					var target = _ref58.target;
 
 					var el = target.parentNode;
 					switch (fixEventEl(target).classList[0]) {
@@ -12453,10 +12451,10 @@ true, true];
 					}
 				};
 
-				var _ref58 = [].concat(_toConsumableArray(buttons.children)),
-				    clearBtn = _ref58[0],
-				    toggleBtn = _ref58[1],
-				    closeBtn = _ref58[2];
+				var _ref59 = [].concat(_toConsumableArray(buttons.children)),
+				    clearBtn = _ref59[0],
+				    toggleBtn = _ref59[1],
+				    closeBtn = _ref59[2];
 
 				clearBtn.onclick = function () {
 					saveCfg('sageReply', 0);
@@ -12562,20 +12560,20 @@ true, true];
 				}
 				var value = pr.passw.value = Cfg.passwValue;
 				for (var _iterator22 = DelForm, _isArray22 = Array.isArray(_iterator22), _i31 = 0, _iterator22 = _isArray22 ? _iterator22 : _iterator22[Symbol.iterator]();;) {
-					var _ref59;
+					var _ref60;
 
 					if (_isArray22) {
 						if (_i31 >= _iterator22.length) break;
-						_ref59 = _iterator22[_i31++];
+						_ref60 = _iterator22[_i31++];
 					} else {
 						_i31 = _iterator22.next();
 						if (_i31.done) break;
-						_ref59 = _i31.value;
+						_ref60 = _i31.value;
 					}
 
-					var _ref60 = _ref59,
-					    _ref60$passEl = _ref60.passEl,
-					    passEl = _ref60$passEl === undefined ? {} : _ref60$passEl;
+					var _ref61 = _ref60,
+					    _ref61$passEl = _ref61.passEl,
+					    passEl = _ref61$passEl === undefined ? {} : _ref61$passEl;
 
 					passEl.value = value;
 				}
@@ -12634,14 +12632,14 @@ true, true];
 		var progress = $id('de-uploadprogress');
 		var counterWrap = progress.nextElementSibling;
 
-		var _ref61 = [].concat(_toConsumableArray(counterWrap.children)),
-		    counterEl = _ref61[0],
-		    totalEl = _ref61[1],
-		    speedEl = _ref61[2];
+		var _ref62 = [].concat(_toConsumableArray(counterWrap.children)),
+		    counterEl = _ref62[0],
+		    totalEl = _ref62[1],
+		    speedEl = _ref62[2];
 
-		return function (_ref62) {
-			var total = _ref62.total,
-			    i = _ref62.loaded;
+		return function (_ref63) {
+			var total = _ref63.total,
+			    i = _ref63.loaded;
 
 			if (!inited) {
 				progress.setAttribute('max', total);
@@ -12904,18 +12902,18 @@ true, true];
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 				for (var _iterator24 = this._inputs, _isArray24 = Array.isArray(_iterator24), _i33 = 0, _iterator24 = _isArray24 ? _iterator24 : _iterator24[Symbol.iterator]();;) {
-					var _ref68;
+					var _ref69;
 
 					if (_isArray24) {
 						if (_i33 >= _iterator24.length) break;
-						_ref68 = _iterator24[_i33++];
+						_ref69 = _iterator24[_i33++];
 					} else {
 						_i33 = _iterator24.next();
 						if (_i33.done) break;
-						_ref68 = _i33.value;
+						_ref69 = _i33.value;
 					}
 
-					var inp = _ref68;
+					var inp = _ref69;
 
 					inp.changeMode(cfg);
 				}
@@ -12925,18 +12923,18 @@ true, true];
 			key: 'clearInputs',
 			value: function clearInputs() {
 				for (var _iterator25 = this._inputs, _isArray25 = Array.isArray(_iterator25), _i34 = 0, _iterator25 = _isArray25 ? _iterator25 : _iterator25[Symbol.iterator]();;) {
-					var _ref69;
+					var _ref70;
 
 					if (_isArray25) {
 						if (_i34 >= _iterator25.length) break;
-						_ref69 = _iterator25[_i34++];
+						_ref70 = _iterator25[_i34++];
 					} else {
 						_i34 = _iterator25.next();
 						if (_i34.done) break;
-						_ref69 = _i34.value;
+						_ref70 = _i34.value;
 					}
 
-					var inp = _ref69;
+					var inp = _ref70;
 
 					inp.clearInp();
 				}
@@ -12998,20 +12996,20 @@ true, true];
 			this._thumb = null;
 			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
 
-			var _ref70 = [].concat(_toConsumableArray(this._utils.children));
+			var _ref71 = [].concat(_toConsumableArray(this._utils.children));
 
-			this._btnRarJpg = _ref70[0];
-			this._btnSpoil = _ref70[1];
-			this._btnTxt = _ref70[2];
-			this._btnDel = _ref70[3];
+			this._btnRarJpg = _ref71[0];
+			this._btnSpoil = _ref71[1];
+			this._btnTxt = _ref71[2];
+			this._btnDel = _ref71[3];
 
 			this._utils.addEventListener('click', this);
 			this._txtWrap = $add('<span class="de-file-txt-wrap">\n\t\t\t<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="' + (Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-txt-add" value="+" title="') + (Lng.add[lang] + '" style="display: none;"></span>'));
 
-			var _ref71 = [].concat(_toConsumableArray(this._txtWrap.children));
+			var _ref72 = [].concat(_toConsumableArray(this._txtWrap.children));
 
-			this._txtInput = _ref71[0];
-			this._txtAddBtn = _ref71[1];
+			this._txtInput = _ref72[0];
+			this._txtAddBtn = _ref72[1];
 
 			this._txtWrap.addEventListener('click', this);
 			this._toggleDragEvents(this._txtWrap, true);
@@ -13240,14 +13238,14 @@ true, true];
 				var _this33 = this;
 
 				var el = this._parent.rarInput;
-				el.onchange = function (_ref72) {
-					var target = _ref72.target;
+				el.onchange = function (_ref73) {
+					var target = _ref73.target;
 
 					$hide(_this33._btnRarJpg);
 					var myBtn = _this33._rarMsg = $aBegin(_this33._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = target.files[0];
-					readFile(file).then(function (_ref73) {
-						var data = _ref73.data;
+					readFile(file).then(function (_ref74) {
+						var data = _ref74.data;
 
 						if (_this33._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
@@ -13411,8 +13409,8 @@ true, true];
 				}
 				var file = this._input.files[0];
 				if (file) {
-					readFile(file).then(function (_ref74) {
-						var data = _ref74.data;
+					readFile(file).then(function (_ref75) {
+						var data = _ref75.data;
 
 						if (_this35._input.files[0] === file) {
 							_this35._addNewThumb(data, file.name, file.type, file.size);
@@ -13437,8 +13435,8 @@ true, true];
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				return readFile(file).then(function (_ref75) {
-					var data = _ref75.data;
+				return readFile(file).then(function (_ref76) {
+					var data = _ref76.data;
 
 					input.imgFile = [data, file.name, file.type];
 					input.showInp();
@@ -14368,18 +14366,18 @@ true, true];
 				var isExpandVideos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
 				for (var _iterator26 = this.images, _isArray26 = Array.isArray(_iterator26), _i35 = 0, _iterator26 = _isArray26 ? _iterator26 : _iterator26[Symbol.iterator]();;) {
-					var _ref76;
+					var _ref77;
 
 					if (_isArray26) {
 						if (_i35 >= _iterator26.length) break;
-						_ref76 = _iterator26[_i35++];
+						_ref77 = _iterator26[_i35++];
 					} else {
 						_i35 = _iterator26.next();
 						if (_i35.done) break;
-						_ref76 = _i35.value;
+						_ref77 = _i35.value;
 					}
 
-					var image = _ref76;
+					var image = _ref77;
 
 					if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ isExpand) {
 						if (isExpand) {
@@ -15430,11 +15428,11 @@ true, true];
 
 			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>');
 
-			var _ref77 = [].concat(_toConsumableArray(btns.children));
+			var _ref78 = [].concat(_toConsumableArray(btns.children));
 
-			this.prevBtn = _ref77[0];
-			this.nextBtn = _ref77[1];
-			this.autoBtn = _ref77[2];
+			this.prevBtn = _ref78[0];
+			this.nextBtn = _ref78[1];
+			this.autoBtn = _ref78[2];
 
 			this._btns = btns;
 			this._btnsStyle = btns.style;
@@ -16002,8 +16000,8 @@ true, true];
 					var waitEl = inPost || this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</div>\n\t\t\t</div>');
 					var img = $q('.de-fullimg', wrapEl);
-					img.onload = img.onerror = function (_ref78) {
-						var target = _ref78.target;
+					img.onload = img.onerror = function (_ref79) {
+						var target = _ref79.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -16053,8 +16051,8 @@ true, true];
 				videoEl.addEventListener('ended', function () {
 					return AttachedImage.viewer.navigate(true, true);
 				});
-				videoEl.addEventListener('error', function (_ref79) {
-					var target = _ref79.target;
+				videoEl.addEventListener('error', function (_ref80) {
+					var target = _ref80.target;
 
 					if (!target.onceLoaded) {
 						target.load();
@@ -16411,11 +16409,11 @@ true, true];
 			return value;
 		},
 		_getHashHelper: function () {
-			var _ref81 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref80) {
+			var _ref82 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref81) {
 				var _this58 = this;
 
-				var el = _ref80.el,
-				    src = _ref80.src;
+				var el = _ref81.el,
+				    src = _ref81.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee16$(_context17) {
 					while (1) {
@@ -16513,7 +16511,7 @@ true, true];
 			}));
 
 			function _getHashHelper(_x55) {
-				return _ref81.apply(this, arguments);
+				return _ref82.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -16574,11 +16572,11 @@ true, true];
 		}
 	}
 
-	function genImgHash(_ref82) {
-		var _ref83 = _slicedToArray(_ref82, 3),
-		    arrBuf = _ref83[0],
-		    oldw = _ref83[1],
-		    oldh = _ref83[2];
+	function genImgHash(_ref83) {
+		var _ref84 = _slicedToArray(_ref83, 3),
+		    arrBuf = _ref84[0],
+		    oldw = _ref84[1],
+		    oldh = _ref84[2];
 
 		var buf = new Uint8Array(arrBuf);
 		var size = oldw * oldh;
@@ -16880,26 +16878,26 @@ true, true];
 
 				var filesHTML = '';
 				for (var _iterator27 = data.files, _isArray27 = Array.isArray(_iterator27), _i38 = 0, _iterator27 = _isArray27 ? _iterator27 : _iterator27[Symbol.iterator]();;) {
-					var _ref84;
+					var _ref85;
 
 					if (_isArray27) {
 						if (_i38 >= _iterator27.length) break;
-						_ref84 = _iterator27[_i38++];
+						_ref85 = _iterator27[_i38++];
 					} else {
 						_i38 = _iterator27.next();
 						if (_i38.done) break;
-						_ref84 = _i38.value;
+						_ref85 = _i38.value;
 					}
 
-					var _ref85 = _ref84,
-					    file_id = _ref85.file_id,
-					    metadata = _ref85.metadata,
-					    rating = _ref85.rating,
-					    size = _ref85.size,
-					    src = _ref85.src,
-					    thumb = _ref85.thumb,
-					    thumb_height = _ref85.thumb_height,
-					    thumb_width = _ref85.thumb_width;
+					var _ref86 = _ref85,
+					    file_id = _ref86.file_id,
+					    metadata = _ref86.metadata,
+					    rating = _ref86.rating,
+					    size = _ref86.size,
+					    src = _ref86.src,
+					    thumb = _ref86.thumb,
+					    thumb_height = _ref86.thumb_height,
+					    thumb_width = _ref86.thumb_width;
 
 					var fileName = void 0,
 					    fullFileName = void 0,
@@ -17006,18 +17004,18 @@ true, true];
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images images-' + (data.files.length === 1 ? 'single' : 'multi') + '">';
 					for (var _iterator28 = data.files, _isArray28 = Array.isArray(_iterator28), _i39 = 0, _iterator28 = _isArray28 ? _iterator28 : _iterator28[Symbol.iterator]();;) {
-						var _ref86;
+						var _ref87;
 
 						if (_isArray28) {
 							if (_i39 >= _iterator28.length) break;
-							_ref86 = _iterator28[_i39++];
+							_ref87 = _iterator28[_i39++];
 						} else {
 							_i39 = _iterator28.next();
 							if (_i39.done) break;
-							_ref86 = _i39.value;
+							_ref87 = _i39.value;
 						}
 
-						var file = _ref86;
+						var file = _ref87;
 
 						var imgId = num + '-' + file.md5;
 						var _file$fullname = file.fullname,
@@ -17047,7 +17045,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iterator29, _isArray29, _i40, _ref87, _ref88, banned, num;
+				var _iterator29, _isArray29, _i40, _ref88, _ref89, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -17069,7 +17067,7 @@ true, true];
 								return _context21.abrupt('break', 23);
 
 							case 4:
-								_ref87 = _iterator29[_i40++];
+								_ref88 = _iterator29[_i40++];
 								_context21.next = 11;
 								break;
 
@@ -17084,10 +17082,10 @@ true, true];
 								return _context21.abrupt('break', 23);
 
 							case 10:
-								_ref87 = _i40.value;
+								_ref88 = _i40.value;
 
 							case 11:
-								_ref88 = _ref87, banned = _ref88.banned, num = _ref88.num;
+								_ref89 = _ref88, banned = _ref89.banned, num = _ref89.num;
 								_context21.t0 = banned;
 								_context21.next = _context21.t0 === 1 ? 15 : _context21.t0 === 2 ? 18 : 21;
 								break;
@@ -17181,19 +17179,19 @@ true, true];
 				if (data.attachments.length) {
 					filesHTML += '<div class="post-attachments">';
 					for (var _iterator30 = data.attachments, _isArray30 = Array.isArray(_iterator30), _i41 = 0, _iterator30 = _isArray30 ? _iterator30 : _iterator30[Symbol.iterator]();;) {
-						var _ref89;
+						var _ref90;
 
 						if (_isArray30) {
 							if (_i41 >= _iterator30.length) break;
-							_ref89 = _iterator30[_i41++];
+							_ref90 = _iterator30[_i41++];
 						} else {
 							_i41 = _iterator30.next();
 							if (_i41.done) break;
-							_ref89 = _i41.value;
+							_ref90 = _i41.value;
 						}
 
-						var _ref90 = _ref89,
-						    images = _ref90.images;
+						var _ref91 = _ref90,
+						    images = _ref91.images;
 						var orig = images.original,
 						    thumb200 = images.thumb_200px,
 						    thumb400 = images.thumb_400px;
@@ -17263,18 +17261,18 @@ true, true];
 				}
 				this._hidden = true;
 				for (var _iterator31 = this._set, _isArray31 = Array.isArray(_iterator31), _i42 = 0, _iterator31 = _isArray31 ? _iterator31 : _iterator31[Symbol.iterator]();;) {
-					var _ref91;
+					var _ref92;
 
 					if (_isArray31) {
 						if (_i42 >= _iterator31.length) break;
-						_ref91 = _iterator31[_i42++];
+						_ref92 = _iterator31[_i42++];
 					} else {
 						_i42 = _iterator31.next();
 						if (_i42.done) break;
-						_ref91 = _i42.value;
+						_ref92 = _i42.value;
 					}
 
-					var num = _ref91;
+					var num = _ref92;
 
 					var post = pByNum.get(num);
 					if (post && !post.hidden) {
@@ -17293,18 +17291,18 @@ true, true];
 			value: function initPostRef(tUrl, strNums) {
 				var html = '';
 				for (var _iterator32 = this._set, _isArray32 = Array.isArray(_iterator32), _i43 = 0, _iterator32 = _isArray32 ? _iterator32 : _iterator32[Symbol.iterator]();;) {
-					var _ref92;
+					var _ref93;
 
 					if (_isArray32) {
 						if (_i43 >= _iterator32.length) break;
-						_ref92 = _iterator32[_i43++];
+						_ref93 = _iterator32[_i43++];
 					} else {
 						_i43 = _iterator32.next();
 						if (_i43.done) break;
-						_ref92 = _i43.value;
+						_ref93 = _i43.value;
 					}
 
-					var num = _ref92;
+					var num = _ref93;
 
 					html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 				}
@@ -17359,18 +17357,18 @@ true, true];
 				}
 				this._hidden = false;
 				for (var _iterator33 = this._set, _isArray33 = Array.isArray(_iterator33), _i44 = 0, _iterator33 = _isArray33 ? _iterator33 : _iterator33[Symbol.iterator]();;) {
-					var _ref93;
+					var _ref94;
 
 					if (_isArray33) {
 						if (_i44 >= _iterator33.length) break;
-						_ref93 = _iterator33[_i44++];
+						_ref94 = _iterator33[_i44++];
 					} else {
 						_i44 = _iterator33.next();
 						if (_i44.done) break;
-						_ref93 = _i44.value;
+						_ref94 = _i44.value;
 					}
 
-					var num = _ref93;
+					var num = _ref94;
 
 					var post = pByNum.get(num);
 					if (post && post.hidden && !post.spellHidden) {
@@ -17419,21 +17417,21 @@ true, true];
 				var tNums = DelForm.tNums;
 
 				for (var _iterator34 = posts, _isArray34 = Array.isArray(_iterator34), _i45 = 0, _iterator34 = _isArray34 ? _iterator34 : _iterator34[Symbol.iterator]();;) {
-					var _ref94;
+					var _ref95;
 
 					if (_isArray34) {
 						if (_i45 >= _iterator34.length) break;
-						_ref94 = _iterator34[_i45++];
+						_ref95 = _iterator34[_i45++];
 					} else {
 						_i45 = _iterator34.next();
 						if (_i45.done) break;
-						_ref94 = _i45.value;
+						_ref95 = _i45.value;
 					}
 
-					var _ref95 = _ref94,
-					    _ref96 = _slicedToArray(_ref95, 2),
-					    pNum = _ref96[0],
-					    post = _ref96[1];
+					var _ref96 = _ref95,
+					    _ref97 = _slicedToArray(_ref96, 2),
+					    pNum = _ref97[0],
+					    post = _ref97[1];
 
 					var links = $Q('a', post.msg);
 					for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -17715,22 +17713,22 @@ true, true];
 					return;
 				}
 				for (var _iterator35 = pBuilder.bannedPostsData(), _isArray35 = Array.isArray(_iterator35), _i46 = 0, _iterator35 = _isArray35 ? _iterator35 : _iterator35[Symbol.iterator]();;) {
-					var _ref97;
+					var _ref98;
 
 					if (_isArray35) {
 						if (_i46 >= _iterator35.length) break;
-						_ref97 = _iterator35[_i46++];
+						_ref98 = _iterator35[_i46++];
 					} else {
 						_i46 = _iterator35.next();
 						if (_i46.done) break;
-						_ref97 = _i46.value;
+						_ref98 = _i46.value;
 					}
 
-					var _ref98 = _ref97,
-					    _ref99 = _slicedToArray(_ref98, 3),
-					    banId = _ref99[0],
-					    bNum = _ref99[1],
-					    bEl = _ref99[2];
+					var _ref99 = _ref98,
+					    _ref100 = _slicedToArray(_ref99, 3),
+					    banId = _ref100[0],
+					    bNum = _ref100[1],
+					    bEl = _ref100[2];
 
 					var post = bNum ? pByNum.get(bNum) : this.op;
 					if (post && post.banned !== banId) {
@@ -17924,15 +17922,12 @@ true, true];
 				}
 				if (pBuilder.isClosed) {
 					AjaxCache.clearCache();
-					return { newCount: newVisPosts, locked: true };
 				}
-				return { newCount: newVisPosts, locked: false };
+				return { newCount: newVisPosts, locked: pBuilder.isClosed };
 			}
 		}, {
 			key: '_parsePosts',
 			value: function _parsePosts(pBuilder) {
-				var _this64 = this;
-
 				this._checkBans(pBuilder);
 				var newPosts = 0;
 				var newVisPosts = 0;
@@ -18008,21 +18003,7 @@ true, true];
 					DollchanAPI.notify('newpost', _res[4]);
 					this.pcount = len + 1;
 				}
-				readFavorites().then(function (data) {
-					var f = data[aib.host];
-					if (!f || !f[aib.b] || !(f = f[aib.b][_this64.op.num])) {
-						return;
-					}
-					var updVal = [_this64.op.num, _this64.pcount];
-					Thread.updateFavEntry.apply(Thread, updVal);
-					f.cnt = _this64.pcount;
-					f.new = 0;
-					f.you = 0;
-					f.last = aib.anchor + _this64.last.num;
-					setStored('DESU_Favorites', JSON.stringify(data));
-					locStorage['__de-favorites'] = JSON.stringify(updVal);
-					locStorage.removeItem('__de-favorites');
-				});
+				Thread.updateFav([this.op.num, this.pcount, false]);
 				if (maybeVParser.hasValue) {
 					maybeVParser.value.endParser();
 				}
@@ -18104,20 +18085,62 @@ true, true];
 			value: function removeSavedData() {
 			}
 		}, {
+			key: 'updateFav',
+			value: function updateFav(updVal) {
+				var _this64 = this;
+
+				var _updVal = _slicedToArray(updVal, 3),
+				    tNum = _updVal[0],
+				    value = _updVal[1],
+				    isError = _updVal[2];
+
+				readFavorites().then(function (data) {
+					var f = data[aib.host];
+					if (!f || !f[aib.b] || !(f = f[aib.b][tNum])) {
+						return;
+					}
+					if (isError) {
+						f.err = value;
+					} else {
+						f.cnt = value;
+						f.new = 0;
+						f.you = 0;
+						f.last = aib.anchor + _this64.last.num;
+					}
+					Thread.updateFavEntry.apply(Thread, _toConsumableArray(updVal));
+					setStored('DESU_Favorites', JSON.stringify(data));
+					locStorage['__de-favorites'] = JSON.stringify(updVal);
+					locStorage.removeItem('__de-favorites');
+				});
+			}
+		}, {
 			key: 'updateFavEntry',
-			value: function updateFavEntry(tNum, pCount) {
+			value: function updateFavEntry(tNum, value, isError) {
 				var winEl = $q('#de-win-fav > .de-win-body');
 				if (!winEl || !winEl.hasChildNodes()) {
 					return;
 				}
+				var entry = $q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + tNum + '"] > .de-fav-inf', winEl);
+				if (!entry) {
+					return;
+				}
 
-				var _ref100 = [].concat(_toConsumableArray($q('.de-fav-current > .de-fav-entries > .de-entry[de-num="' + tNum + '"] > .de-fav-inf', winEl).children)),
-				    newEl = _ref100[2],
-				    oldEl = _ref100[3];
+				var _ref101 = [].concat(_toConsumableArray(entry.children)),
+				    iconEl = _ref101[0],
+				    youEl = _ref101[1],
+				    newEl = _ref101[2],
+				    oldEl = _ref101[3];
 
+				$hide(youEl);
 				$hide(newEl);
+				if (isError) {
+					iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					iconEl.title = value;
+					return;
+				}
+				youEl.textContent = 0;
 				newEl.textContent = 0;
-				oldEl.textContent = pCount;
+				oldEl.textContent = value;
 			}
 		}, {
 			key: 'first',
@@ -18620,6 +18643,7 @@ true, true];
 						this._makeStep();
 					}
 					lastECode = eCode;
+					Thread.updateFav([aib.t, getErrorMessage(error), true]);
 					return;
 				}
 				if (lastECode !== 200) {
@@ -18669,9 +18693,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref101) {
-								var newCount = _ref101.newCount,
-								    locked = _ref101.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref102) {
+								var newCount = _ref102.newCount,
+								    locked = _ref102.locked;
 								return _this74._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (e) {
 								return _this74._handleNewPosts(0, e);
@@ -19798,9 +19822,9 @@ true, true];
 					if (Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref102 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref102[0],
-						    inp = _ref102[1];
+						var _ref103 = [].concat(_toConsumableArray(box.children)),
+						    img = _ref103[0],
+						    inp = _ref103[1];
 
 						img.onclick = function () {
 							return _this77.updateCaptcha(cap);
@@ -19924,7 +19948,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref103 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
+					var _ref104 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
 						var _this79 = this;
 
 						var pageInp, query, errFn;
@@ -20005,7 +20029,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x72, _x73) {
-						return _ref103.apply(this, arguments);
+						return _ref104.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20363,7 +20387,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref104 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
+					var _ref105 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
 						var _this84 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, ajaxParams, xhr;
@@ -20373,7 +20397,7 @@ true, true];
 								switch (_context25.prev = _context25.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref105 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
+											var _ref106 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
 												return regeneratorRuntime.wrap(function _callee18$(_context23) {
 													while (1) {
 														switch (_context23.prev = _context23.next) {
@@ -20398,7 +20422,7 @@ true, true];
 											}));
 
 											return function getBase64(_x78) {
-												return _ref105.apply(this, arguments);
+												return _ref106.apply(this, arguments);
 											};
 										}();
 
@@ -20416,7 +20440,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref106 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
+											var _ref107 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
 												return regeneratorRuntime.wrap(function _callee19$(_context24) {
 													while (1) {
 														switch (_context24.prev = _context24.next) {
@@ -20436,7 +20460,7 @@ true, true];
 											}));
 
 											return function (_x79, _x80) {
-												return _ref106.apply(this, arguments);
+												return _ref107.apply(this, arguments);
 											};
 										}());
 										i = 0, _len16 = files.length;
@@ -20516,7 +20540,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x74, _x75, _x76, _x77) {
-						return _ref104.apply(this, arguments);
+						return _ref105.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -20630,8 +20654,8 @@ true, true];
 							return;
 						}
 						initObserver.disconnect();
-						doc.defaultView.addEventListener('message', function (_ref107) {
-							var data = _ref107.data;
+						doc.defaultView.addEventListener('message', function (_ref108) {
+							var data = _ref108.data;
 
 							if (data !== '0chan-content-done') {
 								return;
@@ -20809,8 +20833,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref108) {
-						var id = _ref108.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref109) {
+						var id = _ref109.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -21970,18 +21994,18 @@ true, true];
 
 					if (cookie.includes('desuchan.session')) {
 						for (var _iterator36 = cookie.split(';'), _isArray36 = Array.isArray(_iterator36), _i48 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
-							var _ref109;
+							var _ref110;
 
 							if (_isArray36) {
 								if (_i48 >= _iterator36.length) break;
-								_ref109 = _iterator36[_i48++];
+								_ref110 = _iterator36[_i48++];
 							} else {
 								_i48 = _iterator36.next();
 								if (_i48.done) break;
-								_ref109 = _i48.value;
+								_ref110 = _i48.value;
 							}
 
-							var c = _ref109;
+							var c = _ref110;
 
 							var m = c.match(/^\s*desuchan\.session=(.*)$/);
 							if (m) {
@@ -22366,8 +22390,8 @@ true, true];
 			this.port.onmessage = this._handleMessage;
 			this.activeListeners = new Set();
 			var port = channel.port2;
-			doc.defaultView.addEventListener('message', function (_ref110) {
-				var data = _ref110.data;
+			doc.defaultView.addEventListener('message', function (_ref111) {
+				var data = _ref111.data;
 
 				if (data === 'de-request-api-message') {
 					_this112.hasListeners = true;
@@ -22383,8 +22407,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref111) {
-			var arg = _ref111.data;
+		_handleMessage: function _handleMessage(_ref112) {
+			var arg = _ref112.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22398,18 +22422,18 @@ true, true];
 					if (data) {
 						rv = {};
 						for (var _iterator37 = data, _isArray37 = Array.isArray(_iterator37), _i50 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
-							var _ref112;
+							var _ref113;
 
 							if (_isArray37) {
 								if (_i50 >= _iterator37.length) break;
-								_ref112 = _iterator37[_i50++];
+								_ref113 = _iterator37[_i50++];
 							} else {
 								_i50 = _iterator37.next();
 								if (_i50.done) break;
-								_ref112 = _i50.value;
+								_ref113 = _i50.value;
 							}
 
-							var aName = _ref112;
+							var aName = _ref113;
 
 							rv[aName] = DollchanAPI._register(aName.toLowerCase());
 						}
@@ -22439,8 +22463,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref113) {
-			var responseText = _ref113.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref114) {
+			var responseText = _ref114.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
@@ -22476,7 +22500,7 @@ true, true];
 			if (!localData) {
 				Cfg.stats.view++;
 				saveCfgObj(aib.dm, Cfg);
-				Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">\n\t\t\t\t<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>\n\t\t\t\t<span id="de-updater-count" style="display: none;"></span>]</span>\n\t\t\t\t' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '\n\t\t\t</div>');
+				Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">\n\t\t\t\t<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' + ('<span id="de-updater-count" style="display: none;"></span>]</span>\n\t\t\t\t' + (aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') + '\n\t\t\t</div>'));
 			}
 		} else {
 			thrNavPanel.initThrNav();

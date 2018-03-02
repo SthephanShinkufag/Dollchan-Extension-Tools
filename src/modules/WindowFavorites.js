@@ -158,10 +158,8 @@ function showFavoritesWindow(body, data) {
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
 				continue;
 			}
-			const countEl = $q('.de-fav-inf-new', el);
-			const youEl = countEl.previousElementSibling;
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
+			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+			const iconEl = titleEl.firstElementChild;
 			// setAttribute for class is used because of SVG (for correct work in some browsers)
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];

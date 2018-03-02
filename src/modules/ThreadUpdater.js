@@ -341,6 +341,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
+				Thread.updateFav([aib.t, getErrorMessage(error), true]);
 				return;
 			}
 			if(lastECode !== 200) {

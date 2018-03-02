@@ -20,16 +20,12 @@ const watchedPaths = [
 ];
 
 // Updates commit version in Wrap.js module
-gulp.task('updatecommit', function(cb) {
+gulp.task('updatecommit', cb => {
 	let stdout, stderr;
 	const git = spawn('git', ['rev-parse', 'HEAD']);
-	git.stdout.on('data', function(data) {
-		stdout = String(data);
-	});
-	git.stderr.on('data', function(data) {
-		stderr = String(data);
-	});
-	git.on('close', function(code) {
+	git.stdout.on('data', data => (stdout = String(data)));
+	git.stderr.on('data', data => (stderr = String(data)));
+	git.on('close', code => {
 		if(code !== 0) {
 			throw new Error(`Git error:\n${ stdout ? `${ stdout }\n` : '' }${ stderr }`);
 		}
@@ -41,14 +37,14 @@ gulp.task('updatecommit', function(cb) {
 });
 
 // Makes es6-script from module files
-gulp.task('make:es6', ['updatecommit'], function() {
-	gulp.src('src/modules/Wrap.js').pipe(tap(function(wrapFile) {
+gulp.task('make:es6', ['updatecommit'], () => {
+	gulp.src('src/modules/Wrap.js').pipe(tap(wrapFile => {
 		let count = 0;
 		let str = wrapFile.contents.toString();
 		const arr = str.match(/\/\* ==\[ .*? \]== \*\//g);
 		for(let i = 0, len = arr.length - 1; i < len; ++i) {
 			gulp.src(`src/modules/${ arr[i].replace(/\/\* ==\[ | \]== \*\//g, '') }`)
-				.pipe(tap(function(moduleFile) {
+				.pipe(tap(moduleFile => {
 					str = str.replace(arr[i], moduleFile.contents.toString());
 					if(++count === len) {
 						newfile('src/Dollchan_Extension_Tools.es6.user.js', `\r\n${ str }`)
@@ -61,22 +57,22 @@ gulp.task('make:es6', ['updatecommit'], function() {
 });
 
 // Makes es5-script from es6-script
-gulp.task('make:es5', ['make:es6'], function() {
-	return browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
+gulp.task('make:es5', ['make:es6'],
+	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform(babelify)
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
 		.pipe(streamify(headerfooter('(function deMainFuncOuter(localData) {\n', '})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-		.pipe(gulp.dest(''));
-});
+		.pipe(gulp.dest(''))
+);
 
 gulp.task('make', ['make:es5']);
 
 // Split es6-script into separate module files
-gulp.task('make:modules', function() {
-	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(function(file) {
+gulp.task('make:modules', () => {
+	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(file => {
 		const arr = file.contents.toString().split('// ==/UserScript==\r\n\r\n')[1].split('/* ==[ ');
 		let wrapStr = `${ arr[0].slice(0, -2) }\r\n`;
 		for(let i = 1, len = arr.length; i < len; ++i) {
@@ -96,8 +92,5 @@ gulp.task('make:modules', function() {
 });
 
 // Waits for changes in watchedPaths files, then makes es5 and es6-scripts
-gulp.task('watch', function() {
-	gulp.watch(watchedPaths, ['make']);
-});
-
+gulp.task('watch', () => gulp.watch(watchedPaths, ['make']));
 gulp.task('default', ['make', 'watch']);
