@@ -479,8 +479,7 @@ const CfgWindow = {
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
 			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;

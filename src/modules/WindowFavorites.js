@@ -21,7 +21,7 @@ function removeFavEntry(data, h, b, num) {
 
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).thr.op.setFavBtn(isEnable);
+		pByNum.get(num).setFavBtn(isEnable);
 	}
 }
 
@@ -42,8 +42,7 @@ function updateFavorites(num, value, mode) {
 		const updVal = [aib.host, aib.b, num, value, mode];
 		updateFavWindow(...updVal);
 		saveFavorites(data);
-		locStorage['__de-favorites'] = JSON.stringify(updVal);
-		locStorage.removeItem('__de-favorites');
+		sendStorageEvent('__de-favorites', updVal);
 	});
 }
 

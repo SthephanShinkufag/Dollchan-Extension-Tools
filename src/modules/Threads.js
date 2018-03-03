@@ -166,8 +166,7 @@ class Thread {
 			} else {
 				removeFavEntry(fav, h, b, num);
 			}
-			locStorage['__de-favorites'] = JSON.stringify([h, b, num, fav, val ? 'add' : 'delete']);
-			locStorage.removeItem('__de-favorites');
+			sendStorageEvent('__de-favorites', [h, b, num, fav, val ? 'add' : 'delete']);
 			saveRenewFavorites(fav);
 		});
 	}

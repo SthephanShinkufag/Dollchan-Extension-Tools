@@ -581,8 +581,7 @@ class ExpandableImage {
 			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms

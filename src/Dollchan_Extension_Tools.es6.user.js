@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '53c1aa6';
+const commit = '6be7f52';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2784,8 +2784,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
-		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
-		locStorage.removeItem('__de-mypost');
+		sendStorageEvent('__de-mypost', 1);
 	}
 
 	_readStorage() {
@@ -2798,6 +2797,11 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		return rv;
 	}
 }();
+
+function sendStorageEvent(name, value) {
+	locStorage[name] = typeof value === 'string' ? value : JSON.stringify(value);
+	locStorage.removeItem(name);
+}
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
@@ -3603,10 +3607,7 @@ function showHiddenWindow(body) {
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
-				// Synchronize current hidden thread in other tabs
-				// Storage event listeners are loacted at initStorageEvent()
-				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
-				locStorage.removeItem('__de-post');
+				sendStorageEvent('__de-post', { brd, num, hide: false, thrNum: num });
 			}
 			HiddenThreads.removeStorage(num, brd);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
@@ -3638,7 +3639,7 @@ function removeFavEntry(data, h, b, num) {
 
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).thr.op.setFavBtn(isEnable);
+		pByNum.get(num).setFavBtn(isEnable);
 	}
 }
 
@@ -3659,8 +3660,7 @@ function updateFavorites(num, value, mode) {
 		const updVal = [aib.host, aib.b, num, value, mode];
 		updateFavWindow(...updVal);
 		saveFavorites(data);
-		locStorage['__de-favorites'] = JSON.stringify(updVal);
-		locStorage.removeItem('__de-favorites');
+		sendStorageEvent('__de-favorites', updVal);
 	});
 }
 
@@ -4546,8 +4546,7 @@ const CfgWindow = {
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
 			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
@@ -7208,8 +7207,7 @@ const Spells = Object.create({
 				SpellsRunner.unhideAll();
 				this.disableSpells();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{ hide: false, data: null }';
-				locStorage.removeItem('__de-spells');
+				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
 		}
@@ -7419,8 +7417,7 @@ const Spells = Object.create({
 		}
 	},
 	_sync(data) {
-		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
-		locStorage.removeItem('__de-spells');
+		sendStorageEvent('__de-spells', { hide: !!Cfg.hideBySpell, data });
 	}
 });
 
@@ -10511,14 +10508,13 @@ class Post extends AbstractPost {
 					HiddenThreads.removeStorage(num);
 				}
 			}
-			locStorage['__de-post'] = JSON.stringify({
+			sendStorageEvent('__de-post', {
 				hide   : isHide,
 				brd    : aib.b,
 				num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
 			});
-			locStorage.removeItem('__de-post');
 		}
 		this.ref.toggleRef(isHide, false);
 	}
@@ -11899,8 +11895,7 @@ class ExpandableImage {
 			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms
@@ -13180,8 +13175,7 @@ class Thread {
 			} else {
 				removeFavEntry(fav, h, b, num);
 			}
-			locStorage['__de-favorites'] = JSON.stringify([h, b, num, fav, val ? 'add' : 'delete']);
-			locStorage.removeItem('__de-favorites');
+			sendStorageEvent('__de-favorites', [h, b, num, fav, val ? 'add' : 'delete']);
 			saveRenewFavorites(fav);
 		});
 	}

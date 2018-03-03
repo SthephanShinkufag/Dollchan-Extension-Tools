@@ -442,8 +442,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
-		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
-		locStorage.removeItem('__de-mypost');
+		sendStorageEvent('__de-mypost', 1);
 	}
 
 	_readStorage() {
@@ -456,6 +455,11 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		return rv;
 	}
 }();
+
+function sendStorageEvent(name, value) {
+	locStorage[name] = typeof value === 'string' ? value : JSON.stringify(value);
+	locStorage.removeItem(name);
+}
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {

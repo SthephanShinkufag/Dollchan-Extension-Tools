@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '53c1aa6';
+	var commit = '6be7f52';
 
 
 	var defaultCfg = {
@@ -5823,8 +5823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function set(num, thrNum) {
 				_get(MyPostsClass.prototype.__proto__ || Object.getPrototypeOf(MyPostsClass.prototype), 'set', this).call(this, num, thrNum);
 				this._cachedData.add(+num);
-				locStorage['__de-mypost'] = 1; 
-				locStorage.removeItem('__de-mypost');
+				sendStorageEvent('__de-mypost', 1);
 			}
 		}, {
 			key: '_readStorage',
@@ -5843,6 +5842,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return MyPostsClass;
 	}(PostsStorage))();
+
+	function sendStorageEvent(name, value) {
+		locStorage[name] = typeof value === 'string' ? value : JSON.stringify(value);
+		locStorage.removeItem(name);
+	}
 
 	function initStorageEvent() {
 		doc.defaultView.addEventListener('storage', function (e) {
@@ -6635,8 +6639,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (pByNum.has(num)) {
 					pByNum.get(num).setUserVisib(false);
 				} else {
-					locStorage['__de-post'] = JSON.stringify({ brd: brd, num: num, hide: false, thrNum: num });
-					locStorage.removeItem('__de-post');
+					sendStorageEvent('__de-post', { brd: brd, num: num, hide: false, thrNum: num });
 				}
 				HiddenThreads.removeStorage(num, brd);
 				HiddenPosts.set(num, num, false); 
@@ -6665,7 +6668,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function toggleThrFavBtn(h, b, num, isEnable) {
 		if (h === aib.host && b === aib.b && pByNum.has(num)) {
-			pByNum.get(num).thr.op.setFavBtn(isEnable);
+			pByNum.get(num).setFavBtn(isEnable);
 		}
 	}
 
@@ -6687,8 +6690,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var updVal = [aib.host, aib.b, num, value, mode];
 			updateFavWindow.apply(undefined, updVal);
 			saveFavorites(data);
-			locStorage['__de-favorites'] = JSON.stringify(updVal);
-			locStorage.removeItem('__de-favorites');
+			sendStorageEvent('__de-favorites', updVal);
 		});
 	}
 
@@ -7802,8 +7804,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						{
 							var val = Math.min(+el.value || 0, 100);
 							saveCfg('webmVolume', val);
-							locStorage['__de-webmvolume'] = val;
-							locStorage.removeItem('__de-webmvolume');
+							sendStorageEvent('__de-webmvolume', val);
 							break;
 						}
 					case 'minWebmWidth':
@@ -10597,8 +10598,7 @@ true, true];
 					SpellsRunner.unhideAll();
 					this.disableSpells();
 					saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-					locStorage['__de-spells'] = '{ hide: false, data: null }';
-					locStorage.removeItem('__de-spells');
+					sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 				}
 				$q('input[info="hideBySpell"]').checked = false;
 			}
@@ -10837,8 +10837,7 @@ true, true];
 			}
 		},
 		_sync: function _sync(data) {
-			locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data: data });
-			locStorage.removeItem('__de-spells');
+			sendStorageEvent('__de-spells', { hide: !!Cfg.hideBySpell, data: data });
 		}
 	});
 
@@ -14351,14 +14350,13 @@ true, true];
 							HiddenThreads.removeStorage(num);
 						}
 					}
-					locStorage['__de-post'] = JSON.stringify({
+					sendStorageEvent('__de-post', {
 						hide: isHide,
 						brd: aib.b,
 						num: num,
 						thrNum: this.thr.num,
 						title: this.isOp ? this.title : ''
 					});
-					locStorage.removeItem('__de-post');
 				}
 				this.ref.toggleRef(isHide, false);
 			}
@@ -16130,8 +16128,7 @@ true, true];
 					var val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 					if (e.isTrusted && val !== Cfg.webmVolume) {
 						saveCfg('webmVolume', val);
-						locStorage['__de-webmvolume'] = val;
-						locStorage.removeItem('__de-webmvolume');
+						sendStorageEvent('__de-webmvolume', val);
 					}
 				});
 				if (nav.isMsEdge && isWebm && !DollchanAPI.hasListener('expandmedia')) {
@@ -17726,8 +17723,7 @@ true, true];
 					} else {
 						removeFavEntry(fav, h, b, num);
 					}
-					locStorage['__de-favorites'] = JSON.stringify([h, b, num, fav, val ? 'add' : 'delete']);
-					locStorage.removeItem('__de-favorites');
+					sendStorageEvent('__de-favorites', [h, b, num, fav, val ? 'add' : 'delete']);
 					saveRenewFavorites(fav);
 				});
 			}

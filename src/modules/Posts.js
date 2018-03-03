@@ -629,14 +629,13 @@ class Post extends AbstractPost {
 					HiddenThreads.removeStorage(num);
 				}
 			}
-			locStorage['__de-post'] = JSON.stringify({
+			sendStorageEvent('__de-post', {
 				hide   : isHide,
 				brd    : aib.b,
 				num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
 			});
-			locStorage.removeItem('__de-post');
 		}
 		this.ref.toggleRef(isHide, false);
 	}

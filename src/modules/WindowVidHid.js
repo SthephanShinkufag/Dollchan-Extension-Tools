@@ -200,10 +200,7 @@ function showHiddenWindow(body) {
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
-				// Synchronize current hidden thread in other tabs
-				// Storage event listeners are loacted at initStorageEvent()
-				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
-				locStorage.removeItem('__de-post');
+				sendStorageEvent('__de-post', { brd, num, hide: false, thrNum: num });
 			}
 			HiddenThreads.removeStorage(num, brd);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
