@@ -19,6 +19,12 @@ function removeFavEntry(data, h, b, num) {
 	}
 }
 
+function toggleThrFavBtn(h, b, num, isEnable) {
+	if(h === aib.host && b === aib.b && pByNum.has(num)) {
+		pByNum.get(num).thr.op.setFavBtn(isEnable);
+	}
+}
+
 function updateFavorites(num, value, mode) {
 	readFavorites().then(data => {
 		let f = data[aib.host];
@@ -42,6 +48,11 @@ function updateFavorites(num, value, mode) {
 }
 
 function updateFavWindow(h, b, num, value, mode) {
+	if(mode === 'add' || mode === 'delete') {
+		toggleThrFavBtn(h, b, num, mode === 'add');
+		toggleWindow('fav', true, value);
+		return;
+	}
 	const winEl = $q('#de-win-fav > .de-win-body');
 	if(!winEl || !winEl.hasChildNodes()) {
 		return;
@@ -77,10 +88,7 @@ function cleanFavorites() {
 			const b = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
 			removeFavEntry(data, h, b, num);
-			// If there existed thread then switch its fav button
-			if(h === aib.host && b === aib.b && pByNum.has(num)) {
-				pByNum.get(num).thr.op.setFavBtn(false);
-			}
+			toggleThrFavBtn(h, b, num, false);
 		}
 		saveRenewFavorites(data);
 	});

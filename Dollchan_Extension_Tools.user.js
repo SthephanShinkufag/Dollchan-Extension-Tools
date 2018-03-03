@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '6ce0b5f';
+	var commit = '53c1aa6';
 
 
 	var defaultCfg = {
@@ -6663,6 +6663,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	}
 
+	function toggleThrFavBtn(h, b, num, isEnable) {
+		if (h === aib.host && b === aib.b && pByNum.has(num)) {
+			pByNum.get(num).thr.op.setFavBtn(isEnable);
+		}
+	}
+
 	function updateFavorites(num, value, mode) {
 		readFavorites().then(function (data) {
 			var f = data[aib.host];
@@ -6687,6 +6693,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function updateFavWindow(h, b, num, value, mode) {
+		if (mode === 'add' || mode === 'delete') {
+			toggleThrFavBtn(h, b, num, mode === 'add');
+			toggleWindow('fav', true, value);
+			return;
+		}
 		var winEl = $q('#de-win-fav > .de-win-body');
 		if (!winEl || !winEl.hasChildNodes()) {
 			return;
@@ -6727,9 +6738,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var b = el.getAttribute('de-board');
 				var num = +el.getAttribute('de-num');
 				removeFavEntry(data, h, b, num);
-				if (h === aib.host && b === aib.b && pByNum.has(num)) {
-					pByNum.get(num).thr.op.setFavBtn(false);
-				}
+				toggleThrFavBtn(h, b, num, false);
 			}
 			saveRenewFavorites(data);
 		});
@@ -17717,6 +17726,8 @@ true, true];
 					} else {
 						removeFavEntry(fav, h, b, num);
 					}
+					locStorage['__de-favorites'] = JSON.stringify([h, b, num, fav, val ? 'add' : 'delete']);
+					locStorage.removeItem('__de-favorites');
 					saveRenewFavorites(fav);
 				});
 			}
