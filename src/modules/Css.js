@@ -131,13 +131,9 @@ function scriptCSS() {
 	.de-fav-del > #de-fav-delbuttons { display: block !important; }
 	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
 	#de-fav-delbuttons { display: none; }
-	.de-fav-header-switch, .de-fav-switch { display: none; }
 	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }
-	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
 	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
-	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }
-	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.de-fav-header-switch, .de-fav-switch { display: none; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }
@@ -146,6 +142,11 @@ function scriptCSS() {
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
+	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
+	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }
+	.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }
 	.de-fav-unavail { color: #cf4436; }
 	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
 	.de-fold-block:not(:first-child) { border-top: none; }

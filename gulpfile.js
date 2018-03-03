@@ -15,7 +15,6 @@ const source       = require('vinyl-source-stream');
 const watchedPaths = [
 	'src/modules/*',
 	'src/es5-polyfills.js',
-	'src/Dollchan_Extension_Tools.es6.user.js',
 	'Dollchan_Extension_Tools.meta.js'
 ];
 

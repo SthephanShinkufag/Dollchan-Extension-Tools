@@ -476,19 +476,19 @@ class WorkerPool {
 
 	_createWorker(num, data) {
 		return new Promise(resolve => {
-			const w = this._freeWorkers.pop();
+			const worker = this._freeWorkers.pop();
 			const [sendData, transferObjs, fn] = data;
-			w.onmessage = e => {
+			worker.onmessage = e => {
 				fn(e.data);
-				this._freeWorkers.push(w);
+				this._freeWorkers.push(worker);
 				resolve();
 			};
-			w.onerror = err => {
+			worker.onerror = err => {
 				resolve();
-				this._freeWorkers.push(w);
+				this._freeWorkers.push(worker);
 				this._errFn(err);
 			};
-			w.postMessage(sendData, transferObjs);
+			worker.postMessage(sendData, transferObjs);
 		});
 	}
 }

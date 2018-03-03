@@ -397,8 +397,10 @@ function showFavoritesWindow(body, data) {
 	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
 		// Sequentially load threads, and remove inaccessible
 		let last404 = false;
-		const els = $Q('.de-entry'), len = els.length;
-		for(let i = 0; i < len; ++i) {
+		const els = $Q('.de-entry');
+		const parent = $q('.de-fav-table');
+		parent.classList.add('de-fav-table-unfold');
+		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
@@ -426,6 +428,7 @@ function showFavoritesWindow(body, data) {
 			last404 = false;
 		}
 		cleanFavorites(); // Delete marked entries
+		parent.classList.remove('de-fav-table-unfold');
 	}));
 
 	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
