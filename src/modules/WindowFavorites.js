@@ -125,7 +125,8 @@ function showFavoritesWindow(body, favObj) {
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
-					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
+					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
+						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
 						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
@@ -152,8 +153,10 @@ function showFavoritesWindow(body, favObj) {
 			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
-					<a class="de-abtn de-fav-header-btn" href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
+					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
+						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
+						` href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
 				<div class="de-fav-entries${ isHide ? ' de-fav-entries-hide' : '' }" ${ hb }>
 					${ innerHtml }

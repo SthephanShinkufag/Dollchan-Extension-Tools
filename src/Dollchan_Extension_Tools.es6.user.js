@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f1c7fc2';
+const commit = 'dc1fdb2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1232,6 +1232,18 @@ const Lng = {
 		'Тред на @странице',
 		'Thread on @page',
 		'Тред на @сторінці'],
+	goToThread: [
+		'Перейти к треду',
+		'Go to the thread',
+		'Перейти до треду'],
+	goToBoard: [
+		'Перейти к доске',
+		'Go to the board',
+		'Перейти до дошки'],
+	toggleEntries: [
+		'Скрыть/раскрыть записи',
+		'Hide/expand entries',
+		'Сховати/розкрити записи'],
 
 	// Video links: tooltips
 	hideLnkList: [
@@ -3743,7 +3755,8 @@ function showFavoritesWindow(body, favObj) {
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
-					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
+					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
+						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
 						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
@@ -3770,8 +3783,10 @@ function showFavoritesWindow(body, favObj) {
 			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
-					<a class="de-abtn de-fav-header-btn" href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
+					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
+						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
+						` href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
 				<div class="de-fav-entries${ isHide ? ' de-fav-entries-hide' : '' }" ${ hb }>
 					${ innerHtml }

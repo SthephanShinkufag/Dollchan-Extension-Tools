@@ -1062,6 +1062,18 @@ const Lng = {
 		'Тред на @странице',
 		'Thread on @page',
 		'Тред на @сторінці'],
+	goToThread: [
+		'Перейти к треду',
+		'Go to the thread',
+		'Перейти до треду'],
+	goToBoard: [
+		'Перейти к доске',
+		'Go to the board',
+		'Перейти до дошки'],
+	toggleEntries: [
+		'Скрыть/раскрыть записи',
+		'Hide/expand entries',
+		'Сховати/розкрити записи'],
 
 	// Video links: tooltips
 	hideLnkList: [

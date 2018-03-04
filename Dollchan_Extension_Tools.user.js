@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'f1c7fc2';
+	var commit = 'dc1fdb2';
 
 
 	var defaultCfg = {
@@ -4245,6 +4245,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		newPosts: ['Количество новых постов', 'Number of new posts', 'Кількість нових постів'],
 		myPostsRep: ['Ответов на ваши посты', 'Replies to your posts', 'Відповідей на ваші пости'],
 		thrPage: ['Тред на @странице', 'Thread on @page', 'Тред на @сторінці'],
+		goToThread: ['Перейти к треду', 'Go to the thread', 'Перейти до треду'],
+		goToBoard: ['Перейти к доске', 'Go to the board', 'Перейти до дошки'],
+		toggleEntries: ['Скрыть/раскрыть записи', 'Hide/expand entries', 'Сховати/розкрити записи'],
 
 		hideLnkList: ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links', 'Сховати/показати перелік посилань'],
 		expandVideo: ['Развернуть/Свернуть видео', 'Expand/Collapse video', 'Розгорнути/згорнути відео'],
@@ -6770,13 +6773,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var favInfIconClass = !t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 					var favInfYouDisp = t.you ? '' : ' style="display: none;"';
 					var favInfNewDisp = t.new ? '' : ' style="display: none;"';
-					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>';
+					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" title="' + Lng.goToThread[lang] + '"' + (' href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 				}
 				if (!innerHtml) {
 					continue;
 				}
 				var isHide = f.hide === undefined ? h !== aib.host : f.hide;
-				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-header-link" href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>';
+				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
 			}
 		}
 
