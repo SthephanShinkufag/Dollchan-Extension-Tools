@@ -21,8 +21,8 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let fav, oldMain;
-	[excludeList, fav] = await (dataPromise || readData());
+	let favObj, oldMain;
+	[excludeList, favObj] = await (dataPromise || readData());
 	if((excludeList = excludeList || '').includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
 		!localData && docBody.classList.contains('de-mode-local') ||
@@ -106,7 +106,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Infinity scroll');
 	const { firstThr } = DelForm.first;
 	if(firstThr) {
-		readPostsData(firstThr.op, fav);
+		readPostsData(firstThr.op, favObj);
 	}
 	Logger.log('Hide posts');
 	embedPostMsgImages(DelForm.first.el);

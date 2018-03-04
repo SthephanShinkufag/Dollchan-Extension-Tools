@@ -143,18 +143,18 @@ class Thread {
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
-		readFavorites().then(fav => {
+		readFavorites().then(favObj => {
 			const { b, host: h } = aib;
 			const num = this.thrId;
 			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
+				if(!favObj[h]) {
+					favObj[h] = {};
 				}
-				if(!fav[h][b]) {
-					fav[h][b] = {};
+				if(!favObj[h][b]) {
+					favObj[h][b] = {};
 				}
-				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][num] = {
+				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				favObj[h][b][num] = {
 					cnt  : this.pcount,
 					new  : 0,
 					you  : 0,
@@ -164,10 +164,10 @@ class Thread {
 					type
 				};
 			} else {
-				removeFavEntry(fav, h, b, num);
+				removeFavEntry(favObj, h, b, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, fav, val ? 'add' : 'delete']);
-			saveRenewFavorites(fav);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			saveRenewFavorites(favObj);
 		});
 	}
 	updateHidden(data) {

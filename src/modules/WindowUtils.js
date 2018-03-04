@@ -248,8 +248,8 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 			showFavoritesWindow(body, data);
 			break;
 		}
-		readFavorites().then(fav => {
-			showFavoritesWindow(body, fav);
+		readFavorites().then(favObj => {
+			showFavoritesWindow(body, favObj);
 			$show(win);
 			if(isAnim) {
 				win.classList.add('de-win-open');

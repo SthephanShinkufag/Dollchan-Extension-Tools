@@ -127,17 +127,15 @@ function scriptCSS() {
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
-	.de-fav-del > #de-fav-buttons { display: none; }
+	.de-fav-del > #de-fav-buttons, #de-fav-delbuttons, .de-fav-header-switch, .de-fav-switch, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use, .de-fav-entries-hide { display: none; }
 	.de-fav-del > #de-fav-delbuttons { display: block !important; }
 	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
-	#de-fav-delbuttons { display: none; }
-	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }
-	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }
-	.de-fav-header-switch, .de-fav-switch { display: none; }
+	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
+	.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.6; }
+	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }
-	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
@@ -249,9 +247,10 @@ function scriptCSS() {
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }
 	#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }
+	#de-video-buttons > a:not(:hover) { color: inherit; }
 	.de-video-expanded { width: 854px !important; height: 480px !important; }
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }
-	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }
+	.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }
@@ -395,7 +394,7 @@ function updateCSS() {
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
+	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }

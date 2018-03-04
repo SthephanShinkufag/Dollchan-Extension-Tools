@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '24c8535';
+const commit = 'f1c7fc2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2513,7 +2513,7 @@ async function readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-function readPostsData(firstPost, fav) {
+function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -2533,7 +2533,7 @@ function readPostsData(firstPost, fav) {
 		return;
 	}
 	let updateFav = false;
-	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
+	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -2603,7 +2603,7 @@ function readPostsData(firstPost, fav) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
 	if(updateFav) {
-		saveFavorites(fav);
+		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-win-fav'] === '1') {
@@ -3387,8 +3387,8 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 			showFavoritesWindow(body, data);
 			break;
 		}
-		readFavorites().then(fav => {
-			showFavoritesWindow(body, fav);
+		readFavorites().then(favObj => {
+			showFavoritesWindow(body, favObj);
 			$show(win);
 			if(isAnim) {
 				win.classList.add('de-win-open');
@@ -3620,18 +3620,19 @@ function showHiddenWindow(body) {
                                               WINDOW: FAVORITES
 =========================================================================================================== */
 
-function saveRenewFavorites(data) {
-	saveFavorites(data);
-	toggleWindow('fav', true, data);
+function saveRenewFavorites(favObj) {
+	saveFavorites(favObj);
+	toggleWindow('fav', true, favObj);
 }
 
-function removeFavEntry(data, h, b, num) {
-	if((h in data) && (b in data[h]) && (num in data[h][b])) {
-		delete data[h][b][num];
-		if(data[h][b].hasOwnProperty('url') && Object.keys(data[h][b]).length === 1) {
-			delete data[h][b];
-			if($isEmpty(data[h])) {
-				delete data[h];
+function removeFavEntry(favObj, h, b, num) {
+	let f;
+	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
+		delete f[num];
+		if(f.hasOwnProperty('url') && Object.keys(f).length === 1) {
+			delete favObj[h][b];
+			if($isEmpty(favObj[h])) {
+				delete favObj[h];
 			}
 		}
 	}
@@ -3644,8 +3645,8 @@ function toggleThrFavBtn(h, b, num, isEnable) {
 }
 
 function updateFavorites(num, value, mode) {
-	readFavorites().then(data => {
-		let f = data[aib.host];
+	readFavorites().then(favObj => {
+		let f = favObj[aib.host];
 		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
 			return;
 		}
@@ -3657,10 +3658,10 @@ function updateFavorites(num, value, mode) {
 			f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
-		const updVal = [aib.host, aib.b, num, value, mode];
-		updateFavWindow(...updVal);
-		saveFavorites(data);
-		sendStorageEvent('__de-favorites', updVal);
+		const data = [aib.host, aib.b, num, value, mode];
+		updateFavWindow(...data);
+		saveFavorites(favObj);
+		sendStorageEvent('__de-favorites', data);
 	});
 }
 
@@ -3698,31 +3699,32 @@ function cleanFavorites() {
 	if(!len) {
 		return;
 	}
-	readFavorites().then(data => {
+	readFavorites().then(favObj => {
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const h = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
-			removeFavEntry(data, h, b, num);
+			removeFavEntry(favObj, h, b, num);
 			toggleThrFavBtn(h, b, num, false);
 		}
-		saveRenewFavorites(data);
+		saveRenewFavorites(favObj);
 	});
 }
 
-function showFavoritesWindow(body, data) {
+function showFavoritesWindow(body, favObj) {
 	let html = '';
 	// Create the list of favorite threads
-	for(const h in data) {
-		for(const b in data[h]) {
-			const d = data[h][b];
+	for(const h in favObj) {
+		for(const b in favObj[h]) {
+			const f = favObj[h][b];
+			const hb = `de-host="${ h }" de-board="${ b }"`;
 			let innerHtml = '';
-			for(const tNum in d) {
-				if(tNum === 'url') { // Ignore keys with board url's
+			for(const tNum in f) {
+				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}
-				const t = d[tNum];
+				const t = f[tNum];
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
@@ -3738,8 +3740,8 @@ function showFavoritesWindow(body, data) {
 					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
-				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
-					b }" de-num="${ tNum }" de-url="${ t.url }">
+				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
+					hb } de-num="${ tNum }" de-url="${ t.url }">
 					<input class="de-fav-switch" type="checkbox">
 					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
@@ -3763,13 +3765,15 @@ function showFavoritesWindow(body, data) {
 			if(!innerHtml) {
 				continue;
 			}
+			const isHide = f.hide === undefined ? h !== aib.host : f.hide;
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
+			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
 					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${ h }/${ b }</a>
+					<a class="de-fav-header-link" href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+					<a class="de-abtn de-fav-header-btn" href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
-				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
+				<div class="de-fav-entries${ isHide ? ' de-fav-entries-hide' : '' }" ${ hb }>
 					${ innerHtml }
 				</div>
 			</div>`;
@@ -3792,25 +3796,21 @@ function showFavoritesWindow(body, data) {
 				const { checked } = el;
 				// Select/unselect all checkboxes in board block
 				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), el => (el.checked = checked));
-				if(!checked || el.hasAttribute('de-opened')) {
-					return;
+				$each($Q('.de-entry > input', el), inputEl => (inputEl.checked = checked));
+				if(checked && el.classList.contains('de-fav-entries-hide')) {
+					el.classList.remove('de-fav-entries-hide');
 				}
 				break;
 			}
-			case 'de-fav-header-link':
+			case 'de-abtn de-fav-header-btn': {
 				el = el.parentNode.nextElementSibling;
-				$pd(e); // TODO: remove and make it possible to follow a board link
-				break;
-			default: return;
+				const isHide = !el.classList.contains('de-fav-entries-hide');
+				e.target.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
+				favObj[el.getAttribute('de-host')][el.getAttribute('de-board')].hide = isHide;
+				saveFavorites(favObj);
+				$pd(e);
+				el.classList.toggle('de-fav-entries-hide');
 			}
-			// Fold/unfold the board block
-			if(el.hasAttribute('de-opened')) {
-				el.style.display = 'none';
-				el.removeAttribute('de-opened');
-			} else {
-				el.removeAttribute('style');
-				el.setAttribute('de-opened', '');
 			}
 		});
 	} else {
@@ -3821,12 +3821,12 @@ function showFavoritesWindow(body, data) {
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 	div.appendChild(getEditButton('favor',
-		fn => readFavorites().then(data => fn(data, true, saveRenewFavorites))));
+		fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
 	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
-		const fav = await readFavorites();
-		if(!fav[aib.host]) {
+		const favObj = await readFavorites();
+		if(!favObj[aib.host]) {
 			return;
 		}
 		let isUpdate = false;
@@ -3838,7 +3838,7 @@ function showFavoritesWindow(body, data) {
 			const host = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			const f = fav[host][b][num];
+			const f = favObj[host][b][num];
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
@@ -3885,11 +3885,11 @@ function showFavoritesWindow(body, data) {
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
 				const bArch = b + '/arch';
-				if(!fav[host][bArch]) {
-					fav[host][bArch] = { url: fav[host][b].url + 'arch/' };
+				if(!favObj[host][bArch]) {
+					favObj[host][bArch] = { url: favObj[host][b].url + 'arch/' };
 				}
-				fav[host][bArch][num] = Object.assign({}, f);
-				removeFavEntry(fav, host, b, num);
+				favObj[host][bArch][num] = Object.assign({}, f);
+				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -3932,7 +3932,7 @@ function showFavoritesWindow(body, data) {
 		}
 		AjaxCache.clearCache();
 		if(isUpdate) {
-			saveFavorites(fav);
+			saveFavorites(favObj);
 		}
 	}));
 
@@ -10263,6 +10263,7 @@ class Post extends AbstractPost {
 		if(MyPosts.has(num)) {
 			this.el.classList.add('de-mypost');
 		}
+		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		const refEl = $q(aib.qPostRef, el);
 		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
@@ -12651,13 +12652,13 @@ class MakabaPostsBuilder {
 		const emailEl = data.email ?
 			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
 			`<span class="ananimas">${ data.name }</span>`;
-		const tripEl = !data.trip ? '' : _switch(data.trip, {
+		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
 			'!!%adm%!!'        : 'adm">## Abu ##',
 			'!!%mod%!!'        : 'mod">## Mod ##',
 			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
 			'!!%coder%!!'      : 'mod">## Кодер ##',
 			'@@default'        : 'postertrip">' + data.trip
-		});
+		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		return `<div id="post-${ num }" class="post-wrapper">
 			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
@@ -12667,7 +12668,7 @@ class MakabaPostsBuilder {
 						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					<span class="${ tripEl }</span>
+					${ tripEl }
 					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>
@@ -13155,18 +13156,18 @@ class Thread {
 	}
 	setFavorState(val, type) {
 		this.op.setFavBtn(val);
-		readFavorites().then(fav => {
+		readFavorites().then(favObj => {
 			const { b, host: h } = aib;
 			const num = this.thrId;
 			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
+				if(!favObj[h]) {
+					favObj[h] = {};
 				}
-				if(!fav[h][b]) {
-					fav[h][b] = {};
+				if(!favObj[h][b]) {
+					favObj[h][b] = {};
 				}
-				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][num] = {
+				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				favObj[h][b][num] = {
 					cnt  : this.pcount,
 					new  : 0,
 					you  : 0,
@@ -13176,10 +13177,10 @@ class Thread {
 					type
 				};
 			} else {
-				removeFavEntry(fav, h, b, num);
+				removeFavEntry(favObj, h, b, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, fav, val ? 'add' : 'delete']);
-			saveRenewFavorites(fav);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			saveRenewFavorites(favObj);
 		});
 	}
 	updateHidden(data) {
@@ -17276,17 +17277,15 @@ function scriptCSS() {
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
-	.de-fav-del > #de-fav-buttons { display: none; }
+	.de-fav-del > #de-fav-buttons, #de-fav-delbuttons, .de-fav-header-switch, .de-fav-switch, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use, .de-fav-entries-hide { display: none; }
 	.de-fav-del > #de-fav-delbuttons { display: block !important; }
 	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
-	#de-fav-delbuttons { display: none; }
-	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }
-	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }
-	.de-fav-header-switch, .de-fav-switch { display: none; }
+	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
+	.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.6; }
+	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }
-	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
 	.de-fav-inf-new { color: #424f79; }
 	.de-fav-inf-new::after { content: " +"; }
 	.de-fav-inf-old { color: #4f7942; }
@@ -17398,9 +17397,10 @@ function scriptCSS() {
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }
 	#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }
+	#de-video-buttons > a:not(:hover) { color: inherit; }
 	.de-video-expanded { width: 854px !important; height: 480px !important; }
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }
-	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }
+	.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }
@@ -17544,7 +17544,7 @@ function updateCSS() {
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
+	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
@@ -17597,8 +17597,8 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let fav, oldMain;
-	[excludeList, fav] = await (dataPromise || readData());
+	let favObj, oldMain;
+	[excludeList, favObj] = await (dataPromise || readData());
 	if((excludeList = excludeList || '').includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
 		!localData && docBody.classList.contains('de-mode-local') ||
@@ -17682,7 +17682,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Infinity scroll');
 	const { firstThr } = DelForm.first;
 	if(firstThr) {
-		readPostsData(firstThr.op, fav);
+		readPostsData(firstThr.op, favObj);
 	}
 	Logger.log('Hide posts');
 	embedPostMsgImages(DelForm.first.el);

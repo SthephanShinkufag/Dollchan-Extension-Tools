@@ -381,6 +381,7 @@ class Post extends AbstractPost {
 		if(MyPosts.has(num)) {
 			this.el.classList.add('de-mypost');
 		}
+		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		const refEl = $q(aib.qPostRef, el);
 		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +

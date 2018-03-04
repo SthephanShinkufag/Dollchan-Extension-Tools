@@ -387,13 +387,13 @@ class MakabaPostsBuilder {
 		const emailEl = data.email ?
 			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
 			`<span class="ananimas">${ data.name }</span>`;
-		const tripEl = !data.trip ? '' : _switch(data.trip, {
+		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
 			'!!%adm%!!'        : 'adm">## Abu ##',
 			'!!%mod%!!'        : 'mod">## Mod ##',
 			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
 			'!!%coder%!!'      : 'mod">## Кодер ##',
 			'@@default'        : 'postertrip">' + data.trip
-		});
+		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		return `<div id="post-${ num }" class="post-wrapper">
 			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
@@ -403,7 +403,7 @@ class MakabaPostsBuilder {
 						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					<span class="${ tripEl }</span>
+					${ tripEl }
 					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>

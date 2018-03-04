@@ -171,7 +171,7 @@ async function readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-function readPostsData(firstPost, fav) {
+function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -191,7 +191,7 @@ function readPostsData(firstPost, fav) {
 		return;
 	}
 	let updateFav = false;
-	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
+	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -261,7 +261,7 @@ function readPostsData(firstPost, fav) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
 	if(updateFav) {
-		saveFavorites(fav);
+		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-win-fav'] === '1') {
