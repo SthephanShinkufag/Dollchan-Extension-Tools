@@ -11,7 +11,14 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		if(f.hasOwnProperty('url') && Object.keys(f).length === 1) {
+		let len = Object.keys(f).length;
+		if(f.hasOwnProperty('url')) {
+			len--;
+		}
+		if(f.hasOwnProperty('hide')) {
+			len--;
+		}
+		if(!len) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];
@@ -124,7 +131,7 @@ function showFavoritesWindow(body, favObj) {
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ t.url }">
-					<input class="de-fav-switch" type="checkbox">
+					<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>
 					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
@@ -152,7 +159,7 @@ function showFavoritesWindow(body, favObj) {
 			// Building a foldable block for specific board
 			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
-					<input class="de-fav-header-switch" type="checkbox">
+					<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>
 					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
 						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
 					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
@@ -168,48 +175,55 @@ function showFavoritesWindow(body, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = e.target;
-			switch(el.className) {
+			const el = fixEventEl(e.target);
+			const parentEl = el.parentNode;
+			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 			case 'de-fav-link':
 				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
-				el = el.parentNode;
 				// We need to scroll to last seen post after following a link,
 				// remembering of scroll position is no longer needed
-				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+				sesStorage.removeItem('de-scroll-' +
+					parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
 				break;
-			case 'de-fav-header-switch': {
-				const { checked } = el;
-				// Select/unselect all checkboxes in board block
-				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), inputEl => (inputEl.checked = checked));
-				if(checked && el.classList.contains('de-fav-entries-hide')) {
-					el.classList.remove('de-fav-entries-hide');
+			case 'de-fav-del-btn': {
+				const wasChecked = el.getAttribute('de-checked') === '';
+				const toggleFn = btnEl => toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				toggleFn(el);
+				if(parentEl.className === 'de-fav-header') {
+					// Select/unselect all checkboxes in board block
+					const entriesEl = parentEl.nextElementSibling;
+					$each($Q('.de-fav-del-btn', entriesEl), toggleFn);
+					if(!wasChecked && entriesEl.classList.contains('de-fav-entries-hide')) {
+						entriesEl.classList.remove('de-fav-entries-hide');
+					}
 				}
+				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+				$toggle($id('de-fav-buttons'), !isShowDelBtns);
+				$toggle($id('de-fav-del-confirm'), isShowDelBtns);
 				break;
 			}
 			case 'de-abtn de-fav-header-btn': {
-				el = el.parentNode.nextElementSibling;
-				const isHide = !el.classList.contains('de-fav-entries-hide');
-				e.target.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
-				favObj[el.getAttribute('de-host')][el.getAttribute('de-board')].hide = isHide;
+				const entriesEl = parentEl.nextElementSibling;
+				const isHide = !entriesEl.classList.contains('de-fav-entries-hide');
+				el.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
+				favObj[entriesEl.getAttribute('de-host')][entriesEl.getAttribute('de-board')].hide = isHide;
 				saveFavorites(favObj);
 				$pd(e);
-				el.classList.toggle('de-fav-entries-hide');
+				entriesEl.classList.toggle('de-fav-entries-hide');
 			}
 			}
 		});
 	} else {
 		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
-
-	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
+	const btns = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(getEditButton('favor',
+	btns.appendChild(getEditButton('favor',
 		fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
+	btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
 		const favObj = await readFavorites();
 		if(!favObj[aib.host]) {
 			return;
@@ -322,7 +336,7 @@ function showFavoritesWindow(body, favObj) {
 	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
+	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		const thrInfo = [];
@@ -365,11 +379,7 @@ function showFavoritesWindow(body, favObj) {
 				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
 					// Restore old icon and title status
 					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-					if(pInfo.iconTitle) {
-						pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
-					} else {
-						pInfo.titleEl.removeAttribute('title');
-					}
+					toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
 					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
 					pInfo.found = true;
 					infoLoaded++;
@@ -385,11 +395,7 @@ function showFavoritesWindow(body, favObj) {
 			if(!found) {
 				// Restore old icon and title status
 				iconEl.setAttribute('class', iconClass);
-				if(iconTitle) {
-					titleEl.setAttribute('title', iconTitle);
-				} else {
-					titleEl.removeAttribute('title');
-				}
+				toggleAttr(titleEl, 'title', iconTitle, iconTitle);
 				pageEl.textContent = '@?'; // Indicates that thread not found
 			}
 		}
@@ -397,7 +403,7 @@ function showFavoritesWindow(body, favObj) {
 	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
+	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
 		// Sequentially load threads, and remove inaccessible
 		let last404 = false;
 		const els = $Q('.de-entry');
@@ -434,21 +440,18 @@ function showFavoritesWindow(body, favObj) {
 		parent.classList.remove('de-fav-table-unfold');
 	}));
 
-	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
-	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
-	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
-
-	// "Apply" button, depends to "Deleting…"
-	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), // Mark checked entries as deleted
-			el => el.checked && el.parentNode.setAttribute('de-removed', ''));
+	// Deletion confirm/cancel buttons
+	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+	delBtns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
+		$each($Q('.de-entry > .de-fav-del-btn[de-checked]', body),
+			el => el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
-		body.classList.remove('de-fav-del'); // Show all control buttons
+		$show(btns);
+		$hide(delBtns);
 	}));
-
-	// "Cancel" button, depends to "Deleting…"
-	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
-		body.classList.remove('de-fav-del'); // Show all control buttons
+	delBtns.appendChild($btn(Lng.cancel[lang], '', () => {
+		$each($Q('.de-fav-del-btn', body), el => el.removeAttribute('de-checked'));
+		$show(btns);
+		$hide(delBtns);
 	}));
 }

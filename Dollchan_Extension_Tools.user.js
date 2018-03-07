@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'dc1fdb2';
+	var commit = '7b0b029';
 
 
 	var defaultCfg = {
@@ -4219,7 +4219,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		resetCfg: ['Сбросить в настройки по умолчанию', 'Reset config to defaults', 'Скинути в налаштування по замовчуванню'],
 		resetData: ['Очистить выбранные данные', 'Reset selected data', 'Очистити обрані дані'],
 		allDomains: ['для всех доменов', 'for all domains', 'для всіх доменів'],
-		delEntries: ['Выбрать и удалить записи', 'Select and delete entries', 'Обрати та видалити записи'],
+		delEntries: ['Удалить выбранные записи', 'Delete selected entries', 'Видалити обрані записи'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes', 'Зберегти внесені зміни'],
 		hiddenPosts: ['Скрытые посты', 'Hidden posts', 'Сховані пости'],
 		hidPostThr: ['Скрытые посты и треды', 'Hidden posts and threads', 'Сховані пости та треди'],
@@ -4335,7 +4335,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		checking: ['Проверка…', 'Checking…', 'Перевірка…'],
 		updating: ['Обновление…', 'Updating…', 'Оновлення…'],
 		deleting: ['Удаление…', 'Deleting…', 'Видалення…'],
-		deletion: ['Удаление…', 'Deletion…', 'Видалення…'],
 		deleted: ['удалён', 'deleted', 'видалено'],
 		hide: ['Скрыть: ', 'Hide: ', 'Сховати: '],
 
@@ -4577,6 +4576,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var el = doc.createElement('div');
 		el.appendChild($txt(html));
 		return el.innerHTML;
+	}
+
+	function toggleAttr(el, name, value, isAdd) {
+		if (isAdd) {
+			el.setAttribute(name, value);
+		} else {
+			el.removeAttribute(name);
+		}
 	}
 
 	function $pd(e) {
@@ -6661,7 +6668,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var f = void 0;
 		if (h in favObj && b in favObj[h] && num in (f = favObj[h][b])) {
 			delete f[num];
-			if (f.hasOwnProperty('url') && Object.keys(f).length === 1) {
+			var len = Object.keys(f).length;
+			if (f.hasOwnProperty('url')) {
+				len--;
+			}
+			if (f.hasOwnProperty('hide')) {
+				len--;
+			}
+			if (!len) {
 				delete favObj[h][b];
 				if ($isEmpty(favObj[h])) {
 					delete favObj[h];
@@ -6773,64 +6787,68 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var favInfIconClass = !t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 					var favInfYouDisp = t.you ? '' : ' style="display: none;"';
 					var favInfNewDisp = t.new ? '' : ' style="display: none;"';
-					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<input class="de-fav-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-link" title="' + Lng.goToThread[lang] + '"' + (' href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>\n\t\t\t\t\t<a class="de-fav-link" title="' + Lng.goToThread[lang] + '"' + (' href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 				}
 				if (!innerHtml) {
 					continue;
 				}
 				var isHide = f.hide === undefined ? h !== aib.host : f.hide;
-				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<input class="de-fav-header-switch" type="checkbox">\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
+				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
 			}
 		}
 
 		if (html) {
 			$bEnd(body, '<div class="de-fav-table">' + html + '</div>').addEventListener('click', function (e) {
-				var el = e.target;
-				switch (el.className) {
+				var el = fixEventEl(e.target);
+				var parentEl = el.parentNode;
+				switch (el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 					case 'de-fav-link':
 						sesStorage['de-win-fav'] = '1'; 
-						el = el.parentNode;
-						sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+						sesStorage.removeItem('de-scroll-' + parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
 						break;
-					case 'de-fav-header-switch':
+					case 'de-fav-del-btn':
 						{
-							var _el3 = el,
-							    checked = _el3.checked;
-
-							el = el.parentNode.nextElementSibling;
-							$each($Q('.de-entry > input', el), function (inputEl) {
-								return inputEl.checked = checked;
-							});
-							if (checked && el.classList.contains('de-fav-entries-hide')) {
-								el.classList.remove('de-fav-entries-hide');
+							var wasChecked = el.getAttribute('de-checked') === '';
+							var toggleFn = function toggleFn(btnEl) {
+								return toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+							};
+							toggleFn(el);
+							if (parentEl.className === 'de-fav-header') {
+								var entriesEl = parentEl.nextElementSibling;
+								$each($Q('.de-fav-del-btn', entriesEl), toggleFn);
+								if (!wasChecked && entriesEl.classList.contains('de-fav-entries-hide')) {
+									entriesEl.classList.remove('de-fav-entries-hide');
+								}
 							}
+							var isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+							$toggle($id('de-fav-buttons'), !isShowDelBtns);
+							$toggle($id('de-fav-del-confirm'), isShowDelBtns);
 							break;
 						}
 					case 'de-abtn de-fav-header-btn':
 						{
-							el = el.parentNode.nextElementSibling;
-							var _isHide = !el.classList.contains('de-fav-entries-hide');
-							e.target.innerHTML = _isHide ? '&#x25BC' : '&#x25B2';
-							favObj[el.getAttribute('de-host')][el.getAttribute('de-board')].hide = _isHide;
+							var _entriesEl = parentEl.nextElementSibling;
+							var _isHide = !_entriesEl.classList.contains('de-fav-entries-hide');
+							el.innerHTML = _isHide ? '&#x25BC' : '&#x25B2';
+							favObj[_entriesEl.getAttribute('de-host')][_entriesEl.getAttribute('de-board')].hide = _isHide;
 							saveFavorites(favObj);
 							$pd(e);
-							el.classList.toggle('de-fav-entries-hide');
+							_entriesEl.classList.toggle('de-fav-entries-hide');
 						}
 				}
 			});
 		} else {
 			$bEnd(body, '<center><b>' + Lng.noFavThr[lang] + '</b></center>');
 		}
+		var btns = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
-		var div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
-
-		div.appendChild(getEditButton('favor', function (fn) {
+		btns.appendChild(getEditButton('favor', function (fn) {
 			return readFavorites().then(function (favObj) {
 				return fn(favObj, true, saveRenewFavorites);
 			});
 		}));
 
-		div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee5() {
+		btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee5() {
 			var favObj, isUpdate, last404, myposts, els, i, len, el, host, _b, num, _f, _ref11, titleEl, youEl, countEl, iconEl, form, isArchived, _ref12, _ref13, bArch, posts, cnt, j, links, a, _len, tc;
 
 			return regeneratorRuntime.wrap(function _callee5$(_context6) {
@@ -7021,7 +7039,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee5, _this13, [[23, 39]]);
 		}))));
 
-		div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
+		btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
 			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, page, tNums, form, _i3, pInfo, _i4, _thrInfo$_i, found, pageEl, iconClass, _iconEl, iconTitle, _titleEl;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context7) {
@@ -7094,11 +7112,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 								if (tNums.has(pInfo.num)) {
 									pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-									if (pInfo.iconTitle) {
-										pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
-									} else {
-										pInfo.titleEl.removeAttribute('title');
-									}
+									toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
 									pInfo.pageEl.textContent = '@' + page; 
 									pInfo.found = true;
 									infoLoaded++;
@@ -7123,11 +7137,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 								if (!found) {
 									_iconEl.setAttribute('class', iconClass);
-									if (iconTitle) {
-										_titleEl.setAttribute('title', iconTitle);
-									} else {
-										_titleEl.removeAttribute('title');
-									}
+									toggleAttr(_titleEl, 'title', iconTitle, iconTitle);
 									pageEl.textContent = '@?'; 
 								}
 							}
@@ -7141,7 +7151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee6, _this13, [[12, 19]]);
 		}))));
 
-		div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee7() {
+		btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee7() {
 			var last404, els, parent, i, len, el, iconEl, titleEl;
 			return regeneratorRuntime.wrap(function _callee7$(_context8) {
 				while (1) {
@@ -7225,25 +7235,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee7, _this13, [[11, 18]]);
 		}))));
 
-		div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], function () {
-			return body.classList.add('de-fav-del');
-		}));
-		div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
-
-		div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], function () {
-			$each($Q('.de-entry > input[type="checkbox"]', body), 
-			function (el) {
-				return el.checked && el.parentNode.setAttribute('de-removed', '');
+		var delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+		delBtns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], function () {
+			$each($Q('.de-entry > .de-fav-del-btn[de-checked]', body), function (el) {
+				return el.parentNode.setAttribute('de-removed', '');
 			});
 			cleanFavorites(); 
-			body.classList.remove('de-fav-del'); 
+			$show(btns);
+			$hide(delBtns);
 		}));
-
-		div.appendChild($btn(Lng.cancel[lang], '', function () {
-			$each($Q('input[type="checkbox"]', body), function (el) {
-				return el.checked = false;
-			}); 
-			body.classList.remove('de-fav-del'); 
+		delBtns.appendChild($btn(Lng.cancel[lang], '', function () {
+			$each($Q('.de-fav-del-btn', body), function (el) {
+				return el.removeAttribute('de-checked');
+			});
+			$show(btns);
+			$hide(delBtns);
 		}));
 	}
 
@@ -7664,9 +7670,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 
 								var _ref20 = _ref19,
-								    _el4 = _ref20.el;
+								    _el3 = _ref20.el;
 
-								processImgInfoLinks(_el4, 1, 0);
+								processImgInfoLinks(_el3, 1, 0);
 								$each($Q('.de-img-embed'), function (el) {
 									return addImgSrcButtons(el.parentNode.nextSibling);
 								});
@@ -7690,9 +7696,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 
 								var _ref22 = _ref21,
-								    _el5 = _ref22.el;
+								    _el4 = _ref22.el;
 
-								processImgInfoLinks(_el5, 0, 1);
+								processImgInfoLinks(_el4, 0, 1);
 							}
 						} else {
 							$each($Q('.de-img-name'), function (el) {
@@ -7909,16 +7915,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			var els = $Q('.de-cfg-chkbox, .de-cfg-inptxt, .de-cfg-select', newTab.parentNode);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var _el6 = els[i];
-				var _info4 = _el6.getAttribute('info');
-				if (_el6.tagName === 'INPUT') {
-					if (_el6.type === 'checkbox') {
-						_el6.checked = !!Cfg[_info4];
+				var _el5 = els[i];
+				var _info4 = _el5.getAttribute('info');
+				if (_el5.tagName === 'INPUT') {
+					if (_el5.type === 'checkbox') {
+						_el5.checked = !!Cfg[_info4];
 					} else {
-						_el6.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
+						_el5.value = _info4 !== 'excludeList' ? Cfg[_info4] : excludeList;
 					}
 				} else {
-					_el6.selectedIndex = Cfg[_info4];
+					_el5.selectedIndex = Cfg[_info4];
 				}
 			}
 		},
@@ -9744,8 +9750,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i9 = 0, _len6 = _els.length; _i9 < _len6; ++_i9) {
 				var _link2 = _els[_i9];
-				var _el7 = _link2.previousSibling;
-				if (!_el7 || _el7.className !== 'de-vocaroo') {
+				var _el6 = _link2.previousSibling;
+				if (!_el6 || _el6.className !== 'de-vocaroo') {
 					_link2.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link2.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
@@ -12117,8 +12123,8 @@ true, true];
 				if (el.tagName !== 'DIV') {
 					el = el.parentNode;
 				}
-				var _el8 = el,
-				    id = _el8.id;
+				var _el7 = el,
+				    id = _el7.id;
 
 				if (!id.startsWith('de-btn')) {
 					return;
@@ -12553,11 +12559,7 @@ true, true];
 			value: function _setPlaceholder(val) {
 				var el = val === 'cap' ? this.cap.textEl : this[val];
 				if (el) {
-					if (aib.multiFile || Cfg.fileInputs !== 2) {
-						el.placeholder = Lng[val][lang];
-					} else {
-						el.removeAttribute('placeholder');
-					}
+					toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
 				}
 			}
 		}, {
@@ -13111,11 +13113,7 @@ true, true];
 				if (!(showThumbs ^ !!this._thumb)) {
 					return;
 				}
-				if (aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
-					this._input.setAttribute('multiple', true);
-				} else {
-					this._input.removeAttribute('multiple');
-				}
+				toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
 				if (showThumbs) {
 					this._initThumbs();
 					return;
@@ -15709,12 +15707,7 @@ true, true];
 			key: 'toggleVideoLoop',
 			value: function toggleVideoLoop() {
 				if (this.data.isVideo) {
-					var el = this._fullEl.firstElementChild;
-					if (this.isAutoPlay) {
-						el.removeAttribute('loop');
-					} else {
-						el.setAttribute('loop', '');
-					}
+					toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
 				}
 			}
 		}, {
@@ -16384,9 +16377,9 @@ true, true];
 			if (Cfg.addImgs || localData) {
 				els = $Q('.de-img-embed', post.el);
 				for (var _i36 = 0, _len8 = els.length; _i36 < _len8; ++_i36) {
-					var _el9 = els[_i36];
-					last = new EmbeddedImage(post, _el9, last);
-					filesMap.set(_el9, last);
+					var _el8 = els[_i36];
+					last = new EmbeddedImage(post, _el8, last);
+					filesMap.set(_el8, last);
 					if (!first) {
 						first = last;
 					}
@@ -22587,7 +22580,7 @@ true, true];
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',
 		'#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t.de-cfg-tab { border-color: #001450 !important; }',
-		'#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }'][Cfg.scriptStyle] + '\n\n\t/* Favorites window */\n\t.de-fav-del > #de-fav-buttons, #de-fav-delbuttons, .de-fav-header-switch, .de-fav-switch, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use, .de-fav-entries-hide { display: none; }\n\t.de-fav-del > #de-fav-delbuttons { display: block !important; }\n\t.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }\n\t.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }\n\t.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.6; }\n\t.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' + (!pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '') + '\n\n\t/* Sauce buttons */\n\t' + cont('.de-src-google', 'https://google.com/favicon.ico') + '\n\t' + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + '\n\t' + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + '\n\t' + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + '\n\t' + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') + '\n\t' + cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') + '\n\n\t/* Posts counter */\n\t.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }\n\t.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }\n\t.de-post-counter-pview { color: #4f7942; }\n\t.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; color: #727579; }\n\n\t/* Text markup buttons */\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\r\n';
+		'#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }'][Cfg.scriptStyle] + '\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }\n\t.de-fav-header > .de-fav-del-btn { margin-top: 3px; }\n\t.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }\n\t.de-fav-del-btn { flex: 0 0 auto; align-self: center; width: 13px; height: 13px; margin-left: 2px; opacity: 0.65; cursor: pointer; }\n\t.de-fav-del-btn[de-checked] { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' + (!pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '') + '\n\n\t/* Sauce buttons */\n\t' + cont('.de-src-google', 'https://google.com/favicon.ico') + '\n\t' + cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') + '\n\t' + cont('.de-src-tineye', 'https://tineye.com/favicon.ico') + '\n\t' + cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') + '\n\t' + cont('.de-src-iqdb', '//iqdb.org/favicon.ico') + '\n\t' + cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') + '\n\n\t/* Posts counter */\n\t.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }\n\t.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }\n\t.de-post-counter-pview { color: #4f7942; }\n\t.de-post-deleted::after { content: "' + Lng.deleted[lang] + '"; color: #727579; }\n\n\t/* Text markup buttons */\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\r\n';
 
 		if ('animation' in docBody.style) {
 			x += '\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-close { animation: de-win-close .2s ease-in both; }\r\n';

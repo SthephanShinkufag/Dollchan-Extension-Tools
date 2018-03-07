@@ -127,12 +127,15 @@ function scriptCSS() {
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
-	.de-fav-del > #de-fav-buttons, #de-fav-delbuttons, .de-fav-header-switch, .de-fav-switch, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use, .de-fav-entries-hide { display: none; }
-	.de-fav-del > #de-fav-delbuttons { display: block !important; }
-	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
+	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
 	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
-	.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.6; }
-	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
+	.de-fav-header > .de-fav-del-btn { margin-top: 3px; }
+	.de-fav-header-btn { flex: 1 0 auto; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }
+	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
+	.de-fav-del-btn { flex: 0 0 auto; align-self: center; width: 13px; height: 13px; margin-left: 2px; opacity: 0.65; cursor: pointer; }
+	.de-fav-del-btn[de-checked] { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }
@@ -141,9 +144,7 @@ function scriptCSS() {
 	.de-fav-inf-old { color: #4f7942; }
 	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
-	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }
+	.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }
 	.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }
 	.de-fav-unavail { color: #cf4436; }
 	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }

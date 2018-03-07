@@ -963,9 +963,9 @@ const Lng = {
 		'for all domains',
 		'для всіх доменів'],
 	delEntries: [
-		'Выбрать и удалить записи',
-		'Select and delete entries',
-		'Обрати та видалити записи'],
+		'Удалить выбранные записи',
+		'Delete selected entries',
+		'Видалити обрані записи'],
 	saveChanges: [
 		'Сохранить внесенные изменения',
 		'Save your changes',
@@ -1310,7 +1310,6 @@ const Lng = {
 	checking  : ['Проверка…', 'Checking…', 'Перевірка…'],
 	updating  : ['Обновление…', 'Updating…', 'Оновлення…'],
 	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
-	deletion  : ['Удаление…', 'Deletion…', 'Видалення…'],
 	deleted   : ['удалён', 'deleted', 'видалено'],
 	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
 

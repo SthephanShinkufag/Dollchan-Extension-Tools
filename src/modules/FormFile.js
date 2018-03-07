@@ -116,11 +116,7 @@ class FileInput {
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
 		}
-		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
-			this._input.setAttribute('multiple', true);
-		} else {
-			this._input.removeAttribute('multiple');
-		}
+		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
 		if(showThumbs) {
 			this._initThumbs();
 			return;

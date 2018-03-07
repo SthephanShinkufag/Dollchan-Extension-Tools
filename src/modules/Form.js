@@ -567,11 +567,7 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			if(aib.multiFile || Cfg.fileInputs !== 2) {
-				el.placeholder = Lng[val][lang];
-			} else {
-				el.removeAttribute('placeholder');
-			}
+			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
 		}
 	}
 	_setSage() {

@@ -184,12 +184,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			const el = this._fullEl.firstElementChild;
-			if(this.isAutoPlay) {
-				el.removeAttribute('loop');
-			} else {
-				el.setAttribute('loop', '');
-			}
+			toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {

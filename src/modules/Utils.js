@@ -183,6 +183,14 @@ function escapeHTML(html) {
 	return el.innerHTML;
 }
 
+function toggleAttr(el, name, value, isAdd) {
+	if(isAdd) {
+		el.setAttribute(name, value);
+	} else {
+		el.removeAttribute(name);
+	}
+}
+
 function $pd(e) {
 	e.preventDefault();
 }
