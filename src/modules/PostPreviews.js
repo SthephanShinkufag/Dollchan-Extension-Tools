@@ -216,16 +216,13 @@ class Pview extends AbstractPost {
 	}
 	setUserVisib() {
 		const post = pByNum.get(this.num);
-		post.setUserVisib(!post.hidden);
+		const isHide = post.hidden;
+		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
-			if(post.hidden) {
-				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
-				el.parentNode.classList.add('de-post-hide');
-			} else {
-				el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
-				el.parentNode.classList.remove('de-post-hide');
-			}
+			el.setAttribute('class',
+				`${ isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user' } de-btn-pview-hide`);
+			el.parentNode.classList.toggle('de-post-hide', isHide);
 		});
 	}
 

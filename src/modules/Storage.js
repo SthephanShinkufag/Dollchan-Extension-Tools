@@ -228,7 +228,7 @@ function readPostsData(firstPost, favObj) {
 			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
 				post.setUserVisib(true);
 			} else {
-				post.setUserVisib(uHideData, false);
+				post.setUserVisib(!!uHideData, false);
 			}
 			continue;
 		}

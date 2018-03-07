@@ -185,22 +185,19 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = () => {
-			const { width } = win.style;
-			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
-			if(Cfg[name + 'WinDrag']) {
-				win.classList.remove('de-win-fixed');
-				win.classList.add('de-win');
-				win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
-			} else {
+			const isDrag = Cfg[name + 'WinDrag'];
+			if(!isDrag) {
 				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
-				win.classList.remove('de-win');
-				win.classList.add('de-win-fixed');
-				win.style.cssText = 'right: 0; bottom: 25px' + w;
 			}
+			win.classList.toggle('de-win', isDrag);
+			win.classList.toggle('de-win-fixed', !isDrag);
+			const { width } = win.style;
+			win.style.cssText = `${ isDrag ? `${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
+				'right: 0; bottom: 25px' }${ width ? '; width: ' + width : '' }`;
 			updateWinZ(win.style);
 		};
 		makeDraggable(name, win, $q('.de-win-head', win));
@@ -229,8 +226,8 @@ function toggleWindow(name, isUpd, data, noAnim) {
 
 function showWindow(win, body, name, isRemove, data, isAnim) {
 	body.innerHTML = '';
+	win.classList.toggle('de-win-active', !isRemove);
 	if(isRemove) {
-		win.classList.remove('de-win-active');
 		win.classList.remove('de-win-close');
 		$hide(win);
 		if(!Cfg.expandPanel && !$q('.de-win-active')) {
@@ -238,7 +235,6 @@ function showWindow(win, body, name, isRemove, data, isAnim) {
 		}
 		return;
 	}
-	win.classList.add('de-win-active');
 	if(!Cfg.expandPanel) {
 		$show($id('de-panel-buttons'));
 	}

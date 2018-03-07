@@ -3809,7 +3809,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '7b0b029';
+	var commit = '573288a';
 
 
 	var defaultCfg = {
@@ -5549,7 +5549,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!uHideData && post.isOp && HiddenThreads.has(num)) {
 					post.setUserVisib(true);
 				} else {
-					post.setUserVisib(uHideData, false);
+					post.setUserVisib(!!uHideData, false);
 				}
 				continue;
 			}
@@ -6368,23 +6368,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return toggleWindow(name, false);
 			};
 			el.firstElementChild.onclick = function () {
-				var width = win.style.width;
-
-				var w = width ? '; width: ' + width : '';
 				toggleCfg(name + 'WinDrag');
-				if (Cfg[name + 'WinDrag']) {
-					win.classList.remove('de-win-fixed');
-					win.classList.add('de-win');
-					win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
-				} else {
+				var isDrag = Cfg[name + 'WinDrag'];
+				if (!isDrag) {
 					var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 					if (temp) {
 						toggleWindow(temp.id.substr(7), false);
 					}
-					win.classList.remove('de-win');
-					win.classList.add('de-win-fixed');
-					win.style.cssText = 'right: 0; bottom: 25px' + w;
 				}
+				win.classList.toggle('de-win', isDrag);
+				win.classList.toggle('de-win-fixed', !isDrag);
+				var width = win.style.width;
+
+				win.style.cssText = '' + (isDrag ? Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'right: 0; bottom: 25px') + (width ? '; width: ' + width : '');
 				updateWinZ(win.style);
 			};
 			makeDraggable(name, win, $q('.de-win-head', win));
@@ -6411,8 +6407,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function showWindow(win, body, name, isRemove, data, isAnim) {
 		body.innerHTML = '';
+		win.classList.toggle('de-win-active', !isRemove);
 		if (isRemove) {
-			win.classList.remove('de-win-active');
 			win.classList.remove('de-win-close');
 			$hide(win);
 			if (!Cfg.expandPanel && !$q('.de-win-active')) {
@@ -6420,7 +6416,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			return;
 		}
-		win.classList.add('de-win-active');
 		if (!Cfg.expandPanel) {
 			$show($id('de-panel-buttons'));
 		}
@@ -6772,6 +6767,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			for (var b in favObj[h]) {
 				var f = favObj[h][b];
 				var hb = 'de-host="' + h + '" de-board="' + b + '"';
+				var delBtn = '<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>';
 				var innerHtml = '';
 				for (var tNum in f) {
 					if (tNum === 'url' || tNum === 'hide') {
@@ -6787,13 +6783,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var favInfIconClass = !t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 					var favInfYouDisp = t.you ? '' : ' style="display: none;"';
 					var favInfNewDisp = t.new ? '' : ' style="display: none;"';
-					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>\n\t\t\t\t\t<a class="de-fav-link" title="' + Lng.goToThread[lang] + '"' + (' href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+					innerHtml += '<div class="de-entry ' + aib.cReply + '" ' + hb + ' de-num="' + tNum + '" de-url="' + t.url + '">\n\t\t\t\t\t' + delBtn + '\n\t\t\t\t\t<a class="de-fav-link" title="' + Lng.goToThread[lang] + '"' + (' href="' + favLinkHref + '" rel="noreferrer">' + tNum + '</a>\n\t\t\t\t\t<div class="de-entry-title">- ' + t.txt + '</div>\n\t\t\t\t\t<div class="de-fav-inf">\n\t\t\t\t\t\t<span class="de-fav-inf-iwrap" ' + favInfIwrapTitle + '>\n\t\t\t\t\t\t\t<svg class="de-fav-inf-icon ' + favInfIconClass + '">\n\t\t\t\t\t\t\t\t<use class="de-fav-closed-use" xlink:href="#de-symbol-closed"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-unavail-use" xlink:href="#de-symbol-unavail"/>\n\t\t\t\t\t\t\t\t<use class="de-fav-wait-use" xlink:href="#de-symbol-wait"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class="de-fav-inf-you" title="' + Lng.myPostsRep[lang] + '"' + favInfYouDisp + '>\n\t\t\t\t\t\t\t' + (t.you || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-new" title="' + Lng.newPosts[lang] + '"' + favInfNewDisp + '>\n\t\t\t\t\t\t\t' + (t.new || 0) + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-old" title="' + Lng.oldPosts[lang] + '">' + t.cnt + '</span>\n\t\t\t\t\t\t<span class="de-fav-inf-page" title="' + Lng.thrPage[lang] + '"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 				}
 				if (!innerHtml) {
 					continue;
 				}
 				var isHide = f.hide === undefined ? h !== aib.host : f.hide;
-				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
+				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t' + delBtn + '\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
 			}
 		}
 
@@ -7543,11 +7539,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							var isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 							for (var post = Thread.first.op; post; post = post.next) {
 								if (post.hidden && !post.isOp) {
-									if (isHide) {
-										post.wrap.classList.add('de-hidden');
-									} else {
-										post.wrap.classList.remove('de-hidden');
-									}
+									post.wrap.classList.toggle('de-hidden', isHide);
 								}
 							}
 							updateCSS();
@@ -7801,14 +7793,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _info3 = el.getAttribute('info');
 				switch (_info3) {
 					case 'postBtnsBack':
-						if (checkCSSColor(el.value)) {
-							el.classList.remove('de-error-input');
-							saveCfg('postBtnsBack', el.value);
-							updateCSS();
-						} else {
-							el.classList.add('de-error-input');
+						{
+							var isCheck = checkCSSColor(el.value);
+							el.classList.toggle('de-error-input', !isCheck);
+							if (isCheck) {
+								saveCfg('postBtnsBack', el.value);
+								updateCSS();
+							}
+							break;
 						}
-						break;
 					case 'minImgSize':
 						saveCfg('minImgSize', Math.max(+el.value, 1));break;
 					case 'zoomFactor':
@@ -12793,7 +12786,7 @@ true, true];
 			MyPosts.set(postNum, tNum || postNum);
 		}
 		if (Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-			pByNum.get(tNum).thr.setFavorState(true, 'onreply');
+			pByNum.get(tNum).thr.setFavorState(true);
 		}
 		pr.clearForm();
 		DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -13935,9 +13928,9 @@ true, true];
 						case 'de-btn-expthr':
 							this.thr.loadPosts('all');return;
 						case 'de-btn-fav':
-							this.thr.setFavorState(true, 'user');return;
+							this.thr.setFavorState(true);return;
 						case 'de-btn-fav-sel':
-							this.thr.setFavorState(false, 'user');return;
+							this.thr.setFavorState(false);return;
 						case 'de-btn-hide':
 						case 'de-btn-hide-user':
 						case 'de-btn-unhide':
@@ -14383,11 +14376,7 @@ true, true];
 					this.thr.hidden = isHide;
 				} else {
 					if (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-						if (isHide) {
-							this.wrap.classList.add('de-hidden');
-						} else {
-							this.wrap.classList.remove('de-hidden');
-						}
+						this.wrap.classList.toggle('de-hidden', isHide);
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
 							var yOffset = window.pageYOffset;
@@ -14577,20 +14566,12 @@ true, true];
 				} else {
 					Post.hiddenNums.delete(+num);
 				}
-				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), isHide ? function (el) {
-					el.classList.add('de-link-hid');
+				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), function (el) {
+					el.classList.toggle('de-link-hid', isHide);
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 						var refMapEl = el.parentNode;
-						if (!$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
-							$hide(refMapEl);
-						}
-					}
-				} : function (el) {
-					el.classList.remove('de-link-hid');
-					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-						var refMapEl = el.parentNode;
-						if ($q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
-							$show(refMapEl);
+						if (isHide === !$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+							$toggle(refMapEl, !isHide);
 						}
 					}
 				});
@@ -15121,16 +15102,12 @@ true, true];
 			key: 'setUserVisib',
 			value: function setUserVisib() {
 				var post = pByNum.get(this.num);
-				post.setUserVisib(!post.hidden);
+				var isHide = post.hidden;
+				post.setUserVisib(!isHide);
 				Pview.updatePosition(true);
 				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), function (el) {
-					if (post.hidden) {
-						el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
-						el.parentNode.classList.add('de-post-hide');
-					} else {
-						el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
-						el.parentNode.classList.remove('de-post-hide');
-					}
+					el.setAttribute('class', (isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user') + ' de-btn-pview-hide');
+					el.parentNode.classList.toggle('de-post-hide', isHide);
 				});
 			}
 		}, {
@@ -15854,11 +15831,7 @@ true, true];
 				var btns = this._btns;
 				if (!data.inPview) {
 					btns.showBtns();
-					if (data.isVideo) {
-						btns.autoBtn.classList.remove('de-img-btn-none');
-					} else {
-						btns.autoBtn.classList.add('de-img-btn-none');
-					}
+					btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
 				} else if (this.hasOwnProperty('_btns')) {
 					btns.hideBtns();
 				}
@@ -17694,7 +17667,7 @@ true, true];
 			}
 		}, {
 			key: 'setFavorState',
-			value: function setFavorState(val, type) {
+			value: function setFavorState(val) {
 				var _this62 = this;
 
 				this.op.setFavBtn(val);
@@ -17718,8 +17691,7 @@ true, true];
 							you: 0,
 							txt: _this62.op.title,
 							url: aib.getThrUrl(b, num),
-							last: aib.anchor + _this62.last.num,
-							type: type
+							last: aib.anchor + _this62.last.num
 						};
 					} else {
 						removeFavEntry(favObj, h, b, num);
@@ -18082,14 +18054,8 @@ true, true];
 				var post = this.op;
 				var i = 0;
 				for (; post !== this.last; i++) {
-					post = post.next;
-					if (isHide) {
-						post.wrap.classList.add('de-hidden');
-						post.omitted = true;
-					} else {
-						post.wrap.classList.remove('de-hidden');
-						post.omitted = false;
-					}
+					(post = post.next).omitted = isHide;
+					post.wrap.classList.toggle('de-hidden', isHide);
 				}
 				repBtn.firstElementChild.className = 'de-abtn ' + (isHide ? 'de-replies-show' : 'de-replies-hide');
 				$toggle(updBtn, !isHide);
@@ -18228,10 +18194,8 @@ true, true];
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
-				this._toggleTO = setTimeout(isExpand ? function () {
-					return _this65._el.classList.remove('de-thr-navpanel-hidden');
-				} : function () {
-					return _this65._el.classList.add('de-thr-navpanel-hidden');
+				this._toggleTO = setTimeout(function () {
+					return _this65._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},

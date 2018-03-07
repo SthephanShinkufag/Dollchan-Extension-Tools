@@ -141,7 +141,7 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(val, type) {
+	setFavorState(val) {
 		this.op.setFavBtn(val);
 		readFavorites().then(favObj => {
 			const { b, host: h } = aib;
@@ -160,8 +160,7 @@ class Thread {
 					you  : 0,
 					txt  : this.op.title,
 					url  : aib.getThrUrl(b, num),
-					last : aib.anchor + this.last.num,
-					type
+					last : aib.anchor + this.last.num
 				};
 			} else {
 				removeFavEntry(favObj, h, b, num);
@@ -481,14 +480,8 @@ class Thread {
 		let post = this.op;
 		let i = 0;
 		for(; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
+			(post = post.next).omitted = isHide;
+			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
 		$toggle(updBtn, !isHide);
@@ -568,9 +561,7 @@ const thrNavPanel = {
 	_expandCollapse(isExpand, rt) {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 			clearTimeout(this._toggleTO);
-			this._toggleTO = setTimeout(
-				isExpand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
-				() => this._el.classList.add('de-thr-navpanel-hidden'),
+			this._toggleTO = setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
 				Cfg.linksOver);
 		}
 	},

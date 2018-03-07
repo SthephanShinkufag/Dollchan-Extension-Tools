@@ -167,8 +167,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
+			case 'de-btn-fav': this.thr.setFavorState(true); return;
+			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -651,11 +651,7 @@ class Post extends AbstractPost {
 			this.thr.hidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-				if(isHide) {
-					this.wrap.classList.add('de-hidden');
-				} else {
-					this.wrap.classList.remove('de-hidden');
-				}
+				this.wrap.classList.toggle('de-hidden', isHide);
 			} else {
 				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
 					const yOffset = window.pageYOffset;
@@ -804,20 +800,12 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? el => {
-			el.classList.add('de-link-hid');
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), el => {
+			el.classList.toggle('de-link-hid', isHide);
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refMapEl = el.parentNode;
-				if(!$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
-					$hide(refMapEl);
-				}
-			}
-		} : el => {
-			el.classList.remove('de-link-hid');
-			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refMapEl = el.parentNode;
-				if($q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
-					$show(refMapEl);
+				if(isHide === !$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$toggle(refMapEl, !isHide);
 				}
 			}
 		});

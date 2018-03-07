@@ -108,6 +108,7 @@ function showFavoritesWindow(body, favObj) {
 		for(const b in favObj[h]) {
 			const f = favObj[h][b];
 			const hb = `de-host="${ h }" de-board="${ b }"`;
+			const delBtn = '<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>';
 			let innerHtml = '';
 			for(const tNum in f) {
 				if(tNum === 'url' || tNum === 'hide') {
@@ -131,7 +132,7 @@ function showFavoritesWindow(body, favObj) {
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
 					hb } de-num="${ tNum }" de-url="${ t.url }">
-					<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>
+					${ delBtn }
 					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
@@ -159,7 +160,7 @@ function showFavoritesWindow(body, favObj) {
 			// Building a foldable block for specific board
 			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
-					<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>
+					${ delBtn }
 					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
 						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
 					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +

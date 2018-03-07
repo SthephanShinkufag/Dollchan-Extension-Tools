@@ -257,11 +257,7 @@ const CfgWindow = {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(post.hidden && !post.isOp) {
-						if(isHide) {
-							post.wrap.classList.add('de-hidden');
-						} else {
-							post.wrap.classList.remove('de-hidden');
-						}
+						post.wrap.classList.toggle('de-hidden', isHide);
 					}
 				}
 				updateCSS();
@@ -465,15 +461,15 @@ const CfgWindow = {
 		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
 			const info = el.getAttribute('info');
 			switch(info) {
-			case 'postBtnsBack':
-				if(checkCSSColor(el.value)) {
-					el.classList.remove('de-error-input');
+			case 'postBtnsBack': {
+				const isCheck = checkCSSColor(el.value);
+				el.classList.toggle('de-error-input', !isCheck);
+				if(isCheck) {
 					saveCfg('postBtnsBack', el.value);
 					updateCSS();
-				} else {
-					el.classList.add('de-error-input');
 				}
 				break;
+			}
 			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
 			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {

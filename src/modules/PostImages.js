@@ -312,11 +312,7 @@ class ImagesViewer {
 		const btns = this._btns;
 		if(!data.inPview) {
 			btns.showBtns();
-			if(data.isVideo) {
-				btns.autoBtn.classList.remove('de-img-btn-none');
-			} else {
-				btns.autoBtn.classList.add('de-img-btn-none');
-			}
+			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
 		} else if(this.hasOwnProperty('_btns')) {
 			btns.hideBtns();
 		}
