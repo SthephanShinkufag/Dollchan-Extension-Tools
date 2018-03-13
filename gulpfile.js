@@ -1,6 +1,5 @@
 /* eslint no-var: "error", prefer-const: "error", prefer-template: "error" */
 
-const babelify     = require('babelify');
 const browserify   = require('browserify');
 const { spawn }    = require('child_process');
 const gulp         = require('gulp');
@@ -58,11 +57,13 @@ gulp.task('make:es6', ['updatecommit'], () => {
 // Makes es5-script from es6-script
 gulp.task('make:es5', ['make:es6'],
 	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
-		.transform(babelify)
+		.transform('babelify', { presets: ['env'] })
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
-		.pipe(streamify(headerfooter('(function deMainFuncOuter(localData) {\n', '})(null);')))
+		.pipe(streamify(headerfooter(
+			'/* eslint-disable */\n(function deMainFuncOuter(localData) {\n',
+			'})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
 		.pipe(gulp.dest(''))
 );

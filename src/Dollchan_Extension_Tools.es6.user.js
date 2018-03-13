@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '2da90ac';
+const commit = 'f59b749';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2503,7 +2503,7 @@ async function readCfg() {
 		}
 		Cfg.fileInputs = 0;
 	}
-	if(nav.isChromeStorage) {
+	if(nav.scriptHandler === 'WebExtension') {
 		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
@@ -8651,7 +8651,7 @@ class PostForm {
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
-						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
+						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
 				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;
@@ -14332,14 +14332,13 @@ function checkStorage() {
 function initNavFuncs() {
 	const ua = navigator.userAgent;
 	const isFirefox = ua.includes('Gecko/');
-	const firefoxVer = isFirefox ? (ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0;
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = (typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let isGM = false;
+	let scriptHandler, isGM = false;
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -14347,6 +14346,12 @@ function initNavFuncs() {
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
+		scriptHandler = isChromeStorage ? 'WebExtension' :
+			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
+			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
+			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else {
+		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
@@ -14392,23 +14397,24 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		get ua() {
-			return navigator.userAgent + (this.isFirefox ? ` [${ navigator.buildID }]` : '');
-		},
-		firefoxVer,
-		isChrome,
-		isChromeStorage,
+		ua         : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		scriptHandler,
+		isESNext   : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
+		firefoxVer : isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+		isWebkit,
+		isChrome,
+		isSafari,
+		isPresto   : !!window.opera,
+		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
-		isSafari,
+		isChromeStorage,
 		isScriptStorage,
-		isWebkit,
-		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
+		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		isMsEdge : ua.includes('Edge/'),
-		isPresto : !!window.opera,
+		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -14424,14 +14430,9 @@ function initNavFuncs() {
 			try {
 				value = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(value && this.isFirefox) {
-				value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
-			}
+			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
-		},
-		get isESNext() {
-			return typeof deMainFuncOuter === 'undefined';
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -14440,15 +14441,6 @@ function initNavFuncs() {
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
-		},
-		get scriptInstall() {
-			if(this.isNewGM) {
-				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
-			}
-			if(this.isFirefox) {
-				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-			}
-			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		get viewportHeight() {
 			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
@@ -14464,9 +14456,6 @@ function initNavFuncs() {
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
-		},
-		fixLink: isSafari ? getAbsLink : function fixLink(url) {
-			return url;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
@@ -17348,7 +17337,7 @@ function scriptCSS() {
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
-	nav.firefoxVer > 59 ? `.de-fullimg-video { position: relative; }
+	nav.firefoxVer >= 59 ? `.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }

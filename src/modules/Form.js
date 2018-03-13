@@ -398,7 +398,7 @@ class PostForm {
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
-						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
+						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
 				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;

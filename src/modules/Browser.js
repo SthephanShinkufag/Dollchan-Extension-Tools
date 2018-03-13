@@ -24,14 +24,13 @@ function checkStorage() {
 function initNavFuncs() {
 	const ua = navigator.userAgent;
 	const isFirefox = ua.includes('Gecko/');
-	const firefoxVer = isFirefox ? (ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0;
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = (typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let isGM = false;
+	let scriptHandler, isGM = false;
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -39,6 +38,12 @@ function initNavFuncs() {
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
+		scriptHandler = isChromeStorage ? 'WebExtension' :
+			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
+			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
+			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else {
+		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
@@ -84,23 +89,24 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		get ua() {
-			return navigator.userAgent + (this.isFirefox ? ` [${ navigator.buildID }]` : '');
-		},
-		firefoxVer,
-		isChrome,
-		isChromeStorage,
+		ua         : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		scriptHandler,
+		isESNext   : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
+		firefoxVer : isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+		isWebkit,
+		isChrome,
+		isSafari,
+		isPresto   : !!window.opera,
+		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
-		isSafari,
+		isChromeStorage,
 		isScriptStorage,
-		isWebkit,
-		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
+		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		isMsEdge : ua.includes('Edge/'),
-		isPresto : !!window.opera,
+		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -116,14 +122,9 @@ function initNavFuncs() {
 			try {
 				value = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(value && this.isFirefox) {
-				value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
-			}
+			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
-		},
-		get isESNext() {
-			return typeof deMainFuncOuter === 'undefined';
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -132,15 +133,6 @@ function initNavFuncs() {
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
-		},
-		get scriptInstall() {
-			if(this.isNewGM) {
-				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
-			}
-			if(this.isFirefox) {
-				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-			}
-			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		get viewportHeight() {
 			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
@@ -156,9 +148,6 @@ function initNavFuncs() {
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
-		},
-		fixLink: isSafari ? getAbsLink : function fixLink(url) {
-			return url;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {

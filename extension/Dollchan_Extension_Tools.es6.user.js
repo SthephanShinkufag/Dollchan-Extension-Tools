@@ -24,14 +24,13 @@
 
 /* eslint indent: ["error", "tab", {
 	"flatTernaryExpressions": true,
-	"outerIIFEBody": 0
-}] *//* , prefer-template: "error" */
+	"outerIIFEBody": 0 }] */
 
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '7d74ff9';
+const commit = 'f59b749';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -80,7 +79,7 @@ const defaultCfg = {
 	webmTitles   : 0,    //    load titles from WebM metadata
 	webmVolume   : 100,  //    default volume for WebM [0-100%]
 	minWebmWidth : 320,  //    minimal width for WebM (px)
-	preLoadImgs  : 0,    // preload images
+	preLoadImgs  : 0,    // preload images [0=off, 1=all, 2=non-WebM]
 	findImgFile  : 0,    //    detect embedded files in images
 	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
 	imgSrcBtns   : 1,    // add "Search" buttons for images
@@ -147,9 +146,7 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
-	updScript    : 1,    // auto check for Dollchan updates
-	scrUpdIntrv  : 1,    //    interval in days (every val+1 day)
-	turnOff      : 0,    // enable Dollchan only on this site
+	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
 	replyWinDrag : 0,          // draggable "Quick Reply" form
@@ -382,10 +379,16 @@ const Lng = {
 			'Минимальная ширина WebM (px)',
 			'Minimal width for WebM (px)',
 			'Мінімальна ширина WebM (px)'],
-		preLoadImgs: [
-			'Предварительно загружать картинки*',
-			'Preload images*',
-			'Наперед завантажувати зображення *'],
+		preLoadImgs: {
+			sel: [
+				['Откл.', 'Все', 'Без WebM'],
+				['Disable', 'All', 'Non-WebM'],
+				['Вимк.', 'Всі', 'Крім WebM']],
+			txt: [
+				'Предварительно загружать картинки*',
+				'Preload images*',
+				'Наперед завантажувати зображення *']
+		},
 		findImgFile: [
 			'Распознавать файлы, встроенные в картинках*',
 			'Detect embedded files in images*',
@@ -394,7 +397,7 @@ const Lng = {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
-				['Вимк.', 'Всі', 'Лише GIF', 'Окрім GIF']],
+				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
 				'Заменять картинки на оригиналы*',
 				'Replace thumbnails with original images*',
@@ -664,25 +667,20 @@ const Lng = {
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
-		updScript: [
-			'Автоматически проверять обновления Dollchan',
-			'Auto check for Dollchan updates',
-			'Автоматично перевіряти оновлення Dollchan'],
-		scrUpdIntrv: {
+		updDollchan: {
 			sel: [
-				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
-				['Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
-				['Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
-			txt: ['', '', '']
+				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
+				['Disable', 'Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'],
+				['Вимкн.', 'Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
+			txt: [
+				'Проверять обновления Dollchan',
+				'Check for Dollchan updates',
+				'Перевіряти оновлення Dollchan']
 		},
 		excludeList: [
 			'Не запускать Dollchan на:',
 			'Prevent Dollchan launch on:',
-			'Не запускати Dollchan на:'],
-		turnOff: [
-			'Запускать Dollchan только на этом сайте',
-			'Run Dollchan only on this site',
-			'Запускати Dollchan лише на цьому сайті']
+			'Не запускати Dollchan на:']
 	},
 
 	// Main panel buttons: tooltips
@@ -890,7 +888,11 @@ const Lng = {
 		refs: [
 			'Скрыть с ответами',
 			'Hide with answers',
-			'Сховати з відповідями']
+			'Сховати з відповідями'],
+		refsonly: [
+			'Скрывать ответы',
+			'Hide answers',
+			'Ховати відповіді']
 	},
 	selExpandThr: [ // "Expand thread" post button
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'],
@@ -1131,9 +1133,9 @@ const Lng = {
 		'for all domains',
 		'для всіх доменів'],
 	delEntries: [
-		'Выбрать и удалить записи',
-		'Select and delete entries',
-		'Обрати та видалити записи'],
+		'Удалить выбранные записи',
+		'Delete selected entries',
+		'Видалити обрані записи'],
 	saveChanges: [
 		'Сохранить внесенные изменения',
 		'Save your changes',
@@ -1230,6 +1232,18 @@ const Lng = {
 		'Тред на @странице',
 		'Thread on @page',
 		'Тред на @сторінці'],
+	goToThread: [
+		'Перейти к треду',
+		'Go to the thread',
+		'Перейти до треду'],
+	goToBoard: [
+		'Перейти к доске',
+		'Go to the board',
+		'Перейти до дошки'],
+	toggleEntries: [
+		'Скрыть/раскрыть записи',
+		'Hide/expand entries',
+		'Сховати/розкрити записи'],
 
 	// Video links: tooltips
 	hideLnkList: [
@@ -1428,7 +1442,7 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Can not load the reply form',
+		'Can`t load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 
@@ -1466,7 +1480,6 @@ const Lng = {
 	checking  : ['Проверка…', 'Checking…', 'Перевірка…'],
 	updating  : ['Обновление…', 'Updating…', 'Оновлення…'],
 	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
-	deletion  : ['Удаление…', 'Deletion…', 'Видалення…'],
 	deleted   : ['удалён', 'deleted', 'видалено'],
 	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
 
@@ -1522,8 +1535,8 @@ const Images_ = { preloading: false, afterpreload: null, progressId: null, canva
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let docBody, locStorage, sesStorage, Cfg, pByEl, pByNum, aib, nav, updater,
-	dTime, pr, dummy, lang, isExpImg, isPreImg, needScroll, excludeList;
+let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lang, locStorage, nav,
+	needScroll, pByEl, pByNum, pr, sesStorage, updater;
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;
@@ -1541,8 +1554,6 @@ const $q = (path, root = docBody) => root.querySelector(path);
 
 const $id = id => doc.getElementById(id);
 
-const $each = (els, cb) => aProto.forEach.call(els, cb);
-
 function $parent(el, tagName) {
 	do {
 		el = el.parentElement;
@@ -1557,9 +1568,9 @@ function $before(el, node) {
 }
 
 function $after(el, node) {
-	const next = el.nextSibling;
-	if(next) {
-		el.parentNode.insertBefore(node, next);
+	const nextEl = el.nextSibling;
+	if(nextEl) {
+		el.parentNode.insertBefore(node, nextEl);
 	} else {
 		el.parentNode.appendChild(node);
 	}
@@ -1657,10 +1668,10 @@ function $hide(el) {
 	el.style.display = 'none';
 }
 
-function $animate(el, cName, remove = false) {
+function $animate(el, cName, isRemove = false) {
 	el.addEventListener('animationend', function aEvent() {
 		el.removeEventListener('animationend', aEvent);
-		if(remove) {
+		if(isRemove) {
 			el.remove();
 		} else {
 			el.classList.remove(cName);
@@ -1692,14 +1703,13 @@ function checkCSSColor(color) {
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
-const $join = (arr, start, end) => start + arr.join(end + start) + end;
+const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
-const getAbsLink = url => (
+const getAbsLink = url =>
 	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url
-);
+	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -1715,6 +1725,14 @@ function escapeHTML(html) {
 	const el = doc.createElement('div');
 	el.appendChild($txt(html));
 	return el.innerHTML;
+}
+
+function toggleAttr(el, name, value, isAdd) {
+	if(isAdd) {
+		el.setAttribute(name, value);
+	} else {
+		el.removeAttribute(name);
+	}
 }
 
 function $pd(e) {
@@ -1756,7 +1774,7 @@ const Logger = {
 		this._finished = true;
 		this._marks.push(['LoggerFinish', Date.now()]);
 	},
-	getData(full) {
+	getLogData(isFull) {
 		const marks = this._marks;
 		const timeLog = [];
 		let duration, i = 1;
@@ -1764,7 +1782,7 @@ const Logger = {
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
 			// Ignore logs equal to 0ms
-			if(full || duration > 1) {
+			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
 			} else {
@@ -1775,7 +1793,7 @@ const Logger = {
 		timeLog.push([Lng.total[lang], duration]);
 		return timeLog;
 	},
-	init() {
+	initLogger() {
 		this._marks.push(['LoggerInit', Date.now()]);
 	},
 	log(text) {
@@ -1813,7 +1831,7 @@ class CancelablePromise {
 	static resolve(val) {
 		return new CancelablePromise(res => res(val));
 	}
-	cancel() {
+	cancelPromise() {
 		this._reject(new CancelError());
 		if(!this._isResolved && this._cancelFn) {
 			this._cancelFn();
@@ -1832,12 +1850,11 @@ class CancelablePromise {
 			return child;
 		};
 		return new CancelablePromise(
-			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))),
-			() => {
+			resolve => resolve(this._promise.then(cb && wrap(cb), eb && wrap(eb))), () => {
 				for(const child of children) {
-					child.cancel();
+					child.cancelPromise();
 				}
-				this.cancel();
+				this.cancelPromise();
 			});
 	}
 }
@@ -1854,11 +1871,6 @@ class Maybe {
 		const value = Ctor ? new Ctor(/* ...this._args */) : null;
 		Object.defineProperty(this, 'value', { value });
 		return value;
-	}
-	end() {
-		if(this.hasValue) {
-			this.value.end();
-		}
 	}
 }
 
@@ -1892,7 +1904,7 @@ class TemporaryContent {
 		}
 		this.data = null;
 	}
-	static remove(key) {
+	static removeTempData(key) {
 		if(this.data) {
 			this.data.delete(key);
 		}
@@ -1910,7 +1922,7 @@ class TasksPool {
 		this.max = tasksCount;
 		this.completed = this.paused = this.stopped = false;
 	}
-	complete() {
+	completeTasks() {
 		if(!this.stopped) {
 			if(this.array.length === 0 && this.running === 0) {
 				this.endFn();
@@ -1919,7 +1931,25 @@ class TasksPool {
 			}
 		}
 	}
-	continue() {
+	pauseTasks() {
+		this.paused = true;
+	}
+	runTask(data) {
+		if(!this.stopped) {
+			if(this.paused || this.running === this.max) {
+				this.array.push(data);
+			} else {
+				this._runTask(data);
+				this.running++;
+			}
+		}
+	}
+	stopTasks() {
+		this.stopped = true;
+		this.endFn();
+	}
+
+	_continueTasks() {
 		if(!this.stopped) {
 			this.paused = false;
 			if(this.array.length === 0) {
@@ -1929,33 +1959,15 @@ class TasksPool {
 				return;
 			}
 			while(this.array.length !== 0 && this.running !== this.max) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				this.running++;
 			}
 		}
 	}
-	pause() {
-		this.paused = true;
-	}
-	run(data) {
-		if(!this.stopped) {
-			if(this.paused || this.running === this.max) {
-				this.array.push(data);
-			} else {
-				this._run(data);
-				this.running++;
-			}
-		}
-	}
-	stop() {
-		this.stopped = true;
-		this.endFn();
-	}
-
-	_end() {
+	_endTask() {
 		if(!this.stopped) {
 			if(!this.paused && this.array.length !== 0) {
-				this._run(this.array.shift());
+				this._runTask(this.array.shift());
 				return;
 			}
 			this.running--;
@@ -1964,15 +1976,15 @@ class TasksPool {
 			}
 		}
 	}
-	_run(data) {
-		this.func(this.num++, data).then(() => this._end(), e => {
+	_runTask(data) {
+		this.func(this.num++, data).then(() => this._endTask(), e => {
 			if(e instanceof TasksPool.PauseError) {
-				this.pause();
+				this.pauseTasks();
 				if(e.duration !== -1) {
-					setTimeout(() => this.continue(), e.duration);
+					setTimeout(() => this._continueTasks(), e.duration);
 				}
 			} else {
-				this._end();
+				this._endTask();
 				throw e;
 			}
 		});
@@ -1986,7 +1998,7 @@ TasksPool.PauseError = function(duration) {
 class WorkerPool {
 	constructor(mReqs, wrkFn, errFn) {
 		if(!nav.hasWorker) {
-			this.run = (data, transferObjs, fn) => fn(wrkFn(data));
+			this.runWorker = (data, transferObjs, fn) => fn(wrkFn(data));
 			return;
 		}
 		const url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
@@ -2005,30 +2017,30 @@ class WorkerPool {
 			this._freeWorkers.push(new Worker(url));
 		}
 	}
-	clear() {
+	clearWorkers() {
 		window.URL.revokeObjectURL(this._url);
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
 	}
-	run(data, transferObjs, fn) {
-		this._pool.run([data, transferObjs, fn]);
+	runWorker(data, transferObjs, fn) {
+		this._pool.runTask([data, transferObjs, fn]);
 	}
 
 	_createWorker(num, data) {
 		return new Promise(resolve => {
-			const w = this._freeWorkers.pop();
+			const worker = this._freeWorkers.pop();
 			const [sendData, transferObjs, fn] = data;
-			w.onmessage = e => {
+			worker.onmessage = e => {
 				fn(e.data);
-				this._freeWorkers.push(w);
+				this._freeWorkers.push(worker);
 				resolve();
 			};
-			w.onerror = err => {
+			worker.onerror = err => {
 				resolve();
-				this._freeWorkers.push(w);
+				this._freeWorkers.push(worker);
 				this._errFn(err);
 			};
-			w.postMessage(sendData, transferObjs);
+			worker.postMessage(sendData, transferObjs);
 		});
 	}
 }
@@ -2133,11 +2145,11 @@ class WebmParser {
 		} while(false);
 		this.error = true;
 	}
-	addData(data) {
+	addWebmData(data) {
 		if(this.error || !data) {
 			return this;
 		}
-		const size = (typeof data === 'string') ? data.length : data.byteLength;
+		const size = typeof data === 'string' ? data.length : data.byteLength;
 		if(size > 127) {
 			this.error = true;
 			return;
@@ -2145,7 +2157,7 @@ class WebmParser {
 		this.rv.push(new Uint8Array([this.voidId, 0x80 | size]), data);
 		return this;
 	}
-	getData() {
+	getWebmData() {
 		if(this.error) {
 			return null;
 		}
@@ -2290,7 +2302,7 @@ function * getFormElements(form, submitter) {
 				el    : field,
 				name  : fixName(dirname),
 				type  : 'direction',
-				value : (nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr')
+				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
 			};
 		}
 	}
@@ -2323,7 +2335,7 @@ function prettifySize(val) {
 		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
 	}
 	if(val > 512) {
-		return (val / (1024)).toFixed(2) + Lng.sizeKByte[lang];
+		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
 	}
 	return val.toFixed(2) + Lng.sizeByte[lang];
 }
@@ -2339,7 +2351,7 @@ function getFileType(url) {
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
-	const link = docBody.appendChild($add(`<a href="${ url }" download="${ name }"></a>`));
+	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
 		window.URL.revokeObjectURL(url);
@@ -2360,13 +2372,11 @@ async function getStored(id) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		const value = await new Promise(resolve => chrome.storage.local.get(id, function(obj) {
+		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
-				chrome.storage.sync.get(id, function(obj) {
-					resolve(obj[id]);
-				});
+				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
 		return value;
@@ -2386,7 +2396,7 @@ function setStored(id, value) {
 	} else if(nav.isChromeStorage) {
 		const obj = {};
 		obj[id] = value;
-		chrome.storage.sync.set(obj, function() {
+		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
 				chrome.storage.local.set(obj, emptyFn);
@@ -2420,7 +2430,7 @@ function delStored(id) {
 
 // Receives and parses JSON data into an object
 async function getStoredObj(id) {
-	return JSON.parse((await getStored(id)) || '{}') || {};
+	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
@@ -2489,12 +2499,12 @@ async function readCfg() {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
 		if(!nav.isGM) {
-			Cfg.updScript = 0;
+			Cfg.updDollchan = 0;
 		}
 		Cfg.fileInputs = 0;
 	}
-	if(nav.isChromeStorage) {
-		Cfg.updScript = 0;
+	if(nav.scriptHandler === 'WebExtension') {
+		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
@@ -2510,7 +2520,7 @@ async function readCfg() {
 	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
-	if(Cfg.updScript) {
+	if(Cfg.updDollchan && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
 				doc.addEventListener('DOMContentLoaded', () => $popup('updavail', html));
@@ -2522,7 +2532,7 @@ async function readCfg() {
 }
 
 // Initialize of hidden and favorites. Run spells.
-function readPostsData(firstPost, fav) {
+function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
 		// Get hidden posts and threads that cached in current session
@@ -2542,7 +2552,7 @@ function readPostsData(firstPost, fav) {
 		return;
 	}
 	let updateFav = false;
-	const favBrd = (aib.host in fav) && (aib.b in fav[aib.host]) ? fav[aib.host][aib.b] : {};
+	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -2579,7 +2589,7 @@ function readPostsData(firstPost, fav) {
 			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
 				post.setUserVisib(true);
 			} else {
-				post.setUserVisib(uHideData, false);
+				post.setUserVisib(!!uHideData, false);
 			}
 			continue;
 		}
@@ -2596,7 +2606,7 @@ function readPostsData(firstPost, fav) {
 			continue;
 		}
 		if(!hideData) {
-			maybeSpells.value.run(post); // Apply spells if posts not hidden
+			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
 			if(post.hidden) {
 				post.spellHidden = true;
@@ -2605,12 +2615,14 @@ function readPostsData(firstPost, fav) {
 			}
 		}
 	}
-	maybeSpells.end();
+	if(maybeSpells.hasValue) {
+		maybeSpells.value.endSpells();
+	}
 	if(Cfg.panelCounter === 2) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
 	if(updateFav) {
-		setStored('DESU_Favorites', JSON.stringify(fav));
+		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-win-fav'] === '1') {
@@ -2623,21 +2635,8 @@ function readFavorites() {
 	return getStoredObj('DESU_Favorites');
 }
 
-function saveFavorites(fav) {
-	setStored('DESU_Favorites', JSON.stringify(fav));
-	toggleWindow('fav', true, fav);
-}
-
-function removeFavoriteEntry(fav, h, b, num) {
-	if((h in fav) && (b in fav[h]) && (num in fav[h][b])) {
-		delete fav[h][b][num];
-		if(fav[h][b].hasOwnProperty('url') && Object.keys(fav[h][b]).length === 1) {
-			delete fav[h][b];
-			if($isEmpty(fav[h])) {
-				delete fav[h];
-			}
-		}
-	}
+function saveFavorites(data) {
+	setStored('DESU_Favorites', JSON.stringify(data));
 }
 
 // Get posts that were read by posts previews
@@ -2645,7 +2644,7 @@ function readViewedPosts() {
 	if(!Cfg.markViewed) {
 		const data = sesStorage['de-viewed'];
 		if(data) {
-			data.split(',').forEach(function(pNum) {
+			data.split(',').forEach(pNum => {
 				const post = pByNum.get(+pNum);
 				if(post) {
 					post.el.classList.add('de-viewed');
@@ -2680,7 +2679,7 @@ class PostsStorage {
 	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
-	remove(num, board = aib.b) {
+	removeStorage(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
 		if(bStorage && bStorage.hasOwnProperty(num)) {
@@ -2746,7 +2745,7 @@ class PostsStorage {
 	}
 }
 
-const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
+const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-posts';
@@ -2755,9 +2754,9 @@ const HiddenPosts = new (class HiddenPostsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
+const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-threads';
@@ -2782,9 +2781,9 @@ const HiddenThreads = new (class HiddenThreadsClass extends PostsStorage {
 		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
 		return super._readStorage();
 	}
-})();
+}();
 
-const MyPosts = new (class MyPostsClass extends PostsStorage {
+const MyPosts = new class MyPostsClass extends PostsStorage {
 	constructor() {
 		super();
 		this.storageName = 'de-myposts';
@@ -2798,14 +2797,13 @@ const MyPosts = new (class MyPostsClass extends PostsStorage {
 		this._cachedData = null;
 		this._readStorage();
 	}
-	read() {
+	readStorage() {
 		this._readStorage();
 	}
 	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
-		locStorage['__de-mypost'] = 1; // Synchronize my post with other tabs
-		locStorage.removeItem('__de-mypost');
+		sendStorageEvent('__de-mypost', 1);
 	}
 
 	_readStorage() {
@@ -2817,7 +2815,12 @@ const MyPosts = new (class MyPostsClass extends PostsStorage {
 		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
 		return rv;
 	}
-})();
+}();
+
+function sendStorageEvent(name, value) {
+	locStorage[name] = typeof value === 'string' ? value : JSON.stringify(value);
+	locStorage.removeItem(name);
+}
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
@@ -2826,6 +2829,15 @@ function initStorageEvent() {
 			return;
 		}
 		switch(e.key) {
+		case '__de-favorites': {
+			try {
+				data = JSON.parse(val);
+			} catch(err) {
+				return;
+			}
+			updateFavWindow(...data);
+			return;
+		}
 		case '__de-mypost': MyPosts.purge(); return;
 		case '__de-webmvolume':
 			val = +val || 0;
@@ -2881,7 +2893,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disable();
+				Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';
@@ -2899,7 +2911,7 @@ function initStorageEvent() {
 
 const Panel = Object.create({
 	isVidEnabled: false,
-	init(formEl) {
+	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
 		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
@@ -2910,7 +2922,7 @@ const Panel = Object.create({
 					</svg>
 				</div>
 				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
-				${ Cfg.disabled ? this._getButton('enable') : (this._getButton('cfg') +
+				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
 					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
@@ -2938,7 +2950,7 @@ const Panel = Object.create({
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`)) }
+					</span>`) }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
@@ -2950,7 +2962,7 @@ const Panel = Object.create({
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
 	},
-	remove() {
+	removeMain() {
 		this._el.removeEventListener('click', this, true);
 		this._el.removeEventListener('mouseover', this);
 		this._el.removeEventListener('mouseout', this);
@@ -3013,7 +3025,7 @@ const Panel = Object.create({
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
 				if(updater.toggleAudio(0)) {
-					updater.enable();
+					updater.enableUpdater();
 					el.id = 'de-panel-audio-on';
 				} else {
 					el.id = 'de-panel-audio-off';
@@ -3250,19 +3262,16 @@ class WinResizer {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				this.tStyle.cssText = `width: ${ this.tStyle.width } !important; height: ` +
-					Math.max(parseInt(this.tStyle.height, 10) + (
-						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
-					), 90) + 'px !important;';
+				this.tStyle.setProperty('height', Math.max(parseInt(this.tStyle.height, 10) + (
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+					(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				), 90) + 'px', 'important');
 			} else {
 				val = e.clientX;
-				this.tStyle.cssText = 'width: ' +
-					Math.max(parseInt(this.tStyle.width, 10) + (
-						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-						(val > maxX - 20 ? maxX : val) - cr.right
-					), this.name === 'reply' ? 275 : 400) +
-					`px !important; height: ${ this.tStyle.height } !important;`;
+				this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+					(val > maxX - 20 ? maxX : val) - cr.right
+				), this.name === 'reply' ? 275 : 400) + 'px', 'important');
 			}
 			return;
 		default: // mouseup
@@ -3334,29 +3343,26 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
 		el.firstElementChild.onclick = () => {
-			const { width } = win.style;
-			const w = width ? '; width: ' + width : '';
 			toggleCfg(name + 'WinDrag');
-			if(Cfg[name + 'WinDrag']) {
-				win.classList.remove('de-win-fixed');
-				win.classList.add('de-win');
-				win.style.cssText = Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] + w;
-			} else {
+			const isDrag = Cfg[name + 'WinDrag'];
+			if(!isDrag) {
 				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
 				if(temp) {
 					toggleWindow(temp.id.substr(7), false);
 				}
-				win.classList.remove('de-win');
-				win.classList.add('de-win-fixed');
-				win.style.cssText = 'right: 0; bottom: 25px' + w;
 			}
+			win.classList.toggle('de-win', isDrag);
+			win.classList.toggle('de-win-fixed', !isDrag);
+			const { width } = win.style;
+			win.style.cssText = `${ isDrag ? `${ Cfg[name + 'WinX'] }; ${ Cfg[name + 'WinY'] }` :
+				'right: 0; bottom: 25px' }${ width ? '; width: ' + width : '' }`;
 			updateWinZ(win.style);
 		};
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	let remove = !isUpd && isActive;
-	if(!remove && !win.classList.contains('de-win') &&
+	let isRemove = !isUpd && isActive;
+	if(!isRemove && !win.classList.contains('de-win') &&
 		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
@@ -3366,20 +3372,20 @@ function toggleWindow(name, isUpd, data, noAnim) {
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent(e) {
 			e.target.removeEventListener('animationend', aEvent);
-			showWindow(win, body, name, remove, data, Cfg.animation);
-			win = body = name = remove = data = null;
+			showWindow(win, body, name, isRemove, data, Cfg.animation);
+			win = body = name = isRemove = data = null;
 		});
 		win.classList.remove('de-win-open');
 		win.classList.add('de-win-close');
 	} else {
-		showWindow(win, body, name, remove, data, isAnim);
+		showWindow(win, body, name, isRemove, data, isAnim);
 	}
 }
 
-function showWindow(win, body, name, remove, data, isAnim) {
+function showWindow(win, body, name, isRemove, data, isAnim) {
 	body.innerHTML = '';
-	if(remove) {
-		win.classList.remove('de-win-active');
+	win.classList.toggle('de-win-active', !isRemove);
+	if(isRemove) {
 		win.classList.remove('de-win-close');
 		$hide(win);
 		if(!Cfg.expandPanel && !$q('.de-win-active')) {
@@ -3387,7 +3393,6 @@ function showWindow(win, body, name, remove, data, isAnim) {
 		}
 		return;
 	}
-	win.classList.add('de-win-active');
 	if(!Cfg.expandPanel) {
 		$show($id('de-panel-buttons'));
 	}
@@ -3397,15 +3402,15 @@ function showWindow(win, body, name, remove, data, isAnim) {
 			showFavoritesWindow(body, data);
 			break;
 		}
-		readFavorites().then(fav => {
-			showFavoritesWindow(body, fav);
+		readFavorites().then(favObj => {
+			showFavoritesWindow(body, favObj);
 			$show(win);
 			if(isAnim) {
 				win.classList.add('de-win-open');
 			}
 		});
 		return;
-	case 'cfg': CfgWindow.init(body); break;
+	case 'cfg': CfgWindow.initCfgWindow(body); break;
 	case 'hid': showHiddenWindow(body); break;
 	case 'vid': showVideosWindow(body);
 	}
@@ -3495,7 +3500,7 @@ function showVideosWindow(body) {
 				let node;
 				switch(el.id) {
 				case 'de-video-btn-hide': { // Fold/unfold list of links
-					const isHide = (this.listHidden = !this.listHidden);
+					const isHide = this.listHidden = !this.listHidden;
 					$toggle(this.linkList, !isHide);
 					el.textContent = isHide ? '\u25BC' : '\u25B2';
 					break;
@@ -3589,7 +3594,7 @@ function showHiddenWindow(body) {
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function(e) {
+	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -3598,8 +3603,8 @@ function showHiddenWindow(body) {
 				await $ajax(aib.getThrUrl(b, tNum));
 			} catch(e) {
 				if(e.code === 404) {
-					HiddenThreads.remove(tNum, b); // Remove thread from threads storage
-					HiddenPosts.remove(tNum, b); // Remove oppost from posts storage
+					HiddenThreads.removeStorage(tNum, b);
+					HiddenPosts.removeStorage(tNum, b);
 				}
 			}
 		}
@@ -3617,12 +3622,9 @@ function showHiddenWindow(body) {
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
-				// Synchronize current hidden thread in other tabs
-				// Storage event listeners are loacted at initStorageEvent()
-				locStorage['__de-post'] = JSON.stringify({ brd, num, hide: false, thrNum: num });
-				locStorage.removeItem('__de-post');
+				sendStorageEvent('__de-post', { brd, num, hide: false, thrNum: num });
 			}
-			HiddenThreads.remove(num, brd); // Remove thread from hidden threads storage
+			HiddenThreads.removeStorage(num, brd);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);
@@ -3633,6 +3635,85 @@ function showHiddenWindow(body) {
                                               WINDOW: FAVORITES
 =========================================================================================================== */
 
+function saveRenewFavorites(favObj) {
+	saveFavorites(favObj);
+	toggleWindow('fav', true, favObj);
+}
+
+function removeFavEntry(favObj, h, b, num) {
+	let f;
+	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
+		delete f[num];
+		let len = Object.keys(f).length;
+		if(f.hasOwnProperty('url')) {
+			len--;
+		}
+		if(f.hasOwnProperty('hide')) {
+			len--;
+		}
+		if(!len) {
+			delete favObj[h][b];
+			if($isEmpty(favObj[h])) {
+				delete favObj[h];
+			}
+		}
+	}
+}
+
+function toggleThrFavBtn(h, b, num, isEnable) {
+	if(h === aib.host && b === aib.b && pByNum.has(num)) {
+		pByNum.get(num).setFavBtn(isEnable);
+	}
+}
+
+function updateFavorites(num, value, mode) {
+	readFavorites().then(favObj => {
+		let f = favObj[aib.host];
+		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
+			return;
+		}
+		switch(mode) {
+		case 'error': f.err = value; break;
+		case 'update':
+			f.cnt = value[0];
+			f.new = 0;
+			f.you = 0;
+			f.last = aib.anchor + value[1];
+		}
+		const data = [aib.host, aib.b, num, value, mode];
+		updateFavWindow(...data);
+		saveFavorites(favObj);
+		sendStorageEvent('__de-favorites', data);
+	});
+}
+
+function updateFavWindow(h, b, num, value, mode) {
+	if(mode === 'add' || mode === 'delete') {
+		toggleThrFavBtn(h, b, num, mode === 'add');
+		toggleWindow('fav', true, value);
+		return;
+	}
+	const winEl = $q('#de-win-fav > .de-win-body');
+	if(!winEl || !winEl.hasChildNodes()) {
+		return;
+	}
+	const el = $q(`.de-entry[de-host="${ h }"][de-board="${ b }"][de-num="${ num }"] > .de-fav-inf`, winEl);
+	if(!el) {
+		return;
+	}
+	const [iconEl, youEl, newEl, oldEl] = [...el.children];
+	$hide(youEl);
+	$hide(newEl);
+	if(mode === 'error') {
+		iconEl.firstElementChild.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+		iconEl.title = value;
+		return;
+	}
+	youEl.textContent = 0;
+	newEl.textContent = 0;
+	oldEl.textContent = value[0];
+}
+
 // Delete previously marked entries from Favorites
 function cleanFavorites() {
 	const els = $Q('.de-entry[de-removed]');
@@ -3640,34 +3721,33 @@ function cleanFavorites() {
 	if(!len) {
 		return;
 	}
-	readFavorites().then(data => {
+	readFavorites().then(favObj => {
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const h = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
-			removeFavoriteEntry(data, h, b, num);
-			// If there existed thread then switch its fav button
-			if(h === aib.host && b === aib.b && pByNum.has(num)) {
-				pByNum.get(num).thr.op.setFavBtn(false);
-			}
+			removeFavEntry(favObj, h, b, num);
+			toggleThrFavBtn(h, b, num, false);
 		}
-		saveFavorites(data);
+		saveRenewFavorites(favObj);
 	});
 }
 
-function showFavoritesWindow(body, data) {
+function showFavoritesWindow(body, favObj) {
 	let html = '';
 	// Create the list of favorite threads
-	for(const h in data) {
-		for(const b in data[h]) {
-			const d = data[h][b];
+	for(const h in favObj) {
+		for(const b in favObj[h]) {
+			const f = favObj[h][b];
+			const hb = `de-host="${ h }" de-board="${ b }"`;
+			const delBtn = '<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>';
 			let innerHtml = '';
-			for(const tNum in d) {
-				if(tNum === 'url') { // Ignore keys with board url's
+			for(const tNum in f) {
+				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}
-				const t = d[tNum];
+				const t = f[tNum];
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
@@ -3683,10 +3763,11 @@ function showFavoritesWindow(body, data) {
 					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
 				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
 				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
-				innerHtml += `<div class="de-entry ${ aib.cReply }" de-host="${ h }" de-board="${
-					b }" de-num="${ tNum }" de-url="${ t.url }">
-					<input class="de-fav-switch" type="checkbox">
-					<a class="de-fav-link" href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
+				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
+					hb } de-num="${ tNum }" de-url="${ t.url }">
+					${ delBtn }
+					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
+						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
 					<div class="de-entry-title">- ${ t.txt }</div>
 					<div class="de-fav-inf">
 						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
@@ -3708,13 +3789,17 @@ function showFavoritesWindow(body, data) {
 			if(!innerHtml) {
 				continue;
 			}
+			const isHide = f.hide === undefined ? h !== aib.host : f.hide;
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
+			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
 				<div class="de-fav-header">
-					<input class="de-fav-header-switch" type="checkbox">
-					<a class="de-fav-header-link" href="${ d.url }" rel="noreferrer">${ h }/${ b }</a>
+					${ delBtn }
+					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
+						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
+						` href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
-				<div class="de-fav-entries"${ h === aib.host ? ' de-opened' : ' style="display: none;"' }>
+				<div class="de-fav-entries${ isHide ? ' de-fav-entries-hide' : '' }" ${ hb }>
 					${ innerHtml }
 				</div>
 			</div>`;
@@ -3724,54 +3809,57 @@ function showFavoritesWindow(body, data) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = e.target;
-			switch(el.className) {
+			const el = fixEventEl(e.target);
+			const parentEl = el.parentNode;
+			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 			case 'de-fav-link':
 				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
-				el = el.parentNode;
 				// We need to scroll to last seen post after following a link,
 				// remembering of scroll position is no longer needed
-				sesStorage.removeItem('de-scroll-' + el.getAttribute('de-board') + el.getAttribute('de-num'));
+				sesStorage.removeItem('de-scroll-' +
+					parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
 				break;
-			case 'de-fav-header-switch': {
-				const { checked } = el;
-				// Select/unselect all checkboxes in board block
-				el = el.parentNode.nextElementSibling;
-				$each($Q('.de-entry > input', el), checkBox => (checkBox.checked = checked));
-				if(!checked || el.hasAttribute('de-opened')) {
-					return;
+			case 'de-fav-del-btn': {
+				const wasChecked = el.getAttribute('de-checked') === '';
+				const toggleFn = btnEl => toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				toggleFn(el);
+				if(parentEl.className === 'de-fav-header') {
+					// Select/unselect all checkboxes in board block
+					const entriesEl = parentEl.nextElementSibling;
+					$each($Q('.de-fav-del-btn', entriesEl), toggleFn);
+					if(!wasChecked && entriesEl.classList.contains('de-fav-entries-hide')) {
+						entriesEl.classList.remove('de-fav-entries-hide');
+					}
 				}
+				const isShowDelBtns = !!$q('.de-entry > .de-fav-del-btn[de-checked]', body);
+				$toggle($id('de-fav-buttons'), !isShowDelBtns);
+				$toggle($id('de-fav-del-confirm'), isShowDelBtns);
 				break;
 			}
-			case 'de-fav-header-link':
-				el = el.parentNode.nextElementSibling;
-				$pd(e); // TODO: remove and make it possible to follow a board link
-				break;
-			default: return;
+			case 'de-abtn de-fav-header-btn': {
+				const entriesEl = parentEl.nextElementSibling;
+				const isHide = !entriesEl.classList.contains('de-fav-entries-hide');
+				el.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
+				favObj[entriesEl.getAttribute('de-host')][entriesEl.getAttribute('de-board')].hide = isHide;
+				saveFavorites(favObj);
+				$pd(e);
+				entriesEl.classList.toggle('de-fav-entries-hide');
 			}
-			// Fold/unfold the board block
-			if(el.hasAttribute('de-opened')) {
-				el.style.display = 'none';
-				el.removeAttribute('de-opened');
-			} else {
-				el.removeAttribute('style');
-				el.setAttribute('de-opened', '');
 			}
 		});
 	} else {
 		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
-
-	let div = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
+	const btns = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	div.appendChild(getEditButton('favor',
-		fn => readFavorites().then(data => fn(data, true, saveFavorites))));
+	btns.appendChild(getEditButton('favor',
+		fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))));
 
 	// "Refresh" button. Updates counters of new posts for each thread entry.
-	div.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async function() {
-		const fav = await getStoredObj('DESU_Favorites');
-		if(!fav[aib.host]) {
+	btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
+		const favObj = await readFavorites();
+		if(!favObj[aib.host]) {
 			return;
 		}
 		let isUpdate = false;
@@ -3783,16 +3871,14 @@ function showFavoritesWindow(body, data) {
 			const host = el.getAttribute('de-host');
 			const b = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			const f = fav[host][b][num];
+			const f = favObj[host][b][num];
 			// Updating doesn't works for other domains because of different posts structure
 			// Updating is not needed in closed threads
 			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
 				continue;
 			}
-			const countEl = $q('.de-fav-inf-new', el);
-			const youEl = countEl.previousElementSibling;
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
+			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+			const iconEl = titleEl.firstElementChild;
 			// setAttribute for class is used because of SVG (for correct work in some browsers)
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
@@ -3832,11 +3918,11 @@ function showFavoritesWindow(body, data) {
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
 				const bArch = b + '/arch';
-				if(!fav[host][bArch]) {
-					fav[host][bArch] = { url: fav[host][b].url + 'arch/' };
+				if(!favObj[host][bArch]) {
+					favObj[host][bArch] = { url: favObj[host][b].url + 'arch/' };
 				}
-				fav[host][bArch][num] = Object.assign({}, f);
-				removeFavoriteEntry(fav, host, b, num);
+				favObj[host][bArch][num] = Object.assign({}, f);
+				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -3877,14 +3963,14 @@ function showFavoritesWindow(body, data) {
 				}
 			}
 		}
-		AjaxCache.clear();
+		AjaxCache.clearCache();
 		if(isUpdate) {
-			setStored('DESU_Favorites', JSON.stringify(fav));
+			saveFavorites(favObj);
 		}
 	}));
 
 	// "Page" button. Shows on which page every thread is existed.
-	div.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async function() {
+	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
 		const thrInfo = [];
@@ -3927,11 +4013,7 @@ function showFavoritesWindow(body, data) {
 				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
 					// Restore old icon and title status
 					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-					if(pInfo.iconTitle) {
-						pInfo.titleEl.setAttribute('title', pInfo.iconTitle);
-					} else {
-						pInfo.titleEl.removeAttribute('title');
-					}
+					toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
 					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
 					pInfo.found = true;
 					infoLoaded++;
@@ -3947,11 +4029,7 @@ function showFavoritesWindow(body, data) {
 			if(!found) {
 				// Restore old icon and title status
 				iconEl.setAttribute('class', iconClass);
-				if(iconTitle) {
-					titleEl.setAttribute('title', iconTitle);
-				} else {
-					titleEl.removeAttribute('title');
-				}
+				toggleAttr(titleEl, 'title', iconTitle, iconTitle);
 				pageEl.textContent = '@?'; // Indicates that thread not found
 			}
 		}
@@ -3959,11 +4037,13 @@ function showFavoritesWindow(body, data) {
 	}));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	div.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async function() {
+	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
 		// Sequentially load threads, and remove inaccessible
 		let last404 = false;
-		const els = $Q('.de-entry'), len = els.length;
-		for(let i = 0; i < len; ++i) {
+		const els = $Q('.de-entry');
+		const parent = $q('.de-fav-table');
+		parent.classList.add('de-fav-table-unfold');
+		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
 			const titleEl = iconEl.parentNode;
@@ -3991,27 +4071,22 @@ function showFavoritesWindow(body, data) {
 			last404 = false;
 		}
 		cleanFavorites(); // Delete marked entries
+		parent.classList.remove('de-fav-table-unfold');
 	}));
 
-	// "Deleting…" button. Hides all control buttons, shows "Apply" and "Cancel" buttons
-	div.appendChild($btn(Lng.deletion[lang], Lng.delEntries[lang], () => body.classList.add('de-fav-del')));
-	div = $bEnd(body, '<div id="de-fav-delbuttons"></div>');
-
-	// "Apply" button, depends to "Deleting…"
-	div.appendChild($btn(Lng.apply[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > input[type="checkbox"]', body), el => { // Mark checked entries as deleted
-			if(el.checked) {
-				el.parentNode.setAttribute('de-removed', '');
-			}
-		});
+	// Deletion confirm/cancel buttons
+	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
+	delBtns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
+		$each($Q('.de-entry > .de-fav-del-btn[de-checked]', body),
+			el => el.parentNode.setAttribute('de-removed', ''));
 		cleanFavorites(); // Delete marked entries
-		body.classList.remove('de-fav-del'); // Show all control buttons
+		$show(btns);
+		$hide(delBtns);
 	}));
-
-	// "Cancel" button, depends to "Deleting…"
-	div.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('input[type="checkbox"]', body), el => (el.checked = false)); // Unselect all checkboxes
-		body.classList.remove('de-fav-del'); // Show all control buttons
+	delBtns.appendChild($btn(Lng.cancel[lang], '', () => {
+		$each($Q('.de-fav-del-btn', body), el => el.removeAttribute('de-checked'));
+		$show(btns);
+		$hide(delBtns);
 	}));
 }
 
@@ -4020,7 +4095,7 @@ function showFavoritesWindow(body, data) {
 =========================================================================================================== */
 
 const CfgWindow = {
-	init(body) {
+	initCfgWindow(body) {
 		body.addEventListener('click', this);
 		body.addEventListener('mouseover', this);
 		body.addEventListener('mouseout', this);
@@ -4050,7 +4125,7 @@ const CfgWindow = {
 		})));
 
 		// "Global" button. Allows to save/load global settings.
-		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], function() {
+		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
 			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
@@ -4126,7 +4201,7 @@ const CfgWindow = {
 						} catch(e) {}
 					}
 					if(favObj) {
-						saveFavorites(favObj);
+						saveRenewFavorites(favObj);
 					}
 					if(dmObj) {
 						if(dmObj.posts) {
@@ -4173,7 +4248,7 @@ const CfgWindow = {
 						break;
 					}
 					case 1: name.push('Fav');
-						val.push(`"favorites":${ (await getStored('DESU_Favorites')) || '{}' }`);
+						val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
 						break;
 					case 2: nameDm.push('Hid');
 						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
@@ -4255,30 +4330,26 @@ const CfgWindow = {
 			switch(info) {
 			case 'language':
 				lang = el.selectedIndex;
-				Panel.remove();
+				Panel.removeMain();
 				if(pr.form) {
 					pr.addMarkupPanel();
 					pr.setPlaceholders();
 					pr.updateLanguage();
-					aib.updSubmitButton(pr.subm);
+					aib.updateSubmitBtn(pr.subm);
 					if(pr.files) {
 						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
 				this._updateCSS();
-				Panel.init(DelForm.first.el);
+				Panel.initPanel(DelForm.first.el);
 				toggleWindow('cfg', false);
 				break;
 			case 'delHiddPost': {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(post.hidden && !post.isOp) {
-						if(isHide) {
-							post.wrap.classList.add('de-hidden');
-						} else {
-							post.wrap.classList.remove('de-hidden');
-						}
+						post.wrap.classList.toggle('de-hidden', isHide);
 					}
 				}
 				updateCSS();
@@ -4294,7 +4365,7 @@ const CfgWindow = {
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
-				Attachment.close();
+				AttachedImage.closeImg();
 				break;
 			case 'fileInputs':
 				pr.files.changeMode();
@@ -4306,7 +4377,8 @@ const CfgWindow = {
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
 			case 'addTextBtns': pr.addMarkupPanel(); break;
-			case 'scriptStyle': this._updateCSS();
+			case 'scriptStyle':
+			case 'panelCounter': this._updateCSS();
 			}
 			return;
 		}
@@ -4326,7 +4398,6 @@ const CfgWindow = {
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
-			case 'panelCounter':
 			case 'userCSS': updateCSS(); break;
 			case 'hideBySpell': Spells.toggle(); break;
 			case 'sortSpells':
@@ -4337,18 +4408,18 @@ const CfgWindow = {
 			case 'hideRefPsts':
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
-						post.ref.unhide();
+						post.ref.unhideRef();
 					} else if(post.hidden) {
-						post.ref.hide();
+						post.ref.hideRef();
 					}
 				}
 				break;
 			case 'ajaxUpdThr':
 				if(aib.t) {
 					if(Cfg.ajaxUpdThr) {
-						updater.enable();
+						updater.enableUpdater();
 					} else {
-						updater.disable();
+						updater.disableUpdater();
 					}
 				}
 				break;
@@ -4380,9 +4451,10 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
+						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
-					$each($Q('.de-btn-src'), el => el.remove());
+					$each($Q('.de-btn-src'), $del);
 				}
 				break;
 			case 'delImgNames':
@@ -4391,10 +4463,10 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, 1);
 					}
 				} else {
-					$each($Q('.de-img-name'), link => {
-						link.classList.remove('de-img-name');
-						link.textContent = link.title;
-						link.removeAttribute('title');
+					$each($Q('.de-img-name'), el => {
+						el.classList.remove('de-img-name');
+						el.textContent = el.title;
+						el.removeAttribute('title');
 					});
 				}
 				updateCSS();
@@ -4419,20 +4491,10 @@ const CfgWindow = {
 			case 'inftyScroll': toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
-					HotKeys.enable();
+					HotKeys.enableHotKeys();
 				} else {
-					HotKeys.disable();
+					HotKeys.disableHotKeys();
 				}
-				break;
-			case 'turnOff': getStoredObj('DESU_Config').then(data => {
-				for(const dm in data) {
-					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-						data[dm].disabled = Cfg.turnOff;
-					}
-				}
-				data[aib.dm].turnOff = Cfg.turnOff;
-				setStored('DESU_Config', JSON.stringify(data));
-			});
 			}
 			return;
 		}
@@ -4473,8 +4535,11 @@ const CfgWindow = {
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
-					perf     : Logger.getData(true)
-				}, function(key, value) {
+					perf     : Logger.getLogData(true).reduce((obj, el) => {
+						obj[el[0]] = el[1];
+						return obj;
+					}, {})
+				}, (key, value) => {
 					switch(key) {
 					case 'stats':
 					case 'nameValue':
@@ -4488,22 +4553,21 @@ const CfgWindow = {
 		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
 			const info = el.getAttribute('info');
 			switch(info) {
-			case 'postBtnsBack':
-				if(checkCSSColor(el.value)) {
-					el.classList.remove('de-error-input');
+			case 'postBtnsBack': {
+				const isCheck = checkCSSColor(el.value);
+				el.classList.toggle('de-error-input', !isCheck);
+				if(isCheck) {
 					saveCfg('postBtnsBack', el.value);
 					updateCSS();
-				} else {
-					el.classList.add('de-error-input');
 				}
 				break;
+			}
 			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
 			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
 			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
@@ -4516,7 +4580,7 @@ const CfgWindow = {
 			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			case 'excludeList': setStored('DESU_Exclude', (excludeList = el.value)); break;
+			case 'excludeList': setStored('DESU_Exclude', excludeList = el.value); break;
 			default: saveCfg(info, el.value);
 			}
 			return;
@@ -4649,11 +4713,11 @@ const CfgWindow = {
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
-			${ this._getBox('hideReplies') }<br>
-			${ this._getBox('expandTrunc') }<br>
-			${ this._getBox('updThrBtns') }<br>
+			${ !localData ? `${ this._getBox('hideReplies') }<br>
+				${ this._getBox('expandTrunc') }<br>
+				${ this._getBox('updThrBtns') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
-			${ this._getBox('showRepBtn') }<br>
+			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ this._getSel('noSpoilers') }<br>
@@ -4686,7 +4750,7 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getBox('preLoadImgs') + '<br>' }
+			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
 			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
@@ -4713,8 +4777,8 @@ const CfgWindow = {
 			${ this._getBox('crossLinks') }<br>
 			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>
-			${ this._getBox('addOPLink') }<br>
-			${ this._getBox('addImgs') }<br>
+			${ !localData ? `${ this._getBox('addOPLink') }<br>
+				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
@@ -4775,20 +4839,14 @@ const CfgWindow = {
 			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
 			${ this._getBox('closePopups') }<br>
-			${ this._getBox('inftyScroll') }<br>
-			${ this._getBox('scrollToTop') }<br>
+			${ !localData ? `${ this._getBox('inftyScroll') }<br>
+				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
-			${ !nav.isChromeStorage && !nav.isPresto || nav.hasGMXHR ? `${ this._getBox('updScript') }
-				<div class="de-cfg-depend">
-					${ this._getSel('scrUpdIntrv') }
-					<input type="button" id="de-cfg-btn-updnow" class="de-cfg-button" value="` +
-						`${ Lng.checkNow[lang] }">
-				</div>` : '' }
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
-				` width: 80%;" placeholder="4chan.org, 8ch.net, …">${ this._getBox('turnOff') }` : '' }
+				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
 		</div>`;
 	},
 
@@ -4803,16 +4861,23 @@ const CfgWindow = {
 		return `<div id="de-cfg-info" class="de-cfg-unvis">
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
-					`${ nav.isESNext ? '.es6' : '' }</a>&nbsp;|&nbsp;
-				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;
+					`${ nav.isESNext ? '.es6' : '' }</a> |
+				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">${ this._getInfoTable(Logger.getData(false), true) }</div>
+				<div id="de-info-log">
+					${ this._getInfoTable(Logger.getLogData(false), true) }
+					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+				</div>
 			</div>
-			<input type="button" id="de-cfg-btn-debug" value="` +
-				`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
+			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+					<input type="button" id="de-cfg-btn-updnow" value="${ Lng.checkNow[lang] }">
+				&lt;&lt;</div><br>
+				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
 	},
 
@@ -4837,7 +4902,7 @@ const CfgWindow = {
 	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList(a) {
-		return $join(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
+		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 	},
 	// Creates a select for multiple option values
 	_getSel(id) {
@@ -4867,35 +4932,35 @@ const CfgWindow = {
 		scriptCSS();
 	},
 	_updateDependant() {
-		this._toggleBox(Cfg.ajaxUpdThr, [
+		const fn = this._toggleBox;
+		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
 		]);
-		this._toggleBox(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-		this._toggleBox(Cfg.expandImgs, [
+		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
+		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
 			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
 			'input[info="minWebmWidth"]'
 		]);
-		this._toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
-		this._toggleBox(Cfg.linksNavig, [
+		fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+		fn(Cfg.linksNavig, [
 			'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
-		this._toggleBox(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		this._toggleBox(Cfg.addYouTube, [
+		fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
+		fn(Cfg.addYouTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
-		this._toggleBox(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
-		this._toggleBox(Cfg.ajaxPosting, [
+		fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
+		fn(Cfg.ajaxPosting, [
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
-		this._toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
-		this._toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
-		this._toggleBox(Cfg.hotKeys, ['input[info="loadPages"]']);
+		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+		fn(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},
 	// Updates row counter in spells editor
 	_updateRowMeter(node) {
@@ -4941,11 +5006,10 @@ function $popup(id, txt, isWait = false) {
 			$animate(el, 'de-blink');
 		}
 	} else {
-		el = $id('de-wrapper-popup').appendChild($add(`
-		<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
+		el = $bEnd($id('de-wrapper-popup'), `<div class="${ aib.cReply } de-popup" id="de-popup-${ id }">
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
-		</div>`));
+		</div>`);
 		el.onclick = ({ target }) => {
 			let el = fixEventEl(target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
@@ -4965,7 +5029,7 @@ function $popup(id, txt, isWait = false) {
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.
 function getEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn(function(val, isJSON, saveFn) {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
@@ -5017,7 +5081,7 @@ class Menu {
 		switch(e.type) {
 		case 'click':
 			if(e.target.className === 'de-menu-item') {
-				this.remove();
+				this.removeMenu();
 				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
@@ -5036,7 +5100,7 @@ class Menu {
 						this.onover();
 					}
 				} else if(!rt || (rt !== this.parentEl && !this.parentEl.contains(rt))) {
-					this._closeTO = setTimeout(() => this.remove(), 75);
+					this._closeTO = setTimeout(() => this.removeMenu(), 75);
 					if(this.onout) {
 						this.onout();
 					}
@@ -5045,7 +5109,7 @@ class Menu {
 		}
 		}
 	}
-	remove() {
+	removeMenu() {
 		if(!this._el) {
 			return;
 		}
@@ -5062,14 +5126,14 @@ class Menu {
 }
 
 function addMenu(el) {
-	const fn = a => $join(a, '<span class="de-menu-item">', '</span>');
+	const fn = a => arrTags(a, '<span class="de-menu-item">', '</span>');
 	switch(el.id) {
 	case 'de-btn-spell-add':
 		return new Menu(el, `<div style="display: inline-block; border-right: 1px solid grey;">${
-			fn(('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage').split(','))
+			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
-			fn(('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>').split(',')) }</div>`,
-		function(el) {
+			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
+		el => {
 			const exp = el.textContent;
 			$txtInsert($id('de-spell-txt'), exp +
 				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
@@ -5077,29 +5141,28 @@ function addMenu(el) {
 				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
 		});
 	case 'de-panel-refresh':
-		return new Menu(el, fn(Lng.selAjaxPages[lang]), function(el) {
-			Pages.load(aProto.indexOf.call(el.parentNode.children, el) + 1);
-		});
+		return new Menu(el, fn(Lng.selAjaxPages[lang]),
+			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
 	case 'de-panel-savethr':
 		return new Menu(el, fn($q(aib.qPostImg, DelForm.first.el) ?
 			Lng.selSaveThr[lang] : [Lng.selSaveThr[lang][0]]),
-		function(el) {
-			if(!$id('de-popup-savethr')) {
-				const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-				if(Images_.preloading) {
-					$popup('savethr', Lng.loading[lang], true);
-					Images_.afterpreload = () => loadDocFiles(imgOnly);
-					Images_.progressId = 'savethr';
-				} else {
-					loadDocFiles(imgOnly);
-				}
+		el => {
+			if($id('de-popup-savethr')) {
+				return;
+			}
+			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			if(Images_.preloading) {
+				$popup('savethr', Lng.loading[lang], true);
+				Images_.afterpreload = () => loadDocFiles(imgOnly);
+				Images_.progressId = 'savethr';
+			} else {
+				loadDocFiles(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':
-		return new Menu(el, fn(Lng.selAudioNotif[lang]), function(el) {
-			const i = aProto.indexOf.call(el.parentNode.children, el);
-			updater.enable();
-			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][i]);
+		return new Menu(el, fn(Lng.selAudioNotif[lang]), el => {
+			updater.enableUpdater();
+			updater.toggleAudio([3e4, 6e4, 12e4, 3e5][aProto.indexOf.call(el.parentNode.children, el)]);
 			$id('de-panel-audio-off').id = 'de-panel-audio-on';
 		});
 	}
@@ -5117,22 +5180,22 @@ const HotKeys = {
 	ntKeys         : null,
 	tKeys          : null,
 	version        : 7,
-	clear() {
+	clearCPost() {
 		this.cPost = null;
 		this.lastPageOffset = 0;
 	},
-	disable() {
+	disableHotKeys() {
 		if(this.enabled) {
 			this.enabled = false;
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
-			this.clear();
+			this.clearCPost();
 			this.gKeys = this.ntKeys = this.tKeys = null;
 			doc.removeEventListener('keydown', this, true);
 		}
 	},
-	enable() {
+	enableHotKeys() {
 		if(!this.enabled) {
 			this.enabled = true;
 			this._paused = false;
@@ -5150,7 +5213,7 @@ const HotKeys = {
 			/* One post/thread below      */ 0x004A /* = J          */,
 			/* Reply or create thread     */ 0x0052 /* = R          */,
 			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
 			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
 			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
 			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
@@ -5163,7 +5226,7 @@ const HotKeys = {
 			/* Strike text                */ 0xC054 /* = Alt+T      */,
 			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
 			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
 		];
 		const nonThrKeys = [
@@ -5195,11 +5258,11 @@ const HotKeys = {
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
 			}
-			Attachment.close();
-			Pages.load(+Cfg.loadPages);
+			AttachedImage.closeImg();
+			Pages.loadPages(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
-			if(Attachment.viewer) {
-				Attachment.close();
+			if(AttachedImage.viewer) {
+				AttachedImage.closeImg();
 				return;
 			}
 			if(this.cPost) {
@@ -5231,9 +5294,9 @@ const HotKeys = {
 					this._scroll(post, false, post.isOp);
 				}
 				break;
-			case 4: // Open previous page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(false);
+			case 4: // Open previous page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(false);
 				} else if(isThr || aib.page !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
@@ -5296,9 +5359,9 @@ const HotKeys = {
 				}
 				$id('de-btn-code').click();
 				break;
-			case 17: // Open next page/picture
-				if(Attachment.viewer) {
-					Attachment.viewer.navigate(true);
+			case 17: // Open next page/image
+				if(AttachedImage.viewer) {
+					AttachedImage.viewer.navigate(true);
 				} else if(!isThr) {
 					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
@@ -5361,7 +5424,7 @@ const HotKeys = {
 		e.stopPropagation();
 		$pd(e);
 	},
-	pause() {
+	pauseHotKeys() {
 		this._paused = true;
 	},
 	async readKeys() {
@@ -5464,7 +5527,7 @@ const HotKeys = {
 		if(!next) {
 			if(!aib.t) {
 				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
-				if((toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage)) {
+				if(toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
 			}
@@ -5518,7 +5581,7 @@ class KeyEditListener {
 		return [allKeys, `${ Lng.hotKeyEdit[lang].join('')
 			.replace(/%l/g, '<label class="de-block">')
 			.replace(/%\/l/g, '</label>')
-			.replace(/%i([2-4])([0-9]+)(t)?/g, function(all, id1, id2, isText) {
+			.replace(/%i([2-4])([0-9]+)(t)?/g, (all, id1, id2, isText) => {
 				const key = keys[+id1][+id2];
 				allKeys.push(key);
 				return `<input class="de-input-key" type="text" de-id1="${ id1 }" de-id2="${ id2 }` +
@@ -5560,7 +5623,7 @@ class KeyEditListener {
 			return;
 		case 'focus':
 			if(HotKeys.enabled) {
-				HotKeys.pause();
+				HotKeys.pauseHotKeys();
 			}
 			this.cEl = el;
 			return;
@@ -5813,10 +5876,10 @@ function preloadImages(data) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		let cImg = 1;
 		const mReqs = isPost ? 1 : 4;
-		const rjf = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
+		const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
 			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
 		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			const [url, imgLink, iType, nExp, el] = data;
+			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
 			if(imageData) {
 				const fName = url.substring(url.lastIndexOf('/') + 1);
 				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
@@ -5825,14 +5888,14 @@ function preloadImages(data) {
 				nameLink.setAttribute('de-href', nameLink.href);
 				imgLink.href = nameLink.href =
 					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
+				if(isVideo) {
 					el.setAttribute('de-video', '');
 				}
-				if(nExp) {
+				if(isRepToOrig) {
 					el.src = imgLink.href;
 				}
-				if(rjf) {
-					rjf.run(imageData.buffer, [imageData.buffer],
+				if(rarJpgFinder) {
+					rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
 						info => addImgFileIcon(nameLink, fName, info));
 				}
 			}
@@ -5840,14 +5903,14 @@ function preloadImages(data) {
 				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
 			}
 			cImg++;
-		}), function() {
+		}), () => {
 			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
 				Images_.afterpreload = Images_.progressId = null;
 			}
-			if(rjf) {
-				rjf.clear();
+			if(rarJpgFinder) {
+				rarJpgFinder.clearWorkers();
 			}
 		});
 		Images_.preloading = true;
@@ -5858,27 +5921,28 @@ function preloadImages(data) {
 		if(!imgLink) {
 			continue;
 		}
-		let nExp = !!Cfg.openImgs;
+		let isRepToOrig = !!Cfg.openImgs;
 		const url = imgLink.href;
 		const iType = getFileType(url);
-		if(!iType) {
+		const isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
+		if(!iType || isVideo && Cfg.preLoadImgs === 2) {
 			continue;
 		} else if(iType === 'image/gif') {
-			nExp &= Cfg.openImgs !== 3;
+			isRepToOrig &= Cfg.openImgs !== 3;
 		} else {
-			if(iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv') {
-				nExp = false;
+			if(isVideo) {
+				isRepToOrig = false;
 			}
-			nExp &= Cfg.openImgs !== 2;
+			isRepToOrig &= Cfg.openImgs !== 2;
 		}
 		if(pool) {
-			pool.run([url, imgLink, iType, nExp, el]);
-		} else if(nExp) {
-			el.src = url; // !
+			pool.runTask([url, imgLink, iType, isRepToOrig, el, isVideo]);
+		} else if(isRepToOrig) {
+			el.src = url;
 		}
 	}
 	if(pool) {
-		pool.complete();
+		pool.completeTasks();
 	}
 }
 
@@ -5896,11 +5960,12 @@ function getDataFromImg(el) {
 }
 
 function loadDocFiles(imgOnly) {
-	let progress, counter, count = 0,
-		current = 1,
+	let progress, counter, current = 1,
 		warnings = '',
 		tar = new TarBuilder();
 	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
+	let count = els.length;
 	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
 		const [url, fName, el, imgLink] = data;
 		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
@@ -5933,11 +5998,12 @@ function loadDocFiles(imgOnly) {
 		} else {
 			$del(el);
 		}
-	}), function() {
+	}), () => {
 		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
 		if(!imgOnly) {
 			$q('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+			$q('body', dc).classList.add('de-mode-local');
 			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 			let scriptStr;
 			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
@@ -5958,13 +6024,11 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-popup-load-files'));
 		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
-	count += els.length;
-	els.forEach(function(el) {
+	els.forEach(el => {
 		const imgLink = $parent(el, 'A');
 		if(imgLink) {
 			const url = imgLink.href;
-			Images_.pool.run([url, imgLink.getAttribute('download') ||
+			Images_.pool.runTask([url, imgLink.getAttribute('download') ||
 				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 		}
 	});
@@ -5972,7 +6036,7 @@ function loadDocFiles(imgOnly) {
 		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
 			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
 			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), function(el) {
+		$each($Q('a', dc), el => {
 			let num;
 			const tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -5984,13 +6048,12 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 		});
-		$each($Q(aib.qRPost, dc), function(post, i) {
-			post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
-		});
+		$each($Q(aib.qRPost, dc),
+			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
 		const files = [];
 		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), function(el) {
+		$each($Q('link, *[src]', dc), el => {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
@@ -6014,7 +6077,7 @@ function loadDocFiles(imgOnly) {
 				fName = temp;
 			}
 			files.push(fName);
-			Images_.pool.run([url, fName, el, null]);
+			Images_.pool.runTask([url, fName, el, null]);
 			count++;
 		});
 	}
@@ -6023,7 +6086,7 @@ function loadDocFiles(imgOnly) {
 			count }`, true);
 	progress = $id('de-loadprogress');
 	counter = progress.nextElementSibling;
-	Images_.pool.complete();
+	Images_.pool.completeTasks();
 	els = null;
 }
 
@@ -6244,7 +6307,7 @@ class Videos {
 			updateVideoList($id('de-video-list'), link, this.post.num);
 		}
 		if(loader && !dataObj) {
-			loader.run([link, isYtube, this, m[1]]);
+			loader.runTask([link, isYtube, this, m[1]]);
 		}
 	}
 	clickLink(el, mode) {
@@ -6300,7 +6363,7 @@ class Videos {
 		}
 		this.currentLink = this.currentLink || newLinks[0];
 		if(loader) {
-			loader.complete();
+			loader.completeTasks();
 		}
 	}
 
@@ -6321,7 +6384,7 @@ class Videos {
 		];
 	}
 	static _getTitlesLoader() {
-		return Cfg.YTubeTitles && new TasksPool(4, function(num, info) {
+		return Cfg.YTubeTitles && new TasksPool(4, (num, info) => {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
 				if(Cfg.ytApiKey) {
@@ -6337,7 +6400,7 @@ class Videos {
 					entry.title,
 					entry.user_name,
 					entry.stats_number_of_plays,
-					(/(.*)\s(.*)?/.exec(entry.upload_date))[1],
+					/(.*)\s(.*)?/.exec(entry.upload_date)[1],
 					Videos._fixTime(entry.duration)[0]);
 			}).catch(() => Videos._titlesLoaderHelper(info, num));
 		}, () => (sesStorage['de-videos-data2'] = JSON.stringify(Videos._global.vData)));
@@ -6428,9 +6491,9 @@ class VideosParser {
 	constructor() {
 		this._loader = Videos._getTitlesLoader();
 	}
-	end() {
+	endParser() {
 		if(this._loader) {
-			this._loader.complete();
+			this._loader.completeTasks();
 		}
 	}
 	parse(data) {
@@ -6472,7 +6535,7 @@ class VideosParser {
 }
 
 // Embed .mp3 and Vocaroo links
-function embedMediaLinks(data) {
+function embedAudioLinks(data) {
 	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
 		const els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
@@ -6663,7 +6726,7 @@ const AjaxCache = {
 	fixURL(url) {
 		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
 	},
-	clear() {
+	clearCache() {
 		this._data = new Map();
 	},
 	runCachedAjax(url, useCache) {
@@ -6725,8 +6788,8 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 		if(text.includes('</html>')) {
 			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 		}
-		return el ? (!checkArch ? el : [el, (xhr.responseURL || '').includes('/arch/')]) :
-			CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -6772,7 +6835,7 @@ function infoLoadErrors(e, showError = true) {
 =========================================================================================================== */
 
 const Pages = {
-	add() {
+	addPage() {
 		const pageNum = DelForm.last.pageNum + 1;
 		if(this._adding || pageNum > aib.lastPage) {
 			return;
@@ -6781,13 +6844,13 @@ const Pages = {
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
-		this._addPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			if(!this._addForm(formEl, pageNum).firstThr) {
-				this._endAdding();
-				this.add();
-				return CancelablePromise.reject(new CancelError());
+		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
+			if(this._addForm(formEl, pageNum).firstThr) {
+				return this._updateForms(DelForm.last);
 			}
-			return this._updateForms(DelForm.last);
+			this._endAdding();
+			this.addPage();
+			return CancelablePromise.reject(new CancelError());
 		}).then(() => this._endAdding()).catch(e => {
 			if(!(e instanceof CancelError)) {
 				$popup('add-page', getErrorMessage(e));
@@ -6795,10 +6858,10 @@ const Pages = {
 			}
 		});
 	},
-	async load(count) {
+	async loadPages(count) {
 		$popup('load-pages', Lng.loading[lang], true);
-		if(this._addPromise) {
-			this._addPromise.cancel();
+		if(this._addingPromise) {
+			this._addingPromise.cancelPromise();
 			this._endAdding();
 		}
 		PviewsCache.purge();
@@ -6806,13 +6869,13 @@ const Pages = {
 		pByEl = new Map();
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
-		Attachment.close();
+		AttachedImage.closeImg();
 		if(pr.isQuick) {
 			pr.clearForm();
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$each($Q('a[href^="blob:"]', form.el), a => URL.revokeObjectURL(a.href));
+			$each($Q('a[href^="blob:"]', form.el), el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;
@@ -6822,7 +6885,7 @@ const Pages = {
 		DelForm.first = DelForm.last;
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
-				this._addForm((await ajaxLoad(aib.getPageUrl(aib.b, i))), i);
+				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
 			} catch(e) {
 				$popup('load-pages', getErrorMessage(e));
 			}
@@ -6836,11 +6899,11 @@ const Pages = {
 		}
 	},
 
-	_adding     : false,
-	_addPromise : null,
+	_adding        : false,
+	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
-		$hide((formEl = aib.fixHTML(formEl)));
+		$hide(formEl = aib.fixHTML(formEl));
 		$after(DelForm.last.el, formEl);
 		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
@@ -6857,16 +6920,16 @@ const Pages = {
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
 		this._adding = false;
-		this._addPromise = null;
+		this._addingPromise = null;
 	},
 	async _updateForms(newForm) {
-		readPostsData(newForm.firstThr.op, (await getStoredObj('DESU_Favorites')));
+		readPostsData(newForm.firstThr.op, await readFavorites());
 		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
 		if(HotKeys.enabled) {
-			HotKeys.clear();
+			HotKeys.clearCPost();
 		}
 	}
 };
@@ -6885,7 +6948,7 @@ toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		window.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
-				Pages.add();
+				Pages.addPage();
 			}
 		});
 	}
@@ -6898,7 +6961,7 @@ toggleInfinityScroll.onwheel = e => {
 const Spells = Object.create({
 	hash: null,
 	get hiders() {
-		this._init();
+		this._initSpells();
 		return this.hiders;
 	},
 	get list() {
@@ -6946,14 +7009,14 @@ const Spells = Object.create({
 		];
 	},
 	get outreps() {
-		this._init();
+		this._initSpells();
 		return this.outreps;
 	},
 	get reps() {
-		this._init();
+		this._initSpells();
 		return this.reps;
 	},
-	add(type, arg, isNeg) {
+	addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld && fld.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -6970,7 +7033,7 @@ const Spells = Object.create({
 			if(spells[1]) {
 				const sScope = String(scope);
 				const sArg = String(arg);
-				spells[1].some(scope && isNeg ? function(spell, i) {
+				spells[1].some(scope && isNeg ? (spell, i) => {
 					let data;
 					if(spell[0] === 0xFF &&
 						((data = spell[1]) instanceof Array) &&
@@ -6985,7 +7048,7 @@ const Spells = Object.create({
 						return true;
 					}
 					return (spell[0] & 0x200) !== 0;
-				} : function(spell, i) {
+				} : (spell, i) => {
 					if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
 						idx = i;
 						return true;
@@ -7095,7 +7158,7 @@ const Spells = Object.create({
 			return `${ spell }(${ String(val) })`;
 		}
 	},
-	disable() {
+	disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -7136,16 +7199,16 @@ const Spells = Object.create({
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disable();
+			this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
 		if(this.hiders) {
 			const sRunner = new SpellsRunner();
 			for(let post = Thread.first.op; post; post = post.next) {
-				sRunner.run(post);
+				sRunner.runSpells(post);
 			}
-			sRunner.end();
+			sRunner.endSpells();
 		} else {
 			SpellsRunner.unhideAll();
 		}
@@ -7163,10 +7226,9 @@ const Spells = Object.create({
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disable();
+				this.disableSpells();
 				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
-				locStorage['__de-spells'] = '{ "hide": false, "data": null }';
-				locStorage.removeItem('__de-spells');
+				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
 		}
@@ -7187,7 +7249,7 @@ const Spells = Object.create({
 				hScope = true;
 				const temp = this._decompileScope(spell[1], indent + '    ');
 				if(temp[1]) {
-					const str = `${ (spell[0] & 0x100) ? '!(\n' : '(\n' }${ indent }    ` +
+					const str = `${ spell[0] & 0x100 ? '!(\n' : '(\n' }${ indent }    ` +
 						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
 					if(j === 0) {
 						dScope[0] = str;
@@ -7195,18 +7257,18 @@ const Spells = Object.create({
 						dScope[--j] += ' ' + str;
 					}
 				} else {
-					dScope[j] = `${ (spell[0] & 0x100) ? '!(' : '(' }${ temp[0].join(' ') })`;
+					dScope[j] = `${ spell[0] & 0x100 ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 			}
 			if(i !== len - 1) {
-				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
+				dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
 			}
 		}
 		return [dScope, dScope.length > 2 || hScope];
 	},
-	_init() {
+	_initSpells() {
 		if(!Cfg.hideBySpell) {
 			const value = null;
 			const configurable = true;
@@ -7230,7 +7292,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disable();
+			this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -7307,7 +7369,7 @@ const Spells = Object.create({
 				const scope = spell[2];
 				if(!scope || (
 					scope[0] === aib.b &&
-					(scope[1] === -1 ? !aib.t : (!scope[1] || +scope[1] === aib.t))
+					(scope[1] === -1 ? !aib.t : !scope[1] || +scope[1] === aib.t)
 				)) {
 					if(type === 12) {
 						neg = !neg;
@@ -7376,8 +7438,7 @@ const Spells = Object.create({
 		}
 	},
 	_sync(data) {
-		locStorage['__de-spells'] = JSON.stringify({ hide: !!Cfg.hideBySpell, data });
-		locStorage.removeItem('__de-spells');
+		sendStorageEvent('__de-spells', { hide: !!Cfg.hideBySpell, data });
 	}
 });
 
@@ -7670,7 +7731,7 @@ class SpellsCodegen {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = m[1].split(/, */).reduce(function(val, str) {
+				val = m[1].split(/, */).reduce((val, str) => {
 					switch(str) {
 					case 'samelines': return (val |= 1);
 					case 'samewords': return (val |= 2);
@@ -7739,7 +7800,7 @@ class SpellsRunner {
 		this._endPromise = null;
 		this._spells = Spells.hiders;
 		if(!this._spells) {
-			this.run = SpellsRunner._unhidePost;
+			this.runSpells = SpellsRunner._unhidePost;
 			SpellsRunner.cachedData = null;
 		}
 	}
@@ -7753,15 +7814,15 @@ class SpellsRunner {
 			}
 		}
 	}
-	end() {
+	endSpells() {
 		if(this._endPromise) {
 			this._endPromise.then(() => this._savePostsHelper());
 		} else {
 			this._savePostsHelper();
 		}
 	}
-	run(post) {
-		let res = (new SpellsInterpreter(post, this._spells)).run();
+	runSpells(post) {
+		let res = (new SpellsInterpreter(post, this._spells)).runInterpreter();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -7830,7 +7891,7 @@ class SpellsInterpreter {
 		this._triggeredSpellsStack = [this._lastTSpells];
 		this._wipeMsg = null;
 	}
-	run() {
+	runInterpreter() {
 		let rv, stopCheck;
 		let isNegScope = this._ctx.pop();
 		let i = this._ctx.pop();
@@ -7895,7 +7956,7 @@ class SpellsInterpreter {
 		const cl = this._ctx.length;
 		const spell = this._ctx[cl - 3][this._ctx[cl - 2] - 1];
 		const [rv, stopCheck] = this._checkRes(spell, val, this._ctx[cl - 1]);
-		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.run();
+		return stopCheck ? [this.hasNumSpell, rv, rv ? this._getMsg() : null] : this.runInterpreter();
 	}
 	_checkRes(spell, val, isNegScope) {
 		const flags = spell[0];
@@ -7952,7 +8013,7 @@ class SpellsInterpreter {
 	}
 	async _ihash(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && (await ImagesHashStorage.getHash(image)) === val) {
+			if((image instanceof AttachedImage) && await ImagesHashStorage.getHash(image) === val) {
 				return true;
 			}
 		}
@@ -7965,18 +8026,18 @@ class SpellsInterpreter {
 			return images.hasAttachments;
 		}
 		for(const image of images) {
-			if(!(image instanceof Attachment)) {
+			if(!(image instanceof AttachedImage)) {
 				continue;
 			}
 			if(weightVals) {
 				const w = image.weight;
-				let hide;
+				let isHide;
 				switch(compareRule) {
-				case 0: hide = w >= weightVals[0] && w <= weightVals[1]; break;
-				case 1: hide = w < weightVals[0]; break;
-				case 2: hide = w > weightVals[0]; break;
+				case 0: isHide = w >= weightVals[0] && w <= weightVals[1]; break;
+				case 1: isHide = w < weightVals[0]; break;
+				case 2: isHide = w > weightVals[0]; break;
 				}
-				if(!hide) {
+				if(!isHide) {
 					continue;
 				} else if(!sizeVals) {
 					return true;
@@ -8006,7 +8067,7 @@ class SpellsInterpreter {
 	}
 	_imgn(val) {
 		for(const image of this._post.images) {
-			if((image instanceof Attachment) && val.test(image.name)) {
+			if((image instanceof AttachedImage) && val.test(image.name)) {
 				return true;
 			}
 		}
@@ -8344,7 +8405,7 @@ class PostForm {
 			this.txta.value = '';
 		}
 		if(this.files) {
-			this.files.clear();
+			this.files.clearInputs();
 		}
 		if(this.video) {
 			this.video.value = '';
@@ -8499,7 +8560,7 @@ class PostForm {
 	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
-		aib.updSubmitButton(this.subm);
+		aib.updateSubmitBtn(this.subm);
 	}
 	updatePAreaBtns() {
 		const txt = 'de-abtn de-parea-btn-';
@@ -8555,7 +8616,7 @@ class PostForm {
 		this.cap = new Captcha(capEl, this.tNum);
 		const updCapFn = () => {
 			this.cap.addCaptcha();
-			this.cap.updOutdated();
+			this.cap.updateOutdated();
 		};
 		this.txta.addEventListener('focus', updCapFn);
 		if(this.files) {
@@ -8573,11 +8634,8 @@ class PostForm {
 		}
 		this.files = new Files(this, $q('tr input[type="file"]', this.form));
 		// We need to clear file inputs in case if session was restored.
-		window.addEventListener('load', () => setTimeout(() => {
-			if(!this.files.filesCount) {
-				this.files.clear();
-			}
-		}, 0));
+		window.addEventListener('load',
+			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
@@ -8593,7 +8651,7 @@ class PostForm {
 			if(this.tNum && pByNum.get(this.tNum).subj === 'Dollchan Extension Tools') {
 				const temp = `\n\n${ PostForm._wrapText(aib.markupTags[5],
 					`${ '-'.repeat(50) }\n${ nav.ua }\nv${ version }.${ commit }${
-						nav.isESNext ? '.es6' : '' } [${ nav.scriptInstall }]`
+						nav.isESNext ? '.es6' : '' } [${ nav.scriptHandler }]`
 				)[1] }`;
 				if(!val.includes(temp)) {
 					val += temp;
@@ -8611,7 +8669,7 @@ class PostForm {
 				$hide(this.qArea);
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
-			updater.pause();
+			updater.pauseUpdater();
 		});
 	}
 	_initTextarea() {
@@ -8743,13 +8801,9 @@ class PostForm {
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
 			this._setSage();
-			this.files.clear();
+			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
-				node => {
-					if(node) {
-						node.value = '';
-					}
-				});
+				el => el && (el.value = ''));
 		};
 		toggleBtn.onclick = () => {
 			toggleCfg('replyWinDrag');
@@ -8766,11 +8820,7 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			if(aib.multiFile || Cfg.fileInputs !== 2) {
-				el.placeholder = Lng[val][lang];
-			} else {
-				el.removeAttribute('placeholder');
-			}
+			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
 		}
 	}
 	_setSage() {
@@ -8833,7 +8883,7 @@ function getUploadFunc() {
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return function({ total, loaded: i }) {
+	return ({ total, loaded: i }) => {
 		if(!inited) {
 			progress.setAttribute('max', total);
 			$show(progress);
@@ -8877,7 +8927,7 @@ function checkUpload(data) {
 						pr.setReply(true, false);
 					}
 					updater.sendErrNotif();
-					updater.continue();
+					updater.continueUpdater();
 				});
 				return;
 			}
@@ -8902,7 +8952,7 @@ function checkUpload(data) {
 		}
 		$popup('upload', error);
 		updater.sendErrNotif();
-		updater.continue();
+		updater.continueUpdater();
 		DollchanAPI.notify('submitform', { success: false, error });
 		return;
 	}
@@ -8911,7 +8961,7 @@ function checkUpload(data) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
 	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.setFavorState(true, 'onreply');
+		pByNum.get(tNum).thr.setFavorState(true);
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -8935,7 +8985,7 @@ function checkUpload(data) {
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
-			updater.continue(true);
+			updater.continueUpdater(true);
 			closePopup('upload');
 		});
 	} else {
@@ -9008,7 +9058,12 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	const ajaxParams = { data, method: 'POST' };
+	const ajaxParams = {
+		data,
+		// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
+		// headers: { Referer: aib.prot + '//' + aib.host },
+		method: 'POST'
+	};
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
@@ -9037,8 +9092,8 @@ function cleanFile(data, extraData) {
 	const img = nav.getUnsafeUint8Array(data);
 	const rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6));
 	const rv = extraData ?
-		(rand ? [img, extraData, rand] : [img, extraData]) :
-		(rand ? [img, rand] : [img]);
+		rand ? [img, extraData, rand] : [img, extraData] :
+		rand ? [img, rand] : [img];
 	const rExif = !!Cfg.removeEXIF;
 	if(!rand && !rExif && !extraData) {
 		return rv;
@@ -9116,7 +9171,7 @@ function cleanFile(data, extraData) {
 	}
 	// WEBM
 	if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-		return new WebmParser(data).addData(rand).getData();
+		return new WebmParser(data).addWebmData(rand).getWebmData();
 	}
 	return null;
 }
@@ -9174,7 +9229,7 @@ class Files {
 		}
 		this._inputs = inputs;
 		this._files = [];
-		this.hide();
+		this.hideEmpty();
 	}
 	get rarInput() {
 		const value = $bEnd(docBody, '<input type="file" style="display: none;">');
@@ -9184,8 +9239,7 @@ class Files {
 	get thumbsEl() {
 		let value;
 		if(aib.multiFile) {
-			value = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
-			$after(this.fileTd.parentNode, value);
+			value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
 		} else {
 			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
@@ -9199,24 +9253,24 @@ class Files {
 		for(const inp of this._inputs) {
 			inp.changeMode(cfg);
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	clear() {
+	clearInputs() {
 		for(const inp of this._inputs) {
-			inp.clear();
+			inp.clearInp();
 		}
-		this.hide();
+		this.hideEmpty();
 	}
-	hide() {
+	hideEmpty() {
 		for(let els = this._inputs, i = els.length - 1; i > 0; --i) {
 			const inp = els[i];
 			if(inp.hasFile) {
 				break;
 			} else if(els[i - 1].hasFile) {
-				inp.show();
+				inp.showInp();
 				break;
 			}
-			inp.hide();
+			inp.hideInp();
 		}
 	}
 }
@@ -9275,11 +9329,7 @@ class FileInput {
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
 		}
-		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
-			this._input.setAttribute('multiple', true);
-		} else {
-			this._input.removeAttribute('multiple');
-		}
+		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
 		if(showThumbs) {
 			this._initThumbs();
 			return;
@@ -9297,7 +9347,7 @@ class FileInput {
 		$del(this._thumb);
 		this._thumb = this._mediaEl = null;
 	}
-	clear() {
+	clearInp() {
 		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
@@ -9339,7 +9389,7 @@ class FileInput {
 				let j = allowedLen;
 				for(let i = 0; i < allowedLen; ++i) {
 					FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(() => {
-						if(!(--j)) { // Clear original file input after all allowed files will be read.
+						if(!--j) { // Clear original file input after all allowed files will be read.
 							this._removeFileHelper();
 						}
 					});
@@ -9360,8 +9410,8 @@ class FileInput {
 			if(isThumb) {
 				this._input.click();
 			} else if(el === this._btnDel) {
-				this.clear();
-				this._parent.hide();
+				this.clearInp();
+				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
 			} else if(el === this._btnSpoil) {
@@ -9370,7 +9420,7 @@ class FileInput {
 			} else if(el === this._btnRarJpg) {
 				this._addRarJpeg();
 			} else if(el === this._btnTxt) {
-				this._showDelBtn((this._isTxtEditable = true));
+				this._showDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);
@@ -9420,7 +9470,7 @@ class FileInput {
 		}
 		}
 	}
-	hide() {
+	hideInp() {
 		if(FileInput._isThumb) {
 			this._showDelBtn(false);
 			$hide(this._thumb);
@@ -9428,7 +9478,7 @@ class FileInput {
 		}
 		$hide(this._wrap);
 	}
-	show() {
+	showInp() {
 		if(FileInput._isThumb) {
 			$show(this._thumb);
 		}
@@ -9441,7 +9491,7 @@ class FileInput {
 	static _readDroppedFile(input, file) {
 		return readFile(file).then(({ data }) => {
 			input.imgFile = [data, file.name, file.type];
-			input.show();
+			input.showInp();
 			input._onFileChange(true);
 		});
 	}
@@ -9544,7 +9594,7 @@ class FileInput {
 		this._thumb.appendChild(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 	}
 	_onFileChange(hasImgFile) {
@@ -9556,7 +9606,7 @@ class FileInput {
 			this._parent.onchange();
 		}
 		if(FileInput._isThumb) {
-			this._showPviewImage();
+			this._showFileThumb();
 		}
 		if(this.hasFile) {
 			this.extraFile = null;
@@ -9575,7 +9625,7 @@ class FileInput {
 			this._txtInput.classList.add('de-file-txt-noedit');
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
-		this._parent.hide();
+		this._parent.hideEmpty();
 		if(!nav.isPresto && !aib.fch &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
 		) {
@@ -9601,7 +9651,7 @@ class FileInput {
 		$toggle(this._btnDel, isShow);
 		$toggle(this._btnTxt, !isShow);
 	}
-	_showPviewImage() {
+	_showFileThumb() {
 		const { imgFile } = this;
 		if(imgFile) {
 			this._addNewThumb(...imgFile, imgFile[0].byteLength);
@@ -9616,8 +9666,8 @@ class FileInput {
 			});
 		}
 	}
-	_toggleDragEvents(el, add) {
-		const name = add ? 'addEventListener' : 'removeEventListener';
+	_toggleDragEvents(el, isAdd) {
+		const name = isAdd ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', $pd);
 		el[name]('dragenter', this);
 		el[name]('dragleave', this);
@@ -9685,7 +9735,7 @@ class Captcha {
 			$txtInsert(e.target, chr);
 			break;
 		}
-		case 'focus': this.updOutdated();
+		case 'focus': this.updateOutdated();
 		}
 		$pd(e);
 		e.stopPropagation();
@@ -9787,7 +9837,7 @@ class Captcha {
 	}
 	updateHelper(url, fn) {
 		if(aib._capUpdPromise) {
-			aib._capUpdPromise.cancel();
+			aib._capUpdPromise.cancelPromise();
 		}
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
@@ -9799,7 +9849,7 @@ class Captcha {
 			}
 		}));
 	}
-	updOutdated() {
+	updateOutdated() {
 		if(this._lastUpdate && (Date.now() - this._lastUpdate > Cfg.capUpdTime * 1e3)) {
 			this.refreshCaptcha(false);
 		}
@@ -9891,8 +9941,8 @@ class AbstractPost {
 		return value;
 	}
 	addFuncs() {
-		RefMap.upd(this, true);
-		embedMediaLinks(this);
+		RefMap.updateRefMap(this, true);
+		embedAudioLinks(this);
 	}
 	handleEvent(e) {
 		let temp, el = fixEventEl(e.target);
@@ -9907,7 +9957,7 @@ class AbstractPost {
 			default: return;
 			}
 			if(this._menu) {
-				this._menu.remove();
+				this._menu.removeMenu();
 				this._menu = null;
 			}
 			switch(el.tagName) {
@@ -9968,7 +10018,7 @@ class AbstractPost {
 				return;
 			case 'OBJECT':
 			case 'VIDEO':
-				if(Cfg.expandImgs !== 0 && !ExpandableMedia.isControlClick(e)) {
+				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -10009,8 +10059,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true, 'user'); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false, 'user'); return;
+			case 'de-btn-fav': this.thr.setFavorState(true); return;
+			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -10019,7 +10069,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
-			case 'de-btn-sage': Spells.add(9, '', false); return;
+			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.setSticky(true); return;
 			case 'de-btn-stick-on': this.setSticky(false); return;
 			}
@@ -10058,7 +10108,7 @@ class AbstractPost {
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
 			if(!(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, $join(Lng.selExpandThr[lang],
+				this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
 					'<span class="de-menu-item" info="thr-exp">', '</span>'));
 			}
 			return;
@@ -10091,7 +10141,7 @@ class AbstractPost {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
 			} else { // We need to show a preview for this link
-				this._linkDelay = setTimeout(() => (this.kid = Pview.show(this, el)), Cfg.linksOver);
+				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			$pd(e);
 			e.stopPropagation();
@@ -10115,7 +10165,7 @@ class AbstractPost {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
 		});
-		Post.Сontent.remove(this);
+		Post.Сontent.removeTempData(this);
 		if(Cfg.addYouTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
@@ -10123,7 +10173,7 @@ class AbstractPost {
 			}
 		}
 		this.addFuncs();
-		sRunner.run(this);
+		sRunner.runSpells(this);
 		embedPostMsgImages(this.el);
 		closePopup('load-fullmsg');
 	}
@@ -10157,13 +10207,13 @@ class AbstractPost {
 		if(!data || (!data.isImage && !data.isVideo)) {
 			return;
 		}
-		data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		data.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
 	_getFullMsg(el, isInit) {
-		if(aib.delTruncMsg) {
-			aib.delTruncMsg(this, el, isInit);
+		if(aib.deleteTruncMsg) {
+			aib.deleteTruncMsg(this, el, isInit);
 			return;
 		}
 		if(!isInit) {
@@ -10186,12 +10236,14 @@ class AbstractPost {
 					}
 				}
 			}
-			maybeSpells.end();
+			if(maybeSpells.hasValue) {
+				maybeSpells.value.endSpells();
+			}
 		}, emptyFn);
 	}
 	_showMenu(el, html) {
 		if(this._menu) {
-			this._menu.remove();
+			this._menu.removeMenu();
 		}
 		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
 		this._menu.onremove = () => (this._menu = null);
@@ -10221,6 +10273,7 @@ class Post extends AbstractPost {
 		if(MyPosts.has(num)) {
 			this.el.classList.add('de-mypost');
 		}
+		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		const refEl = $q(aib.qPostRef, el);
 		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
@@ -10293,7 +10346,7 @@ class Post extends AbstractPost {
 				curPost.setVisib(false);
 			}
 			if(curPost.userToggled) {
-				HiddenPosts.remove(curPost.num);
+				HiddenPosts.removeStorage(curPost.num);
 				curPost.userToggled = false;
 			}
 		} else {
@@ -10304,21 +10357,21 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, hide) {
-		if(hide) {
-			if(aib.t) {
-				Thread.first.hidCounter++;
-			}
-			hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
-			if(headerEl) {
-				for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
-					el.classList.add('de-post-hiddencontent');
-				}
-			}
-		} else {
+	static hideContent(headerEl, hideBtn, isUser, isHide) {
+		if(!isHide) {
 			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
+			return;
+		}
+		if(aib.t) {
+			Thread.first.hidCounter++;
+		}
+		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		if(headerEl) {
+			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
+				el.classList.add('de-post-hiddencontent');
+			}
 		}
 	}
 	get banned() {
@@ -10383,26 +10436,26 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
-	delete(removeEl) {
-		if(removeEl) {
+	deletePost(isRemovePost) {
+		if(isRemovePost) {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
 			if(this.hidden) {
-				this.ref.unhide();
+				this.ref.unhideRef();
 			}
-			RefMap.upd(this, false);
+			RefMap.updateRefMap(this, false);
 			if((this.prev.next = this.next)) {
 				this.next.prev = this.prev;
 			}
-		} else {
-			this.deleted = true;
-			this.btns.classList.remove('de-post-counter');
-			this.btns.classList.add('de-post-deleted');
-			this.el.classList.add('de-post-removed');
-			this.wrap.classList.add('de-wrap-removed');
-			($q('input[type="checkbox"]', this.el) || {}).disabled = true;
+			return;
 		}
+		this.deleted = true;
+		this.btns.classList.remove('de-post-counter');
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
@@ -10453,54 +10506,46 @@ class Post extends AbstractPost {
 		}
 		this.select();
 	}
-	setUserVisib(hide, save = true, note = null) {
+	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
-		this.setVisib(hide, note);
-		if(this.isOp || this.hidden === hide) {
-			this.hideBtn.setAttribute('class', hide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+		this.setVisib(isHide, note);
+		if(this.isOp || this.hidden === isHide) {
+			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
-		if(save) {
-			HiddenPosts.set(this.num, this.thr.num, hide);
+		if(isSave) {
+			const { num } = this;
+			HiddenPosts.set(num, this.thr.num, isHide);
 			if(this.isOp) {
-				if(hide) {
-					HiddenThreads.set(this.num, this.num, this.title);
+				if(isHide) {
+					HiddenThreads.set(num, num, this.title);
 				} else {
-					HiddenThreads.remove(this.num);
+					HiddenThreads.removeStorage(num);
 				}
 			}
-			locStorage['__de-post'] = JSON.stringify({
-				hide,
+			sendStorageEvent('__de-post', {
+				hide   : isHide,
 				brd    : aib.b,
-				num    : this.num,
+				num,
 				thrNum : this.thr.num,
 				title  : this.isOp ? this.title : ''
 			});
-			locStorage.removeItem('__de-post');
 		}
-		if(hide) {
-			this.ref.hide();
-		} else {
-			this.ref.unhide();
-		}
+		this.ref.toggleRef(isHide, false);
 	}
-	setVisib(hide, note = null) {
-		if(this.hidden === hide) {
-			if(hide && note) {
+	setVisib(isHide, note = null) {
+		if(this.hidden === isHide) {
+			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = hide;
+			this.thr.hidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
-				if(hide) {
-					this.wrap.classList.add('de-hidden');
-				} else {
-					this.wrap.classList.remove('de-hidden');
-				}
+				this.wrap.classList.toggle('de-hidden', isHide);
 			} else {
-				this._pref.onmouseover = this._pref.onmouseout = !hide ? null : e => {
+				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
 					const yOffset = window.pageYOffset;
 					this.hideContent(e.type === 'mouseout');
 					scrollTo(window.pageXOffset, yOffset);
@@ -10508,37 +10553,37 @@ class Post extends AbstractPost {
 			}
 		}
 		if(Cfg.strikeHidd) {
-			setTimeout(() => this._strikePostNum(hide), 50);
+			setTimeout(() => this._strikePostNum(isHide), 50);
 		}
-		if(hide) {
+		if(isHide) {
 			this.note.set(note);
 		} else {
-			this.note.hide();
+			this.note.hideNote();
 		}
-		this.hidden = hide;
-		this.hideContent(hide);
+		this.hidden = isHide;
+		this.hideContent(isHide);
 	}
 	spellHide(note) {
 		this.spellHidden = true;
 		if(!this.userToggled) {
 			this.setVisib(true, note);
-			this.ref.hide();
+			this.ref.hideRef();
 		}
 	}
 	spellUnhide() {
 		this.spellHidden = false;
 		if(!this.userToggled) {
 			this.setVisib(false);
-			this.ref.unhide();
+			this.ref.unhideRef();
 		}
 	}
-	toggleImages(expand = !this.images.expanded, isExpandVideos = true) {
+	toggleImages(isExpand = !this.images.expanded, isExpandVideos = true) {
 		for(const image of this.images) {
-			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ expand)) {
-				if(expand) {
-					image.expand(true, null);
+			if((image.isImage || isExpandVideos && image.isVideo) && (image.expanded ^ isExpand)) {
+				if(isExpand) {
+					image.expandImg(true, null);
 				} else {
-					image.collapse(null);
+					image.collapseImg(null);
 				}
 			}
 		}
@@ -10556,7 +10601,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const { hidden } = this;
+		const isHide = !this.hidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -10572,54 +10617,51 @@ class Post extends AbstractPost {
 				nav.matchesSelector(end, aib.qPostSubj)
 			)) {
 				if(this._selText.includes('\n')) {
-					Spells.add(1 /* #exp */,
+					Spells.addSpell(1 /* #exp */,
 						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
-					Spells.add(0 /* #words */, this._selText.toLowerCase(), false);
+					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.appendChild(this._selRange.cloneContents());
-				Spells.add(2 /* #exph */,
+				Spells.addSpell(2 /* #exph */,
 					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
-		case 'hide-name': Spells.add(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.add(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.add(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		}
 		case 'hide-imgn':
-			Spells.add(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
 			return;
 		case 'hide-ihash':
 			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
 				if(hash !== -1) {
-					Spells.add(4 /* #ihash */, hash, false);
+					Spells.addSpell(4 /* #ihash */, hash, false);
 				}
 			});
 			return;
-		case 'hide-noimg': Spells.add(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
 			const { num } = this;
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, hidden, words, post);
+				Post.findSameText(num, !isHide, words, post);
 			}
 			return;
 		}
-		case 'hide-notext': Spells.add(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
-			if(hidden) {
-				this.ref.unhide(true);
-			} else {
-				this.ref.hide(true);
-			}
-			this.setUserVisib(!hidden);
+			this.ref.toggleRef(isHide, true);
+			this.setUserVisib(isHide);
 			return;
+		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
 			const task = parseInt(el.textContent.match(/\d+/), 10);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -10627,38 +10669,21 @@ class Post extends AbstractPost {
 		}
 	}
 	_getMenuHide() {
-		let str = '';
+		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
+			Lng.selHiderMenu[name][lang] }</span>`;
 		const sel = window.getSelection();
 		const ssel = sel.toString().trim();
-		const getItem = name => `<span info="hide-${ name }" class="de-menu-item">${
-			Lng.selHiderMenu[name][lang] }</span>`;
 		if(ssel) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
-			str += getItem('sel');
 		}
-		if(this.posterName) {
-			str += getItem('name');
-		}
-		if(this.posterTrip) {
-			str += getItem('trip');
-		}
-		if(this.images.hasAttachments) {
-			str += getItem('img');
-			str += getItem('imgn');
-			str += getItem('ihash');
-		} else {
-			str += getItem('noimg');
-		}
-		if(this.text) {
-			str += getItem('text');
-		} else {
-			str += getItem('notext');
-		}
-		if(!Cfg.hideRefPsts && this.ref.hasMap) {
-			str += getItem('refs');
-		}
-		return str;
+		return `${ ssel ? item('sel') : '' }${
+			this.posterName ? item('name') : '' }${
+			this.posterTrip ? item('trip') : '' }${
+			this.images.hasAttachments ? item('img') + item('imgn') + item('ihash') : item('noimg') }${
+			this.text ? item('text') : item('notext') }${
+			!Cfg.hideRefPsts && this.ref.hasMap ? item('refs') : '' }${
+			item('refsonly') }`;
 	}
 	_strikePostNum(isHide) {
 		const { num } = this;
@@ -10667,20 +10692,12 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), isHide ? function(el) {
-			el.classList.add('de-link-hid');
+		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), el => {
+			el.classList.toggle('de-link-hid', isHide);
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$hide(refmap);
-				}
-			}
-		} : function(el) {
-			el.classList.remove('de-link-hid');
-			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
-				const refmap = el.parentNode;
-				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
-					$show(refmap);
+				const refMapEl = el.parentNode;
+				if(isHide === !$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+					$toggle(refMapEl, !isHide);
 				}
 			}
 		});
@@ -10765,7 +10782,7 @@ Post.Note = class PostNote {
 		this._aEl = $q('a', this._noteEl);
 		this.textEl = this._aEl.nextElementSibling;
 	}
-	hide() {
+	hideNote() {
 		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = this._aEl.onclick = null;
 		}
@@ -10776,7 +10793,7 @@ Post.Note = class PostNote {
 		if(this.isHideThr) {
 			this.set(null);
 		} else {
-			this.hide();
+			this.hideNote();
 		}
 	}
 	set(note) {
@@ -10835,65 +10852,6 @@ Post.sizing = {
 	_enabled: false
 };
 
-class PostImages {
-	constructor(post) {
-		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
-		let hasAttachments = false;
-		const filesMap = new Map();
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			last = new Attachment(post, el, last);
-			filesMap.set(el, last);
-			hasAttachments = true;
-			if(!first) {
-				first = last;
-			}
-		}
-		if(Cfg.addImgs) {
-			els = $Q('.de-img-pre', post.el);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				last = new EmbeddedImage(post, el, last);
-				filesMap.set(el, last);
-				if(!first) {
-					first = last;
-				}
-			}
-		}
-		this.first = first;
-		this.last = last;
-		this.hasAttachments = hasAttachments;
-		this._map = filesMap;
-	}
-	get expanded() {
-		for(let img = this.first; img; img = img.next) {
-			if(img.expanded) {
-				return true;
-			}
-		}
-		return false;
-	}
-	get firstAttach() {
-		return this.hasAttachments ? this.first : null;
-	}
-	getImageByEl(el) {
-		return this._map.get(el);
-	}
-	[Symbol.iterator]() {
-		return {
-			_img: this.first,
-			next() {
-				const value = this._img;
-				if(value) {
-					this._img = value.next;
-					return { value, done: false };
-				}
-				return { done: true };
-			}
-		};
-	}
-}
-
 /* ==[ PostPreviews.js ]======================================================================================
                                                 POST PREVIEWS
 =========================================================================================================== */
@@ -10932,24 +10890,22 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(
-			pBuilder => {
-				if(aib.JsonBuilder) {
-					const html = [];
-					for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-						html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-					}
-					this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-				} else {
-					this._onload(pBuilder._form);
-				}
-			},
-			e => this._onerror(e));
+		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(pBuilder => {
+			if(!aib.JsonBuilder) {
+				this._onload(pBuilder._form);
+				return;
+			}
+			const html = [];
+			for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
+				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
+			}
+			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
+		}, e => this._onerror(e));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
-	static show(parent, link) {
+	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
 		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
 		const isTop = !(parent instanceof Pview);
@@ -10957,7 +10913,7 @@ class Pview extends AbstractPost {
 		clearTimeout(Pview._delTO);
 		if(pv && pv.num === pNum) {
 			if(pv.kid) {
-				pv.kid.delete();
+				pv.kid.deletePview();
 			}
 			if(pv._link !== link) {
 				// If cursor hovers new link with the same number - move old preview here
@@ -10966,9 +10922,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), function(el) {
-						el.classList.remove('de-link-pview');
-					});
+					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -10976,7 +10930,7 @@ class Pview extends AbstractPost {
 		} else if(!Cfg.noNavigHidd || !pByNum.has(pNum) || !pByNum.get(pNum).hidden) {
 			// Show new preview under new link
 			if(pv) {
-				pv.delete();
+				pv.deletePview();
 			}
 			pv = new Pview(parent, link, pNum, tNum);
 			if(isTop) {
@@ -10994,17 +10948,16 @@ class Pview extends AbstractPost {
 		}
 		const { parent } = pv;
 		if(parent.omitted) {
-			pv.delete();
+			pv.deletePview();
 			return;
 		}
 		if(parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
 			const el = parent.ref.getElByNum(pv.num);
-			if(el) {
-				pv._link = el;
-			} else {
-				pv.delete();
+			if(!el) {
+				pv.deletePview();
 				return;
 			}
+			pv._link = el;
 		}
 		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
@@ -11025,22 +10978,22 @@ class Pview extends AbstractPost {
 		Object.defineProperty(this, 'stickBtn', { value });
 		return value;
 	}
-	delete() {
+	deletePview() {
 		this.parent.kid = null;
 		this._link.classList.remove('de-link-parent');
 		if(Pview.top === this) {
 			Pview.top = null;
 		}
 		if(this._loadPromise) {
-			this._loadPromise.cancel();
+			this._loadPromise.cancelPromise();
 			this._loadPromise = null;
 		}
-		let vPost = Attachment.viewer && Attachment.viewer.data.post;
+		let vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
 		let pv = this;
 		do {
 			clearTimeout(pv._readDelay);
 			if(vPost === pv) {
-				Attachment.close();
+				AttachedImage.closeImg();
 				vPost = null;
 			}
 			const { el } = pv;
@@ -11062,9 +11015,9 @@ class Pview extends AbstractPost {
 			}
 		} while((pv = pv.kid));
 		if(!lastSticky) {
-			this.delete();
+			this.deletePview();
 		} else if(lastSticky.kid) {
-			lastSticky.kid.delete();
+			lastSticky.kid.deletePview();
 		}
 	}
 	handleEvent(e) {
@@ -11117,25 +11070,19 @@ class Pview extends AbstractPost {
 	}
 	setUserVisib() {
 		const post = pByNum.get(this.num);
-		post.setUserVisib(!post.hidden);
+		const isHide = post.hidden;
+		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
-			if(post.hidden) {
-				el.setAttribute('class', 'de-btn-unhide-user de-btn-pview-hide');
-				el.parentNode.classList.add('de-post-hide');
-			} else {
-				el.setAttribute('class', 'de-btn-hide-user de-btn-pview-hide');
-				el.parentNode.classList.remove('de-post-hide');
-			}
+			el.setAttribute('class',
+				`${ isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user' } de-btn-pview-hide`);
+			el.parentNode.classList.toggle('de-post-hide', isHide);
 		});
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el), function(el) {
-			if(el.textContent.startsWith('>>' + num)) {
-				el.classList.add('de-link-pview');
-			}
-		});
+		$each($Q(`a[href*="${ num }"]`, el),
+			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	_onerror(e) {
 		if(!(e instanceof CancelError)) {
@@ -11167,7 +11114,7 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = (isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10));
+		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
 		if(isAnim) {
 			oldCSS = pv.style.cssText;
@@ -11213,7 +11160,7 @@ class Pview extends AbstractPost {
 		pviewEl.className = `${ aib.cReply } de-pview${
 			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
 		$show(pviewEl);
-		$each($Q('.de-post-hiddencontent', pviewEl), node => node.classList.remove('de-post-hiddencontent'));
+		$each($Q('.de-post-hiddencontent', pviewEl), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pviewEl, this.parent.num);
 		}
@@ -11226,9 +11173,9 @@ class Pview extends AbstractPost {
 				post.isOp ? 'OP' : post.count + +!aib.JsonBuilder }${ isMyPost ? ' (You)' : '' }</span>` }`;
 		if(post instanceof CacheItem) {
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
-			embedMediaLinks(this);
+			embedAudioLinks(this);
 			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).end();
+				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pviewEl);
 			processImgInfoLinks(pviewEl);
@@ -11246,7 +11193,7 @@ class Pview extends AbstractPost {
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
 			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
 				pviewEl), $del);
-			$each($Q(aib.qPostImg, pviewEl), img => $show(img.parentNode));
+			$each($Q(aib.qPostImg, pviewEl), el => $show(el.parentNode));
 			el = $q('.de-link-parent', pviewEl);
 			if(el) {
 				el.classList.remove('de-link-parent');
@@ -11259,10 +11206,10 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-pre', pviewEl), $show);
+				$each($Q('.de-img-embed', pviewEl), $show);
 			}
 			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(function(post) {
+				this._readDelay = setTimeout(post => {
 					if(!post.viewed) {
 						post.el.classList.add('de-viewed');
 						post.viewed = true;
@@ -11355,7 +11302,8 @@ class PviewsCache extends TemporaryContent {
 		post.el = aib.fixHTML(post.el);
 		delete post.msg;
 		if(post.ref.hasMap) {
-			post.ref.init(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl,
+				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
 		}
 		post.itemInited = true;
 		return post;
@@ -11369,7 +11317,7 @@ PviewsCache.purgeSecs = 3e5;
 =========================================================================================================== */
 
 // Navigation buttons for expanding of images/videos by center
-class ImagesNavigation {
+class ImagesNavigBtns {
 	constructor(viewerObj) {
 		const btns = $bEnd(docBody, `<div style="display: none;">
 			<div id="de-img-btn-prev" class="de-img-btn" de-title="${ Lng.prevImg[lang] }">
@@ -11396,7 +11344,7 @@ class ImagesNavigation {
 			if(this._oldX !== curX || this._oldY !== curY) {
 				this._oldX = curX;
 				this._oldY = curY;
-				this.show();
+				this.showBtns();
 			}
 			return;
 		}
@@ -11428,17 +11376,17 @@ class ImagesNavigation {
 		}
 		}
 	}
-	hide() {
+	hideBtns() {
 		this._btnsStyle.display = 'none';
 		this._hidden = true;
 		this._oldX = this._oldY = -1;
 	}
-	remove() {
+	removeBtns() {
 		$del(this._btns);
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	}
-	show() {
+	showBtns() {
 		if(this._hidden) {
 			this._btnsStyle.removeProperty('display');
 			this._hidden = false;
@@ -11448,12 +11396,12 @@ class ImagesNavigation {
 
 	_setHideTmt() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(() => this.hide(), 2e3);
+		this._hideTmt = setTimeout(() => this.hideBtns(), 2e3);
 	}
 }
 
 // Expanding of images/videos BY CENTER: resizing, moving, opening, closing
-class AttachmentViewer {
+class ImagesViewer {
 	constructor(data) {
 		this.data = null;
 		this.isAutoPlay = false;
@@ -11469,18 +11417,18 @@ class AttachmentViewer {
 		this._oldX = 0;
 		this._oldY = 0;
 		this._width = 0;
-		this._show(data);
+		this._showFullImg(data);
 	}
-	close(e) {
+	closeImgViewer(e) {
 		if(this.hasOwnProperty('_btns')) {
-			this._btns.remove();
+			this._btns.removeBtns();
 		}
-		this._remove(e);
+		this._removeFullImg(e);
 	}
 	handleEvent(e) {
 		switch(e.type) {
 		case 'mousedown':
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e)) {
+			if(this.data.isVideo && ExpandableImage.isControlClick(e)) {
 				return;
 			}
 			this._oldX = e.clientX;
@@ -11507,7 +11455,7 @@ class AttachmentViewer {
 			return;
 		case 'click': {
 			const el = e.target;
-			if(this.data.isVideo && ExpandableMedia.isControlClick(e) ||
+			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
@@ -11519,8 +11467,8 @@ class AttachmentViewer {
 				if(this._moved) {
 					this._moved = false;
 				} else {
-					this.close(e);
-					Attachment.viewer = null;
+					this.closeImgViewer(e);
+					AttachedImage.viewer = null;
 				}
 				e.stopPropagation();
 				break;
@@ -11540,30 +11488,25 @@ class AttachmentViewer {
 		let { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		do {
-			data = data.getFollow(isForward);
+			data = data.getFollowImg(isForward);
 		} while(data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
 		if(data) {
-			this.update(data, true, null);
+			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			const el = this._fullEl.firstElementChild;
-			if(this.isAutoPlay) {
-				el.removeAttribute('loop');
-			} else {
-				el.setAttribute('loop', '');
-			}
+			toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
 		}
 	}
-	update(data, showButtons, e) {
-		this._remove(e);
-		this._show(data, showButtons);
+	updateImgViewer(data, showButtons, e) {
+		this._removeFullImg(e);
+		this._showFullImg(data, showButtons);
 	}
 
 	get _btns() {
-		const value = new ImagesNavigation(this);
+		const value = new ImagesNavigBtns(this);
 		Object.defineProperty(this, '_btns', { value });
 		return value;
 	}
@@ -11597,7 +11540,7 @@ class AttachmentViewer {
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
 	}
-	_remove(e) {
+	_removeFullImg(e) {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
@@ -11608,7 +11551,7 @@ class AttachmentViewer {
 			data.sendCloseEvent(e, false);
 		}
 	}
-	_resize(el) {
+	_resizeFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -11657,45 +11600,42 @@ class AttachmentViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(this._oldL + halfWidth - halfHeight, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(this._oldT + halfHeight - halfWidth, 10) }px`;
 	}
-	_show(data) {
+	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullObject(false, el => this._resize(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const obj = $add(`<div class="de-fullimg-center" style="top:${
+		const el = $add(`<div class="de-fullimg-center" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(obj, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : obj)
+		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
 			.appendChild(this._fullEl);
-		this._elStyle = obj.style;
+		this._elStyle = el.style;
 		this.data = data;
-		this._obj = obj;
-		obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', this, true);
-		obj.addEventListener('mousedown', this, true);
-		obj.addEventListener('click', this, true);
+		this._obj = el;
+		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
+		el.addEventListener('mousedown', this, true);
+		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.setSticky(true);
 		}
+		const btns = this._btns;
 		if(!data.inPview) {
-			this._btns.show();
-			if(data.isVideo) {
-				this._btns.autoBtn.classList.remove('de-img-btn-none');
-			} else {
-				this._btns.autoBtn.classList.add('de-img-btn-none');
-			}
+			btns.showBtns();
+			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
 		} else if(this.hasOwnProperty('_btns')) {
-			this._btns.hide();
+			btns.hideBtns();
 		}
-		data.post.thr.form.el.appendChild(obj);
+		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
 	}
 }
 
-// Post images/videos main initialization
-class ExpandableMedia {
+// Post image/video main initialization
+class ExpandableImage {
 	constructor(post, el, prev) {
 		this.el = el;
 		this.expanded = false;
@@ -11747,12 +11687,12 @@ class ExpandableMedia {
 			videoEl.load();
 		}
 		if(this._webmTitleLoad) {
-			this._webmTitleLoad.cancel();
+			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
 	}
-	collapse(e) {
-		if(e && this.isVideo && ExpandableMedia.isControlClick(e)) {
+	collapseImg(e) {
+		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}
 		this.cancelWebmLoad(this._fullEl);
@@ -11807,33 +11747,34 @@ class ExpandableMedia {
 		}
 		return [width, height, null];
 	}
-	expand(inPost, e) {
+	expandImg(inPost, e) {
 		if(e && !e.bubbles) {
 			return;
 		}
 		if(!inPost) {
-			if(Attachment.viewer) {
-				if(Attachment.viewer.data === this) {
-					Attachment.viewer.close(e);
-					Attachment.viewer = null;
-					return;
-				}
-				Attachment.viewer.update(this, e);
-			} else {
-				Attachment.viewer = new AttachmentViewer(this);
+			const { viewer } = AttachedImage;
+			if(!viewer) {
+				AttachedImage.viewer = new ImagesViewer(this);
+				return;
 			}
+			if(viewer.data === this) {
+				viewer.closeImgViewer(e);
+				AttachedImage.viewer = null;
+				return;
+			}
+			viewer.updateImgViewer(this, e);
 			return;
 		}
 		this.expanded = true;
 		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
-		this._fullEl = this.getFullObject(true, null, null);
-		this._fullEl.addEventListener('click', e => this.collapse(e), true);
+		this._fullEl = this.getFullImg(true, null, null);
+		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
-	getFollow(isForward) {
+	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;
 		if(nImage) {
 			return nImage;
@@ -11854,11 +11795,11 @@ class ExpandableMedia {
 		} while(imgs.first === null);
 		return isForward ? imgs.first : imgs.last;
 	}
-	getFullObject(inPost, onsizechange, onrotate) {
+	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
 		const { src } = this;
 		const parent = this._getImageParent();
-		if(this.el.className !== 'de-img-pre') {
+		if(this.el.className !== 'de-img-embed') {
 			const nameEl = $q(aib.qImgNameLink, parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
@@ -11931,7 +11872,7 @@ class ExpandableMedia {
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
-		videoEl.addEventListener('ended', () => Attachment.viewer.navigate(true, true));
+		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target }) => {
 			if(!target.onceLoaded) {
 				target.load();
@@ -11944,8 +11885,7 @@ class ExpandableMedia {
 			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
 			if(e.isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
-				locStorage['__de-webmvolume'] = val;
-				locStorage.removeItem('__de-webmvolume');
+				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
 		// MS Edge needs an external app with DollchanAPI to play webms
@@ -11961,7 +11901,7 @@ class ExpandableMedia {
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getData();
+				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -12025,8 +11965,8 @@ class ExpandableMedia {
 	}
 }
 
-// Initialization of embedded previews in post message
-class EmbeddedImage extends ExpandableMedia {
+// Initialization of embedded image that added to the link in post message
+class EmbeddedImage extends ExpandableImage {
 	_getImageParent() {
 		return this.el.parentNode;
 	}
@@ -12038,12 +11978,13 @@ class EmbeddedImage extends ExpandableMedia {
 	}
 }
 
-// Initialization of post attachment images/videos
-class Attachment extends ExpandableMedia {
-	static close() {
-		if(Attachment.viewer) {
-			Attachment.viewer.close(null);
-			Attachment.viewer = null;
+// Initialization of image/video that attached to the post
+class AttachedImage extends ExpandableImage {
+	static closeImg() {
+		const { viewer } = AttachedImage;
+		if(viewer) {
+			viewer.closeImgViewer(null);
+			AttachedImage.viewer = null;
 		}
 	}
 	get info() {
@@ -12083,7 +12024,67 @@ class Attachment extends ExpandableMedia {
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
-Attachment.viewer = null;
+AttachedImage.viewer = null;
+
+// A class that finds a set of images in a post
+class PostImages {
+	constructor(post) {
+		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let hasAttachments = false;
+		const filesMap = new Map();
+		for(let i = 0, len = els.length; i < len; ++i) {
+			const el = els[i];
+			last = new AttachedImage(post, el, last);
+			filesMap.set(el, last);
+			hasAttachments = true;
+			if(!first) {
+				first = last;
+			}
+		}
+		if(Cfg.addImgs || localData) {
+			els = $Q('.de-img-embed', post.el);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				last = new EmbeddedImage(post, el, last);
+				filesMap.set(el, last);
+				if(!first) {
+					first = last;
+				}
+			}
+		}
+		this.first = first;
+		this.last = last;
+		this.hasAttachments = hasAttachments;
+		this._map = filesMap;
+	}
+	get expanded() {
+		for(let img = this.first; img; img = img.next) {
+			if(img.expanded) {
+				return true;
+			}
+		}
+		return false;
+	}
+	get firstAttach() {
+		return this.hasAttachments ? this.first : null;
+	}
+	getImageByEl(el) {
+		return this._map.get(el);
+	}
+	[Symbol.iterator]() {
+		return {
+			_img: this.first,
+			next() {
+				const value = this._img;
+				if(value) {
+					this._img = value.next;
+					return { value, done: false };
+				}
+				return { done: true };
+			}
+		};
+	}
+}
 
 const ImagesHashStorage = Object.create({
 	get getHash() {
@@ -12096,7 +12097,7 @@ const ImagesHashStorage = Object.create({
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 		}
 		if(this.hasOwnProperty('_workers')) {
-			this._workers.clear();
+			this._workers.clearWorkers();
 			delete this._workers;
 		}
 	},
@@ -12150,7 +12151,7 @@ const ImagesHashStorage = Object.create({
 		}
 		if(buffer) {
 			data = await new Promise(resolve =>
-				this._workers.run([buffer, w, h], [buffer], val => resolve(val)));
+				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));
 			if(data && ('hash' in data)) {
 				val = data.hash;
 			}
@@ -12159,6 +12160,11 @@ const ImagesHashStorage = Object.create({
 		return val;
 	}
 });
+
+function addImgSrcButtons(link) {
+	link.insertAdjacentHTML('beforebegin',
+		'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+}
 
 // Adding features for info links of images
 function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
@@ -12176,8 +12182,7 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 			continue;
 		}
 		if(addSrc) {
-			link.insertAdjacentHTML('beforebegin',
-				'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+			addImgSrcButtons(link);
 		}
 		if(delNames) {
 			link.classList.add('de-img-name');
@@ -12190,20 +12195,23 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 
 // Adding image previews before links in post message
 function embedPostMsgImages(el) {
-	if(!Cfg.addImgs) {
+	if(!Cfg.addImgs || localData) {
 		return;
 	}
 	const els = $Q(aib.qMsgImgLink, el);
 	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		const url = link.href;
-		if(url.includes('?') || link.parentNode.tagName === 'SMALL' || aib.getPostOfEl(link).hidden) {
+		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
 		const a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = `<img class="de-img-pre" src="${ url }">`;
+		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
 		$before(link, a);
+		if(Cfg.imgSrcBtns) {
+			addImgSrcButtons(link);
+		}
 	}
 }
 
@@ -12630,13 +12638,13 @@ class MakabaPostsBuilder {
 		const emailEl = data.email ?
 			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
 			`<span class="ananimas">${ data.name }</span>`;
-		const tripEl = !data.trip ? '' : _switch(data.trip, {
+		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
 			'!!%adm%!!'        : 'adm">## Abu ##',
 			'!!%mod%!!'        : 'mod">## Mod ##',
 			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
 			'!!%coder%!!'      : 'mod">## Кодер ##',
 			'@@default'        : 'postertrip">' + data.trip
-		});
+		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		return `<div id="post-${ num }" class="post-wrapper">
 			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
@@ -12646,7 +12654,7 @@ class MakabaPostsBuilder {
 						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
 					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
-					<span class="${ tripEl }</span>
+					${ tripEl }
 					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
 					<span class="posttime-reflink">
 						<span class="posttime">${ data.date }&nbsp;</span>
@@ -12805,7 +12813,7 @@ class RefMap {
 				}
 				const { ref } = posts.get(lNum);
 				if(ref._inited) {
-					ref.add(post, pNum);
+					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
 					ref.hasMap = true;
@@ -12822,19 +12830,19 @@ class RefMap {
 			}
 		}
 	}
-	static init(form) {
+	static initRefMap(form) {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
-					post.ref.init('', strNums);
+					post.ref.initPostRef('', strNums);
 				}
 			}
 		}
 	}
-	static upd(post, isAdd) {
+	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
 		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
@@ -12857,7 +12865,7 @@ class RefMap {
 				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
 			}
 			if(!isAdd) {
-				lPost.ref.remove(pNum);
+				lPost.ref.removeLink(pNum);
 				return;
 			}
 			if(strNums && strNums.has(lNum)) {
@@ -12866,10 +12874,10 @@ class RefMap {
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
-			lPost.ref.add(post, pNum, strNums && strNums.has(pNum));
+			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 		}
 	}
-	add(post, num, isHidden = null) {
+	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
@@ -12879,7 +12887,7 @@ class RefMap {
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
 			if(Cfg.hideRefPsts && this._post.hidden) {
 				post.setVisib(true, 'reference to >>' + num);
-				post.ref.hide();
+				post.ref.hideRef();
 			}
 		}
 	}
@@ -12889,7 +12897,7 @@ class RefMap {
 	has(num) {
 		return this._set.has(num);
 	}
-	hide(isForced = false) {
+	hideRef(isForced = false) {
 		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
 			return;
 		}
@@ -12899,15 +12907,15 @@ class RefMap {
 			if(post && !post.hidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
-					post.ref.hide(true);
+					post.ref.hideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(true, 'reference to >>' + this._post.num);
-					post.ref.hide();
+					post.ref.hideRef();
 				}
 			}
 		}
 	}
-	init(tUrl, strNums) {
+	initPostRef(tUrl, strNums) {
 		let html = '';
 		for(const num of this._set) {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
@@ -12918,7 +12926,7 @@ class RefMap {
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
-	remove(num) {
+	removeLink(num) {
 		this._set.delete(num);
 		if(this._set.size === 0) {
 			this.removeMap();
@@ -12936,7 +12944,14 @@ class RefMap {
 		delete this._el;
 		this.hasMap = false;
 	}
-	unhide(isForced = false) {
+	toggleRef(isHide, isForced) {
+		if(isHide) {
+			this.hideRef(isForced);
+		} else {
+			this.unhideRef(isForced);
+		}
+	}
+	unhideRef(isForced = false) {
 		if(this._hidden && !this.hasMap) {
 			return;
 		}
@@ -12946,10 +12961,10 @@ class RefMap {
 			if(post && post.hidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
-					post.ref.unhide(true);
+					post.ref.unhideRef(true);
 				} else if(!post.userToggled) {
 					post.setVisib(false);
-					post.ref.unhide();
+					post.ref.unhideRef();
 				}
 			}
 		}
@@ -13077,14 +13092,14 @@ class Thread {
 		Object.defineProperty(this, 'userTouched', { value });
 		return value;
 	}
-	deletePost(post, delAll, removePost) {
+	deletePosts(post, delAll, isRemovePost) {
 		SpellsRunner.cachedData = null;
 		let count = 0;
 		do {
-			if(removePost && this.last === post) {
+			if(isRemovePost && this.last === post) {
 				this.last = post.prev;
 			}
-			post.delete(removePost);
+			post.deletePost(isRemovePost);
 			post = post.nextNotDeleted;
 			count++;
 		} while(delAll && post);
@@ -13125,32 +13140,32 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(val, type) {
+	setFavorState(val) {
 		this.op.setFavBtn(val);
-		readFavorites().then(fav => {
+		readFavorites().then(favObj => {
 			const { b, host: h } = aib;
 			const num = this.thrId;
 			if(val) {
-				if(!fav[h]) {
-					fav[h] = {};
+				if(!favObj[h]) {
+					favObj[h] = {};
 				}
-				if(!fav[h][b]) {
-					fav[h][b] = {};
+				if(!favObj[h][b]) {
+					favObj[h][b] = {};
 				}
-				fav[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				fav[h][b][num] = {
+				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				favObj[h][b][num] = {
 					cnt  : this.pcount,
 					new  : 0,
 					you  : 0,
 					txt  : this.op.title,
 					url  : aib.getThrUrl(b, num),
-					last : aib.anchor + this.last.num,
-					type
+					last : aib.anchor + this.last.num
 				};
 			} else {
-				removeFavoriteEntry(fav, h, b, num);
+				removeFavEntry(favObj, h, b, num);
 			}
-			saveFavorites(fav);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			saveRenewFavorites(favObj);
 		});
 	}
 	updateHidden(data) {
@@ -13221,7 +13236,7 @@ class Thread {
 			const posts = $Q(aib.qRPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		} else {
@@ -13229,7 +13244,7 @@ class Thread {
 			for(; begin < end; ++begin) {
 				last = this._addPost(fragm, pBuilder.getPostEl(begin), begin + 1, last, maybeVParser);
 				nums.push(last.num);
-				newVisCount -= maybeSpells.value.run(last);
+				newVisCount -= maybeSpells.value.runSpells(last);
 				embedPostMsgImages(last.el);
 			}
 		}
@@ -13296,7 +13311,9 @@ class Thread {
 				nonExisted,
 				maybeVParser,
 				maybeSpells);
-			maybeVParser.end();
+			if(maybeVParser.hasValue) {
+				maybeVParser.value.endParser();
+			}
 			$after(op.wrap, fragm);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
@@ -13316,11 +13333,13 @@ class Thread {
 				post.omitted = false;
 			}
 			if(needRMUpdate) {
-				RefMap.upd(post, true);
+				RefMap.updateRefMap(post, true);
 			}
 			post = post.next;
 		}
-		maybeSpells.end();
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
 		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
@@ -13335,10 +13354,10 @@ class Thread {
 			};
 		}
 		if(needToShow > visPosts) {
-			navPanel.addThr(this);
+			thrNavPanel.addThr(this);
 			btn.lastChild.style.display = 'initial';
 		} else {
-			navPanel.removeThr(this);
+			thrNavPanel.removeThr(this);
 			$hide(btn.lastChild);
 		}
 		if(needToOmit > 0) {
@@ -13370,10 +13389,9 @@ class Thread {
 			Pview.updatePosition(true);
 		}
 		if(pBuilder.isClosed) {
-			AjaxCache.clear();
-			return { newCount: newVisPosts, locked: true };
+			AjaxCache.clearCache();
 		}
-		return { newCount: newVisPosts, locked: false };
+		return { newCount: newVisPosts, locked: pBuilder.isClosed };
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
@@ -13383,56 +13401,57 @@ class Thread {
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
 		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
-		if(post.count !== 0 && (
-			aib.dobr || post.count > len || pBuilder.getPNum(post.count - 1) !== post.num
-		)) {
+		const { count } = post;
+		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			let i = post.count - 1;
 			let firstChangedPost = null;
 			for(; i < len && post;) {
-				if(post.num === pBuilder.getPNum(i)) {
+				const { num, prev } = post;
+				const iNum = pBuilder.getPNum(i);
+				if(num === iNum) {
 					i++;
 					post = post.nextNotDeleted;
 					continue;
 				}
-				if(post.num > pBuilder.getPNum(i)) {
-					if(!firstChangedPost) {
-						firstChangedPost = post.prev;
-					}
-					let cnt = 0;
-					do {
-						cnt++;
-						i++;
-					} while(pBuilder.getPNum(i) < post.num);
-					const res = this._importPosts(post.prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
-					newPosts += res[0];
-					this.pcount += res[0];
-					newVisPosts += res[1];
-					$after(post.prev.wrap, res[2]);
-					res[3].next = post;
-					post.prev = res[3];
-					DollchanAPI.notify('newpost', res[4]);
-					for(let temp = post; temp; temp = temp.nextInThread) {
-						temp.count += cnt;
-					}
-				} else {
+				if(num <= iNum) {
 					if(!firstChangedPost) {
 						firstChangedPost = post;
 					}
-					post = this.deletePost(post, false, !aib.t);
+					post = this.deletePosts(post, false, !aib.t);
+					continue;
+				}
+				if(!firstChangedPost) {
+					firstChangedPost = prev;
+				}
+				let cnt = 0;
+				do {
+					cnt++;
+					i++;
+				} while(pBuilder.getPNum(i) < num);
+				const res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
+				newPosts += res[0];
+				this.pcount += res[0];
+				newVisPosts += res[1];
+				$after(prev.wrap, res[2]);
+				res[3].next = post;
+				post.prev = res[3];
+				DollchanAPI.notify('newpost', res[4]);
+				for(let temp = post; temp; temp = temp.nextInThread) {
+					temp.count += cnt;
 				}
 			}
 			if(i === len && post) {
-				this.deletePost(post, true, !aib.t);
+				this.deletePosts(post, true, !aib.t);
 			}
 			if(firstChangedPost && maybeSpells.hasValue && maybeSpells.value.hasNumSpell) {
 				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
-					maybeSpells.value.run(post);
+					maybeSpells.value.runSpells(post);
 				}
 			}
 			if(newPosts !== 0) {
 				for(post = firstChangedPost; post; post = post.nextInThread) {
-					RefMap.upd(post, true);
+					RefMap.updateRefMap(post, true);
 				}
 			}
 		}
@@ -13446,30 +13465,13 @@ class Thread {
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
 		}
-		readFavorites().then(fav => {
-			let f = fav[aib.host];
-			if(!f || !f[aib.b]) {
-				return;
-			}
-			if((f = f[aib.b][this.op.num])) {
-				let el = $q('#de-win-fav > .de-win-body');
-				if(el && el.hasChildNodes()) {
-					el = $q(`.de-fav-current > .de-fav-entries > .de-entry[de-num="${
-						this.op.num }"] .de-fav-inf-new`, el);
-					$hide(el);
-					el.textContent = 0;
-					el = el.nextElementSibling; // .de-fav-inf-old
-					el.textContent = this.pcount;
-				}
-				f.cnt = this.pcount;
-				f.new = 0;
-				f.you = 0;
-				f.last = aib.anchor + this.last.num;
-				setStored('DESU_Favorites', JSON.stringify(fav));
-			}
-		});
-		maybeVParser.end();
-		maybeSpells.end();
+		updateFavorites(this.op.num, [this.pcount, this.last.num], 'update');
+		if(maybeVParser.hasValue) {
+			maybeVParser.value.endParser();
+		}
+		if(maybeSpells.hasValue) {
+			maybeSpells.value.endSpells();
+		}
 		return [newPosts, newVisPosts];
 	}
 	_toggleReplies(repBtn, updBtn) {
@@ -13477,14 +13479,8 @@ class Thread {
 		let post = this.op;
 		let i = 0;
 		for(; post !== this.last; i++) {
-			post = post.next;
-			if(isHide) {
-				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
-			} else {
-				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
-			}
+			(post = post.next).omitted = isHide;
+			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
 		$toggle(updBtn, !isHide);
@@ -13500,7 +13496,7 @@ class Thread {
 	}
 }
 
-const navPanel = {
+const thrNavPanel = {
 	addThr(thr) {
 		this._thrs.add(thr.el);
 		if(this._thrs.size === 1) {
@@ -13518,7 +13514,7 @@ const navPanel = {
 		case 'click': this._handleClick(e); break;
 		}
 	},
-	init() {
+	initThrNav() {
 		const el = $bEnd(docBody, `
 		<div id="de-thr-navpanel" class="de-thr-navpanel-hidden" style="display: none;">
 			<svg id="de-thr-navarrow"><use xlink:href="#de-symbol-thr-nav-arrow"/></svg>
@@ -13547,26 +13543,24 @@ const navPanel = {
 
 	_currentThr : null,
 	_el         : null,
-	_showhideTO : 0,
+	_toggleTO   : 0,
 	_thrs       : null,
 	_visible    : false,
 	_checkThreads() {
 		const el = this._findCurrentThread();
 		if(el) {
 			if(!this._visible) {
-				this._showHide(true);
+				this._toggleNavPanel(false);
 			}
 			this._currentThr = el;
 		} else if(this._visible) {
-			this._showHide(false);
+			this._toggleNavPanel(true);
 		}
 	},
-	_expandCollapse(expand, rt) {
+	_expandCollapse(isExpand, rt) {
 		if(!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
-			clearTimeout(this._showhideTO);
-			this._showhideTO = setTimeout(
-				expand ? () => this._el.classList.remove('de-thr-navpanel-hidden') :
-				() => this._el.classList.add('de-thr-navpanel-hidden'),
+			clearTimeout(this._toggleTO);
+			this._toggleTO = setTimeout(() => this._el.classList.toggle('de-thr-navpanel-hidden', !isExpand),
 				Cfg.linksOver);
 		}
 	},
@@ -13610,9 +13604,9 @@ const navPanel = {
 			break;
 		}
 	},
-	_showHide(show) {
-		this._el.style.display = show ? 'initial' : 'none';
-		this._visible = show;
+	_toggleNavPanel(isHide) {
+		this._el.style.display = isHide ? 'none' : 'initial';
+		this._visible = isHide;
 	}
 };
 
@@ -13633,23 +13627,23 @@ function initThreadUpdater(title, enableUpdate) {
 	const audio = {
 		enabled  : false,
 		repeatMS : 0,
-		disable() {
-			this.stop();
+		disableAudio() {
+			this.stopAudio();
 			this.enabled = false;
 			const btn = $id('de-panel-audio-on');
 			if(btn) {
 				btn.id = 'de-panel-audio-off';
 			}
 		},
-		play() {
-			this.stop();
+		playAudio() {
+			this.stopAudio();
 			if(this.repeatMS === 0) {
 				this._el.play();
 				return;
 			}
 			this._playInterval = setInterval(() => this._el.play(), this.repeatMS);
 		},
-		stop() {
+		stopAudio() {
 			if(this._playInterval) {
 				clearInterval(this._playInterval);
 				this._playInterval = null;
@@ -13679,24 +13673,24 @@ function initThreadUpdater(title, enableUpdate) {
 			this._countingIV = setInterval(() => {
 				seconds--;
 				if(seconds === 0) {
-					this._stop();
+					this._stopCounter();
 					callback();
 				} else {
 					this._set(seconds);
 				}
 			}, 1e3);
 		},
-		disable() {
+		disableCounter() {
 			this._enabled = false;
-			this._stop();
+			this._stopCounter();
 			$hide(this._el);
 		},
-		enable() {
+		enableCounter() {
 			this._enabled = true;
 			$show(this._el);
 		},
 		setWait() {
-			this._stop();
+			this._stopCounter();
 			if(this._enabled) {
 				this._el.innerHTML = '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 			}
@@ -13713,7 +13707,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_set(seconds) {
 			this._el.innerHTML = seconds;
 		},
-		_stop() {
+		_stopCounter() {
 			if(this._countingIV) {
 				clearInterval(this._countingIV);
 				this._countingIV = null;
@@ -13805,17 +13799,17 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
+		_drawLines(ctx, line1, line2, color, width, scaleFactor) {
+			ctx.beginPath();
+			ctx.strokeStyle = color;
+			ctx.lineWidth = width * scaleFactor;
+			ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
+			ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
+			ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
+			ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+			ctx.stroke();
+		},
 		_initIconsHelper(icon) {
-			function drawLines(ctx, line1, line2, color, width, scaleFactor) {
-				ctx.beginPath();
-				ctx.strokeStyle = color;
-				ctx.lineWidth = width * scaleFactor;
-				ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-				ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-				ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-				ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
-				ctx.stroke();
-			}
 			const canvas = doc.createElement('canvas');
 			const ctx = canvas.getContext('2d');
 			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
@@ -13823,16 +13817,16 @@ function initThreadUpdater(title, enableUpdate) {
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
-			drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-			drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
 			this._iconNew = canvas.toDataURL('image/png');
 			ctx.putImageData(original, 0, 0);
-			drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-			drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
+			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
+			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
 			this._iconYou = canvas.toDataURL('image/png');
 			this._hasIcons = true;
 		},
@@ -13854,13 +13848,13 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 		},
-		close() {
+		closeNotif() {
 			if(this._notifEl) {
 				this._notifEl.close();
 				this._notifEl = null;
 			}
 		},
-		show() {
+		showNotif() {
 			const new10 = newPosts % 10;
 			const quantity = lang !== 0 ? +(newPosts !== 1) :
 				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
@@ -13873,11 +13867,7 @@ function initThreadUpdater(title, enableUpdate) {
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
-			notif.onshow = () => setTimeout(() => {
-				if(notif === this._notifEl) {
-					this.close();
-				}
-			}, 12e3);
+			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => window.focus();
 			notif.onerror = () => {
 				window.focus();
@@ -13904,7 +13894,7 @@ function initThreadUpdater(title, enableUpdate) {
 	const updMachine = {
 		start(needSleep = false, loadOnce = false) {
 			if(this._state !== -1) {
-				this.stop(false);
+				this.stopUpdater(false);
 			}
 			this._state = 0;
 			this._loadOnce = loadOnce;
@@ -13914,11 +13904,11 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			this._makeStep(needSleep);
 		},
-		stop(updateStatus = true) {
+		stopUpdater(updateStatus = true) {
 			if(this._state !== -1) {
 				this._state = -1;
 				if(this._loadPromise) {
-					this._loadPromise.cancel();
+					this._loadPromise.cancelPromise();
 					this._loadPromise = null;
 				}
 				counter.setWait();
@@ -13946,7 +13936,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			infoLoadErrors(error, false);
-			const eCode = (error instanceof AjaxError) ? error.code : 0;
+			const eCode = error instanceof AjaxError ? error.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);
@@ -13963,6 +13953,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
+				updateFavorites(aib.t, getErrorMessage(error), 'error');
 				return;
 			}
 			if(lastECode !== 200) {
@@ -13981,10 +13972,10 @@ function initThreadUpdater(title, enableUpdate) {
 						favicon.startBlink(false);
 					}
 					if(notification.canShow) {
-						notification.show();
+						notification.showNotif();
 					}
 					if(audio.enabled) {
-						audio.play();
+						audio.playAudio();
 					}
 					sesStorage[storageName] = Thread.first.pcount;
 					this._delay = this._initDelay;
@@ -14045,16 +14036,16 @@ function initThreadUpdater(title, enableUpdate) {
 		focusLoadTime = -1e4;
 		notification.checkPermission();
 		if(Cfg.updCount) {
-			counter.enable();
+			counter.enableCounter();
 		}
 		favicon.initIcons();
 	}
 
 	function disableUpdater() {
 		if(enabled) {
-			audio.disable();
-			counter.disable();
-			updMachine.stop();
+			audio.disableAudio();
+			counter.disableCounter();
+			updMachine.stopUpdater();
 			enabled = false;
 		}
 	}
@@ -14080,12 +14071,12 @@ function initThreadUpdater(title, enableUpdate) {
 		if(!doc.hidden) {
 			const focusTime = e.timeStamp;
 			favicon.stopBlink();
-			audio.stop();
-			notification.close();
+			audio.stopAudio();
+			notification.closeNotif();
 			newPosts = 0;
 			hasYouRefs = false;
 			sendError = false;
-			setTimeout(function() {
+			setTimeout(() => {
 				updateTitle();
 				if(enabled && focusTime - focusLoadTime > 1e4) {
 					focusLoadTime = focusTime;
@@ -14102,17 +14093,17 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	return {
-		continue(needSleep = false) {
+		continueUpdater(needSleep = false) {
 			if(enabled && paused) {
 				updMachine.start(needSleep);
 				paused = false;
 			}
 		},
-		disable() {
+		disableUpdater() {
 			disabledByUser = true;
 			disableUpdater();
 		},
-		enable() {
+		enableUpdater() {
 			if(!enabled) {
 				enableUpdater();
 				updMachine.start();
@@ -14129,9 +14120,9 @@ function initThreadUpdater(title, enableUpdate) {
 			$popup('newposts', Lng.loading[lang], true);
 			forceLoadPosts();
 		},
-		pause() {
+		pauseUpdater() {
 			if(enabled && !paused) {
-				updMachine.stop();
+				updMachine.stopUpdater();
 				paused = true;
 			}
 		},
@@ -14142,14 +14133,14 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggle() {
 			if(enabled) {
-				this.disable();
+				this.disableUpdater();
 			} else {
-				this.enable();
+				this.enableUpdater();
 			}
 		},
 		toggleAudio(repeatMS) {
 			if(audio.enabled) {
-				audio.stop();
+				audio.stopAudio();
 				return (audio.enabled = false);
 			}
 			audio.repeatMS = repeatMS;
@@ -14157,10 +14148,10 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggleCounter(enableCnt) {
 			if(enableCnt) {
-				counter.enable();
+				counter.enableCounter();
 				counter.setWait();
 			} else {
-				counter.disable();
+				counter.disableCounter();
 			}
 			forceLoadPosts();
 		},
@@ -14285,11 +14276,11 @@ class DelForm {
 	}
 	addStuff() {
 		const { el } = this;
-		if(!localData && Cfg.ajaxPosting) {
+		if(Cfg.ajaxPosting && !localData) {
 			el.onsubmit = $pd;
-			const btn = $q(aib.qDelBut, el);
-			if(btn) {
-				btn.onclick = e => {
+			const delBtn = $q(aib.qDelBut, el);
+			if(delBtn) {
+				delBtn.onclick = e => {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
@@ -14297,19 +14288,19 @@ class DelForm {
 						e => $popup('delete', getErrorMessage(e)));
 				};
 			}
+			Logger.log('Init AJAX');
 		}
-		Logger.log('Init AJAX');
 		preloadImages(el);
 		Logger.log('Preload images');
-		embedMediaLinks(el);
+		embedAudioLinks(el);
 		Logger.log('Audio links');
 		if(Cfg.addYouTube) {
-			new VideosParser().parse(el).end();
+			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}
 		processImgInfoLinks(el);
 		Logger.log('Image names');
-		RefMap.init(this);
+		RefMap.initRefMap(this);
 		Logger.log('Reflinks map');
 	}
 }
@@ -14341,14 +14332,13 @@ function checkStorage() {
 function initNavFuncs() {
 	const ua = navigator.userAgent;
 	const isFirefox = ua.includes('Gecko/');
-	const firefoxVer = isFirefox ? (ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0;
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
 	const isChromeStorage = (typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let isGM = false;
+	let scriptHandler, isGM = false;
 	if(!isNewGM) {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
@@ -14356,17 +14346,28 @@ function initNavFuncs() {
 		} catch(e) {
 			isGM = e.message === 'Permission denied to access property "toString"';
 		}
+		scriptHandler = isChromeStorage ? 'WebExtension' :
+			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
+			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
+			isFirefox ? 'Greasemonkey' : 'Unknown';
+	} else {
+		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
 	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
 		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
-			if(this.parentNode) {
-				this.parentNode.removeChild(this);
+			const el = this.parentNode;
+			if(el) {
+				el.removeChild(this);
 			}
 		};
 	}
+	const nlProto = NodeList.prototype;
+	$each = 'forEach' in nlProto ?
+		(els, cb) => nlProto.forEach.call(els, cb) :
+		(els, cb) => aProto.forEach.call(els, cb);
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -14396,23 +14397,24 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		get ua() {
-			return navigator.userAgent + (this.isFirefox ? ` [${ navigator.buildID }]` : '');
-		},
-		firefoxVer,
-		isChrome,
-		isChromeStorage,
+		ua         : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		scriptHandler,
+		isESNext   : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
+		firefoxVer : isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+		isWebkit,
+		isChrome,
+		isSafari,
+		isPresto   : !!window.opera,
+		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
-		isSafari,
+		isChromeStorage,
 		isScriptStorage,
-		isWebkit,
-		hasGMXHR: (typeof GM_xmlhttpRequest === 'function') ||
+		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		isGlobal : isGM || isNewGM || isChromeStorage || isScriptStorage,
-		isMsEdge : ua.includes('Edge/'),
-		isPresto : !!window.opera,
+		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -14428,14 +14430,9 @@ function initNavFuncs() {
 			try {
 				value = 'Worker' in window && 'URL' in window;
 			} catch(e) {}
-			if(value && this.isFirefox) {
-				value = +(navigator.userAgent.match(/rv:(\d{2,})\./) || [])[1] >= 40;
-			}
+			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
-		},
-		get isESNext() {
-			return typeof deMainFuncOuter === 'undefined';
 		},
 		get matchesSelector() {
 			const dE = doc.documentElement;
@@ -14444,15 +14441,6 @@ function initNavFuncs() {
 			const value = (el, sel) => func.call(el, sel);
 			Object.defineProperty(this, 'matchesSelector', { value });
 			return value;
-		},
-		get scriptInstall() {
-			if(this.isNewGM) {
-				return GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
-			}
-			if(this.isFirefox) {
-				return typeof GM_info !== 'undefined' ? GM_info.scriptHandler || 'Greasemonkey' : 'Scriptish';
-			}
-			return isChromeStorage ? 'WebExtension' : isGM ? 'Monkey' : 'Native userscript';
 		},
 		get viewportHeight() {
 			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
@@ -14468,9 +14456,6 @@ function initNavFuncs() {
 		},
 		cssMatches(leftSel, ...rules) {
 			return leftSel + rules.join(', ' + leftSel);
-		},
-		fixLink: isSafari ? getAbsLink : function fixLink(url) {
-			return url;
 		},
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
@@ -14592,7 +14577,7 @@ class BaseBoard {
 		return this.ru ? 2 : 1;
 	}
 	get catalogUrl() {
-		return this.prot + '//' + this.host + '/' + this.b + '/catalog.html';
+		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
 		return null;
@@ -14600,7 +14585,7 @@ class BaseBoard {
 	get css() {
 		return '';
 	}
-	get delTruncMsg() {
+	get deleteTruncMsg() {
 		return null;
 	}
 	get fixDeadLinks() {
@@ -14637,8 +14622,8 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/` +
-			quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
+			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
@@ -14681,17 +14666,16 @@ class BaseBoard {
 		}
 		if(this.hasTextLinks) {
 			str = str.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig,
-				(x, a, b, c) => c ? x : a + '<a rel="noreferrer" href="' + b + '">' + b + '</a>');
+				(x, a, b, c) => c ? x : `${ a }<a rel="noreferrer" href="${ b }">${ b }</a>`);
 		}
 		if(Spells.reps) {
 			str = Spells.replace(str);
 		}
 		if(Cfg.crossLinks) {
-			str = str.replace(aib.reCrossLinks,
-				(str, b, tNum, pNum) => '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<');
+			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
-			str = str.replace(/>https?:\/\/[^<]+</ig, function(match) {
+			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
 				} catch(e) {}
@@ -14846,7 +14830,7 @@ class BaseBoard {
 			this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
 		}
 	}
-	updSubmitButton(el) {
+	updateSubmitBtn(el) {
 		el.value = Lng.reply[lang];
 	}
 }
@@ -14928,7 +14912,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		delTruncMsg(post, el) {
+		deleteTruncMsg(post, el) {
 			$del(el.previousSibling);
 			$show(el.previousSibling);
 			$del(el);
@@ -14959,7 +14943,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-				this.getSage = function(post) {
+				this.getSage = post => {
 					const name = $q(this.qPostName, post);
 					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 				};
@@ -15213,7 +15197,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 400;
 		}
-		updSubmitButton() {}
+		updateSubmitBtn() {}
 	}
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
@@ -15227,12 +15211,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get css() {
-			return super.css + `.boardlist { position: static !important; }
-				body { padding: 0 5px !important; }
-				.fileinfo { width: 250px; }
-				.multifile { width: auto !important; }
+			return `${ super.css }
 				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
-					.post-btn, small { display: none !important; }`;
+					.post-btn, small { display: none !important; }
+				body { padding: 0 5px !important; }
+				.boardlist { position: static !important; }
+				.fileinfo { width: 250px; }
+				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
 			let str = '';
@@ -15427,26 +15412,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return status === 200 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
-			const getBase64 = async function(file) {
-				return new Promise((resolve, reject) => {
-					const reader = new FileReader();
-					reader.readAsDataURL(file);
-					reader.onload = () => resolve(reader.result);
-					reader.onerror = error => reject(error);
-				});
-			};
-			const getCookies = function() {
-				const parsedCookies = {};
+			const getBase64 = async file => new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload = () => resolve(reader.result);
+				reader.onerror = error => reject(error);
+			});
+			const getCookies = () => {
+				const obj = {};
 				const cookies = document.cookie.split(';');
-				for(let i = 0; i < cookies.length; i++) {
+				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
-					parsedCookies[parts.shift().trim()] = decodeURI(parts.join('='));
+					obj[parts.shift().trim()] = decodeURI(parts.join('='));
 				}
-				return parsedCookies;
+				return obj;
 			};
 			const dataObj = { files: [] };
 			const files = [];
-			data.forEach(async function(value, key) {
+			data.forEach(async (value, key) => {
 				if(key !== 'files') {
 					dataObj[key] = value;
 				} else {
@@ -15490,7 +15473,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('reloadCaptcha();');
 			return null;
 		}
-		updSubmitButton(el) {
+		updateSubmitBtn(el) {
 			el.textContent = Lng.reply[lang];
 		}
 	}
@@ -15546,7 +15529,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.postBtnsCSS = 0;
-			$del($q('base', doc.head)); // <base> is not compartible with SVG
+			$del($q('base', doc.head)); // <base> is not compatible with SVG
 			$each($Q('a[data-post]'), el => (el.href =
 				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
 					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
@@ -15555,23 +15538,24 @@ function getImageBoard(checkDomains, checkEngines) {
 		observeContent(checkDomains, dataPromise) {
 			const initObserver = new MutationObserver(mutations => {
 				const el = mutations[0].addedNodes[0];
-				if(el && el.id === 'app') {
-					initObserver.disconnect();
-					doc.defaultView.addEventListener('message', ({ data }) => {
-						if(data !== '0chan-content-done') {
-							return;
-						}
-						if(updater) {
-							updater.disable();
-						}
-						DelForm.tNums = new Set();
-						$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel',
-							doc), $del);
-						runMain(checkDomains, dataPromise);
-					});
-					$script(`window.app.$bus.on('refreshContentDone',
-						() => document.defaultView.postMessage('0chan-content-done', '*'))`);
+				if(!el || el.id !== 'app') {
+					return;
 				}
+				initObserver.disconnect();
+				doc.defaultView.addEventListener('message', ({ data }) => {
+					if(data !== '0chan-content-done') {
+						return;
+					}
+					if(updater) {
+						updater.disableUpdater();
+					}
+					DelForm.tNums = new Set();
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
+						$del);
+					runMain(checkDomains, dataPromise);
+				});
+				$script(`window.app.$bus.on('refreshContentDone',
+					() => document.defaultView.postMessage('0chan-content-done', '*'))`);
 			});
 			initObserver.observe(docBody, { childList: true });
 		}
@@ -15673,8 +15657,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', xhr => {
-				const id = xhr.responseText;
+			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
 				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 				$id('captchaid').value = id;
 			});
@@ -15705,8 +15688,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'span[id$="_display"], #fastload { display: none; }';
 		}
 		get initCaptcha() {
-			$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() +
-				'" style="vertical-align: bottom;" id="imgcaptcha">';
+			$id('captchadiv').innerHTML =
+				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
 			return null;
 		}
 		fixFileInputs(el) {
@@ -15717,7 +15700,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/data-original="\//g, 'src="/');
 		}
 		getCaptchaSrc() {
-			return '/' + this.b + '/captcha.fpl?' + Math.random();
+			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
@@ -15727,7 +15710,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 		}
 		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -15774,12 +15757,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 0;
 		}
 		get css() {
-			return super.css + `body { margin: 0 }
+			return `${ super.css }
 				#resizer { display: none; }
-				.topmenu { position: static; }
-				.de-thr-hid { display: inherit; }
+				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thread-buttons { float: left; } `;
+				form > .de-thread-buttons { float: left; }
+				.de-thr-hid { display: inherit; }
+				.topmenu { position: static; }`;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -15795,14 +15779,14 @@ function getImageBoard(checkDomains, checkEngines) {
 						const modBtn = $q('a[accesskey="m"]', el);
 						$after(backBtn.parentElement, backBtn);
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
-							elm => $after(backBtn.lastChild, elm));
+							el => $after(backBtn.lastChild, el));
 					}
 				} catch(e) {}
 			}
 			return el;
 		}
 		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
 		}
 		getSage(post) {
 			const el = $q('.filetitle', post);
@@ -15818,14 +15802,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(xhr.responseText === '1') {
 					cap.textEl.disabled = true;
 					setTimeout(() => (cap.textEl.value = 'проезд оплачен'), 0);
-				} else {
-					cap.textEl.disabled = false;
-					cap.textEl.value = '';
-					const img = $q('img', cap.parentEl);
-					const src = img.getAttribute('src');
-					img.src = '';
-					img.src = this.getCaptchaSrc(src);
+					return;
 				}
+				cap.textEl.disabled = false;
+				cap.textEl.value = '';
+				const img = $q('img', cap.parentEl);
+				const src = img.getAttribute('src');
+				img.src = '';
+				img.src = this.getCaptchaSrc(src);
 			});
 		}
 	}
@@ -15889,7 +15873,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const tr = $id('captchaFormPart');
 			if(tr) {
 				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
-				value = function() {
+				value = () => {
 					if(Cfg.altCaptcha) {
 						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 					} else {
@@ -15967,14 +15951,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return super.css + 'input.delete, #post-moderation-fields { display: initial !important; }';
+			return `${ super.css }
+				input.delete, #post-moderation-fields { display: initial !important; }`;
 		}
 		initCaptcha(cap) {
-			$q('td', cap.parentEl).innerHTML =
-				'<input placeholder="' + Lng.cap[lang] + '" class="captcha_text" type="text" ' +
-					'name="captcha_text" size="25" maxlength="8" autocomplete="off">' +
-				'<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">' +
-				'<div class="captcha_html"></div>';
+			$q('td', cap.parentEl).innerHTML = `<input placeholder="${ Lng.cap[lang] }" class="captcha_text` +
+				`" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
+				<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">
+				<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.parentEl);
 			return this.updateCaptcha(cap, true);
 		}
@@ -16081,7 +16065,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			setTimeout(function() {
+			setTimeout(() => {
 				const delPosts = $Q('.post[postid=""]');
 				for(let i = 0, len = delPosts.length; i < len; ++i) {
 					try {
@@ -16127,11 +16111,12 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Lolifox extends Brchan {
 		get css() {
-			return super.css + `${ Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-				Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-				'color: inherit !important' }; transition: none !important; }` : '' }
-			#thread-interactions { display: none; }
-			.reflink::after { content: "" !important; }`;
+			return `${ super.css }\r\n\t${
+				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+					'color: inherit !important' }; transition: none !important; }` : '' }
+				#thread-interactions { display: none; }
+				.reflink::after { content: "" !important; }`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -16156,7 +16141,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get css() {
-			return super.css + '.resize, .postblock { display: none; }';
+			return `${ super.css }
+				.resize, .postblock { display: none; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
@@ -16196,14 +16182,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete { background: none; }
 				.delete_checkbox { position: static !important; }`;
 		}
-		delTruncMsg(post, el, isInit) {
+		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
 				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
 			} else {
 				const sRunner = new SpellsRunner();
 				post.updateMsg($q('.alternate > div', post.el), sRunner);
-				sRunner.end();
+				sRunner.endSpells();
 			}
 		}
 		disableRedirection(el) {
@@ -16211,7 +16197,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$each($Q('input[type="file"]', el), input => input.removeAttribute('onchange'));
+			$each($Q('input[type="file"]', el), el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -16304,10 +16290,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.contentOmissionIndicator > p';
 		}
 		get css() {
-			return super.css + `.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
+			return `${ super.css }
+				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				#de-main, .de-pview { font-size: 75%; }
-				.de-cfg-label { display: initial !important; }`;
+				.de-cfg-label { display: initial !important; }
+				#de-main, .de-pview { font-size: 75%; }`;
 		}
 		init() {
 			super.init();
@@ -16392,7 +16379,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya3"]';
 		}
 		get catalogUrl() {
-			return this.prot + '//' + this.host + '/' + this.b + '/catalogue.html';
+			return `${ this.prot }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
 			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
@@ -16455,7 +16442,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_body';
 		}
 		get catalogUrl() {
-			return this.prot + '//' + this.host + '/catalog/' + this.b;
+			return `${ this.prot }//${ this.host }/catalog/${ this.b }`;
 		}
 		get css() {
 			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr,
@@ -16483,7 +16470,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.removeAttribute('id');
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/href="(#\d+)"/g, 'href="/' + aib.b + '/thread-' + aib.t + '.html$1"');
+			return str.replace(/href="(#\d+)"/g, `href="/${ aib.b }/thread-${ aib.t }.html$1"`);
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
@@ -16557,7 +16544,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return super.css + (this.t ? '' : '.de-btn-rep { display: none !important; }');
+			return super.css + (this.t ? '' : '\r\n.de-btn-rep { display: none !important; }');
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
@@ -16572,7 +16559,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qOPost = '.op';
 		}
 		get css() {
-			return super.css + `.sidearrows { display: none !important; }
+			return `${ super.css }
+				.sidearrows { display: none !important; }
 				.bar { position: static; }`;
 		}
 		init() {
@@ -16585,7 +16573,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	class Niuchan extends Kusaba {
 		get css() {
-			return super.css + '.replybacklinks, .resize { display: none; }';
+			return `${ super.css }
+				.replybacklinks, .resize { display: none; }`;
 		}
 	}
 	ibDomains['niuchan.org'] = Niuchan;
@@ -16659,7 +16648,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = false;
 		}
 		get css() {
-			return super.css + `.mature_thread { display: block !important; }
+			return `${ super.css }
+				.mature_thread { display: block !important; }
 				.mature_warning { display: none; }`;
 		}
 		getImgRealName(wrap) {
@@ -16667,9 +16657,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), function(el) {
-				el.src = el.getAttribute('data-mature-src');
-			});
+			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -16687,7 +16675,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-info > .btn-group > .btn-xs > a';
 		}
 		get css() {
-			return super.css + `.fa-sort { display: none; }
+			return `${ super.css }
+				.fa-sort { display: none; }
 				time::after { content: none; }`;
 		}
 		get markupTags() {
@@ -16754,7 +16743,7 @@ function getImageBoard(checkDomains, checkEngines) {
 // You can use Dollchan API listeners in Your external scripts and apps
 // More info: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/dollchan-api
 const DollchanAPI = {
-	init() {
+	initAPI() {
 		this.hasListeners = false;
 		if(!('MessageChannel' in window)) {
 			return;
@@ -16814,14 +16803,14 @@ const DollchanAPI = {
 // Checking for Dollchan updates from github
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
-		if(Date.now() - +lastUpdateTime < [1, 2, 7, 14, 30][Cfg.scrUpdIntrv] * 1e3 * 60 * 60 * 24) {
+		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
 			return Promise.reject();
 		}
 	}
 	return $ajax(
 		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
-	).then(xhr => {
-		const v = xhr.responseText.match(/const version = '([0-9.]+)';/);
+	).then(({ responseText }) => {
+		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;
 		if(remoteVer) {
 			const currentVer = version.split('.');
@@ -16837,7 +16826,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				}
 			}
 			if(isManual) {
-				const c = xhr.responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
 				return c === commit ?
 					Lng.haveLatestCommit[lang].replace('%s', vc) :
@@ -16854,25 +16843,24 @@ function checkForUpdates(isManual, lastUpdateTime) {
 function initPage() {
 	if(aib.t) {
 		if(Cfg.rePageTitle) {
-			doc.title = '/' + aib.b + ' - ' + Thread.first.op.title;
+			doc.title = `/${ aib.b } - ${ Thread.first.op.title }`;
 		}
 		if(!localData) {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
-			Thread.first.el.insertAdjacentHTML('afterend', '<div class="de-thread-buttons">' +
-				'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>' +
-				'<span id="de-updater-count" style="display: none;"></span>]</span>' +
-				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
-				'</div>');
+			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
+				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>` +
+				`<span id="de-updater-count" style="display: none;"></span>]</span>
+				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
+			</div>`);
 		}
 	} else {
-		navPanel.init();
+		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
 		if(aib.t) {
-			Thread.first.el.nextSibling.firstChild.firstElementChild
-				.addEventListener('click', updater.forceLoad);
+			$q('.de-thread-updater > .de-abtn').addEventListener('click', updater.forceLoad);
 		}
 	}
 }
@@ -16887,19 +16875,20 @@ function scrollPage() {
 	if(!needScroll) {
 		return;
 	}
-	setTimeout(function() {
-		const val = +sesStorage['de-scroll-' + aib.b + aib.t];
+	setTimeout(() => {
+		const id = 'de-scroll-' + aib.b + aib.t;
+		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
-			sesStorage.removeItem('de-scroll-' + aib.b + aib.t);
-		} else {
-			let post, num;
-			const { hash } = window.location;
-			if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
-				(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
-			) {
-				post.selectAndScrollTo();
-			}
+			sesStorage.removeItem(id);
+			return;
+		}
+		let post, num;
+		const { hash } = window.location;
+		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
+			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
+		) {
+			post.selectAndScrollTo();
 		}
 	}, 0);
 }
@@ -17132,11 +17121,12 @@ function addSVGIcons() {
 /* eslint-disable max-len */
 
 function scriptCSS() {
-	const cont = (id, src) => id + `::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
-	const gif = (id, src) => id + ` { background-image: url(data:image/gif;base64,${ src }); background-repeat: no-repeat; background-position: center; }`;
+	const cont = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
+	const gif = (id, src) => `${ id } { background-image: url(data:image/gif;base64,${ src }); background-repeat: no-repeat; background-position: center; }`;
 
-	// Main panel
-	let p, x = `#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
+	let x = `
+	/* Main panel */
+	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }
@@ -17151,44 +17141,39 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
-	.de-svg-stroke { stroke: currentColor; fill: none; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
-	use { fill: inherit; pointer-events: none; }`;
+	.de-svg-stroke { stroke: currentColor; fill: none; }
+	use { fill: inherit; pointer-events: none; }
 
-	switch(Cfg.scriptStyle) {
-	case 0: // Gradient darkblue
-		x += '.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }';
-		break;
-	case 1: // gradient blue
-		x += `.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
-			#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`;
-		break;
-	case 2: // solid grey
-		x += `.de-img-btn, #de-panel, .de-win-head { background-color: #777; }
-			#de-panel-buttons, #de-panel-info { border-color: #ccc; }
-			.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`;
-		break;
-	case 3: // transparent blue
-		x += '.de-img-btn, #de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }';
-		break;
-	case 4: // square dark
-		x += `.de-img-btn, #de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
-			#de-win-reply.de-win { border-radius: 0 !important; }
-			#de-panel-buttons, #de-panel-info { border-color: #666; }`;
-	}
-	if(Cfg.scriptStyle === 2) {
-		x += '.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }';
-	} else {
-		x += '.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }';
-	}
+	/* Panel theme */
+	${ [/* Gradient darkblue */
+		'.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
+		/* Gradient blue */
+		`.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
+		#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`,
+		/* Solid grey */
+		`.de-img-btn, #de-panel, .de-win-head { background-color: #777; }
+		#de-panel-buttons, #de-panel-info { border-color: #ccc; }
+		.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`,
+		/* Transparent blue */
+		'.de-img-btn, #de-panel, .de-win-head { background-color: rgba(0,20,80,.72); }',
+		/* Square dark */
+		`.de-img-btn, #de-panel, .de-win-head { background: none; background-color: #333; border-radius: 0 !important; }
+		#de-win-reply.de-win { border-radius: 0 !important; }
+		#de-panel-buttons, #de-panel-info { border-color: #666; }`
+	][Cfg.scriptStyle] }
+	${ Cfg.scriptStyle === 2 ?
+		'.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }' :
+		'.de-panel-button:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }' }\r\n`;
 
 	if(Cfg.disabled) {
 		$css(x).id = 'de-css';
 		return;
 	}
 
-	// Windows
-	x += `.de-win .de-btn-toggle { transform: rotate(180deg); }
+	x += `
+	/* Windows */
+	.de-win .de-btn-toggle { transform: rotate(180deg); }
 	.de-resizer { position: absolute; }
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }
@@ -17206,10 +17191,10 @@ function scriptCSS() {
 	#de-win-hid { max-width: 60%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }
 	#de-win-vid .de-entry { white-space: normal; }
-	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }` +
+	.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }
 
-	// Settings window
-	`.de-block { display: block; }
+	/* Settings window */
+	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
 	.de-cfg-body { min-height: 328px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
@@ -17219,6 +17204,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	.de-cfg-depend { padding-left: 17px; }
+	#de-cfg-info { display: flex; flex-direction: column; }
 	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }
@@ -17226,72 +17212,92 @@ function scriptCSS() {
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
 	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
-	.de-cfg-unvis { display: none; }
+	.de-cfg-unvis { display: none !important; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
 	.de-info-name { flex: 1 0 auto; }
 	.de-info-row { display: flex; }
-	#de-info-table { display: flex; height: 267px; }
+	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
 	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
-	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }`;
+	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
 
-	switch(Cfg.scriptStyle) {
-	case 0: // Gradient darkblue
-		x += `#de-cfg-bar { background-color: #1f2740; }
-			.de-cfg-tab { border-color: #121421 !important; }`;
-		break;
-	case 1: // gradient blue
-		x += `#de-cfg-bar { background-color: #325f9e; }
-			.de-cfg-tab { border-color: #183d77 !important; }`;
-		break;
-	case 2: // solid grey
-		x += `#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }
-			.de-cfg-body, #de-cfg-buttons { border-color: #444; }`;
-		break;
-	case 3: // transparent blue
-		x += `#de-cfg-bar { background-color: rgba(0,20,80,.72); }
-			.de-cfg-tab { border-color: #001450 !important; }`;
-		break;
-	case 4: // square dark
-		x += `#de-cfg-bar { background-color: #222; }
-			.de-cfg-body, #de-cfg-buttons { border-color: #666; }`;
-	}
+	/* Settings window theme */
+	${ [/* Gradient darkblue */
+		`#de-cfg-bar { background-color: #1f2740; }
+		.de-cfg-tab { border-color: #121421 !important; }`,
+		/* Gradient blue */
+		`#de-cfg-bar { background-color: #325f9e; }
+		.de-cfg-tab { border-color: #183d77 !important; }`,
+		/* Solid grey */
+		`#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }
+		.de-cfg-body, #de-cfg-buttons { border-color: #444; }`,
+		/* Transparent blue */
+		`#de-cfg-bar { background-color: rgba(0,20,80,.72); }
+		.de-cfg-tab { border-color: #001450 !important; }`,
+		/* Square dark */
+		`#de-cfg-bar { background-color: #222; }
+		.de-cfg-body, #de-cfg-buttons { border-color: #666; }`
+	][Cfg.scriptStyle] }
 
-	// Post panel
-	x += `.de-post-btns { margin-left: 4px; }
+	/* Favorites window */
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
+	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
+	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
+	.de-fav-del-btn { flex: 0 0 auto; align-self: center; width: 13px; height: 13px; margin-left: 2px; opacity: 0.65; cursor: pointer; }
+	.de-fav-del-btn[de-checked] { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
+	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
+	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }
+	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
+	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
+	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
+	.de-fav-inf-icon { margin-bottom: -3px; }
+	.de-fav-inf-new { color: #424f79; }
+	.de-fav-inf-new::after { content: " +"; }
+	.de-fav-inf-old { color: #4f7942; }
+	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
+	.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }
+	.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }
+	.de-fav-unavail { color: #cf4436; }
+	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
+	.de-fold-block:not(:first-child) { border-top: none; }
+
+	/* Post panel */
+	.de-post-btns { margin-left: 4px; }
 	.de-post-btns-back { fill: inherit; stroke: none; }
 	.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }
 	.de-thread-note { font-style: italic; }
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }
-	${ !pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '' }` +
+	.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
+	!pr.form && !pr.oeForm ? '.de-btn-rep { display: none; }' : '' }
 
-	// Sauce buttons
-	cont('.de-src-google', 'https://google.com/favicon.ico') +
-	cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') +
-	cont('.de-src-tineye', 'https://tineye.com/favicon.ico') +
-	cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') +
-	cont('.de-src-iqdb', '//iqdb.org/favicon.ico') +
-	cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') +
+	/* Sauce buttons */
+	${ cont('.de-src-google', 'https://google.com/favicon.ico') }
+	${ cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') }
+	${ cont('.de-src-tineye', 'https://tineye.com/favicon.ico') }
+	${ cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') }
+	${ cont('.de-src-iqdb', '//iqdb.org/favicon.ico') }
+	${ cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') }
 
-	// Posts counter
-	`.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
+	/* Posts counter */
+	.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
 	.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }
 	.de-post-counter-pview { color: #4f7942; }
-	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }` +
+	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }
 
-	// Text markup buttons
-	`#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
+	/* Text markup buttons */
+	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
 	#de-txt-panel > div { display: inline-block; }
 	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }
-	.de-markup-back { fill: #f0f0f0; stroke: #808080; }`;
+	.de-markup-back { fill: #f0f0f0; stroke: #808080; }\r\n`;
 
-	// Show/close animation
 	if('animation' in docBody.style) {
-		x += `@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
+		x += `
+		/* Show/hide animation */
+		@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
 		@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
 		@keyframes de-blink {
 			0%, 100% { transform: translateX(0); }
@@ -17315,22 +17321,23 @@ function scriptCSS() {
 		.de-blink { animation: de-blink .7s ease-in-out both; }
 		.de-post-new { animation: de-post-new .2s ease-out both; }
 		.de-win-open { animation: de-win-open .2s ease-out backwards; }
-		.de-win-close { animation: de-win-close .2s ease-in both; }`;
+		.de-win-close { animation: de-win-close .2s ease-in both; }\r\n`;
 	} else {
 		Cfg.animation = 0;
 	}
 
-	// Full images
-	p = Math.max(Cfg.minImgSize || 0, 50);
-	x += `.de-img-pre, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
-	.de-img-pre { max-width: 200px; max-height: 200px; }
+	let p = Math.max(Cfg.minImgSize || 0, 50);
+	x += `
+	/* Full images */
+	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
+	.de-img-embed { max-width: 200px; max-height: 200px; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { text-align: center; }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
-	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }
-	${ nav.firefoxVer > 59 ? `.de-fullimg-video { position: relative; }
+	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
+	nav.firefoxVer >= 59 ? `.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
@@ -17341,14 +17348,14 @@ function scriptCSS() {
 	.de-img-btn-auto-on { color: #ffe100; }
 	#de-img-btn-next { right: 0; margin-top: -18px; }
 	.de-img-btn-none { display: none; }
-	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }` +
+	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
 
-	// Embedders
-	cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') +
-	cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') +
-	cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
-	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') +
-	`.de-current::after { content: " \u25CF"; }
+	/* Embedders */
+	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }
+	${ cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') }
+	${ cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') }
+	${ cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') }
+	.de-current::after { content: " \u25CF"; }
 	.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }
 	.de-mp3 { margin: 5px 20px; }
 	.de-video-obj { margin: 5px 20px; white-space: nowrap; }
@@ -17356,9 +17363,10 @@ function scriptCSS() {
 	#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }
 	#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }
 	#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }
+	#de-video-buttons > a:not(:hover) { color: inherit; }
 	.de-video-expanded { width: 854px !important; height: 480px !important; }
 	#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }
-	.de-video-refpost { margin: 0 3px; text-decoration: none; cursor: pointer; }
+	.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }
 	.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }
 	.de-video-player, .de-video-thumb { width: 100%; height: 100%; }
 	a.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }
@@ -17366,10 +17374,10 @@ function scriptCSS() {
 	a.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }
 	.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }
 	.de-vocaroo > embed { display: inline-block; }
-	video { background: black; }` +
+	video { background: black; }
 
-	// File inputs
-	`.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
+	/* File inputs */
+	.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
 	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
@@ -17387,13 +17395,13 @@ function scriptCSS() {
 	.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }
 	.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
-	.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }` +
-	gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') +
-	gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') +
-	gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') +
+	.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }
+	${ gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') }
+	${ gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') }
+	${ gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') }
 
-	// Post reply
-	`.de-parea { text-align: center; }
+	/* Reply form */
+	.de-parea { text-align: center; }
 	.de-parea-btn-close::after { content: "${ Lng.hideForm[lang] }"; }
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
@@ -17409,51 +17417,20 @@ function scriptCSS() {
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }
 	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }
-	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }` +
+	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }
 
-	// Favorites window
-	`.de-fav-del > #de-fav-buttons { display: none; }
-	.de-fav-del > #de-fav-delbuttons { display: block !important; }
-	.de-fav-del .de-fav-header-switch, .de-fav-del .de-fav-switch { display: block !important; margin: 2px 0 2px 4px !important; flex: none; }
-	#de-fav-delbuttons { display: none; }
-	.de-fav-header-switch, .de-fav-switch { display: none; }
-	.de-fav-header { margin-top: 0; margin-bottom: 0; padding: 1px 0; display: flex; }
-	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
-	.de-fav-header-link { margin-left: 4px; color: inherit; font-weight: bold; font-size: 14px; flex: auto; text-decoration: none; outline: none; }
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
-	.de-fav-link { flex: none; margin-left: 4px; text-decoration: none; border: none; }
-	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
-	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
-	.de-fav-inf-icon { margin-bottom: -3px; }
-	.de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
-	.de-fav-inf-new { color: #424f79; }
-	.de-fav-inf-new::after { content: " +"; }
-	.de-fav-inf-old { color: #4f7942; }
-	.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }
-	.de-fav-unavail { color: #cf4436; }
-	.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }
-	.de-fold-block:not(:first-child) { border-top: none; }` +
-
-	// Thread nav
-	`#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }
-	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }
+	/* Thread navigation */
 	#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }
+	#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }
+	.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }
 	.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }
 	#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }
 	#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }
 	#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }
-	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }` +
+	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }
 
-	// Other
-	`@keyframes de-wait-anim { to { transform: rotate(360deg); } }
-	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
-	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
+	/* Other */
 	.de-abtn { text-decoration: none !important; outline: none; }
-	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
-	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
-	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
-	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
@@ -17468,14 +17445,17 @@ function scriptCSS() {
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
 	.de-omitted::before { content: "${ Lng.postsOmitted[lang] }"; }
+	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
+	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
+	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
 	.de-post-hiddencontent { display: none !important; }
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
 	.de-pview-info { padding: 3px 6px !important; }
-	.de-ref-op::after { content: " (OP)"; }
 	.de-ref-del::after { content: " (Del)"; }
+	.de-ref-op::after { content: " (OP)"; }
+	.de-refcomma:last-child { display: none; }
 	.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }
 	.de-refmap::before { content: "${ Lng.replies[lang] } "; }
-	.de-refcomma:last-child { display: none; }
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
 	.de-thread-buttons { clear: left; margin-top: 5px; }
@@ -17483,6 +17463,10 @@ function scriptCSS() {
 	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
+	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
+	.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }
+	#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }
+	@keyframes de-wait-anim { to { transform: rotate(360deg); } }
 	form > hr { clear: both }`;
 
 	$css(x).id = 'de-css';
@@ -17492,7 +17476,8 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	const str = `.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
+	const x = `
+	.de-video-obj { width: ${ Cfg.YTubeWidth }px; height: ${ Cfg.YTubeHeigh }px; }
 	.de-new-post { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' } !important; }
@@ -17521,11 +17506,11 @@ function updateCSS() {
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
 	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
-	${ Cfg.maskImgs ? aib.qPostImg + `, .de-img-pre, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
-		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-pre:hover, .de-video-obj:hover { opacity: 1 !important; }
+	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
+		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
-	${ Cfg.widePosts ? `.${ aib.cReply.replace(/\s/, '.') }:not(.de-pview) { float: none; width: 99.9%; margin-left: 0; }` : '' }
+	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
@@ -17538,8 +17523,8 @@ function updateCSS() {
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
-	${ Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '' }
-	${ Cfg.noBoardRule ? aib.qFormRules + ', ' : '' }
+	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
+	${ Cfg.noBoardRule ? `${ aib.qFormRules }, ` : '' }
 	${ Cfg.panelCounter ? '' : '#de-panel-info, ' }
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
@@ -17547,27 +17532,22 @@ function updateCSS() {
 	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
-	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }
-		body > hr, .postarea, small[id^="rfmap"], .theader { display: none !important; }`;
-	$id('de-css-dynamic').textContent = str + '\n' + aib.css;
+	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
+
+	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
+
+/* eslint-enable max-len */
 
 /* ==[ Main.js ]==============================================================================================
                                                      MAIN
 =========================================================================================================== */
 
 async function runMain(checkDomains, dataPromise) {
-	Logger.init();
-	docBody = doc.body;
-	if(!docBody) {
+	Logger.initLogger();
+	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
-	}
-	if(!aib) {
-		aib = getImageBoard(checkDomains, true);
-		if(!aib) {
-			return;
-		}
 	}
 	let formEl = $q(aib.qDForm + ', form[de-form]');
 	if(!formEl) {
@@ -17583,35 +17563,28 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let eList, fav;
-	if(dataPromise) {
-		[eList, fav] = await dataPromise;
-	} else {
-		[eList, fav] = await readData();
-	}
-	if(eList && eList.includes(aib.dm)) {
-		return;
-	}
-	excludeList = eList || '';
-	Logger.log('Data loading');
-	let oldMain;
-	if(!Cfg.disabled && ((aib.init && aib.init())) ||
+	let favObj, oldMain;
+	[excludeList, favObj] = await (dataPromise || readData());
+	if((excludeList = excludeList || '').includes(aib.dm) ||
+		!Cfg.disabled && aib.init && aib.init() ||
+		!localData && docBody.classList.contains('de-mode-local') ||
 		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
 	) {
 		return;
 	}
+	Logger.log('Storage loading');
 	$del(oldMain);
-	if('toJSON' in aProto) {
-		delete aProto.toJSON;
-	}
 	addSVGIcons();
 	if(Cfg.disabled) {
-		Panel.init(formEl);
+		Panel.initPanel(formEl);
 		scriptCSS();
 		return;
 	}
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
+	}
 	initStorageEvent();
-	DollchanAPI.init();
+	DollchanAPI.initAPI();
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -17631,7 +17604,7 @@ async function runMain(checkDomains, dataPromise) {
 			rp => saveCfg('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
-	MyPosts.read();
+	MyPosts.readStorage();
 	Logger.log('Read my posts');
 	$hide(docBody);
 	dummy = doc.createElement('div');
@@ -17650,22 +17623,20 @@ async function runMain(checkDomains, dataPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	const storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
-	if(aib.t && !!sesStorage[storageName]) {
-		if(sesStorage[storageName] > Thread.first.pcount) {
-			sesStorage.removeItem(storageName);
-			window.location.reload();
-		}
+	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
+	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
+		sesStorage.removeItem(storageName);
+		window.location.reload();
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
-		HotKeys.enable();
+		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
 	initPage();
 	Logger.log('Init page');
-	Panel.init(formEl);
+	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	DelForm.first.addStuff();
 	readViewedPosts();
@@ -17677,7 +17648,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Infinity scroll');
 	const { firstThr } = DelForm.first;
 	if(firstThr) {
-		readPostsData(firstThr.op, fav);
+		readPostsData(firstThr.op, favObj);
 	}
 	Logger.log('Hide posts');
 	embedPostMsgImages(DelForm.first.el);
@@ -17688,7 +17659,7 @@ async function runMain(checkDomains, dataPromise) {
 		$each($Q('.de-post-removed'), el => {
 			const post = pByEl.get(el);
 			if(post) {
-				post.delete(false);
+				post.deletePost(false);
 			}
 		});
 		Logger.log('Local changings');
@@ -17703,22 +17674,22 @@ if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);
-} else {
-	let dataPromise = null;
-	if((aib = getImageBoard(true, false))) {
-		if(!checkStorage()) {
-			return;
-		}
-		initNavFuncs();
-		dataPromise = readData();
-	}
-	needScroll = true;
-	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
-		needScroll = false;
-		doc.removeEventListener(e.type, wFunc);
-	});
-	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
+	return;
 }
+let dataPromise = null;
+if((aib = getImageBoard(true, false))) {
+	if(!checkStorage()) {
+		return;
+	}
+	initNavFuncs();
+	dataPromise = readData();
+}
+needScroll = true;
+doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
+	needScroll = false;
+	doc.removeEventListener(e.type, wFunc);
+});
+doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 
 /* ==[ Tail ]== */
 }(

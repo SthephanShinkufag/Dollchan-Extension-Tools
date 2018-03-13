@@ -142,7 +142,7 @@ async function readCfg() {
 		}
 		Cfg.fileInputs = 0;
 	}
-	if(nav.isChromeStorage) {
+	if(nav.scriptHandler === 'WebExtension') {
 		Cfg.updDollchan = 0;
 	}
 	if(Cfg.updThrDelay < 10) {
