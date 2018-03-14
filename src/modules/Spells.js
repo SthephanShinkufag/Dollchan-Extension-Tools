@@ -222,7 +222,7 @@ const Spells = Object.create({
 		const codeGen = new SpellsCodegen(text);
 		const data = codeGen.generate();
 		if(codeGen.hasError) {
-			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
+			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.errorSpell);
 		} else if(data) {
 			if(data[0] && Cfg.sortSpells) {
 				this._sort(data[0]);
@@ -501,7 +501,7 @@ class SpellsCodegen {
 		this._line = 1;
 		this._sList = sList;
 	}
-	get error() {
+	get errorSpell() {
 		return !this.hasError ? '' :
 			(this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
 			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';

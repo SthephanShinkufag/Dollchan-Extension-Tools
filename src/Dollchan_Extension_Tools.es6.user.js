@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '8ba70fb';
+const commit = '51cc6d8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2208,16 +2208,17 @@ WebmParser.Element = function(elData, dataLength, offset) {
 	this.size = size;
 };
 
-function getErrorMessage(e) {
-	if(e instanceof AjaxError) {
-		return e.toString();
+function getErrorMessage(err) {
+	if(err instanceof AjaxError) {
+		return err.toString();
 	}
-	if(typeof e === 'string') {
-		return e;
+	if(typeof err === 'string') {
+		return err;
 	}
+	const { stack, name, message } = err;
 	return Lng.internalError[lang] + (
-		!e.stack ? `${ e.name }: ${ e.message }` :
-		nav.isWebkit ? e.stack : `${ e.name }: ${ e.message }\n${ !nav.isFirefox ? e.stack : e.stack.replace(
+		!stack ? `${ name }: ${ message }` :
+		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
 			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
 		) }`
@@ -6778,15 +6779,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
-function infoLoadErrors(e, showError = true) {
-	const isAjax = e instanceof AjaxError;
-	const eCode = isAjax ? e.code : 0;
+function infoLoadErrors(err, showError = true) {
+	const isAjax = err instanceof AjaxError;
+	const eCode = isAjax ? err.code : 0;
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
+		$popup('newposts', err.message ? String(err.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(e) }`);
+		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(err) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
@@ -7141,7 +7142,7 @@ const Spells = Object.create({
 		const codeGen = new SpellsCodegen(text);
 		const data = codeGen.generate();
 		if(codeGen.hasError) {
-			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
+			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.errorSpell);
 		} else if(data) {
 			if(data[0] && Cfg.sortSpells) {
 				this._sort(data[0]);
@@ -7420,7 +7421,7 @@ class SpellsCodegen {
 		this._line = 1;
 		this._sList = sList;
 	}
-	get error() {
+	get errorSpell() {
 		return !this.hasError ? '' :
 			(this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
 			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
@@ -10166,11 +10167,11 @@ class AbstractPost {
 		}
 	}
 	_clickImage(el, e) {
-		const data = this.images.getImageByEl(el);
-		if(!data || (!data.isImage && !data.isVideo)) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
 			return;
 		}
-		data.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
@@ -11047,10 +11048,10 @@ class Pview extends AbstractPost {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
-	_onerror(e) {
-		if(!(e instanceof CancelError)) {
-			this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
-				Lng.postNotFound[lang] : getErrorMessage(e);
+	_onerror(err) {
+		if(!(err instanceof CancelError)) {
+			this.el.innerHTML = (err instanceof AjaxError) && err.code === 404 ?
+				Lng.postNotFound[lang] : getErrorMessage(err);
 		}
 	}
 	_onload(form) {
@@ -11549,7 +11550,7 @@ class ImagesViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(cPointX - width / 2, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(cPointY - height / 2, 10) }px`;
 	}
-	_rotate(el) {
+	_rotateFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -11565,7 +11566,7 @@ class ImagesViewer {
 	}
 	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotateFullImg(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -11673,7 +11674,9 @@ class ExpandableImage {
 	}
 	computeFullSize() {
 		if(!this._size) {
-			return this._getThumbSize();
+			const iEl = new Image();
+			iEl.src = this.el.src;
+			return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 		}
 		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
@@ -11771,7 +11774,7 @@ class ExpandableImage {
 			name = origSrc.split('/').pop();
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
-			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
+			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
@@ -11782,7 +11785,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</div>
+				<div class="de-fullimg-info">${ imgNameEl }</a></div>
 			</div>`);
 			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
@@ -11824,13 +11827,16 @@ class ExpandableImage {
 			const [width, height] = this.computeFullSize();
 			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
 		}
+		const title = needTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
+			<video style="width: inherit; height: inherit" src="${ src }" ` +
+				`${ title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
-				${ imgNameEl }
-				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				${ imgNameEl }${ title ? ` - ${ title }` : '' }</a>
+				${ needTitle && !title ? `<svg class="de-wait">
+					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
@@ -11864,7 +11870,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
+				let str = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -11879,11 +11885,12 @@ class ExpandableImage {
 					) {
 						i += 20;
 						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
-							title += String.fromCharCode(d[i]);
+							str += String.fromCharCode(d[i]);
 						}
-						if(title) {
-							$q('.de-fullimg-src', wrapEl).textContent +=
-								` - ${ videoEl.title = decodeURIComponent(escape(title)) }`;
+						if(str) {
+							const loadedTitle = decodeURIComponent(escape(str));
+							this.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+							$q('.de-fullimg-src', wrapEl).textContent += ` - ${ loadedTitle }`;
 						}
 						break;
 					}
@@ -11920,11 +11927,6 @@ class ExpandableImage {
 		const value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
-	}
-	_getThumbSize() {
-		const iEl = new Image();
-		iEl.src = this.el.src;
-		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
 }
 
@@ -12083,9 +12085,42 @@ const ImagesHashStorage = Object.create({
 		}
 	},
 	get _workers() {
-		const value = new WorkerPool(4, genImgHash, emptyFn);
+		const value = new WorkerPool(4, this._genImgHash, emptyFn);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
+	},
+	_genImgHash: ([arrBuf, oldw, oldh]) => {
+		const buf = new Uint8Array(arrBuf);
+		const size = oldw * oldh;
+		for(let i = 0, j = 0; i < size; i++, j += 4) {
+			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+		}
+		const newh = 8;
+		const neww = 8;
+		const levels = 3;
+		const areas = 256 / levels;
+		const values = 256 / (levels - 1);
+		let hash = 0;
+		for(let i = 0; i < newh; ++i) {
+			for(let j = 0; j < neww; ++j) {
+				let tmp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(tmp | 0, oldh - 2);
+				const u = tmp - l;
+				tmp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(tmp | 0, oldw - 2);
+				const t = tmp - c;
+				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
+					buf[l * oldw + c + 1] * (t * (1 - u)) +
+					buf[(l + 1) * oldw + c + 1] * (t * u) +
+					buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
+				const g = hash & 0xF0000000;
+				if(g) {
+					hash ^= g >>> 24;
+				}
+				hash &= ~g;
+			}
+		}
+		return { hash };
 	},
 	async _getHashHelper({ el, src }) {
 		if(src in this._storage) {
@@ -12176,40 +12211,6 @@ function embedPostMsgImages(el) {
 			addImgSrcButtons(link);
 		}
 	}
-}
-
-function genImgHash([arrBuf, oldw, oldh]) {
-	const buf = new Uint8Array(arrBuf);
-	const size = oldw * oldh;
-	for(let i = 0, j = 0; i < size; i++, j += 4) {
-		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
-	}
-	const newh = 8;
-	const neww = 8;
-	const levels = 3;
-	const areas = 256 / levels;
-	const values = 256 / (levels - 1);
-	let hash = 0;
-	for(let i = 0; i < newh; ++i) {
-		for(let j = 0; j < neww; ++j) {
-			let tmp = i / (newh - 1) * (oldh - 1);
-			const l = Math.min(tmp | 0, oldh - 2);
-			const u = tmp - l;
-			tmp = j / (neww - 1) * (oldw - 1);
-			const c = Math.min(tmp | 0, oldw - 2);
-			const t = tmp - c;
-			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
-				buf[l * oldw + c + 1] * (t * (1 - u)) +
-				buf[(l + 1) * oldw + c + 1] * (t * u) +
-				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			const g = hash & 0xF0000000;
-			if(g) {
-				hash ^= g >>> 24;
-			}
-			hash &= ~g;
-		}
-	}
-	return { hash };
 }
 
 /* ==[ PostBuilders.js ]======================================================================================
@@ -13894,12 +13895,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			return value;
 		},
-		_handleNewPosts(lPosts, error) {
-			if(error instanceof CancelError) {
+		_handleNewPosts(lPosts, err) {
+			if(err instanceof CancelError) {
 				return;
 			}
-			infoLoadErrors(error, false);
-			const eCode = error instanceof AjaxError ? error.code : 0;
+			infoLoadErrors(err, false);
+			const eCode = err instanceof AjaxError ? err.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);
@@ -13916,7 +13917,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
-				updateFavorites(aib.t, getErrorMessage(error), 'error');
+				updateFavorites(aib.t, getErrorMessage(err), 'error');
 				return;
 			}
 			if(lastECode !== 200) {
@@ -15133,8 +15134,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -15347,10 +15348,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPostWrap(el, isOp) {
 			return isOp ? el : el.parentNode;
 		}
-		getSubmitData(json) {
+		getSubmitData({ status, data }) {
 			return {
-				error   : json.status === 'error' ? json.data : null,
-				postNum : json.status === 'ok' ? +json.data : null
+				error   : status === 'error' ? data : null,
+				postNum : status === 'ok' ? +data : null
 			};
 		}
 		getTNum(op) {
@@ -15377,7 +15378,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
 				reader.onload = () => resolve(reader.result);
-				reader.onerror = error => reject(error);
+				reader.onerror = err => reject(err);
 			});
 			const getCookies = () => {
 				const obj = {};
@@ -16574,8 +16575,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		init() {
 			const el = $id('postform');

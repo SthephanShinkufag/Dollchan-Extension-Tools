@@ -335,8 +335,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		getTNum(op) {
 			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -549,10 +549,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPostWrap(el, isOp) {
 			return isOp ? el : el.parentNode;
 		}
-		getSubmitData(json) {
+		getSubmitData({ status, data }) {
 			return {
-				error   : json.status === 'error' ? json.data : null,
-				postNum : json.status === 'ok' ? +json.data : null
+				error   : status === 'error' ? data : null,
+				postNum : status === 'ok' ? +data : null
 			};
 		}
 		getTNum(op) {
@@ -579,7 +579,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
 				reader.onload = () => resolve(reader.result);
-				reader.onerror = error => reject(error);
+				reader.onerror = err => reject(err);
 			});
 			const getCookies = () => {
 				const obj = {};
@@ -1776,8 +1776,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		init() {
 			const el = $id('postform');

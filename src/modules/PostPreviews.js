@@ -230,10 +230,10 @@ class Pview extends AbstractPost {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
-	_onerror(e) {
-		if(!(e instanceof CancelError)) {
-			this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
-				Lng.postNotFound[lang] : getErrorMessage(e);
+	_onerror(err) {
+		if(!(err instanceof CancelError)) {
+			this.el.innerHTML = (err instanceof AjaxError) && err.code === 404 ?
+				Lng.postNotFound[lang] : getErrorMessage(err);
 		}
 	}
 	_onload(form) {

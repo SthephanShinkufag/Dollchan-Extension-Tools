@@ -233,15 +233,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
-function infoLoadErrors(e, showError = true) {
-	const isAjax = e instanceof AjaxError;
-	const eCode = isAjax ? e.code : 0;
+function infoLoadErrors(err, showError = true) {
+	const isAjax = err instanceof AjaxError;
+	const eCode = isAjax ? err.code : 0;
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
+		$popup('newposts', err.message ? String(err.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(e) }`);
+		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(err) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}

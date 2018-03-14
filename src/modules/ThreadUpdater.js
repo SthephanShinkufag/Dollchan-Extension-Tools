@@ -319,12 +319,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			return value;
 		},
-		_handleNewPosts(lPosts, error) {
-			if(error instanceof CancelError) {
+		_handleNewPosts(lPosts, err) {
+			if(err instanceof CancelError) {
 				return;
 			}
-			infoLoadErrors(error, false);
-			const eCode = error instanceof AjaxError ? error.code : 0;
+			infoLoadErrors(err, false);
+			const eCode = err instanceof AjaxError ? err.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);
@@ -341,7 +341,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
-				updateFavorites(aib.t, getErrorMessage(error), 'error');
+				updateFavorites(aib.t, getErrorMessage(err), 'error');
 				return;
 			}
 			if(lastECode !== 200) {

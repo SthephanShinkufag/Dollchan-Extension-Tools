@@ -665,16 +665,17 @@ WebmParser.Element = function(elData, dataLength, offset) {
 	this.size = size;
 };
 
-function getErrorMessage(e) {
-	if(e instanceof AjaxError) {
-		return e.toString();
+function getErrorMessage(err) {
+	if(err instanceof AjaxError) {
+		return err.toString();
 	}
-	if(typeof e === 'string') {
-		return e;
+	if(typeof err === 'string') {
+		return err;
 	}
+	const { stack, name, message } = err;
 	return Lng.internalError[lang] + (
-		!e.stack ? `${ e.name }: ${ e.message }` :
-		nav.isWebkit ? e.stack : `${ e.name }: ${ e.message }\n${ !nav.isFirefox ? e.stack : e.stack.replace(
+		!stack ? `${ name }: ${ message }` :
+		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
 			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
 		) }`

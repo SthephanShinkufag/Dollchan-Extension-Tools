@@ -273,7 +273,7 @@ class ImagesViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(cPointX - width / 2, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(cPointY - height / 2, 10) }px`;
 	}
-	_rotate(el) {
+	_rotateFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -289,7 +289,7 @@ class ImagesViewer {
 	}
 	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotateFullImg(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
@@ -397,7 +397,9 @@ class ExpandableImage {
 	}
 	computeFullSize() {
 		if(!this._size) {
-			return this._getThumbSize();
+			const iEl = new Image();
+			iEl.src = this.el.src;
+			return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 		}
 		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
@@ -495,7 +497,7 @@ class ExpandableImage {
 			name = origSrc.split('/').pop();
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
-			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
+			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
@@ -506,7 +508,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</div>
+				<div class="de-fullimg-info">${ imgNameEl }</a></div>
 			</div>`);
 			const img = $q('.de-fullimg', wrapEl);
 			img.onload = img.onerror = ({ target }) => {
@@ -548,13 +550,16 @@ class ExpandableImage {
 			const [width, height] = this.computeFullSize();
 			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
 		}
+		const title = needTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
+			<video style="width: inherit; height: inherit" src="${ src }" ` +
+				`${ title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
-				${ imgNameEl }
-				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				${ imgNameEl }${ title ? ` - ${ title }` : '' }</a>
+				${ needTitle && !title ? `<svg class="de-wait">
+					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
@@ -588,7 +593,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
+				let str = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -603,11 +608,12 @@ class ExpandableImage {
 					) {
 						i += 20;
 						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
-							title += String.fromCharCode(d[i]);
+							str += String.fromCharCode(d[i]);
 						}
-						if(title) {
-							$q('.de-fullimg-src', wrapEl).textContent +=
-								` - ${ videoEl.title = decodeURIComponent(escape(title)) }`;
+						if(str) {
+							const loadedTitle = decodeURIComponent(escape(str));
+							this.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+							$q('.de-fullimg-src', wrapEl).textContent += ` - ${ loadedTitle }`;
 						}
 						break;
 					}
@@ -644,11 +650,6 @@ class ExpandableImage {
 		const value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
-	}
-	_getThumbSize() {
-		const iEl = new Image();
-		iEl.src = this.el.src;
-		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
 }
 
@@ -807,9 +808,42 @@ const ImagesHashStorage = Object.create({
 		}
 	},
 	get _workers() {
-		const value = new WorkerPool(4, genImgHash, emptyFn);
+		const value = new WorkerPool(4, this._genImgHash, emptyFn);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
+	},
+	_genImgHash: ([arrBuf, oldw, oldh]) => {
+		const buf = new Uint8Array(arrBuf);
+		const size = oldw * oldh;
+		for(let i = 0, j = 0; i < size; i++, j += 4) {
+			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+		}
+		const newh = 8;
+		const neww = 8;
+		const levels = 3;
+		const areas = 256 / levels;
+		const values = 256 / (levels - 1);
+		let hash = 0;
+		for(let i = 0; i < newh; ++i) {
+			for(let j = 0; j < neww; ++j) {
+				let tmp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(tmp | 0, oldh - 2);
+				const u = tmp - l;
+				tmp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(tmp | 0, oldw - 2);
+				const t = tmp - c;
+				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
+					buf[l * oldw + c + 1] * (t * (1 - u)) +
+					buf[(l + 1) * oldw + c + 1] * (t * u) +
+					buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
+				const g = hash & 0xF0000000;
+				if(g) {
+					hash ^= g >>> 24;
+				}
+				hash &= ~g;
+			}
+		}
+		return { hash };
 	},
 	async _getHashHelper({ el, src }) {
 		if(src in this._storage) {
@@ -900,38 +934,4 @@ function embedPostMsgImages(el) {
 			addImgSrcButtons(link);
 		}
 	}
-}
-
-function genImgHash([arrBuf, oldw, oldh]) {
-	const buf = new Uint8Array(arrBuf);
-	const size = oldw * oldh;
-	for(let i = 0, j = 0; i < size; i++, j += 4) {
-		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
-	}
-	const newh = 8;
-	const neww = 8;
-	const levels = 3;
-	const areas = 256 / levels;
-	const values = 256 / (levels - 1);
-	let hash = 0;
-	for(let i = 0; i < newh; ++i) {
-		for(let j = 0; j < neww; ++j) {
-			let tmp = i / (newh - 1) * (oldh - 1);
-			const l = Math.min(tmp | 0, oldh - 2);
-			const u = tmp - l;
-			tmp = j / (neww - 1) * (oldw - 1);
-			const c = Math.min(tmp | 0, oldw - 2);
-			const t = tmp - c;
-			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
-				buf[l * oldw + c + 1] * (t * (1 - u)) +
-				buf[(l + 1) * oldw + c + 1] * (t * u) +
-				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			const g = hash & 0xF0000000;
-			if(g) {
-				hash ^= g >>> 24;
-			}
-			hash &= ~g;
-		}
-	}
-	return { hash };
 }

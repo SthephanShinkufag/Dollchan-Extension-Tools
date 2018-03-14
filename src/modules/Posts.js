@@ -311,11 +311,11 @@ class AbstractPost {
 		}
 	}
 	_clickImage(el, e) {
-		const data = this.images.getImageByEl(el);
-		if(!data || (!data.isImage && !data.isVideo)) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
 			return;
 		}
-		data.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
