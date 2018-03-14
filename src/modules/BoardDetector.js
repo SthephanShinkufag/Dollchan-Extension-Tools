@@ -183,7 +183,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
-				} catch(e) {}
+				} catch(err) {}
 				switch(data.result) {
 				case 0:
 					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
@@ -358,7 +358,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400;
+			return status === 200 || status === 206 || status === 400;
 		}
 		updateSubmitBtn() {}
 	}
@@ -572,7 +572,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400 || status === 500;
+			return status === 200 || status === 206 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
 			const getBase64 = async file => new Promise((resolve, reject) => {
@@ -705,8 +705,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				initObserver.disconnect();
-				doc.defaultView.addEventListener('message', ({ data }) => {
-					if(data !== '0chan-content-done') {
+				doc.defaultView.addEventListener('message', e => {
+					if(e.data !== '0chan-content-done') {
 						return;
 					}
 					if(updater) {
@@ -944,7 +944,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
 							el => $after(backBtn.lastChild, el));
 					}
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return el;
 		}
@@ -1087,7 +1087,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				try {
 					postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return { error, postNum };
 		}
@@ -1201,7 +1201,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				for(let i = 0, tLen = els.length; i < tLen; ++i) {
 					els[i].href = els[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
 				}
-			} catch(e) {}
+			} catch(err) {}
 			return el;
 		}
 		getImgInfo(wrap) {
@@ -1240,7 +1240,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');
 						}
-					} catch(e) {}
+					} catch(err) {}
 				}
 			}, 0);
 			return false;

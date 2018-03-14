@@ -66,9 +66,9 @@ class Captcha {
 	initCapPromise() {
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), e => {
-				if(e instanceof AjaxError) {
-					this._setUpdateError(e);
+			initPromise.then(() => this.showCaptcha(), err => {
+				if(err instanceof AjaxError) {
+					this._setUpdateError(err);
 				} else {
 					this.hasCaptcha = false;
 				}
@@ -137,7 +137,7 @@ class Captcha {
 		if(aib.updateCaptcha) {
 			const updatePromise = aib.updateCaptcha(this, isErr);
 			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), e => this._setUpdateError(e));
+				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
 		} else if(this._isRecap) {
 			this._updateRecap();
@@ -165,10 +165,10 @@ class Captcha {
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
 			fn(xhr);
-		}, e => {
-			if(!(e instanceof CancelError)) {
+		}, err => {
+			if(!(err instanceof CancelError)) {
 				aib._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				return CancelablePromise.reject(err);
 			}
 		}));
 	}

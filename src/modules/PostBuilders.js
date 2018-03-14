@@ -295,7 +295,7 @@ class DobrochanPostsBuilder {
 
 		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
-			(_, y, mo, d, h, m, s) => {
+			(all, y, mo, d, h, m, s) => {
 				const dt = new Date(y, +mo - 1, d, h, m, s);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;

@@ -102,7 +102,7 @@ const Panel = Object.create({
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
-						preloadImages(el);
+						ContentLoader.preloadImages(el);
 					}
 				}
 				break;

@@ -3354,7 +3354,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var checkDelete = function () {
-		var _ref43 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
+		var _ref41 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
 			var err, els, threads, isThr, i, len, el;
 			return regeneratorRuntime.wrap(function _callee13$(_context14) {
 				while (1) {
@@ -3427,15 +3427,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function checkDelete(_x38) {
-			return _ref43.apply(this, arguments);
+			return _ref41.apply(this, arguments);
 		};
 	}();
 
 	var html5Submit = function () {
-		var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
+		var _ref42 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref45, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
+			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref43, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
 
 			return regeneratorRuntime.wrap(function _callee14$(_context15) {
 				while (1) {
@@ -3455,11 +3455,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							_ref45 = _step23.value;
-							name = _ref45.name;
-							value = _ref45.value;
-							type = _ref45.type;
-							el = _ref45.el;
+							_ref43 = _step23.value;
+							name = _ref43.name;
+							value = _ref43.value;
+							type = _ref43.type;
+							el = _ref43.el;
 							val = value;
 
 							if (!(name === 'de-file-txt')) {
@@ -3592,12 +3592,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function html5Submit(_x40, _x41) {
-			return _ref44.apply(this, arguments);
+			return _ref42.apply(this, arguments);
 		};
 	}();
 
 	var readFile = function () {
-		var _ref46 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(file) {
+		var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(file) {
 			var asText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 			return regeneratorRuntime.wrap(function _callee15$(_context16) {
 				while (1) {
@@ -3624,15 +3624,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function readFile(_x43) {
-			return _ref46.apply(this, arguments);
+			return _ref44.apply(this, arguments);
 		};
 	}();
 
 
 
 	var runMain = function () {
-		var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
-			var formEl, favObj, oldMain, _ref79, _ref80, storageName, firstThr;
+		var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(checkDomains, dataPromise) {
+			var formEl, favObj, oldMain, _ref75, _ref76, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee21$(_context26) {
 				while (1) {
@@ -3684,10 +3684,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 15:
-							_ref79 = _context26.sent;
-							_ref80 = _slicedToArray(_ref79, 2);
-							excludeList = _ref80[0];
-							favObj = _ref80[1];
+							_ref75 = _context26.sent;
+							_ref76 = _slicedToArray(_ref75, 2);
+							excludeList = _ref76[0];
+							favObj = _ref76[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
 								_context26.next = 21;
@@ -3818,7 +3818,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x81, _x82) {
-			return _ref78.apply(this, arguments);
+			return _ref74.apply(this, arguments);
 		};
 	}();
 
@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'f59b749';
+	var commit = '8ba70fb';
 
 
 	var defaultCfg = {
@@ -4372,7 +4372,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var doc = window.document;
 	var emptyFn = Function.prototype;
 	var aProto = Array.prototype;
-	var Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 	var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
@@ -4936,17 +4935,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				this.func(this.num++, data).then(function () {
 					return _this3._endTask();
-				}, function (e) {
-					if (e instanceof TasksPool.PauseError) {
+				}, function (err) {
+					if (err instanceof TasksPool.PauseError) {
 						_this3.pauseTasks();
-						if (e.duration !== -1) {
+						if (err.duration !== -1) {
 							setTimeout(function () {
 								return _this3._continueTasks();
-							}, e.duration);
+							}, err.duration);
 						}
 					} else {
 						_this3._endTask();
-						throw e;
+						throw err;
 					}
 				});
 			}
@@ -5054,7 +5053,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				TarBuilder._padSet(header, 136, Math.floor(Date.now() / 1e3).toString(8), 12); 
 				TarBuilder._padSet(header, 148, '        ', 8); 
 				header[156] = 0x30;
-				for (i = 0; i < 157; i++) {
+				for (i = 0; i < 157; ++i) {
 					checksum += header[i];
 				}
 				TarBuilder._padSet(header, 148, checksum.toString(8), 8);
@@ -5532,7 +5531,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 				}
 			}
-		} catch (e) {
+		} catch (err) {
 			sesStorage['de-hidden-' + aib.b + aib.t] = null;
 		}
 		if (!firstPost) {
@@ -5722,7 +5721,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (data) {
 					try {
 						return this._cachedStorage = JSON.parse(data);
-					} catch (e) {}
+					} catch (err) {}
 				}
 				return this._cachedStorage = {};
 			}
@@ -6050,7 +6049,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										var _ref4 = _step2.value;
 										var _el2 = _ref4.el;
 
-										preloadImages(_el2);
+										ContentLoader.preloadImages(_el2);
 									}
 								} catch (err) {
 									_didIteratorError2 = true;
@@ -7351,7 +7350,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var obj = void 0;
 						try {
 							obj = JSON.parse(data);
-						} catch (e) {
+						} catch (err) {
 							$popup('err-invaliddata', Lng.invalidData[lang]);
 							return;
 						}
@@ -7367,7 +7366,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								setStored('DESU_Config', JSON.stringify(cfgObj));
 								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
 								setStored('DESU_Exclude', obj.exclude);
-							} catch (e) {}
+							} catch (err) {}
 						}
 						if (favObj) {
 							saveRenewFavorites(favObj);
@@ -7497,10 +7496,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], function () {
-				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (_ref16) {
-					var target = _ref16.target;
-
-					var els = $Q('input[type="checkbox"]', target.parentNode);
+				return $popup('cfg-reset', '<b>' + Lng.resetData[lang] + ':</b><hr>' + ('<div class="de-list"><b>' + aib.dm + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]) + '</div><hr>') + ('<div class="de-list"><b>' + Lng.allDomains[lang] + ':</b>' + _this14._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]) + '</div><hr>')).appendChild($btn(Lng.clear[lang], '', function (e) {
+					var els = $Q('input[type="checkbox"]', e.target.parentNode);
 					for (var i = 1, len = els.length; i < len; ++i) {
 						if (!els[i].checked) {
 							continue;
@@ -7690,8 +7687,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							try {
 								for (var _iterator3 = DelForm[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-									var _ref17 = _step3.value;
-									var _el3 = _ref17.el;
+									var _ref16 = _step3.value;
+									var _el3 = _ref16.el;
 
 									processImgInfoLinks(_el3, 1, 0);
 									$each($Q('.de-img-embed'), function (el) {
@@ -7724,8 +7721,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							try {
 								for (var _iterator4 = DelForm[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-									var _ref18 = _step4.value;
-									var _el4 = _ref18.el;
+									var _ref17 = _step4.value;
+									var _el4 = _ref17.el;
 
 									processImgInfoLinks(_el4, 0, 1);
 								}
@@ -7924,6 +7921,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_clickTab: function _clickTab(info) {
+			var _this15 = this;
+
 			var el = $q('.de-cfg-tab[info="' + info + '"]');
 			if (el.hasAttribute('selected')) {
 				return;
@@ -7944,7 +7943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (id === 'common') {
 					$after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
 						return fn(Cfg.userCSSTxt, false, function () {
-							saveCfg('userCSSTxt', this.value);
+							saveCfg('userCSSTxt', _this15.value);
 							updateCSS();
 							toggleWindow('cfg', true);
 						});
@@ -8011,26 +8010,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getBox: function _getBox(id) {
-			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-chkbox" info="' + id + '" type="checkbox"> ' + Lng.cfg[id][lang] + '\n\t\t</label>';
+			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-chkbox" info="' + id + '" type="checkbox"> ' + Lng.cfg[id][lang] + '\n\t</label>';
 		},
-
 		_getInfoTable: function _getInfoTable(data, needMs) {
 			return data.map(function (data) {
-				return '<div class="de-info-row">\n\t\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t\t</div>';
+				return '<div class="de-info-row">\n\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span>\n\t</div>';
 			}).join('');
 		},
-
 		_getInp: function _getInp(id) {
 			var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
-
-			return '<label class="de-cfg-label">\n\t\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + (escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>');
+			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + (escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>');
 		},
-
 		_getList: function _getList(a) {
 			return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
 		},
-
 		_getSel: function _getSel(id) {
 			var x = Lng.cfg[id];
 			var opt = [];
@@ -8043,7 +8037,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_getTab: function _getTab(name) {
 			return '<div class="' + aib.cReply + ' de-cfg-tab" info="' + name + '">' + Lng.cfgTab[name][lang] + '</div>';
 		},
-
 		_toggleBox: function _toggleBox(state, arr) {
 			var i = arr.length;
 			var nState = !state;
@@ -8113,10 +8106,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		} else {
 			el = $bEnd($id('de-wrapper-popup'), '<div class="' + aib.cReply + ' de-popup" id="de-popup-' + id + '">\n\t\t\t<span class="de-popup-btn">' + buttonHTML + '</span>\n\t\t\t<div class="de-popup-msg">' + txt.trim() + '</div>\n\t\t</div>');
-			el.onclick = function (_ref19) {
-				var target = _ref19.target;
-
-				var el = fixEventEl(target);
+			el.onclick = function (e) {
+				var el = fixEventEl(e.target);
 				el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 				if (el.className === 'de-popup-btn') {
 					closePopup(el.parentNode);
@@ -8189,7 +8180,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(Menu, [{
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this15 = this;
+				var _this16 = this;
 
 				var isOverEvent = false;
 				switch (e.type) {
@@ -8216,7 +8207,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								} else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
 									this._closeTO = setTimeout(function () {
-										return _this15.removeMenu();
+										return _this16.removeMenu();
 									}, 75);
 									if (this.onout) {
 										this.onout();
@@ -8253,9 +8244,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 		switch (el.id) {
 			case 'de-btn-spell-add':
-				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')) + '</div><div style="display: inline-block;">' + fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) + '</div>', function (el) {
-					var exp = el.textContent;
-					$txtInsert($id('de-spell-txt'), exp + (!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
+				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')) + '</div><div style="display: inline-block;">' + fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) + '</div>', function (_ref18) {
+					var s = _ref18.textContent;
+					return $txtInsert($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
 				});
 			case 'de-panel-refresh':
 				return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
@@ -8267,14 +8258,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						return;
 					}
 					var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-					if (Images_.preloading) {
+					if (ContentLoader.isLoading) {
 						$popup('savethr', Lng.loading[lang], true);
-						Images_.afterpreload = function () {
-							return loadDocFiles(imgOnly);
+						ContentLoader.afterFn = function () {
+							return ContentLoader.downloadThread(imgOnly);
 						};
-						Images_.progressId = 'savethr';
+						ContentLoader.popupId = 'savethr';
 					} else {
-						loadDocFiles(imgOnly);
+						ContentLoader.downloadThread(imgOnly);
 					}
 				});
 			case 'de-panel-audio-off':
@@ -8311,26 +8302,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		enableHotKeys: function enableHotKeys() {
-			var _this16 = this;
+			var _this17 = this;
 
 			if (!this.enabled) {
 				this.enabled = true;
 				this._paused = false;
 				Promise.resolve(this.readKeys()).then(function (keys) {
-					if (_this16.enabled) {
+					if (_this17.enabled) {
 						var _keys = _slicedToArray(keys, 5);
 
-						_this16.gKeys = _keys[2];
-						_this16.ntKeys = _keys[3];
-						_this16.tKeys = _keys[4];
+						_this17.gKeys = _keys[2];
+						_this17.ntKeys = _keys[3];
+						_this17.tKeys = _keys[4];
 
-						doc.addEventListener('keydown', _this16, true);
+						doc.addEventListener('keydown', _this17, true);
 					}
 				});
 			}
 		},
+
 		getDefaultKeys: function getDefaultKeys() {
-			var globKeys = [
+			return [HotKeys.version, nav.isFirefox, [
 0x004B 
 			, 0x004A 
 			, 0x0052 
@@ -8350,17 +8342,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			, 0xC043 
 			, 0x1027 
 			, 0x4056 
-			];
-			var nonThrKeys = [
+			], [
 0x004D 
 			, 0x004E 
 			, 0x0056 
 			, 0x0045 
-			];
-			var thrKeys = [
+			], [
 0x0055 
-			];
-			return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
+			]];
 		},
 		handleEvent: function handleEvent(e) {
 			if (this._paused || e.metaKey) {
@@ -8544,7 +8533,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._paused = true;
 		},
 		readKeys: function () {
-			var _ref20 = _asyncToGenerator( regeneratorRuntime.mark(function _callee9() {
+			var _ref19 = _asyncToGenerator( regeneratorRuntime.mark(function _callee9() {
 				var str, keys, tKeys, mapFunc;
 				return regeneratorRuntime.wrap(function _callee9$(_context10) {
 					while (1) {
@@ -8605,28 +8594,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									setStored('DESU_keys', JSON.stringify(keys));
 								}
 								if (keys[1] ^ nav.isFirefox) {
-									mapFunc = nav.isFirefox ? function mapFuncFF(key) {
-										switch (key) {
-											case 189:
-												return 173;
-											case 187:
-												return 61;
-											case 186:
-												return 59;
-											default:
-												return key;
-										}
-									} : function mapFuncNonFF(key) {
-										switch (key) {
-											case 173:
-												return 189;
-											case 61:
-												return 187;
-											case 59:
-												return 186;
-											default:
-												return key;
-										}
+									mapFunc = nav.isFirefox ? function (key) {
+										return key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key;
+									} : function (key) {
+										return key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
 									};
 
 									keys[1] = nav.isFirefox;
@@ -8645,7 +8616,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function readKeys() {
-				return _ref20.apply(this, arguments);
+				return _ref19.apply(this, arguments);
 			}
 
 			return readKeys;
@@ -8940,325 +8911,328 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', "'"];
 
 
-	function detectImgFile(ab) {
-		var i = void 0,
-		    j = void 0;
-		var dat = new Uint8Array(ab);
-		var len = dat.length;
-		if (dat[0] === 0xFF && dat[1] === 0xD8) {
-			for (i = 0, j = 0; i < len - 1; i++) {
-				if (dat[i] === 0xFF) {
-					if (dat[i + 1] === 0xD8) {
-						j++;
-					} else if (dat[i + 1] === 0xD9 && --j === 0) {
-						i += 2;
-						break;
-					}
-				}
-			}
-		} else if (dat[0] === 0x89 && dat[1] === 0x50) {
-			for (i = 0; i < len - 7; i++) {
-				if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-					i += 8;
-					break;
-				}
-			}
-		} else {
-			return {};
-		}
-		if (i !== len && len - i > 60) {
-			for (len = i + 90; i < len; i++) {
-				if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-					return { type: 0, idx: i, data: ab };
-				} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-					return { type: 1, idx: i, data: ab };
-				} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-					return { type: 2, idx: i, data: ab };
-				} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-					return { type: 3, idx: i, data: ab };
-				} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-					return { type: 4, idx: i, data: ab };
-				}
-			}
-		}
-		return {};
-	}
+	var ContentLoader = {
+		afterFn: null,
+		isLoading: false,
+		popupId: null,
+		downloadThread: function downloadThread(imgOnly) {
+			var _this18 = this;
 
-	function addImgFileIcon(nameLink, fName, info) {
-		var type = info.type;
-
-		if (typeof type === 'undefined') {
-			return;
-		}
-		var ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-		nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
-			type: ['application/x-7z-compressed', 'application/zip', 'application/x-rar-compressed', 'audio/ogg', 'audio/mpeg'][type]
-		})) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
-	}
-
-	function downloadImgData(url) {
-		var repeatOnError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-		return $ajax(url, {
-			responseType: 'arraybuffer',
-			overrideMimeType: 'text/plain; charset=x-user-defined'
-		}, url.startsWith('blob')).then(function (xhr) {
-			if (xhr.status === 0 && xhr.responseType === 'arraybuffer') {
-				return new Uint8Array(xhr.response);
-			}
-			if ('response' in xhr) {
-				try {
-					return nav.getUnsafeUint8Array(xhr.response);
-				} catch (e) {}
-			}
-			var txt = xhr.responseText;
-			var rv = new Uint8Array(txt.length);
-			for (var i = 0, len = txt.length; i < len; ++i) {
-				rv[i] = txt.charCodeAt(i) & 0xFF;
-			}
-			return rv;
-		}, function (err) {
-			return err.code !== 404 && repeatOnError ? downloadImgData(url, false) : null;
-		});
-	}
-
-	function preloadImages(data) {
-		if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
-			return;
-		}
-		var pool = void 0;
-		var isPost = data instanceof AbstractPost;
-		var els = $Q(aib.qPostImg, isPost ? data.el : data);
-		var len = els.length;
-		if (isPreImg || Cfg.preLoadImgs) {
-			var cImg = 1;
-			var mReqs = isPost ? 1 : 4;
-			var rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile, function (e) {
-				return console.error('File detector error:', 'line: ' + e.lineno + ' - ' + e.message);
-			});
-			pool = new TasksPool(mReqs, function (num, data) {
-				return downloadImgData(data[0]).then(function (imageData) {
-					var _data3 = _slicedToArray(data, 6),
+			var progress = void 0,
+			    counter = void 0,
+			    current = 1,
+			    warnings = '',
+			    tar = new TarBuilder();
+			var dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+			var els = [].concat(_toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc))));
+			var count = els.length;
+			this._thrPool = new TasksPool(4, function (num, data) {
+				return _this18.loadImgData(data[0]).then(function (imgData) {
+					var _data3 = _slicedToArray(data, 4),
 					    url = _data3[0],
-					    imgLink = _data3[1],
-					    iType = _data3[2],
-					    isRepToOrig = _data3[3],
-					    el = _data3[4],
-					    isVideo = _data3[5];
+					    fName = _data3[1],
+					    el = _data3[2],
+					    imgLink = _data3[3];
 
-					if (imageData) {
-						var fName = url.substring(url.lastIndexOf('/') + 1);
-						var nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-						imgLink.setAttribute('download', fName);
-						nameLink.setAttribute('download', fName);
-						nameLink.setAttribute('de-href', nameLink.href);
-						imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-						if (isVideo) {
-							el.setAttribute('de-video', '');
+					var safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+					progress.value = counter.innerHTML = current++;
+					if (imgLink) {
+						var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+						if (imgOnly) {
+							thumbName = 'thumb-' + thumbName;
+						} else {
+							thumbName = 'thumbs/' + thumbName;
+							safeName = imgData ? 'images/' + safeName : thumbName;
+							imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 						}
-						if (isRepToOrig) {
-							el.src = imgLink.href;
+						if (imgData) {
+							tar.addFile(safeName, imgData);
+						} else {
+							warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url + '</a>' + ('<br>' + Lng.willSavePview[lang]);
+							$popup('err-files', Lng.loadErrors[lang] + warnings);
+							if (imgOnly) {
+								return _this18._getDataFromImg(el).then(function (data) {
+									return tar.addFile(thumbName, data);
+								}, emptyFn);
+							}
 						}
-						if (rarJpgFinder) {
-							rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
-								return addImgFileIcon(nameLink, fName, info);
-							});
-						}
+						return imgOnly ? null : _this18._getDataFromImg(el).then(function (data) {
+							el.src = thumbName;
+							tar.addFile(thumbName, data);
+						}, function () {
+							return el.src = safeName;
+						});
+					} else if (imgData && imgData.length > 0) {
+						tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+					} else {
+						$del(el);
 					}
-					if (Images_.progressId) {
-						$popup(Images_.progressId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
-					}
-					cImg++;
 				});
 			}, function () {
-				Images_.preloading = false;
-				if (Images_.afterpreload) {
-					Images_.afterpreload();
-					Images_.afterpreload = Images_.progressId = null;
+				var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
+				if (!imgOnly) {
+					$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+					$q('body', dc).classList.add('de-mode-local');
+					$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+					tar.addString('data/dollscript.js', '' + (nav.isESNext ? '(' + String(deMainFuncInner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' : '(' + String( deMainFuncOuter) + ')(') + JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) + ');');
+					var dt = doc.doctype;
+					tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 				}
-				if (rarJpgFinder) {
-					rarJpgFinder.clearWorkers();
-				}
+				downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+				$del($id('de-popup-load-files'));
+				_this18._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 			});
-			Images_.preloading = true;
-		}
-		for (var i = 0; i < len; ++i) {
-			var el = els[i];
-			var imgLink = $parent(el = els[i], 'A');
-			if (!imgLink) {
-				continue;
-			}
-			var isRepToOrig = !!Cfg.openImgs;
-			var _url = imgLink.href;
-			var iType = getFileType(_url);
-			var isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
-			if (!iType || isVideo && Cfg.preLoadImgs === 2) {
-				continue;
-			} else if (iType === 'image/gif') {
-				isRepToOrig &= Cfg.openImgs !== 3;
-			} else {
-				if (isVideo) {
-					isRepToOrig = false;
-				}
-				isRepToOrig &= Cfg.openImgs !== 2;
-			}
-			if (pool) {
-				pool.runTask([_url, imgLink, iType, isRepToOrig, el, isVideo]);
-			} else if (isRepToOrig) {
-				el.src = _url;
-			}
-		}
-		if (pool) {
-			pool.completeTasks();
-		}
-	}
-
-	function getDataFromImg(el) {
-		try {
-			var cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-			cnv.width = el.width;
-			cnv.height = el.height;
-			cnv.getContext('2d').drawImage(el, 0, 0);
-			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
-				return a.charCodeAt();
-			})));
-		} catch (e) {
-			return downloadImgData(el.src);
-		}
-	}
-
-	function loadDocFiles(imgOnly) {
-		var progress = void 0,
-		    counter = void 0,
-		    current = 1,
-		    warnings = '',
-		    tar = new TarBuilder();
-		var dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-		var els = [].concat(_toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc))));
-		var count = els.length;
-		Images_.pool = new TasksPool(4, function (num, data) {
-			return downloadImgData(data[0]).then(function (imgData) {
-				var _data4 = _slicedToArray(data, 4),
-				    url = _data4[0],
-				    fName = _data4[1],
-				    el = _data4[2],
-				    imgLink = _data4[3];
-
-				var safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-				progress.value = counter.innerHTML = current++;
+			els.forEach(function (el) {
+				var imgLink = $parent(el, 'A');
 				if (imgLink) {
-					var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
-					if (imgOnly) {
-						thumbName = 'thumb-' + thumbName;
-					} else {
-						thumbName = 'thumbs/' + thumbName;
-						safeName = imgData ? 'images/' + safeName : thumbName;
-						imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
-					}
-					if (imgData) {
-						tar.addFile(safeName, imgData);
-					} else {
-						warnings += '<br>' + Lng.cantLoad[lang] + ' <a href="' + url + '">' + url + '</a>' + ('<br>' + Lng.willSavePview[lang]);
-						$popup('err-files', Lng.loadErrors[lang] + warnings);
-						if (imgOnly) {
-							return getDataFromImg(el).then(function (data) {
-								return tar.addFile(thumbName, data);
-							}, emptyFn);
-						}
-					}
-					return imgOnly ? null : getDataFromImg(el).then(function (data) {
-						el.src = thumbName;
-						tar.addFile(thumbName, data);
-					}, function () {
-						return el.src = safeName;
-					});
-				} else if (imgData && imgData.length > 0) {
-					tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
-				} else {
-					$del(el);
+					var _url = imgLink.href;
+					_this18._thrPool.runTask([_url, imgLink.getAttribute('download') || _url.substring(_url.lastIndexOf('/') + 1), el, imgLink]);
 				}
 			});
-		}, function () {
-			var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
 			if (!imgOnly) {
-				$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-				$q('body', dc).classList.add('de-mode-local');
-				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-				var scriptStr = void 0;
-				var _localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-				if (nav.isESNext) {
-					scriptStr = '(' + String(deMainFuncInner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' + _localData + ');';
-				} else {
-					scriptStr = '(' + String(deMainFuncOuter) + ')(' + _localData + ');';
-				}
-				tar.addString('data/dollscript.js', scriptStr);
-				var dt = doc.doctype;
-				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
-			}
-			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-			$del($id('de-popup-load-files'));
-			Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
-		});
-		els.forEach(function (el) {
-			var imgLink = $parent(el, 'A');
-			if (imgLink) {
-				var _url2 = imgLink.href;
-				Images_.pool.runTask([_url2, imgLink.getAttribute('download') || _url2.substring(_url2.lastIndexOf('/') + 1), el, imgLink]);
-			}
-		});
-		if (!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' + '.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' + 'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-			$each($Q('a', dc), function (el) {
-				var num = void 0;
-				var tc = el.textContent;
-				if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
-					el.href = aib.anchor + num;
-					if (!el.classList.contains('de-link-pref')) {
-						el.className = 'de-link-pref ' + el.className;
+				$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' + '.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+				$each($Q('a', dc), function (el) {
+					var num = void 0;
+					var tc = el.textContent;
+					if (tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
+						el.href = aib.anchor + num;
+						if (!el.classList.contains('de-link-pref')) {
+							el.className = 'de-link-pref ' + el.className;
+						}
+					} else {
+						el.href = getAbsLink(el.href);
 					}
+				});
+				$each($Q(aib.qRPost, dc), function (el, i) {
+					return el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t);
+				});
+				var files = [];
+				var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' + quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
+				$each($Q('link, *[src]', dc), function (el) {
+					if (els.indexOf(el) !== -1) {
+						return;
+					}
+					var url = el.tagName === 'LINK' ? el.href : el.src;
+					if (!urlRegex.test(url)) {
+						$del(el);
+						return;
+					}
+					var fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+					if (files.indexOf(fName) !== -1) {
+						var temp = url.lastIndexOf('.');
+						var ext = url.substring(temp);
+						url = url.substring(0, temp);
+						fName = fName.substring(0, fName.lastIndexOf('.'));
+						for (var i = 0;; ++i) {
+							temp = fName + '(' + i + ')' + ext;
+							if (files.indexOf(temp) === -1) {
+								break;
+							}
+						}
+						fName = temp;
+					}
+					files.push(fName);
+					_this18._thrPool.runTask([url, fName, el, null]);
+					count++;
+				});
+			}
+			$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + ':<br><progress ' + ('id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count), true);
+			progress = $id('de-loadprogress');
+			counter = progress.nextElementSibling;
+			this._thrPool.completeTasks();
+			els = null;
+		},
+
+		loadImgData: function loadImgData(url) {
+			var repeatOnError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+			return $ajax(url, {
+				responseType: 'arraybuffer',
+				overrideMimeType: 'text/plain; charset=x-user-defined'
+			}, url.startsWith('blob')).then(function (xhr) {
+				if (xhr.status === 0 && xhr.responseType === 'arraybuffer') {
+					return new Uint8Array(xhr.response);
+				}
+				if ('response' in xhr) {
+					try {
+						return nav.getUnsafeUint8Array(xhr.response);
+					} catch (err) {}
+				}
+				var txt = xhr.responseText;
+				var rv = new Uint8Array(txt.length);
+				for (var i = 0, len = txt.length; i < len; ++i) {
+					rv[i] = txt.charCodeAt(i) & 0xFF;
+				}
+				return rv;
+			}, function (err) {
+				return err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null;
+			});
+		},
+		preloadImages: function preloadImages(data) {
+			var _this19 = this;
+
+			if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
+				return;
+			}
+			var preloadPool = void 0;
+			var isPost = data instanceof AbstractPost;
+			var els = $Q(aib.qPostImg, isPost ? data.el : data);
+			var len = els.length;
+			if (isPreImg || Cfg.preLoadImgs) {
+				var cImg = 1;
+				var mReqs = isPost ? 1 : 4;
+				var rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile, function (err) {
+					return console.error('File detector error:', 'line: ' + err.lineno + ' - ' + err.message);
+				});
+				preloadPool = new TasksPool(mReqs, function (num, data) {
+					return _this19.loadImgData(data[0]).then(function (imageData) {
+						var _data4 = _slicedToArray(data, 6),
+						    url = _data4[0],
+						    imgLink = _data4[1],
+						    iType = _data4[2],
+						    isRepToOrig = _data4[3],
+						    el = _data4[4],
+						    isVideo = _data4[5];
+
+						if (imageData) {
+							var fName = url.substring(url.lastIndexOf('/') + 1);
+							var nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
+							imgLink.setAttribute('download', fName);
+							nameLink.setAttribute('download', fName);
+							nameLink.setAttribute('de-href', nameLink.href);
+							imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+							if (isVideo) {
+								el.setAttribute('de-video', '');
+							}
+							if (isRepToOrig) {
+								el.src = imgLink.href;
+							}
+							if (rarJpgFinder) {
+								rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
+									return _this19._addImgFileIcon(nameLink, fName, info);
+								});
+							}
+						}
+						if (_this19.popupId) {
+							$popup(_this19.popupId, Lng.loadImage[lang] + ': ' + cImg + '/' + len, true);
+						}
+						cImg++;
+					});
+				}, function () {
+					_this19.isLoading = false;
+					if (_this19.afterFn) {
+						_this19.afterFn();
+						_this19.afterFn = _this19.popupId = null;
+					}
+					if (rarJpgFinder) {
+						rarJpgFinder.clearWorkers();
+					}
+				});
+				this.isLoading = true;
+			}
+			for (var i = 0; i < len; ++i) {
+				var el = els[i];
+				var imgLink = $parent(el = els[i], 'A');
+				if (!imgLink) {
+					continue;
+				}
+				var isRepToOrig = !!Cfg.openImgs;
+				var _url2 = imgLink.href;
+				var type = getFileType(_url2);
+				var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+				if (!type || isVideo && Cfg.preLoadImgs === 2) {
+					continue;
+				} else if (type === 'image/gif') {
+					isRepToOrig &= Cfg.openImgs !== 3;
 				} else {
-					el.href = getAbsLink(el.href);
+					if (isVideo) {
+						isRepToOrig = false;
+					}
+					isRepToOrig &= Cfg.openImgs !== 2;
 				}
-			});
-			$each($Q(aib.qRPost, dc), function (post, i) {
-				return post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post));
-			});
-			var files = [];
-			var urlRegex = new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?' + quoteReg(aib.fch ? '4cdn.org' : aib.dm) + '\\/', 'i');
-			$each($Q('link, *[src]', dc), function (el) {
-				if (els.indexOf(el) !== -1) {
-					return;
+				if (preloadPool) {
+					preloadPool.runTask([_url2, imgLink, type, isRepToOrig, el, isVideo]);
+				} else if (isRepToOrig) {
+					el.src = _url2;
 				}
-				var url = el.tagName === 'LINK' ? el.href : el.src;
-				if (!urlRegex.test(url)) {
-					$del(el);
-					return;
-				}
-				var fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
-				if (files.indexOf(fName) !== -1) {
-					var temp = url.lastIndexOf('.');
-					var ext = url.substring(temp);
-					url = url.substring(0, temp);
-					fName = fName.substring(0, fName.lastIndexOf('.'));
-					for (var i = 0;; ++i) {
-						temp = fName + '(' + i + ')' + ext;
-						if (files.indexOf(temp) === -1) {
+			}
+			if (preloadPool) {
+				preloadPool.completeTasks();
+			}
+		},
+
+
+		_canvas: null,
+		_thrPool: null,
+		_addImgFileIcon: function _addImgFileIcon(nameLink, fName, info) {
+			var type = info.type;
+
+			if (typeof type === 'undefined') {
+				return;
+			}
+			var ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
+			nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+				type: ['application/x-7z-compressed', 'application/zip', 'application/x-rar-compressed', 'audio/ogg', 'audio/mpeg'][type]
+			})) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+		},
+
+		_detectImgFile: function _detectImgFile(arrBuf) {
+			var i = void 0,
+			    j = void 0;
+			var dat = new Uint8Array(arrBuf);
+			var len = dat.length;
+			if (dat[0] === 0xFF && dat[1] === 0xD8) {
+				for (i = 0, j = 0; i < len - 1; ++i) {
+					if (dat[i] === 0xFF) {
+						if (dat[i + 1] === 0xD8) {
+							j++;
+						} else if (dat[i + 1] === 0xD9 && --j === 0) {
+							i += 2;
 							break;
 						}
 					}
-					fName = temp;
 				}
-				files.push(fName);
-				Images_.pool.runTask([url, fName, el, null]);
-				count++;
-			});
+			} else if (dat[0] === 0x89 && dat[1] === 0x50) {
+				for (i = 0; i < len - 7; ++i) {
+					if (dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+						i += 8;
+						break;
+					}
+				}
+			} else {
+				return {};
+			}
+			if (i === len || len - i <= 60) {
+				return {};
+			}
+			for (len = i + 90; i < len; ++i) {
+				if (dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
+					return { type: 0, idx: i, data: arrBuf };
+				} else if (dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
+					return { type: 1, idx: i, data: arrBuf };
+				} else if (dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+					return { type: 2, idx: i, data: arrBuf };
+				} else if (dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+					return { type: 3, idx: i, data: arrBuf };
+				} else if (dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+					return { type: 4, idx: i, data: arrBuf };
+				}
+			}
+			return {};
+		},
+		_getDataFromImg: function _getDataFromImg(el) {
+			try {
+				var cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
+				cnv.width = el.width;
+				cnv.height = el.height;
+				cnv.getContext('2d').drawImage(el, 0, 0);
+				return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
+					return a.charCodeAt();
+				})));
+			} catch (err) {
+				return this.loadImgData(el.src);
+			}
 		}
-		$popup('load-files', (imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) + ':<br>' + ('<progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' + count), true);
-		progress = $id('de-loadprogress');
-		counter = progress.nextElementSibling;
-		Images_.pool.completeTasks();
-		els = null;
-	}
+	};
 
 
 	var DateTime = function () {
@@ -9323,7 +9297,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'fix',
 			value: function fix(txt) {
-				var _this17 = this;
+				var _this20 = this;
 
 				if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
 					return txt;
@@ -9341,7 +9315,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    year = void 0;
 					for (var i = 0; i < 7; ++i) {
 						var a = args[i];
-						switch (_this17.pattern[i]) {
+						switch (_this20.pattern[i]) {
 							case 's':
 								second = a;break;
 							case 'i':
@@ -9359,8 +9333,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 					}
 					var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-					dtime.setHours(dtime.getHours() + _this17.diff);
-					return _this17.genDateTime(dtime);
+					dtime.setHours(dtime.getHours() + _this20.diff);
+					return _this20.genDateTime(dtime);
 				});
 			}
 		}], [{
@@ -9535,7 +9509,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(function (xhr) {
 					try {
 						el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-					} catch (e) {}
+					} catch (err) {}
 				});
 			}
 		}, {
@@ -9565,9 +9539,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
 				$show(el);
 				if (!enableJsapi) {
-					el.lastChild.onclick = function (_ref21) {
-						var target = _ref21.target;
-						return target.parentNode.classList.toggle('de-video-expanded');
+					el.lastChild.onclick = function (e) {
+						return e.target.parentNode.classList.toggle('de-video-expanded');
 					};
 				}
 			}
@@ -9659,12 +9632,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: '_titlesLoaderHelper',
-			value: function _titlesLoaderHelper(_ref22, num) {
-				var _ref23 = _slicedToArray(_ref22, 4),
-				    link = _ref23[0],
-				    isYtube = _ref23[1],
-				    videoObj = _ref23[2],
-				    id = _ref23[3];
+			value: function _titlesLoaderHelper(_ref20, num) {
+				var _ref21 = _slicedToArray(_ref20, 4),
+				    link = _ref21[0],
+				    isYtube = _ref21[1],
+				    videoObj = _ref21[2],
+				    id = _ref21[3];
 
 				for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
 					data[_key2 - 2] = arguments[_key2];
@@ -9699,7 +9672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			try {
 				sesStorage.removeItem('de-videos-data1');
 				value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
-			} catch (e) {
+			} catch (err) {
 				value = [{}, {}];
 			}
 			Object.defineProperty(this, 'vData', { value: value });
@@ -9817,7 +9790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				reject(AjaxError.Timeout);
 				try {
 					gmxhr.abort();
-				} catch (e) {}
+				} catch (err) {}
 			};
 			var loadTO = needTO && setTimeout(toFunc, 5e3);
 			var obj = {
@@ -9857,7 +9830,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					try {
 						gmxhr.abort();
-					} catch (e) {}
+					} catch (err) {}
 				};
 			}
 		} else {
@@ -9870,8 +9843,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (params && params.onprogress) {
 				xhr.upload.onprogress = params.onprogress;
 			}
-			xhr.onreadystatechange = function (_ref24) {
-				var target = _ref24.target;
+			xhr.onreadystatechange = function (_ref22) {
+				var target = _ref22.target;
 
 				if (needTO) {
 					clearTimeout(_loadTO);
@@ -9909,7 +9882,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					xhr.abort();
 				};
-			} catch (e) {
+			} catch (err) {
 				clearTimeout(_loadTO);
 				nativeXHRworks = false;
 				return $ajax(url, params, false);
@@ -9959,15 +9932,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._data = new Map();
 		},
 		runCachedAjax: function runCachedAjax(url, useCache) {
-			var _this18 = this;
+			var _this21 = this;
 
-			var _ref25 = this._data.get(url) || {},
-			    hasCacheControl = _ref25.hasCacheControl,
-			    params = _ref25.params;
+			var _ref23 = this._data.get(url) || {},
+			    hasCacheControl = _ref23.hasCacheControl,
+			    params = _ref23.params;
 
 			var ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
 			return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
-				return _this18.saveData(url, xhr) ? xhr : $ajax(_this18.fixURL(url), useCache && params);
+				return _this21.saveData(url, xhr) ? xhr : $ajax(_this21.fixURL(url), useCache && params);
 			});
 		},
 		saveData: function saveData(url, xhr) {
@@ -10058,16 +10031,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(function (xhr) {
 				try {
 					return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
-				} catch (e) {
-					if (e instanceof AjaxError) {
-						return CancelablePromise.reject(e);
+				} catch (err) {
+					if (err instanceof AjaxError) {
+						return CancelablePromise.reject(err);
 					}
-					console.warn('API error: ' + e + '. Switching to DOM parsing!');
+					console.warn('API error: ' + err + '. Switching to DOM parsing!');
 					aib.JsonBuilder = null;
 					return ajaxPostsLoad(brd, tNum, useCache);
 				}
-			}, function (e) {
-				return e.code === 304 ? null : CancelablePromise.reject(e);
+			}, function (err) {
+				return err.code === 304 ? null : CancelablePromise.reject(err);
 			});
 		}
 		return aib.iichan ? ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true).then(function (data) {
@@ -10097,7 +10070,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var Pages = {
 		addPage: function addPage() {
-			var _this19 = this;
+			var _this22 = this;
 
 			var pageNum = DelForm.last.pageNum + 1;
 			if (this._adding || pageNum > aib.lastPage) {
@@ -10107,23 +10080,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + ('<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 			MyPosts.purge();
 			this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
-				if (_this19._addForm(formEl, pageNum).firstThr) {
-					return _this19._updateForms(DelForm.last);
+				if (_this22._addForm(formEl, pageNum).firstThr) {
+					return _this22._updateForms(DelForm.last);
 				}
-				_this19._endAdding();
-				_this19.addPage();
+				_this22._endAdding();
+				_this22.addPage();
 				return CancelablePromise.reject(new CancelError());
 			}).then(function () {
-				return _this19._endAdding();
-			}).catch(function (e) {
-				if (!(e instanceof CancelError)) {
-					$popup('add-page', getErrorMessage(e));
-					_this19._endAdding();
+				return _this22._endAdding();
+			}).catch(function (err) {
+				if (!(err instanceof CancelError)) {
+					$popup('add-page', getErrorMessage(err));
+					_this22._endAdding();
 				}
 			});
 		},
 		loadPages: function () {
-			var _ref26 = _asyncToGenerator( regeneratorRuntime.mark(function _callee10(count) {
+			var _ref24 = _asyncToGenerator( regeneratorRuntime.mark(function _callee10(count) {
 				var _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, form, i, len, first;
 
 				return regeneratorRuntime.wrap(function _callee10$(_context11) {
@@ -10273,7 +10246,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function loadPages(_x31) {
-				return _ref26.apply(this, arguments);
+				return _ref24.apply(this, arguments);
 			}
 
 			return loadPages;
@@ -10301,7 +10274,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this._addingPromise = null;
 		},
 		_updateForms: function () {
-			var _ref27 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(newForm) {
+			var _ref25 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(newForm) {
 				return regeneratorRuntime.wrap(function _callee11$(_context12) {
 					while (1) {
 						switch (_context12.prev = _context12.next) {
@@ -10332,7 +10305,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			function _updateForms(_x32) {
-				return _ref27.apply(this, arguments);
+				return _ref25.apply(this, arguments);
 			}
 
 			return _updateForms;
@@ -10373,7 +10346,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var data = void 0;
 			try {
 				data = JSON.parse(Cfg.spells);
-			} catch (e) {
+			} catch (err) {
 				return '';
 			}
 
@@ -10471,7 +10444,7 @@ true, true];
 				if (!spells) {
 					try {
 						spells = JSON.parse(Cfg.spells);
-					} catch (e) {}
+					} catch (err) {}
 					spells = spells || [Date.now(), [], null, null];
 				}
 				var idx = void 0,
@@ -10548,10 +10521,10 @@ true, true];
 					return spell;
 				}
 
-				var _ref28 = wipeMsg || [],
-				    _ref29 = _slicedToArray(_ref28, 2),
-				    msgBit = _ref29[0],
-				    msgData = _ref29[1];
+				var _ref26 = wipeMsg || [],
+				    _ref27 = _slicedToArray(_ref26, 2),
+				    msgBit = _ref27[0],
+				    msgData = _ref27[1];
 
 				var names = [];
 				var bits = {
@@ -10722,7 +10695,7 @@ true, true];
 		_decompileScope: function _decompileScope(scope, indent) {
 			var dScope = [];
 			var hScope = false;
-			for (var i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+			for (var i = 0, j = 0, len = scope.length; i < len; ++i, ++j) {
 				var spell = scope[i];
 				var type = spell[0] & 0xFF;
 				if (type === 0xFF) {
@@ -10763,7 +10736,7 @@ true, true];
 			try {
 				spells = JSON.parse(Cfg.spells);
 				data = JSON.parse(sesStorage['de-spells-' + aib.b + (aib.t || '')]);
-			} catch (e) {}
+			} catch (err) {}
 			if (data && spells && data[0] === spells[0]) {
 				this.hash = data[0];
 				this._setData(data[1], data[2], data[3]);
@@ -10859,14 +10832,14 @@ true, true];
 
 			try {
 				for (var _iterator13 = data[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-					var _ref30 = _step13.value;
+					var _ref28 = _step13.value;
 
-					var _ref31 = _slicedToArray(_ref30, 4);
+					var _ref29 = _slicedToArray(_ref28, 4);
 
-					var r0 = _ref31[0];
-					var r1 = _ref31[1];
-					var r2 = _ref31[2];
-					var r3 = _ref31[3];
+					var r0 = _ref29[0];
+					var r1 = _ref29[1];
+					var r2 = _ref29[2];
+					var r3 = _ref29[3];
 
 					if (!r0 || r0 === aib.b && (r1 === -1 ? !aib.t : !r1 || +r1 === aib.t)) {
 						rv.push([r2, r3]);
@@ -10949,7 +10922,7 @@ true, true];
 			});
 		},
 		_sort: function _sort(sp) {
-			for (var i = 0, len = sp.length - 1; i < len; i++) {
+			for (var i = 0, len = sp.length - 1; i < len; ++i) {
 				if (sp[i][0] > 0x200) {
 					var temp = [0xFF, []];
 					do {
@@ -10961,7 +10934,7 @@ true, true];
 				}
 			}
 			sp = sp.sort();
-			for (var _i6 = 0, _len7 = sp.length - 1; _i6 < _len7; _i6++) {
+			for (var _i6 = 0, _len7 = sp.length - 1; _i6 < _len7; ++_i6) {
 				var j = _i6 + 1;
 				if (sp[_i6][0] === sp[j][0] && sp[_i6][1] <= sp[j][1] && sp[_i6][1] >= sp[j][1] && (sp[_i6][2] === null || 
 				sp[_i6][2] === undefined || 
@@ -11168,7 +11141,7 @@ true, true];
 				var val = m[1];
 				try {
 					toRegExp(val, true);
-				} catch (e) {
+				} catch (err) {
 					this._setError(Lng.seErrRegex[lang], val);
 					return null;
 				}
@@ -11371,11 +11344,11 @@ true, true];
 		_createClass(SpellsRunner, [{
 			key: 'endSpells',
 			value: function endSpells() {
-				var _this20 = this;
+				var _this23 = this;
 
 				if (this._endPromise) {
 					this._endPromise.then(function () {
-						return _this20._savePostsHelper();
+						return _this23._savePostsHelper();
 					});
 				} else {
 					this._savePostsHelper();
@@ -11384,12 +11357,12 @@ true, true];
 		}, {
 			key: 'runSpells',
 			value: function runSpells(post) {
-				var _this21 = this;
+				var _this24 = this;
 
 				var res = new SpellsInterpreter(post, this._spells).runInterpreter();
 				if (res instanceof Promise) {
 					res = res.then(function (val) {
-						return _this21._checkRes(post, val);
+						return _this24._checkRes(post, val);
 					});
 					this._endPromise = this._endPromise ? this._endPromise.then(function () {
 						return res;
@@ -11400,11 +11373,11 @@ true, true];
 			}
 		}, {
 			key: '_checkRes',
-			value: function _checkRes(post, _ref32) {
-				var _ref33 = _slicedToArray(_ref32, 3),
-				    hasNumSpell = _ref33[0],
-				    val = _ref33[1],
-				    msg = _ref33[2];
+			value: function _checkRes(post, _ref30) {
+				var _ref31 = _slicedToArray(_ref30, 3),
+				    hasNumSpell = _ref31[0],
+				    val = _ref31[1],
+				    msg = _ref31[2];
 
 				this.hasNumSpell |= hasNumSpell;
 				if (val) {
@@ -11491,7 +11464,7 @@ true, true];
 		_createClass(SpellsInterpreter, [{
 			key: 'runInterpreter',
 			value: function runInterpreter() {
-				var _this22 = this;
+				var _this25 = this;
 
 				var rv = void 0,
 				    stopCheck = void 0;
@@ -11517,7 +11490,7 @@ true, true];
 						if (val instanceof Promise) {
 							this._ctx.push(len, scope, ++i, isNegScope);
 							return val.then(function (v) {
-								return _this22._asyncContinue(v);
+								return _this25._asyncContinue(v);
 							});
 						}
 
@@ -11592,13 +11565,13 @@ true, true];
 
 						try {
 							for (var _iterator15 = spellEls[Symbol.iterator](), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-								var _ref34 = _step15.value;
+								var _ref32 = _step15.value;
 
-								var _ref35 = _slicedToArray(_ref34, 3);
+								var _ref33 = _slicedToArray(_ref32, 3);
 
-								var isNeg = _ref35[0];
-								var spell = _ref35[1];
-								var wipeMsg = _ref35[2];
+								var isNeg = _ref33[0];
+								var spell = _ref33[1];
+								var wipeMsg = _ref33[2];
 
 								rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
 							}
@@ -11693,7 +11666,7 @@ true, true];
 		}, {
 			key: '_ihash',
 			value: function () {
-				var _ref36 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(val) {
+				var _ref34 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(val) {
 					var _iteratorNormalCompletion16, _didIteratorError16, _iteratorError16, _iterator16, _step16, image;
 
 					return regeneratorRuntime.wrap(function _callee12$(_context13) {
@@ -11787,7 +11760,7 @@ true, true];
 				}));
 
 				function _ihash(_x34) {
-					return _ref36.apply(this, arguments);
+					return _ref34.apply(this, arguments);
 				}
 
 				return _ihash;
@@ -12102,7 +12075,7 @@ true, true];
 						var _n2 = 0;
 						var capsw = 0;
 						var casew = 0;
-						for (var _i8 = 0; _i8 < len; _i8++) {
+						for (var _i8 = 0; _i8 < len; ++_i8) {
 							x = arr[_i8];
 							if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 								continue;
@@ -12167,7 +12140,7 @@ true, true];
 
 	var PostForm = function () {
 		function PostForm(form) {
-			var _this23 = this;
+			var _this26 = this;
 
 			var oeForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 			var ignoreForm = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -12246,10 +12219,10 @@ true, true];
 				PostForm.hideField(this.subj);
 			}
 			window.addEventListener('load', function () {
-				if (Cfg.userName && _this23.name) {
+				if (Cfg.userName && _this26.name) {
 					setTimeout(PostForm.setUserName, 1e3);
 				}
-				if (_this23.passw) {
+				if (_this26.passw) {
 					setTimeout(PostForm.setUserPassw, 1e3);
 				}
 			});
@@ -12479,7 +12452,7 @@ true, true];
 		}, {
 			key: '_initAjaxPosting',
 			value: function _initAjaxPosting() {
-				var _this24 = this;
+				var _this27 = this;
 
 				var el = void 0;
 				if (aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
@@ -12488,15 +12461,15 @@ true, true];
 				this.form.onsubmit = function (e) {
 					$pd(e);
 					$popup('upload', Lng.sending[lang], true);
-					html5Submit(_this24.form, _this24.subm, true).then(checkUpload).catch(function (e) {
-						return $popup('upload', getErrorMessage(e));
+					html5Submit(_this27.form, _this27.subm, true).then(checkUpload).catch(function (err) {
+						return $popup('upload', getErrorMessage(err));
 					});
 				};
 			}
 		}, {
 			key: '_initCaptcha',
 			value: function _initCaptcha() {
-				var _this25 = this;
+				var _this28 = this;
 
 				var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
 				if (!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
@@ -12505,21 +12478,21 @@ true, true];
 				}
 				this.cap = new Captcha(capEl, this.tNum);
 				var updCapFn = function updCapFn() {
-					_this25.cap.addCaptcha();
-					_this25.cap.updateOutdated();
+					_this28.cap.addCaptcha();
+					_this28.cap.updateOutdated();
 				};
 				this.txta.addEventListener('focus', updCapFn);
 				if (this.files) {
 					this.files.onchange = updCapFn;
 				}
 				this.form.addEventListener('click', function () {
-					return _this25.cap.addCaptcha();
+					return _this28.cap.addCaptcha();
 				}, true);
 			}
 		}, {
 			key: '_initFileInputs',
 			value: function _initFileInputs() {
-				var _this26 = this;
+				var _this29 = this;
 
 				var fileEl = $q('tr input[type="file"]', this.form);
 				if (!fileEl) {
@@ -12531,42 +12504,42 @@ true, true];
 				this.files = new Files(this, $q('tr input[type="file"]', this.form));
 				window.addEventListener('load', function () {
 					return setTimeout(function () {
-						return !_this26.files.filesCount && _this26.files.clearInputs();
+						return !_this29.files.filesCount && _this29.files.clearInputs();
 					}, 0);
 				});
 			}
 		}, {
 			key: '_initSubmit',
 			value: function _initSubmit() {
-				var _this27 = this;
+				var _this30 = this;
 
 				this.subm.addEventListener('click', function (e) {
-					if (Cfg.warnSubjTrip && _this27.subj && /#.|##./.test(_this27.subj.value)) {
+					if (Cfg.warnSubjTrip && _this30.subj && /#.|##./.test(_this30.subj.value)) {
 						$pd(e);
 						$popup('upload', Lng.subjHasTrip[lang]);
 						return;
 					}
-					var val = _this27.txta.value;
+					var val = _this30.txta.value;
 					if (Spells.outreps) {
 						val = Spells.outReplace(val);
 					}
-					if (_this27.tNum && pByNum.get(_this27.tNum).subj === 'Dollchan Extension Tools') {
+					if (_this30.tNum && pByNum.get(_this30.tNum).subj === 'Dollchan Extension Tools') {
 						var temp = '\n\n' + PostForm._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isESNext ? '.es6' : '') + ' [' + nav.scriptHandler + ']')[1];
 						if (!val.includes(temp)) {
 							val += temp;
 						}
 					}
-					_this27.txta.value = val;
+					_this30.txta.value = val;
 					if (Cfg.ajaxPosting) {
 						$popup('upload', Lng.checking[lang], true);
 					}
-					if (_this27.video && (val = _this27.video.value) && (val = val.match(Videos.ytReg))) {
-						_this27.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+					if (_this30.video && (val = _this30.video.value) && (val = val.match(Videos.ytReg))) {
+						_this30.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 					}
-					if (_this27.isQuick) {
-						$hide(_this27.pForm);
-						$hide(_this27.qArea);
-						$after(_this27._pBtn[+_this27.isBottom], _this27.pForm);
+					if (_this30.isQuick) {
+						$hide(_this30.pForm);
+						$hide(_this30.qArea);
+						$after(_this30._pBtn[+_this30.isBottom], _this30.pForm);
 					}
 					updater.pauseUpdater();
 				});
@@ -12574,7 +12547,7 @@ true, true];
 		}, {
 			key: '_initTextarea',
 			value: function _initTextarea() {
-				var _this28 = this;
+				var _this31 = this;
 
 				var el = this.txta;
 				if (aib.dobr) {
@@ -12600,7 +12573,7 @@ true, true];
 								var item = _step21.value;
 
 								if (item.kind === 'file') {
-									var inputs = _this28.files._inputs;
+									var inputs = _this31.files._inputs;
 									for (var i = 0, len = inputs.length; i < len; ++i) {
 										var input = inputs[i];
 										if (!input.hasFile) {
@@ -12628,8 +12601,8 @@ true, true];
 					}
 				});
 				if (nav.isFirefox) {
-					el.addEventListener('mouseup', function (_ref37) {
-						var target = _ref37.target;
+					el.addEventListener('mouseup', function (_ref35) {
+						var target = _ref35.target;
 						var _target$style = target.style,
 						    width = _target$style.width,
 						    height = _target$style.height;
@@ -12668,7 +12641,7 @@ true, true];
 		}, {
 			key: '_makeHideableContainer',
 			value: function _makeHideableContainer() {
-				var _this29 = this;
+				var _this32 = this;
 
 				this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 				if (this.form) {
@@ -12681,10 +12654,10 @@ true, true];
 				this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 				this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 				this._pBtn[0].firstElementChild.onclick = function (e) {
-					return _this29.showMainReply(false, e);
+					return _this32.showMainReply(false, e);
 				};
 				this._pBtn[1].firstElementChild.onclick = function (e) {
-					return _this29.showMainReply(true, e);
+					return _this32.showMainReply(true, e);
 				};
 				this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + (aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost')) + '"></div>');
 				this.isBottom = Cfg.addPostForm === 1;
@@ -12693,28 +12666,28 @@ true, true];
 		}, {
 			key: '_makeSageBtn',
 			value: function _makeSageBtn() {
-				var _this30 = this;
+				var _this33 = this;
 
 				PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 				$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>').onclick = function (e) {
 					e.stopPropagation();
 					$pd(e);
 					toggleCfg('sageReply');
-					_this30._setSage();
+					_this33._setSage();
 				};
 				setTimeout(function () {
-					return _this30._setSage();
+					return _this33._setSage();
 				}, 0);
 			}
 		}, {
 			key: '_makeWindow',
 			value: function _makeWindow() {
-				var _this31 = this;
+				var _this34 = this;
 
 				makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t\t<span class="de-win-title"></span>\n\t\t\t<span class="de-win-buttons">\n\t\t\t\t<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>\n\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class="de-resizer de-resizer-top"></div>\n\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t<div class="de-resizer de-resizer-right"></div>\n\t\t<div class="de-resizer de-resizer-bottom"></div>'));
 				var buttons = $q('.de-win-buttons', this.qArea);
-				buttons.onmouseover = function (_ref38) {
-					var target = _ref38.target;
+				buttons.onmouseover = function (_ref36) {
+					var target = _ref36.target;
 
 					var el = target.parentNode;
 					switch (fixEventEl(target).classList[0]) {
@@ -12727,31 +12700,31 @@ true, true];
 					}
 				};
 
-				var _ref39 = [].concat(_toConsumableArray(buttons.children)),
-				    clearBtn = _ref39[0],
-				    toggleBtn = _ref39[1],
-				    closeBtn = _ref39[2];
+				var _ref37 = [].concat(_toConsumableArray(buttons.children)),
+				    clearBtn = _ref37[0],
+				    toggleBtn = _ref37[1],
+				    closeBtn = _ref37[2];
 
 				clearBtn.onclick = function () {
 					saveCfg('sageReply', 0);
-					_this31._setSage();
-					_this31.files.clearInputs();
-					[_this31.txta, _this31.name, _this31.mail, _this31.subj, _this31.video, _this31.cap && _this31.cap.textEl].forEach(function (el) {
+					_this34._setSage();
+					_this34.files.clearInputs();
+					[_this34.txta, _this34.name, _this34.mail, _this34.subj, _this34.video, _this34.cap && _this34.cap.textEl].forEach(function (el) {
 						return el && (el.value = '');
 					});
 				};
 				toggleBtn.onclick = function () {
 					toggleCfg('replyWinDrag');
 					if (Cfg.replyWinDrag) {
-						_this31.qArea.className = aib.cReply + ' de-win';
-						updateWinZ(_this31.qArea.style);
+						_this34.qArea.className = aib.cReply + ' de-win';
+						updateWinZ(_this34.qArea.style);
 					} else {
-						_this31.qArea.className = aib.cReply + ' de-win-inpost';
-						_this31.txta.focus();
+						_this34.qArea.className = aib.cReply + ' de-win-inpost';
+						_this34.txta.focus();
 					}
 				};
 				closeBtn.onclick = function () {
-					return _this31.closeReply();
+					return _this34.closeReply();
 				};
 			}
 		}, {
@@ -12837,9 +12810,9 @@ true, true];
 
 				try {
 					for (var _iterator22 = DelForm[Symbol.iterator](), _step22; !(_iteratorNormalCompletion22 = (_step22 = _iterator22.next()).done); _iteratorNormalCompletion22 = true) {
-						var _ref40 = _step22.value;
-						var _ref40$passEl = _ref40.passEl;
-						var passEl = _ref40$passEl === undefined ? {} : _ref40$passEl;
+						var _ref38 = _step22.value;
+						var _ref38$passEl = _ref38.passEl;
+						var passEl = _ref38$passEl === undefined ? {} : _ref38$passEl;
 
 						passEl.value = value;
 					}
@@ -12912,14 +12885,14 @@ true, true];
 		var progress = $id('de-uploadprogress');
 		var counterWrap = progress.nextElementSibling;
 
-		var _ref41 = [].concat(_toConsumableArray(counterWrap.children)),
-		    counterEl = _ref41[0],
-		    totalEl = _ref41[1],
-		    speedEl = _ref41[2];
+		var _ref39 = [].concat(_toConsumableArray(counterWrap.children)),
+		    counterEl = _ref39[0],
+		    totalEl = _ref39[1],
+		    speedEl = _ref39[2];
 
-		return function (_ref42) {
-			var total = _ref42.total,
-			    i = _ref42.loaded;
+		return function (_ref40) {
+			var total = _ref40.total,
+			    i = _ref40.loaded;
 
 			if (!inited) {
 				progress.setAttribute('max', total);
@@ -12968,8 +12941,8 @@ true, true];
 				}
 				try {
 					data = JSON.parse(isDocument ? data.body.textContent : data);
-				} catch (e) {
-					error = getErrorMessage(e);
+				} catch (err) {
+					error = getErrorMessage(err);
 				}
 			}
 			if (!error) {
@@ -13022,10 +12995,10 @@ true, true];
 			Post.clearMarks();
 			Thread.first.loadNewPosts().then(function () {
 				return AjaxError.Success;
-			}, function (e) {
-				return e;
-			}).then(function (e) {
-				infoLoadErrors(e);
+			}, function (err) {
+				return err;
+			}).then(function (err) {
+				infoLoadErrors(err);
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
@@ -13110,7 +13083,7 @@ true, true];
 			return val;
 		}
 		if (img[0] === 0x89 && img[1] === 0x50) {
-			for (i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
+			for (i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); ++i) {}
 			i += 8;
 			if (i !== len && (extraData || len - i <= 75)) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -13136,7 +13109,7 @@ true, true];
 		if (i > len) {
 			return null;
 		}
-		for (var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+		for (var j = 0, tgLen = dv.getUint16(i, le); j < tgLen; ++j) {
 			var dE = i + 2 + 12 * j;
 			var tag = dv.getUint16(dE, le);
 			if (tag === 0x0128) {
@@ -13294,20 +13267,20 @@ true, true];
 			this._thumb = null;
 			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
 
-			var _ref47 = [].concat(_toConsumableArray(this._utils.children));
+			var _ref45 = [].concat(_toConsumableArray(this._utils.children));
 
-			this._btnRarJpg = _ref47[0];
-			this._btnSpoil = _ref47[1];
-			this._btnTxt = _ref47[2];
-			this._btnDel = _ref47[3];
+			this._btnRarJpg = _ref45[0];
+			this._btnSpoil = _ref45[1];
+			this._btnTxt = _ref45[2];
+			this._btnDel = _ref45[3];
 
 			this._utils.addEventListener('click', this);
 			this._txtWrap = $add('<span class="de-file-txt-wrap">\n\t\t\t<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="' + (Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-txt-add" value="+" title="') + (Lng.add[lang] + '" style="display: none;"></span>'));
 
-			var _ref48 = [].concat(_toConsumableArray(this._txtWrap.children));
+			var _ref46 = [].concat(_toConsumableArray(this._txtWrap.children));
 
-			this._txtInput = _ref48[0];
-			this._txtAddBtn = _ref48[1];
+			this._txtInput = _ref46[0];
+			this._txtAddBtn = _ref46[1];
 
 			this._txtWrap.addEventListener('click', this);
 			this._toggleDragEvents(this._txtWrap, true);
@@ -13390,7 +13363,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this32 = this;
+				var _this35 = this;
 
 				var el = e.target;
 				var thumb = this._thumb;
@@ -13408,15 +13381,15 @@ true, true];
 									for (var i = 0; i < allowedLen; ++i) {
 										FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
 											if (! --j) {
-												_this32._removeFileHelper();
+												_this35._removeFileHelper();
 											}
 										});
-										_this32._parent._files[curInpIdx + i] = el.files[i];
+										_this35._parent._files[curInpIdx + i] = el.files[i];
 									}
 								})();
 							} else {
 								setTimeout(function () {
-									return _this32._onFileChange(false);
+									return _this35._onFileChange(false);
 								}, 20);
 								if (filesLen > 0) {
 									this._parent._files[curInpIdx] = el.files[0];
@@ -13529,24 +13502,22 @@ true, true];
 		}, {
 			key: '_addRarJpeg',
 			value: function _addRarJpeg() {
-				var _this33 = this;
+				var _this36 = this;
 
 				var el = this._parent.rarInput;
-				el.onchange = function (_ref49) {
-					var target = _ref49.target;
+				el.onchange = function (e) {
+					$hide(_this36._btnRarJpg);
+					var myBtn = _this36._rarMsg = $aBegin(_this36._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+					var file = e.target.files[0];
+					readFile(file).then(function (_ref47) {
+						var data = _ref47.data;
 
-					$hide(_this33._btnRarJpg);
-					var myBtn = _this33._rarMsg = $aBegin(_this33._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-					var file = target.files[0];
-					readFile(file).then(function (_ref50) {
-						var data = _ref50.data;
-
-						if (_this33._rarMsg === myBtn) {
+						if (_this36._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
-							var origFileName = _this33.imgFile ? _this33.imgFile[1] : _this33._input.files[0].name;
+							var origFileName = _this36.imgFile ? _this36.imgFile[1] : _this36._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
 							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
-							_this33.extraFile = data;
+							_this36.extraFile = data;
 						}
 					});
 				};
@@ -13555,7 +13526,7 @@ true, true];
 		}, {
 			key: '_addUrlFile',
 			value: function _addUrlFile(url) {
-				var _this34 = this;
+				var _this37 = this;
 
 				var file = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -13563,7 +13534,7 @@ true, true];
 					return Promise.reject(new Error('URL is null'));
 				}
 				$popup('file-loading', Lng.loading[lang], true);
-				return downloadImgData(url, false).then(function (data) {
+				return ContentLoader.loadImgData(url, false).then(function (data) {
 					if (file) {
 						window.URL.revokeObjectURL(url);
 					}
@@ -13572,7 +13543,7 @@ true, true];
 						return;
 					}
 					closePopup('file-loading');
-					_this34._isTxtEditable = false;
+					_this37._isTxtEditable = false;
 					var name = file ? file.name : url.split('/').pop();
 					var type = file && file.type || getFileType(name);
 					if (!type || name.includes('?')) {
@@ -13593,17 +13564,17 @@ true, true];
 							name = name.split('?').shift() + '.' + ext;
 						}
 					}
-					_this34.imgFile = [data.buffer, name, type || getFileType(name)];
+					_this37.imgFile = [data.buffer, name, type || getFileType(name)];
 					if (!file) {
-						file = new Blob([data], { type: _this34.imgFile[2] });
+						file = new Blob([data], { type: _this37.imgFile[2] });
 						file.name = name;
 					}
-					_this34._parent._files[_this34._parent._inputs.indexOf(_this34)] = file;
-					DollchanAPI.notify('filechange', _this34._parent._files);
+					_this37._parent._files[_this37._parent._inputs.indexOf(_this37)] = file;
+					DollchanAPI.notify('filechange', _this37._parent._files);
 					if (FileInput._isThumb) {
-						$hide(_this34._txtWrap);
+						$hide(_this37._txtWrap);
 					}
-					_this34._onFileChange(true);
+					_this37._onFileChange(true);
 				});
 			}
 		}, {
@@ -13693,7 +13664,7 @@ true, true];
 		}, {
 			key: '_showFileThumb',
 			value: function _showFileThumb() {
-				var _this35 = this;
+				var _this38 = this;
 
 				var imgFile = this.imgFile;
 
@@ -13703,11 +13674,11 @@ true, true];
 				}
 				var file = this._input.files[0];
 				if (file) {
-					readFile(file).then(function (_ref51) {
-						var data = _ref51.data;
+					readFile(file).then(function (_ref48) {
+						var data = _ref48.data;
 
-						if (_this35._input.files[0] === file) {
-							_this35._addNewThumb(data, file.name, file.type, file.size);
+						if (_this38._input.files[0] === file) {
+							_this38._addNewThumb(data, file.name, file.type, file.size);
 						}
 					});
 				}
@@ -13729,8 +13700,8 @@ true, true];
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(input, file) {
-				return readFile(file).then(function (_ref52) {
-					var data = _ref52.data;
+				return readFile(file).then(function (_ref49) {
+					var data = _ref49.data;
 
 					input.imgFile = [data, file.name, file.type];
 					input.showInp();
@@ -13821,17 +13792,17 @@ true, true];
 		}, {
 			key: 'initCapPromise',
 			value: function initCapPromise() {
-				var _this36 = this;
+				var _this39 = this;
 
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this36.showCaptcha();
-					}, function (e) {
-						if (e instanceof AjaxError) {
-							_this36._setUpdateError(e);
+						return _this39.showCaptcha();
+					}, function (err) {
+						if (err instanceof AjaxError) {
+							_this39._setUpdateError(err);
 						} else {
-							_this36.hasCaptcha = false;
+							_this39.hasCaptcha = false;
 						}
 					});
 				} else if (this.hasCaptcha) {
@@ -13841,13 +13812,13 @@ true, true];
 		}, {
 			key: 'initImage',
 			value: function initImage(img) {
-				var _this37 = this;
+				var _this40 = this;
 
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this37.refreshCaptcha(true);
+					return _this40.refreshCaptcha(true);
 				};
 			}
 		}, {
@@ -13897,7 +13868,7 @@ true, true];
 		}, {
 			key: 'refreshCaptcha',
 			value: function refreshCaptcha(isFocus) {
-				var _this38 = this;
+				var _this41 = this;
 
 				var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -13918,9 +13889,9 @@ true, true];
 					var updatePromise = aib.updateCaptcha(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
-							return _this38._updateTextEl(isFocus);
-						}, function (e) {
-							return _this38._setUpdateError(e);
+							return _this41._updateTextEl(isFocus);
+						}, function (err) {
+							return _this41._setUpdateError(err);
 						});
 					}
 				} else if (this._isRecap) {
@@ -13951,10 +13922,10 @@ true, true];
 				return aib._capUpdPromise = $ajax(url).then(function (xhr) {
 					aib._capUpdPromise = null;
 					fn(xhr);
-				}, function (e) {
-					if (!(e instanceof CancelError)) {
+				}, function (err) {
+					if (!(err instanceof CancelError)) {
 						aib._capUpdPromise = null;
-						return CancelablePromise.reject(e);
+						return CancelablePromise.reject(err);
 					}
 				});
 			}
@@ -13973,14 +13944,14 @@ true, true];
 		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
-				var _this39 = this;
+				var _this42 = this;
 
 				if (e) {
 					this.parentEl = e.toString();
 					this.isAdded = false;
 					this.parentEl.onclick = function () {
-						_this39.parentEl.onclick = null;
-						_this39.addCaptcha();
+						_this42.parentEl.onclick = null;
+						_this42.addCaptcha();
 					};
 					$show(this.parentEl);
 				}
@@ -14040,7 +14011,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this40 = this;
+				var _this43 = this;
 
 				var temp = void 0,
 				    el = fixEventEl(e.target);
@@ -14247,7 +14218,7 @@ true, true];
 							}
 						} else {
 							this._linkDelay = setTimeout(function () {
-								return _this40.kid = Pview.showPview(_this40, el);
+								return _this43.kid = Pview.showPview(_this43, el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -14292,7 +14263,7 @@ true, true];
 		}, {
 			key: '_addMenu',
 			value: function _addMenu(el, isOutEvent, html) {
-				var _this41 = this;
+				var _this44 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
 					return;
@@ -14301,7 +14272,7 @@ true, true];
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this41._showMenu(el, html);
+						return _this44._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -14319,7 +14290,7 @@ true, true];
 		}, {
 			key: '_getFullMsg',
 			value: function _getFullMsg(el, isInit) {
-				var _this42 = this;
+				var _this45 = this;
 
 				if (aib.deleteTruncMsg) {
 					aib.deleteTruncMsg(this, el, isInit);
@@ -14330,14 +14301,14 @@ true, true];
 				}
 				ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
 					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this42.isOp) {
-						_this42.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
+					if (_this45.isOp) {
+						_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
 						$del(el);
 					} else {
 						var _els3 = $Q(aib.qRPost, form);
-						for (var i = 0, len = _els3.length; i < len; i++) {
-							if (_this42.num === aib.getPNum(_els3[i])) {
-								_this42.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, _els3[i]))), maybeSpells.value);
+						for (var i = 0, len = _els3.length; i < len; ++i) {
+							if (_this45.num === aib.getPNum(_els3[i])) {
+								_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, _els3[i]))), maybeSpells.value);
 								$del(el);
 								break;
 							}
@@ -14351,16 +14322,16 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this43 = this;
+				var _this46 = this;
 
 				if (this._menu) {
 					this._menu.removeMenu();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this43._clickMenu(el);
+					return _this46._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
-					return _this43._menu = null;
+					return _this46._menu = null;
 				};
 			}
 		}, {
@@ -14427,48 +14398,48 @@ true, true];
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			var _this44 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
+			var _this47 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
 
-			_this44.count = count;
-			_this44.deleted = false;
-			_this44.el = el;
-			_this44.hidden = false;
-			_this44.next = null;
-			_this44.omitted = false;
-			_this44.prev = prev;
-			_this44.spellHidden = false;
-			_this44.userToggled = false;
-			_this44.viewed = false;
-			_this44._selRange = null;
-			_this44._selText = '';
+			_this47.count = count;
+			_this47.deleted = false;
+			_this47.el = el;
+			_this47.hidden = false;
+			_this47.next = null;
+			_this47.omitted = false;
+			_this47.prev = prev;
+			_this47.spellHidden = false;
+			_this47.userToggled = false;
+			_this47.viewed = false;
+			_this47._selRange = null;
+			_this47._selText = '';
 			if (prev) {
-				prev.next = _this44;
+				prev.next = _this47;
 			}
-			pByEl.set(el, _this44);
-			pByNum.set(num, _this44);
+			pByEl.set(el, _this47);
+			pByNum.set(num, _this47);
 			if (MyPosts.has(num)) {
-				_this44.el.classList.add('de-mypost');
+				_this47.el.classList.add('de-mypost');
 			}
 			el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 			var refEl = $q(aib.qPostRef, el);
 			var html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') + '">' + '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-			_this44._pref = refEl;
+			_this47._pref = refEl;
 			if (isOp) {
 				if (!aib.t) {
 					html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
 				}
 				html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
 			}
-			_this44.sage = aib.getSage(el);
-			if (_this44.sage) {
+			_this47.sage = aib.getSage(el);
+			if (_this47.sage) {
 				html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
 			}
-			_this44.btns = $aEnd(refEl, html + '</span>');
-			if (Cfg.expandTrunc && _this44.trunc) {
-				_this44._getFullMsg(_this44.trunc, true);
+			_this47.btns = $aEnd(refEl, html + '</span>');
+			if (Cfg.expandTrunc && _this47.trunc) {
+				_this47._getFullMsg(_this47.trunc, true);
 			}
-			el.addEventListener('mouseover', _this44, true);
-			return _this44;
+			el.addEventListener('mouseover', _this47, true);
+			return _this47;
 		}
 
 		_createClass(Post, [{
@@ -14595,7 +14566,7 @@ true, true];
 		}, {
 			key: 'setVisib',
 			value: function setVisib(isHide) {
-				var _this45 = this;
+				var _this48 = this;
 
 				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -14613,14 +14584,14 @@ true, true];
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
 							var yOffset = window.pageYOffset;
-							_this45.hideContent(e.type === 'mouseout');
+							_this48.hideContent(e.type === 'mouseout');
 							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this45._strikePostNum(isHide);
+						return _this48._strikePostNum(isHide);
 					}, 50);
 				}
 				if (isHide) {
@@ -15004,15 +14975,15 @@ true, true];
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this46 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
+			var _this49 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
 
-			if (_this46._inited) {
-				return _possibleConstructorReturn(_this46);
+			if (_this49._inited) {
+				return _possibleConstructorReturn(_this49);
 			}
-			_this46._inited = true;
-			_this46.el = post.el;
-			_this46.post = post;
-			return _this46;
+			_this49._inited = true;
+			_this49.el = post.el;
+			_this49.post = post;
+			return _this49;
 		}
 
 		_createClass(PostContent, [{
@@ -15115,17 +15086,17 @@ true, true];
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this47 = this;
+				var _this50 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this47._post.hideContent(e.type === 'mouseout');
+						return _this50._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this47._post.setUserVisib(!_this47._post.hidden);
+						_this50._post.setUserVisib(!_this50._post.hidden);
 					};
 					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
@@ -15184,50 +15155,50 @@ true, true];
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this48 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
+			var _this51 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this48.isSticky = false;
-			_this48.parent = parent;
-			_this48.tNum = tNum;
-			_this48._isCached = false;
-			_this48._isLeft = false;
-			_this48._isTop = false;
-			_this48._link = link;
-			_this48._newPos = null;
-			_this48._offsetTop = 0;
-			_this48._readDelay = 0;
+			_this51.isSticky = false;
+			_this51.parent = parent;
+			_this51.tNum = tNum;
+			_this51._isCached = false;
+			_this51._isLeft = false;
+			_this51._isTop = false;
+			_this51._link = link;
+			_this51._newPos = null;
+			_this51._offsetTop = 0;
+			_this51._readDelay = 0;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-				_this48._showPost(post);
-				return _possibleConstructorReturn(_this48);
+				_this51._showPost(post);
+				return _possibleConstructorReturn(_this51);
 			}
-			_this48._isCached = true;
-			_this48._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this48._brd + tNum)) {
-				post = PviewsCache.get(_this48._brd + tNum).getPost(pNum);
+			_this51._isCached = true;
+			_this51._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this51._brd + tNum)) {
+				post = PviewsCache.get(_this51._brd + tNum).getPost(pNum);
 				if (post) {
-					_this48._showPost(post);
+					_this51._showPost(post);
 				} else {
-					_this48._showPview(_this48.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
+					_this51._showPview(_this51.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
 				}
-				return _possibleConstructorReturn(_this48);
+				return _possibleConstructorReturn(_this51);
 			}
-			_this48._showPview(_this48.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this51._showPview(_this51.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this48._loadPromise = ajaxPostsLoad(_this48._brd, tNum, false).then(function (pBuilder) {
+			_this51._loadPromise = ajaxPostsLoad(_this51._brd, tNum, false).then(function (pBuilder) {
 				if (!aib.JsonBuilder) {
-					_this48._onload(pBuilder._form);
+					_this51._onload(pBuilder._form);
 					return;
 				}
 				var html = [];
 				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
 					html.push(pBuilder.getPostHTML(i - 1)); 
 				}
-				_this48._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
-			}, function (e) {
-				return _this48._onerror(e);
+				_this51._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+			}, function (err) {
+				return _this51._onerror(err);
 			});
-			return _this48;
+			return _this51;
 		}
 
 		_createClass(Pview, [{
@@ -15316,11 +15287,11 @@ true, true];
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this49 = this;
+				var _this52 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this49.deleteNonSticky();
+					return _this52.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -15417,14 +15388,14 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this50 = this;
+				var _this53 = this;
 
 				_get(Pview.prototype.__proto__ || Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this50.mouseEnter();
+					return _this53.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this50.markToDel();
+					return _this53.markToDel();
 				};
 			}
 		}, {
@@ -15656,12 +15627,12 @@ true, true];
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this51 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this54 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this51._inited) {
-				return _possibleConstructorReturn(_this51);
+			if (_this54._inited) {
+				return _possibleConstructorReturn(_this54);
 			}
-			_this51._inited = true;
+			_this54._inited = true;
 			var pByNum = new Map();
 			var thr = $q(aib.qThread, form) || form;
 			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -15669,15 +15640,15 @@ true, true];
 				var post = posts[i];
 				pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 			}
-			pByNum.set(tNum, _this51._opObj = new CacheItem(aib.getOp(thr), 0));
-			_this51._b = b;
-			_this51._tNum = tNum;
-			_this51._tUrl = aib.getThrUrl(b, tNum);
-			_this51._posts = pByNum;
+			pByNum.set(tNum, _this54._opObj = new CacheItem(aib.getOp(thr), 0));
+			_this54._b = b;
+			_this54._tNum = tNum;
+			_this54._tUrl = aib.getThrUrl(b, tNum);
+			_this54._posts = pByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this51._tUrl);
+				RefMap.gen(pByNum, _this54._tUrl);
 			}
-			return _this51;
+			return _this54;
 		}
 
 		_createClass(PviewsCache, [{
@@ -15713,11 +15684,11 @@ true, true];
 
 			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>');
 
-			var _ref53 = [].concat(_toConsumableArray(btns.children));
+			var _ref50 = [].concat(_toConsumableArray(btns.children));
 
-			this.prevBtn = _ref53[0];
-			this.nextBtn = _ref53[1];
-			this.autoBtn = _ref53[2];
+			this.prevBtn = _ref50[0];
+			this.nextBtn = _ref50[1];
+			this.autoBtn = _ref50[2];
 
 			this._btns = btns;
 			this._btnsStyle = btns.style;
@@ -15803,11 +15774,11 @@ true, true];
 		}, {
 			key: '_setHideTmt',
 			value: function _setHideTmt() {
-				var _this52 = this;
+				var _this55 = this;
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this52.hideBtns();
+					return _this55.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -15882,7 +15853,7 @@ true, true];
 					case 'click':
 						{
 							var el = e.target;
-							if (this.data.isVideo && ExpandableImage.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && el.target.className !== 'de-fullimg-load') {
+							if (this.data.isVideo && ExpandableImage.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && el.className !== 'de-fullimg-load') {
 								return;
 							}
 							if (e.button === 0) {
@@ -16039,7 +16010,7 @@ true, true];
 		}, {
 			key: '_showFullImg',
 			value: function _showFullImg(data) {
-				var _this53 = this;
+				var _this56 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
 				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
@@ -16048,9 +16019,9 @@ true, true];
 				    minSize = _data$computeFullSize4[2];
 
 				this._fullEl = data.getFullImg(false, function (el) {
-					return _this53._resizeFullImg(el);
+					return _this56._resizeFullImg(el);
 				}, function (el) {
-					return _this53._rotate(el);
+					return _this56._rotate(el);
 				});
 				this._width = width;
 				this._height = height;
@@ -16196,7 +16167,7 @@ true, true];
 		}, {
 			key: 'expandImg',
 			value: function expandImg(inPost, e) {
-				var _this54 = this;
+				var _this57 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -16222,7 +16193,7 @@ true, true];
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this54.collapseImg(e);
+					return _this57.collapseImg(e);
 				}, true);
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
@@ -16254,7 +16225,7 @@ true, true];
 		}, {
 			key: 'getFullImg',
 			value: function getFullImg(inPost, onsizechange, onrotate) {
-				var _this55 = this;
+				var _this58 = this;
 
 				var wrapEl = void 0,
 				    name = void 0,
@@ -16276,8 +16247,8 @@ true, true];
 					var waitEl = inPost || this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</div>\n\t\t\t</div>');
 					var img = $q('.de-fullimg', wrapEl);
-					img.onload = img.onerror = function (_ref54) {
-						var target = _ref54.target;
+					img.onload = img.onerror = function (_ref51) {
+						var target = _ref51.target;
 
 						if (target.naturalHeight + target.naturalWidth === 0) {
 							if (!target.onceLoaded) {
@@ -16289,10 +16260,10 @@ true, true];
 						var newW = target.naturalWidth,
 						    newH = target.naturalHeight;
 
-						var ar = _this55._size ? _this55._size[1] / _this55._size[0] : newH / newW;
+						var ar = _this58._size ? _this58._size[1] / _this58._size[0] : newH / newW;
 						var isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-						if (!_this55._size || isExifRotated) {
-							_this55._size = isExifRotated ? [newH, newW] : [newW, newH];
+						if (!_this58._size || isExifRotated) {
+							_this58._size = isExifRotated ? [newH, newW] : [newW, newH];
 						}
 						var el = target.previousElementSibling;
 						if (el) {
@@ -16327,8 +16298,8 @@ true, true];
 				videoEl.addEventListener('ended', function () {
 					return AttachedImage.viewer.navigate(true, true);
 				});
-				videoEl.addEventListener('error', function (_ref55) {
-					var target = _ref55.target;
+				videoEl.addEventListener('error', function (_ref52) {
+					var target = _ref52.target;
 
 					if (!target.onceLoaded) {
 						target.load();
@@ -16338,9 +16309,12 @@ true, true];
 				setTimeout(function () {
 					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
-				videoEl.addEventListener('volumechange', function (e) {
-					var val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
-					if (e.isTrusted && val !== Cfg.webmVolume) {
+				videoEl.addEventListener('volumechange', function (_ref53) {
+					var target = _ref53.target,
+					    isTrusted = _ref53.isTrusted;
+
+					var val = target.muted ? 0 : Math.round(target.volume * 100);
+					if (isTrusted && val !== Cfg.webmVolume) {
 						saveCfg('webmVolume', val);
 						sendStorageEvent('__de-webmvolume', val);
 					}
@@ -16350,7 +16324,7 @@ true, true];
 					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] + ':\n<a href="' + href + '" target="_blank">' + href + '</a>', false);
 				}
 				if (needTitle) {
-					this._webmTitleLoad = downloadImgData(videoEl.src, false).then(function (data) {
+					this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(function (data) {
 						$hide($q('.de-wait', wrapEl));
 						if (!data) {
 							return;
@@ -16361,10 +16335,10 @@ true, true];
 							return;
 						}
 						d = d[0];
-						for (var i = 0, len = d.length; i < len; i++) {
+						for (var i = 0, len = d.length; i < len; ++i) {
 							if (d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 && d[i + 18] === 0x7B && d[i + 19] === 0xA9) {
 								i += 20;
-								for (var end = (d[i++] & 0x7F) + i; i < end; i++) {
+								for (var end = (d[i++] & 0x7F) + i; i < end; ++i) {
 									title += String.fromCharCode(d[i]);
 								}
 								if (title) {
@@ -16684,11 +16658,11 @@ true, true];
 			return value;
 		},
 		_getHashHelper: function () {
-			var _ref57 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref56) {
-				var _this58 = this;
+			var _ref55 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(_ref54) {
+				var _this61 = this;
 
-				var el = _ref56.el,
-				    src = _ref56.src;
+				var el = _ref54.el,
+				    src = _ref54.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee16$(_context17) {
 					while (1) {
@@ -16732,7 +16706,7 @@ true, true];
 								}
 
 								_context17.next = 12;
-								return downloadImgData(el.src);
+								return ContentLoader.loadImgData(el.src);
 
 							case 12:
 								imgData = _context17.sent;
@@ -16761,7 +16735,7 @@ true, true];
 
 								_context17.next = 25;
 								return new Promise(function (resolve) {
-									return _this58._workers.runWorker([buffer, w, h], [buffer], function (val) {
+									return _this61._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
@@ -16786,7 +16760,7 @@ true, true];
 			}));
 
 			function _getHashHelper(_x55) {
-				return _ref57.apply(this, arguments);
+				return _ref55.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -16805,7 +16779,7 @@ true, true];
 			return;
 		}
 		var els = $Q(aib.qImgNameLink, el);
-		for (var i = 0, len = els.length; i < len; i++) {
+		for (var i = 0, len = els.length; i < len; ++i) {
 			var link = els[i];
 			if (/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 				$del(link);
@@ -16847,11 +16821,11 @@ true, true];
 		}
 	}
 
-	function genImgHash(_ref58) {
-		var _ref59 = _slicedToArray(_ref58, 3),
-		    arrBuf = _ref59[0],
-		    oldw = _ref59[1],
-		    oldh = _ref59[2];
+	function genImgHash(_ref56) {
+		var _ref57 = _slicedToArray(_ref56, 3),
+		    arrBuf = _ref57[0],
+		    oldw = _ref57[1],
+		    oldh = _ref57[2];
 
 		var buf = new Uint8Array(arrBuf);
 		var size = oldw * oldh;
@@ -16864,8 +16838,8 @@ true, true];
 		var areas = 256 / levels;
 		var values = 256 / (levels - 1);
 		var hash = 0;
-		for (var _i11 = 0; _i11 < newh; _i11++) {
-			for (var _j3 = 0; _j3 < neww; _j3++) {
+		for (var _i11 = 0; _i11 < newh; ++_i11) {
+			for (var _j3 = 0; _j3 < neww; ++_j3) {
 				var tmp = _i11 / (newh - 1) * (oldh - 1);
 				var l = Math.min(tmp | 0, oldh - 2);
 				var u = tmp - l;
@@ -17158,15 +17132,15 @@ true, true];
 
 				try {
 					for (var _iterator27 = data.files[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
-						var _ref60 = _step27.value;
-						var file_id = _ref60.file_id;
-						var metadata = _ref60.metadata;
-						var rating = _ref60.rating;
-						var size = _ref60.size;
-						var src = _ref60.src;
-						var thumb = _ref60.thumb;
-						var thumb_height = _ref60.thumb_height;
-						var thumb_width = _ref60.thumb_width;
+						var _ref58 = _step27.value;
+						var file_id = _ref58.file_id;
+						var metadata = _ref58.metadata;
+						var rating = _ref58.rating;
+						var size = _ref58.size;
+						var src = _ref58.src;
+						var thumb = _ref58.thumb;
+						var thumb_height = _ref58.thumb_height;
+						var thumb_width = _ref58.thumb_width;
 
 						var fileName = void 0,
 						    fullFileName = void 0,
@@ -17214,7 +17188,7 @@ true, true];
 					}
 				}
 
-				var date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (_, y, mo, d, h, m, s) {
+				var date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function (all, y, mo, d, h, m, s) {
 					var dt = new Date(y, +mo - 1, d, h, m, s);
 					return pad2(dt.getDate()) + ' ' + Lng.fullMonth[1][dt.getMonth()] + ' ' + dt.getFullYear() + ' (' + Lng.week[1][dt.getDay()] + ') ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
 				});
@@ -17338,7 +17312,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
+				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref59, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
 					while (1) {
@@ -17356,9 +17330,9 @@ true, true];
 									break;
 								}
 
-								_ref61 = _step29.value;
-								banned = _ref61.banned;
-								num = _ref61.num;
+								_ref59 = _step29.value;
+								banned = _ref59.banned;
+								num = _ref59.num;
 								_context21.t0 = banned;
 								_context21.next = _context21.t0 === 1 ? 12 : _context21.t0 === 2 ? 15 : 18;
 								break;
@@ -17492,8 +17466,8 @@ true, true];
 
 					try {
 						for (var _iterator30 = data.attachments[Symbol.iterator](), _step30; !(_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done); _iteratorNormalCompletion30 = true) {
-							var _ref62 = _step30.value;
-							var images = _ref62.images;
+							var _ref60 = _step30.value;
+							var images = _ref60.images;
 							var orig = images.original,
 							    thumb200 = images.thumb_200px,
 							    thumb400 = images.thumb_400px;
@@ -17763,12 +17737,12 @@ true, true];
 
 				try {
 					for (var _iterator34 = posts[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref63 = _step34.value;
+						var _ref61 = _step34.value;
 
-						var _ref64 = _slicedToArray(_ref63, 2);
+						var _ref62 = _slicedToArray(_ref61, 2);
 
-						var pNum = _ref64[0];
-						var post = _ref64[1];
+						var pNum = _ref62[0];
+						var post = _ref62[1];
 
 						var links = $Q('a', post.msg);
 						for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -17879,7 +17853,7 @@ true, true];
 
 	var Thread = function () {
 		function Thread(el, num, prev, form) {
-			var _this59 = this;
+			var _this62 = this;
 
 			_classCallCheck(this, Thread);
 
@@ -17903,7 +17877,7 @@ true, true];
 			}
 			var lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 			pByEl.set(el, lastPost);
-			for (var i = 0; i < len; i++) {
+			for (var i = 0; i < len; ++i) {
 				var pEl = els[i];
 				lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 			}
@@ -17918,16 +17892,16 @@ true, true];
 			var updBtn = this.btns.firstChild;
 			updBtn.onclick = function (e) {
 				$pd(e);
-				_this59.loadPosts('new');
+				_this62.loadPosts('new');
 			};
 			if (Cfg.hideReplies) {
 				var repBtn = $bEnd(this.btns, ' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 				repBtn.onclick = function (e) {
 					$pd(e);
-					var nextCoord = !_this59.next || _this59.last.omitted ? null : _this59.next.top;
-					_this59._toggleReplies(repBtn, updBtn);
+					var nextCoord = !_this62.next || _this62.last.omitted ? null : _this62.next.top;
+					_this62._toggleReplies(repBtn, updBtn);
 					if (nextCoord) {
-						scrollTo(window.pageXOffset, window.pageYOffset + _this59.next.top - nextCoord);
+						scrollTo(window.pageXOffset, window.pageYOffset + _this62.next.top - nextCoord);
 					}
 				};
 				this._toggleReplies(repBtn, updBtn);
@@ -17957,7 +17931,7 @@ true, true];
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this60 = this;
+				var _this63 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -17966,25 +17940,25 @@ true, true];
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.thrId, false).then(function (pBuilder) {
-					return _this60._loadFromBuilder(task, isSmartScroll, pBuilder);
-				}, function (e) {
-					return $popup('load-thr', getErrorMessage(e));
+					return _this63._loadFromBuilder(task, isSmartScroll, pBuilder);
+				}, function (err) {
+					return $popup('load-thr', getErrorMessage(err));
 				});
 			}
 
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this61 = this;
+				var _this64 = this;
 
 				return ajaxPostsLoad(aib.b, this.thrId, true).then(function (pBuilder) {
-					return pBuilder ? _this61._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this64._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
 			key: 'setFavorState',
 			value: function setFavorState(val) {
-				var _this62 = this;
+				var _this65 = this;
 
 				this.op.setFavBtn(val);
 				readFavorites().then(function (favObj) {
@@ -17992,7 +17966,7 @@ true, true];
 					    b = _aib.b,
 					    h = _aib.host;
 
-					var num = _this62.thrId;
+					var num = _this65.thrId;
 					if (val) {
 						if (!favObj[h]) {
 							favObj[h] = {};
@@ -18002,12 +17976,12 @@ true, true];
 						}
 						favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
 						favObj[h][b][num] = {
-							cnt: _this62.pcount,
+							cnt: _this65.pcount,
 							new: 0,
 							you: 0,
-							txt: _this62.op.title,
+							txt: _this65.op.title,
 							url: aib.getThrUrl(b, num),
-							last: aib.anchor + _this62.last.num
+							last: aib.anchor + _this65.last.num
 						};
 					} else {
 						removeFavEntry(favObj, h, b, num);
@@ -18051,7 +18025,7 @@ true, true];
 				}
 				processImgInfoLinks(el);
 				post.addFuncs();
-				preloadImages(post);
+				ContentLoader.preloadImages(post);
 				if (aib.t && Cfg.markNewPosts) {
 					Post.addMark(el, false);
 				}
@@ -18069,13 +18043,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref65 = _step35.value;
+						var _ref63 = _step35.value;
 
-						var _ref66 = _slicedToArray(_ref65, 3);
+						var _ref64 = _slicedToArray(_ref63, 3);
 
-						var banId = _ref66[0];
-						var bNum = _ref66[1];
-						var bEl = _ref66[2];
+						var banId = _ref64[0];
+						var bNum = _ref64[1];
+						var bEl = _ref64[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -18135,7 +18109,7 @@ true, true];
 		}, {
 			key: '_loadFromBuilder',
 			value: function _loadFromBuilder(last, smartScroll, pBuilder) {
-				var _this63 = this;
+				var _this66 = this;
 
 				var nextCoord = void 0;
 				var maybeSpells = new Maybe(SpellsRunner);
@@ -18239,7 +18213,7 @@ true, true];
 				if (!$q('.de-thread-collapse', btn)) {
 					$bEnd(btn, '<span class="de-thread-collapse"> [<a class="de-abtn" href="' + aib.getThrUrl(aib.b, this.thrId) + '"></a>]</span>').onclick = function (e) {
 						$pd(e);
-						_this63.loadPosts(visPosts, true);
+						_this66.loadPosts(visPosts, true);
 					};
 				}
 				if (needToShow > visPosts) {
@@ -18379,7 +18353,7 @@ true, true];
 				var isHide = !this.last.omitted;
 				var post = this.op;
 				var i = 0;
-				for (; post !== this.last; i++) {
+				for (; post !== this.last; ++i) {
 					(post = post.next).omitted = isHide;
 					post.wrap.classList.toggle('de-hidden', isHide);
 				}
@@ -18465,12 +18439,12 @@ true, true];
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this64 = this;
+			var _this67 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						return _this64._checkThreads();
+						return _this67._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -18516,12 +18490,12 @@ true, true];
 			}
 		},
 		_expandCollapse: function _expandCollapse(isExpand, rt) {
-			var _this65 = this;
+			var _this68 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
 				this._toggleTO = setTimeout(function () {
-					return _this65._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+					return _this68._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},
@@ -18529,10 +18503,10 @@ true, true];
 			if ('elementsFromPoint' in doc) {
 				Object.defineProperty(this, '_findCurrentThread', {
 					value: function value() {
-						var _this66 = this;
+						var _this69 = this;
 
 						return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-							return _this66._thrs.has(el);
+							return _this69._thrs.has(el);
 						});
 					}
 				});
@@ -18596,7 +18570,7 @@ true, true];
 				}
 			},
 			playAudio: function playAudio() {
-				var _this67 = this;
+				var _this70 = this;
 
 				this.stopAudio();
 				if (this.repeatMS === 0) {
@@ -18604,7 +18578,7 @@ true, true];
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this67._el.play();
+					return _this70._el.play();
 				}, this.repeatMS);
 			},
 			stopAudio: function stopAudio() {
@@ -18626,11 +18600,11 @@ true, true];
 
 		var counter = {
 			count: function count(delayMS, useCounter, callback) {
-				var _this68 = this;
+				var _this71 = this;
 
 				if (!this._enabled || !useCounter) {
 					this._countingTO = setTimeout(function () {
-						_this68._countingTO = null;
+						_this71._countingTO = null;
 						callback();
 					}, delayMS);
 					return;
@@ -18640,10 +18614,10 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this68._stopCounter();
+						_this71._stopCounter();
 						callback();
 					} else {
-						_this68._set(seconds);
+						_this71._set(seconds);
 					}
 				}, 1e3);
 			},
@@ -18695,7 +18669,7 @@ true, true];
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this69 = this;
+				var _this72 = this;
 
 				if (this._isInited) {
 					return;
@@ -18704,7 +18678,7 @@ true, true];
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this69._initIconsHelper(e.target);
+						_this72._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -18718,7 +18692,7 @@ true, true];
 				icon.src = this._iconEl.href;
 			},
 			startBlink: function startBlink(isError) {
-				var _this70 = this;
+				var _this73 = this;
 
 				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew;
 				if (this._blinkInterv) {
@@ -18729,7 +18703,7 @@ true, true];
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterv = setInterval(function () {
-					return _this70._setIcon((_this70._isOrigIcon = !_this70._isOrigIcon) ? _this70.originalIcon : _this70._currentIcon);
+					return _this73._setIcon((_this73._isOrigIcon = !_this73._isOrigIcon) ? _this73.originalIcon : _this73._currentIcon);
 				}, this._blinkMS);
 			},
 			stopBlink: function stopBlink() {
@@ -18827,7 +18801,7 @@ true, true];
 				}
 			},
 			showNotif: function showNotif() {
-				var _this71 = this;
+				var _this74 = this;
 
 				var new10 = newPosts % 10;
 				var quantity = lang !== 0 ? +(newPosts !== 1) : new10 > 4 || new10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
@@ -18839,7 +18813,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this71._notifEl && _this71.closeNotif();
+						return notif === _this74._notifEl && _this74.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -18847,7 +18821,7 @@ true, true];
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this71._requestPermission();
+					_this74._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -18857,14 +18831,14 @@ true, true];
 			_granted: true,
 			_notifEl: null,
 			_requestPermission: function _requestPermission() {
-				var _this72 = this;
+				var _this75 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this72._granted = true;
+						_this75._granted = true;
 					}
 				});
 			}
@@ -18971,7 +18945,7 @@ true, true];
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this73 = this;
+				var _this76 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -18981,19 +18955,19 @@ true, true];
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this73._makeStep();
+									return _this76._makeStep();
 								});
 								return;
 							}
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
-								var newCount = _ref67.newCount,
-								    locked = _ref67.locked;
-								return _this73._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
-							}, function (e) {
-								return _this73._handleNewPosts(0, e);
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref65) {
+								var newCount = _ref65.newCount,
+								    locked = _ref65.locked;
+								return _this76._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+							}, function (err) {
+								return _this76._handleNewPosts(0, err);
 							});
 							return;
 						case 2:
@@ -19222,14 +19196,14 @@ true, true];
 							$pd(e);
 							pr.closeReply();
 							$popup('delete', Lng.deleting[lang], true);
-							html5Submit(el, e.target).then(checkDelete).catch(function (e) {
-								return $popup('delete', getErrorMessage(e));
+							html5Submit(el, e.target).then(checkDelete).catch(function (err) {
+								return $popup('delete', getErrorMessage(err));
 							});
 						};
 					}
 					Logger.log('Init AJAX');
 				}
-				preloadImages(el);
+				ContentLoader.preloadImages(el);
 				Logger.log('Preload images');
 				embedAudioLinks(el);
 				Logger.log('Audio links');
@@ -19302,7 +19276,7 @@ true, true];
 						try {
 							aib.getTNum(cThr);
 							threads.push(cThr);
-						} catch (e) {}
+						} catch (err) {}
 						cThr = doc.createElement('div');
 					} else {
 						cThr.appendChild(node);
@@ -19325,7 +19299,7 @@ true, true];
 			locStorage = window.localStorage;
 			sesStorage = window.sessionStorage;
 			sesStorage['__de-test'] = 1;
-		} catch (e) {
+		} catch (err) {
 			if (typeof unsafeWindow !== 'undefined') {
 				locStorage = unsafeWindow.localStorage;
 				sesStorage = unsafeWindow.sessionStorage;
@@ -19352,8 +19326,8 @@ true, true];
 		if (!isNewGM) {
 			try {
 				isGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
-			} catch (e) {
-				isGM = e.message === 'Permission denied to access property "toString"';
+			} catch (err) {
+				isGM = err.message === 'Permission denied to access property "toString"';
 			}
 			scriptHandler = isChromeStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? GM_info.scriptHandler + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
 		} else {
@@ -19384,7 +19358,7 @@ true, true];
 			if (isFirefox || isSafari) {
 				needFileHack = !FormData.prototype.get;
 			}
-		} catch (e) {
+		} catch (ett) {
 			needFileHack = true;
 		}
 		if (needFileHack && FormData) {
@@ -19425,9 +19399,6 @@ true, true];
 			isScriptStorage: isScriptStorage,
 			isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
 			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || isNewGM && typeof GM.xmlHttpRequest === 'function',
-			fixLink: isSafari ? getAbsLink : function (url) {
-				return url;
-			},
 			get canPlayMP3() {
 				var value = !!new Audio().canPlayType('audio/mpeg;');
 				Object.defineProperty(this, 'canPlayMP3', { value: value });
@@ -19442,7 +19413,7 @@ true, true];
 				var value = false;
 				try {
 					value = 'Worker' in window && 'URL' in window;
-				} catch (e) {}
+				} catch (err) {}
 				value = value && this.firefoxVer >= 40;
 				Object.defineProperty(this, 'hasWorker', { value: value });
 				return value;
@@ -19481,7 +19452,9 @@ true, true];
 
 				return leftSel + rules.join(', ' + leftSel);
 			},
-
+			fixLink: isSafari ? getAbsLink : function (url) {
+				return url;
+			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var Ctor = Uint8Array;
 				if (!nav.isNewGM && nav.isFirefox) {
@@ -19489,7 +19462,7 @@ true, true];
 						if (!(new Uint8Array(data) instanceof Uint8Array)) {
 							Ctor = unsafeWindow.Uint8Array;
 						}
-					} catch (e) {
+					} catch (err) {
 						Ctor = unsafeWindow.Uint8Array;
 					}
 				}
@@ -19617,7 +19590,7 @@ true, true];
 					str = str.replace(/>https?:\/\/[^<]+</ig, function (match) {
 						try {
 							return decodeURI(match);
-						} catch (e) {}
+						} catch (err) {}
 						return match;
 					});
 				}
@@ -19794,7 +19767,7 @@ true, true];
 		}, {
 			key: 'isAjaxStatusOK',
 			value: function isAjaxStatusOK(status) {
-				return status === 200;
+				return status === 200 || status === 206;
 			}
 		}, {
 			key: 'parseURL',
@@ -19970,39 +19943,39 @@ true, true];
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this74 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this77 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this74.mak = true;
+				_this77.mak = true;
 
-				_this74.cReply = 'post reply';
-				_this74.qBan = '.pomyanem';
-				_this74.qClosed = '.sticky-img[src$="locked.png"]';
-				_this74.qDForm = '#posts-form';
-				_this74.qFormRedir = null;
-				_this74.qFormRules = '.rules-area';
-				_this74.qImgInfo = '.file-attr';
-				_this74.qOmitted = '.mess-post';
-				_this74.qPostHeader = '.post-details';
-				_this74.qPostImg = '.preview';
-				_this74.qPostMsg = '.post-message';
-				_this74.qPostName = '.ananimas, .post-email';
-				_this74.qPostSubj = '.post-title';
-				_this74.qRPost = '.post.reply[data-num]';
-				_this74.qTrunc = null;
+				_this77.cReply = 'post reply';
+				_this77.qBan = '.pomyanem';
+				_this77.qClosed = '.sticky-img[src$="locked.png"]';
+				_this77.qDForm = '#posts-form';
+				_this77.qFormRedir = null;
+				_this77.qFormRules = '.rules-area';
+				_this77.qImgInfo = '.file-attr';
+				_this77.qOmitted = '.mess-post';
+				_this77.qPostHeader = '.post-details';
+				_this77.qPostImg = '.preview';
+				_this77.qPostMsg = '.post-message';
+				_this77.qPostName = '.ananimas, .post-email';
+				_this77.qPostSubj = '.post-title';
+				_this77.qRPost = '.post.reply[data-num]';
+				_this77.qTrunc = null;
 
-				_this74.formParent = 'thread';
-				_this74.hasAltCaptcha = true;
-				_this74.hasCatalog = true;
-				_this74.hasOPNum = true;
-				_this74.hasPicWrap = true;
-				_this74.JsonBuilder = MakabaPostsBuilder;
-				_this74.jsonSubmit = true;
-				_this74.markupBB = true;
-				_this74.multiFile = true;
-				_this74.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this77.formParent = 'thread';
+				_this77.hasAltCaptcha = true;
+				_this77.hasCatalog = true;
+				_this77.hasOPNum = true;
+				_this77.hasPicWrap = true;
+				_this77.JsonBuilder = MakabaPostsBuilder;
+				_this77.jsonSubmit = true;
+				_this77.markupBB = true;
+				_this77.multiFile = true;
+				_this77.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 
-				_this74._capUpdPromise = null;
-				return _this74;
+				_this77._capUpdPromise = null;
+				return _this77;
 			}
 
 			_createClass(Makaba, [{
@@ -20050,11 +20023,11 @@ true, true];
 			}, {
 				key: 'getSage',
 				value: function getSage(post) {
-					var _this75 = this;
+					var _this78 = this;
 
 					if ($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
 						this.getSage = function (post) {
-							var name = $q(_this75.qPostName, post);
+							var name = $q(_this78.qPostName, post);
 							return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 						};
 					} else {
@@ -20100,18 +20073,18 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var _this76 = this;
+					var _this79 = this;
 
 					var box = $q('.captcha-box', cap.parentEl);
 					if (Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref68 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref68[0],
-						    inp = _ref68[1];
+						var _ref66 = [].concat(_toConsumableArray(box.children)),
+						    img = _ref66[0],
+						    inp = _ref66[1];
 
 						img.onclick = function () {
-							return _this76.updateCaptcha(cap);
+							return _this79.updateCaptcha(cap);
 						};
 						inp.tabIndex = 999;
 						cap.textEl = inp;
@@ -20129,7 +20102,7 @@ true, true];
 						var data = xhr.responseText;
 						try {
 							data = JSON.parse(data);
-						} catch (e) {}
+						} catch (err) {}
 						switch (data.result) {
 							case 0:
 								box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
@@ -20198,42 +20171,42 @@ true, true];
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this77 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this80 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this77.cReply = 'post reply';
-				_this77.qClosed = '.fa-lock';
-				_this77.qDForm = 'form[name*="postcontrols"]';
-				_this77.qForm = 'form[name="post"]';
-				_this77.qFormPassw = 'input[name="password"]';
-				_this77.qFormRedir = null;
-				_this77.qImgInfo = '.fileinfo';
-				_this77.qOmitted = '.omitted';
-				_this77.qPages = '.pages';
-				_this77.qPostHeader = '.intro';
-				_this77.qPostMsg = '.body';
-				_this77.qPostName = '.name';
-				_this77.qPostRef = '.post_no + a';
-				_this77.qPostSubj = '.subject';
-				_this77.qPostTrip = '.trip';
-				_this77.qTrunc = '.toolong';
+				_this80.cReply = 'post reply';
+				_this80.qClosed = '.fa-lock';
+				_this80.qDForm = 'form[name*="postcontrols"]';
+				_this80.qForm = 'form[name="post"]';
+				_this80.qFormPassw = 'input[name="password"]';
+				_this80.qFormRedir = null;
+				_this80.qImgInfo = '.fileinfo';
+				_this80.qOmitted = '.omitted';
+				_this80.qPages = '.pages';
+				_this80.qPostHeader = '.intro';
+				_this80.qPostMsg = '.body';
+				_this80.qPostName = '.name';
+				_this80.qPostRef = '.post_no + a';
+				_this80.qPostSubj = '.subject';
+				_this80.qPostTrip = '.trip';
+				_this80.qTrunc = '.toolong';
 
-				_this77.firstPage = 1;
-				_this77.formParent = 'thread';
-				_this77.formTd = 'th';
-				_this77.hasCatalog = true;
-				_this77.jsonSubmit = true;
-				_this77.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this80.firstPage = 1;
+				_this80.formParent = 'thread';
+				_this80.formTd = 'th';
+				_this80.hasCatalog = true;
+				_this80.jsonSubmit = true;
+				_this80.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
-				_this77._origInputs = null;
-				_this77._qTable = '.post.reply';
-				return _this77;
+				_this80._origInputs = null;
+				_this80._qTable = '.post.reply';
+				return _this80;
 			}
 
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref69 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
-						var _this78 = this;
+					var _ref67 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, tNum) {
+						var _this81 = this;
 
 						var pageInp, query, errFn;
 						return regeneratorRuntime.wrap(function _callee17$(_context22) {
@@ -20265,7 +20238,7 @@ true, true];
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this78._origInputs[0].appendChild(el);
+											return _this81._origInputs[0].appendChild(el);
 										});
 										_context22.next = 17;
 										break;
@@ -20291,12 +20264,12 @@ true, true];
 										$popup('load-form', Lng.loading[lang], true);
 										_context22.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-											var loadedForm = $q(_this78.qForm, loadedDoc);
+											var loadedForm = $q(_this81.qForm, loadedDoc);
 											if (!loadedForm) {
 												errFn();
 												return;
 											}
-											pr.subm.value = $q(_this78.qFormSubm, loadedDoc).value;
+											pr.subm.value = $q(_this81.qFormSubm, loadedDoc).value;
 											$each($Q(query, form), $del);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
@@ -20313,7 +20286,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x72, _x73) {
-						return _ref69.apply(this, arguments);
+						return _ref67.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20370,7 +20343,7 @@ true, true];
 			}, {
 				key: 'isAjaxStatusOK',
 				value: function isAjaxStatusOK(status) {
-					return status === 200 || status === 400;
+					return status === 200 || status === 206 || status === 400;
 				}
 			}, {
 				key: 'updateSubmitBtn',
@@ -20403,13 +20376,13 @@ true, true];
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this79 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this79.qDelPassw = '#password';
-				_this79.qPostImg = '.post-image[alt]:not(.deleted)';
+				_this82.qDelPassw = '#password';
+				_this82.qPostImg = '.post-image[alt]:not(.deleted)';
 
-				_this79.multiFile = true;
-				return _this79;
+				_this82.multiFile = true;
+				return _this82;
 			}
 
 			_createClass(Vichan, [{
@@ -20463,16 +20436,16 @@ true, true];
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this80 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this80.kus = true;
+				_this83.kus = true;
 
-				_this80.qError = 'h1, h2, div[style*="1.25em"]';
-				_this80.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this83.qError = 'h1, h2, div[style*="1.25em"]';
+				_this83.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this80.formParent = 'replythread';
-				_this80.markupBB = true;
-				return _this80;
+				_this83.formParent = 'replythread';
+				_this83.markupBB = true;
+				return _this83;
 			}
 
 			_createClass(Kusaba, [{
@@ -20512,13 +20485,13 @@ true, true];
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this81 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this84 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this81.tinyib = true;
+				_this84.tinyib = true;
 
-				_this81.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this81.qPostMsg = '.message';
-				return _this81;
+				_this84.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this84.qPostMsg = '.message';
+				return _this84;
 			}
 
 			_createClass(TinyIB, [{
@@ -20557,35 +20530,35 @@ true, true];
 			function LynxChan(prot, dm) {
 				_classCallCheck(this, LynxChan);
 
-				var _this82 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
 
-				_this82.cReply = 'innerPost';
-				_this82.qDForm = 'form[action$="contentActions.js"]';
-				_this82.qError = '#errorLabel, #labelMessage';
-				_this82.qForm = '.form-post';
-				_this82.qFormPassw = 'input[name="password"]';
-				_this82.qFormRules = '.form-post > .small';
-				_this82.qFormSubm = '#formButton';
-				_this82.qImgInfo = '.uploadDetails';
-				_this82.qOmitted = '.labelOmission';
-				_this82.qOPost = '.innerOP';
-				_this82.qPages = '#divPages';
-				_this82.qPostHeader = '.postInfo, .de-post-btns';
-				_this82.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-				_this82.qPostMsg = '.divMessage';
-				_this82.qPostRef = '.linkQuote';
-				_this82.qRPost = '.innerPost';
-				_this82.qTrunc = '.contentOmissionIndicator';
+				_this85.cReply = 'innerPost';
+				_this85.qDForm = 'form[action$="contentActions.js"]';
+				_this85.qError = '#errorLabel, #labelMessage';
+				_this85.qForm = '.form-post';
+				_this85.qFormPassw = 'input[name="password"]';
+				_this85.qFormRules = '.form-post > .small';
+				_this85.qFormSubm = '#formButton';
+				_this85.qImgInfo = '.uploadDetails';
+				_this85.qOmitted = '.labelOmission';
+				_this85.qOPost = '.innerOP';
+				_this85.qPages = '#divPages';
+				_this85.qPostHeader = '.postInfo, .de-post-btns';
+				_this85.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+				_this85.qPostMsg = '.divMessage';
+				_this85.qPostRef = '.linkQuote';
+				_this85.qRPost = '.innerPost';
+				_this85.qTrunc = '.contentOmissionIndicator';
 
-				_this82.firstPage = 1;
-				_this82.formParent = 'threadId';
-				_this82.formTd = 'th';
-				_this82.hasCatalog = true;
-				_this82.jsonSubmit = true;
-				_this82.multiFile = true;
+				_this85.firstPage = 1;
+				_this85.formParent = 'threadId';
+				_this85.formTd = 'th';
+				_this85.hasCatalog = true;
+				_this85.jsonSubmit = true;
+				_this85.multiFile = true;
 
-				_this82._qTable = '.divPosts';
-				return _this82;
+				_this85._qTable = '.divPosts';
+				return _this85;
 			}
 
 			_createClass(LynxChan, [{
@@ -20666,13 +20639,13 @@ true, true];
 			}, {
 				key: 'isAjaxStatusOK',
 				value: function isAjaxStatusOK(status) {
-					return status === 200 || status === 400 || status === 500;
+					return status === 200 || status === 206 || status === 400 || status === 500;
 				}
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref70 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
-						var _this83 = this;
+					var _ref68 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, data, needProgress, hasFiles) {
+						var _this86 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, ajaxParams, xhr;
 
@@ -20681,7 +20654,7 @@ true, true];
 								switch (_context25.prev = _context25.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref71 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
+											var _ref69 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
 												return regeneratorRuntime.wrap(function _callee18$(_context23) {
 													while (1) {
 														switch (_context23.prev = _context23.next) {
@@ -20702,11 +20675,11 @@ true, true];
 																return _context23.stop();
 														}
 													}
-												}, _callee18, _this83);
+												}, _callee18, _this86);
 											}));
 
 											return function getBase64(_x78) {
-												return _ref71.apply(this, arguments);
+												return _ref69.apply(this, arguments);
 											};
 										}();
 
@@ -20724,7 +20697,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
+											var _ref70 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(value, key) {
 												return regeneratorRuntime.wrap(function _callee19$(_context24) {
 													while (1) {
 														switch (_context24.prev = _context24.next) {
@@ -20740,11 +20713,11 @@ true, true];
 																return _context24.stop();
 														}
 													}
-												}, _callee19, _this83);
+												}, _callee19, _this86);
 											}));
 
 											return function (_x79, _x80) {
-												return _ref72.apply(this, arguments);
+												return _ref70.apply(this, arguments);
 											};
 										}());
 										i = 0, _len16 = files.length;
@@ -20824,7 +20797,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x74, _x75, _x76, _x77) {
-						return _ref70.apply(this, arguments);
+						return _ref68.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -20874,24 +20847,24 @@ true, true];
 			function _0chanHk(prot, dm) {
 				_classCallCheck(this, _0chanHk);
 
-				var _this84 = _possibleConstructorReturn(this, (_0chanHk.__proto__ || Object.getPrototypeOf(_0chanHk)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (_0chanHk.__proto__ || Object.getPrototypeOf(_0chanHk)).call(this, prot, dm));
 
-				_this84.cReply = 'block post';
-				_this84.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
-				_this84.qForm = '.reply-form';
-				_this84.qImgInfo = 'figcaption';
-				_this84.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
-				_this84.qOPost = '.post-op';
-				_this84.qPostHeader = '.post-header';
-				_this84.qPostImg = '.post-img-thumbnail';
-				_this84.qPostMsg = '.post-body-message';
-				_this84.qPostRef = '.post-id';
-				_this84.qRPost = '.block.post:not(.post-op)';
+				_this87.cReply = 'block post';
+				_this87.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
+				_this87.qForm = '.reply-form';
+				_this87.qImgInfo = 'figcaption';
+				_this87.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
+				_this87.qOPost = '.post-op';
+				_this87.qPostHeader = '.post-header';
+				_this87.qPostImg = '.post-img-thumbnail';
+				_this87.qPostMsg = '.post-body-message';
+				_this87.qPostRef = '.post-id';
+				_this87.qRPost = '.block.post:not(.post-op)';
 
-				_this84.docExt = '';
-				_this84.JsonBuilder = _0chanPostsBuilder;
-				_this84.res = '';
-				return _this84;
+				_this87.docExt = '';
+				_this87.JsonBuilder = _0chanPostsBuilder;
+				_this87.res = '';
+				return _this87;
 			}
 
 			_createClass(_0chanHk, [{
@@ -20938,10 +20911,8 @@ true, true];
 							return;
 						}
 						initObserver.disconnect();
-						doc.defaultView.addEventListener('message', function (_ref73) {
-							var data = _ref73.data;
-
-							if (data !== '0chan-content-done') {
+						doc.defaultView.addEventListener('message', function (e) {
+							if (e.data !== '0chan-content-done') {
 								return;
 							}
 							if (updater) {
@@ -20992,12 +20963,12 @@ true, true];
 			function _02chSu(prot, dm) {
 				_classCallCheck(this, _02chSu);
 
-				var _this85 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
 
-				_this85.hasCatalog = true;
+				_this88.hasCatalog = true;
 
-				_this85._capUpdPromise = null;
-				return _this85;
+				_this88._capUpdPromise = null;
+				return _this88;
 			}
 
 			_createClass(_02chSu, [{
@@ -21023,20 +20994,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this86 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this86.qDForm = 'form:not([enctype])';
-				_this86.qForm = 'form[enctype]';
-				_this86.qFormRedir = null;
-				_this86.qFormRules = '.chui';
-				_this86.qOmitted = 'font[color="#707070"]';
-				_this86.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this86.qPostRef = '.del';
-				_this86.qRPost = 'td:nth-child(2)';
+				_this89.qDForm = 'form:not([enctype])';
+				_this89.qForm = 'form[enctype]';
+				_this89.qFormRedir = null;
+				_this89.qFormRules = '.chui';
+				_this89.qOmitted = 'font[color="#707070"]';
+				_this89.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this89.qPostRef = '.del';
+				_this89.qRPost = 'td:nth-child(2)';
 
-				_this86.docExt = '.htm';
-				_this86.formParent = 'resto';
-				return _this86;
+				_this89.docExt = '.htm';
+				_this89.formParent = 'resto';
+				return _this89;
 			}
 
 			_createClass(_2chan, [{
@@ -21096,12 +21067,12 @@ true, true];
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this87 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this90 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this87.ru = true;
+				_this90.ru = true;
 
-				_this87._capUpdPromise = null;
-				return _this87;
+				_this90._capUpdPromise = null;
+				return _this90;
 			}
 
 			_createClass(_2chRip, [{
@@ -21117,8 +21088,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref74) {
-						var id = _ref74.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref71) {
+						var id = _ref71.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -21138,19 +21109,19 @@ true, true];
 			function _2chRu(prot, dm) {
 				_classCallCheck(this, _2chRu);
 
-				var _this88 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
 
-				_this88.qPages = 'table[border="1"] td > a:last-of-type';
+				_this91.qPages = 'table[border="1"] td > a:last-of-type';
 
-				_this88.docExt = '.html';
-				_this88.hasPicWrap = true;
-				_this88.jsonSubmit = true;
-				_this88.markupBB = true;
-				_this88.multiFile = true;
-				_this88.ru = true;
+				_this91.docExt = '.html';
+				_this91.hasPicWrap = true;
+				_this91.jsonSubmit = true;
+				_this91.markupBB = true;
+				_this91.multiFile = true;
+				_this91.ru = true;
 
-				_this88._qTable = 'table:not(.postfiles)';
-				return _this88;
+				_this91._qTable = 'table:not(.postfiles)';
+				return _this91;
 			}
 
 			_createClass(_2chRu, [{
@@ -21242,18 +21213,18 @@ true, true];
 			function _410chanOrg(prot, dm) {
 				_classCallCheck(this, _410chanOrg);
 
-				var _this89 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
 
-				_this89.qFormRedir = 'input#noko';
-				_this89.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this92.qFormRedir = 'input#noko';
+				_this92.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this89.ru = true;
-				_this89.hasCatalog = true;
-				_this89.markupBB = false;
-				_this89.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this92.ru = true;
+				_this92.hasCatalog = true;
+				_this92.markupBB = false;
+				_this92.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 
-				_this89._capUpdPromise = null;
-				return _this89;
+				_this92._capUpdPromise = null;
+				return _this92;
 			}
 
 			_createClass(_410chanOrg, [{
@@ -21270,7 +21241,7 @@ true, true];
 									return $after(backBtn.lastChild, el);
 								});
 							}
-						} catch (e) {}
+						} catch (err) {}
 					}
 					return el;
 				}
@@ -21294,7 +21265,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this90 = this;
+					var _this93 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -21309,7 +21280,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this90.getCaptchaSrc(src);
+						img.src = _this93.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -21340,40 +21311,40 @@ true, true];
 			function _4chanOrg(prot, dm) {
 				_classCallCheck(this, _4chanOrg);
 
-				var _this91 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
+				var _this94 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
 
-				_this91.fch = true;
+				_this94.fch = true;
 
-				_this91.cReply = 'post reply';
-				_this91.qBan = 'strong[style="color: red;"]';
-				_this91.qClosed = '.archivedIcon';
-				_this91.qDelBut = '.deleteform > input[type="submit"]';
-				_this91.qError = '#errmsg';
-				_this91.qForm = 'form[name="post"]';
-				_this91.qFormRedir = null;
-				_this91.qImgInfo = '.fileText';
-				_this91.qOmitted = '.summary.desktop';
-				_this91.qOPost = '.op';
-				_this91.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this91.qPostHeader = '.postInfo';
-				_this91.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this91.qPostName = '.name';
-				_this91.qPostRef = '.postInfo > .postNum';
-				_this91.qPostSubj = '.subject';
+				_this94.cReply = 'post reply';
+				_this94.qBan = 'strong[style="color: red;"]';
+				_this94.qClosed = '.archivedIcon';
+				_this94.qDelBut = '.deleteform > input[type="submit"]';
+				_this94.qError = '#errmsg';
+				_this94.qForm = 'form[name="post"]';
+				_this94.qFormRedir = null;
+				_this94.qImgInfo = '.fileText';
+				_this94.qOmitted = '.summary.desktop';
+				_this94.qOPost = '.op';
+				_this94.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this94.qPostHeader = '.postInfo';
+				_this94.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this94.qPostName = '.name';
+				_this94.qPostRef = '.postInfo > .postNum';
+				_this94.qPostSubj = '.subject';
 
-				_this91.anchor = '#p';
-				_this91.docExt = '';
-				_this91.firstPage = 1;
-				_this91.formParent = 'resto';
-				_this91.hasAltCaptcha = true;
-				_this91.hasCatalog = true;
-				_this91.hasTextLinks = true;
-				_this91.JsonBuilder = _4chanPostsBuilder;
-				_this91.res = 'thread/';
-				_this91.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this94.anchor = '#p';
+				_this94.docExt = '';
+				_this94.firstPage = 1;
+				_this94.formParent = 'resto';
+				_this94.hasAltCaptcha = true;
+				_this94.hasCatalog = true;
+				_this94.hasTextLinks = true;
+				_this94.JsonBuilder = _4chanPostsBuilder;
+				_this94.res = 'thread/';
+				_this94.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-				_this91._qTable = '.replyContainer';
-				return _this91;
+				_this94._qTable = '.replyContainer';
+				return _this94;
 			}
 
 			_createClass(_4chanOrg, [{
@@ -21428,7 +21399,7 @@ true, true];
 					} else {
 						try {
 							postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
-						} catch (e) {}
+						} catch (err) {}
 					}
 					return { error: error, postNum: postNum };
 				}
@@ -21502,12 +21473,12 @@ true, true];
 			function _8chNet(prot, dm) {
 				_classCallCheck(this, _8chNet);
 
-				var _this92 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
 
-				_this92._8ch = true;
+				_this95._8ch = true;
 
-				_this92._capUpdPromise = null;
-				return _this92;
+				_this95._capUpdPromise = null;
+				return _this95;
 			}
 
 			_createClass(_8chNet, [{
@@ -21549,12 +21520,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this93 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this93._8ch = null;
+				_this96._8ch = null;
 
-				_this93.qFormRules = '.regras';
-				return _this93;
+				_this96.qFormRules = '.regras';
+				return _this96;
 			}
 
 			_createClass(_55chan, [{
@@ -21596,20 +21567,20 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this95 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this95.cReply = 'post';
-				_this95.qDForm = 'body > .container-fluid';
-				_this95.qPostHeader = '.post_head';
-				_this95.qPostImg = '.post_image > img';
-				_this95.qPostMsg = '.post_comment_body';
-				_this95.qPostRef = '.post_id, .post_head > b';
-				_this95.qPostSubj = '.post_subject';
-				_this95.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this98.cReply = 'post';
+				_this98.qDForm = 'body > .container-fluid';
+				_this98.qPostHeader = '.post_head';
+				_this98.qPostImg = '.post_image > img';
+				_this98.qPostMsg = '.post_comment_body';
+				_this98.qPostRef = '.post_id, .post_head > b';
+				_this98.qPostSubj = '.post_subject';
+				_this98.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this95.docExt = '';
-				_this95.res = 'thread/';
-				return _this95;
+				_this98.docExt = '';
+				_this98.res = 'thread/';
+				return _this98;
 			}
 
 			_createClass(Arhivach, [{
@@ -21621,7 +21592,7 @@ true, true];
 						for (var i = 0, tLen = _els5.length; i < tLen; ++i) {
 							_els5[i].href = _els5[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
 						}
-					} catch (e) {}
+					} catch (err) {}
 					return el;
 				}
 			}, {
@@ -21675,7 +21646,7 @@ true, true];
 									post.btns.classList.add('de-post-deleted');
 									post.wrap.classList.add('de-post-removed');
 								}
-							} catch (e) {}
+							} catch (err) {}
 						}
 					}, 0);
 					return false;
@@ -21713,12 +21684,12 @@ true, true];
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this96 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this99 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this96.qPostTrip = '.poster_id';
+				_this99.qPostTrip = '.poster_id';
 
-				_this96.markupBB = true;
-				return _this96;
+				_this99.markupBB = true;
+				return _this99;
 			}
 
 			_createClass(Brchan, [{
@@ -21793,10 +21764,10 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this98 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this98.multiFile = true;
-				return _this98;
+				_this101.multiFile = true;
+				return _this101;
 			}
 
 			_createClass(Diochan, [{
@@ -21824,29 +21795,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this99 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this99.dobr = true;
+				_this102.dobr = true;
 
-				_this99.qClosed = 'img[src="/images/locked.png"]';
-				_this99.qDForm = 'form[action*="delete"]';
-				_this99.qError = '.post-error, h2';
-				_this99.qFormRedir = 'select[name="goto"]';
-				_this99.qImgInfo = '.fileinfo';
-				_this99.qOmitted = '.abbrev > span:last-of-type';
-				_this99.qPages = '.pages > tbody > tr > td';
-				_this99.qPostMsg = '.postbody';
-				_this99.qPostSubj = '.replytitle';
-				_this99.qTrunc = '.abbrev > span:first-of-type';
+				_this102.qClosed = 'img[src="/images/locked.png"]';
+				_this102.qDForm = 'form[action*="delete"]';
+				_this102.qError = '.post-error, h2';
+				_this102.qFormRedir = 'select[name="goto"]';
+				_this102.qImgInfo = '.fileinfo';
+				_this102.qOmitted = '.abbrev > span:last-of-type';
+				_this102.qPages = '.pages > tbody > tr > td';
+				_this102.qPostMsg = '.postbody';
+				_this102.qPostSubj = '.replytitle';
+				_this102.qTrunc = '.abbrev > span:first-of-type';
 
-				_this99.anchor = '#i';
-				_this99.formParent = 'thread_id';
-				_this99.hasPicWrap = true;
-				_this99.JsonBuilder = DobrochanPostsBuilder;
-				_this99.multiFile = true;
-				_this99.ru = true;
-				_this99.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this99;
+				_this102.anchor = '#i';
+				_this102.formParent = 'thread_id';
+				_this102.hasPicWrap = true;
+				_this102.JsonBuilder = DobrochanPostsBuilder;
+				_this102.multiFile = true;
+				_this102.ru = true;
+				_this102.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this102;
 			}
 
 			_createClass(Dobrochan, [{
@@ -21991,10 +21962,10 @@ true, true];
 			function EndChan(prot, dm) {
 				_classCallCheck(this, EndChan);
 
-				var _this100 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
+				var _this103 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
 
-				_this100.qTrunc = '.contentOmissionIndicator > p';
-				return _this100;
+				_this103.qTrunc = '.contentOmissionIndicator > p';
+				return _this103;
 			}
 
 			_createClass(EndChan, [{
@@ -22028,26 +21999,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this101 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this101.cReply = 'post';
-				_this101.qError = '.error';
-				_this101.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this101.qOPost = '.thread_OP';
-				_this101.qPages = '.pagelist > li:nth-last-child(2)';
-				_this101.qPostHeader = '.post_head';
-				_this101.qPostMsg = '.text';
-				_this101.qPostSubj = '.subject';
-				_this101.qPostTrip = '.tripcode';
-				_this101.qRPost = '.thread_reply';
-				_this101.qTrunc = '.tldr';
+				_this104.cReply = 'post';
+				_this104.qError = '.error';
+				_this104.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this104.qOPost = '.thread_OP';
+				_this104.qPages = '.pagelist > li:nth-last-child(2)';
+				_this104.qPostHeader = '.post_head';
+				_this104.qPostMsg = '.text';
+				_this104.qPostSubj = '.subject';
+				_this104.qPostTrip = '.tripcode';
+				_this104.qRPost = '.thread_reply';
+				_this104.qTrunc = '.tldr';
 
-				_this101.docExt = '';
-				_this101.firstPage = 1;
-				_this101.markupBB = true;
-				_this101.multiFile = true;
-				_this101.res = 'thread/';
-				return _this101;
+				_this104.docExt = '';
+				_this104.firstPage = 1;
+				_this104.markupBB = true;
+				_this104.multiFile = true;
+				_this104.res = 'thread/';
+				return _this104;
 			}
 
 			_createClass(Ernstchan, [{
@@ -22102,12 +22073,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this102 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this102.iichan = true;
+				_this105.iichan = true;
 
-				_this102.hasCatalog = true;
-				return _this102;
+				_this105.hasCatalog = true;
+				return _this105;
 			}
 
 			_createClass(Iichan, [{
@@ -22165,33 +22136,33 @@ true, true];
 			function Krautchan(prot, dm) {
 				_classCallCheck(this, Krautchan);
 
-				var _this103 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (Krautchan.__proto__ || Object.getPrototypeOf(Krautchan)).call(this, prot, dm));
 
-				_this103.cReply = 'postreply';
-				_this103.qBan = '.ban_mark';
-				_this103.qClosed = 'img[src="/images/locked.gif"]';
-				_this103.qDForm = 'form[action*="delete"]';
-				_this103.qError = '.message_text';
-				_this103.qFormRedir = 'input#forward_thread';
-				_this103.qFormRules = '#rules_row';
-				_this103.qImgInfo = '.fileinfo';
-				_this103.qOmitted = '.omittedinfo';
-				_this103.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-				_this103.qPostHeader = '.postheader';
-				_this103.qPostImg = 'img[id^="thumbnail_"]';
-				_this103.qPostRef = '.postnumber';
-				_this103.qPostSubj = '.postsubject';
-				_this103.qRPost = '.postreply';
-				_this103.qTrunc = 'p[id^="post_truncated"]';
+				_this106.cReply = 'postreply';
+				_this106.qBan = '.ban_mark';
+				_this106.qClosed = 'img[src="/images/locked.gif"]';
+				_this106.qDForm = 'form[action*="delete"]';
+				_this106.qError = '.message_text';
+				_this106.qFormRedir = 'input#forward_thread';
+				_this106.qFormRules = '#rules_row';
+				_this106.qImgInfo = '.fileinfo';
+				_this106.qOmitted = '.omittedinfo';
+				_this106.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
+				_this106.qPostHeader = '.postheader';
+				_this106.qPostImg = 'img[id^="thumbnail_"]';
+				_this106.qPostRef = '.postnumber';
+				_this106.qPostSubj = '.postsubject';
+				_this106.qRPost = '.postreply';
+				_this106.qTrunc = 'p[id^="post_truncated"]';
 
-				_this103.hasCatalog = true;
-				_this103.hasPicWrap = true;
-				_this103.hasTextLinks = true;
-				_this103.markupBB = true;
-				_this103.multiFile = true;
-				_this103.res = 'thread-';
-				_this103.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-				return _this103;
+				_this106.hasCatalog = true;
+				_this106.hasPicWrap = true;
+				_this106.hasTextLinks = true;
+				_this106.markupBB = true;
+				_this106.multiFile = true;
+				_this106.res = 'thread-';
+				_this106.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
+				return _this106;
 			}
 
 			_createClass(Krautchan, [{
@@ -22361,10 +22332,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this104 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this104.markupBB = true;
-				return _this104;
+				_this107.markupBB = true;
+				return _this107;
 			}
 
 			_createClass(Kropyvach, [{
@@ -22390,10 +22361,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this105 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this105.qOPost = '.op';
-				return _this105;
+				_this108.qOPost = '.op';
+				return _this108;
 			}
 
 			_createClass(Lainchan, [{
@@ -22471,15 +22442,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this108 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this108.qBan = 'font[color="#FF0000"]';
-				_this108.qImgInfo = '.filesize[style="display: inline;"]';
+				_this111.qBan = 'font[color="#FF0000"]';
+				_this111.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this108.formParent = 'replythread';
-				_this108.jsonSubmit = true;
-				_this108.multiFile = true;
-				return _this108;
+				_this111.formParent = 'replythread';
+				_this111.jsonSubmit = true;
+				_this111.multiFile = true;
+				return _this111;
 			}
 
 			_createClass(Ponyach, [{
@@ -22542,12 +22513,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this109 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this109.qOPost = '.opContainer';
+				_this112.qOPost = '.opContainer';
 
-				_this109.jsonSubmit = false;
-				return _this109;
+				_this112.jsonSubmit = false;
+				return _this112;
 			}
 
 			_createClass(Ponychan, [{
@@ -22582,12 +22553,12 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this110 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this110.qImgInfo = '.unimportant';
+				_this113.qImgInfo = '.unimportant';
 
-				_this110.markupBB = true;
-				return _this110;
+				_this113.markupBB = true;
+				return _this113;
 			}
 
 			_createClass(Synch, [{
@@ -22671,7 +22642,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this111 = this;
+			var _this114 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in window)) {
@@ -22682,25 +22653,24 @@ true, true];
 			this.port.onmessage = this._handleMessage;
 			this.activeListeners = new Set();
 			var port = channel.port2;
-			doc.defaultView.addEventListener('message', function (_ref75) {
-				var data = _ref75.data;
-
-				if (data === 'de-request-api-message') {
-					_this111.hasListeners = true;
+			doc.defaultView.addEventListener('message', function (e) {
+				if (e.data === 'de-request-api-message') {
+					_this114.hasListeners = true;
 					document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
 		},
+
 		hasListener: function hasListener(name) {
-			return this.hasListeners && this.activeListeners.has(name);
+			return DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name);
 		},
 		notify: function notify(name, data) {
 			if (this.hasListener(name)) {
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref76) {
-			var arg = _ref76.data;
+		_handleMessage: function _handleMessage(_ref72) {
+			var arg = _ref72.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22763,8 +22733,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref77) {
-			var responseText = _ref77.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref73) {
+			var responseText = _ref73.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;

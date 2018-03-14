@@ -301,11 +301,11 @@ class FileInput {
 	}
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
-		el.onchange = ({ target }) => {
+		el.onchange = e => {
 			$hide(this._btnRarJpg);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-			const file = target.files[0];
+			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
@@ -323,7 +323,7 @@ class FileInput {
 			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		return downloadImgData(url, false).then(data => {
+		return ContentLoader.loadImgData(url, false).then(data => {
 			if(file) {
 				window.URL.revokeObjectURL(url);
 			}

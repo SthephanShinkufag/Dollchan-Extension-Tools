@@ -24,7 +24,7 @@ class Thread {
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByEl.set(el, lastPost);
-		for(let i = 0; i < len; i++) {
+		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
@@ -129,7 +129,7 @@ class Thread {
 		}
 		return ajaxPostsLoad(aib.b, this.thrId, false).then(
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
-			e => $popup('load-thr', getErrorMessage(e)));
+			err => $popup('load-thr', getErrorMessage(err)));
 	}
 	/*
 	* New posts loading via ajax.
@@ -201,7 +201,7 @@ class Thread {
 		}
 		processImgInfoLinks(el);
 		post.addFuncs();
-		preloadImages(post);
+		ContentLoader.preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
@@ -479,7 +479,7 @@ class Thread {
 		const isHide = !this.last.omitted;
 		let post = this.op;
 		let i = 0;
-		for(; post !== this.last; i++) {
+		for(; post !== this.last; ++i) {
 			(post = post.next).omitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}

@@ -19,9 +19,9 @@ const Pages = {
 			this._endAdding();
 			this.addPage();
 			return CancelablePromise.reject(new CancelError());
-		}).then(() => this._endAdding()).catch(e => {
-			if(!(e instanceof CancelError)) {
-				$popup('add-page', getErrorMessage(e));
+		}).then(() => this._endAdding()).catch(err => {
+			if(!(err instanceof CancelError)) {
+				$popup('add-page', getErrorMessage(err));
 				this._endAdding();
 			}
 		});
@@ -54,8 +54,8 @@ const Pages = {
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
 				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
-			} catch(e) {
-				$popup('load-pages', getErrorMessage(e));
+			} catch(err) {
+				$popup('load-pages', getErrorMessage(err));
 			}
 		}
 		const { first } = DelForm;

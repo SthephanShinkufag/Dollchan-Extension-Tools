@@ -15,7 +15,7 @@ const Spells = Object.create({
 		let data;
 		try {
 			data = JSON.parse(Cfg.spells);
-		} catch(e) {
+		} catch(err) {
 			return '';
 		}
 		const [, s, reps, oreps] = data;
@@ -69,7 +69,7 @@ const Spells = Object.create({
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
-				} catch(e) {}
+				} catch(err) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
 			let idx, isAdded = true;
@@ -286,7 +286,7 @@ const Spells = Object.create({
 	_decompileScope(scope, indent) {
 		const dScope = [];
 		let hScope = false;
-		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+		for(let i = 0, j = 0, len = scope.length; i < len; ++i, ++j) {
 			const spell = scope[i];
 			const type = spell[0] & 0xFF;
 			if(type === 0xFF) {
@@ -327,7 +327,7 @@ const Spells = Object.create({
 		try {
 			spells = JSON.parse(Cfg.spells);
 			data = JSON.parse(sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`]);
-		} catch(e) {}
+		} catch(err) {}
 		if(data && spells && data[0] === spells[0]) {
 			this.hash = data[0];
 			this._setData(data[1], data[2], data[3]);
@@ -448,7 +448,7 @@ const Spells = Object.create({
 	},
 	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			if(sp[i][0] > 0x200) {
 				const temp = [0xFF, []];
 				do {
@@ -460,7 +460,7 @@ const Spells = Object.create({
 			}
 		}
 		sp = sp.sort();
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			// Removes duplicates and weaker spells
 			const j = i + 1;
 			if(sp[i][0] === sp[j][0] &&
@@ -704,7 +704,7 @@ class SpellsCodegen {
 		const val = m[1];
 		try {
 			toRegExp(val, true);
-		} catch(e) {
+		} catch(err) {
 			this._setError(Lng.seErrRegex[lang], val);
 			return null;
 		}
@@ -1251,7 +1251,7 @@ class SpellsInterpreter {
 				let n = 0;
 				let capsw = 0;
 				let casew = 0;
-				for(let i = 0; i < len; i++) {
+				for(let i = 0; i < len; ++i) {
 					x = arr[i];
 					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 						continue;

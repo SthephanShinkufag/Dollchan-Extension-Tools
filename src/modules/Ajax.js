@@ -12,7 +12,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
-			} catch(e) {}
+			} catch(err) {}
 		};
 		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		const obj = {
@@ -53,7 +53,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				try {
 					gmxhr.abort();
-				} catch(e) {}
+				} catch(err) {}
 			};
 		}
 	} else {
@@ -107,7 +107,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				xhr.abort();
 			};
-		} catch(e) {
+		} catch(err) {
 			clearTimeout(loadTO);
 			nativeXHRworks = false;
 			return $ajax(url, params, false);
@@ -143,9 +143,7 @@ AjaxError.Timeout = new AjaxError(0, {
 });
 
 const AjaxCache = {
-	fixURL(url) {
-		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
-	},
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	clearCache() {
 		this._data = new Map();
 	},
@@ -218,15 +216,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
-			} catch(e) {
-				if(e instanceof AjaxError) {
-					return CancelablePromise.reject(e);
+			} catch(err) {
+				if(err instanceof AjaxError) {
+					return CancelablePromise.reject(err);
 				}
-				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
+				console.warn(`API error: ${ err }. Switching to DOM parsing!`);
 				aib.JsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
-		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
+		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return aib.iichan ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)

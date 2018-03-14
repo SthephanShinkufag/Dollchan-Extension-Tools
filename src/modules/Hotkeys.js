@@ -37,39 +37,35 @@ const HotKeys = {
 			});
 		}
 	},
-	getDefaultKeys() {
-		const globKeys = [
-			/* One post/thread above      */ 0x004B /* = K          */,
-			/* One post/thread below      */ 0x004A /* = J          */,
-			/* Reply or create thread     */ 0x0052 /* = R          */,
-			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
-			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-			/* Open/close panel           */ 0x0050 /* = P          */,
-			/* Mask/unmask images         */ 0x0042 /* = B          */,
-			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-			/* Expand current image       */ 0x0049 /* = I          */,
-			/* Bold text                  */ 0xC042 /* = Alt+B      */,
-			/* Italic text                */ 0xC049 /* = Alt+I      */,
-			/* Strike text                */ 0xC054 /* = Alt+T      */,
-			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
-			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-		];
-		const nonThrKeys = [
-			/* One post above */ 0x004D /* = M */,
-			/* One post below */ 0x004E /* = N */,
-			/* Open thread    */ 0x0056 /* = V */,
-			/* Expand thread  */ 0x0045 /* = E */
-		];
-		const thrKeys = [
-			/* Update thread  */ 0x0055 /* = U */
-		];
-		return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
-	},
+	getDefaultKeys: () => [HotKeys.version, nav.isFirefox, [
+		// GLOBAL KEYS
+		/* One post/thread above      */ 0x004B /* = K          */,
+		/* One post/thread below      */ 0x004A /* = J          */,
+		/* Reply or create thread     */ 0x0052 /* = R          */,
+		/* Hide selected thread/post  */ 0x0048 /* = H          */,
+		/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
+		/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
+		/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+		/* Open/close panel           */ 0x0050 /* = P          */,
+		/* Mask/unmask images         */ 0x0042 /* = B          */,
+		/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+		/* Expand current image       */ 0x0049 /* = I          */,
+		/* Bold text                  */ 0xC042 /* = Alt+B      */,
+		/* Italic text                */ 0xC049 /* = Alt+I      */,
+		/* Strike text                */ 0xC054 /* = Alt+T      */,
+		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+		/* Code text                  */ 0xC043 /* = Alt+C      */,
+		/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
+		/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+	], [// NON-THREAD KEYS
+		/* One post above */ 0x004D /* = M */,
+		/* One post below */ 0x004E /* = N */,
+		/* Open thread    */ 0x0056 /* = V */,
+		/* Expand thread  */ 0x0045 /* = E */
+	], [// THREAD KEYS
+		/* Update thread  */ 0x0055 /* = U */
+	]],
 	handleEvent(e) {
 		if(this._paused || e.metaKey) {
 			return;
@@ -296,21 +292,9 @@ const HotKeys = {
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
 			if(keys[1] ^ nav.isFirefox) {
-				const mapFunc = nav.isFirefox ? function mapFuncFF(key) {
-					switch(key) {
-					case 189: return 173;
-					case 187: return 61;
-					case 186: return 59;
-					default: return key;
-					}
-				} : function mapFuncNonFF(key) {
-					switch(key) {
-					case 173: return 189;
-					case 61: return 187;
-					case 59: return 186;
-					default: return key;
-					}
-				};
+				const mapFunc = nav.isFirefox ?
+					key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
+					key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
 				keys[1] = nav.isFirefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);

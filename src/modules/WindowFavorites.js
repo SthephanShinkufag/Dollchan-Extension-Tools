@@ -257,8 +257,8 @@ function showFavoritesWindow(body, favObj) {
 					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
 				}
 				last404 = false;
-			} catch(e) {
-				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
 					} else {
@@ -271,7 +271,7 @@ function showFavoritesWindow(body, favObj) {
 				$hide(countEl);
 				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f.err = titleEl.title = getErrorMessage(e);
+				f.err = titleEl.title = getErrorMessage(err);
 				isUpdate = true;
 				continue;
 			}
@@ -371,7 +371,7 @@ function showFavoritesWindow(body, favObj) {
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
-			} catch(e) {
+			} catch(err) {
 				continue;
 			}
 			// Search for threads on current page
@@ -420,8 +420,8 @@ function showFavoritesWindow(body, favObj) {
 				await $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(e) {
-				if(e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if(err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
 							+el.getAttribute('de-num'));
@@ -433,7 +433,7 @@ function showFavoritesWindow(body, favObj) {
 					}
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(e);
+				titleEl.title = getErrorMessage(err);
 			}
 			last404 = false;
 		}

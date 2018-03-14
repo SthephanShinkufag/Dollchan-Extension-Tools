@@ -15,16 +15,14 @@ const DollchanAPI = {
 		this.port.onmessage = this._handleMessage;
 		this.activeListeners = new Set();
 		const port = channel.port2;
-		doc.defaultView.addEventListener('message', ({ data }) => {
-			if(data === 'de-request-api-message') {
+		doc.defaultView.addEventListener('message', e => {
+			if(e.data === 'de-request-api-message') {
 				this.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	},
-	hasListener(name) {
-		return this.hasListeners && this.activeListeners.has(name);
-	},
+	hasListener: name => DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name),
 	notify(name, data) {
 		if(this.hasListener(name)) {
 			this.port.postMessage({ name, data });

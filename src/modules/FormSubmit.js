@@ -50,7 +50,7 @@ function checkUpload(data) {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
 					$popup('upload', xhr.responseText).style.cssText =
 						'width: 350px; text-align: center;';
-					$id('captcha_pop_submit').onclick = function() {
+					$id('captcha_pop_submit').onclick = () => {
 						$id('captcha_message_box').innerHTML =
 							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 						const formData = new FormData();
@@ -76,8 +76,8 @@ function checkUpload(data) {
 			}
 			try {
 				data = JSON.parse(isDocument ? data.body.textContent : data);
-			} catch(e) {
-				error = getErrorMessage(e);
+			} catch(err) {
+				error = getErrorMessage(err);
 			}
 		}
 		if(!error) {
@@ -123,8 +123,8 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success, e => e).then(e => {
-			infoLoadErrors(e);
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
+			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
@@ -159,8 +159,8 @@ async function checkDelete(data) {
 		Post.clearMarks();
 		try {
 			await Thread.first.loadNewPosts();
-		} catch(e) {
-			infoLoadErrors(e);
+		} catch(err) {
+			infoLoadErrors(err);
 		}
 	} else {
 		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
@@ -305,7 +305,7 @@ function cleanFile(data, extraData) {
 			img[i + 1] !== 0x45 ||
 			img[i + 2] !== 0x4E ||
 			img[i + 3] !== 0x44
-		); i++) /* empty */;
+		); ++i) /* empty */;
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -332,7 +332,7 @@ function readExif(data, off, len) {
 	if(i > len) {
 		return null;
 	}
-	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; ++j) {
 		let dE = i + 2 + 12 * j;
 		const tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {

@@ -38,7 +38,7 @@ class Videos {
 			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
 		$show(el);
 		if(!enableJsapi) {
-			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
+			el.lastChild.onclick = e => e.target.parentNode.classList.toggle('de-video-expanded');
 		}
 	}
 	static setLinkData(link, data, isCloned = false) {
@@ -264,7 +264,7 @@ class Videos {
 		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
 			try {
 				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-			} catch(e) {}
+			} catch(err) {}
 		});
 	}
 }
@@ -278,7 +278,7 @@ Videos._global = {
 		try {
 			sesStorage.removeItem('de-videos-data1');
 			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
-		} catch(e) {
+		} catch(err) {
 			value = [{}, {}];
 		}
 		Object.defineProperty(this, 'vData', { value });

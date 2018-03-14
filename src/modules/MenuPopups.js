@@ -28,8 +28,8 @@ function $popup(id, txt, isWait = false) {
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`);
-		el.onclick = ({ target }) => {
-			let el = fixEventEl(target);
+		el.onclick = e => {
+			let el = fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -151,13 +151,9 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		el => {
-			const exp = el.textContent;
-			$txtInsert($id('de-spell-txt'), exp +
-				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-					`[${ aib.b },${ aib.t }]`) +
-				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
-		});
+		({ textContent: s }) => $txtInsert($id('de-spell-txt'), s +
+			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
+			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
 			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
@@ -169,12 +165,12 @@ function addMenu(el) {
 				return;
 			}
 			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-			if(Images_.preloading) {
+			if(ContentLoader.isLoading) {
 				$popup('savethr', Lng.loading[lang], true);
-				Images_.afterpreload = () => loadDocFiles(imgOnly);
-				Images_.progressId = 'savethr';
+				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
+				ContentLoader.popupId = 'savethr';
 			} else {
-				loadDocFiles(imgOnly);
+				ContentLoader.downloadThread(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':

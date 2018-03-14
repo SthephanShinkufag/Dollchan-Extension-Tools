@@ -192,7 +192,7 @@ class BaseBoard {
 			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
-				} catch(e) {}
+				} catch(err) {}
 				return match;
 			});
 		}
@@ -326,7 +326,7 @@ class BaseBoard {
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
-		return status === 200;
+		return status === 200 || status === 206;
 	}
 	parseURL() {
 		const url = (window.location.pathname || '').replace(/^\//, '');

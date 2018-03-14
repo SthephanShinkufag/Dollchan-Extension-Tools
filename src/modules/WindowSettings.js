@@ -90,7 +90,7 @@ const CfgWindow = {
 					let obj;
 					try {
 						obj = JSON.parse(data);
-					} catch(e) {
+					} catch(err) {
 						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
@@ -106,7 +106,7 @@ const CfgWindow = {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
 							setStored('DESU_Exclude', obj.exclude);
-						} catch(e) {}
+						} catch(err) {}
 					}
 					if(favObj) {
 						saveRenewFavorites(favObj);
@@ -189,8 +189,8 @@ const CfgWindow = {
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
 			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', ({ target }) => {
-			const els = $Q('input[type="checkbox"]', target.parentNode);
+		).appendChild($btn(Lng.clear[lang], '', e => {
+			const els = $Q('input[type="checkbox"]', e.target.parentNode);
 			for(let i = 1, len = els.length; i < len; ++i) {
 				if(!els[i].checked) {
 					continue;
@@ -553,7 +553,7 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$after($q('input[info="userCSS"]').parentNode, getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, function() {
+					fn => fn(Cfg.userCSSTxt, false, () => {
 						saveCfg('userCSSTxt', this.value);
 						updateCSS();
 						toggleWindow('cfg', true);
@@ -790,28 +790,20 @@ const CfgWindow = {
 	},
 
 	// Creates a label with checkbox for option switching
-	_getBox(id) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
-		</label>`;
-	},
+	_getBox: id => `<label class="de-cfg-label">
+		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
+	</label>`,
 	// Creates a table for Info tab
-	_getInfoTable(data, needMs) {
-		return data.map(data => `<div class="de-info-row">
-			<span class="de-info-name">${ data[0] }</span>
-			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-		</div>`).join('');
-	},
+	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
+		<span class="de-info-name">${ data[0] }</span>
+		<span>${ data[1] + (needMs ? 'ms' : '') }</span>
+	</div>`).join(''),
 	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	},
+	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
+		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
+			`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList(a) {
-		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	},
+	_getList: a => arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
 	_getSel(id) {
 		const x = Lng.cfg[id];
@@ -824,9 +816,8 @@ const CfgWindow = {
 		</label>`;
 	},
 	// Creates a tab for tab bar
-	_getTab(name) {
-		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	},
+	_getTab: name => `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${
+		Lng.cfgTab[name][lang] }</div>`,
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;

@@ -184,7 +184,7 @@ function readPostsData(firstPost, favObj) {
 				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
-	} catch(e) {
+	} catch(err) {
 		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
 	if(!firstPost) {
@@ -368,7 +368,7 @@ class PostsStorage {
 		if(data) {
 			try {
 				return (this._cachedStorage = JSON.parse(data));
-			} catch(e) {}
+			} catch(err) {}
 		}
 		return (this._cachedStorage = {});
 	}

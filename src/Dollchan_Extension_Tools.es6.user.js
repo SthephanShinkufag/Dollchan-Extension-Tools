@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f59b749';
+const commit = '8ba70fb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1531,7 +1531,6 @@ const Lng = {
 const doc = window.document;
 const emptyFn = Function.prototype;
 const aProto = Array.prototype;
-const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
@@ -1842,7 +1841,7 @@ class CancelablePromise {
 	}
 	then(cb, eb) {
 		const children = [];
-		const wrap = fn => function(...args) {
+		const wrap = fn => (...args) => {
 			const child = fn(...args);
 			if(child instanceof CancelablePromise) {
 				children.push(child);
@@ -1977,15 +1976,15 @@ class TasksPool {
 		}
 	}
 	_runTask(data) {
-		this.func(this.num++, data).then(() => this._endTask(), e => {
-			if(e instanceof TasksPool.PauseError) {
+		this.func(this.num++, data).then(() => this._endTask(), err => {
+			if(err instanceof TasksPool.PauseError) {
 				this.pauseTasks();
-				if(e.duration !== -1) {
-					setTimeout(() => this._continueTasks(), e.duration);
+				if(err.duration !== -1) {
+					setTimeout(() => this._continueTasks(), err.duration);
 				}
 			} else {
 				this._endTask();
-				throw e;
+				throw err;
 			}
 		});
 	}
@@ -2065,7 +2064,7 @@ class TarBuilder {
 		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
-		for(i = 0; i < 157; i++) {
+		for(i = 0; i < 157; ++i) {
 			checksum += header[i];
 		}
 		// checksum
@@ -2545,7 +2544,7 @@ function readPostsData(firstPost, favObj) {
 				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
-	} catch(e) {
+	} catch(err) {
 		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
 	if(!firstPost) {
@@ -2729,7 +2728,7 @@ class PostsStorage {
 		if(data) {
 			try {
 				return (this._cachedStorage = JSON.parse(data));
-			} catch(e) {}
+			} catch(err) {}
 		}
 		return (this._cachedStorage = {});
 	}
@@ -3009,7 +3008,7 @@ const Panel = Object.create({
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
-						preloadImages(el);
+						ContentLoader.preloadImages(el);
 					}
 				}
 				break;
@@ -3601,8 +3600,8 @@ function showHiddenWindow(body) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
-			} catch(e) {
-				if(e.code === 404) {
+			} catch(err) {
+				if(err.code === 404) {
 					HiddenThreads.removeStorage(tNum, b);
 					HiddenPosts.removeStorage(tNum, b);
 				}
@@ -3890,8 +3889,8 @@ function showFavoritesWindow(body, favObj) {
 					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
 				}
 				last404 = false;
-			} catch(e) {
-				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
 					} else {
@@ -3904,7 +3903,7 @@ function showFavoritesWindow(body, favObj) {
 				$hide(countEl);
 				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f.err = titleEl.title = getErrorMessage(e);
+				f.err = titleEl.title = getErrorMessage(err);
 				isUpdate = true;
 				continue;
 			}
@@ -4004,7 +4003,7 @@ function showFavoritesWindow(body, favObj) {
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
-			} catch(e) {
+			} catch(err) {
 				continue;
 			}
 			// Search for threads on current page
@@ -4053,8 +4052,8 @@ function showFavoritesWindow(body, favObj) {
 				await $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(e) {
-				if(e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if(err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
 							+el.getAttribute('de-num'));
@@ -4066,7 +4065,7 @@ function showFavoritesWindow(body, favObj) {
 					}
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(e);
+				titleEl.title = getErrorMessage(err);
 			}
 			last404 = false;
 		}
@@ -4182,7 +4181,7 @@ const CfgWindow = {
 					let obj;
 					try {
 						obj = JSON.parse(data);
-					} catch(e) {
+					} catch(err) {
 						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
@@ -4198,7 +4197,7 @@ const CfgWindow = {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
 							setStored('DESU_Exclude', obj.exclude);
-						} catch(e) {}
+						} catch(err) {}
 					}
 					if(favObj) {
 						saveRenewFavorites(favObj);
@@ -4281,8 +4280,8 @@ const CfgWindow = {
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
 			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', ({ target }) => {
-			const els = $Q('input[type="checkbox"]', target.parentNode);
+		).appendChild($btn(Lng.clear[lang], '', e => {
+			const els = $Q('input[type="checkbox"]', e.target.parentNode);
 			for(let i = 1, len = els.length; i < len; ++i) {
 				if(!els[i].checked) {
 					continue;
@@ -4645,7 +4644,7 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$after($q('input[info="userCSS"]').parentNode, getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, function() {
+					fn => fn(Cfg.userCSSTxt, false, () => {
 						saveCfg('userCSSTxt', this.value);
 						updateCSS();
 						toggleWindow('cfg', true);
@@ -4882,28 +4881,20 @@ const CfgWindow = {
 	},
 
 	// Creates a label with checkbox for option switching
-	_getBox(id) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
-		</label>`;
-	},
+	_getBox: id => `<label class="de-cfg-label">
+		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
+	</label>`,
 	// Creates a table for Info tab
-	_getInfoTable(data, needMs) {
-		return data.map(data => `<div class="de-info-row">
-			<span class="de-info-name">${ data[0] }</span>
-			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-		</div>`).join('');
-	},
+	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
+		<span class="de-info-name">${ data[0] }</span>
+		<span>${ data[1] + (needMs ? 'ms' : '') }</span>
+	</div>`).join(''),
 	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	},
+	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
+		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
+			`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList(a) {
-		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	},
+	_getList: a => arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
 	_getSel(id) {
 		const x = Lng.cfg[id];
@@ -4916,9 +4907,8 @@ const CfgWindow = {
 		</label>`;
 	},
 	// Creates a tab for tab bar
-	_getTab(name) {
-		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	},
+	_getTab: name => `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${
+		Lng.cfgTab[name][lang] }</div>`,
 	// Switching dependent checkboxes according to their parents
 	_toggleBox(state, arr) {
 		let i = arr.length;
@@ -5010,8 +5000,8 @@ function $popup(id, txt, isWait = false) {
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`);
-		el.onclick = ({ target }) => {
-			let el = fixEventEl(target);
+		el.onclick = e => {
+			let el = fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -5133,13 +5123,9 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		el => {
-			const exp = el.textContent;
-			$txtInsert($id('de-spell-txt'), exp +
-				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-					`[${ aib.b },${ aib.t }]`) +
-				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
-		});
+		({ textContent: s }) => $txtInsert($id('de-spell-txt'), s +
+			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
+			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
 			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
@@ -5151,12 +5137,12 @@ function addMenu(el) {
 				return;
 			}
 			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-			if(Images_.preloading) {
+			if(ContentLoader.isLoading) {
 				$popup('savethr', Lng.loading[lang], true);
-				Images_.afterpreload = () => loadDocFiles(imgOnly);
-				Images_.progressId = 'savethr';
+				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
+				ContentLoader.popupId = 'savethr';
 			} else {
-				loadDocFiles(imgOnly);
+				ContentLoader.downloadThread(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':
@@ -5207,39 +5193,35 @@ const HotKeys = {
 			});
 		}
 	},
-	getDefaultKeys() {
-		const globKeys = [
-			/* One post/thread above      */ 0x004B /* = K          */,
-			/* One post/thread below      */ 0x004A /* = J          */,
-			/* Reply or create thread     */ 0x0052 /* = R          */,
-			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
-			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-			/* Open/close panel           */ 0x0050 /* = P          */,
-			/* Mask/unmask images         */ 0x0042 /* = B          */,
-			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-			/* Expand current image       */ 0x0049 /* = I          */,
-			/* Bold text                  */ 0xC042 /* = Alt+B      */,
-			/* Italic text                */ 0xC049 /* = Alt+I      */,
-			/* Strike text                */ 0xC054 /* = Alt+T      */,
-			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
-			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-		];
-		const nonThrKeys = [
-			/* One post above */ 0x004D /* = M */,
-			/* One post below */ 0x004E /* = N */,
-			/* Open thread    */ 0x0056 /* = V */,
-			/* Expand thread  */ 0x0045 /* = E */
-		];
-		const thrKeys = [
-			/* Update thread  */ 0x0055 /* = U */
-		];
-		return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
-	},
+	getDefaultKeys: () => [HotKeys.version, nav.isFirefox, [
+		// GLOBAL KEYS
+		/* One post/thread above      */ 0x004B /* = K          */,
+		/* One post/thread below      */ 0x004A /* = J          */,
+		/* Reply or create thread     */ 0x0052 /* = R          */,
+		/* Hide selected thread/post  */ 0x0048 /* = H          */,
+		/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
+		/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
+		/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+		/* Open/close panel           */ 0x0050 /* = P          */,
+		/* Mask/unmask images         */ 0x0042 /* = B          */,
+		/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+		/* Expand current image       */ 0x0049 /* = I          */,
+		/* Bold text                  */ 0xC042 /* = Alt+B      */,
+		/* Italic text                */ 0xC049 /* = Alt+I      */,
+		/* Strike text                */ 0xC054 /* = Alt+T      */,
+		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+		/* Code text                  */ 0xC043 /* = Alt+C      */,
+		/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
+		/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+	], [// NON-THREAD KEYS
+		/* One post above */ 0x004D /* = M */,
+		/* One post below */ 0x004E /* = N */,
+		/* Open thread    */ 0x0056 /* = V */,
+		/* Expand thread  */ 0x0045 /* = E */
+	], [// THREAD KEYS
+		/* Update thread  */ 0x0055 /* = U */
+	]],
 	handleEvent(e) {
 		if(this._paused || e.metaKey) {
 			return;
@@ -5466,21 +5448,9 @@ const HotKeys = {
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
 			if(keys[1] ^ nav.isFirefox) {
-				const mapFunc = nav.isFirefox ? function mapFuncFF(key) {
-					switch(key) {
-					case 189: return 173;
-					case 187: return 61;
-					case 186: return 59;
-					default: return key;
-					}
-				} : function mapFuncNonFF(key) {
-					switch(key) {
-					case 173: return 189;
-					case 61: return 187;
-					case 59: return 186;
-					default: return key;
-					}
-				};
+				const mapFunc = nav.isFirefox ?
+					key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
+					key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
 				keys[1] = nav.isFirefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);
@@ -5770,81 +5740,134 @@ KeyEditListener.keyCodes = [
                      images/video preloading, rarjpeg detecting, thread/images downloading
 =========================================================================================================== */
 
-function detectImgFile(ab) {
-	let i, j;
-	const dat = new Uint8Array(ab);
-	let len = dat.length;
-	/* JPG [ff d8 ff e0] = [яШяа] */
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 0, j = 0; i < len - 1; i++) {
-			if(dat[i] === 0xFF) {
-				/* Built-in JPG */
-				if(dat[i + 1] === 0xD8) {
-					j++;
-				/* JPG end [ff d9] */
-				} else if(dat[i + 1] === 0xD9 && --j === 0) {
-					i += 2;
-					break;
+const ContentLoader = {
+	afterFn   : null,
+	isLoading : false,
+	popupId   : null,
+	downloadThread(imgOnly) {
+		let progress, counter, current = 1,
+			warnings = '',
+			tar = new TarBuilder();
+		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
+		let count = els.length;
+		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
+			const [url, fName, el, imgLink] = data;
+			let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+			progress.value = counter.innerHTML = current++;
+			if(imgLink) {
+				let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+				if(imgOnly) {
+					thumbName = 'thumb-' + thumbName;
+				} else {
+					thumbName = 'thumbs/' + thumbName;
+					safeName = imgData ? 'images/' + safeName : thumbName;
+					imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 				}
+				if(imgData) {
+					tar.addFile(safeName, imgData);
+				} else {
+					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
+						`<br>${ Lng.willSavePview[lang] }`;
+					$popup('err-files', Lng.loadErrors[lang] + warnings);
+					if(imgOnly) {
+						return this._getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+					}
+				}
+				return imgOnly ? null : this._getDataFromImg(el).then(data => {
+					el.src = thumbName;
+					tar.addFile(thumbName, data);
+				}, () => (el.src = safeName));
+			} else if(imgData && imgData.length > 0) {
+				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+			} else {
+				$del(el);
 			}
-		}
-	/* PNG [89 50 4e 47] = [‰PNG] */
-	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0; i < len - 7; i++) {
-			/* PNG end [49 45 4e 44 ae 42 60 82] */
-			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-				i += 8;
-				break;
+		}), () => {
+			const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
+			if(!imgOnly) {
+				$q('head', dc).insertAdjacentHTML('beforeend',
+					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+				$q('body', dc).classList.add('de-mode-local');
+				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				tar.addString('data/dollscript.js', `${ nav.isESNext ?
+					`(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ` :
+					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
+				}${ JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) });`);
+				const dt = doc.doctype;
+				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
+					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
+					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-		}
-	} else {
-		return {};
-	}
-	/* Ignore small files */
-	if(i !== len && len - i > 60) {
-		for(len = i + 90; i < len; i++) {
-			/* 7Z [37 7a bc af] = [7zјЇ] */
-			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-				return { type: 0, idx: i, data: ab };
-			/* ZIP [50 4b 03 04] = [PK..] */
-			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-				return { type: 1, idx: i, data: ab };
-			/* RAR [52 61 72 21] = [Rar!] */
-			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-				return { type: 2, idx: i, data: ab };
-			/* OGG [4f 67 67 53] = [OggS] */
-			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-				return { type: 3, idx: i, data: ab };
-			/* MP3 [0x49 0x44 0x33] = [ID3] */
-			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-				return { type: 4, idx: i, data: ab };
+			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+			$del($id('de-popup-load-files'));
+			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
+		});
+		els.forEach(el => {
+			const imgLink = $parent(el, 'A');
+			if(imgLink) {
+				const url = imgLink.href;
+				this._thrPool.runTask([url, imgLink.getAttribute('download') ||
+					url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 			}
+		});
+		if(!imgOnly) {
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
+				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
+				aib.qForm, dc), $del);
+			$each($Q('a', dc), el => {
+				let num;
+				const tc = el.textContent;
+				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
+					el.href = aib.anchor + num;
+					if(!el.classList.contains('de-link-pref')) {
+						el.className = 'de-link-pref ' + el.className;
+					}
+				} else {
+					el.href = getAbsLink(el.href);
+				}
+			});
+			$each($Q(aib.qRPost, dc), (el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			const files = [];
+			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
+				quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
+			$each($Q('link, *[src]', dc), el => {
+				if(els.indexOf(el) !== -1) {
+					return;
+				}
+				let url = el.tagName === 'LINK' ? el.href : el.src;
+				if(!urlRegex.test(url)) {
+					$del(el);
+					return;
+				}
+				let fName = url.substring(url.lastIndexOf('/') + 1)
+					.replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				if(files.indexOf(fName) !== -1) {
+					let temp = url.lastIndexOf('.');
+					const ext = url.substring(temp);
+					url = url.substring(0, temp);
+					fName = fName.substring(0, fName.lastIndexOf('.'));
+					for(let i = 0; ; ++i) {
+						temp = `${ fName }(${ i })${ ext }`;
+						if(files.indexOf(temp) === -1) {
+							break;
+						}
+					}
+					fName = temp;
+				}
+				files.push(fName);
+				this._thrPool.runTask([url, fName, el, null]);
+				count++;
+			});
 		}
-	}
-	return {};
-}
-
-function addImgFileIcon(nameLink, fName, info) {
-	const { type } = info;
-	if(typeof type === 'undefined') {
-		return;
-	}
-	const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
-		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
-			type: [
-				'application/x-7z-compressed',
-				'application/zip',
-				'application/x-rar-compressed',
-				'audio/ogg',
-				'audio/mpeg'][type]
-		})
-	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
-}
-
-function downloadImgData(url, repeatOnError = true) {
-	return $ajax(url, {
+		$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br><progress ` +
+			`id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${ count }`, true);
+		progress = $id('de-loadprogress');
+		counter = progress.nextElementSibling;
+		this._thrPool.completeTasks();
+		els = null;
+	},
+	loadImgData: (url, repeatOnError = true) => $ajax(url, {
 		responseType     : 'arraybuffer',
 		overrideMimeType : 'text/plain; charset=x-user-defined'
 	}, url.startsWith('blob')).then(xhr => {
@@ -5854,7 +5877,7 @@ function downloadImgData(url, repeatOnError = true) {
 		if('response' in xhr) {
 			try {
 				return nav.getUnsafeUint8Array(xhr.response);
-			} catch(e) {}
+			} catch(err) {}
 		}
 		const txt = xhr.responseText;
 		const rv = new Uint8Array(txt.length);
@@ -5862,233 +5885,175 @@ function downloadImgData(url, repeatOnError = true) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
-	}, err => err.code !== 404 && repeatOnError ? downloadImgData(url, false) : null);
-}
-
-function preloadImages(data) {
-	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
-		return;
-	}
-	let pool;
-	const isPost = data instanceof AbstractPost;
-	const els = $Q(aib.qPostImg, isPost ? data.el : data);
-	const len = els.length;
-	if(isPreImg || Cfg.preLoadImgs) {
-		let cImg = 1;
-		const mReqs = isPost ? 1 : 4;
-		const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
-			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
-		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
-			if(imageData) {
-				const fName = url.substring(url.lastIndexOf('/') + 1);
-				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-				imgLink.setAttribute('download', fName);
-				nameLink.setAttribute('download', fName);
-				nameLink.setAttribute('de-href', nameLink.href);
-				imgLink.href = nameLink.href =
-					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(isVideo) {
-					el.setAttribute('de-video', '');
+	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
+	preloadImages(data) {
+		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
+			return;
+		}
+		let preloadPool;
+		const isPost = data instanceof AbstractPost;
+		const els = $Q(aib.qPostImg, isPost ? data.el : data);
+		const len = els.length;
+		if(isPreImg || Cfg.preLoadImgs) {
+			let cImg = 1;
+			const mReqs = isPost ? 1 : 4;
+			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
+				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
+			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
+				const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
+				if(imageData) {
+					const fName = url.substring(url.lastIndexOf('/') + 1);
+					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
+					imgLink.setAttribute('download', fName);
+					nameLink.setAttribute('download', fName);
+					nameLink.setAttribute('de-href', nameLink.href);
+					imgLink.href = nameLink.href =
+						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+					if(isVideo) {
+						el.setAttribute('de-video', '');
+					}
+					if(isRepToOrig) {
+						el.src = imgLink.href;
+					}
+					if(rarJpgFinder) {
+						rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
+							info => this._addImgFileIcon(nameLink, fName, info));
+					}
 				}
-				if(isRepToOrig) {
-					el.src = imgLink.href;
+				if(this.popupId) {
+					$popup(this.popupId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
+				}
+				cImg++;
+			}), () => {
+				this.isLoading = false;
+				if(this.afterFn) {
+					this.afterFn();
+					this.afterFn = this.popupId = null;
 				}
 				if(rarJpgFinder) {
-					rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
-						info => addImgFileIcon(nameLink, fName, info));
+					rarJpgFinder.clearWorkers();
 				}
-			}
-			if(Images_.progressId) {
-				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
-			}
-			cImg++;
-		}), () => {
-			Images_.preloading = false;
-			if(Images_.afterpreload) {
-				Images_.afterpreload();
-				Images_.afterpreload = Images_.progressId = null;
-			}
-			if(rarJpgFinder) {
-				rarJpgFinder.clearWorkers();
-			}
-		});
-		Images_.preloading = true;
-	}
-	for(let i = 0; i < len; ++i) {
-		let el = els[i];
-		const imgLink = $parent(el = els[i], 'A');
-		if(!imgLink) {
-			continue;
+			});
+			this.isLoading = true;
 		}
-		let isRepToOrig = !!Cfg.openImgs;
-		const url = imgLink.href;
-		const iType = getFileType(url);
-		const isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
-		if(!iType || isVideo && Cfg.preLoadImgs === 2) {
-			continue;
-		} else if(iType === 'image/gif') {
-			isRepToOrig &= Cfg.openImgs !== 3;
-		} else {
-			if(isVideo) {
-				isRepToOrig = false;
+		for(let i = 0; i < len; ++i) {
+			let el = els[i];
+			const imgLink = $parent(el = els[i], 'A');
+			if(!imgLink) {
+				continue;
 			}
-			isRepToOrig &= Cfg.openImgs !== 2;
-		}
-		if(pool) {
-			pool.runTask([url, imgLink, iType, isRepToOrig, el, isVideo]);
-		} else if(isRepToOrig) {
-			el.src = url;
-		}
-	}
-	if(pool) {
-		pool.completeTasks();
-	}
-}
-
-function getDataFromImg(el) {
-	try {
-		const cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-		cnv.width = el.width;
-		cnv.height = el.height;
-		cnv.getContext('2d').drawImage(el, 0, 0);
-		return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
-			.split('').map(a => a.charCodeAt())));
-	} catch(e) {
-		return downloadImgData(el.src);
-	}
-}
-
-function loadDocFiles(imgOnly) {
-	let progress, counter, current = 1,
-		warnings = '',
-		tar = new TarBuilder();
-	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
-	let count = els.length;
-	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
-		const [url, fName, el, imgLink] = data;
-		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-		progress.value = counter.innerHTML = current++;
-		if(imgLink) {
-			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
-			if(imgOnly) {
-				thumbName = 'thumb-' + thumbName;
-			} else {
-				thumbName = 'thumbs/' + thumbName;
-				safeName = imgData ? 'images/' + safeName : thumbName;
-				imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
-			}
-			if(imgData) {
-				tar.addFile(safeName, imgData);
-			} else {
-				warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
-					`<br>${ Lng.willSavePview[lang] }`;
-				$popup('err-files', Lng.loadErrors[lang] + warnings);
-				if(imgOnly) {
-					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
-				}
-			}
-			return imgOnly ? null : getDataFromImg(el).then(data => {
-				el.src = thumbName;
-				tar.addFile(thumbName, data);
-			}, () => (el.src = safeName));
-		} else if(imgData && imgData.length > 0) {
-			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
-		} else {
-			$del(el);
-		}
-	}), () => {
-		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
-		if(!imgOnly) {
-			$q('head', dc).insertAdjacentHTML('beforeend',
-				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-			$q('body', dc).classList.add('de-mode-local');
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-			let scriptStr;
-			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-			if(nav.isESNext) {
-				scriptStr = `(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ${
-					localData });`;
-			} else {
-				/* global deMainFuncOuter */
-				scriptStr = `(${ String(deMainFuncOuter) })(${ localData });`;
-			}
-			tar.addString('data/dollscript.js', scriptStr);
-			const dt = doc.doctype;
-			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
-				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
-				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
-		}
-		downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-		$del($id('de-popup-load-files'));
-		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
-	});
-	els.forEach(el => {
-		const imgLink = $parent(el, 'A');
-		if(imgLink) {
+			let isRepToOrig = !!Cfg.openImgs;
 			const url = imgLink.href;
-			Images_.pool.runTask([url, imgLink.getAttribute('download') ||
-				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
-		}
-	});
-	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
-			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), el => {
-			let num;
-			const tc = el.textContent;
-			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
-				el.href = aib.anchor + num;
-				if(!el.classList.contains('de-link-pref')) {
-					el.className = 'de-link-pref ' + el.className;
-				}
+			const type = getFileType(url);
+			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+			if(!type || isVideo && Cfg.preLoadImgs === 2) {
+				continue;
+			} else if(type === 'image/gif') {
+				isRepToOrig &= Cfg.openImgs !== 3;
 			} else {
-				el.href = getAbsLink(el.href);
+				if(isVideo) {
+					isRepToOrig = false;
+				}
+				isRepToOrig &= Cfg.openImgs !== 2;
 			}
-		});
-		$each($Q(aib.qRPost, dc),
-			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
-		const files = [];
-		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), el => {
-			if(els.indexOf(el) !== -1) {
-				return;
+			if(preloadPool) {
+				preloadPool.runTask([url, imgLink, type, isRepToOrig, el, isVideo]);
+			} else if(isRepToOrig) {
+				el.src = url;
 			}
-			let url = el.tagName === 'LINK' ? el.href : el.src;
-			if(!urlRegex.test(url)) {
-				$del(el);
-				return;
-			}
-			let fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
-			if(files.indexOf(fName) !== -1) {
-				let temp = url.lastIndexOf('.');
-				const ext = url.substring(temp);
-				url = url.substring(0, temp);
-				fName = fName.substring(0, fName.lastIndexOf('.'));
-				for(let i = 0; ; ++i) {
-					temp = `${ fName }(${ i })${ ext }`;
-					if(files.indexOf(temp) === -1) {
+		}
+		if(preloadPool) {
+			preloadPool.completeTasks();
+		}
+	},
+
+	_canvas  : null,
+	_thrPool : null,
+	_addImgFileIcon(nameLink, fName, info) {
+		const { type } = info;
+		if(typeof type === 'undefined') {
+			return;
+		}
+		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
+		nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
+			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+				type: [
+					'application/x-7z-compressed',
+					'application/zip',
+					'application/x-rar-compressed',
+					'audio/ogg',
+					'audio/mpeg'][type]
+			})
+		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
+			fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
+	},
+	// Finds built-in files in jpg and png
+	_detectImgFile: arrBuf => {
+		let i, j;
+		const dat = new Uint8Array(arrBuf);
+		let len = dat.length;
+		/* JPG [ff d8 ff e0] = [яШяа] */
+		if(dat[0] === 0xFF && dat[1] === 0xD8) {
+			for(i = 0, j = 0; i < len - 1; ++i) {
+				if(dat[i] === 0xFF) {
+					/* Built-in JPG */
+					if(dat[i + 1] === 0xD8) {
+						j++;
+					/* JPG end [ff d9] */
+					} else if(dat[i + 1] === 0xD9 && --j === 0) {
+						i += 2;
 						break;
 					}
 				}
-				fName = temp;
 			}
-			files.push(fName);
-			Images_.pool.runTask([url, fName, el, null]);
-			count++;
-		});
+		/* PNG [89 50 4e 47] = [‰PNG] */
+		} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+			for(i = 0; i < len - 7; ++i) {
+				/* PNG end [49 45 4e 44 ae 42 60 82] */
+				if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+					i += 8;
+					break;
+				}
+			}
+		} else {
+			return {};
+		}
+		if(i === len || len - i <= 60) { // Ignore small files (<60 bytes)
+			return {};
+		}
+		for(len = i + 90; i < len; ++i) {
+			/* 7Z [37 7a bc af] = [7zјЇ] */
+			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
+				return { type: 0, idx: i, data: arrBuf };
+			/* ZIP [50 4b 03 04] = [PK..] */
+			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
+				return { type: 1, idx: i, data: arrBuf };
+			/* RAR [52 61 72 21] = [Rar!] */
+			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+				return { type: 2, idx: i, data: arrBuf };
+			/* OGG [4f 67 67 53] = [OggS] */
+			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+				return { type: 3, idx: i, data: arrBuf };
+			/* MP3 [0x49 0x44 0x33] = [ID3] */
+			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+				return { type: 4, idx: i, data: arrBuf };
+			}
+		}
+		return {};
+	},
+	_getDataFromImg(el) {
+		try {
+			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
+			cnv.width = el.width;
+			cnv.height = el.height;
+			cnv.getContext('2d').drawImage(el, 0, 0);
+			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
+				.split('').map(a => a.charCodeAt())));
+		} catch(err) {
+			return this.loadImgData(el.src);
+		}
 	}
-	$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br>` +
-		`<progress id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${
-			count }`, true);
-	progress = $id('de-loadprogress');
-	counter = progress.nextElementSibling;
-	Images_.pool.completeTasks();
-	els = null;
-}
+};
 
 /* ==[ TimeCorrection.js ]====================================================================================
                                                TIME CORRECTION
@@ -6239,7 +6204,7 @@ class Videos {
 			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
 		$show(el);
 		if(!enableJsapi) {
-			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
+			el.lastChild.onclick = e => e.target.parentNode.classList.toggle('de-video-expanded');
 		}
 	}
 	static setLinkData(link, data, isCloned = false) {
@@ -6465,7 +6430,7 @@ class Videos {
 		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
 			try {
 				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-			} catch(e) {}
+			} catch(err) {}
 		});
 	}
 }
@@ -6479,7 +6444,7 @@ Videos._global = {
 		try {
 			sesStorage.removeItem('de-videos-data1');
 			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
-		} catch(e) {
+		} catch(err) {
 			value = [{}, {}];
 		}
 		Object.defineProperty(this, 'vData', { value });
@@ -6592,7 +6557,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
-			} catch(e) {}
+			} catch(err) {}
 		};
 		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		const obj = {
@@ -6633,7 +6598,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				try {
 					gmxhr.abort();
-				} catch(e) {}
+				} catch(err) {}
 			};
 		}
 	} else {
@@ -6687,7 +6652,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				xhr.abort();
 			};
-		} catch(e) {
+		} catch(err) {
 			clearTimeout(loadTO);
 			nativeXHRworks = false;
 			return $ajax(url, params, false);
@@ -6723,9 +6688,7 @@ AjaxError.Timeout = new AjaxError(0, {
 });
 
 const AjaxCache = {
-	fixURL(url) {
-		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
-	},
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	clearCache() {
 		this._data = new Map();
 	},
@@ -6798,15 +6761,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
-			} catch(e) {
-				if(e instanceof AjaxError) {
-					return CancelablePromise.reject(e);
+			} catch(err) {
+				if(err instanceof AjaxError) {
+					return CancelablePromise.reject(err);
 				}
-				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
+				console.warn(`API error: ${ err }. Switching to DOM parsing!`);
 				aib.JsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
-		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
+		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return aib.iichan ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
@@ -6851,9 +6814,9 @@ const Pages = {
 			this._endAdding();
 			this.addPage();
 			return CancelablePromise.reject(new CancelError());
-		}).then(() => this._endAdding()).catch(e => {
-			if(!(e instanceof CancelError)) {
-				$popup('add-page', getErrorMessage(e));
+		}).then(() => this._endAdding()).catch(err => {
+			if(!(err instanceof CancelError)) {
+				$popup('add-page', getErrorMessage(err));
 				this._endAdding();
 			}
 		});
@@ -6886,8 +6849,8 @@ const Pages = {
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
 				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
-			} catch(e) {
-				$popup('load-pages', getErrorMessage(e));
+			} catch(err) {
+				$popup('load-pages', getErrorMessage(err));
 			}
 		}
 		const { first } = DelForm;
@@ -6971,7 +6934,7 @@ const Spells = Object.create({
 		let data;
 		try {
 			data = JSON.parse(Cfg.spells);
-		} catch(e) {
+		} catch(err) {
 			return '';
 		}
 		const [, s, reps, oreps] = data;
@@ -7025,7 +6988,7 @@ const Spells = Object.create({
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
-				} catch(e) {}
+				} catch(err) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
 			let idx, isAdded = true;
@@ -7242,7 +7205,7 @@ const Spells = Object.create({
 	_decompileScope(scope, indent) {
 		const dScope = [];
 		let hScope = false;
-		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+		for(let i = 0, j = 0, len = scope.length; i < len; ++i, ++j) {
 			const spell = scope[i];
 			const type = spell[0] & 0xFF;
 			if(type === 0xFF) {
@@ -7283,7 +7246,7 @@ const Spells = Object.create({
 		try {
 			spells = JSON.parse(Cfg.spells);
 			data = JSON.parse(sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`]);
-		} catch(e) {}
+		} catch(err) {}
 		if(data && spells && data[0] === spells[0]) {
 			this.hash = data[0];
 			this._setData(data[1], data[2], data[3]);
@@ -7404,7 +7367,7 @@ const Spells = Object.create({
 	},
 	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			if(sp[i][0] > 0x200) {
 				const temp = [0xFF, []];
 				do {
@@ -7416,7 +7379,7 @@ const Spells = Object.create({
 			}
 		}
 		sp = sp.sort();
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			// Removes duplicates and weaker spells
 			const j = i + 1;
 			if(sp[i][0] === sp[j][0] &&
@@ -7660,7 +7623,7 @@ class SpellsCodegen {
 		const val = m[1];
 		try {
 			toRegExp(val, true);
-		} catch(e) {
+		} catch(err) {
 			this._setError(Lng.seErrRegex[lang], val);
 			return null;
 		}
@@ -8207,7 +8170,7 @@ class SpellsInterpreter {
 				let n = 0;
 				let capsw = 0;
 				let casew = 0;
-				for(let i = 0; i < len; i++) {
+				for(let i = 0; i < len; ++i) {
 					x = arr[i];
 					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 						continue;
@@ -8603,7 +8566,7 @@ class PostForm {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true).then(checkUpload)
-				.catch(e => $popup('upload', getErrorMessage(e)));
+				.catch(err => $popup('upload', getErrorMessage(err)));
 		};
 	}
 	_initCaptcha() {
@@ -8907,7 +8870,7 @@ function checkUpload(data) {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
 					$popup('upload', xhr.responseText).style.cssText =
 						'width: 350px; text-align: center;';
-					$id('captcha_pop_submit').onclick = function() {
+					$id('captcha_pop_submit').onclick = () => {
 						$id('captcha_message_box').innerHTML =
 							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 						const formData = new FormData();
@@ -8933,8 +8896,8 @@ function checkUpload(data) {
 			}
 			try {
 				data = JSON.parse(isDocument ? data.body.textContent : data);
-			} catch(e) {
-				error = getErrorMessage(e);
+			} catch(err) {
+				error = getErrorMessage(err);
 			}
 		}
 		if(!error) {
@@ -8980,8 +8943,8 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success, e => e).then(e => {
-			infoLoadErrors(e);
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
+			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
@@ -9016,8 +8979,8 @@ async function checkDelete(data) {
 		Post.clearMarks();
 		try {
 			await Thread.first.loadNewPosts();
-		} catch(e) {
-			infoLoadErrors(e);
+		} catch(err) {
+			infoLoadErrors(err);
 		}
 	} else {
 		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
@@ -9162,7 +9125,7 @@ function cleanFile(data, extraData) {
 			img[i + 1] !== 0x45 ||
 			img[i + 2] !== 0x4E ||
 			img[i + 3] !== 0x44
-		); i++) /* empty */;
+		); ++i) /* empty */;
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -9189,7 +9152,7 @@ function readExif(data, off, len) {
 	if(i > len) {
 		return null;
 	}
-	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; ++j) {
 		let dE = i + 2 + 12 * j;
 		const tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
@@ -9514,11 +9477,11 @@ class FileInput {
 	}
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
-		el.onchange = ({ target }) => {
+		el.onchange = e => {
 			$hide(this._btnRarJpg);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-			const file = target.files[0];
+			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
@@ -9536,7 +9499,7 @@ class FileInput {
 			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		return downloadImgData(url, false).then(data => {
+		return ContentLoader.loadImgData(url, false).then(data => {
 			if(file) {
 				window.URL.revokeObjectURL(url);
 			}
@@ -9743,9 +9706,9 @@ class Captcha {
 	initCapPromise() {
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), e => {
-				if(e instanceof AjaxError) {
-					this._setUpdateError(e);
+			initPromise.then(() => this.showCaptcha(), err => {
+				if(err instanceof AjaxError) {
+					this._setUpdateError(err);
 				} else {
 					this.hasCaptcha = false;
 				}
@@ -9814,7 +9777,7 @@ class Captcha {
 		if(aib.updateCaptcha) {
 			const updatePromise = aib.updateCaptcha(this, isErr);
 			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), e => this._setUpdateError(e));
+				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
 		} else if(this._isRecap) {
 			this._updateRecap();
@@ -9842,10 +9805,10 @@ class Captcha {
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
 			fn(xhr);
-		}, e => {
-			if(!(e instanceof CancelError)) {
+		}, err => {
+			if(!(err instanceof CancelError)) {
 				aib._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				return CancelablePromise.reject(err);
 			}
 		}));
 	}
@@ -10226,7 +10189,7 @@ class AbstractPost {
 				$del(el);
 			} else {
 				const els = $Q(aib.qRPost, form);
-				for(let i = 0, len = els.length; i < len; i++) {
+				for(let i = 0, len = els.length; i < len; ++i) {
 					if(this.num === aib.getPNum(els[i])) {
 						this.updateMsg(
 							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
@@ -10900,7 +10863,7 @@ class Pview extends AbstractPost {
 				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
 			}
 			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-		}, e => this._onerror(e));
+		}, err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -11459,7 +11422,7 @@ class ImagesViewer {
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
-				el.target.className !== 'de-fullimg-load'
+				el.className !== 'de-fullimg-load'
 			) {
 				return;
 			}
@@ -11881,9 +11844,9 @@ class ExpandableImage {
 		});
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', e => {
-			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
-			if(e.isTrusted && val !== Cfg.webmVolume) {
+		videoEl.addEventListener('volumechange', ({ target, isTrusted }) => {
+			const val = target.muted ? 0 : Math.round(target.volume * 100);
+			if(isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
@@ -11896,7 +11859,7 @@ class ExpandableImage {
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle) {
-			this._webmTitleLoad = downloadImgData(videoEl.src, false).then(data => {
+			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;
@@ -11906,7 +11869,7 @@ class ExpandableImage {
 					return;
 				}
 				d = d[0];
-				for(let i = 0, len = d.length; i < len; i++) {
+				for(let i = 0, len = d.length; i < len; ++i) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
 					if(d[i] === 0x49 &&
 						d[i + 1] === 0xA9 &&
@@ -11915,7 +11878,7 @@ class ExpandableImage {
 						d[i + 19] === 0xA9
 					) {
 						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
+						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
@@ -12137,7 +12100,7 @@ const ImagesHashStorage = Object.create({
 		let data, buffer, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
 		if(aib.fch) {
-			const imgData = await downloadImgData(el.src);
+			const imgData = await ContentLoader.loadImgData(el.src);
 			if(imgData) {
 				({ buffer } = imgData);
 			}
@@ -12172,7 +12135,7 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 		return;
 	}
 	const els = $Q(aib.qImgNameLink, el);
-	for(let i = 0, len = els.length; i < len; i++) {
+	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -12227,8 +12190,8 @@ function genImgHash([arrBuf, oldw, oldh]) {
 	const areas = 256 / levels;
 	const values = 256 / (levels - 1);
 	let hash = 0;
-	for(let i = 0; i < newh; i++) {
-		for(let j = 0; j < neww; j++) {
+	for(let i = 0; i < newh; ++i) {
+		for(let j = 0; j < neww; ++j) {
 			let tmp = i / (newh - 1) * (oldh - 1);
 			const l = Math.min(tmp | 0, oldh - 2);
 			const u = tmp - l;
@@ -12546,7 +12509,7 @@ class DobrochanPostsBuilder {
 
 		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
-			(_, y, mo, d, h, m, s) => {
+			(all, y, mo, d, h, m, s) => {
 				const dt = new Date(y, +mo - 1, d, h, m, s);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
@@ -13023,7 +12986,7 @@ class Thread {
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByEl.set(el, lastPost);
-		for(let i = 0; i < len; i++) {
+		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
@@ -13128,7 +13091,7 @@ class Thread {
 		}
 		return ajaxPostsLoad(aib.b, this.thrId, false).then(
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
-			e => $popup('load-thr', getErrorMessage(e)));
+			err => $popup('load-thr', getErrorMessage(err)));
 	}
 	/*
 	* New posts loading via ajax.
@@ -13200,7 +13163,7 @@ class Thread {
 		}
 		processImgInfoLinks(el);
 		post.addFuncs();
-		preloadImages(post);
+		ContentLoader.preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
@@ -13478,7 +13441,7 @@ class Thread {
 		const isHide = !this.last.omitted;
 		let post = this.op;
 		let i = 0;
-		for(; post !== this.last; i++) {
+		for(; post !== this.last; ++i) {
 			(post = post.next).omitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
@@ -14001,7 +13964,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._loadPromise = Thread.first.loadNewPosts().then(
 						({ newCount, locked }) =>
 							this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
-						e => this._handleNewPosts(0, e));
+						err => this._handleNewPosts(0, err));
 					return;
 				case 2:
 					this._loadPromise = null;
@@ -14259,7 +14222,7 @@ class DelForm {
 				try {
 					aib.getTNum(cThr);
 					threads.push(cThr);
-				} catch(e) {}
+				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
 				cThr.appendChild(node);
@@ -14285,12 +14248,12 @@ class DelForm {
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete).catch(
-						e => $popup('delete', getErrorMessage(e)));
+						err => $popup('delete', getErrorMessage(err)));
 				};
 			}
 			Logger.log('Init AJAX');
 		}
-		preloadImages(el);
+		ContentLoader.preloadImages(el);
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');
@@ -14315,7 +14278,7 @@ function checkStorage() {
 		locStorage = window.localStorage;
 		sesStorage = window.sessionStorage;
 		sesStorage['__de-test'] = 1;
-	} catch(e) {
+	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
 			locStorage = unsafeWindow.localStorage;
 			sesStorage = unsafeWindow.sessionStorage;
@@ -14343,8 +14306,8 @@ function initNavFuncs() {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
-		} catch(e) {
-			isGM = e.message === 'Permission denied to access property "toString"';
+		} catch(err) {
+			isGM = err.message === 'Permission denied to access property "toString"';
 		}
 		scriptHandler = isChromeStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
@@ -14374,7 +14337,7 @@ function initNavFuncs() {
 		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
-	} catch(e) {
+	} catch(ett) {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
@@ -14414,7 +14377,6 @@ function initNavFuncs() {
 		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
 		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -14429,7 +14391,7 @@ function initNavFuncs() {
 			let value = false;
 			try {
 				value = 'Worker' in window && 'URL' in window;
-			} catch(e) {}
+			} catch(err) {}
 			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
@@ -14454,9 +14416,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches(leftSel, ...rules) {
-			return leftSel + rules.join(', ' + leftSel);
-		},
+		cssMatches : (leftSel, ...rules) => leftSel + rules.join(', ' + leftSel),
+		fixLink    : isSafari ? getAbsLink : url => url,
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
@@ -14465,7 +14426,7 @@ function initNavFuncs() {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
 					}
-				} catch(e) {
+				} catch(err) {
 					Ctor = unsafeWindow.Uint8Array;
 				}
 			}
@@ -14678,7 +14639,7 @@ class BaseBoard {
 			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
-				} catch(e) {}
+				} catch(err) {}
 				return match;
 			});
 		}
@@ -14812,7 +14773,7 @@ class BaseBoard {
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
-		return status === 200;
+		return status === 200 || status === 206;
 	}
 	parseURL() {
 		const url = (window.location.pathname || '').replace(/^\//, '');
@@ -15020,7 +14981,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
-				} catch(e) {}
+				} catch(err) {}
 				switch(data.result) {
 				case 0:
 					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
@@ -15195,7 +15156,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400;
+			return status === 200 || status === 206 || status === 400;
 		}
 		updateSubmitBtn() {}
 	}
@@ -15409,7 +15370,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400 || status === 500;
+			return status === 200 || status === 206 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
 			const getBase64 = async file => new Promise((resolve, reject) => {
@@ -15542,8 +15503,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				initObserver.disconnect();
-				doc.defaultView.addEventListener('message', ({ data }) => {
-					if(data !== '0chan-content-done') {
+				doc.defaultView.addEventListener('message', e => {
+					if(e.data !== '0chan-content-done') {
 						return;
 					}
 					if(updater) {
@@ -15781,7 +15742,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
 							el => $after(backBtn.lastChild, el));
 					}
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return el;
 		}
@@ -15924,7 +15885,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				try {
 					postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return { error, postNum };
 		}
@@ -16038,7 +15999,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				for(let i = 0, tLen = els.length; i < tLen; ++i) {
 					els[i].href = els[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
 				}
-			} catch(e) {}
+			} catch(err) {}
 			return el;
 		}
 		getImgInfo(wrap) {
@@ -16077,7 +16038,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');
 						}
-					} catch(e) {}
+					} catch(err) {}
 				}
 			}, 0);
 			return false;
@@ -16753,16 +16714,14 @@ const DollchanAPI = {
 		this.port.onmessage = this._handleMessage;
 		this.activeListeners = new Set();
 		const port = channel.port2;
-		doc.defaultView.addEventListener('message', ({ data }) => {
-			if(data === 'de-request-api-message') {
+		doc.defaultView.addEventListener('message', e => {
+			if(e.data === 'de-request-api-message') {
 				this.hasListeners = true;
 				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	},
-	hasListener(name) {
-		return this.hasListeners && this.activeListeners.has(name);
-	},
+	hasListener: name => DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name),
 	notify(name, data) {
 		if(this.hasListener(name)) {
 			this.port.postMessage({ name, data });
@@ -17617,8 +17576,8 @@ async function runMain(checkDomains, dataPromise) {
 		if(!Thread.first) {
 			console.error('No threads detected!');
 		}
-	} catch(e) {
-		console.error('Delform parsing error:', getErrorMessage(e));
+	} catch(err) {
+		console.error('Delform parsing error:', getErrorMessage(err));
 		$show(docBody);
 		return;
 	}

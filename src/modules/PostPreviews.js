@@ -46,7 +46,7 @@ class Pview extends AbstractPost {
 				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
 			}
 			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-		}, e => this._onerror(e));
+		}, err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;

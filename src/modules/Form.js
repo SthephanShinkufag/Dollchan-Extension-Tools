@@ -350,7 +350,7 @@ class PostForm {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true).then(checkUpload)
-				.catch(e => $popup('upload', getErrorMessage(e)));
+				.catch(err => $popup('upload', getErrorMessage(err)));
 		};
 	}
 	_initCaptcha() {

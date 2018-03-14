@@ -146,7 +146,7 @@ class ImagesViewer {
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
-				el.target.className !== 'de-fullimg-load'
+				el.className !== 'de-fullimg-load'
 			) {
 				return;
 			}
@@ -568,9 +568,9 @@ class ExpandableImage {
 		});
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', e => {
-			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
-			if(e.isTrusted && val !== Cfg.webmVolume) {
+		videoEl.addEventListener('volumechange', ({ target, isTrusted }) => {
+			const val = target.muted ? 0 : Math.round(target.volume * 100);
+			if(isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
@@ -583,7 +583,7 @@ class ExpandableImage {
 		}
 		// Get webm title: load file and parse its metadata
 		if(needTitle) {
-			this._webmTitleLoad = downloadImgData(videoEl.src, false).then(data => {
+			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;
@@ -593,7 +593,7 @@ class ExpandableImage {
 					return;
 				}
 				d = d[0];
-				for(let i = 0, len = d.length; i < len; i++) {
+				for(let i = 0, len = d.length; i < len; ++i) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
 					if(d[i] === 0x49 &&
 						d[i + 1] === 0xA9 &&
@@ -602,7 +602,7 @@ class ExpandableImage {
 						d[i + 19] === 0xA9
 					) {
 						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
+						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
 							title += String.fromCharCode(d[i]);
 						}
 						if(title) {
@@ -824,7 +824,7 @@ const ImagesHashStorage = Object.create({
 		let data, buffer, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
 		if(aib.fch) {
-			const imgData = await downloadImgData(el.src);
+			const imgData = await ContentLoader.loadImgData(el.src);
 			if(imgData) {
 				({ buffer } = imgData);
 			}
@@ -859,7 +859,7 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 		return;
 	}
 	const els = $Q(aib.qImgNameLink, el);
-	for(let i = 0, len = els.length; i < len; i++) {
+	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -914,8 +914,8 @@ function genImgHash([arrBuf, oldw, oldh]) {
 	const areas = 256 / levels;
 	const values = 256 / (levels - 1);
 	let hash = 0;
-	for(let i = 0; i < newh; i++) {
-		for(let j = 0; j < neww; j++) {
+	for(let i = 0; i < newh; ++i) {
+		for(let j = 0; j < neww; ++j) {
 			let tmp = i / (newh - 1) * (oldh - 1);
 			const l = Math.min(tmp | 0, oldh - 2);
 			const u = tmp - l;

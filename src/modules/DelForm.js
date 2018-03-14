@@ -93,7 +93,7 @@ class DelForm {
 				try {
 					aib.getTNum(cThr);
 					threads.push(cThr);
-				} catch(e) {}
+				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
 				cThr.appendChild(node);
@@ -119,12 +119,12 @@ class DelForm {
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete).catch(
-						e => $popup('delete', getErrorMessage(e)));
+						err => $popup('delete', getErrorMessage(err)));
 				};
 			}
 			Logger.log('Init AJAX');
 		}
-		preloadImages(el);
+		ContentLoader.preloadImages(el);
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');

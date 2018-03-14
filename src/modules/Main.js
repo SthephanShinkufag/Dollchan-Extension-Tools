@@ -75,8 +75,8 @@ async function runMain(checkDomains, dataPromise) {
 		if(!Thread.first) {
 			console.error('No threads detected!');
 		}
-	} catch(e) {
-		console.error('Delform parsing error:', getErrorMessage(e));
+	} catch(err) {
+		console.error('Delform parsing error:', getErrorMessage(err));
 		$show(docBody);
 		return;
 	}

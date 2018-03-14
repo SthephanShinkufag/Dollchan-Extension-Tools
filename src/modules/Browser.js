@@ -7,7 +7,7 @@ function checkStorage() {
 		locStorage = window.localStorage;
 		sesStorage = window.sessionStorage;
 		sesStorage['__de-test'] = 1;
-	} catch(e) {
+	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
 			locStorage = unsafeWindow.localStorage;
 			sesStorage = unsafeWindow.sessionStorage;
@@ -35,8 +35,8 @@ function initNavFuncs() {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
-		} catch(e) {
-			isGM = e.message === 'Permission denied to access property "toString"';
+		} catch(err) {
+			isGM = err.message === 'Permission denied to access property "toString"';
 		}
 		scriptHandler = isChromeStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
@@ -66,7 +66,7 @@ function initNavFuncs() {
 		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
-	} catch(e) {
+	} catch(ett) {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
@@ -106,7 +106,6 @@ function initNavFuncs() {
 		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
 		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -121,7 +120,7 @@ function initNavFuncs() {
 			let value = false;
 			try {
 				value = 'Worker' in window && 'URL' in window;
-			} catch(e) {}
+			} catch(err) {}
 			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
@@ -146,9 +145,8 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches(leftSel, ...rules) {
-			return leftSel + rules.join(', ' + leftSel);
-		},
+		cssMatches : (leftSel, ...rules) => leftSel + rules.join(', ' + leftSel),
+		fixLink    : isSafari ? getAbsLink : url => url,
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
@@ -157,7 +155,7 @@ function initNavFuncs() {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
 					}
-				} catch(e) {
+				} catch(err) {
 					Ctor = unsafeWindow.Uint8Array;
 				}
 			}

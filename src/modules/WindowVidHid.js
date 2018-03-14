@@ -179,8 +179,8 @@ function showHiddenWindow(body) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
-			} catch(e) {
-				if(e.code === 404) {
+			} catch(err) {
+				if(err.code === 404) {
 					HiddenThreads.removeStorage(tNum, b);
 					HiddenPosts.removeStorage(tNum, b);
 				}

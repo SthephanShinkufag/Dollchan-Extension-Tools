@@ -298,7 +298,7 @@ class CancelablePromise {
 	}
 	then(cb, eb) {
 		const children = [];
-		const wrap = fn => function(...args) {
+		const wrap = fn => (...args) => {
 			const child = fn(...args);
 			if(child instanceof CancelablePromise) {
 				children.push(child);
@@ -433,15 +433,15 @@ class TasksPool {
 		}
 	}
 	_runTask(data) {
-		this.func(this.num++, data).then(() => this._endTask(), e => {
-			if(e instanceof TasksPool.PauseError) {
+		this.func(this.num++, data).then(() => this._endTask(), err => {
+			if(err instanceof TasksPool.PauseError) {
 				this.pauseTasks();
-				if(e.duration !== -1) {
-					setTimeout(() => this._continueTasks(), e.duration);
+				if(err.duration !== -1) {
+					setTimeout(() => this._continueTasks(), err.duration);
 				}
 			} else {
 				this._endTask();
-				throw e;
+				throw err;
 			}
 		});
 	}
@@ -521,7 +521,7 @@ class TarBuilder {
 		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
-		for(i = 0; i < 157; i++) {
+		for(i = 0; i < 157; ++i) {
 			checksum += header[i];
 		}
 		// checksum

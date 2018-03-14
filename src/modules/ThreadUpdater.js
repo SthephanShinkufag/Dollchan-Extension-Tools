@@ -389,7 +389,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._loadPromise = Thread.first.loadNewPosts().then(
 						({ newCount, locked }) =>
 							this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
-						e => this._handleNewPosts(0, e));
+						err => this._handleNewPosts(0, err));
 					return;
 				case 2:
 					this._loadPromise = null;
