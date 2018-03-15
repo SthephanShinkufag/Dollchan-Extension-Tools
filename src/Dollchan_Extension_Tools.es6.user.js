@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '51cc6d8';
+const commit = 'b69ac43';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6689,10 +6689,10 @@ AjaxError.Timeout = new AjaxError(0, {
 });
 
 const AjaxCache = {
-	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	clearCache() {
 		this._data = new Map();
 	},
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
@@ -6705,10 +6705,8 @@ const AjaxCache = {
 		let LastModified = null;
 		let i = 0;
 		let hasCacheControl = false;
-		const ajaxHeaders = 'getAllResponseHeaders' in xhr ?
-			xhr.getAllResponseHeaders() :
-			xhr.responseHeaders;
-		for(const header of ajaxHeaders.split('\r\n')) {
+		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
+		for(const header of headers.split('\r\n')) {
 			const lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
@@ -6724,7 +6722,7 @@ const AjaxCache = {
 				break;
 			}
 		}
-		let headers = null;
+		headers = null;
 		if(ETag || LastModified) {
 			headers = {};
 			if(ETag) {
@@ -6801,10 +6799,10 @@ function infoLoadErrors(err, showError = true) {
 const Pages = {
 	addPage() {
 		const pageNum = DelForm.last.pageNum + 1;
-		if(this._adding || pageNum > aib.lastPage) {
+		if(this._isAdding || pageNum > aib.lastPage) {
 			return;
 		}
-		this._adding = true;
+		this._isAdding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
@@ -6863,7 +6861,7 @@ const Pages = {
 		}
 	},
 
-	_adding        : false,
+	_isAdding      : false,
 	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
@@ -6883,7 +6881,7 @@ const Pages = {
 	},
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
-		this._adding = false;
+		this._isAdding = false;
 		this._addingPromise = null;
 	},
 	async _updateForms(newForm) {
@@ -13194,7 +13192,7 @@ class Thread {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
-			const temp = document.createElement('template');
+			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
 			const posts = $Q(aib.qRPost, fragm);
@@ -13529,26 +13527,20 @@ const thrNavPanel = {
 		}
 	},
 	_findCurrentThread() {
-		if('elementsFromPoint' in doc) {
-			Object.defineProperty(this, '_findCurrentThread', {
-				value() {
-					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
-						.find(el => this._thrs.has(el));
-				}
-			});
-			return this._findCurrentThread();
-		}
 		Object.defineProperty(this, '_findCurrentThread', {
-			value() {
-				let el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-				while(el) {
-					if(this._thrs.has(el)) {
-						return el;
+			value: 'elementsFromPoint' in doc ?
+				() => doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+					.find(el => this._thrs.has(el)) :
+				() => {
+					let el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+					while(el) {
+						if(this._thrs.has(el)) {
+							return el;
+						}
+						el = el.parentElement;
 					}
-					el = el.parentElement;
+					return undefined;
 				}
-				return undefined;
-			}
 		});
 		return this._findCurrentThread();
 	},
@@ -14384,7 +14376,7 @@ function initNavFuncs() {
 			return value;
 		},
 		get hasTemplate() {
-			const value = 'content' in document.createElement('template');
+			const value = 'content' in doc.createElement('template');
 			Object.defineProperty(this, 'hasTemplate', { value });
 			return value;
 		},
@@ -14406,13 +14398,13 @@ function initNavFuncs() {
 			return value;
 		},
 		get viewportHeight() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
@@ -14745,19 +14737,8 @@ class BaseBoard {
 		if(isOp) {
 			return el;
 		}
-		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el, isOp) {
-					return isOp ? el : $parent(el, 'TABLE');
-				}
-			});
-		} else {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el) {
-					return el;
-				}
-			});
-		}
+		Object.defineProperty(this, 'getPostWrap',
+			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : $parent(el, 'TABLE') : el => el });
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
@@ -15382,7 +15363,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			const getCookies = () => {
 				const obj = {};
-				const cookies = document.cookie.split(';');
+				const cookies = doc.cookie.split(';');
 				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
 					obj[parts.shift().trim()] = decodeURI(parts.join('='));
@@ -16718,7 +16699,7 @@ const DollchanAPI = {
 		doc.defaultView.addEventListener('message', e => {
 			if(e.data === 'de-request-api-message') {
 				this.hasListeners = true;
-				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+				doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	},

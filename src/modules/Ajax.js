@@ -143,10 +143,10 @@ AjaxError.Timeout = new AjaxError(0, {
 });
 
 const AjaxCache = {
-	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	clearCache() {
 		this._data = new Map();
 	},
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
@@ -159,10 +159,8 @@ const AjaxCache = {
 		let LastModified = null;
 		let i = 0;
 		let hasCacheControl = false;
-		const ajaxHeaders = 'getAllResponseHeaders' in xhr ?
-			xhr.getAllResponseHeaders() :
-			xhr.responseHeaders;
-		for(const header of ajaxHeaders.split('\r\n')) {
+		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
+		for(const header of headers.split('\r\n')) {
 			const lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
@@ -178,7 +176,7 @@ const AjaxCache = {
 				break;
 			}
 		}
-		let headers = null;
+		headers = null;
 		if(ETag || LastModified) {
 			headers = {};
 			if(ETag) {

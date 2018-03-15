@@ -583,7 +583,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			const getCookies = () => {
 				const obj = {};
-				const cookies = document.cookie.split(';');
+				const cookies = doc.cookie.split(';');
 				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
 					obj[parts.shift().trim()] = decodeURI(parts.join('='));

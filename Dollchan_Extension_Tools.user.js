@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '51cc6d8';
+	var commit = 'b69ac43';
 
 
 	var defaultCfg = {
@@ -9929,11 +9929,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	});
 
 	var AjaxCache = {
-		fixURL: function fixURL(url) {
-			return '' + url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
-		},
 		clearCache: function clearCache() {
 			this._data = new Map();
+		},
+
+		fixURL: function fixURL(url) {
+			return '' + url + (url.includes('?') ? '&' : '?') + 'nocache=' + Math.random();
 		},
 		runCachedAjax: function runCachedAjax(url, useCache) {
 			var _this21 = this;
@@ -9952,13 +9953,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var LastModified = null;
 			var i = 0;
 			var hasCacheControl = false;
-			var ajaxHeaders = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
+			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 			var _iteratorNormalCompletion5 = true;
 			var _didIteratorError5 = false;
 			var _iteratorError5 = undefined;
 
 			try {
-				for (var _iterator5 = ajaxHeaders.split('\r\n')[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+				for (var _iterator5 = headers.split('\r\n')[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
 					var header = _step5.value;
 
 					var lHeader = header.toLowerCase();
@@ -9991,7 +9992,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			}
 
-			var headers = null;
+			headers = null;
 			if (ETag || LastModified) {
 				headers = {};
 				if (ETag) {
@@ -10077,10 +10078,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _this22 = this;
 
 			var pageNum = DelForm.last.pageNum + 1;
-			if (this._adding || pageNum > aib.lastPage) {
+			if (this._isAdding || pageNum > aib.lastPage) {
 				return;
 			}
-			this._adding = true;
+			this._isAdding = true;
 			DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' + ('<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 			MyPosts.purge();
 			this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(function (formEl) {
@@ -10257,7 +10258,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}(),
 
 
-		_adding: false,
+		_isAdding: false,
 		_addingPromise: null,
 		_addForm: function _addForm(formEl, pageNum) {
 			formEl = doc.adoptNode(formEl);
@@ -10274,7 +10275,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		_endAdding: function _endAdding() {
 			$del($q('.de-addpage-wait'));
-			this._adding = false;
+			this._isAdding = false;
 			this._addingPromise = null;
 		},
 		_updateForms: function () {
@@ -18087,7 +18088,7 @@ true, true];
 						html.push(pBuilder.getPostHTML(i));
 						nums.push(pBuilder.getPNum(i));
 					}
-					var temp = document.createElement('template');
+					var temp = doc.createElement('template');
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
@@ -18501,23 +18502,17 @@ true, true];
 			}
 		},
 		_findCurrentThread: function _findCurrentThread() {
-			if ('elementsFromPoint' in doc) {
-				Object.defineProperty(this, '_findCurrentThread', {
-					value: function value() {
-						var _this69 = this;
+			var _this69 = this;
 
-						return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-							return _this69._thrs.has(el);
-						});
-					}
-				});
-				return this._findCurrentThread();
-			}
 			Object.defineProperty(this, '_findCurrentThread', {
-				value: function value() {
-					var el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+				value: 'elementsFromPoint' in doc ? function () {
+					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
+						return _this69._thrs.has(el);
+					});
+				} : function () {
+					var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 					while (el) {
-						if (this._thrs.has(el)) {
+						if (_this69._thrs.has(el)) {
 							return el;
 						}
 						el = el.parentElement;
@@ -19406,7 +19401,7 @@ true, true];
 				return value;
 			},
 			get hasTemplate() {
-				var value = 'content' in document.createElement('template');
+				var value = 'content' in doc.createElement('template');
 				Object.defineProperty(this, 'hasTemplate', { value: value });
 				return value;
 			},
@@ -19429,7 +19424,7 @@ true, true];
 				return value;
 			},
 			get viewportHeight() {
-				var value = document.compatMode && document.compatMode === 'CSS1Compat' ? function () {
+				var value = doc.compatMode && doc.compatMode === 'CSS1Compat' ? function () {
 					return doc.documentElement.clientHeight;
 				} : function () {
 					return docBody.clientHeight;
@@ -19438,7 +19433,7 @@ true, true];
 				return value;
 			},
 			get viewportWidth() {
-				var value = document.compatMode && document.compatMode === 'CSS1Compat' ? function () {
+				var value = doc.compatMode && doc.compatMode === 'CSS1Compat' ? function () {
 					return doc.documentElement.clientWidth;
 				} : function () {
 					return docBody.clientWidth;
@@ -19729,19 +19724,11 @@ true, true];
 				if (isOp) {
 					return el;
 				}
-				if (el.tagName === 'TD') {
-					Object.defineProperty(this, 'getPostWrap', {
-						value: function value(el, isOp) {
-							return isOp ? el : $parent(el, 'TABLE');
-						}
-					});
-				} else {
-					Object.defineProperty(this, 'getPostWrap', {
-						value: function value(el) {
-							return el;
-						}
-					});
-				}
+				Object.defineProperty(this, 'getPostWrap', { value: el.tagName === 'TD' ? function (el, isOp) {
+						return isOp ? el : $parent(el, 'TABLE');
+					} : function (el) {
+						return el;
+					} });
 				return this.getPostWrap(el, isOp);
 			}
 		}, {
@@ -20692,7 +20679,7 @@ true, true];
 
 										getCookies = function getCookies() {
 											var obj = {};
-											var cookies = document.cookie.split(';');
+											var cookies = doc.cookie.split(';');
 											for (var i = 0, _len15 = cookies.length; i < _len15; ++i) {
 												var parts = cookies[i].split('=');
 												obj[parts.shift().trim()] = decodeURI(parts.join('='));
@@ -22666,7 +22653,7 @@ true, true];
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
 					_this114.hasListeners = true;
-					document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
 		},

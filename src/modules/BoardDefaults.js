@@ -297,19 +297,8 @@ class BaseBoard {
 		if(isOp) {
 			return el;
 		}
-		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el, isOp) {
-					return isOp ? el : $parent(el, 'TABLE');
-				}
-			});
-		} else {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el) {
-					return el;
-				}
-			});
-		}
+		Object.defineProperty(this, 'getPostWrap',
+			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : $parent(el, 'TABLE') : el => el });
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {

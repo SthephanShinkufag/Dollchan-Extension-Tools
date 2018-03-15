@@ -231,7 +231,7 @@ class Thread {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
-			const temp = document.createElement('template');
+			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
 			const posts = $Q(aib.qRPost, fragm);
@@ -566,26 +566,20 @@ const thrNavPanel = {
 		}
 	},
 	_findCurrentThread() {
-		if('elementsFromPoint' in doc) {
-			Object.defineProperty(this, '_findCurrentThread', {
-				value() {
-					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
-						.find(el => this._thrs.has(el));
-				}
-			});
-			return this._findCurrentThread();
-		}
 		Object.defineProperty(this, '_findCurrentThread', {
-			value() {
-				let el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-				while(el) {
-					if(this._thrs.has(el)) {
-						return el;
+			value: 'elementsFromPoint' in doc ?
+				() => doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+					.find(el => this._thrs.has(el)) :
+				() => {
+					let el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+					while(el) {
+						if(this._thrs.has(el)) {
+							return el;
+						}
+						el = el.parentElement;
 					}
-					el = el.parentElement;
+					return undefined;
 				}
-				return undefined;
-			}
 		});
 		return this._findCurrentThread();
 	},

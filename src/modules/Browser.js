@@ -112,7 +112,7 @@ function initNavFuncs() {
 			return value;
 		},
 		get hasTemplate() {
-			const value = 'content' in document.createElement('template');
+			const value = 'content' in doc.createElement('template');
 			Object.defineProperty(this, 'hasTemplate', { value });
 			return value;
 		},
@@ -134,13 +134,13 @@ function initNavFuncs() {
 			return value;
 		},
 		get viewportHeight() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;

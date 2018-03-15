@@ -18,7 +18,7 @@ const DollchanAPI = {
 		doc.defaultView.addEventListener('message', e => {
 			if(e.data === 'de-request-api-message') {
 				this.hasListeners = true;
-				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+				doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	},
