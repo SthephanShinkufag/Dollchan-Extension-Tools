@@ -7,6 +7,7 @@ class Thread {
 		this.hasNew = false;
 		this.hidden = false;
 		this.hidCounter = 0;
+		this.isFav = false;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -141,12 +142,28 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(val) {
-		this.op.setFavBtn(val);
+	setFavorState(isEnable, preview) {
+		let h, b, num, cnt, txt, last;
+		if(preview) {
+			preview.setFavBtn(isEnable);
+		}
+		if(!preview || preview.num === this.num) { // Oppost or usual preview
+			this.op.setFavBtn(isEnable);
+			this.isFav = isEnable;
+			({ host: h, b } = aib);
+			num = this.thrId;
+			cnt = this.pcount;
+			txt = this.op.title;
+			last = aib.anchor + this.last.num;
+		} else { // Loaded preview for oppost in remote thread
+			h = aib.host;
+			({ brd: b, num } = preview);
+			cnt = preview.remoteThr.pcount;
+			txt = preview.remoteThr.title;
+			last = aib.anchor + preview.remoteThr.lastNum;
+		}
 		readFavorites().then(favObj => {
-			const { b, host: h } = aib;
-			const num = this.thrId;
-			if(val) {
+			if(isEnable) {
 				if(!favObj[h]) {
 					favObj[h] = {};
 				}
@@ -154,18 +171,11 @@ class Thread {
 					favObj[h][b] = {};
 				}
 				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				favObj[h][b][num] = {
-					cnt  : this.pcount,
-					new  : 0,
-					you  : 0,
-					txt  : this.op.title,
-					url  : aib.getThrUrl(b, num),
-					last : aib.anchor + this.last.num
-				};
+				favObj[h][b][num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
 	}

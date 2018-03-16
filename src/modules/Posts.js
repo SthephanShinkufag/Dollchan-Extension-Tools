@@ -167,8 +167,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
+			case 'de-btn-fav': this.thr.setFavorState(true, isPview ? this : null); return;
+			case 'de-btn-fav-sel': this.thr.setFavorState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -255,10 +255,10 @@ class AbstractPost {
 			e.stopPropagation();
 		}
 	}
-	setFavBtn(state) {
-		const el = $q(state ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
+	setFavBtn(isEnable) {
+		const el = $q(isEnable ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
 		if(el) {
-			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
+			el.setAttribute('class', isEnable ? 'de-btn-fav-sel' : 'de-btn-fav');
 		}
 	}
 	updateMsg(newMsg, sRunner) {
@@ -382,23 +382,17 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-		const refEl = $q(aib.qPostRef, el);
-		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
+		this.sage = aib.getSage(el);
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
+			`<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-		this._pref = refEl;
-		if(isOp) {
-			if(!aib.t) {
-				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
-			}
-			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
-		}
-		this.sage = aib.getSage(el);
-		if(this.sage) {
-			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
-		}
-		this.btns = $aEnd(refEl, html + '</span>');
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(isOp ?
+				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
+				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
+			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'</span>');
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}

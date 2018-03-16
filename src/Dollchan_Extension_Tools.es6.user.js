@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'b69ac43';
+const commit = 'fc6e0d2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2564,6 +2564,7 @@ function readPostsData(firstPost, favObj) {
 			const f = favBrd[num];
 			const { thr } = post;
 			post.setFavBtn(true);
+			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
 				f.new = 0;
@@ -3662,7 +3663,9 @@ function removeFavEntry(favObj, h, b, num) {
 
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).setFavBtn(isEnable);
+		const post = pByNum.get(num);
+		post.setFavBtn(isEnable);
+		post.thr.isFav = isEnable;
 	}
 }
 
@@ -10021,8 +10024,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
+			case 'de-btn-fav': this.thr.setFavorState(true, isPview ? this : null); return;
+			case 'de-btn-fav-sel': this.thr.setFavorState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -10109,10 +10112,10 @@ class AbstractPost {
 			e.stopPropagation();
 		}
 	}
-	setFavBtn(state) {
-		const el = $q(state ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
+	setFavBtn(isEnable) {
+		const el = $q(isEnable ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
 		if(el) {
-			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
+			el.setAttribute('class', isEnable ? 'de-btn-fav-sel' : 'de-btn-fav');
 		}
 	}
 	updateMsg(newMsg, sRunner) {
@@ -10236,23 +10239,17 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-		const refEl = $q(aib.qPostRef, el);
-		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
+		this.sage = aib.getSage(el);
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
+			`<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-		this._pref = refEl;
-		if(isOp) {
-			if(!aib.t) {
-				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
-			}
-			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
-		}
-		this.sage = aib.getSage(el);
-		if(this.sage) {
-			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
-		}
-		this.btns = $aEnd(refEl, html + '</span>');
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(isOp ?
+				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
+				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
+			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'</span>');
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}
@@ -10837,9 +10834,9 @@ class Pview extends AbstractPost {
 			return;
 		}
 		this._isCached = true;
-		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(PviewsCache.has(this._brd + tNum)) {
-			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
+		this.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+		if(PviewsCache.has(this.brd + tNum)) {
+			post = PviewsCache.get(this.brd + tNum).getPost(pNum);
 			if(post) {
 				this._showPost(post);
 			} else {
@@ -10852,7 +10849,7 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(pBuilder => {
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false).then(pBuilder => {
 			if(!aib.JsonBuilder) {
 				this._onload(pBuilder._form);
 				return;
@@ -11053,7 +11050,7 @@ class Pview extends AbstractPost {
 		}
 	}
 	_onload(form) {
-		const b = this._brd;
+		const b = this.brd;
 		const { num } = this.parent;
 		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
@@ -11112,63 +11109,66 @@ class Pview extends AbstractPost {
 		this._menu.onover = () => this.mouseEnter();
 		this._menu.onout = () => this.markToDel();
 	}
-	_showPost(post) {
-		if(this.el) {
-			$del(this.el);
-		}
-		const pviewEl = this.el = post.el.cloneNode(true);
+	async _showPost(post) {
+		$del(this.el);
 		const isMyPost = Cfg.markMyPosts && MyPosts.has(this.num);
-		pByEl.set(pviewEl, this);
-		pviewEl.className = `${ aib.cReply } de-pview${
+		pByEl.set(this.el = post.el.cloneNode(true), this);
+		this.el.className = `${ aib.cReply } de-pview${
 			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
-		$show(pviewEl);
-		$each($Q('.de-post-hiddencontent', pviewEl), el => el.classList.remove('de-post-hiddencontent'));
+		$show(this.el);
+		$each($Q('.de-post-hiddencontent', this.el), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
-			Pview._markLink(pviewEl, this.parent.num);
+			Pview._markLink(this.el, this.parent.num);
 		}
-		this._pref = $q(aib.qPostRef, pviewEl);
+		this._pref = $q(aib.qPostRef, this.el);
 		this._link.classList.add('de-link-parent');
-		const pText = `<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>${
-			post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : ''
-		}<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>${
-			post.deleted ? '' : `<span class="de-post-counter-pview">${
-				post.isOp ? 'OP' : post.count + +!aib.JsonBuilder }${ isMyPost ? ' (You)' : '' }</span>` }`;
+		let f;
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(this.isOp ? `<svg class="${ post.thr.isFav ||
+				(f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (this.num in f) ?
+				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
+			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
+			(post.deleted ? '' : '<span class="de-post-counter-pview">' +
+				(this.isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
 		if(post instanceof CacheItem) {
+			if(this.isOp) {
+				this.remoteThr = post.thr;
+			}
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
 			if(Cfg.addYouTube) {
 				new VideosParser().parse(this).endParser();
 			}
-			embedPostMsgImages(pviewEl);
-			processImgInfoLinks(pviewEl);
+			embedPostMsgImages(this.el);
+			processImgInfoLinks(this.el);
 		} else {
-			let el = this._pref.nextSibling;
-			this.btns = el;
+			this.btns = this._pref.nextSibling;
 			this.isOp = post.isOp;
-			el.classList.remove('de-post-counter');
+			this.btns.classList.remove('de-post-counter');
 			if(post.hidden) {
-				el.classList.add('de-post-hide');
+				this.btns.classList.add('de-post-hide');
 			}
-			el.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
+			this.btns.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
 			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				pviewEl), $del);
-			$each($Q(aib.qPostImg, pviewEl), el => $show(el.parentNode));
-			el = $q('.de-link-parent', pviewEl);
-			if(el) {
-				el.classList.remove('de-link-parent');
+				this.el), $del);
+			$each($Q(aib.qPostImg, this.el), el => $show(el.parentNode));
+			const link = $q('.de-link-parent', this.el);
+			if(link) {
+				link.classList.remove('de-link-parent');
 			}
 			if(Cfg.addYouTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
 					Object.defineProperty(this, 'videos',
-						{ value: new Videos(this, $q('.de-video-obj', pviewEl), post.videos.playerInfo) });
+						{ value: new Videos(this, $q('.de-video-obj', this.el), post.videos.playerInfo) });
 				}
-				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
+				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', this.el), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pviewEl), $show);
+				$each($Q('.de-img-embed', this.el), $show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -11182,8 +11182,8 @@ class Pview extends AbstractPost {
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		}
-		pviewEl.addEventListener('click', this, true);
-		this._showPview(pviewEl);
+		this.el.addEventListener('click', this, true);
+		this._showPview(this.el);
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -11228,6 +11228,9 @@ class CacheItem {
 		Object.defineProperty(this, 'sage', { value });
 		return value;
 	}
+	get title() {
+		return new Post.Сontent(this).title;
+	}
 }
 
 class PviewsCache extends TemporaryContent {
@@ -11240,11 +11243,14 @@ class PviewsCache extends TemporaryContent {
 		const pByNum = new Map();
 		const thr = $q(aib.qThread, form) || form;
 		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-		for(let i = 0, len = posts.length; i < len; ++i) {
+		const pcount = posts.length;
+		for(let i = 0; i < pcount; ++i) {
 			const post = posts[i];
 			pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 		}
-		pByNum.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
+		this._opObj = new CacheItem(aib.getOp(thr), 0);
+		this._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount, title: this._opObj.title };
+		pByNum.set(tNum, this._opObj);
 		this._b = b;
 		this._tNum = tNum;
 		this._tUrl = aib.getThrUrl(b, tNum);
@@ -12968,6 +12974,7 @@ class Thread {
 		this.hasNew = false;
 		this.hidden = false;
 		this.hidCounter = 0;
+		this.isFav = false;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -13102,12 +13109,28 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(val) {
-		this.op.setFavBtn(val);
+	setFavorState(isEnable, preview) {
+		let h, b, num, cnt, txt, last;
+		if(preview) {
+			preview.setFavBtn(isEnable);
+		}
+		if(!preview || preview.num === this.num) { // Oppost or usual preview
+			this.op.setFavBtn(isEnable);
+			this.isFav = isEnable;
+			({ host: h, b } = aib);
+			num = this.thrId;
+			cnt = this.pcount;
+			txt = this.op.title;
+			last = aib.anchor + this.last.num;
+		} else { // Loaded preview for oppost in remote thread
+			h = aib.host;
+			({ brd: b, num } = preview);
+			cnt = preview.remoteThr.pcount;
+			txt = preview.remoteThr.title;
+			last = aib.anchor + preview.remoteThr.lastNum;
+		}
 		readFavorites().then(favObj => {
-			const { b, host: h } = aib;
-			const num = this.thrId;
-			if(val) {
+			if(isEnable) {
 				if(!favObj[h]) {
 					favObj[h] = {};
 				}
@@ -13115,18 +13138,11 @@ class Thread {
 					favObj[h][b] = {};
 				}
 				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				favObj[h][b][num] = {
-					cnt  : this.pcount,
-					new  : 0,
-					you  : 0,
-					txt  : this.op.title,
-					url  : aib.getThrUrl(b, num),
-					last : aib.anchor + this.last.num
-				};
+				favObj[h][b][num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
 	}

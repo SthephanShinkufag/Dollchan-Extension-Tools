@@ -29,7 +29,9 @@ function removeFavEntry(favObj, h, b, num) {
 
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).setFavBtn(isEnable);
+		const post = pByNum.get(num);
+		post.setFavBtn(isEnable);
+		post.thr.isFav = isEnable;
 	}
 }
 

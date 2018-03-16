@@ -203,6 +203,7 @@ function readPostsData(firstPost, favObj) {
 			const f = favBrd[num];
 			const { thr } = post;
 			post.setFavBtn(true);
+			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
 				f.new = 0;
