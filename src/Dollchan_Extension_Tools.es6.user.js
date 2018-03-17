@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '98803c7';
+const commit = 'f64449e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2331,13 +2331,19 @@ const prettifySize = val =>
 	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
 	val.toFixed(2) + Lng.sizeByte[lang];
 
-const getFileType = url =>
-	/\.jpe?g$/i.test(url) ? 'image/jpeg' :
-	/\.png$/i.test(url) ? 'image/png' :
-	/\.gif$/i.test(url) ? 'image/gif' :
-	/\.webm$/i.test(url) ? 'video/webm' :
-	/\.mp4$/i.test(url) ? 'video/mp4' :
-	/\.ogv$/i.test(url) ? 'video/ogv' : '';
+function getFileType(url) {
+	const dotIdx = url.lastIndexOf('.') + 1;
+	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
+	case 'jpg':
+	case 'jpeg': return 'image/jpeg';
+	case 'png': return 'image/png';
+	case 'gif': return 'image/gif';
+	case 'webm': return 'video/webm';
+	case 'mp4': return 'video/mp4';
+	case 'ogv': return 'video/ogv';
+	default: return '';
+	}
+}
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);

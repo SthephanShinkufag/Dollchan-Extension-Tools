@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '98803c7';
+	var commit = 'f64449e';
 
 
 	var defaultCfg = {
@@ -5443,10 +5443,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return val > 512 * 1024 * 1024 ? (val / Math.pow(1024, 3)).toFixed(2) + Lng.sizeGByte[lang] : val > 512 * 1024 ? (val / Math.pow(1024, 2)).toFixed(2) + Lng.sizeMByte[lang] : val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] : val.toFixed(2) + Lng.sizeByte[lang];
 	};
 
-	var getFileType = function getFileType(url) {
-		return (/\.jpe?g$/i.test(url) ? 'image/jpeg' : /\.png$/i.test(url) ? 'image/png' : /\.gif$/i.test(url) ? 'image/gif' : /\.webm$/i.test(url) ? 'video/webm' : /\.mp4$/i.test(url) ? 'video/mp4' : /\.ogv$/i.test(url) ? 'video/ogv' : ''
-		);
-	};
+	function getFileType(url) {
+		var dotIdx = url.lastIndexOf('.') + 1;
+		switch (dotIdx && url.substr(dotIdx).toLowerCase()) {
+			case 'jpg':
+			case 'jpeg':
+				return 'image/jpeg';
+			case 'png':
+				return 'image/png';
+			case 'gif':
+				return 'image/gif';
+			case 'webm':
+				return 'video/webm';
+			case 'mp4':
+				return 'video/mp4';
+			case 'ogv':
+				return 'video/ogv';
+			default:
+				return '';
+		}
+	}
 
 	function downloadBlob(blob, name) {
 		var url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
