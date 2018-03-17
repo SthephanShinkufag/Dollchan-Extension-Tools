@@ -107,6 +107,7 @@ function scriptCSS() {
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
+	#de-win-cfg.de-win-fixed { z-index: 10001 !important; }
 
 	/* Settings window theme */
 	${ [/* Gradient darkblue */

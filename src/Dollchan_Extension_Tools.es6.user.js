@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '255d984';
+const commit = '98803c7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1780,16 +1780,14 @@ const Logger = {
 		let lastExtra = 0;
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-			// Ignore logs equal to 0ms
 			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
-			} else {
+			} else { // Ignore logs equal to 0ms
 				lastExtra = duration;
 			}
 		}
-		duration = marks[i][1] - marks[0][1];
-		timeLog.push([Lng.total[lang], duration]);
+		timeLog.push([Lng.total[lang], marks[i][1] - marks[0][1]]);
 		return timeLog;
 	},
 	initLogger() {
@@ -2327,27 +2325,19 @@ function isFormElDisabled(el) {
 	return false;
 }
 
-function prettifySize(val) {
-	if(val > 512 * 1024 * 1024) {
-		return (val / (1024 * 1024 * 1024)).toFixed(2) + Lng.sizeGByte[lang];
-	}
-	if(val > 512 * 1024) {
-		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
-	}
-	if(val > 512) {
-		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
-	}
-	return val.toFixed(2) + Lng.sizeByte[lang];
-}
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
 
-function getFileType(url) {
-	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
-		/\.png$/i.test(url) ? 'image/png' :
-		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' :
-		/\.mp4$/i.test(url) ? 'video/mp4' :
-		/\.ogv$/i.test(url) ? 'video/ogv' : '';
-}
+const getFileType = url =>
+	/\.jpe?g$/i.test(url) ? 'image/jpeg' :
+	/\.png$/i.test(url) ? 'image/png' :
+	/\.gif$/i.test(url) ? 'image/gif' :
+	/\.webm$/i.test(url) ? 'video/webm' :
+	/\.mp4$/i.test(url) ? 'video/mp4' :
+	/\.ogv$/i.test(url) ? 'video/ogv' : '';
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
@@ -2566,8 +2556,7 @@ function readPostsData(firstPost, favObj) {
 			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
-				f.new = 0;
-				f.you = 0;
+				f.new = f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {
@@ -3642,14 +3631,7 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		let len = Object.keys(f).length;
-		if(f.hasOwnProperty('url')) {
-			len--;
-		}
-		if(f.hasOwnProperty('hide')) {
-			len--;
-		}
-		if(!len) {
+		if(!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];
@@ -3676,8 +3658,7 @@ function updateFavorites(num, value, mode) {
 		case 'error': f.err = value; break;
 		case 'update':
 			f.cnt = value[0];
-			f.new = 0;
-			f.you = 0;
+			f.new = f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
 		const data = [aib.host, aib.b, num, value, mode];
@@ -3751,7 +3732,6 @@ function showFavoritesWindow(body, favObj) {
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-
 				// Generate DOM for separate entry
 				const favLinkHref = t.url + (
 					!t.last ? '' :
@@ -4534,7 +4514,7 @@ const CfgWindow = {
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getLogData(true).reduce((obj, el) => {
-						obj[el[0]] = el[1];
+						obj[el[0]] = el[1]; // Transforms 2D-array into object with keys and values
 						return obj;
 					}, {})
 				}, (key, value) => {
@@ -4864,12 +4844,11 @@ const CfgWindow = {
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">
-					${ this._getInfoTable(Logger.getLogData(false), true) }
+				<div id="de-info-stats">${ statsTable }
 					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
 						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 				</div>
+				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
@@ -4881,39 +4860,32 @@ const CfgWindow = {
 
 	// Creates a label with checkbox for option switching
 	_getBox: id => `<label class="de-cfg-label">
-		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
-	</label>`,
+		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
 	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
 		<span class="de-info-name">${ data[0] }</span>
-		<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-	</div>`).join(''),
+		<span>${ data[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
 	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
-		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-			`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
+		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
+		escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList: a => arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>'),
+	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel(id) {
-		const x = Lng.cfg[id];
-		const opt = [];
-		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-		}
-		return `<label class="de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
-		</label>`;
-	},
+	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
+		Lng.cfg[id].sel[lang].reduce((val, str, i) => (val += `<option value="${ i }">${ str }</option>`), '')
+	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
 	// Creates a tab for tab bar
-	_getTab: name => `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${
-		Lng.cfgTab[name][lang] }</div>`,
-	// Switching dependent checkboxes according to their parents
-	_toggleBox(state, arr) {
+	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
+	// Switching the dependent inputs according to their parents
+	_toggleDependant(state, arr) {
 		let i = arr.length;
 		const nState = !state;
 		while(i--) {
-			($q(arr[i]) || {}).disabled = nState;
+			const el = $q(arr[i]);
+			if(el) {
+				el.disabled = nState;
+			}
 		}
 	},
 	_updateCSS() {
@@ -4921,7 +4893,7 @@ const CfgWindow = {
 		scriptCSS();
 	},
 	_updateDependant() {
-		const fn = this._toggleBox;
+		const fn = this._toggleDependant;
 		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
@@ -5936,8 +5908,8 @@ const ContentLoader = {
 			this.isLoading = true;
 		}
 		for(let i = 0; i < len; ++i) {
-			let el = els[i];
-			const imgLink = $parent(el = els[i], 'A');
+			const el = els[i];
+			const imgLink = $parent(el, 'A');
 			if(!imgLink) {
 				continue;
 			}
@@ -6241,8 +6213,8 @@ class Videos {
 			return;
 		}
 		let dataObj;
-		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
-			this.vData[isYtube ? 0 : 1].push(dataObj);
+		if(loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
+			this.vData[+!isYtube].push(dataObj);
 		}
 		let time = '';
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
@@ -6400,8 +6372,8 @@ class Videos {
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
 		if(data.length !== 0) {
 			Videos.setLinkData(link, data);
-			Videos._global.vData[isYtube ? 0 : 1][id] = data;
-			videoObj.vData[isYtube ? 0 : 1].push(data);
+			Videos._global.vData[+!isYtube][id] = data;
+			videoObj.vData[+!isYtube].push(data);
 			if(videoObj.titleLoadFn) {
 				videoObj.titleLoadFn(data);
 			}
@@ -6463,29 +6435,9 @@ class VideosParser {
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
 		const loader = this._loader;
-		let links = $Q('a[href*="youtu"]', isPost ? data.el : data);
-		for(let i = 0, len = links.length; i < len; ++i) {
-			const link = links[i];
-			const m = link.href.match(Videos.ytReg);
-			if(m) {
-				const mPost = isPost ? data : aib.getPostOfEl(link);
-				if(mPost) {
-					mPost.videos.addLink(m, loader, link, true);
-				}
-			}
-		}
+		VideosParser._parserHelper('a[href*="youtu"]', data, loader, isPost, true, Videos.ytReg);
 		if(Cfg.addVimeo) {
-			links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-			for(let i = 0, len = links.length; i < len; ++i) {
-				const link = links[i];
-				const m = link.href.match(Videos.vimReg);
-				if(m) {
-					const mPost = isPost ? data : aib.getPostOfEl(link);
-					if(mPost) {
-						mPost.videos.addLink(m, loader, link, false);
-					}
-				}
-			}
+			VideosParser._parserHelper('a[href*="vimeo.com"]', data, loader, isPost, false, Videos.vimReg);
 		}
 		const vids = aib.fixVideo(isPost, data);
 		for(let i = 0, len = vids.length; i < len; ++i) {
@@ -6495,6 +6447,20 @@ class VideosParser {
 			}
 		}
 		return this;
+	}
+
+	static _parserHelper(qPath, data, loader, isPost, isYtube, reg) {
+		const links = $Q(qPath, isPost ? data.el : data);
+		for(let i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const m = link.href.match(reg);
+			if(m) {
+				const mPost = isPost ? data : aib.getPostOfEl(link);
+				if(mPost) {
+					mPost.videos.addLink(m, loader, link, isYtube);
+				}
+			}
+		}
 	}
 }
 
@@ -6675,16 +6641,8 @@ class AjaxError {
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, {
-	toString() {
-		return Lng.thrClosed[lang];
-	}
-});
-AjaxError.Timeout = new AjaxError(0, {
-	toString() {
-		return Lng.noConnect[lang] + ' (timeout)';
-	}
-});
+AjaxError.Locked = new AjaxError(-1, { toString: () => Lng.thrClosed[lang] });
+AjaxError.Timeout = new AjaxError(0, { toString: () => Lng.noConnect[lang] + ' (timeout)' });
 
 const AjaxCache = {
 	clearCache() {
@@ -8339,21 +8297,14 @@ class PostForm {
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
-		const btns = aib.markupTags;
 		const mode = Cfg.addTextBtns;
-		let html = '';
-		for(let i = 0, len = btns.length; i < len; ++i) {
-			if(btns[i] === '') {
-				continue;
-			}
-			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
-				mode === 2 ? `${ html === '' ? '[ ' : '' }<a class="de-abtn" href="#">${ val[i] }</a> / ` :
+		el.innerHTML = `${ aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
+			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
+				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`;
-		}
-		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
-			mode === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
+			}</div>`), '') }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
 		}</span>`;
@@ -8822,12 +8773,8 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	let err = '';
-	const els = $Q(aib.qError, dc);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		err += els[i].innerHTML + '\n';
-	}
-	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+	const err = [...$Q(aib.qError, dc)].reduce((val, str, i) => (val += str.innerHTML + '\n'), '')
+		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
@@ -9180,12 +9127,8 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		const inputs = [];
-		const els = $Q('input[type="file"]', this.fileTd);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			inputs.push(new FileInput(this, els[i]));
-		}
-		this._inputs = inputs;
+		this._inputs = [...$Q('input[type="file"]', this.fileTd)].reduce(
+			(arr, el) => arr.push(new FileInput(this, el)) && arr, []);
 		this._files = [];
 		this.hideEmpty();
 	}
@@ -11876,11 +11819,8 @@ class ExpandableImage {
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; ++i) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 &&
-						d[i + 1] === 0xA9 &&
-						d[i + 2] === 0x66 &&
-						d[i + 18] === 0x7B &&
-						d[i + 19] === 0xA9
+					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
+						d[i + 18] === 0x7B && d[i + 19] === 0xA9
 					) {
 						i += 20;
 						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
@@ -12687,7 +12627,7 @@ class _0chanPostsBuilder {
 			this._posts[0].message }</div></div>`));
 	}
 	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
+		return +this._posts[i + 1].id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
@@ -14209,15 +14149,15 @@ class DelForm {
 		const threads = [];
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			const node = fNodes[i];
-			if(node.tagName === 'HR') {
-				formEl.insertBefore(cThr, node);
+			const el = fNodes[i];
+			if(el.tagName === 'HR') {
+				formEl.insertBefore(cThr, el);
 				if(!aib.tinyib) {
-					formEl.insertBefore(cThr.lastElementChild, node);
+					formEl.insertBefore(cThr.lastElementChild, el);
 				}
-				const el = cThr.lastElementChild;
-				if(el.tagName === 'BR') {
-					formEl.insertBefore(el, node);
+				const lastEl = cThr.lastElementChild;
+				if(lastEl.tagName === 'BR') {
+					formEl.insertBefore(lastEl, el);
 				}
 				try {
 					aib.getTNum(cThr);
@@ -14225,7 +14165,7 @@ class DelForm {
 				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
-				cThr.appendChild(node);
+				cThr.appendChild(el);
 			}
 		}
 		cThr.appendChild(fNodes[i]);
@@ -16776,8 +16716,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			if(isManual) {
 				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
-				return c === commit ?
-					Lng.haveLatestCommit[lang].replace('%s', vc) :
+				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
@@ -17171,6 +17110,7 @@ function scriptCSS() {
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
+	#de-win-cfg.de-win-fixed { z-index: 10001 !important; }
 
 	/* Settings window theme */
 	${ [/* Gradient darkblue */

@@ -11,14 +11,7 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		let len = Object.keys(f).length;
-		if(f.hasOwnProperty('url')) {
-			len--;
-		}
-		if(f.hasOwnProperty('hide')) {
-			len--;
-		}
-		if(!len) {
+		if(!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];
@@ -45,8 +38,7 @@ function updateFavorites(num, value, mode) {
 		case 'error': f.err = value; break;
 		case 'update':
 			f.cnt = value[0];
-			f.new = 0;
-			f.you = 0;
+			f.new = f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
 		const data = [aib.host, aib.b, num, value, mode];
@@ -120,7 +112,6 @@ function showFavoritesWindow(body, favObj) {
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-
 				// Generate DOM for separate entry
 				const favLinkHref = t.url + (
 					!t.last ? '' :

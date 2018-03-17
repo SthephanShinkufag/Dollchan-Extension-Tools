@@ -237,16 +237,14 @@ const Logger = {
 		let lastExtra = 0;
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-			// Ignore logs equal to 0ms
 			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
-			} else {
+			} else { // Ignore logs equal to 0ms
 				lastExtra = duration;
 			}
 		}
-		duration = marks[i][1] - marks[0][1];
-		timeLog.push([Lng.total[lang], duration]);
+		timeLog.push([Lng.total[lang], marks[i][1] - marks[0][1]]);
 		return timeLog;
 	},
 	initLogger() {
@@ -784,27 +782,19 @@ function isFormElDisabled(el) {
 	return false;
 }
 
-function prettifySize(val) {
-	if(val > 512 * 1024 * 1024) {
-		return (val / (1024 * 1024 * 1024)).toFixed(2) + Lng.sizeGByte[lang];
-	}
-	if(val > 512 * 1024) {
-		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
-	}
-	if(val > 512) {
-		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
-	}
-	return val.toFixed(2) + Lng.sizeByte[lang];
-}
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
 
-function getFileType(url) {
-	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
-		/\.png$/i.test(url) ? 'image/png' :
-		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' :
-		/\.mp4$/i.test(url) ? 'video/mp4' :
-		/\.ogv$/i.test(url) ? 'video/ogv' : '';
-}
+const getFileType = url =>
+	/\.jpe?g$/i.test(url) ? 'image/jpeg' :
+	/\.png$/i.test(url) ? 'image/png' :
+	/\.gif$/i.test(url) ? 'image/gif' :
+	/\.webm$/i.test(url) ? 'video/webm' :
+	/\.mp4$/i.test(url) ? 'video/mp4' :
+	/\.ogv$/i.test(url) ? 'video/ogv' : '';
 
 function downloadBlob(blob, name) {
 	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);

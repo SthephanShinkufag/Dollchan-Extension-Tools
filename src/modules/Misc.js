@@ -88,8 +88,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			if(isManual) {
 				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
-				return c === commit ?
-					Lng.haveLatestCommit[lang].replace('%s', vc) :
+				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}

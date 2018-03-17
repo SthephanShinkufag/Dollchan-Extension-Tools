@@ -131,16 +131,8 @@ class AjaxError {
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, {
-	toString() {
-		return Lng.thrClosed[lang];
-	}
-});
-AjaxError.Timeout = new AjaxError(0, {
-	toString() {
-		return Lng.noConnect[lang] + ' (timeout)';
-	}
-});
+AjaxError.Locked = new AjaxError(-1, { toString: () => Lng.thrClosed[lang] });
+AjaxError.Timeout = new AjaxError(0, { toString: () => Lng.noConnect[lang] + ' (timeout)' });
 
 const AjaxCache = {
 	clearCache() {

@@ -205,8 +205,7 @@ function readPostsData(firstPost, favObj) {
 			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
-				f.new = 0;
-				f.you = 0;
+				f.new = f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {

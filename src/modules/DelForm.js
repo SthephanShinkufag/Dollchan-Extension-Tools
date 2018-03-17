@@ -80,15 +80,15 @@ class DelForm {
 		const threads = [];
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			const node = fNodes[i];
-			if(node.tagName === 'HR') {
-				formEl.insertBefore(cThr, node);
+			const el = fNodes[i];
+			if(el.tagName === 'HR') {
+				formEl.insertBefore(cThr, el);
 				if(!aib.tinyib) {
-					formEl.insertBefore(cThr.lastElementChild, node);
+					formEl.insertBefore(cThr.lastElementChild, el);
 				}
-				const el = cThr.lastElementChild;
-				if(el.tagName === 'BR') {
-					formEl.insertBefore(el, node);
+				const lastEl = cThr.lastElementChild;
+				if(lastEl.tagName === 'BR') {
+					formEl.insertBefore(lastEl, el);
 				}
 				try {
 					aib.getTNum(cThr);
@@ -96,7 +96,7 @@ class DelForm {
 				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
-				cThr.appendChild(node);
+				cThr.appendChild(el);
 			}
 		}
 		cThr.appendChild(fNodes[i]);

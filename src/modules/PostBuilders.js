@@ -473,7 +473,7 @@ class _0chanPostsBuilder {
 			this._posts[0].message }</div></div>`));
 	}
 	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
+		return +this._posts[i + 1].id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));

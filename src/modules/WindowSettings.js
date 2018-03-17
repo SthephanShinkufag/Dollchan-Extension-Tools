@@ -444,7 +444,7 @@ const CfgWindow = {
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getLogData(true).reduce((obj, el) => {
-						obj[el[0]] = el[1];
+						obj[el[0]] = el[1]; // Transforms 2D-array into object with keys and values
 						return obj;
 					}, {})
 				}, (key, value) => {
@@ -774,12 +774,11 @@ const CfgWindow = {
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">
-					${ this._getInfoTable(Logger.getLogData(false), true) }
+				<div id="de-info-stats">${ statsTable }
 					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
 						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 				</div>
+				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
@@ -791,39 +790,32 @@ const CfgWindow = {
 
 	// Creates a label with checkbox for option switching
 	_getBox: id => `<label class="de-cfg-label">
-		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
-	</label>`,
+		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
 	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
 		<span class="de-info-name">${ data[0] }</span>
-		<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-	</div>`).join(''),
+		<span>${ data[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
 	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
-		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-			`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
+		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
+		escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList: a => arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>'),
+	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel(id) {
-		const x = Lng.cfg[id];
-		const opt = [];
-		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-		}
-		return `<label class="de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
-		</label>`;
-	},
+	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
+		Lng.cfg[id].sel[lang].reduce((val, str, i) => (val += `<option value="${ i }">${ str }</option>`), '')
+	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
 	// Creates a tab for tab bar
-	_getTab: name => `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${
-		Lng.cfgTab[name][lang] }</div>`,
-	// Switching dependent checkboxes according to their parents
-	_toggleBox(state, arr) {
+	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
+	// Switching the dependent inputs according to their parents
+	_toggleDependant(state, arr) {
 		let i = arr.length;
 		const nState = !state;
 		while(i--) {
-			($q(arr[i]) || {}).disabled = nState;
+			const el = $q(arr[i]);
+			if(el) {
+				el.disabled = nState;
+			}
 		}
 	},
 	_updateCSS() {
@@ -831,7 +823,7 @@ const CfgWindow = {
 		scriptCSS();
 	},
 	_updateDependant() {
-		const fn = this._toggleBox;
+		const fn = this._toggleDependant;
 		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'

@@ -200,8 +200,8 @@ const ContentLoader = {
 			this.isLoading = true;
 		}
 		for(let i = 0; i < len; ++i) {
-			let el = els[i];
-			const imgLink = $parent(el = els[i], 'A');
+			const el = els[i];
+			const imgLink = $parent(el, 'A');
 			if(!imgLink) {
 				continue;
 			}

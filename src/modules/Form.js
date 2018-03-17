@@ -128,21 +128,14 @@ class PostForm {
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
-		const btns = aib.markupTags;
 		const mode = Cfg.addTextBtns;
-		let html = '';
-		for(let i = 0, len = btns.length; i < len; ++i) {
-			if(btns[i] === '') {
-				continue;
-			}
-			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
-				mode === 2 ? `${ html === '' ? '[ ' : '' }<a class="de-abtn" href="#">${ val[i] }</a> / ` :
+		el.innerHTML = `${ aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
+			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
+				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`;
-		}
-		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
-			mode === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
+			}</div>`), '') }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
 		}</span>`;

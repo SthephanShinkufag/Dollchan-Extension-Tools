@@ -7,12 +7,8 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	let err = '';
-	const els = $Q(aib.qError, dc);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		err += els[i].innerHTML + '\n';
-	}
-	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+	const err = [...$Q(aib.qError, dc)].reduce((val, str, i) => (val += str.innerHTML + '\n'), '')
+		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 

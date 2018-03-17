@@ -9,12 +9,8 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		const inputs = [];
-		const els = $Q('input[type="file"]', this.fileTd);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			inputs.push(new FileInput(this, els[i]));
-		}
-		this._inputs = inputs;
+		this._inputs = [...$Q('input[type="file"]', this.fileTd)].reduce(
+			(arr, el) => arr.push(new FileInput(this, el)) && arr, []);
 		this._files = [];
 		this.hideEmpty();
 	}

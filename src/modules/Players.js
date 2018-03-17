@@ -76,8 +76,8 @@ class Videos {
 			return;
 		}
 		let dataObj;
-		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
-			this.vData[isYtube ? 0 : 1].push(dataObj);
+		if(loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
+			this.vData[+!isYtube].push(dataObj);
 		}
 		let time = '';
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
@@ -235,8 +235,8 @@ class Videos {
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
 		if(data.length !== 0) {
 			Videos.setLinkData(link, data);
-			Videos._global.vData[isYtube ? 0 : 1][id] = data;
-			videoObj.vData[isYtube ? 0 : 1].push(data);
+			Videos._global.vData[+!isYtube][id] = data;
+			videoObj.vData[+!isYtube].push(data);
 			if(videoObj.titleLoadFn) {
 				videoObj.titleLoadFn(data);
 			}
@@ -298,29 +298,9 @@ class VideosParser {
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
 		const loader = this._loader;
-		let links = $Q('a[href*="youtu"]', isPost ? data.el : data);
-		for(let i = 0, len = links.length; i < len; ++i) {
-			const link = links[i];
-			const m = link.href.match(Videos.ytReg);
-			if(m) {
-				const mPost = isPost ? data : aib.getPostOfEl(link);
-				if(mPost) {
-					mPost.videos.addLink(m, loader, link, true);
-				}
-			}
-		}
+		VideosParser._parserHelper('a[href*="youtu"]', data, loader, isPost, true, Videos.ytReg);
 		if(Cfg.addVimeo) {
-			links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-			for(let i = 0, len = links.length; i < len; ++i) {
-				const link = links[i];
-				const m = link.href.match(Videos.vimReg);
-				if(m) {
-					const mPost = isPost ? data : aib.getPostOfEl(link);
-					if(mPost) {
-						mPost.videos.addLink(m, loader, link, false);
-					}
-				}
-			}
+			VideosParser._parserHelper('a[href*="vimeo.com"]', data, loader, isPost, false, Videos.vimReg);
 		}
 		const vids = aib.fixVideo(isPost, data);
 		for(let i = 0, len = vids.length; i < len; ++i) {
@@ -330,6 +310,20 @@ class VideosParser {
 			}
 		}
 		return this;
+	}
+
+	static _parserHelper(qPath, data, loader, isPost, isYtube, reg) {
+		const links = $Q(qPath, isPost ? data.el : data);
+		for(let i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const m = link.href.match(reg);
+			if(m) {
+				const mPost = isPost ? data : aib.getPostOfEl(link);
+				if(mPost) {
+					mPost.videos.addLink(m, loader, link, isYtube);
+				}
+			}
+		}
 	}
 }
 
