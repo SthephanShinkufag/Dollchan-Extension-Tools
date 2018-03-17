@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'e70919d';
+const commit = '255d984';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4643,7 +4643,7 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$after($q('input[info="userCSS"]').parentNode, getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, () => {
+					fn => fn(Cfg.userCSSTxt, false, function() {
 						saveCfg('userCSSTxt', this.value);
 						updateCSS();
 						toggleWindow('cfg', true);
@@ -11264,7 +11264,7 @@ class PviewsCache extends TemporaryContent {
 			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
 		post.el = aib.fixHTML(post.el);
-		post.msg = null;
+		delete post.msg;
 		if(post.ref.hasMap) {
 			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 		}

@@ -458,7 +458,7 @@ class PviewsCache extends TemporaryContent {
 			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
 		post.el = aib.fixHTML(post.el);
-		post.msg = null;
+		delete post.msg;
 		if(post.ref.hasMap) {
 			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 		}
