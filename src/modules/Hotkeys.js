@@ -116,7 +116,7 @@ const HotKeys = {
 			case 3: // Hide selected thread/post
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
-					post.setUserVisib(!post.hidden);
+					post.setUserVisib(!post.isHidden);
 					this._scroll(post, false, post.isOp);
 				}
 				break;
@@ -312,11 +312,11 @@ const HotKeys = {
 	_getNextVisPost(cPost, isOp, toUp) {
 		if(isOp) {
 			const thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
+				Thread.first.isHidden ? Thread.first.nextNotHidden : Thread.first;
 			return thr ? thr.op : null;
 		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
-			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.isHidden ||
+			Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {

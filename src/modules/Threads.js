@@ -5,9 +5,9 @@
 class Thread {
 	constructor(el, num, prev, form) {
 		this.hasNew = false;
-		this.hidden = false;
 		this.hidCounter = 0;
 		this.isFav = false;
+		this.isHidden = false;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -48,7 +48,7 @@ class Thread {
 				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 			repBtn.onclick = e => {
 				$pd(e);
-				const nextCoord = !this.next || this.last.omitted ? null : this.next.top;
+				const nextCoord = !this.next || this.last.isOmitted ? null : this.next.top;
 				this._toggleReplies(repBtn, updBtn);
 				if(nextCoord) {
 					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
@@ -67,23 +67,23 @@ class Thread {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
-		return this.hidden ? this.op.bottom : this.last.bottom;
+		return this.isHidden ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
 		let post = this.last;
-		while(post.deleted) {
+		while(post.isDeleted) {
 			post = post.prev;
 		}
 		return post;
 	}
 	get nextNotHidden() {
 		let thr;
-		for(thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
+		for(thr = this.next; thr && thr.isHidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
 		let thr;
-		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
+		for(thr = this.prev; thr && thr.isHidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get top() {
@@ -164,14 +164,10 @@ class Thread {
 		}
 		readFavorites().then(favObj => {
 			if(isEnable) {
-				if(!favObj[h]) {
-					favObj[h] = {};
-				}
-				if(!favObj[h][b]) {
-					favObj[h][b] = {};
-				}
-				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				favObj[h][b][num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
+				let f = favObj[h] || (favObj[h] = {});
+				f = f[b] || (f[b] = {});
+				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
@@ -183,11 +179,11 @@ class Thread {
 		let thr = this;
 		do {
 			const realHid = data ? data.hasOwnProperty(thr.num) : false;
-			if(thr.hidden ^ realHid) {
+			if(thr.isHidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
 					data[thr.num] = thr.op.title;
-				} else if(thr.hidden) {
+				} else if(thr.isHidden) {
 					thr.op.setUserVisib(false, false);
 				}
 			}
@@ -310,7 +306,7 @@ class Thread {
 		if(needToHide) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
+				post.isOmitted = true;
 				post = post.next;
 			}
 		} else {
@@ -339,9 +335,9 @@ class Thread {
 				const newMsg = doc.adoptNode($q(aib.qPostMsg, pBuilder.getPostEl(post.count - 1)));
 				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
-			if(post.omitted) {
+			if(post.isOmitted) {
 				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
+				post.isOmitted = false;
 			}
 			if(needRMUpdate) {
 				RefMap.updateRefMap(post, true);
@@ -486,11 +482,11 @@ class Thread {
 		return [newPosts, newVisPosts];
 	}
 	_toggleReplies(repBtn, updBtn) {
-		const isHide = !this.last.omitted;
+		const isHide = !this.last.isOmitted;
 		let post = this.op;
 		let i = 0;
 		for(; post !== this.last; ++i) {
-			(post = post.next).omitted = isHide;
+			(post = post.next).isOmitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
@@ -544,7 +540,7 @@ const thrNavPanel = {
 	},
 	removeThr(thr) {
 		this._thrs.delete(thr.el);
-		if(this._thrs.size === 0) {
+		if(!this._thrs.size) {
 			$hide(this._el);
 			this._currentThr = null;
 			this._visible = false;

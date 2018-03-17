@@ -21,18 +21,18 @@ function getUploadFunc() {
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
-	let inited = false;
+	let isInited = false;
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
 	return ({ total, loaded: i }) => {
-		if(!inited) {
+		if(!isInited) {
 			progress.setAttribute('max', total);
 			$show(progress);
 			totalEl.textContent = prettifySize(total);
 			$show(counterWrap);
-			inited = true;
+			isInited = true;
 		}
 		progress.value = i;
 		counterEl.textContent = prettifySize(i);

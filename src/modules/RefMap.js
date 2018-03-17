@@ -5,8 +5,8 @@
 class RefMap {
 	constructor(post) {
 		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
+		this._isHidden = false;
+		this._isInited = false;
 		this._post = post;
 		this._set = new Set();
 	}
@@ -28,7 +28,7 @@ class RefMap {
 					continue;
 				}
 				const { ref } = posts.get(lNum);
-				if(ref._inited) {
+				if(ref._isInited) {
 					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
@@ -50,7 +50,7 @@ class RefMap {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.initPostRef('', strNums);
@@ -60,7 +60,7 @@ class RefMap {
 	}
 	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
-		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
 		for(let lNum, i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];
@@ -95,13 +95,13 @@ class RefMap {
 	}
 	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.hidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}
@@ -114,13 +114,13 @@ class RefMap {
 		return this._set.has(num);
 	}
 	hideRef(isForced = false) {
-		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
+		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._isHidden) {
 			return;
 		}
-		this._hidden = true;
+		this._isHidden = true;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && !post.hidden) {
+			if(post && !post.isHidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
 					post.ref.hideRef(true);
@@ -137,14 +137,14 @@ class RefMap {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
-		this._inited = true;
+		this._isInited = true;
 	}
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
 	removeLink(num) {
 		this._set.delete(num);
-		if(this._set.size === 0) {
+		if(!this._set.size) {
 			this.removeMap();
 		} else {
 			const el = this.getElByNum(num);
@@ -168,13 +168,13 @@ class RefMap {
 		}
 	}
 	unhideRef(isForced = false) {
-		if(this._hidden && !this.hasMap) {
+		if(this._isHidden && !this.hasMap) {
 			return;
 		}
-		this._hidden = false;
+		this._isHidden = false;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && post.hidden && !post.spellHidden) {
+			if(post && post.isHidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
 					post.ref.unhideRef(true);
@@ -189,7 +189,7 @@ class RefMap {
 	get _el() {
 		let value = $q('.de-refmap', this._post.el);
 		if(!value) {
-			this._createEl('', this._post.hidden);
+			this._createEl('', this._post.isHidden);
 			value = $q('.de-refmap', this._post.el);
 		}
 		Object.defineProperty(this, '_el', { value, configurable: true });

@@ -256,7 +256,7 @@ const CfgWindow = {
 			case 'delHiddPost': {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
-					if(post.hidden && !post.isOp) {
+					if(post.isHidden && !post.isOp) {
 						post.wrap.classList.toggle('de-hidden', isHide);
 					}
 				}
@@ -317,7 +317,7 @@ const CfgWindow = {
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
 						post.ref.unhideRef();
-					} else if(post.hidden) {
+					} else if(post.isHidden) {
 						post.ref.hideRef();
 					}
 				}

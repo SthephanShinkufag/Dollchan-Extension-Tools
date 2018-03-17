@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'fc6e0d2';
+const commit = 'e70919d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2394,8 +2394,7 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = {};
-		obj[id] = value;
+		const obj = { id: value };
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
@@ -2609,7 +2608,7 @@ function readPostsData(firstPost, favObj) {
 		if(!hideData) {
 			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
-			if(post.hidden) {
+			if(post.isHidden) {
 				post.spellHidden = true;
 			} else {
 				post.spellHide(hideData[1]);
@@ -2643,16 +2642,17 @@ function saveFavorites(data) {
 // Get posts that were read by posts previews
 function readViewedPosts() {
 	if(!Cfg.markViewed) {
-		const data = sesStorage['de-viewed'];
-		if(data) {
-			data.split(',').forEach(pNum => {
-				const post = pByNum.get(+pNum);
-				if(post) {
-					post.el.classList.add('de-viewed');
-					post.viewed = true;
-				}
-			});
-		}
+		return;
+	}
+	const data = sesStorage['de-viewed'];
+	if(data) {
+		data.split(',').forEach(pNum => {
+			const post = pByNum.get(+pNum);
+			if(post) {
+				post.el.classList.add('de-viewed');
+				post.isViewed = true;
+			}
+		});
 	}
 }
 
@@ -2706,10 +2706,7 @@ class PostsStorage {
 				}
 			}
 		}
-		if(!storage[aib.b]) {
-			storage[aib.b] = {};
-		}
-		storage[aib.b][num] = [this._cachedTime, thrNum, data];
+		(storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
 		this._saveStorage();
 	}
 
@@ -2859,7 +2856,7 @@ function initStorageEvent() {
 				HiddenPosts.purge();
 				if(data.brd === aib.b) {
 					let post = pByNum.get(data.num);
-					if(post && (post.hidden ^ data.hide)) {
+					if(post && (post.isHidden ^ data.hide)) {
 						post.setUserVisib(data.hide, false);
 					} else if((post = pByNum.get(data.thrNum))) {
 						post.thr.userTouched.set(data.num, data.hide);
@@ -3920,11 +3917,9 @@ function showFavoritesWindow(body, favObj) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
-				const bArch = b + '/arch';
-				if(!favObj[host][bArch]) {
-					favObj[host][bArch] = { url: favObj[host][b].url + 'arch/' };
-				}
-				favObj[host][bArch][num] = Object.assign({}, f);
+				const arch = b + '/arch';
+				const fo = favObj[host];
+				(fo[arch] || (fo[arch] = { url: favObj[host][b].url + 'arch/' }))[num] = Object.assign({}, f);
 				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
@@ -4351,7 +4346,7 @@ const CfgWindow = {
 			case 'delHiddPost': {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
-					if(post.hidden && !post.isOp) {
+					if(post.isHidden && !post.isOp) {
 						post.wrap.classList.toggle('de-hidden', isHide);
 					}
 				}
@@ -4412,7 +4407,7 @@ const CfgWindow = {
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
 						post.ref.unhideRef();
-					} else if(post.hidden) {
+					} else if(post.isHidden) {
 						post.ref.hideRef();
 					}
 				}
@@ -5276,7 +5271,7 @@ const HotKeys = {
 			case 3: // Hide selected thread/post
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
-					post.setUserVisib(!post.hidden);
+					post.setUserVisib(!post.isHidden);
 					this._scroll(post, false, post.isOp);
 				}
 				break;
@@ -5472,11 +5467,11 @@ const HotKeys = {
 	_getNextVisPost(cPost, isOp, toUp) {
 		if(isOp) {
 			const thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
+				Thread.first.isHidden ? Thread.first.nextNotHidden : Thread.first;
 			return thr ? thr.op : null;
 		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
-			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.isHidden ||
+			Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
@@ -7089,10 +7084,8 @@ const Spells = Object.create({
 				64 : 'whitespace'
 			};
 			for(const bit in bits) {
-				if(+bit !== msgBit) {
-					if(val & +bit) {
-						names.push(bits[bit]);
-					}
+				if(+bit !== msgBit && (val & +bit)) {
+					names.push(bits[bit]);
 				}
 			}
 			if(msgBit) {
@@ -7799,7 +7792,7 @@ class SpellsRunner {
 	static _unhidePost(post) {
 		if(post.spellHidden) {
 			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [false, null];
 			}
 		}
@@ -7809,7 +7802,7 @@ class SpellsRunner {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
 			post.spellHide(msg);
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [true, msg];
 			}
 			return 1;
@@ -8843,18 +8836,18 @@ function getUploadFunc() {
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
-	let inited = false;
+	let isInited = false;
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
 	return ({ total, loaded: i }) => {
-		if(!inited) {
+		if(!isInited) {
 			progress.setAttribute('max', total);
 			$show(progress);
 			totalEl.textContent = prettifySize(total);
 			$show(counterWrap);
-			inited = true;
+			isInited = true;
 		}
 		progress.value = i;
 		counterEl.textContent = prettifySize(i);
@@ -10029,14 +10022,14 @@ class AbstractPost {
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
-			case 'de-btn-unhide-user': this.setUserVisib(!this.hidden); return;
+			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-rep':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
-			case 'de-btn-stick': this.setSticky(true); return;
-			case 'de-btn-stick-on': this.setSticky(false); return;
+			case 'de-btn-stick': this.toggleSticky(true); return;
+			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
 			return;
 		}
@@ -10219,15 +10212,15 @@ class Post extends AbstractPost {
 	constructor(el, thr, num, count, isOp, prev) {
 		super(thr, num, isOp);
 		this.count = count;
-		this.deleted = false;
 		this.el = el;
-		this.hidden = false;
+		this.isDeleted = false;
+		this.isHidden = false;
+		this.isOmitted = false;
+		this.isViewed = false;
 		this.next = null;
-		this.omitted = false;
 		this.prev = prev;
 		this.spellHidden = false;
 		this.userToggled = false;
-		this.viewed = false;
 		this._selRange = null;
 		this._selText = '';
 		if(prev) {
@@ -10339,7 +10332,7 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get bottom() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
@@ -10354,7 +10347,7 @@ class Post extends AbstractPost {
 	}
 	get nextNotDeleted() {
 		let post = this.nextInThread;
-		while(post && post.deleted) {
+		while(post && post.isDeleted) {
 			post = post.nextInThread;
 		}
 		return post;
@@ -10383,7 +10376,7 @@ class Post extends AbstractPost {
 		return this.thr.thrId;
 	}
 	get top() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
@@ -10400,7 +10393,7 @@ class Post extends AbstractPost {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.ref.unhideRef();
 			}
 			RefMap.updateRefMap(this, false);
@@ -10409,7 +10402,7 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		this.deleted = true;
+		this.isDeleted = true;
 		this.btns.classList.remove('de-post-counter');
 		this.btns.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
@@ -10419,9 +10412,9 @@ class Post extends AbstractPost {
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
 		while(post) {
-			if(post.thr.hidden) {
+			if(post.thr.isHidden) {
 				post = toUp ? post.thr.op.prev : post.thr.last.next;
-			} else if(post.hidden || post.omitted) {
+			} else if(post.isHidden || post.isOmitted) {
 				post = toUp ? post.prev : post.next;
 			} else {
 				return post;
@@ -10440,7 +10433,7 @@ class Post extends AbstractPost {
 	}
 	select() {
 		if(this.isOp) {
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.thr.el.previousElementSibling.classList.add('de-selected');
 			}
 			this.thr.el.classList.add('de-selected');
@@ -10468,7 +10461,7 @@ class Post extends AbstractPost {
 	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
 		this.setVisib(isHide, note);
-		if(this.isOp || this.hidden === isHide) {
+		if(this.isOp || this.isHidden === isHide) {
 			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
 		if(isSave) {
@@ -10492,14 +10485,14 @@ class Post extends AbstractPost {
 		this.ref.toggleRef(isHide, false);
 	}
 	setVisib(isHide, note = null) {
-		if(this.hidden === isHide) {
+		if(this.isHidden === isHide) {
 			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = isHide;
+			this.thr.isHidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
 				this.wrap.classList.toggle('de-hidden', isHide);
@@ -10519,7 +10512,7 @@ class Post extends AbstractPost {
 		} else {
 			this.note.hideNote();
 		}
-		this.hidden = isHide;
+		this.isHidden = isHide;
 		this.hideContent(isHide);
 	}
 	spellHide(note) {
@@ -10560,7 +10553,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const isHide = !this.hidden;
+		const isHide = !this.isHidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -10667,10 +10660,10 @@ Post.hiddenNums = new Set();
 Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		this.el = post.el;
 		this.post = post;
 	}
@@ -10762,7 +10755,7 @@ Post.Note = class PostNote {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
 				$pd(e);
-				this._post.setUserVisib(!this._post.hidden);
+				this._post.setUserVisib(!this._post.isHidden);
 			};
 			text = (this._post.title ? `(${ this._post.title }) ` : '') +
 				(note ? `[autohide: ${ note }]` : '');
@@ -10820,6 +10813,7 @@ class Pview extends AbstractPost {
 		super(parent.thr, pNum, pNum === tNum);
 		this.isSticky = false;
 		this.parent = parent;
+		this.remoteThr = null;
 		this.tNum = tNum;
 		this._isCached = false;
 		this._isLeft = false;
@@ -10830,7 +10824,7 @@ class Pview extends AbstractPost {
 		this._readDelay = 0;
 		let post = pByNum.get(pNum);
 		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-			this._showPost(post);
+			this._buildPview(post);
 			return;
 		}
 		this._isCached = true;
@@ -10838,7 +10832,7 @@ class Pview extends AbstractPost {
 		if(PviewsCache.has(this.brd + tNum)) {
 			post = PviewsCache.get(this.brd + tNum).getPost(pNum);
 			if(post) {
-				this._showPost(post);
+				this._buildPview(post);
 			} else {
 				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 					${ Lng.postNotFound[lang] }</div>`));
@@ -10906,7 +10900,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		const { parent } = pv;
-		if(parent.omitted) {
+		if(parent.isOmitted) {
 			pv.deletePview();
 			return;
 		}
@@ -10918,7 +10912,7 @@ class Pview extends AbstractPost {
 			}
 			pv._link = el;
 		}
-		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+		const cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
 			pv._offsetTop - window.pageYOffset - cr.bottom :
 			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
@@ -11023,13 +11017,9 @@ class Pview extends AbstractPost {
 			clearTimeout(Pview._delTO);
 		}
 	}
-	setSticky(val) {
-		this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-		this.isSticky = val;
-	}
 	setUserVisib() {
 		const post = pByNum.get(this.num);
-		const isHide = post.hidden;
+		const isHide = post.isHidden;
 		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
@@ -11038,10 +11028,91 @@ class Pview extends AbstractPost {
 			el.parentNode.classList.toggle('de-post-hide', isHide);
 		});
 	}
+	toggleSticky(isEnabled) {
+		this.stickBtn.setAttribute('class', isEnabled ? 'de-btn-stick-on' : 'de-btn-stick');
+		this.isSticky = isEnabled;
+	}
 
 	static _markLink(el, num) {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
+	}
+	_buildPview(post) {
+		$del(this.el);
+		const { num } = this;
+		const isMyPost = Cfg.markMyPosts && MyPosts.has(num);
+		const pv = this.el = post.el.cloneNode(true);
+		pByEl.set(pv, this);
+		pv.className = `${ aib.cReply } de-pview${
+			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
+		$show(pv);
+		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
+		if(Cfg.linksNavig) {
+			Pview._markLink(pv, this.parent.num);
+		}
+		this._pref = $q(aib.qPostRef, pv);
+		this._link.classList.add('de-link-parent');
+		const { isOp } = this;
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(isOp ? `<svg class="${ post.thr.isFav ||
+				(async f => (f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f))() ?
+				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
+			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
+			(post.isDeleted ? '' : '<span class="de-post-counter-pview">' +
+				(isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
+		if(post instanceof CacheItem) {
+			if(isOp) {
+				this.remoteThr = post.thr;
+			}
+			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
+			embedAudioLinks(this);
+			if(Cfg.addYouTube) {
+				new VideosParser().parse(this).endParser();
+			}
+			embedPostMsgImages(pv);
+			processImgInfoLinks(pv);
+		} else {
+			const btnsEl = this.btns = this._pref.nextSibling;
+			btnsEl.classList.remove('de-post-counter');
+			if(post.isHidden) {
+				btnsEl.classList.add('de-post-hide');
+			}
+			btnsEl.innerHTML = `<svg class="de-btn-${ post.isHidden ? 'unhide' : 'hide' }${
+				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
+				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
+				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
+			$each($Q(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv),
+				$del);
+			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
+			const link = $q('.de-link-parent', pv);
+			if(link) {
+				link.classList.remove('de-link-parent');
+			}
+			if(Cfg.addYouTube && post.videos.hasLinks) {
+				if(post.videos.playerInfo !== null) {
+					Object.defineProperty(this, 'videos',
+						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
+				}
+				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pv), true);
+			}
+			if(Cfg.addImgs) {
+				$each($Q('.de-img-embed', pv), $show);
+			}
+			if(Cfg.markViewed) {
+				this._readDelay = setTimeout(post => {
+					if(!post.isViewed) {
+						post.el.classList.add('de-viewed');
+						post.isViewed = true;
+					}
+					const arr = (sesStorage['de-viewed'] || '').split(',');
+					arr.push(post.num);
+					sesStorage['de-viewed'] = arr;
+				}, post.text.length > 100 ? 2e3 : 500, post);
+			}
+		}
+		pv.addEventListener('click', this, true);
+		this._showPview(pv);
 	}
 	_onerror(err) {
 		if(!(err instanceof CancelError)) {
@@ -11060,7 +11131,7 @@ class Pview extends AbstractPost {
 					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
-			this._showPost(post);
+			this._buildPview(post);
 		} else {
 			this.el.innerHTML = Lng.postNotFound[lang];
 		}
@@ -11075,12 +11146,11 @@ class Pview extends AbstractPost {
 		const pv = this.el;
 		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const { style } = pv;
 		if(isAnim) {
-			oldCSS = pv.style.cssText;
-			pv.style.cssText = 'opacity: 0; ' + lmw;
-		} else {
-			pv.style.cssText = lmw;
+			oldCSS = style.cssText;
 		}
+		style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 		let top = pv.offsetHeight;
 		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
@@ -11088,102 +11158,26 @@ class Pview extends AbstractPost {
 		this._isLeft = isLeft;
 		this._isTop = isTop;
 		if(!isAnim) {
-			pv.style.top = top + 'px';
+			style.top = top + 'px';
 			return;
 		}
 		const uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 		$css(`@keyframes ${ uId } { to { ${ lmw } top:${ top }px; } }`).className = 'de-css-move';
 		if(this._newPos) {
-			pv.style.cssText = this._newPos;
+			style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
 		} else {
-			pv.style.cssText = oldCSS;
+			style.cssText = oldCSS;
 		}
 		this._newPos = `${ lmw } top:${ top }px;`;
 		pv.addEventListener('animationend', this);
 		pv.classList.add('de-pview-anim');
-		pv.style.animationName = uId;
+		style.animationName = uId;
 	}
 	_showMenu(el, html) {
 		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
 		this._menu.onout = () => this.markToDel();
-	}
-	async _showPost(post) {
-		$del(this.el);
-		const isMyPost = Cfg.markMyPosts && MyPosts.has(this.num);
-		pByEl.set(this.el = post.el.cloneNode(true), this);
-		this.el.className = `${ aib.cReply } de-pview${
-			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
-		$show(this.el);
-		$each($Q('.de-post-hiddencontent', this.el), el => el.classList.remove('de-post-hiddencontent'));
-		if(Cfg.linksNavig) {
-			Pview._markLink(this.el, this.parent.num);
-		}
-		this._pref = $q(aib.qPostRef, this.el);
-		this._link.classList.add('de-link-parent');
-		let f;
-		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
-			(this.isOp ? `<svg class="${ post.thr.isFav ||
-				(f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (this.num in f) ?
-				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
-			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.deleted ? '' : '<span class="de-post-counter-pview">' +
-				(this.isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
-		if(post instanceof CacheItem) {
-			if(this.isOp) {
-				this.remoteThr = post.thr;
-			}
-			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
-			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).endParser();
-			}
-			embedPostMsgImages(this.el);
-			processImgInfoLinks(this.el);
-		} else {
-			this.btns = this._pref.nextSibling;
-			this.isOp = post.isOp;
-			this.btns.classList.remove('de-post-counter');
-			if(post.hidden) {
-				this.btns.classList.add('de-post-hide');
-			}
-			this.btns.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
-				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
-				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
-				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				this.el), $del);
-			$each($Q(aib.qPostImg, this.el), el => $show(el.parentNode));
-			const link = $q('.de-link-parent', this.el);
-			if(link) {
-				link.classList.remove('de-link-parent');
-			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
-				if(post.videos.playerInfo !== null) {
-					Object.defineProperty(this, 'videos',
-						{ value: new Videos(this, $q('.de-video-obj', this.el), post.videos.playerInfo) });
-				}
-				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', this.el), true);
-			}
-			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', this.el), $show);
-			}
-			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(post => {
-					if(!post.viewed) {
-						post.el.classList.add('de-viewed');
-						post.viewed = true;
-					}
-					const arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(post.num);
-					sesStorage['de-viewed'] = arr;
-				}, post.text.length > 100 ? 2e3 : 500, post);
-			}
-		}
-		this.el.addEventListener('click', this, true);
-		this._showPview(this.el);
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -11208,10 +11202,10 @@ class CacheItem {
 	constructor(el, count) {
 		this.count = count;
 		this.el = el;
-		this.deleted = false;
+		this.isDeleted = false;
+		this.isInited = false;
 		this.isOp = count === 0;
-		this.itemInited = false;
-		this.viewed = false;
+		this.isViewed = false;
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -11229,17 +11223,19 @@ class CacheItem {
 		return value;
 	}
 	get title() {
-		return new Post.Сontent(this).title;
+		const value = new Post.Сontent(this).title;
+		Object.defineProperty(this, 'title', { value });
+		return value;
 	}
 }
 
 class PviewsCache extends TemporaryContent {
 	constructor(form, b, tNum) {
 		super(b + tNum);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		const pByNum = new Map();
 		const thr = $q(aib.qThread, form) || form;
 		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -11261,19 +11257,18 @@ class PviewsCache extends TemporaryContent {
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.itemInited) {
+		if(!post || post.isInited) {
 			return post;
 		}
 		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
 			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
 		post.el = aib.fixHTML(post.el);
-		delete post.msg;
+		post.msg = null;
 		if(post.ref.hasMap) {
-			post.ref.initPostRef(this._tUrl,
-				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 		}
-		post.itemInited = true;
+		post.isInited = true;
 		return post;
 	}
 }
@@ -11297,8 +11292,8 @@ class ImagesNavigBtns {
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
-		this._hidden = true;
 		this._hideTmt = 0;
+		this._isHidden = true;
 		this._oldX = -1;
 		this._oldY = -1;
 		this._viewer = viewerObj;
@@ -11322,7 +11317,7 @@ class ImagesNavigBtns {
 				this._btns.addEventListener('mouseout', this);
 				this._btns.addEventListener('click', this);
 			}
-			if(!this._hidden) {
+			if(!this._isHidden) {
 				clearTimeout(this._hideTmt);
 				KeyEditListener.setTitle(this.prevBtn, 4);
 				KeyEditListener.setTitle(this.nextBtn, 17);
@@ -11346,7 +11341,7 @@ class ImagesNavigBtns {
 	}
 	hideBtns() {
 		this._btnsStyle.display = 'none';
-		this._hidden = true;
+		this._isHidden = true;
 		this._oldX = this._oldY = -1;
 	}
 	removeBtns() {
@@ -11355,9 +11350,9 @@ class ImagesNavigBtns {
 		clearTimeout(this._hideTmt);
 	}
 	showBtns() {
-		if(this._hidden) {
+		if(this._isHidden) {
 			this._btnsStyle.removeProperty('display');
-			this._hidden = false;
+			this._isHidden = false;
 			this._setHideTmt();
 		}
 	}
@@ -11512,7 +11507,7 @@ class ImagesViewer {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
-			data.post.setSticky(false);
+			data.post.toggleSticky(false);
 		}
 		$del(this._obj);
 		if(e && data.inPview) {
@@ -11588,7 +11583,7 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
-			this.data.post.setSticky(true);
+			this.data.post.toggleSticky(true);
 		}
 		const btns = this._btns;
 		if(!data.inPview) {
@@ -11754,7 +11749,7 @@ class ExpandableImage {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
 				post = isForward ? Thread.first.op : Thread.last.last;
-				if(post.hidden || post.thr.hidden) {
+				if(post.isHidden || post.thr.isHidden) {
 					post = post.getAdjacentVisPost(!isForward);
 					if(!post) {
 						return null;
@@ -11905,15 +11900,15 @@ class ExpandableImage {
 		return wrapEl;
 	}
 	sendCloseEvent(e, inPost) {
-		let pv = this.post;
-		let cr = pv.el.getBoundingClientRect();
+		let { post } = this;
+		let cr = post.el.getBoundingClientRect();
 		const x = e.pageX - window.pageXOffset;
 		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-				pv = pv.parent;
-				if(pv && (pv instanceof Pview)) {
-					cr = pv.el.getBoundingClientRect();
+				post = post.parent;
+				if(post && (post instanceof Pview)) {
+					cr = post.el.getBoundingClientRect();
 				} else {
 					if(Pview.top) {
 						Pview.top.markToDel();
@@ -11921,7 +11916,7 @@ class ExpandableImage {
 					return;
 				}
 			}
-			pv.mouseEnter();
+			post.mouseEnter();
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
@@ -12757,8 +12752,8 @@ class _0chanPostsBuilder {
 class RefMap {
 	constructor(post) {
 		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
+		this._isHidden = false;
+		this._isInited = false;
 		this._post = post;
 		this._set = new Set();
 	}
@@ -12780,7 +12775,7 @@ class RefMap {
 					continue;
 				}
 				const { ref } = posts.get(lNum);
-				if(ref._inited) {
+				if(ref._isInited) {
 					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
@@ -12802,7 +12797,7 @@ class RefMap {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.initPostRef('', strNums);
@@ -12812,7 +12807,7 @@ class RefMap {
 	}
 	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
-		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
 		for(let lNum, i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];
@@ -12847,13 +12842,13 @@ class RefMap {
 	}
 	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.hidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}
@@ -12866,13 +12861,13 @@ class RefMap {
 		return this._set.has(num);
 	}
 	hideRef(isForced = false) {
-		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
+		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._isHidden) {
 			return;
 		}
-		this._hidden = true;
+		this._isHidden = true;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && !post.hidden) {
+			if(post && !post.isHidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
 					post.ref.hideRef(true);
@@ -12889,14 +12884,14 @@ class RefMap {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
-		this._inited = true;
+		this._isInited = true;
 	}
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
 	removeLink(num) {
 		this._set.delete(num);
-		if(this._set.size === 0) {
+		if(!this._set.size) {
 			this.removeMap();
 		} else {
 			const el = this.getElByNum(num);
@@ -12920,13 +12915,13 @@ class RefMap {
 		}
 	}
 	unhideRef(isForced = false) {
-		if(this._hidden && !this.hasMap) {
+		if(this._isHidden && !this.hasMap) {
 			return;
 		}
-		this._hidden = false;
+		this._isHidden = false;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && post.hidden && !post.spellHidden) {
+			if(post && post.isHidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
 					post.ref.unhideRef(true);
@@ -12941,7 +12936,7 @@ class RefMap {
 	get _el() {
 		let value = $q('.de-refmap', this._post.el);
 		if(!value) {
-			this._createEl('', this._post.hidden);
+			this._createEl('', this._post.isHidden);
 			value = $q('.de-refmap', this._post.el);
 		}
 		Object.defineProperty(this, '_el', { value, configurable: true });
@@ -12972,9 +12967,9 @@ class RefMap {
 class Thread {
 	constructor(el, num, prev, form) {
 		this.hasNew = false;
-		this.hidden = false;
 		this.hidCounter = 0;
 		this.isFav = false;
+		this.isHidden = false;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -13015,7 +13010,7 @@ class Thread {
 				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
 			repBtn.onclick = e => {
 				$pd(e);
-				const nextCoord = !this.next || this.last.omitted ? null : this.next.top;
+				const nextCoord = !this.next || this.last.isOmitted ? null : this.next.top;
 				this._toggleReplies(repBtn, updBtn);
 				if(nextCoord) {
 					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
@@ -13034,23 +13029,23 @@ class Thread {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
-		return this.hidden ? this.op.bottom : this.last.bottom;
+		return this.isHidden ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
 		let post = this.last;
-		while(post.deleted) {
+		while(post.isDeleted) {
 			post = post.prev;
 		}
 		return post;
 	}
 	get nextNotHidden() {
 		let thr;
-		for(thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
+		for(thr = this.next; thr && thr.isHidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
 		let thr;
-		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
+		for(thr = this.prev; thr && thr.isHidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get top() {
@@ -13131,14 +13126,10 @@ class Thread {
 		}
 		readFavorites().then(favObj => {
 			if(isEnable) {
-				if(!favObj[h]) {
-					favObj[h] = {};
-				}
-				if(!favObj[h][b]) {
-					favObj[h][b] = {};
-				}
-				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				favObj[h][b][num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
+				let f = favObj[h] || (favObj[h] = {});
+				f = f[b] || (f[b] = {});
+				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
@@ -13150,11 +13141,11 @@ class Thread {
 		let thr = this;
 		do {
 			const realHid = data ? data.hasOwnProperty(thr.num) : false;
-			if(thr.hidden ^ realHid) {
+			if(thr.isHidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
 					data[thr.num] = thr.op.title;
-				} else if(thr.hidden) {
+				} else if(thr.isHidden) {
 					thr.op.setUserVisib(false, false);
 				}
 			}
@@ -13277,7 +13268,7 @@ class Thread {
 		if(needToHide) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
+				post.isOmitted = true;
 				post = post.next;
 			}
 		} else {
@@ -13306,9 +13297,9 @@ class Thread {
 				const newMsg = doc.adoptNode($q(aib.qPostMsg, pBuilder.getPostEl(post.count - 1)));
 				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
-			if(post.omitted) {
+			if(post.isOmitted) {
 				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
+				post.isOmitted = false;
 			}
 			if(needRMUpdate) {
 				RefMap.updateRefMap(post, true);
@@ -13453,11 +13444,11 @@ class Thread {
 		return [newPosts, newVisPosts];
 	}
 	_toggleReplies(repBtn, updBtn) {
-		const isHide = !this.last.omitted;
+		const isHide = !this.last.isOmitted;
 		let post = this.op;
 		let i = 0;
 		for(; post !== this.last; ++i) {
-			(post = post.next).omitted = isHide;
+			(post = post.next).isOmitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
 		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
@@ -13511,7 +13502,7 @@ const thrNavPanel = {
 	},
 	removeThr(thr) {
 		this._thrs.delete(thr.el);
-		if(this._thrs.size === 0) {
+		if(!this._thrs.size) {
 			$hide(this._el);
 			this._currentThr = null;
 			this._visible = false;
@@ -16031,7 +16022,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						const post = pByNum.get(+$q('blockquote', delPosts[i])
 							.getAttribute('id').substring(1));
 						if(post) {
-							post.deleted = true;
+							post.isDeleted = true;
 							post.btns.classList.remove('de-post-counter');
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');

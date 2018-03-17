@@ -7,6 +7,7 @@ class Pview extends AbstractPost {
 		super(parent.thr, pNum, pNum === tNum);
 		this.isSticky = false;
 		this.parent = parent;
+		this.remoteThr = null;
 		this.tNum = tNum;
 		this._isCached = false;
 		this._isLeft = false;
@@ -17,7 +18,7 @@ class Pview extends AbstractPost {
 		this._readDelay = 0;
 		let post = pByNum.get(pNum);
 		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-			this._showPost(post);
+			this._buildPview(post);
 			return;
 		}
 		this._isCached = true;
@@ -25,7 +26,7 @@ class Pview extends AbstractPost {
 		if(PviewsCache.has(this.brd + tNum)) {
 			post = PviewsCache.get(this.brd + tNum).getPost(pNum);
 			if(post) {
-				this._showPost(post);
+				this._buildPview(post);
 			} else {
 				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 					${ Lng.postNotFound[lang] }</div>`));
@@ -93,7 +94,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		const { parent } = pv;
-		if(parent.omitted) {
+		if(parent.isOmitted) {
 			pv.deletePview();
 			return;
 		}
@@ -105,7 +106,7 @@ class Pview extends AbstractPost {
 			}
 			pv._link = el;
 		}
-		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+		const cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
 			pv._offsetTop - window.pageYOffset - cr.bottom :
 			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
@@ -210,13 +211,9 @@ class Pview extends AbstractPost {
 			clearTimeout(Pview._delTO);
 		}
 	}
-	setSticky(val) {
-		this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-		this.isSticky = val;
-	}
 	setUserVisib() {
 		const post = pByNum.get(this.num);
-		const isHide = post.hidden;
+		const isHide = post.isHidden;
 		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
@@ -225,10 +222,91 @@ class Pview extends AbstractPost {
 			el.parentNode.classList.toggle('de-post-hide', isHide);
 		});
 	}
+	toggleSticky(isEnabled) {
+		this.stickBtn.setAttribute('class', isEnabled ? 'de-btn-stick-on' : 'de-btn-stick');
+		this.isSticky = isEnabled;
+	}
 
 	static _markLink(el, num) {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
+	}
+	_buildPview(post) {
+		$del(this.el);
+		const { num } = this;
+		const isMyPost = Cfg.markMyPosts && MyPosts.has(num);
+		const pv = this.el = post.el.cloneNode(true);
+		pByEl.set(pv, this);
+		pv.className = `${ aib.cReply } de-pview${
+			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
+		$show(pv);
+		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
+		if(Cfg.linksNavig) {
+			Pview._markLink(pv, this.parent.num);
+		}
+		this._pref = $q(aib.qPostRef, pv);
+		this._link.classList.add('de-link-parent');
+		const { isOp } = this;
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(isOp ? `<svg class="${ post.thr.isFav ||
+				(async f => (f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f))() ?
+				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
+			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
+			(post.isDeleted ? '' : '<span class="de-post-counter-pview">' +
+				(isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
+		if(post instanceof CacheItem) {
+			if(isOp) {
+				this.remoteThr = post.thr;
+			}
+			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
+			embedAudioLinks(this);
+			if(Cfg.addYouTube) {
+				new VideosParser().parse(this).endParser();
+			}
+			embedPostMsgImages(pv);
+			processImgInfoLinks(pv);
+		} else {
+			const btnsEl = this.btns = this._pref.nextSibling;
+			btnsEl.classList.remove('de-post-counter');
+			if(post.isHidden) {
+				btnsEl.classList.add('de-post-hide');
+			}
+			btnsEl.innerHTML = `<svg class="de-btn-${ post.isHidden ? 'unhide' : 'hide' }${
+				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
+				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
+				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
+			$each($Q(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv),
+				$del);
+			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
+			const link = $q('.de-link-parent', pv);
+			if(link) {
+				link.classList.remove('de-link-parent');
+			}
+			if(Cfg.addYouTube && post.videos.hasLinks) {
+				if(post.videos.playerInfo !== null) {
+					Object.defineProperty(this, 'videos',
+						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
+				}
+				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pv), true);
+			}
+			if(Cfg.addImgs) {
+				$each($Q('.de-img-embed', pv), $show);
+			}
+			if(Cfg.markViewed) {
+				this._readDelay = setTimeout(post => {
+					if(!post.isViewed) {
+						post.el.classList.add('de-viewed');
+						post.isViewed = true;
+					}
+					const arr = (sesStorage['de-viewed'] || '').split(',');
+					arr.push(post.num);
+					sesStorage['de-viewed'] = arr;
+				}, post.text.length > 100 ? 2e3 : 500, post);
+			}
+		}
+		pv.addEventListener('click', this, true);
+		this._showPview(pv);
 	}
 	_onerror(err) {
 		if(!(err instanceof CancelError)) {
@@ -247,7 +325,7 @@ class Pview extends AbstractPost {
 					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
-			this._showPost(post);
+			this._buildPview(post);
 		} else {
 			this.el.innerHTML = Lng.postNotFound[lang];
 		}
@@ -262,12 +340,11 @@ class Pview extends AbstractPost {
 		const pv = this.el;
 		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const { style } = pv;
 		if(isAnim) {
-			oldCSS = pv.style.cssText;
-			pv.style.cssText = 'opacity: 0; ' + lmw;
-		} else {
-			pv.style.cssText = lmw;
+			oldCSS = style.cssText;
 		}
+		style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 		let top = pv.offsetHeight;
 		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
@@ -275,102 +352,26 @@ class Pview extends AbstractPost {
 		this._isLeft = isLeft;
 		this._isTop = isTop;
 		if(!isAnim) {
-			pv.style.top = top + 'px';
+			style.top = top + 'px';
 			return;
 		}
 		const uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 		$css(`@keyframes ${ uId } { to { ${ lmw } top:${ top }px; } }`).className = 'de-css-move';
 		if(this._newPos) {
-			pv.style.cssText = this._newPos;
+			style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
 		} else {
-			pv.style.cssText = oldCSS;
+			style.cssText = oldCSS;
 		}
 		this._newPos = `${ lmw } top:${ top }px;`;
 		pv.addEventListener('animationend', this);
 		pv.classList.add('de-pview-anim');
-		pv.style.animationName = uId;
+		style.animationName = uId;
 	}
 	_showMenu(el, html) {
 		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
 		this._menu.onout = () => this.markToDel();
-	}
-	async _showPost(post) {
-		$del(this.el);
-		const isMyPost = Cfg.markMyPosts && MyPosts.has(this.num);
-		pByEl.set(this.el = post.el.cloneNode(true), this);
-		this.el.className = `${ aib.cReply } de-pview${
-			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
-		$show(this.el);
-		$each($Q('.de-post-hiddencontent', this.el), el => el.classList.remove('de-post-hiddencontent'));
-		if(Cfg.linksNavig) {
-			Pview._markLink(this.el, this.parent.num);
-		}
-		this._pref = $q(aib.qPostRef, this.el);
-		this._link.classList.add('de-link-parent');
-		let f;
-		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
-			(this.isOp ? `<svg class="${ post.thr.isFav ||
-				(f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (this.num in f) ?
-				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
-			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.deleted ? '' : '<span class="de-post-counter-pview">' +
-				(this.isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
-		if(post instanceof CacheItem) {
-			if(this.isOp) {
-				this.remoteThr = post.thr;
-			}
-			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
-			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).endParser();
-			}
-			embedPostMsgImages(this.el);
-			processImgInfoLinks(this.el);
-		} else {
-			this.btns = this._pref.nextSibling;
-			this.isOp = post.isOp;
-			this.btns.classList.remove('de-post-counter');
-			if(post.hidden) {
-				this.btns.classList.add('de-post-hide');
-			}
-			this.btns.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
-				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
-				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
-				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				this.el), $del);
-			$each($Q(aib.qPostImg, this.el), el => $show(el.parentNode));
-			const link = $q('.de-link-parent', this.el);
-			if(link) {
-				link.classList.remove('de-link-parent');
-			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
-				if(post.videos.playerInfo !== null) {
-					Object.defineProperty(this, 'videos',
-						{ value: new Videos(this, $q('.de-video-obj', this.el), post.videos.playerInfo) });
-				}
-				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', this.el), true);
-			}
-			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', this.el), $show);
-			}
-			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(post => {
-					if(!post.viewed) {
-						post.el.classList.add('de-viewed');
-						post.viewed = true;
-					}
-					const arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(post.num);
-					sesStorage['de-viewed'] = arr;
-				}, post.text.length > 100 ? 2e3 : 500, post);
-			}
-		}
-		this.el.addEventListener('click', this, true);
-		this._showPview(this.el);
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -395,10 +396,10 @@ class CacheItem {
 	constructor(el, count) {
 		this.count = count;
 		this.el = el;
-		this.deleted = false;
+		this.isDeleted = false;
+		this.isInited = false;
 		this.isOp = count === 0;
-		this.itemInited = false;
-		this.viewed = false;
+		this.isViewed = false;
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -416,17 +417,19 @@ class CacheItem {
 		return value;
 	}
 	get title() {
-		return new Post.Сontent(this).title;
+		const value = new Post.Сontent(this).title;
+		Object.defineProperty(this, 'title', { value });
+		return value;
 	}
 }
 
 class PviewsCache extends TemporaryContent {
 	constructor(form, b, tNum) {
 		super(b + tNum);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		const pByNum = new Map();
 		const thr = $q(aib.qThread, form) || form;
 		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -448,19 +451,18 @@ class PviewsCache extends TemporaryContent {
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.itemInited) {
+		if(!post || post.isInited) {
 			return post;
 		}
 		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
 			post.ref.makeUnion(pByNum.get(this._tNum).ref);
 		}
 		post.el = aib.fixHTML(post.el);
-		delete post.msg;
+		post.msg = null;
 		if(post.ref.hasMap) {
-			post.ref.initPostRef(this._tUrl,
-				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 		}
-		post.itemInited = true;
+		post.isInited = true;
 		return post;
 	}
 }

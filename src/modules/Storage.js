@@ -33,8 +33,7 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = {};
-		obj[id] = value;
+		const obj = { id: value };
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
@@ -248,7 +247,7 @@ function readPostsData(firstPost, favObj) {
 		if(!hideData) {
 			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
-			if(post.hidden) {
+			if(post.isHidden) {
 				post.spellHidden = true;
 			} else {
 				post.spellHide(hideData[1]);
@@ -282,16 +281,17 @@ function saveFavorites(data) {
 // Get posts that were read by posts previews
 function readViewedPosts() {
 	if(!Cfg.markViewed) {
-		const data = sesStorage['de-viewed'];
-		if(data) {
-			data.split(',').forEach(pNum => {
-				const post = pByNum.get(+pNum);
-				if(post) {
-					post.el.classList.add('de-viewed');
-					post.viewed = true;
-				}
-			});
-		}
+		return;
+	}
+	const data = sesStorage['de-viewed'];
+	if(data) {
+		data.split(',').forEach(pNum => {
+			const post = pByNum.get(+pNum);
+			if(post) {
+				post.el.classList.add('de-viewed');
+				post.isViewed = true;
+			}
+		});
 	}
 }
 
@@ -345,10 +345,7 @@ class PostsStorage {
 				}
 			}
 		}
-		if(!storage[aib.b]) {
-			storage[aib.b] = {};
-		}
-		storage[aib.b][num] = [this._cachedTime, thrNum, data];
+		(storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
 		this._saveStorage();
 	}
 
@@ -498,7 +495,7 @@ function initStorageEvent() {
 				HiddenPosts.purge();
 				if(data.brd === aib.b) {
 					let post = pByNum.get(data.num);
-					if(post && (post.hidden ^ data.hide)) {
+					if(post && (post.isHidden ^ data.hide)) {
 						post.setUserVisib(data.hide, false);
 					} else if((post = pByNum.get(data.thrNum))) {
 						post.thr.userTouched.set(data.num, data.hide);

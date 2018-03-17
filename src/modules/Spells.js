@@ -168,10 +168,8 @@ const Spells = Object.create({
 				64 : 'whitespace'
 			};
 			for(const bit in bits) {
-				if(+bit !== msgBit) {
-					if(val & +bit) {
-						names.push(bits[bit]);
-					}
+				if(+bit !== msgBit && (val & +bit)) {
+					names.push(bits[bit]);
 				}
 			}
 			if(msgBit) {
@@ -878,7 +876,7 @@ class SpellsRunner {
 	static _unhidePost(post) {
 		if(post.spellHidden) {
 			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [false, null];
 			}
 		}
@@ -888,7 +886,7 @@ class SpellsRunner {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
 			post.spellHide(msg);
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [true, msg];
 			}
 			return 1;

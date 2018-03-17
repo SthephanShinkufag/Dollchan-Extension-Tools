@@ -286,11 +286,9 @@ function showFavoritesWindow(body, favObj) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
-				const bArch = b + '/arch';
-				if(!favObj[host][bArch]) {
-					favObj[host][bArch] = { url: favObj[host][b].url + 'arch/' };
-				}
-				favObj[host][bArch][num] = Object.assign({}, f);
+				const arch = b + '/arch';
+				const fo = favObj[host];
+				(fo[arch] || (fo[arch] = { url: favObj[host][b].url + 'arch/' }))[num] = Object.assign({}, f);
 				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {

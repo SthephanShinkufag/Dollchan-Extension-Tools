@@ -172,14 +172,14 @@ class AbstractPost {
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
-			case 'de-btn-unhide-user': this.setUserVisib(!this.hidden); return;
+			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-rep':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
-			case 'de-btn-stick': this.setSticky(true); return;
-			case 'de-btn-stick-on': this.setSticky(false); return;
+			case 'de-btn-stick': this.toggleSticky(true); return;
+			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
 			return;
 		}
@@ -362,15 +362,15 @@ class Post extends AbstractPost {
 	constructor(el, thr, num, count, isOp, prev) {
 		super(thr, num, isOp);
 		this.count = count;
-		this.deleted = false;
 		this.el = el;
-		this.hidden = false;
+		this.isDeleted = false;
+		this.isHidden = false;
+		this.isOmitted = false;
+		this.isViewed = false;
 		this.next = null;
-		this.omitted = false;
 		this.prev = prev;
 		this.spellHidden = false;
 		this.userToggled = false;
-		this.viewed = false;
 		this._selRange = null;
 		this._selText = '';
 		if(prev) {
@@ -482,7 +482,7 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get bottom() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
@@ -497,7 +497,7 @@ class Post extends AbstractPost {
 	}
 	get nextNotDeleted() {
 		let post = this.nextInThread;
-		while(post && post.deleted) {
+		while(post && post.isDeleted) {
 			post = post.nextInThread;
 		}
 		return post;
@@ -526,7 +526,7 @@ class Post extends AbstractPost {
 		return this.thr.thrId;
 	}
 	get top() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
@@ -543,7 +543,7 @@ class Post extends AbstractPost {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.ref.unhideRef();
 			}
 			RefMap.updateRefMap(this, false);
@@ -552,7 +552,7 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		this.deleted = true;
+		this.isDeleted = true;
 		this.btns.classList.remove('de-post-counter');
 		this.btns.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
@@ -562,9 +562,9 @@ class Post extends AbstractPost {
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
 		while(post) {
-			if(post.thr.hidden) {
+			if(post.thr.isHidden) {
 				post = toUp ? post.thr.op.prev : post.thr.last.next;
-			} else if(post.hidden || post.omitted) {
+			} else if(post.isHidden || post.isOmitted) {
 				post = toUp ? post.prev : post.next;
 			} else {
 				return post;
@@ -583,7 +583,7 @@ class Post extends AbstractPost {
 	}
 	select() {
 		if(this.isOp) {
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.thr.el.previousElementSibling.classList.add('de-selected');
 			}
 			this.thr.el.classList.add('de-selected');
@@ -611,7 +611,7 @@ class Post extends AbstractPost {
 	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
 		this.setVisib(isHide, note);
-		if(this.isOp || this.hidden === isHide) {
+		if(this.isOp || this.isHidden === isHide) {
 			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
 		}
 		if(isSave) {
@@ -635,14 +635,14 @@ class Post extends AbstractPost {
 		this.ref.toggleRef(isHide, false);
 	}
 	setVisib(isHide, note = null) {
-		if(this.hidden === isHide) {
+		if(this.isHidden === isHide) {
 			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = isHide;
+			this.thr.isHidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
 				this.wrap.classList.toggle('de-hidden', isHide);
@@ -662,7 +662,7 @@ class Post extends AbstractPost {
 		} else {
 			this.note.hideNote();
 		}
-		this.hidden = isHide;
+		this.isHidden = isHide;
 		this.hideContent(isHide);
 	}
 	spellHide(note) {
@@ -703,7 +703,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const isHide = !this.hidden;
+		const isHide = !this.isHidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -810,10 +810,10 @@ Post.hiddenNums = new Set();
 Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		this.el = post.el;
 		this.post = post;
 	}
@@ -905,7 +905,7 @@ Post.Note = class PostNote {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
 				$pd(e);
-				this._post.setUserVisib(!this._post.hidden);
+				this._post.setUserVisib(!this._post.isHidden);
 			};
 			text = (this._post.title ? `(${ this._post.title }) ` : '') +
 				(note ? `[autohide: ${ note }]` : '');

@@ -1235,7 +1235,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						const post = pByNum.get(+$q('blockquote', delPosts[i])
 							.getAttribute('id').substring(1));
 						if(post) {
-							post.deleted = true;
+							post.isDeleted = true;
 							post.btns.classList.remove('de-post-counter');
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');

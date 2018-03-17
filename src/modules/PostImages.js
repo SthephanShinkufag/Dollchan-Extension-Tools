@@ -16,8 +16,8 @@ class ImagesNavigBtns {
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
-		this._hidden = true;
 		this._hideTmt = 0;
+		this._isHidden = true;
 		this._oldX = -1;
 		this._oldY = -1;
 		this._viewer = viewerObj;
@@ -41,7 +41,7 @@ class ImagesNavigBtns {
 				this._btns.addEventListener('mouseout', this);
 				this._btns.addEventListener('click', this);
 			}
-			if(!this._hidden) {
+			if(!this._isHidden) {
 				clearTimeout(this._hideTmt);
 				KeyEditListener.setTitle(this.prevBtn, 4);
 				KeyEditListener.setTitle(this.nextBtn, 17);
@@ -65,7 +65,7 @@ class ImagesNavigBtns {
 	}
 	hideBtns() {
 		this._btnsStyle.display = 'none';
-		this._hidden = true;
+		this._isHidden = true;
 		this._oldX = this._oldY = -1;
 	}
 	removeBtns() {
@@ -74,9 +74,9 @@ class ImagesNavigBtns {
 		clearTimeout(this._hideTmt);
 	}
 	showBtns() {
-		if(this._hidden) {
+		if(this._isHidden) {
 			this._btnsStyle.removeProperty('display');
-			this._hidden = false;
+			this._isHidden = false;
 			this._setHideTmt();
 		}
 	}
@@ -231,7 +231,7 @@ class ImagesViewer {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
-			data.post.setSticky(false);
+			data.post.toggleSticky(false);
 		}
 		$del(this._obj);
 		if(e && data.inPview) {
@@ -307,7 +307,7 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
-			this.data.post.setSticky(true);
+			this.data.post.toggleSticky(true);
 		}
 		const btns = this._btns;
 		if(!data.inPview) {
@@ -473,7 +473,7 @@ class ExpandableImage {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
 				post = isForward ? Thread.first.op : Thread.last.last;
-				if(post.hidden || post.thr.hidden) {
+				if(post.isHidden || post.thr.isHidden) {
 					post = post.getAdjacentVisPost(!isForward);
 					if(!post) {
 						return null;
@@ -624,15 +624,15 @@ class ExpandableImage {
 		return wrapEl;
 	}
 	sendCloseEvent(e, inPost) {
-		let pv = this.post;
-		let cr = pv.el.getBoundingClientRect();
+		let { post } = this;
+		let cr = post.el.getBoundingClientRect();
 		const x = e.pageX - window.pageXOffset;
 		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-				pv = pv.parent;
-				if(pv && (pv instanceof Pview)) {
-					cr = pv.el.getBoundingClientRect();
+				post = post.parent;
+				if(post && (post instanceof Pview)) {
+					cr = post.el.getBoundingClientRect();
 				} else {
 					if(Pview.top) {
 						Pview.top.markToDel();
@@ -640,7 +640,7 @@ class ExpandableImage {
 					return;
 				}
 			}
-			pv.mouseEnter();
+			post.mouseEnter();
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
