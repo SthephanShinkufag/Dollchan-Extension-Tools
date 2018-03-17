@@ -9,8 +9,7 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		this._inputs = [...$Q('input[type="file"]', this.fileTd)].reduce(
-			(arr, el) => arr.push(new FileInput(this, el)) && arr, []);
+		this._inputs = Array.from($Q('input[type="file"]', this.fileTd), el => new FileInput(this, el));
 		this._files = [];
 		this.hideEmpty();
 	}

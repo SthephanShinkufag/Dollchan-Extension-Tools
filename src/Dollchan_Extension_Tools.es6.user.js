@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f64449e';
+const commit = '4bba774';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9133,8 +9133,7 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		this._inputs = [...$Q('input[type="file"]', this.fileTd)].reduce(
-			(arr, el) => arr.push(new FileInput(this, el)) && arr, []);
+		this._inputs = Array.from($Q('input[type="file"]', this.fileTd), el => new FileInput(this, el));
 		this._files = [];
 		this.hideEmpty();
 	}

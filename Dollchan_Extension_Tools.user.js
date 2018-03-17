@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'f64449e';
+	var commit = '4bba774';
 
 
 	var defaultCfg = {
@@ -13118,9 +13118,9 @@ true, true];
 			this.fileTd = $parent(fileEl, 'TD');
 			this.onchange = null;
 			this._form = form;
-			this._inputs = [].concat(_toConsumableArray($Q('input[type="file"]', this.fileTd))).reduce(function (arr, el) {
-				return arr.push(new FileInput(_this34, el)) && arr;
-			}, []);
+			this._inputs = Array.from($Q('input[type="file"]', this.fileTd), function (el) {
+				return new FileInput(_this34, el);
+			});
 			this._files = [];
 			this.hideEmpty();
 		}
