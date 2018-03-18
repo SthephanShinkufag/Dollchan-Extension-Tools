@@ -231,7 +231,7 @@ class Pview extends AbstractPost {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
-	_buildPview(post) {
+	async _buildPview(post) {
 		$del(this.el);
 		const { num } = this;
 		const isMyPost = Cfg.markMyPosts && MyPosts.has(num);
@@ -247,9 +247,10 @@ class Pview extends AbstractPost {
 		this._pref = $q(aib.qPostRef, pv);
 		this._link.classList.add('de-link-parent');
 		const { isOp } = this;
+		let f;
 		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 			(isOp ? `<svg class="${ post.thr.isFav ||
-				(async f => (f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f))() ?
+				(f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f) ?
 				'de-btn-fav-sel' : 'de-btn-fav' }"><use xlink:href="#de-symbol-post-fav"></use></svg>` : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
@@ -417,9 +418,7 @@ class CacheItem {
 		return value;
 	}
 	get title() {
-		const value = new Post.Сontent(this).title;
-		Object.defineProperty(this, 'title', { value });
-		return value;
+		return new Post.Сontent(this).title;
 	}
 }
 
