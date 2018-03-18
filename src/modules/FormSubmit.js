@@ -7,7 +7,7 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	const err = [...$Q(aib.qError, dc)].reduce((val, str, i) => (val += str.innerHTML + '\n'), '')
+	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
 		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }

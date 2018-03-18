@@ -792,9 +792,9 @@ const CfgWindow = {
 	_getBox: id => `<label class="de-cfg-label">
 		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
-	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
-		<span class="de-info-name">${ data[0] }</span>
-		<span>${ data[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
+	_getInfoTable: (data, needMs) => data.map(val => `<div class="de-info-row">
+		<span class="de-info-name">${ val[0] }</span>
+		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
 	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
@@ -803,7 +803,7 @@ const CfgWindow = {
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
 	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
-		Lng.cfg[id].sel[lang].reduce((val, str, i) => (val += `<option value="${ i }">${ str }</option>`), '')
+		Lng.cfg[id].sel[lang].map((val, i) => `<option value="${ i }">${ val }</option>`).join('')
 	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
 	// Creates a tab for tab bar
 	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,

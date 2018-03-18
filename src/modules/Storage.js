@@ -448,7 +448,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		}
 		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 		const rv = super._readStorage();
-		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
+		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(val => +val)) : new Set();
 		return rv;
 	}
 }();

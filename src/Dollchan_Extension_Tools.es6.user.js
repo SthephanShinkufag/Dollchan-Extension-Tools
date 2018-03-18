@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '4cb1b35';
+const commit = '5fbcab8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2805,7 +2805,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		}
 		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 		const rv = super._readStorage();
-		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
+		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(val => +val)) : new Set();
 		return rv;
 	}
 }();
@@ -4868,9 +4868,9 @@ const CfgWindow = {
 	_getBox: id => `<label class="de-cfg-label">
 		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
-	_getInfoTable: (data, needMs) => data.map(data => `<div class="de-info-row">
-		<span class="de-info-name">${ data[0] }</span>
-		<span>${ data[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
+	_getInfoTable: (data, needMs) => data.map(val => `<div class="de-info-row">
+		<span class="de-info-name">${ val[0] }</span>
+		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
 	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
@@ -4879,7 +4879,7 @@ const CfgWindow = {
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
 	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
-		Lng.cfg[id].sel[lang].reduce((val, str, i) => (val += `<option value="${ i }">${ str }</option>`), '')
+		Lng.cfg[id].sel[lang].map((val, i) => `<option value="${ i }">${ val }</option>`).join('')
 	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
 	// Creates a tab for tab bar
 	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
@@ -8304,12 +8304,13 @@ class PostForm {
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
-		el.innerHTML = `${ aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
+		const btnsHTML = aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
 			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
 				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`), '') }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+			}</div>`), '');
+		el.innerHTML = `${ btnsHTML }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
@@ -8779,7 +8780,7 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	const err = [...$Q(aib.qError, dc)].reduce((val, str, i) => (val += str.innerHTML + '\n'), '')
+	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
 		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }

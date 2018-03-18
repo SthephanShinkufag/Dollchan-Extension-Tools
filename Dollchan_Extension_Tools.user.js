@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '4cb1b35';
+	var commit = '5fbcab8';
 
 
 	var defaultCfg = {
@@ -5876,8 +5876,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 				var rv = _get(MyPostsClass.prototype.__proto__ || Object.getPrototypeOf(MyPostsClass.prototype), '_readStorage', this).call(this);
-				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(function (_) {
-					return +_;
+				this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(function (val) {
+					return +val;
 				})) : new Set();
 				return rv;
 			}
@@ -8009,8 +8009,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-chkbox" info="' + id + '" type="checkbox"> ' + Lng.cfg[id][lang] + '</label>';
 		},
 		_getInfoTable: function _getInfoTable(data, needMs) {
-			return data.map(function (data) {
-				return '<div class="de-info-row">\n\t\t<span class="de-info-name">' + data[0] + '</span>\n\t\t<span>' + (data[1] + (needMs ? 'ms' : '')) + '</span></div>';
+			return data.map(function (val) {
+				return '<div class="de-info-row">\n\t\t<span class="de-info-name">' + val[0] + '</span>\n\t\t<span>' + (val[1] + (needMs ? 'ms' : '')) + '</span></div>';
 			}).join('');
 		},
 		_getInp: function _getInp(id) {
@@ -8022,9 +8022,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>');
 		},
 		_getSel: function _getSel(id) {
-			return '<label class="de-cfg-label"><select class="de-cfg-select" info="' + id + '">' + Lng.cfg[id].sel[lang].reduce(function (val, str, i) {
-				return val += '<option value="' + i + '">' + str + '</option>';
-			}, '') + '</select> ' + Lng.cfg[id].txt[lang] + ' </label>';
+			return '<label class="de-cfg-label"><select class="de-cfg-select" info="' + id + '">' + Lng.cfg[id].sel[lang].map(function (val, i) {
+				return '<option value="' + i + '">' + val + '</option>';
+			}).join('') + '</select> ' + Lng.cfg[id].txt[lang] + ' </label>';
 		},
 		_getTab: function _getTab(id) {
 			return '<div class="' + aib.cReply + ' de-cfg-tab" info="' + id + '">' + Lng.cfgTab[id][lang] + '</div>';
@@ -12231,9 +12231,10 @@ true, true];
 				var id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 				var val = ['B', 'i', 'U', 'S', '%', 'C', 'x\xB2', 'x\u2082'];
 				var mode = Cfg.addTextBtns;
-				el.innerHTML = aib.markupTags.reduce(function (html, str, i) {
+				var btnsHTML = aib.markupTags.reduce(function (html, str, i) {
 					return html += str === '' ? '' : '<div id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + str + '">' + (mode === 2 ? (!html ? '[' : '') + '&nbsp;<a class="de-abtn" href="#">' + val[i] + '</a> /' : mode === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '<svg><use xlink:href="#de-symbol-markup-' + id[i] + '"/></svg>') + '</div>';
-				}, '') + '<div id="de-btn-quote" de-title="' + Lng.txtBtn[8][lang] + '" de-tag="q">' + (mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>') + '</span>';
+				}, '');
+				el.innerHTML = btnsHTML + '<div id="de-btn-quote" de-title="' + Lng.txtBtn[8][lang] + '" de-tag="q">' + (mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>') + '</span>';
 			}
 		}, {
 			key: 'clearForm',
@@ -12847,9 +12848,9 @@ true, true];
 		if (!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 			return null;
 		}
-		var err = [].concat(_toConsumableArray($Q(aib.qError, dc))).reduce(function (val, str, i) {
-			return val += str.innerHTML + '\n';
-		}, '').replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+		var err = [].concat(_toConsumableArray($Q(aib.qError, dc))).map(function (str) {
+			return str.innerHTML + '\n';
+		}).join('').replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 		return (/successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err
 		);
 	}
