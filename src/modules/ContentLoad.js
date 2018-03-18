@@ -143,11 +143,7 @@ const ContentLoader = {
 			} catch(err) {}
 		}
 		const txt = xhr.responseText;
-		const rv = new Uint8Array(txt.length);
-		for(let i = 0, len = txt.length; i < len; ++i) {
-			rv[i] = txt.charCodeAt(i) & 0xFF;
-		}
-		return rv;
+		return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
 	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
 	preloadImages(data) {
 		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {

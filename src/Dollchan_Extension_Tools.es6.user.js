@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '5fbcab8';
+const commit = '89d0f29';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2074,12 +2074,7 @@ class TarBuilder {
 	}
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
-		const len = sDat.length;
-		const data = new Uint8Array(len);
-		for(let i = 0; i < len; ++i) {
-			data[i] = sDat.charCodeAt(i) & 0xFF;
-		}
-		this.addFile(filepath, data);
+		this.addFile(filepath, new Uint8Array(sDat.length).map((val, i) => sDat.charCodeAt(i) & 0xFF));
 	}
 	get() {
 		this._data.push(new Uint8Array(1024));
@@ -3957,12 +3952,12 @@ function showFavoritesWindow(body, favObj) {
 	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
-		const thrInfo = [];
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
 		$popup('load-pages', Lng.loading[lang], true);
 		// Create indexed array of entries and "waiting" SVG icon for each entry
+		const thrInfo = [];
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
@@ -3983,6 +3978,11 @@ function showFavoritesWindow(body, favObj) {
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
 		let infoLoaded = 0;
+		const updateInf = (inf, page) => {
+			inf.iconEl.setAttribute('class', inf.iconClass);
+			toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+			inf.pageEl.textContent = '@' + page;
+		};
 		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
@@ -3993,13 +3993,10 @@ function showFavoritesWindow(body, favObj) {
 			}
 			// Search for threads on current page
 			for(let i = 0; i < len; ++i) {
-				const pInfo = thrInfo[i];
-				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
-					// Restore old icon and title status
-					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-					toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
-					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
-					pInfo.found = true;
+				const inf = thrInfo[i];
+				if(tNums.has(inf.num)) {
+					updateInf(inf, page);
+					inf.found = true;
 					infoLoaded++;
 				}
 			}
@@ -4009,12 +4006,9 @@ function showFavoritesWindow(body, favObj) {
 		}
 		// Process missed threads that not found
 		for(let i = 0; i < len; ++i) {
-			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
-			if(!found) {
-				// Restore old icon and title status
-				iconEl.setAttribute('class', iconClass);
-				toggleAttr(titleEl, 'title', iconTitle, iconTitle);
-				pageEl.textContent = '@?'; // Indicates that thread not found
+			const inf = thrInfo[i];
+			if(!inf.found) {
+				updateInf(inf, '?');
 			}
 		}
 		closePopup('load-pages');
@@ -5857,11 +5851,7 @@ const ContentLoader = {
 			} catch(err) {}
 		}
 		const txt = xhr.responseText;
-		const rv = new Uint8Array(txt.length);
-		for(let i = 0, len = txt.length; i < len; ++i) {
-			rv[i] = txt.charCodeAt(i) & 0xFF;
-		}
-		return rv;
+		return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
 	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
 	preloadImages(data) {
 		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
@@ -8274,8 +8264,10 @@ class PostForm {
 			saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
-		for(const { passEl = {} } of DelForm) {
-			passEl.value = value;
+		for(const { passEl } of DelForm) {
+			if(passEl) {
+				passEl.value = value;
+			}
 		}
 	}
 	get isVisible() {
@@ -10135,8 +10127,7 @@ class AbstractPost {
 				const els = $Q(aib.qRPost, form);
 				for(let i = 0, len = els.length; i < len; ++i) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(
-							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
+						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
 							maybeSpells.value);
 						$del(el);
 						break;
@@ -14814,12 +14805,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			$del(el);
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 8; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="image${ i + 1 }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="image${ i + 1 }"></div>`
+			).join('');
 		}
 		getBanId(postEl) {
 			const el = $q(this.qBan, postEl);
@@ -15051,15 +15039,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}, errFn);
 		}
 		fixVideo(isPost, data) {
-			const videos = [];
-			const els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
-					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
+				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
+					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 				$del(el);
-			}
-			return videos;
+				return value;
+			});
 		}
 		getImgRealName(wrap) {
 			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
@@ -15116,12 +15101,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 5; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file${ i ? i + 1 : '' }"></div>`
+			).join('');
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
@@ -15298,8 +15281,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
 					'#fieldPostingPassword, #divUpload');
 				for(let i = 0, len = els.length; i < len; ++i) {
-					const td = $bEnd(table, '<tr><th></th><td></td></tr>').lastChild;
-					td.appendChild(els[i]);
+					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
 				}
 			}
 			return false;
@@ -16357,12 +16339,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 4; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : '' }>` +
-					`<input type="file" name="file_${ i }" tabindex="7"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file_${ i }" tabindex="7"></div>`
+			).join('');
 			el.removeAttribute('id');
 		}
 		fixHTMLHelper(str) {
@@ -16616,20 +16596,17 @@ function getImageBoard(checkDomains, checkEngines) {
 	if(!dm) {
 		dm = window.location.hostname;
 	}
-	if(!dm) {
+	if(!dm || !checkEngines) {
 		return null;
 	}
 	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	if(checkEngines) {
-		for(let i = ibEngines.length - 1; i >= 0; --i) {
-			const [path, Ctor] = ibEngines[i];
-			if($q(path, doc)) {
-				return new Ctor(prot, dm);
-			}
+	for(let i = ibEngines.length - 1; i >= 0; --i) {
+		const [path, Ctor] = ibEngines[i];
+		if($q(path, doc)) {
+			return new Ctor(prot, dm);
 		}
-		return new BaseBoard(prot, dm);
 	}
-	return null;
+	return new BaseBoard(prot, dm);
 }
 
 /* ==[ Misc.js ]==============================================================================================

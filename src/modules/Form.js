@@ -99,8 +99,10 @@ class PostForm {
 			saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
-		for(const { passEl = {} } of DelForm) {
-			passEl.value = value;
+		for(const { passEl } of DelForm) {
+			if(passEl) {
+				passEl.value = value;
+			}
 		}
 	}
 	get isVisible() {

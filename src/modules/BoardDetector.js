@@ -81,12 +81,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			$del(el);
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 8; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="image${ i + 1 }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="image${ i + 1 }"></div>`
+			).join('');
 		}
 		getBanId(postEl) {
 			const el = $q(this.qBan, postEl);
@@ -318,15 +315,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}, errFn);
 		}
 		fixVideo(isPost, data) {
-			const videos = [];
-			const els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
-					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
+				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
+					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 				$del(el);
-			}
-			return videos;
+				return value;
+			});
 		}
 		getImgRealName(wrap) {
 			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
@@ -383,12 +377,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 5; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file${ i ? i + 1 : '' }"></div>`
+			).join('');
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
@@ -565,8 +557,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
 					'#fieldPostingPassword, #divUpload');
 				for(let i = 0, len = els.length; i < len; ++i) {
-					const td = $bEnd(table, '<tr><th></th><td></td></tr>').lastChild;
-					td.appendChild(els[i]);
+					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
 				}
 			}
 			return false;
@@ -1624,12 +1615,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 4; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : '' }>` +
-					`<input type="file" name="file_${ i }" tabindex="7"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file_${ i }" tabindex="7"></div>`
+			).join('');
 			el.removeAttribute('id');
 		}
 		fixHTMLHelper(str) {
@@ -1883,18 +1872,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	if(!dm) {
 		dm = window.location.hostname;
 	}
-	if(!dm) {
+	if(!dm || !checkEngines) {
 		return null;
 	}
 	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	if(checkEngines) {
-		for(let i = ibEngines.length - 1; i >= 0; --i) {
-			const [path, Ctor] = ibEngines[i];
-			if($q(path, doc)) {
-				return new Ctor(prot, dm);
-			}
+	for(let i = ibEngines.length - 1; i >= 0; --i) {
+		const [path, Ctor] = ibEngines[i];
+		if($q(path, doc)) {
+			return new Ctor(prot, dm);
 		}
-		return new BaseBoard(prot, dm);
 	}
-	return null;
+	return new BaseBoard(prot, dm);
 }

@@ -336,8 +336,7 @@ class AbstractPost {
 				const els = $Q(aib.qRPost, form);
 				for(let i = 0, len = els.length; i < len; ++i) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(
-							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
+						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
 							maybeSpells.value);
 						$del(el);
 						break;

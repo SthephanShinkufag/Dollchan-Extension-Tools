@@ -331,12 +331,12 @@ function showFavoritesWindow(body, favObj) {
 	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
-		const thrInfo = [];
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
 		$popup('load-pages', Lng.loading[lang], true);
 		// Create indexed array of entries and "waiting" SVG icon for each entry
+		const thrInfo = [];
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
@@ -357,6 +357,11 @@ function showFavoritesWindow(body, favObj) {
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
 		let infoLoaded = 0;
+		const updateInf = (inf, page) => {
+			inf.iconEl.setAttribute('class', inf.iconClass);
+			toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+			inf.pageEl.textContent = '@' + page;
+		};
 		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
@@ -367,13 +372,10 @@ function showFavoritesWindow(body, favObj) {
 			}
 			// Search for threads on current page
 			for(let i = 0; i < len; ++i) {
-				const pInfo = thrInfo[i];
-				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
-					// Restore old icon and title status
-					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-					toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
-					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
-					pInfo.found = true;
+				const inf = thrInfo[i];
+				if(tNums.has(inf.num)) {
+					updateInf(inf, page);
+					inf.found = true;
 					infoLoaded++;
 				}
 			}
@@ -383,12 +385,9 @@ function showFavoritesWindow(body, favObj) {
 		}
 		// Process missed threads that not found
 		for(let i = 0; i < len; ++i) {
-			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
-			if(!found) {
-				// Restore old icon and title status
-				iconEl.setAttribute('class', iconClass);
-				toggleAttr(titleEl, 'title', iconTitle, iconTitle);
-				pageEl.textContent = '@?'; // Indicates that thread not found
+			const inf = thrInfo[i];
+			if(!inf.found) {
+				updateInf(inf, '?');
 			}
 		}
 		closePopup('load-pages');

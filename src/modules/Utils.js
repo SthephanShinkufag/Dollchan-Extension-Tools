@@ -531,12 +531,7 @@ class TarBuilder {
 	}
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
-		const len = sDat.length;
-		const data = new Uint8Array(len);
-		for(let i = 0; i < len; ++i) {
-			data[i] = sDat.charCodeAt(i) & 0xFF;
-		}
-		this.addFile(filepath, data);
+		this.addFile(filepath, new Uint8Array(sDat.length).map((val, i) => sDat.charCodeAt(i) & 0xFF));
 	}
 	get() {
 		this._data.push(new Uint8Array(1024));
