@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'c97dee9';
+	var commit = '4cb1b35';
 
 
 	var defaultCfg = {
@@ -15289,7 +15289,7 @@ true, true];
 			key: '_buildPview',
 			value: function () {
 				var _ref50 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(post) {
-					var num, isMyPost, pv, isOp, f, pText, btnsEl, link;
+					var num, isMyPost, pv, isOp, f, isFav, pText, btnsEl, link;
 					return regeneratorRuntime.wrap(function _callee16$(_context17) {
 						while (1) {
 							switch (_context17.prev = _context17.next) {
@@ -15312,77 +15312,53 @@ true, true];
 									this._link.classList.add('de-link-parent');
 									isOp = this.isOp;
 									f = void 0;
+									_context17.t0 = isOp;
 
-									if (!isOp) {
-										_context17.next = 36;
+									if (!_context17.t0) {
+										_context17.next = 28;
 										break;
 									}
 
 									_context17.t1 = post.thr.isFav;
 
 									if (_context17.t1) {
-										_context17.next = 26;
+										_context17.next = 27;
 										break;
 									}
 
-									_context17.next = 18;
+									_context17.next = 19;
 									return readFavorites();
 
-								case 18:
+								case 19:
 									_context17.t4 = aib.host;
 									_context17.t3 = f = _context17.sent[_context17.t4];
 
 									if (!_context17.t3) {
-										_context17.next = 22;
+										_context17.next = 23;
 										break;
 									}
 
 									_context17.t3 = f = f[this.brd];
 
-								case 22:
+								case 23:
 									_context17.t2 = _context17.t3;
 
 									if (!_context17.t2) {
-										_context17.next = 25;
+										_context17.next = 26;
 										break;
 									}
 
 									_context17.t2 = num in f;
 
-								case 25:
+								case 26:
 									_context17.t1 = _context17.t2;
 
-								case 26:
-									if (!_context17.t1) {
-										_context17.next = 30;
-										break;
-									}
+								case 27:
+									_context17.t0 = _context17.t1;
 
-									_context17.t5 = 'de-btn-fav-sel';
-									_context17.next = 31;
-									break;
-
-								case 30:
-									_context17.t5 = 'de-btn-fav';
-
-								case 31:
-									_context17.t6 = _context17.t5;
-									_context17.t7 = '<svg class="' + _context17.t6;
-									_context17.t0 = _context17.t7 + '"><use xlink:href="#de-symbol-post-fav"></use></svg>';
-									_context17.next = 37;
-									break;
-
-								case 36:
-									_context17.t0 = '';
-
-								case 37:
-									_context17.t8 = _context17.t0;
-									_context17.t9 = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + _context17.t8;
-									_context17.t10 = post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '';
-									_context17.t11 = _context17.t9 + _context17.t10;
-									_context17.t12 = _context17.t11 + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>';
-									_context17.t13 = post.isDeleted ? '' : '<span class="de-post-counter-pview">' + (isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>';
-									pText = _context17.t12 + _context17.t13;
+								case 28:
+									isFav = _context17.t0;
+									pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ? '<svg class="' + (isFav ? 'de-btn-fav-sel' : 'de-btn-fav') + '">' + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.isDeleted ? '' : '<span class="de-post-counter-pview">' + (isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
 
 									if (post instanceof CacheItem) {
 										if (isOp) {
@@ -15436,7 +15412,7 @@ true, true];
 									pv.addEventListener('click', this, true);
 									this._showPview(pv);
 
-								case 47:
+								case 33:
 								case 'end':
 									return _context17.stop();
 							}
