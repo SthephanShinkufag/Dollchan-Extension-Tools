@@ -224,7 +224,8 @@ function scriptCSS() {
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
 	nav.firefoxVer >= 59 ? `.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
-	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap-center > .de-fullimg { width: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
