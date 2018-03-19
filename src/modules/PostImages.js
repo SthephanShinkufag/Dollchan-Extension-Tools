@@ -551,15 +551,16 @@ class ExpandableImage {
 			const [width, height] = this.computeFullSize();
 			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
 		}
-		const title = needTitle ? this.el.getAttribute('de-metatitle') : '';
+		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
+		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
 			<video style="width: inherit; height: inherit" src="${ src }" ` +
-				`${ title ? `title="${ title }" ` : '' }loop autoplay ` +
+				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
-				${ imgNameEl }${ title ? ` - ${ title }` : '' }</a>
-				${ needTitle && !title ? `<svg class="de-wait">
+				${ imgNameEl }${ hasTitle && title ? ` - ${ title }` : '' }</a>
+				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
@@ -588,7 +589,7 @@ class ExpandableImage {
 				href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
-		if(needTitle) {
+		if(needTitle && !hasTitle) {
 			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
@@ -608,13 +609,13 @@ class ExpandableImage {
 						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
 							str += String.fromCharCode(d[i]);
 						}
-						if(str) {
-							const loadedTitle = decodeURIComponent(escape(str));
-							this.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
-							$q('.de-fullimg-src', wrapEl).textContent += ` - ${ loadedTitle }`;
-						}
 						break;
 					}
+				}
+				const loadedTitle = decodeURIComponent(escape(str));
+				this.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+				if(str) {
+					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ loadedTitle }`;
 				}
 			});
 		}

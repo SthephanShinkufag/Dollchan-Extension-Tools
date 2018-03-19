@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'ca1cda8';
+	var commit = '7e0504c';
 
 
 	var defaultCfg = {
@@ -16339,8 +16339,9 @@ true, true];
 
 					inPostSize = ' style="width: ' + width + 'px; height: ' + height + 'px;"';
 				}
-				var title = needTitle ? this.el.getAttribute('de-metatitle') : '';
-				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '"' + inPostSize + '>\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" ' + ((title ? 'title="' + title + '" ' : '') + 'loop autoplay ') + ('' + (Cfg.webmControl ? 'controls ' : '')) + ((Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + (title ? ' - ' + title : '') + '</a>\n\t\t\t\t' + (needTitle && !title ? '<svg class="de-wait">\n\t\t\t\t\t<use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
+				var hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
+				var title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
+				wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '"' + inPostSize + '>\n\t\t\t<video style="width: inherit; height: inherit" src="' + src + '" ' + ((hasTitle && title ? 'title="' + title + '" ' : '') + 'loop autoplay ') + ('' + (Cfg.webmControl ? 'controls ' : '')) + ((Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>\n\t\t\t<div class="de-fullimg-info">\n\t\t\t\t' + imgNameEl + (hasTitle && title ? ' - ' + title : '') + '</a>\n\t\t\t\t' + (needTitle && !hasTitle ? '<svg class="de-wait">\n\t\t\t\t\t<use xlink:href="#de-symbol-wait"/></svg>' : '') + '\n\t\t\t</div>\n\t\t</div>'));
 				var videoEl = wrapEl.firstElementChild;
 				videoEl.volume = Cfg.webmVolume / 100;
 				videoEl.addEventListener('ended', function () {
@@ -16371,7 +16372,7 @@ true, true];
 					var href = 'https://github.com/Kagami/webmify/';
 					$popup('err-expandmedia', Lng.errMsEdgeWebm[lang] + ':\n<a href="' + href + '" target="_blank">' + href + '</a>', false);
 				}
-				if (needTitle) {
+				if (needTitle && !hasTitle) {
 					this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(function (data) {
 						$hide($q('.de-wait', wrapEl));
 						if (!data) {
@@ -16389,13 +16390,13 @@ true, true];
 								for (var end = (d[i++] & 0x7F) + i; i < end; ++i) {
 									str += String.fromCharCode(d[i]);
 								}
-								if (str) {
-									var loadedTitle = decodeURIComponent(escape(str));
-									_this58.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
-									$q('.de-fullimg-src', wrapEl).textContent += ' - ' + loadedTitle;
-								}
 								break;
 							}
+						}
+						var loadedTitle = decodeURIComponent(escape(str));
+						_this58.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+						if (str) {
+							$q('.de-fullimg-src', wrapEl).textContent += ' - ' + loadedTitle;
 						}
 					});
 				}
