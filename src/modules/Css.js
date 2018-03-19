@@ -222,8 +222,11 @@ function scriptCSS() {
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
-	nav.firefoxVer >= 59 ? `.de-fullimg-video { position: relative; }
-		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
+	nav.firefoxVer >= 59 ?
+		`.de-fullimg-center-video { border-top: 20px solid #444 !important; border-radius: 10px 10px 0 0; cursor: pointer; }
+		.de-fullimg-center-video > .de-fullimg-video::before { right: 6px !important; top: -20px; }
+		.de-fullimg-video { position: relative; }
+		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg { width: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
