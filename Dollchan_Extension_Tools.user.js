@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '7e0504c';
+	var commit = '9c848bc';
 
 
 	var defaultCfg = {
@@ -16394,9 +16394,9 @@ true, true];
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
-						_this58.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+						_this58.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
-							$q('.de-fullimg-src', wrapEl).textContent += ' - ' + loadedTitle;
+							$q('.de-fullimg-src', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle);
 						}
 					});
 				}

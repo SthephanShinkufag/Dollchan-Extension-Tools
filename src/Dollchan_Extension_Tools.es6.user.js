@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '7e0504c';
+const commit = '9c848bc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11829,9 +11829,9 @@ class ExpandableImage {
 					}
 				}
 				const loadedTitle = decodeURIComponent(escape(str));
-				this.el.setAttribute('de-metatitle', videoEl.title = loadedTitle);
+				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ loadedTitle }`;
+					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
 				}
 			});
 		}
