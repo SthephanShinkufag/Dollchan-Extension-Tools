@@ -1227,7 +1227,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							.getAttribute('id').substring(1));
 						if(post) {
 							post.isDeleted = true;
-							post.btns.classList.remove('de-post-counter');
+							$del(post.counterEl);
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');
 						}

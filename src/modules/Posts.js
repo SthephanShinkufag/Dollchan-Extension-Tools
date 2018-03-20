@@ -382,8 +382,7 @@ class Post extends AbstractPost {
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		this.sage = aib.getSage(el);
-		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
-			`<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
@@ -391,7 +390,8 @@ class Post extends AbstractPost {
 				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			'</span>');
+			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
+		this.counterEl = isOp ? null : this.btns.lastChild;
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}
@@ -552,7 +552,7 @@ class Post extends AbstractPost {
 			return;
 		}
 		this.isDeleted = true;
-		this.btns.classList.remove('de-post-counter');
+		$del(this.counterEl);
 		this.btns.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');

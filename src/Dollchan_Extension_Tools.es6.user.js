@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '9c848bc';
+const commit = 'd3a4ba4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10173,8 +10173,7 @@ class Post extends AbstractPost {
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		this.sage = aib.getSage(el);
-		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
-			`<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' +
 			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
 			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
@@ -10182,7 +10181,8 @@ class Post extends AbstractPost {
 				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			'</span>');
+			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
+		this.counterEl = isOp ? null : this.btns.lastChild;
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}
@@ -10343,7 +10343,7 @@ class Post extends AbstractPost {
 			return;
 		}
 		this.isDeleted = true;
-		this.btns.classList.remove('de-post-counter');
+		$del(this.counterEl);
 		this.btns.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');
@@ -10980,11 +10980,10 @@ class Pview extends AbstractPost {
 	async _buildPview(post) {
 		$del(this.el);
 		const { num } = this;
-		const isMyPost = Cfg.markMyPosts && MyPosts.has(num);
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
+			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
@@ -11001,8 +11000,8 @@ class Pview extends AbstractPost {
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.isDeleted ? '' : '<span class="de-post-counter-pview">' +
-				(isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
+			(post.isDeleted ? '' : '<span class="de-post-counter">' +
+				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && post instanceof CacheItem)) + '</span>');
 		if(post instanceof CacheItem) {
 			if(isOp) {
 				this.remoteThr = post.thr;
@@ -11016,7 +11015,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(pv);
 		} else {
 			const btnsEl = this.btns = this._pref.nextSibling;
-			btnsEl.classList.remove('de-post-counter');
+			$del(btnsEl.lastChild);
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}
@@ -12931,7 +12930,6 @@ class Thread {
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
-		el.style.counterReset = 'de-cnt ' + omt;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
 		if(aib.t) {
@@ -13008,6 +13006,7 @@ class Thread {
 		} while(delAll && post);
 		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
+			tPost.counterEl.textContent = tPost.count + 1;
 		}
 		this.pcount -= count;
 		return post;
@@ -13248,7 +13247,6 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
 		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
@@ -15953,7 +15951,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							.getAttribute('id').substring(1));
 						if(post) {
 							post.isDeleted = true;
-							post.btns.classList.remove('de-post-counter');
+							$del(post.counterEl);
 							post.btns.classList.add('de-post-deleted');
 							post.wrap.classList.add('de-post-removed');
 						}
@@ -17156,9 +17154,8 @@ function scriptCSS() {
 	${ cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') }
 
 	/* Posts counter */
-	.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
-	.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }
-	.de-post-counter-pview { color: #4f7942; }
+	.de-post-counter, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
+	.de-post-counter { color: #4f7942; }
 	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }
 
 	/* Text markup buttons */
@@ -17364,7 +17361,7 @@ function updateCSS() {
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }
+		.de-mypost .de-post-counter::after { content: " (You)"; }
 		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }

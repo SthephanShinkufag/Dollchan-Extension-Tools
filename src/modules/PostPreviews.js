@@ -234,11 +234,10 @@ class Pview extends AbstractPost {
 	async _buildPview(post) {
 		$del(this.el);
 		const { num } = this;
-		const isMyPost = Cfg.markMyPosts && MyPosts.has(num);
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
+			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
@@ -255,8 +254,8 @@ class Pview extends AbstractPost {
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.isDeleted ? '' : '<span class="de-post-counter-pview">' +
-				(isOp ? 'OP' : post.count + +!aib.JsonBuilder) + (isMyPost ? ' (You)' : '') + '</span>');
+			(post.isDeleted ? '' : '<span class="de-post-counter">' +
+				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && post instanceof CacheItem)) + '</span>');
 		if(post instanceof CacheItem) {
 			if(isOp) {
 				this.remoteThr = post.thr;
@@ -270,7 +269,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(pv);
 		} else {
 			const btnsEl = this.btns = this._pref.nextSibling;
-			btnsEl.classList.remove('de-post-counter');
+			$del(btnsEl.lastChild);
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}

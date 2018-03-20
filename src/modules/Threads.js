@@ -30,7 +30,6 @@ class Thread {
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
-		el.style.counterReset = 'de-cnt ' + omt;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
 		if(aib.t) {
@@ -107,6 +106,7 @@ class Thread {
 		} while(delAll && post);
 		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
 			tPost.count -= count;
+			tPost.counterEl.textContent = tPost.count + 1;
 		}
 		this.pcount -= count;
 		return post;
@@ -347,7 +347,6 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
 		const btn = this.btns;
 		if(btn !== thrEl.lastChild) {
 			thrEl.appendChild(btn);
