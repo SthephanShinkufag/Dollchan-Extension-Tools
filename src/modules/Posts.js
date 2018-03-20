@@ -537,6 +537,14 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
+	deleteCounter() {
+		this.isDeleted = true;
+		$del(this.counterEl);
+		this.counterEl = null;
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+	}
 	deletePost(isRemovePost) {
 		if(isRemovePost) {
 			$del(this.wrap);
@@ -551,11 +559,7 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		this.isDeleted = true;
-		$del(this.counterEl);
-		this.btns.classList.add('de-post-deleted');
-		this.el.classList.add('de-post-removed');
-		this.wrap.classList.add('de-wrap-removed');
+		this.deleteCounter();
 		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {

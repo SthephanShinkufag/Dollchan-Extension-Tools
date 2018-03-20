@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'd3a4ba4';
+	var commit = '22ae541';
 
 
 	var defaultCfg = {
@@ -5982,7 +5982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		initPanel: function initPanel(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length;
 			var isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (Cfg.expandPanel ? '' : ' style="display: none;"') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (!Cfg.addYouTube ? '' : this._getButton('vid')) + (localData ? '' : this._getButton('refresh') + (!isThr && aib.page === aib.firstPage ? '' : this._getButton('goback')) + (isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) + this._getButton('goup') + this._getButton('godown') + (imgLen === 0 ? '' : this._getButton('expimg') + this._getButton('maskimg')) + (nav.isPresto || localData ? '' : (imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) + (!isThr ? '' : this._getButton('savethr'))) + (!isThr || localData ? '' : this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (nav.isSafari ? '' : this._getButton('audio-off'))) + (!aib.hasCatalog ? '' : this._getButton('catalog')) + this._getButton('enable') + (!isThr ? '' : '<span id="de-panel-info">\n\t\t\t\t\t\t<span id="de-panel-info-pcount" title="' + (Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">') + (Thread.first.pcount + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">\n\t\t\t\t\t\t\t' + imgLen + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>\n\t\t\t\t\t</span>'))) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (!Cfg.expandPanel ? ' style="display: none;"' : '') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.addYouTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr ? '<span id="de-panel-info">\n\t\t\t\t\t\t<span id="de-panel-info-pcount" title="' + (Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">') + (Thread.first.pcount + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">\n\t\t\t\t\t\t\t' + imgLen + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>\n\t\t\t\t\t</span>') : '')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -7336,8 +7336,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}));
 
 			!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], function () {
-				$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr>' + ('<div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend">') + '<input type="file" accept=".json" id="de-import-file"></div></div><hr>' + '<div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + _this14._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + (' (' + aib.dm + ')'), Lng.myPosts[lang] + (' (' + aib.dm + ')')]) + '</div></div>');
-
+				var list = _this14._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + (' (' + aib.dm + ')'), Lng.myPosts[lang] + (' (' + aib.dm + ')')]);
+				$popup('cfg-file', '<b>' + Lng.fileImpExp[lang] + ':</b><hr><!--\n\t\t\t\t--><div class="de-list">' + Lng.fileToData[lang] + ':<div class="de-cfg-depend"><!--\n\t\t\t\t\t--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--\n\t\t\t\t--><div class="de-list"><a id="de-export-file" href="#">' + Lng.dataToFile[lang] + ':<!--\n\t\t\t\t--><div class="de-cfg-depend">' + list + '</div></div>');
 				$id('de-import-file').onchange = function (e) {
 					var file = e.target.files[0];
 					if (!file) {
@@ -14416,6 +14416,16 @@ true, true];
 				}
 			}
 		}, {
+			key: 'deleteCounter',
+			value: function deleteCounter() {
+				this.isDeleted = true;
+				$del(this.counterEl);
+				this.counterEl = null;
+				this.btns.classList.add('de-post-deleted');
+				this.el.classList.add('de-post-removed');
+				this.wrap.classList.add('de-wrap-removed');
+			}
+		}, {
 			key: 'deletePost',
 			value: function deletePost(isRemovePost) {
 				if (isRemovePost) {
@@ -14431,11 +14441,7 @@ true, true];
 					}
 					return;
 				}
-				this.isDeleted = true;
-				$del(this.counterEl);
-				this.btns.classList.add('de-post-deleted');
-				this.el.classList.add('de-post-removed');
-				this.wrap.classList.add('de-wrap-removed');
+				this.deleteCounter();
 				($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 			}
 		}, {
@@ -15291,7 +15297,7 @@ true, true];
 			key: '_buildPview',
 			value: function () {
 				var _ref50 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(post) {
-					var num, pv, isOp, f, isFav, pText, btnsEl, link;
+					var num, pv, isOp, f, isFav, isCached, pText, btnsEl, link;
 					return regeneratorRuntime.wrap(function _callee16$(_context17) {
 						while (1) {
 							switch (_context17.prev = _context17.next) {
@@ -15359,9 +15365,10 @@ true, true];
 
 								case 27:
 									isFav = _context17.t0;
-									pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ? '<svg class="' + (isFav ? 'de-btn-fav-sel' : 'de-btn-fav') + '">' + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.isDeleted ? '' : '<span class="de-post-counter">' + (isOp ? 'OP' : post.count + +!(aib.JsonBuilder && post instanceof CacheItem)) + '</span>');
+									isCached = post instanceof CacheItem;
+									pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ? '<svg class="' + (isFav ? 'de-btn-fav-sel' : 'de-btn-fav') + '">' + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + (post.isDeleted ? '' : '<span class="de-post-counter">' + (isOp ? 'OP' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>');
 
-									if (post instanceof CacheItem) {
+									if (isCached) {
 										if (isOp) {
 											this.remoteThr = post.thr;
 										}
@@ -15375,7 +15382,7 @@ true, true];
 									} else {
 										btnsEl = this.btns = this._pref.nextSibling;
 
-										$del(btnsEl.lastChild);
+										$del($q('.de-post-counter', btnsEl));
 										if (post.isHidden) {
 											btnsEl.classList.add('de-post-hide');
 										}
@@ -15413,7 +15420,7 @@ true, true];
 									pv.addEventListener('click', this, true);
 									this._showPview(pv);
 
-								case 32:
+								case 33:
 								case 'end':
 									return _context17.stop();
 							}
@@ -21681,10 +21688,7 @@ true, true];
 							try {
 								var post = pByNum.get(+$q('blockquote', delPosts[i]).getAttribute('id').substring(1));
 								if (post) {
-									post.isDeleted = true;
-									$del(post.counterEl);
-									post.btns.classList.add('de-post-deleted');
-									post.wrap.classList.add('de-post-removed');
+									post.deleteCounter();
 								}
 							} catch (err) {}
 						}

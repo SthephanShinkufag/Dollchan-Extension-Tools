@@ -14,36 +14,34 @@ const Panel = Object.create({
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
-				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
+				<span id="de-panel-buttons"${ !Cfg.expandPanel ? ' style="display: none;"' : '' }>
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localData ? '' :
+					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(!localData ?
 						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
-						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +
+						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(imgLen === 0 ? '' :
-						this._getButton('expimg') +
-						this._getButton('maskimg')) +
-					(nav.isPresto || localData ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
-						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localData ? '' :
+					(imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(!localData && !nav.isPresto ?
+						(imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
+						(isThr ? this._getButton('savethr') : '') : '') +
+					(!localData && isThr ?
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.isSafari ? '' : this._getButton('audio-off'))) +
-					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
+						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
+					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
-					(!isThr ? '' : `<span id="de-panel-info">
+					(isThr ? `<span id="de-panel-info">
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`) }
+					</span>` : '') }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }

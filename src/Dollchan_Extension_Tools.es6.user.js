@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'd3a4ba4';
+const commit = '22ae541';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2909,36 +2909,34 @@ const Panel = Object.create({
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
-				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
+				<span id="de-panel-buttons"${ !Cfg.expandPanel ? ' style="display: none;"' : '' }>
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localData ? '' :
+					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(!localData ?
 						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
-						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +
+						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(imgLen === 0 ? '' :
-						this._getButton('expimg') +
-						this._getButton('maskimg')) +
-					(nav.isPresto || localData ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
-						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localData ? '' :
+					(imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(!localData && !nav.isPresto ?
+						(imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
+						(isThr ? this._getButton('savethr') : '') : '') +
+					(!localData && isThr ?
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.isSafari ? '' : this._getButton('audio-off'))) +
-					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
+						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
+					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
-					(!isThr ? '' : `<span id="de-panel-info">
+					(isThr ? `<span id="de-panel-info">
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`) }
+					</span>` : '') }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
@@ -4138,18 +4136,18 @@ const CfgWindow = {
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			const list = this._getList([
+				Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+				Lng.panelBtn.fav[lang],
+				Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+				Lng.myPosts[lang] + ` (${ aib.dm })`
+			]);
 			// Create popup with controls
-			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
-				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
-					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
-				'<div class="de-list"><a id="de-export-file" href="#">' +
-					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
-					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })`
-				]) + '</div></div>');
-
+			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
+				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend"><!--
+					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
+				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
+				--><div class="de-cfg-depend">${ list }</div></div>`);
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
@@ -5204,8 +5202,8 @@ const HotKeys = {
 		const kc = e.keyCode |
 			(e.ctrlKey ? 0x1000 : 0) |
 			(e.shiftKey ? 0x2000 : 0) |
-			(e.altKey ? 0x4000 : 0) | (
-				tag === 'TEXTAREA' ||
+			(e.altKey ? 0x4000 : 0) |
+			(tag === 'TEXTAREA' ||
 				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
@@ -7333,8 +7331,8 @@ const Spells = Object.create({
 			const j = i + 1;
 			if(sp[i][0] === sp[j][0] &&
 				sp[i][1] <= sp[j][1] &&
-				sp[i][1] >= sp[j][1] && (
-					sp[i][2] === null || // Stronger spell with 3 parameters
+				sp[i][1] >= sp[j][1] &&
+				(sp[i][2] === null || // Stronger spell with 3 parameters
 					sp[i][2] === undefined || // Equal spells with 2 parameters
 					(sp[i][2] <= sp[j][2] && sp[i][2] >= sp[j][2]))
 			) { // Equal spells with 3 parameters
@@ -8452,11 +8450,10 @@ class PostForm {
 			this.txta.focus();
 		} else {
 			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
-			$txtInsert(this.txta, (
-				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
-				(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
+			$txtInsert(this.txta,
+				(isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` : (isOnNewLine ? '' : '\n') +
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)) +
+				(quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
 					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();
@@ -10328,6 +10325,14 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
+	deleteCounter() {
+		this.isDeleted = true;
+		$del(this.counterEl);
+		this.counterEl = null;
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+	}
 	deletePost(isRemovePost) {
 		if(isRemovePost) {
 			$del(this.wrap);
@@ -10342,11 +10347,7 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		this.isDeleted = true;
-		$del(this.counterEl);
-		this.btns.classList.add('de-post-deleted');
-		this.el.classList.add('de-post-removed');
-		this.wrap.classList.add('de-wrap-removed');
+		this.deleteCounter();
 		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {
@@ -10995,14 +10996,15 @@ class Pview extends AbstractPost {
 		let f;
 		const isFav = isOp && (post.thr.isFav ||
 			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
+		const isCached = post instanceof CacheItem;
 		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
 			(post.isDeleted ? '' : '<span class="de-post-counter">' +
-				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && post instanceof CacheItem)) + '</span>');
-		if(post instanceof CacheItem) {
+				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>');
+		if(isCached) {
 			if(isOp) {
 				this.remoteThr = post.thr;
 			}
@@ -11015,7 +11017,7 @@ class Pview extends AbstractPost {
 			processImgInfoLinks(pv);
 		} else {
 			const btnsEl = this.btns = this._pref.nextSibling;
-			$del(btnsEl.lastChild);
+			$del($q('.de-post-counter', btnsEl));
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
 			}
@@ -15950,10 +15952,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						const post = pByNum.get(+$q('blockquote', delPosts[i])
 							.getAttribute('id').substring(1));
 						if(post) {
-							post.isDeleted = true;
-							$del(post.counterEl);
-							post.btns.classList.add('de-post-deleted');
-							post.wrap.classList.add('de-post-removed');
+							post.deleteCounter();
 						}
 					} catch(err) {}
 				}
@@ -16705,8 +16704,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			}
 		}
 		return Promise.reject();
-	}, () => !isManual ? Promise.reject() :
-		`<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
+	}, () => !isManual ?
+		Promise.reject() : `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
 	);
 }
 

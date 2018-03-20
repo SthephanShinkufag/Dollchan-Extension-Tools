@@ -1226,10 +1226,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						const post = pByNum.get(+$q('blockquote', delPosts[i])
 							.getAttribute('id').substring(1));
 						if(post) {
-							post.isDeleted = true;
-							$del(post.counterEl);
-							post.btns.classList.add('de-post-deleted');
-							post.wrap.classList.add('de-post-removed');
+							post.deleteCounter();
 						}
 					} catch(err) {}
 				}

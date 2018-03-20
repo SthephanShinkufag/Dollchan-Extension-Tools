@@ -287,11 +287,10 @@ class PostForm {
 			this.txta.focus();
 		} else {
 			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
-			$txtInsert(this.txta, (
-				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
-				(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
+			$txtInsert(this.txta,
+				(isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` : (isOnNewLine ? '' : '\n') +
+					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)) +
+				(quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
 					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
 		}
 		temp = pByNum.get(pNum).thr.op.title.trim();

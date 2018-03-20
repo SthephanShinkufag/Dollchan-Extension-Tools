@@ -77,8 +77,8 @@ const HotKeys = {
 		const kc = e.keyCode |
 			(e.ctrlKey ? 0x1000 : 0) |
 			(e.shiftKey ? 0x2000 : 0) |
-			(e.altKey ? 0x4000 : 0) | (
-				tag === 'TEXTAREA' ||
+			(e.altKey ? 0x4000 : 0) |
+			(tag === 'TEXTAREA' ||
 				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {

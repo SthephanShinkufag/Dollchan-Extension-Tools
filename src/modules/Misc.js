@@ -94,8 +94,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			}
 		}
 		return Promise.reject();
-	}, () => !isManual ? Promise.reject() :
-		`<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
+	}, () => !isManual ?
+		Promise.reject() : `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
 	);
 }
 

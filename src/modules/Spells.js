@@ -463,8 +463,8 @@ const Spells = Object.create({
 			const j = i + 1;
 			if(sp[i][0] === sp[j][0] &&
 				sp[i][1] <= sp[j][1] &&
-				sp[i][1] >= sp[j][1] && (
-					sp[i][2] === null || // Stronger spell with 3 parameters
+				sp[i][1] >= sp[j][1] &&
+				(sp[i][2] === null || // Stronger spell with 3 parameters
 					sp[i][2] === undefined || // Equal spells with 2 parameters
 					(sp[i][2] <= sp[j][2] && sp[i][2] >= sp[j][2]))
 			) { // Equal spells with 3 parameters

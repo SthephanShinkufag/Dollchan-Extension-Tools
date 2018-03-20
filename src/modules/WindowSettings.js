@@ -68,18 +68,18 @@ const CfgWindow = {
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			const list = this._getList([
+				Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+				Lng.panelBtn.fav[lang],
+				Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+				Lng.myPosts[lang] + ` (${ aib.dm })`
+			]);
 			// Create popup with controls
-			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
-				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
-					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
-				'<div class="de-list"><a id="de-export-file" href="#">' +
-					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
-					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })`
-				]) + '</div></div>');
-
+			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
+				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend"><!--
+					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
+				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
+				--><div class="de-cfg-depend">${ list }</div></div>`);
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
