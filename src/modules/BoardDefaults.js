@@ -40,7 +40,7 @@ class BaseBoard {
 		this.formTd = 'td';
 		this.hasAltCaptcha = false; // Differs _4chanOrg only
 		this.hasCatalog = false;
-		this.hasOPNum = false; // Sets in Makaba only
+		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;

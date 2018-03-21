@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '124acfd';
+const commit = 'a4c1dd5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14429,7 +14429,7 @@ class BaseBoard {
 		this.formTd = 'td';
 		this.hasAltCaptcha = false; // Differs _4chanOrg only
 		this.hasCatalog = false;
-		this.hasOPNum = false; // Sets in Makaba only
+		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
@@ -15895,6 +15895,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
 
 			this.docExt = '';
+			this.hasOPNum = true;
 			this.res = 'thread/';
 		}
 		get qImgNameLink() {
@@ -15904,28 +15905,28 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_inner';
 		}
 		get css() {
-			return `.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
+			return `.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }
+				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
 					height: auto !important; font: 13px/15px arial !important; }
 				.de-cfg-label.de-block { display: block; }
-				.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }
-				.post { overflow-x: auto !important; }`;
+				.post { overflow-x: auto !important; }
+				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
 		}
 		get isArchived() {
 			return true;
 		}
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
-			try {
-				const els = $Q('.expand_image', el);
-				for(let i = 0, tLen = els.length; i < tLen; ++i) {
-					els[i].href = els[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
-				}
-			} catch(err) {}
+			const links = $Q('.expand_image', el);
+			for(let i = 0, len = links.length; i < len; ++i) {
+				const link = links[i];
+				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
+				link.removeAttribute('onclick');
+			}
 			return el;
 		}
 		getImgInfo(wrap) {
-			const data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
-			return data ? `${ data[1] }x${ data[2] }, 0Kb` : null;
+			return wrap.title;
 		}
 		getImgWrap(img) {
 			return $parent(img, 'A').parentNode;
@@ -15943,20 +15944,17 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
 		getTNum(el) {
-			return +this.getOp(el).getAttribute('postid');
+			return this.getPNum(this.getOp(el));
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(() => {
-				const delPosts = $Q('.post[postid=""]');
+				const delPosts = $Q('.post_deleted');
 				for(let i = 0, len = delPosts.length; i < len; ++i) {
-					try {
-						const post = pByNum.get(+$q('blockquote', delPosts[i])
-							.getAttribute('id').substring(1));
-						if(post) {
-							post.deleteCounter();
-						}
-					} catch(err) {}
+					const post = pByNum.get(this.getPNum(delPosts[i]));
+					if(post) {
+						post.thr.deletePosts(post, false, false);
+					}
 				}
 			}, 0);
 			return false;
