@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '22ae541';
+const commit = '124acfd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9934,7 +9934,7 @@ class AbstractPost {
 				case 'like-div':
 				case 'dislike-div': {
 					const task = el.className.split('-')[0];
-					const num = el.id.match(/\d+/)[0];
+					const num = +el.id.match(/\d+/);
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
@@ -10107,29 +10107,32 @@ class AbstractPost {
 		$pd(e);
 		e.stopPropagation();
 	}
-	_getFullMsg(el, isInit) {
+	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {
-			aib.deleteTruncMsg(this, el, isInit);
+			aib.deleteTruncMsg(this, truncEl, isInit);
 			return;
 		}
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
 		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+			let sourceEl;
 			const maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
-				$del(el);
+				sourceEl = form;
 			} else {
-				const els = $Q(aib.qRPost, form);
-				for(let i = 0, len = els.length; i < len; ++i) {
-					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
-							maybeSpells.value);
-						$del(el);
+				const posts = $Q(aib.qRPost, form);
+				for(let i = 0, len = posts.length; i < len; ++i) {
+					const post = posts[i];
+					if(this.num === aib.getPNum(post)) {
+						sourceEl = post;
 						break;
 					}
 				}
+			}
+			if(sourceEl) {
+				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+				$del(truncEl);
 			}
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
@@ -10556,7 +10559,7 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
-			const task = parseInt(el.textContent.match(/\d+/), 10);
+			const task = +el.textContent.match(/\d+/);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 		}
 		}
@@ -10801,7 +10804,7 @@ class Pview extends AbstractPost {
 	}
 	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);
@@ -14641,8 +14644,7 @@ class BaseBoard {
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
-		let txt;
-		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
+		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
 	getOp(thr) { // Differs Arhivach only
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
@@ -14667,7 +14669,7 @@ class BaseBoard {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 	}
 	getPNum(post) {
-		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
+		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
 		const sel = this.qRPost + ', [de-thread]';
@@ -15059,7 +15061,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum: id && +id };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('window.FormData = void 0');
@@ -15447,7 +15449,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.page = 0;
 		}
 		thrId(op) {
-			return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
+			return +$q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/);
 		}
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
@@ -15511,7 +15513,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el;
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
@@ -15587,7 +15589,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getOmitted(el, len) {
 			let txt;
-			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
 		getPageUrl(b, p) {
 			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
@@ -15809,7 +15811,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -16105,7 +16107,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 		}
 		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/)[0];
+			return +$q('a[name]', op).name.match(/\d+/);
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
@@ -16354,7 +16356,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.sage', post);
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('highlightPost = Function.prototype');

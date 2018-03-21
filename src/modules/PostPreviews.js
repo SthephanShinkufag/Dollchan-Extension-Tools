@@ -54,7 +54,7 @@ class Pview extends AbstractPost {
 	}
 	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);

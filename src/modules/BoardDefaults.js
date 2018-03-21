@@ -255,8 +255,7 @@ class BaseBoard {
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
-		let txt;
-		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
+		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
 	getOp(thr) { // Differs Arhivach only
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
@@ -281,7 +280,7 @@ class BaseBoard {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 	}
 	getPNum(post) {
-		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
+		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
 		const sel = this.qRPost + ', [de-thread]';

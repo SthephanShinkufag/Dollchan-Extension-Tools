@@ -333,7 +333,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum: id && +id };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('window.FormData = void 0');
@@ -721,7 +721,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.page = 0;
 		}
 		thrId(op) {
-			return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
+			return +$q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/);
 		}
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
@@ -785,7 +785,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el;
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
@@ -861,7 +861,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getOmitted(el, len) {
 			let txt;
-			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
 		getPageUrl(b, p) {
 			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
@@ -1083,7 +1083,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -1379,7 +1379,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 		}
 		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/)[0];
+			return +$q('a[name]', op).name.match(/\d+/);
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
@@ -1628,7 +1628,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.sage', post);
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('highlightPost = Function.prototype');

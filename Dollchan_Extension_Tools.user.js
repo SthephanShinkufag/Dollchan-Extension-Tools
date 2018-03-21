@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '22ae541';
+	var commit = '124acfd';
 
 
 	var defaultCfg = {
@@ -14083,7 +14083,7 @@ true, true];
 							case 'dislike-div':
 								{
 									var task = el.className.split('-')[0];
-									var num = el.id.match(/\d+/)[0];
+									var num = +el.id.match(/\d+/);
 									$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
 										var data = JSON.parse(xhr.responseText);
 										if (data.Status !== 'OK') {
@@ -14265,30 +14265,34 @@ true, true];
 			}
 		}, {
 			key: '_getFullMsg',
-			value: function _getFullMsg(el, isInit) {
+			value: function _getFullMsg(truncEl, isInit) {
 				var _this45 = this;
 
 				if (aib.deleteTruncMsg) {
-					aib.deleteTruncMsg(this, el, isInit);
+					aib.deleteTruncMsg(this, truncEl, isInit);
 					return;
 				}
 				if (!isInit) {
 					$popup('load-fullmsg', Lng.loading[lang], true);
 				}
 				ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
+					var sourceEl = void 0;
 					var maybeSpells = new Maybe(SpellsRunner);
 					if (_this45.isOp) {
-						_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
-						$del(el);
+						sourceEl = form;
 					} else {
-						var els = $Q(aib.qRPost, form);
-						for (var i = 0, len = els.length; i < len; ++i) {
-							if (_this45.num === aib.getPNum(els[i])) {
-								_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))), maybeSpells.value);
-								$del(el);
+						var posts = $Q(aib.qRPost, form);
+						for (var i = 0, len = posts.length; i < len; ++i) {
+							var post = posts[i];
+							if (_this45.num === aib.getPNum(post)) {
+								sourceEl = post;
 								break;
 							}
 						}
+					}
+					if (sourceEl) {
+						_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+						$del(truncEl);
 					}
 					if (maybeSpells.hasValue) {
 						maybeSpells.value.endSpells();
@@ -14719,7 +14723,7 @@ true, true];
 						Spells.addSpell(0 , '>>' + this.num, false);return;
 					case 'thr-exp':
 						{
-							var task = parseInt(el.textContent.match(/\d+/), 10);
+							var task = +el.textContent.match(/\d+/);
 							this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 						}
 				}
@@ -15539,7 +15543,7 @@ true, true];
 			key: 'showPview',
 			value: function showPview(parent, link) {
 				var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-				var pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+				var pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
 				var isTop = !(parent instanceof Pview);
 				var pv = isTop ? Pview.top : parent.kid;
 				clearTimeout(Pview._delTO);
@@ -19729,8 +19733,7 @@ true, true];
 		}, {
 			key: 'getOmitted',
 			value: function getOmitted(el) {
-				var txt = void 0;
-				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
+				return +(el && (el.textContent || '').match(/\d+/)) + 1;
 			}
 		}, {
 			key: 'getOp',
@@ -19761,7 +19764,7 @@ true, true];
 		}, {
 			key: 'getPNum',
 			value: function getPNum(post) {
-				return +post.id.match(/\d+/)[0]; 
+				return +post.id.match(/\d+/);
 			}
 		}, {
 			key: 'getPostElOfEl',
@@ -20368,7 +20371,7 @@ true, true];
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -20985,7 +20988,7 @@ true, true];
 			}, {
 				key: 'thrId',
 				value: function thrId(op) {
-					return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
+					return +$q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/);
 				}
 			}, {
 				key: 'qThread',
@@ -21078,7 +21081,7 @@ true, true];
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -21196,7 +21199,7 @@ true, true];
 				key: 'getOmitted',
 				value: function getOmitted(el, len) {
 					var txt = void 0;
-					return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+					return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 				}
 			}, {
 				key: 'getPageUrl',
@@ -21453,7 +21456,7 @@ true, true];
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -21927,7 +21930,7 @@ true, true];
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
-					return +$q('a[name]', op).name.match(/\d+/)[0];
+					return +$q('a[name]', op).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -22240,7 +22243,7 @@ true, true];
 			}, {
 				key: 'getTNum',
 				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',

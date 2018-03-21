@@ -146,7 +146,7 @@ class AbstractPost {
 				case 'like-div':
 				case 'dislike-div': {
 					const task = el.className.split('-')[0];
-					const num = el.id.match(/\d+/)[0];
+					const num = +el.id.match(/\d+/);
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
@@ -319,29 +319,32 @@ class AbstractPost {
 		$pd(e);
 		e.stopPropagation();
 	}
-	_getFullMsg(el, isInit) {
+	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {
-			aib.deleteTruncMsg(this, el, isInit);
+			aib.deleteTruncMsg(this, truncEl, isInit);
 			return;
 		}
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
 		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+			let sourceEl;
 			const maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
-				$del(el);
+				sourceEl = form;
 			} else {
-				const els = $Q(aib.qRPost, form);
-				for(let i = 0, len = els.length; i < len; ++i) {
-					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
-							maybeSpells.value);
-						$del(el);
+				const posts = $Q(aib.qRPost, form);
+				for(let i = 0, len = posts.length; i < len; ++i) {
+					const post = posts[i];
+					if(this.num === aib.getPNum(post)) {
+						sourceEl = post;
 						break;
 					}
 				}
+			}
+			if(sourceEl) {
+				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+				$del(truncEl);
 			}
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
@@ -768,7 +771,7 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
-			const task = parseInt(el.textContent.match(/\d+/), 10);
+			const task = +el.textContent.match(/\d+/);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 		}
 		}
