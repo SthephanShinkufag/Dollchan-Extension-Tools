@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'a4c1dd5';
+const commit = 'f557447';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11731,31 +11731,32 @@ class ExpandableImage {
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
 				<div class="de-fullimg-info">${ imgNameEl }</a></div>
 			</div>`);
-			const img = $q('.de-fullimg', wrapEl);
-			img.onload = img.onerror = ({ target }) => {
-				if(target.naturalHeight + target.naturalWidth === 0) {
-					if(!target.onceLoaded) {
-						target.src = target.src;
-						target.onceLoaded = true;
+			const imgEl = $q('.de-fullimg', wrapEl);
+			imgEl.onload = imgEl.onerror = ({ target: img }) => {
+				if(!(img.naturalHeight + img.naturalWidth)) {
+					if(!img.onceLoaded) {
+						img.src = img.src;
+						img.onceLoaded = true;
 					}
 					return;
 				}
-				const { naturalWidth: newW, naturalHeight: newH } = target;
+				const { naturalWidth: newW, naturalHeight: newH } = img;
 				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
-				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-				if(!this._size || isExifRotated) {
-					this._size = isExifRotated ? [newH, newW] : [newW, newH];
+				const isRotated = !img.scrollWidth ? false :
+					img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+				if(!this._size || isRotated) {
+					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
-				const el = target.previousElementSibling;
-				if(el) {
-					const p = el.parentNode;
-					$hide(el);
-					p.classList.remove('de-fullimg-wrap-nosize');
+				const waitEl = img.previousElementSibling;
+				if(waitEl) {
+					const parentEl = img.parentNode;
+					$hide(waitEl);
+					parentEl.classList.remove('de-fullimg-wrap-nosize');
 					if(onsizechange) {
-						onsizechange(p);
+						onsizechange(parentEl);
 					}
-				} else if(isExifRotated && onrotate) {
-					onrotate(target.parentNode);
+				} else if(isRotated && onrotate) {
+					onrotate(img.parentNode);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
@@ -17212,7 +17213,7 @@ function scriptCSS() {
 		.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
-	.de-fullimg-wrap-center > .de-fullimg { width: 100%; }
+	.de-fullimg-wrap-center > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }

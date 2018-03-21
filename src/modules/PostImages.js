@@ -511,31 +511,32 @@ class ExpandableImage {
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
 				<div class="de-fullimg-info">${ imgNameEl }</a></div>
 			</div>`);
-			const img = $q('.de-fullimg', wrapEl);
-			img.onload = img.onerror = ({ target }) => {
-				if(target.naturalHeight + target.naturalWidth === 0) {
-					if(!target.onceLoaded) {
-						target.src = target.src;
-						target.onceLoaded = true;
+			const imgEl = $q('.de-fullimg', wrapEl);
+			imgEl.onload = imgEl.onerror = ({ target: img }) => {
+				if(!(img.naturalHeight + img.naturalWidth)) {
+					if(!img.onceLoaded) {
+						img.src = img.src;
+						img.onceLoaded = true;
 					}
 					return;
 				}
-				const { naturalWidth: newW, naturalHeight: newH } = target;
+				const { naturalWidth: newW, naturalHeight: newH } = img;
 				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
-				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-				if(!this._size || isExifRotated) {
-					this._size = isExifRotated ? [newH, newW] : [newW, newH];
+				const isRotated = !img.scrollWidth ? false :
+					img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+				if(!this._size || isRotated) {
+					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
-				const el = target.previousElementSibling;
-				if(el) {
-					const p = el.parentNode;
-					$hide(el);
-					p.classList.remove('de-fullimg-wrap-nosize');
+				const waitEl = img.previousElementSibling;
+				if(waitEl) {
+					const parentEl = img.parentNode;
+					$hide(waitEl);
+					parentEl.classList.remove('de-fullimg-wrap-nosize');
 					if(onsizechange) {
-						onsizechange(p);
+						onsizechange(parentEl);
 					}
-				} else if(isExifRotated && onrotate) {
-					onrotate(target.parentNode);
+				} else if(isRotated && onrotate) {
+					onrotate(img.parentNode);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
