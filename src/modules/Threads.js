@@ -112,8 +112,8 @@ class Thread {
 		let oldCoord = false;
 		if(e.type === 'click') {
 			switch(elClass) {
-			case 'de-btn-fav':
-			case 'de-btn-fav-sel': this.toggleFavState(); break;
+			case 'de-btn-fav': this.toggleFavState(true); break;
+			case 'de-btn-fav-sel': this.toggleFavState(false); break;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide-user':
@@ -187,7 +187,7 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	toggleFavState(preview = null, isEnable = !this.isFav) {
+	toggleFavState(isEnable, preview = null) {
 		let h, b, num, cnt, txt, last;
 		if(preview) {
 			preview.toggleFavBtn(isEnable);

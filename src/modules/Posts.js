@@ -172,8 +172,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav':
-			case 'de-btn-fav-sel': this.thr.toggleFavState(isPview ? this : null); return;
+			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
+			case 'de-btn-fav-sel': this.thr.toggleFavState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':

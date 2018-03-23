@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'bd99098';
+const commit = '390cb16';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8873,7 +8873,7 @@ function checkUpload(data) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
 	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.toggleFavState(null, true);
+		pByNum.get(tNum).thr.toggleFavState(true);
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -9971,8 +9971,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav':
-			case 'de-btn-fav-sel': this.thr.toggleFavState(isPview ? this : null); return;
+			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
+			case 'de-btn-fav-sel': this.thr.toggleFavState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -13044,8 +13044,8 @@ class Thread {
 		let oldCoord = false;
 		if(e.type === 'click') {
 			switch(elClass) {
-			case 'de-btn-fav':
-			case 'de-btn-fav-sel': this.toggleFavState(); break;
+			case 'de-btn-fav': this.toggleFavState(true); break;
+			case 'de-btn-fav-sel': this.toggleFavState(false); break;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide-user':
@@ -13119,7 +13119,7 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	toggleFavState(preview = null, isEnable = !this.isFav) {
+	toggleFavState(isEnable, preview = null) {
 		let h, b, num, cnt, txt, last;
 		if(preview) {
 			preview.toggleFavBtn(isEnable);

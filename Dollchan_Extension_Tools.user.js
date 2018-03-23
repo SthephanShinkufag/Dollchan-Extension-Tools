@@ -3817,7 +3817,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee22, this, [[43, 48]]);
 		}));
 
-		return function runMain(_x85, _x86) {
+		return function runMain(_x84, _x85) {
 			return _ref79.apply(this, arguments);
 		};
 	}();
@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'bd99098';
+	var commit = '390cb16';
 
 
 	var defaultCfg = {
@@ -12953,7 +12953,7 @@ true, true];
 			MyPosts.set(postNum, tNum || postNum);
 		}
 		if (Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-			pByNum.get(tNum).thr.toggleFavState(null, true);
+			pByNum.get(tNum).thr.toggleFavState(true);
 		}
 		pr.clearForm();
 		DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -14110,8 +14110,9 @@ true, true];
 						case 'de-btn-expthr':
 							this.thr.loadPosts('all');return;
 						case 'de-btn-fav':
+							this.thr.toggleFavState(true, isPview ? this : null);return;
 						case 'de-btn-fav-sel':
-							this.thr.toggleFavState(isPview ? this : null);return;
+							this.thr.toggleFavState(false, isPview ? this : null);return;
 						case 'de-btn-hide':
 						case 'de-btn-hide-user':
 						case 'de-btn-unhide':
@@ -18010,8 +18011,9 @@ true, true];
 				if (e.type === 'click') {
 					switch (elClass) {
 						case 'de-btn-fav':
+							this.toggleFavState(true);break;
 						case 'de-btn-fav-sel':
-							this.toggleFavState();break;
+							this.toggleFavState(false);break;
 						case 'de-btn-hide':
 						case 'de-btn-hide-user':
 						case 'de-btn-unhide-user':
@@ -18090,9 +18092,8 @@ true, true];
 			}
 		}, {
 			key: 'toggleFavState',
-			value: function toggleFavState() {
-				var preview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-				var isEnable = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : !this.isFav;
+			value: function toggleFavState(isEnable) {
+				var preview = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
 				var h = void 0,
 				    b = void 0,
@@ -20409,7 +20410,7 @@ true, true];
 						}, _callee18, this);
 					}));
 
-					function changeReplyMode(_x76, _x77) {
+					function changeReplyMode(_x75, _x76) {
 						return _ref69.apply(this, arguments);
 					}
 
@@ -20804,7 +20805,7 @@ true, true];
 												}, _callee19, _this85);
 											}));
 
-											return function getBase64(_x82) {
+											return function getBase64(_x81) {
 												return _ref73.apply(this, arguments);
 											};
 										}();
@@ -20842,7 +20843,7 @@ true, true];
 												}, _callee20, _this85);
 											}));
 
-											return function (_x83, _x84) {
+											return function (_x82, _x83) {
 												return _ref74.apply(this, arguments);
 											};
 										}());
@@ -20922,7 +20923,7 @@ true, true];
 						}, _callee21, this, [[24, 31]]);
 					}));
 
-					function sendHTML5Post(_x78, _x79, _x80, _x81) {
+					function sendHTML5Post(_x77, _x78, _x79, _x80) {
 						return _ref72.apply(this, arguments);
 					}
 
