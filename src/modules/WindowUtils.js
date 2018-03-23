@@ -31,6 +31,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
+				docBody.addEventListener('mouseleave', this);
 				docBody.addEventListener('mousemove', this);
 				docBody.addEventListener('mouseup', this);
 				$pd(e);
@@ -54,7 +55,9 @@ function makeDraggable(name, win, head) {
 				this._oldY = curY;
 				return;
 			}
-			default: // mouseup
+			case 'mouseleave':
+			case 'mouseup':
+				docBody.removeEventListener('mouseleave', this);
 				docBody.removeEventListener('mousemove', this);
 				docBody.removeEventListener('mouseup', this);
 				saveCfg(name + 'WinX', this._X);

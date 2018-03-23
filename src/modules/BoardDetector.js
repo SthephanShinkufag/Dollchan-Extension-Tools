@@ -45,10 +45,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
-					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
-					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
-					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
+					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
+					.nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img), .thread-nav,
 					.toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }

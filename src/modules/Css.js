@@ -323,7 +323,7 @@ function scriptCSS() {
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
-	.de-input-selected { background-color: rgba(255,255,180,0.3) !important; }
+	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
 	.de-link-ref { text-decoration: none; }

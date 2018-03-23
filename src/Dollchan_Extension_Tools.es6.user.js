@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'fe56a22';
+const commit = '4a28bb6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3190,6 +3190,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
+				docBody.addEventListener('mouseleave', this);
 				docBody.addEventListener('mousemove', this);
 				docBody.addEventListener('mouseup', this);
 				$pd(e);
@@ -3213,7 +3214,9 @@ function makeDraggable(name, win, head) {
 				this._oldY = curY;
 				return;
 			}
-			default: // mouseup
+			case 'mouseleave':
+			case 'mouseup':
+				docBody.removeEventListener('mouseleave', this);
 				docBody.removeEventListener('mousemove', this);
 				docBody.removeEventListener('mouseup', this);
 				saveCfg(name + 'WinX', this._X);
@@ -14840,10 +14843,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
-					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
-					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
-					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
+					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
+					.nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img), .thread-nav,
 					.toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				#de-txt-panel { font-size: 16px !important; }
@@ -17367,7 +17369,7 @@ function scriptCSS() {
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
-	.de-input-selected { background-color: rgba(255,255,180,0.3) !important; }
+	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
 	.de-link-ref { text-decoration: none; }
