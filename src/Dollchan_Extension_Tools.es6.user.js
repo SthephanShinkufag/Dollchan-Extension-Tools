@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'cd0a56f';
+const commit = 'bd99098';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -60,7 +60,8 @@ const defaultCfg = {
 	showRepBtn   : 1,    // show "Quick reply" buttons
 	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
-	thrBtns      : 1,    // additional buttons under threads [0=off, 1=all, 2=new posts]
+	thrBtns      : 1,    /* additional buttons under threads
+		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	widePosts    : 0,    // stretch posts to screen width
@@ -265,13 +266,13 @@ const Lng = {
 			'Авторозгортання скорочених постів*'],
 		thrBtns: {
 			sel: [
-				['Откл.', 'Все', 'Новые посты'],
-				['Disable', 'All', 'New posts'],
-				['Вимк.', 'Всі', 'Нові пости']],
+				['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'],
+				['Disable', 'All', 'All (on board)', '"New posts" on board'],
+				['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові пости" на дошці']],
 			txt: [
-				'Дополнительные кнопки под тредами',
-				'Additional buttons under threads',
-				'Додаткові кнопки під тредами']
+				'Кнопки под тредами',
+				'Buttons under threads',
+				'Кнопки під тредами']
 		},
 		showHideBtn: [
 			'Кнопки "Скрыть" ',
@@ -17459,7 +17460,7 @@ function updateCSS() {
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
 	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }
-	${ Cfg.thrBtns === 1 ? '' : '.de-thr-buttons > svg, ' }
+	${ Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
