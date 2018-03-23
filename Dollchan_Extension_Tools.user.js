@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'aa7d885';
+	var commit = 'cd0a56f';
 
 
 	var defaultCfg = {
@@ -4158,6 +4158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		togglePost: ['Скрыть/Раскрыть пост', 'Hide/Unhide post', 'Сховати/показати пост'],
 		toggleThr: ['Скрыть/Раскрыть тред', 'Hide/Unhide thread', 'Сховати/показати тред'],
 		replyToPost: ['Ответить на пост', 'Reply to post', 'Відповісти на пост'],
+		replyToThr: ['Ответить в тред', 'Reply to thread', 'Відповісти в тред'],
 		expandThr: ['Развернуть тред', 'Expand thread', 'Розгорнути тред'],
 		addFav: ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати тред в Вибране'],
 		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites', 'Прибрати тред з Вибраного'],
@@ -18042,7 +18043,7 @@ true, true];
 				} else if (e.type === 'mouseover') {
 					switch (el.classList[0]) {
 						case 'de-btn-rep':
-							this.btns.title = Lng.replyToPost[lang];
+							this.btns.title = Lng.replyToThr[lang];
 							quotetxt = window.getSelection().toString();
 							return;
 						case 'de-btn-hide':

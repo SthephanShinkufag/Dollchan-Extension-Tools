@@ -628,6 +628,10 @@ const Lng = {
 		'Ответить на пост',
 		'Reply to post',
 		'Відповісти на пост'],
+	replyToThr: [
+		'Ответить в тред',
+		'Reply to thread',
+		'Відповісти в тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',

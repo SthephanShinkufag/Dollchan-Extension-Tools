@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'aa7d885';
+const commit = 'cd0a56f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -798,6 +798,10 @@ const Lng = {
 		'Ответить на пост',
 		'Reply to post',
 		'Відповісти на пост'],
+	replyToThr: [
+		'Ответить в тред',
+		'Reply to thread',
+		'Відповісти в тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',
@@ -13070,7 +13074,7 @@ class Thread {
 		} else if(e.type === 'mouseover') {
 			switch(el.classList[0]) {
 			case 'de-btn-rep':
-				this.btns.title = Lng.replyToPost[lang];
+				this.btns.title = Lng.replyToThr[lang];
 				quotetxt = window.getSelection().toString();
 				return;
 			case 'de-btn-hide':

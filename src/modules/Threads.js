@@ -143,7 +143,7 @@ class Thread {
 		} else if(e.type === 'mouseover') {
 			switch(el.classList[0]) {
 			case 'de-btn-rep':
-				this.btns.title = Lng.replyToPost[lang];
+				this.btns.title = Lng.replyToThr[lang];
 				quotetxt = window.getSelection().toString();
 				return;
 			case 'de-btn-hide':
