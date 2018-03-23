@@ -347,6 +347,7 @@ function scriptCSS() {
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
 	.de-thr-buttons { clear: left; margin-top: 5px; }
+	${ aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '' }
 	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
 	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
@@ -392,7 +393,6 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thr-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
@@ -417,7 +417,8 @@ function updateCSS() {
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
-	${ Cfg.updThrBtns || aib.t ? '' : '.de-thr-updater, ' }
+	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }
+	${ Cfg.thrBtns === 1 ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;

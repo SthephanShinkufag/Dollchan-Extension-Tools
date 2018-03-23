@@ -270,6 +270,7 @@ const CfgWindow = {
 					addSVGIcons();
 				}
 				break;
+			case 'thrBtns':
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
@@ -296,7 +297,6 @@ const CfgWindow = {
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
-			case 'updThrBtns':
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
@@ -622,12 +622,12 @@ const CfgWindow = {
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
-				${ this._getBox('expandTrunc') }<br>
-				${ this._getBox('updThrBtns') }<br>` : '' }
+				${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
 			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
+			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('widePosts') }<br>

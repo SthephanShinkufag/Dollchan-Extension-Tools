@@ -93,10 +93,16 @@ const Lng = {
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
 			'Авторозгортання скорочених постів*'],
-		updThrBtns: [
-			'Кнопки "Получить новые посты" в списке тредов',
-			'Show "Get new posts" buttons in threads list',
-			'Кнопки "Отримати нові пости" у списку тредів'],
+		thrBtns: {
+			sel: [
+				['Откл.', 'Все', 'Новые посты'],
+				['Disable', 'All', 'New posts'],
+				['Вимк.', 'Всі', 'Нові пости']],
+			txt: [
+				'Дополнительные кнопки под тредами',
+				'Additional buttons under threads',
+				'Додаткові кнопки під тредами']
+		},
 		showHideBtn: [
 			'Кнопки "Скрыть" ',
 			'Show "Hide" buttons ',

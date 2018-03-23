@@ -22,11 +22,11 @@ const defaultCfg = {
 	markMyPosts  : 1,    // highlight my own posts
 	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
-	updThrBtns   : 1,    // show "Get new posts" buttons in threads list
 	showHideBtn  : 1,    // show "Hide" buttons
 	showRepBtn   : 1,    // show "Quick reply" buttons
 	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
+	thrBtns      : 1,    // additional buttons under threads [0=off, 1=all, 2=new posts]
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	widePosts    : 0,    // stretch posts to screen width

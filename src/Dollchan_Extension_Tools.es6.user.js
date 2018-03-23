@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'b326042';
+const commit = 'aa7d885';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -56,11 +56,11 @@ const defaultCfg = {
 	markMyPosts  : 1,    // highlight my own posts
 	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
-	updThrBtns   : 1,    // show "Get new posts" buttons in threads list
 	showHideBtn  : 1,    // show "Hide" buttons
 	showRepBtn   : 1,    // show "Quick reply" buttons
 	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
+	thrBtns      : 1,    // additional buttons under threads [0=off, 1=all, 2=new posts]
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	widePosts    : 0,    // stretch posts to screen width
@@ -263,10 +263,16 @@ const Lng = {
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
 			'Авторозгортання скорочених постів*'],
-		updThrBtns: [
-			'Кнопки "Получить новые посты" в списке тредов',
-			'Show "Get new posts" buttons in threads list',
-			'Кнопки "Отримати нові пости" у списку тредів'],
+		thrBtns: {
+			sel: [
+				['Откл.', 'Все', 'Новые посты'],
+				['Disable', 'All', 'New posts'],
+				['Вимк.', 'Всі', 'Нові пости']],
+			txt: [
+				'Дополнительные кнопки под тредами',
+				'Additional buttons under threads',
+				'Додаткові кнопки під тредами']
+		},
 		showHideBtn: [
 			'Кнопки "Скрыть" ',
 			'Show "Hide" buttons ',
@@ -4342,6 +4348,7 @@ const CfgWindow = {
 					addSVGIcons();
 				}
 				break;
+			case 'thrBtns':
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
@@ -4368,7 +4375,6 @@ const CfgWindow = {
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
-			case 'updThrBtns':
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
@@ -4694,12 +4700,12 @@ const CfgWindow = {
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
-				${ this._getBox('expandTrunc') }<br>
-				${ this._getBox('updThrBtns') }<br>` : '' }
+				${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
 			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
+			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('widePosts') }<br>
@@ -17378,6 +17384,7 @@ function scriptCSS() {
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
 	.de-thr-buttons { clear: left; margin-top: 5px; }
+	${ aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '' }
 	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
 	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
@@ -17423,7 +17430,6 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thr-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
@@ -17448,7 +17454,8 @@ function updateCSS() {
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
-	${ Cfg.updThrBtns || aib.t ? '' : '.de-thr-updater, ' }
+	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }
+	${ Cfg.thrBtns === 1 ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
