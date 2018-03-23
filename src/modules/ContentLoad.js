@@ -75,7 +75,7 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
 				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
 				aib.qForm, dc), $del);
 			$each($Q('a', dc), el => {

@@ -107,20 +107,12 @@ function initPage() {
 		if(!localData) {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
-			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
-				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>` +
-				`<span id="de-updater-count" style="display: none;"></span>]</span>
-				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
-			</div>`);
 		}
 	} else {
 		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
-		if(aib.t) {
-			$q('.de-thread-updater > .de-abtn').addEventListener('click', updater.forceLoad);
-		}
 	}
 }
 

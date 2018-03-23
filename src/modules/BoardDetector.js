@@ -915,7 +915,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thread-buttons { float: left; }
+				form > .de-thr-buttons { float: left; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { position: static; }`;
 		}

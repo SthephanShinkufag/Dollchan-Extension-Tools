@@ -14,9 +14,14 @@ class AbstractPost {
 		this._menu = null;
 		this._menuDelay = 0;
 	}
-	get hideBtn() {
+	get btnFav() {
+		const value = $q('.de-btn-fav, .de-btn-fav-sel', this.btns);
+		Object.defineProperty(this, 'btnFav', { value });
+		return value;
+	}
+	get btnHide() {
 		const value = this.btns.firstChild;
-		Object.defineProperty(this, 'hideBtn', { value });
+		Object.defineProperty(this, 'btnHide', { value });
 		return value;
 	}
 	get images() {
@@ -167,8 +172,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true, isPview ? this : null); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false, isPview ? this : null); return;
+			case 'de-btn-fav':
+			case 'de-btn-fav-sel': this.thr.toggleFavState(isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -208,7 +213,7 @@ class AbstractPost {
 		case 'de-btn-hide-user':
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
-			this.btns.title = Lng.togglePost[lang];
+			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
 			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
 				this._addMenu(el, isOutEvent, this._getMenuHide(el));
 			}
@@ -255,10 +260,13 @@ class AbstractPost {
 			e.stopPropagation();
 		}
 	}
-	setFavBtn(isEnable) {
-		const el = $q(isEnable ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
-		if(el) {
-			el.setAttribute('class', isEnable ? 'de-btn-fav-sel' : 'de-btn-fav');
+	toggleFavBtn(isEnable) {
+		const elClass = isEnable ? 'de-btn-fav-sel' : 'de-btn-fav';
+		if(this.btnFav) {
+			this.btnFav.setAttribute('class', elClass);
+		}
+		if(this.thr.btnFav) {
+			this.thr.btnFav.setAttribute('class', elClass);
 		}
 	}
 	updateMsg(newMsg, sRunner) {
@@ -385,13 +393,8 @@ class Post extends AbstractPost {
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		this.sage = aib.getSage(el);
-		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' +
-			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
-			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
-			(isOp ?
-				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
-				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
+			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
 		this.counterEl = isOp ? null : this.btns.lastChild;
@@ -417,6 +420,13 @@ class Post extends AbstractPost {
 			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
+	}
+	static getPostBtns(isOp, noExpThr) {
+		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ?
+			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
+				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}
 	static findSameText(pNum, isHidden, words, curPost) {
 		const curWords = Post.getWrds(curPost.text);
@@ -461,9 +471,9 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, isHide) {
+	static hideContent(headerEl, btnHide, isUser, isHide) {
 		if(!isHide) {
-			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
+			btnHide.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
 			return;
@@ -471,7 +481,7 @@ class Post extends AbstractPost {
 		if(aib.t) {
 			Thread.first.hidCounter++;
 		}
-		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		if(headerEl) {
 			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
 				el.classList.add('de-post-hiddencontent');
@@ -582,9 +592,10 @@ class Post extends AbstractPost {
 		if(this.isOp) {
 			if(!aib.t) {
 				$toggle(this.thr.el, !needToHide);
+				$toggle(this.thr.btns, !needToHide);
 			}
 		} else {
-			Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, needToHide);
+			Post.hideContent(this.headerEl, this.btnHide, this.userToggled, needToHide);
 		}
 	}
 	select() {
@@ -618,7 +629,11 @@ class Post extends AbstractPost {
 		this.userToggled = true;
 		this.setVisib(isHide, note);
 		if(this.isOp || this.isHidden === isHide) {
-			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+			const hideClass = isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user';
+			this.btnHide.setAttribute('class', hideClass);
+			if(this.isOp) {
+				this.thr.btnHide.setAttribute('class', hideClass);
+			}
 		}
 		if(isSave) {
 			const { num } = this;

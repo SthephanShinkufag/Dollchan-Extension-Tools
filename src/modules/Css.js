@@ -346,9 +346,9 @@ function scriptCSS() {
 	.de-refmap::before { content: "${ Lng.replies[lang] } "; }
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
-	.de-thread-buttons { clear: left; margin-top: 5px; }
-	.de-thread-collapse > a::after { content: "${ Lng.collapseThr[lang] }"; }
-	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
+	.de-thr-buttons { clear: left; margin-top: 5px; }
+	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
+	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
@@ -392,7 +392,7 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
+	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thr-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
@@ -408,7 +408,7 @@ function updateCSS() {
 			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
-	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : ''	}
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
@@ -417,7 +417,7 @@ function updateCSS() {
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
-	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
+	${ Cfg.updThrBtns || aib.t ? '' : '.de-thr-updater, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;

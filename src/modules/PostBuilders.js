@@ -52,14 +52,14 @@ class _4chanPostsBuilder {
 		};
 	}
 	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+		const spoiler = _4chanPostsBuilder._customSpoiler;
+		if(!spoiler[board] && (val = parseInt(val))) {
 			let spoilerEl;
 			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+				spoiler.set(board, spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 			}
 		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+			spoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
 		}
 	}
 	get isClosed() {

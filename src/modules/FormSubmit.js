@@ -100,7 +100,7 @@ function checkUpload(data) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
 	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.setFavorState(true);
+		pByNum.get(tNum).thr.toggleFavState(null, true);
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });

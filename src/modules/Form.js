@@ -238,7 +238,7 @@ class PostForm {
 		$toggle(this.pForm, !needToHide);
 		this.updatePAreaBtns();
 	}
-	showMainReply(isBottom, evt) {
+	showMainReply(isBottom, e) {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
@@ -252,17 +252,17 @@ class PostForm {
 			this.isBottom = isBottom;
 			this.setReply(false, false);
 		}
-		if(evt) {
-			$pd(evt);
+		if(e) {
+			$pd(e);
 		}
 	}
-	showQuickReply(post, pNum, closeReply, isNumClick) {
+	showQuickReply(post, pNum, isCloseReply, isNumClick, isNoLink = false) {
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -282,22 +282,18 @@ class PostForm {
 			this.refreshCap();
 		}
 		this.tNum = qNum;
-		let temp = this.txta.value;
-		if(!Cfg.addOPLink && !aib.t && post.isOp && !isNumClick) {
-			this.txta.focus();
-		} else {
-			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
-			$txtInsert(this.txta,
-				(isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` : (isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)) +
-				(quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
-		}
-		temp = pByNum.get(pNum).thr.op.title.trim();
-		if(temp.length > 27) {
-			temp = `${ temp.substr(0, 30) }\u2026`;
-		}
-		$q('.de-win-title', this.qArea).textContent = temp || `#${ pNum }`;
+		const txt = this.txta.value;
+		const isOnNewLine = txt === '' || txt.slice(-1) === '\n';
+		const link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' :
+			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
+			(isOnNewLine ? '' : '\n') +
+				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
+		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
+			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
+		$txtInsert(this.txta, link + quote);
+		const winTitle = pByNum.get(pNum).thr.op.title.trim();
+		$q('.de-win-title', this.qArea).textContent =
+			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
 	updateLanguage() {

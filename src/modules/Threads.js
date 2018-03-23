@@ -32,28 +32,21 @@ class Thread {
 		this.last = lastPost;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
-		if(aib.t) {
+		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
-			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
-		const updBtn = this.btns.firstChild;
-		updBtn.onclick = e => {
-			$pd(e);
-			this.loadPosts('new');
-		};
-		if(Cfg.hideReplies) {
-			const repBtn = $bEnd(this.btns,
-				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-			repBtn.onclick = e => {
-				$pd(e);
-				const nextCoord = !this.next || this.last.isOmitted ? null : this.next.top;
-				this._toggleReplies(repBtn, updBtn);
-				if(nextCoord) {
-					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
-				}
-			};
-			this._toggleReplies(repBtn, updBtn);
+		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
+			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
+			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
+				(aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
+			) + '</div>');
+		this.btns.addEventListener('click', this);
+		this.btns.addEventListener('mouseover', this);
+		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		if(!aib.t && Cfg.hideReplies) {
+			this.btnReplies = $bEnd(this.btns,
+				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+			this._toggleReplies();
 		}
 	}
 	static get first() {
@@ -111,6 +104,58 @@ class Thread {
 		this.pcount -= count;
 		return post;
 	}
+	handleEvent(e) {
+		$pd(e);
+		const el = fixEventEl(e.target);
+		const elClass = el.classList[0];
+		const nextThr = this.next;
+		let oldCoord = false;
+		if(e.type === 'click') {
+			switch(elClass) {
+			case 'de-btn-fav':
+			case 'de-btn-fav-sel': this.toggleFavState(); break;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide-user':
+				oldCoord = nextThr && nextThr.top;
+				this.op.setUserVisib(!this.isHidden);
+				break;
+			case 'de-btn-rep': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-replies':
+			case 'de-replies-show':
+			case 'de-replies-hide':
+				oldCoord = !nextThr || this.last.isOmitted ? null : nextThr.top;
+				this._toggleReplies();
+				break;
+			case 'de-thr-collapse':
+			case 'de-thr-collapse-link': this.loadPosts(visPosts, true); break;
+			case 'de-thr-updater':
+			case 'de-thr-updater-link':
+				if(aib.t) {
+					updater.forceLoad();
+				} else {
+					this.loadPosts('new');
+				}
+			}
+			if(oldCoord) {
+				scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
+			}
+		} else if(e.type === 'mouseover') {
+			switch(el.classList[0]) {
+			case 'de-btn-rep':
+				this.btns.title = Lng.replyToPost[lang];
+				quotetxt = window.getSelection().toString();
+				return;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide':
+			case 'de-btn-unhide-user': this.btns.title = Lng.toggleThr[lang]; return;
+			case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
+			case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+			default: this.btns.removeAttribute('title');
+			}
+		}
+	}
 	/*
 	* Thread loading via ajax.
 	*   Calls from the list of threads, not in a thread.
@@ -142,13 +187,13 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(isEnable, preview) {
+	toggleFavState(preview = null, isEnable = !this.isFav) {
 		let h, b, num, cnt, txt, last;
 		if(preview) {
-			preview.setFavBtn(isEnable);
+			preview.toggleFavBtn(isEnable);
 		}
 		if(!preview || preview.num === this.num) { // Oppost or usual preview
-			this.op.setFavBtn(isEnable);
+			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
 			({ host: h, b } = aib);
 			num = this.thrId;
@@ -347,24 +392,20 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		const btn = this.btns;
-		if(btn !== thrEl.lastChild) {
-			thrEl.appendChild(btn);
+		const { btns } = this;
+		if(btns !== thrEl.lastChild) {
+			thrEl.appendChild(btns);
 		}
-		if(!$q('.de-thread-collapse', btn)) {
-			$bEnd(btn, `<span class="de-thread-collapse"> [<a class="de-abtn" href="${
-				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`
-			).onclick = e => {
-				$pd(e);
-				this.loadPosts(visPosts, true);
-			};
+		if(!$q('.de-thr-collapse', btns)) {
+			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
+				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
-			btn.lastChild.style.display = 'initial';
+			btns.lastChild.style.display = 'initial';
 		} else {
 			thrNavPanel.removeThr(this);
-			$hide(btn.lastChild);
+			$hide(btns.lastChild);
 		}
 		if(needToOmit > 0) {
 			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
@@ -374,9 +415,9 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			$q('.de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
 			if(Cfg.updThrBtns) {
-				$show(btn.firstChild);
+				$show(this.btnUpd);
 			}
 		}
 		closePopup('load-thr');
@@ -480,7 +521,7 @@ class Thread {
 		}
 		return [newPosts, newVisPosts];
 	}
-	_toggleReplies(repBtn, updBtn) {
+	_toggleReplies() {
 		const isHide = !this.last.isOmitted;
 		let post = this.op;
 		let i = 0;
@@ -488,12 +529,9 @@ class Thread {
 			(post = post.next).isOmitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
-		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
-		$toggle(updBtn, !isHide);
-		const colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
+		this.btnReplies.firstElementChild.className =
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+		$each(this.btns.children, el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {

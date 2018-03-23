@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f557447';
+const commit = 'b326042';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -784,6 +784,10 @@ const Lng = {
 		'Скрыть/Раскрыть пост',
 		'Hide/Unhide post',
 		'Сховати/показати пост'],
+	toggleThr: [
+		'Скрыть/Раскрыть тред',
+		'Hide/Unhide thread',
+		'Сховати/показати тред'],
 	replyToPost: [
 		'Ответить на пост',
 		'Reply to post',
@@ -2553,7 +2557,7 @@ function readPostsData(firstPost, favObj) {
 		if(post.isOp && (num in favBrd)) {
 			const f = favBrd[num];
 			const { thr } = post;
-			post.setFavBtn(true);
+			post.toggleFavBtn(true);
 			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
@@ -3642,7 +3646,7 @@ function removeFavEntry(favObj, h, b, num) {
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
 		const post = pByNum.get(num);
-		post.setFavBtn(isEnable);
+		post.toggleFavBtn(isEnable);
 		post.thr.isFav = isEnable;
 	}
 }
@@ -5781,7 +5785,7 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thread-buttons, ' +
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
 				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
 				aib.qForm, dc), $del);
 			$each($Q('a', dc), el => {
@@ -8401,7 +8405,7 @@ class PostForm {
 		$toggle(this.pForm, !needToHide);
 		this.updatePAreaBtns();
 	}
-	showMainReply(isBottom, evt) {
+	showMainReply(isBottom, e) {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
@@ -8415,17 +8419,17 @@ class PostForm {
 			this.isBottom = isBottom;
 			this.setReply(false, false);
 		}
-		if(evt) {
-			$pd(evt);
+		if(e) {
+			$pd(e);
 		}
 	}
-	showQuickReply(post, pNum, closeReply, isNumClick) {
+	showQuickReply(post, pNum, isCloseReply, isNumClick, isNoLink = false) {
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -8445,22 +8449,18 @@ class PostForm {
 			this.refreshCap();
 		}
 		this.tNum = qNum;
-		let temp = this.txta.value;
-		if(!Cfg.addOPLink && !aib.t && post.isOp && !isNumClick) {
-			this.txta.focus();
-		} else {
-			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
-			$txtInsert(this.txta,
-				(isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` : (isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)) +
-				(quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
-		}
-		temp = pByNum.get(pNum).thr.op.title.trim();
-		if(temp.length > 27) {
-			temp = `${ temp.substr(0, 30) }\u2026`;
-		}
-		$q('.de-win-title', this.qArea).textContent = temp || `#${ pNum }`;
+		const txt = this.txta.value;
+		const isOnNewLine = txt === '' || txt.slice(-1) === '\n';
+		const link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' :
+			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
+			(isOnNewLine ? '' : '\n') +
+				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
+		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
+			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
+		$txtInsert(this.txta, link + quote);
+		const winTitle = pByNum.get(pNum).thr.op.title.trim();
+		$q('.de-win-title', this.qArea).textContent =
+			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
 	updateLanguage() {
@@ -8862,7 +8862,7 @@ function checkUpload(data) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
 	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.setFavorState(true);
+		pByNum.get(tNum).thr.toggleFavState(null, true);
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -9802,9 +9802,14 @@ class AbstractPost {
 		this._menu = null;
 		this._menuDelay = 0;
 	}
-	get hideBtn() {
+	get btnFav() {
+		const value = $q('.de-btn-fav, .de-btn-fav-sel', this.btns);
+		Object.defineProperty(this, 'btnFav', { value });
+		return value;
+	}
+	get btnHide() {
 		const value = this.btns.firstChild;
-		Object.defineProperty(this, 'hideBtn', { value });
+		Object.defineProperty(this, 'btnHide', { value });
 		return value;
 	}
 	get images() {
@@ -9955,8 +9960,8 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true, isPview ? this : null); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false, isPview ? this : null); return;
+			case 'de-btn-fav':
+			case 'de-btn-fav-sel': this.thr.toggleFavState(isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
@@ -9996,7 +10001,7 @@ class AbstractPost {
 		case 'de-btn-hide-user':
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
-			this.btns.title = Lng.togglePost[lang];
+			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
 			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
 				this._addMenu(el, isOutEvent, this._getMenuHide(el));
 			}
@@ -10043,10 +10048,13 @@ class AbstractPost {
 			e.stopPropagation();
 		}
 	}
-	setFavBtn(isEnable) {
-		const el = $q(isEnable ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
-		if(el) {
-			el.setAttribute('class', isEnable ? 'de-btn-fav-sel' : 'de-btn-fav');
+	toggleFavBtn(isEnable) {
+		const elClass = isEnable ? 'de-btn-fav-sel' : 'de-btn-fav';
+		if(this.btnFav) {
+			this.btnFav.setAttribute('class', elClass);
+		}
+		if(this.thr.btnFav) {
+			this.thr.btnFav.setAttribute('class', elClass);
 		}
 	}
 	updateMsg(newMsg, sRunner) {
@@ -10173,13 +10181,8 @@ class Post extends AbstractPost {
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		this.sage = aib.getSage(el);
-		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' +
-			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
-			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
-			(isOp ?
-				(aib.t ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
-				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '') +
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
+			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
 		this.counterEl = isOp ? null : this.btns.lastChild;
@@ -10205,6 +10208,13 @@ class Post extends AbstractPost {
 			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
+	}
+	static getPostBtns(isOp, noExpThr) {
+		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ?
+			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
+				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}
 	static findSameText(pNum, isHidden, words, curPost) {
 		const curWords = Post.getWrds(curPost.text);
@@ -10249,9 +10259,9 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, isHide) {
+	static hideContent(headerEl, btnHide, isUser, isHide) {
 		if(!isHide) {
-			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
+			btnHide.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
 			return;
@@ -10259,7 +10269,7 @@ class Post extends AbstractPost {
 		if(aib.t) {
 			Thread.first.hidCounter++;
 		}
-		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		if(headerEl) {
 			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
 				el.classList.add('de-post-hiddencontent');
@@ -10370,9 +10380,10 @@ class Post extends AbstractPost {
 		if(this.isOp) {
 			if(!aib.t) {
 				$toggle(this.thr.el, !needToHide);
+				$toggle(this.thr.btns, !needToHide);
 			}
 		} else {
-			Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, needToHide);
+			Post.hideContent(this.headerEl, this.btnHide, this.userToggled, needToHide);
 		}
 	}
 	select() {
@@ -10406,7 +10417,11 @@ class Post extends AbstractPost {
 		this.userToggled = true;
 		this.setVisib(isHide, note);
 		if(this.isOp || this.isHidden === isHide) {
-			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+			const hideClass = isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user';
+			this.btnHide.setAttribute('class', hideClass);
+			if(this.isOp) {
+				this.thr.btnHide.setAttribute('class', hideClass);
+			}
 		}
 		if(isSave) {
 			const { num } = this;
@@ -12210,14 +12225,14 @@ class _4chanPostsBuilder {
 		};
 	}
 	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+		const spoiler = _4chanPostsBuilder._customSpoiler;
+		if(!spoiler[board] && (val = parseInt(val))) {
 			let spoilerEl;
 			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+				spoiler.set(board, spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 			}
 		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+			spoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
 		}
 	}
 	get isClosed() {
@@ -12938,28 +12953,21 @@ class Thread {
 		this.last = lastPost;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
-		if(aib.t) {
+		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
-			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
-		const updBtn = this.btns.firstChild;
-		updBtn.onclick = e => {
-			$pd(e);
-			this.loadPosts('new');
-		};
-		if(Cfg.hideReplies) {
-			const repBtn = $bEnd(this.btns,
-				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-			repBtn.onclick = e => {
-				$pd(e);
-				const nextCoord = !this.next || this.last.isOmitted ? null : this.next.top;
-				this._toggleReplies(repBtn, updBtn);
-				if(nextCoord) {
-					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
-				}
-			};
-			this._toggleReplies(repBtn, updBtn);
+		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
+			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
+			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
+				(aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
+			) + '</div>');
+		this.btns.addEventListener('click', this);
+		this.btns.addEventListener('mouseover', this);
+		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		if(!aib.t && Cfg.hideReplies) {
+			this.btnReplies = $bEnd(this.btns,
+				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+			this._toggleReplies();
 		}
 	}
 	static get first() {
@@ -13017,6 +13025,58 @@ class Thread {
 		this.pcount -= count;
 		return post;
 	}
+	handleEvent(e) {
+		$pd(e);
+		const el = fixEventEl(e.target);
+		const elClass = el.classList[0];
+		const nextThr = this.next;
+		let oldCoord = false;
+		if(e.type === 'click') {
+			switch(elClass) {
+			case 'de-btn-fav':
+			case 'de-btn-fav-sel': this.toggleFavState(); break;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide-user':
+				oldCoord = nextThr && nextThr.top;
+				this.op.setUserVisib(!this.isHidden);
+				break;
+			case 'de-btn-rep': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-replies':
+			case 'de-replies-show':
+			case 'de-replies-hide':
+				oldCoord = !nextThr || this.last.isOmitted ? null : nextThr.top;
+				this._toggleReplies();
+				break;
+			case 'de-thr-collapse':
+			case 'de-thr-collapse-link': this.loadPosts(visPosts, true); break;
+			case 'de-thr-updater':
+			case 'de-thr-updater-link':
+				if(aib.t) {
+					updater.forceLoad();
+				} else {
+					this.loadPosts('new');
+				}
+			}
+			if(oldCoord) {
+				scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
+			}
+		} else if(e.type === 'mouseover') {
+			switch(el.classList[0]) {
+			case 'de-btn-rep':
+				this.btns.title = Lng.replyToPost[lang];
+				quotetxt = window.getSelection().toString();
+				return;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide':
+			case 'de-btn-unhide-user': this.btns.title = Lng.toggleThr[lang]; return;
+			case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
+			case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+			default: this.btns.removeAttribute('title');
+			}
+		}
+	}
 	/*
 	* Thread loading via ajax.
 	*   Calls from the list of threads, not in a thread.
@@ -13048,13 +13108,13 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(isEnable, preview) {
+	toggleFavState(preview = null, isEnable = !this.isFav) {
 		let h, b, num, cnt, txt, last;
 		if(preview) {
-			preview.setFavBtn(isEnable);
+			preview.toggleFavBtn(isEnable);
 		}
 		if(!preview || preview.num === this.num) { // Oppost or usual preview
-			this.op.setFavBtn(isEnable);
+			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
 			({ host: h, b } = aib);
 			num = this.thrId;
@@ -13253,24 +13313,20 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		const btn = this.btns;
-		if(btn !== thrEl.lastChild) {
-			thrEl.appendChild(btn);
+		const { btns } = this;
+		if(btns !== thrEl.lastChild) {
+			thrEl.appendChild(btns);
 		}
-		if(!$q('.de-thread-collapse', btn)) {
-			$bEnd(btn, `<span class="de-thread-collapse"> [<a class="de-abtn" href="${
-				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`
-			).onclick = e => {
-				$pd(e);
-				this.loadPosts(visPosts, true);
-			};
+		if(!$q('.de-thr-collapse', btns)) {
+			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
+				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
-			btn.lastChild.style.display = 'initial';
+			btns.lastChild.style.display = 'initial';
 		} else {
 			thrNavPanel.removeThr(this);
-			$hide(btn.lastChild);
+			$hide(btns.lastChild);
 		}
 		if(needToOmit > 0) {
 			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
@@ -13280,9 +13336,9 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			$q('.de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
 			if(Cfg.updThrBtns) {
-				$show(btn.firstChild);
+				$show(this.btnUpd);
 			}
 		}
 		closePopup('load-thr');
@@ -13386,7 +13442,7 @@ class Thread {
 		}
 		return [newPosts, newVisPosts];
 	}
-	_toggleReplies(repBtn, updBtn) {
+	_toggleReplies() {
 		const isHide = !this.last.isOmitted;
 		let post = this.op;
 		let i = 0;
@@ -13394,12 +13450,9 @@ class Thread {
 			(post = post.next).isOmitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
-		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
-		$toggle(updBtn, !isHide);
-		const colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
+		this.btnReplies.firstElementChild.className =
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+		$each(this.btns.children, el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
@@ -15644,7 +15697,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thread-buttons { float: left; }
+				form > .de-thr-buttons { float: left; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { position: static; }`;
 		}
@@ -16718,20 +16771,12 @@ function initPage() {
 		if(!localData) {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
-			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
-				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>` +
-				`<span id="de-updater-count" style="display: none;"></span>]</span>
-				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
-			</div>`);
 		}
 	} else {
 		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
-		if(aib.t) {
-			$q('.de-thread-updater > .de-abtn').addEventListener('click', updater.forceLoad);
-		}
 	}
 }
 
@@ -17332,9 +17377,9 @@ function scriptCSS() {
 	.de-refmap::before { content: "${ Lng.replies[lang] } "; }
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
-	.de-thread-buttons { clear: left; margin-top: 5px; }
-	.de-thread-collapse > a::after { content: "${ Lng.collapseThr[lang] }"; }
-	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
+	.de-thr-buttons { clear: left; margin-top: 5px; }
+	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
+	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
@@ -17378,7 +17423,7 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
+	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thr-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
@@ -17394,7 +17439,7 @@ function updateCSS() {
 			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
-	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : ''	}
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
@@ -17403,7 +17448,7 @@ function updateCSS() {
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
-	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
+	${ Cfg.updThrBtns || aib.t ? '' : '.de-thr-updater, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;

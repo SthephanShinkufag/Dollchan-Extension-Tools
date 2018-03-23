@@ -614,6 +614,10 @@ const Lng = {
 		'Скрыть/Раскрыть пост',
 		'Hide/Unhide post',
 		'Сховати/показати пост'],
+	toggleThr: [
+		'Скрыть/Раскрыть тред',
+		'Hide/Unhide thread',
+		'Сховати/показати тред'],
 	replyToPost: [
 		'Ответить на пост',
 		'Reply to post',
