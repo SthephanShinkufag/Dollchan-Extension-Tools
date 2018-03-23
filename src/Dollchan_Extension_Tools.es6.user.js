@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '390cb16';
+const commit = 'fe56a22';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4546,7 +4546,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
-				el.classList.toggle('de-error-input', !isCheck);
+				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
 					saveCfg('postBtnsBack', el.value);
 					updateCSS();
@@ -5513,8 +5513,8 @@ class KeyEditListener {
 			if(k !== 0) {
 				for(let j = i + 1; j < len; ++j) {
 					if(k === allKeys[j]) {
-						aInputs[i].classList.add('de-error-input');
-						aInputs[j].classList.add('de-error-input');
+						aInputs[i].classList.add('de-input-error');
+						aInputs[j].classList.add('de-input-error');
 						break;
 					}
 				}
@@ -5525,7 +5525,7 @@ class KeyEditListener {
 		this.initKeys = JSON.parse(JSON.stringify(keys));
 		this.allKeys = allKeys;
 		this.allInputs = aInputs;
-		this.errCount = $Q('.de-error-input', popupEl).length;
+		this.errCount = $Q('.de-input-error', popupEl).length;
 		if(this.errCount !== 0) {
 			this.saveButton.disabled = true;
 		}
@@ -5573,12 +5573,14 @@ class KeyEditListener {
 			if(HotKeys.enabled && this.errCount === 0) {
 				HotKeys.resume(this.keys);
 			}
+			el.classList.remove('de-input-selected');
 			this.cEl = null;
 			return;
 		case 'focus':
 			if(HotKeys.enabled) {
 				HotKeys.pauseHotKeys();
 			}
+			el.classList.add('de-input-selected');
 			this.cEl = el;
 			return;
 		case 'click': {
@@ -5653,7 +5655,7 @@ class KeyEditListener {
 				return;
 			}
 			let rEl;
-			const isError = el.classList.contains('de-error-input');
+			const isError = el.classList.contains('de-input-error');
 			if(!this.errorInput && key !== -1) {
 				let idx = this.allInputs.indexOf(el);
 				const oKey = this.allKeys[idx];
@@ -5667,14 +5669,14 @@ class KeyEditListener {
 					idx = this.allKeys.indexOf(oKey);
 					if(idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
 						rEl = this.allInputs[idx];
-						if(rEl.classList.contains('de-error-input')) {
+						if(rEl.classList.contains('de-input-error')) {
 							this.errCount--;
-							rEl.classList.remove('de-error-input');
+							rEl.classList.remove('de-input-error');
 						}
 					}
 					if(rIdx === -1) {
 						this.errCount--;
-						el.classList.remove('de-error-input');
+						el.classList.remove('de-input-error');
 					}
 				}
 				if(rIdx === -1) {
@@ -5686,14 +5688,14 @@ class KeyEditListener {
 					break;
 				}
 				rEl = this.allInputs[rIdx];
-				if(!rEl.classList.contains('de-error-input')) {
+				if(!rEl.classList.contains('de-input-error')) {
 					this.errCount++;
-					rEl.classList.add('de-error-input');
+					rEl.classList.add('de-input-error');
 				}
 			}
 			if(!isError) {
 				this.errCount++;
-				el.classList.add('de-error-input');
+				el.classList.add('de-input-error');
 			}
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
@@ -17365,6 +17367,7 @@ function scriptCSS() {
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
+	.de-input-selected { background-color: rgba(255,255,180,0.3) !important; }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
 	.de-link-ref { text-decoration: none; }
@@ -17412,7 +17415,7 @@ function updateCSS() {
 	.de-new-post { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' } !important; }
-	.de-selected, .de-error-input { ${ nav.isPresto ?
+	.de-selected, .de-input-error { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' } !important; }
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?

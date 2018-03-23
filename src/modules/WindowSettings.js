@@ -463,7 +463,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
-				el.classList.toggle('de-error-input', !isCheck);
+				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
 					saveCfg('postBtnsBack', el.value);
 					updateCSS();
