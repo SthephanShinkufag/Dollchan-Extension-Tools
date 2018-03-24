@@ -98,8 +98,10 @@ class Thread {
 			count++;
 		} while(delAll && post);
 		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
-			tPost.count -= count;
-			tPost.counterEl.textContent = tPost.count + 1;
+			if(!tPost.isDeleted) {
+				tPost.count -= count;
+				tPost.counterEl.textContent = tPost.count + 1;
+			}
 		}
 		this.pcount -= count;
 		return post;

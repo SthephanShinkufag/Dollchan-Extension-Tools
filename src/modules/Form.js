@@ -131,7 +131,7 @@ class PostForm {
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
-		const btnsHTML = aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
+		const btnsHTML = aib.markupTags.reduce((html, str, i) => html + (str === '' ? '' :
 			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
 				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :

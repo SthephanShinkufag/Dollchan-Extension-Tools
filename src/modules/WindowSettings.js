@@ -391,7 +391,10 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'altCaptcha': pr.cap.initCapPromise(); break;
-			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
+			case 'txtBtnsLoc':
+				pr.addMarkupPanel();
+				updateCSS();
+				break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
 			case 'noName': PostForm.hideField(pr.name); break;

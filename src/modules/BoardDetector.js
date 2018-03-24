@@ -47,10 +47,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
 					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
-					.nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img), .thread-nav,
-					.toolbar-area, .top-user-boards + hr { display: none !important; }
+					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
+					.thread-nav, .toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
-				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }

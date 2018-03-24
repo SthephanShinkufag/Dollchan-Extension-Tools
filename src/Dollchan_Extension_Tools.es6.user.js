@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '4a28bb6';
+const commit = 'd693db2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4477,7 +4477,10 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'altCaptcha': pr.cap.initCapPromise(); break;
-			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
+			case 'txtBtnsLoc':
+				pr.addMarkupPanel();
+				updateCSS();
+				break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
 			case 'noName': PostForm.hideField(pr.name); break;
@@ -8314,7 +8317,7 @@ class PostForm {
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
-		const btnsHTML = aib.markupTags.reduce((html, str, i) => (html += str === '' ? '' :
+		const btnsHTML = aib.markupTags.reduce((html, str, i) => html + (str === '' ? '' :
 			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
 				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
@@ -13035,8 +13038,10 @@ class Thread {
 			count++;
 		} while(delAll && post);
 		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
-			tPost.count -= count;
-			tPost.counterEl.textContent = tPost.count + 1;
+			if(!tPost.isDeleted) {
+				tPost.count -= count;
+				tPost.counterEl.textContent = tPost.count + 1;
+			}
 		}
 		this.pcount -= count;
 		return post;
@@ -14845,10 +14850,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
 					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
-					.nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img), .thread-nav,
-					.toolbar-area, .top-user-boards + hr { display: none !important; }
+					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
+					.thread-nav, .toolbar-area, .top-user-boards + hr { display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
-				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
