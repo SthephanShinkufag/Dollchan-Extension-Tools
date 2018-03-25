@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'd693db2';
+const commit = 'f98da69';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8880,8 +8880,11 @@ function checkUpload(data) {
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
-	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.toggleFavState(true);
+	if(Cfg.favOnReply && !Cfg.sageReply && tNum) {
+		const { thr } = pByNum.get(tNum);
+		if(!thr.isFav) {
+			thr.toggleFavState(true);
+		}
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });

@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'd693db2';
+	var commit = 'f98da69';
 
 
 	var defaultCfg = {
@@ -12959,8 +12959,13 @@ true, true];
 		if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 			MyPosts.set(postNum, tNum || postNum);
 		}
-		if (Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-			pByNum.get(tNum).thr.toggleFavState(true);
+		if (Cfg.favOnReply && !Cfg.sageReply && tNum) {
+			var _pByNum$get = pByNum.get(tNum),
+			    thr = _pByNum$get.thr;
+
+			if (!thr.isFav) {
+				thr.toggleFavState(true);
+			}
 		}
 		pr.clearForm();
 		DollchanAPI.notify('submitform', { success: true, num: postNum });
