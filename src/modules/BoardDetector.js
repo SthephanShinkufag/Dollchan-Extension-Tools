@@ -61,7 +61,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
-				${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }`;
 		}
@@ -453,6 +452,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		init() {
+			defaultCfg.addTextBtns = 0;
 			$each($Q('.message > .omittedposts'),
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
