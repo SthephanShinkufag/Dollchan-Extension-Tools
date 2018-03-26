@@ -6,7 +6,7 @@ function checkStorage() {
 	try {
 		locStorage = window.localStorage;
 		sesStorage = window.sessionStorage;
-		sesStorage['__de-test'] = 1;
+		sesStorage['de-test'] = 1;
 	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
 			locStorage = unsafeWindow.localStorage;

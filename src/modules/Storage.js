@@ -263,9 +263,24 @@ function readPostsData(firstPost, favObj) {
 		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
-	if(sesStorage['de-win-fav'] === '1') {
+	if(sesStorage['de-fav-win'] === '1') {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-win-fav');
+		sesStorage.removeItem('de-fav-win');
+	}
+	let thrData = sesStorage['de-fav-newthr'];
+	if(thrData) { // Detecting the created new thread and adding it to Favorites.
+		thrData = JSON.parse(thrData);
+		if(thrData.num) {
+			if(thrData.num === firstPost.num) {
+				firstPost.thr.toggleFavState(true);
+				sesStorage.removeItem('de-fav-newthr');
+			}
+		} else if(Date.now() - thrData.date > 2e4) {
+			sesStorage.removeItem('de-fav-newthr');
+		} else if(!firstPost.next) {
+			firstPost.thr.toggleFavState(true);
+			sesStorage.removeItem('de-fav-newthr');
+		}
 	}
 }
 

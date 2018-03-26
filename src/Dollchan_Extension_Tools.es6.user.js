@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f98da69';
+const commit = '66a0908';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2630,9 +2630,24 @@ function readPostsData(firstPost, favObj) {
 		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
-	if(sesStorage['de-win-fav'] === '1') {
+	if(sesStorage['de-fav-win'] === '1') {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-win-fav');
+		sesStorage.removeItem('de-fav-win');
+	}
+	let thrData = sesStorage['de-fav-newthr'];
+	if(thrData) { // Detecting the created new thread and adding it to Favorites.
+		thrData = JSON.parse(thrData);
+		if(thrData.num) {
+			if(thrData.num === firstPost.num) {
+				firstPost.thr.toggleFavState(true);
+				sesStorage.removeItem('de-fav-newthr');
+			}
+		} else if(Date.now() - thrData.date > 2e4) {
+			sesStorage.removeItem('de-fav-newthr');
+		} else if(!firstPost.next) {
+			firstPost.thr.toggleFavState(true);
+			sesStorage.removeItem('de-fav-newthr');
+		}
 	}
 }
 
@@ -3810,11 +3825,11 @@ function showFavoritesWindow(body, favObj) {
 			const parentEl = el.parentNode;
 			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 			case 'de-fav-link':
-				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
+				sesStorage['de-fav-win'] = '1'; // Favorites will open again after following a link
 				// We need to scroll to last seen post after following a link,
 				// remembering of scroll position is no longer needed
 				sesStorage.removeItem('de-scroll-' +
-					parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
+					parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 				break;
 			case 'de-fav-del-btn': {
 				const wasChecked = el.getAttribute('de-checked') === '';
@@ -8880,10 +8895,14 @@ function checkUpload(data) {
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
-	if(Cfg.favOnReply && !Cfg.sageReply && tNum) {
-		const { thr } = pByNum.get(tNum);
-		if(!thr.isFav) {
-			thr.toggleFavState(true);
+	if(Cfg.favOnReply && !Cfg.sageReply) {
+		if(tNum) {
+			const { thr } = pByNum.get(tNum);
+			if(!thr.isFav) {
+				thr.toggleFavState(true);
+			}
+		} else {
+			sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
 		}
 	}
 	pr.clearForm();
@@ -14297,7 +14316,7 @@ function checkStorage() {
 	try {
 		locStorage = window.localStorage;
 		sesStorage = window.sessionStorage;
-		sesStorage['__de-test'] = 1;
+		sesStorage['de-test'] = 1;
 	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
 			locStorage = unsafeWindow.localStorage;
@@ -16813,7 +16832,7 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(() => {
-		const id = 'de-scroll-' + aib.b + aib.t;
+		const id = 'de-scroll-' + aib.b + (aib.t || '');
 		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
@@ -17539,7 +17558,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload',
-			() => (sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset));
+			() => (sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset));
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {

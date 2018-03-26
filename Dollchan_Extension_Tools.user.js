@@ -3727,7 +3727,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							if (aib.t || !Cfg.scrollToTop) {
 								doc.defaultView.addEventListener('beforeunload', function () {
-									return sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset;
+									return sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
 								});
 							}
 							Logger.log('Init');
@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'f98da69';
+	var commit = '66a0908';
 
 
 	var defaultCfg = {
@@ -5621,9 +5621,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (updateFav) {
 			saveFavorites(favObj);
 		}
-		if (sesStorage['de-win-fav'] === '1') {
+		if (sesStorage['de-fav-win'] === '1') {
 			toggleWindow('fav', false, null, true);
-			sesStorage.removeItem('de-win-fav');
+			sesStorage.removeItem('de-fav-win');
+		}
+		var thrData = sesStorage['de-fav-newthr'];
+		if (thrData) {
+			thrData = JSON.parse(thrData);
+			if (thrData.num) {
+				if (thrData.num === firstPost.num) {
+					firstPost.thr.toggleFavState(true);
+					sesStorage.removeItem('de-fav-newthr');
+				}
+			} else if (Date.now() - thrData.date > 2e4) {
+				sesStorage.removeItem('de-fav-newthr');
+			} else if (!firstPost.next) {
+				firstPost.thr.toggleFavState(true);
+				sesStorage.removeItem('de-fav-newthr');
+			}
 		}
 	}
 
@@ -6838,8 +6853,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var parentEl = el.parentNode;
 				switch (el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 					case 'de-fav-link':
-						sesStorage['de-win-fav'] = '1'; 
-						sesStorage.removeItem('de-scroll-' + parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
+						sesStorage['de-fav-win'] = '1'; 
+						sesStorage.removeItem('de-scroll-' + parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 						break;
 					case 'de-fav-del-btn':
 						{
@@ -12959,12 +12974,16 @@ true, true];
 		if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 			MyPosts.set(postNum, tNum || postNum);
 		}
-		if (Cfg.favOnReply && !Cfg.sageReply && tNum) {
-			var _pByNum$get = pByNum.get(tNum),
-			    thr = _pByNum$get.thr;
+		if (Cfg.favOnReply && !Cfg.sageReply) {
+			if (tNum) {
+				var _pByNum$get = pByNum.get(tNum),
+				    thr = _pByNum$get.thr;
 
-			if (!thr.isFav) {
-				thr.toggleFavState(true);
+				if (!thr.isFav) {
+					thr.toggleFavState(true);
+				}
+			} else {
+				sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
 			}
 		}
 		pr.clearForm();
@@ -19448,7 +19467,7 @@ true, true];
 		try {
 			locStorage = window.localStorage;
 			sesStorage = window.sessionStorage;
-			sesStorage['__de-test'] = 1;
+			sesStorage['de-test'] = 1;
 		} catch (err) {
 			if (typeof unsafeWindow !== 'undefined') {
 				locStorage = unsafeWindow.localStorage;
@@ -22926,7 +22945,7 @@ true, true];
 			return;
 		}
 		setTimeout(function () {
-			var id = 'de-scroll-' + aib.b + aib.t;
+			var id = 'de-scroll-' + aib.b + (aib.t || '');
 			var val = +sesStorage[id];
 			if (val) {
 				scrollTo(0, val);

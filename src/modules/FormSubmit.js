@@ -99,10 +99,14 @@ function checkUpload(data) {
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
-	if(Cfg.favOnReply && !Cfg.sageReply && tNum) {
-		const { thr } = pByNum.get(tNum);
-		if(!thr.isFav) {
-			thr.toggleFavState(true);
+	if(Cfg.favOnReply && !Cfg.sageReply) {
+		if(tNum) {
+			const { thr } = pByNum.get(tNum);
+			if(!thr.isFav) {
+				thr.toggleFavState(true);
+			}
+		} else {
+			sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
 		}
 	}
 	pr.clearForm();

@@ -173,11 +173,11 @@ function showFavoritesWindow(body, favObj) {
 			const parentEl = el.parentNode;
 			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 			case 'de-fav-link':
-				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
+				sesStorage['de-fav-win'] = '1'; // Favorites will open again after following a link
 				// We need to scroll to last seen post after following a link,
 				// remembering of scroll position is no longer needed
 				sesStorage.removeItem('de-scroll-' +
-					parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
+					parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 				break;
 			case 'de-fav-del-btn': {
 				const wasChecked = el.getAttribute('de-checked') === '';

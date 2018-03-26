@@ -127,7 +127,7 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(() => {
-		const id = 'de-scroll-' + aib.b + aib.t;
+		const id = 'de-scroll-' + aib.b + (aib.t || '');
 		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
