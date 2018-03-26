@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = 'f59b749';
+const commit = '1cbd70a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -56,11 +56,12 @@ const defaultCfg = {
 	markMyPosts  : 1,    // highlight my own posts
 	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
-	updThrBtns   : 1,    // show "Get new posts" buttons in threads list
 	showHideBtn  : 1,    // show "Hide" buttons
 	showRepBtn   : 1,    // show "Quick reply" buttons
 	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
+	thrBtns      : 1,    /* additional buttons under threads
+		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	widePosts    : 0,    // stretch posts to screen width
@@ -263,10 +264,16 @@ const Lng = {
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
 			'Авторозгортання скорочених постів*'],
-		updThrBtns: [
-			'Кнопки "Получить новые посты" в списке тредов',
-			'Show "Get new posts" buttons in threads list',
-			'Кнопки "Отримати нові пости" у списку тредів'],
+		thrBtns: {
+			sel: [
+				['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'],
+				['Disable', 'All', 'All (on board)', '"New posts" on board'],
+				['Вимк.', 'Всі', 'Всі (на дошці)', '"Нові пости" на дошці']],
+			txt: [
+				'Кнопки под тредами',
+				'Buttons under threads',
+				'Кнопки під тредами']
+		},
 		showHideBtn: [
 			'Кнопки "Скрыть" ',
 			'Show "Hide" buttons ',
@@ -784,10 +791,18 @@ const Lng = {
 		'Скрыть/Раскрыть пост',
 		'Hide/Unhide post',
 		'Сховати/показати пост'],
+	toggleThr: [
+		'Скрыть/Раскрыть тред',
+		'Hide/Unhide thread',
+		'Сховати/показати тред'],
 	replyToPost: [
 		'Ответить на пост',
 		'Reply to post',
 		'Відповісти на пост'],
+	replyToThr: [
+		'Ответить в тред',
+		'Reply to thread',
+		'Відповісти в тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',
@@ -1531,7 +1546,6 @@ const Lng = {
 const doc = window.document;
 const emptyFn = Function.prototype;
 const aProto = Array.prototype;
-const Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null };
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
@@ -1781,16 +1795,14 @@ const Logger = {
 		let lastExtra = 0;
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
-			// Ignore logs equal to 0ms
 			if(isFull || duration > 1) {
 				lastExtra = 0;
 				timeLog.push([marks[i][0], duration]);
-			} else {
+			} else { // Ignore logs equal to 0ms
 				lastExtra = duration;
 			}
 		}
-		duration = marks[i][1] - marks[0][1];
-		timeLog.push([Lng.total[lang], duration]);
+		timeLog.push([Lng.total[lang], marks[i][1] - marks[0][1]]);
 		return timeLog;
 	},
 	initLogger() {
@@ -1842,7 +1854,7 @@ class CancelablePromise {
 	}
 	then(cb, eb) {
 		const children = [];
-		const wrap = fn => function(...args) {
+		const wrap = fn => (...args) => {
 			const child = fn(...args);
 			if(child instanceof CancelablePromise) {
 				children.push(child);
@@ -1977,15 +1989,15 @@ class TasksPool {
 		}
 	}
 	_runTask(data) {
-		this.func(this.num++, data).then(() => this._endTask(), e => {
-			if(e instanceof TasksPool.PauseError) {
+		this.func(this.num++, data).then(() => this._endTask(), err => {
+			if(err instanceof TasksPool.PauseError) {
 				this.pauseTasks();
-				if(e.duration !== -1) {
-					setTimeout(() => this._continueTasks(), e.duration);
+				if(err.duration !== -1) {
+					setTimeout(() => this._continueTasks(), err.duration);
 				}
 			} else {
 				this._endTask();
-				throw e;
+				throw err;
 			}
 		});
 	}
@@ -2065,7 +2077,7 @@ class TarBuilder {
 		TarBuilder._padSet(header, 148, '        ', 8); // checksum
 		// type ('0')
 		header[156] = 0x30;
-		for(i = 0; i < 157; i++) {
+		for(i = 0; i < 157; ++i) {
 			checksum += header[i];
 		}
 		// checksum
@@ -2077,12 +2089,7 @@ class TarBuilder {
 	}
 	addString(filepath, str) {
 		const sDat = unescape(encodeURIComponent(str));
-		const len = sDat.length;
-		const data = new Uint8Array(len);
-		for(let i = 0; i < len; ++i) {
-			data[i] = sDat.charCodeAt(i) & 0xFF;
-		}
-		this.addFile(filepath, data);
+		this.addFile(filepath, new Uint8Array(sDat.length).map((val, i) => sDat.charCodeAt(i) & 0xFF));
 	}
 	get() {
 		this._data.push(new Uint8Array(1024));
@@ -2209,16 +2216,17 @@ WebmParser.Element = function(elData, dataLength, offset) {
 	this.size = size;
 };
 
-function getErrorMessage(e) {
-	if(e instanceof AjaxError) {
-		return e.toString();
+function getErrorMessage(err) {
+	if(err instanceof AjaxError) {
+		return err.toString();
 	}
-	if(typeof e === 'string') {
-		return e;
+	if(typeof err === 'string') {
+		return err;
 	}
+	const { stack, name, message } = err;
 	return Lng.internalError[lang] + (
-		!e.stack ? `${ e.name }: ${ e.message }` :
-		nav.isWebkit ? e.stack : `${ e.name }: ${ e.message }\n${ !nav.isFirefox ? e.stack : e.stack.replace(
+		!stack ? `${ name }: ${ message }` :
+		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
 			/^([^@]*).*\/(.+)$/gm,
 			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
 		) }`
@@ -2327,26 +2335,24 @@ function isFormElDisabled(el) {
 	return false;
 }
 
-function prettifySize(val) {
-	if(val > 512 * 1024 * 1024) {
-		return (val / (1024 * 1024 * 1024)).toFixed(2) + Lng.sizeGByte[lang];
-	}
-	if(val > 512 * 1024) {
-		return (val / (1024 * 1024)).toFixed(2) + Lng.sizeMByte[lang];
-	}
-	if(val > 512) {
-		return (val / 1024).toFixed(2) + Lng.sizeKByte[lang];
-	}
-	return val.toFixed(2) + Lng.sizeByte[lang];
-}
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
 
 function getFileType(url) {
-	return /\.jpe?g$/i.test(url) ? 'image/jpeg' :
-		/\.png$/i.test(url) ? 'image/png' :
-		/\.gif$/i.test(url) ? 'image/gif' :
-		/\.webm$/i.test(url) ? 'video/webm' :
-		/\.mp4$/i.test(url) ? 'video/mp4' :
-		/\.ogv$/i.test(url) ? 'video/ogv' : '';
+	const dotIdx = url.lastIndexOf('.') + 1;
+	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
+	case 'jpg':
+	case 'jpeg': return 'image/jpeg';
+	case 'png': return 'image/png';
+	case 'gif': return 'image/gif';
+	case 'webm': return 'video/webm';
+	case 'mp4': return 'video/mp4';
+	case 'ogv': return 'video/ogv';
+	default: return '';
+	}
 }
 
 function downloadBlob(blob, name) {
@@ -2394,8 +2400,7 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = {};
-		obj[id] = value;
+		const obj = { id: value };
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
@@ -2545,7 +2550,7 @@ function readPostsData(firstPost, favObj) {
 				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
 			}
 		}
-	} catch(e) {
+	} catch(err) {
 		sesStorage['de-hidden-' + aib.b + aib.t] = null;
 	}
 	if(!firstPost) {
@@ -2563,11 +2568,11 @@ function readPostsData(firstPost, favObj) {
 		if(post.isOp && (num in favBrd)) {
 			const f = favBrd[num];
 			const { thr } = post;
-			post.setFavBtn(true);
+			post.toggleFavBtn(true);
+			post.thr.isFav = true;
 			if(aib.t) {
 				f.cnt = thr.pcount;
-				f.new = 0;
-				f.you = 0;
+				f.new = f.you = 0;
 				if(Cfg.markNewPosts && f.last) {
 					let lastPost = pByNum.get(+f.last.match(/\d+/));
 					if(lastPost) {
@@ -2608,7 +2613,7 @@ function readPostsData(firstPost, favObj) {
 		if(!hideData) {
 			maybeSpells.value.runSpells(post); // Apply spells if posts not hidden
 		} else if(hideData[0]) {
-			if(post.hidden) {
+			if(post.isHidden) {
 				post.spellHidden = true;
 			} else {
 				post.spellHide(hideData[1]);
@@ -2625,9 +2630,20 @@ function readPostsData(firstPost, favObj) {
 		saveFavorites(favObj);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
-	if(sesStorage['de-win-fav'] === '1') {
+	if(sesStorage['de-fav-win'] === '1') {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-win-fav');
+		sesStorage.removeItem('de-fav-win');
+	}
+	let data = sesStorage['de-fav-newthr'];
+	if(data) { // Detecting the created new thread and adding it to Favorites.
+		data = JSON.parse(data);
+		const isTimeOut = !data.num && (Date.now() - data.date > 2e4);
+		if(data.num === firstPost.num || !firstPost.next && !isTimeOut) {
+			firstPost.thr.toggleFavState(true);
+			sesStorage.removeItem('de-fav-newthr');
+		} else if(isTimeOut) {
+			sesStorage.removeItem('de-fav-newthr');
+		}
 	}
 }
 
@@ -2642,16 +2658,17 @@ function saveFavorites(data) {
 // Get posts that were read by posts previews
 function readViewedPosts() {
 	if(!Cfg.markViewed) {
-		const data = sesStorage['de-viewed'];
-		if(data) {
-			data.split(',').forEach(pNum => {
-				const post = pByNum.get(+pNum);
-				if(post) {
-					post.el.classList.add('de-viewed');
-					post.viewed = true;
-				}
-			});
-		}
+		return;
+	}
+	const data = sesStorage['de-viewed'];
+	if(data) {
+		data.split(',').forEach(pNum => {
+			const post = pByNum.get(+pNum);
+			if(post) {
+				post.el.classList.add('de-viewed');
+				post.isViewed = true;
+			}
+		});
 	}
 }
 
@@ -2705,10 +2722,7 @@ class PostsStorage {
 				}
 			}
 		}
-		if(!storage[aib.b]) {
-			storage[aib.b] = {};
-		}
-		storage[aib.b][num] = [this._cachedTime, thrNum, data];
+		(storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
 		this._saveStorage();
 	}
 
@@ -2729,7 +2743,7 @@ class PostsStorage {
 		if(data) {
 			try {
 				return (this._cachedStorage = JSON.parse(data));
-			} catch(e) {}
+			} catch(err) {}
 		}
 		return (this._cachedStorage = {});
 	}
@@ -2812,7 +2826,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		}
 		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
 		const rv = super._readStorage();
-		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(_ => +_)) : new Set();
+		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(val => +val)) : new Set();
 		return rv;
 	}
 }();
@@ -2858,7 +2872,7 @@ function initStorageEvent() {
 				HiddenPosts.purge();
 				if(data.brd === aib.b) {
 					let post = pByNum.get(data.num);
-					if(post && (post.hidden ^ data.hide)) {
+					if(post && (post.isHidden ^ data.hide)) {
 						post.setUserVisib(data.hide, false);
 					} else if((post = pByNum.get(data.thrNum))) {
 						post.thr.userTouched.set(data.num, data.hide);
@@ -2921,36 +2935,34 @@ const Panel = Object.create({
 						<use xlink:href="#de-symbol-panel-logo"/>
 					</svg>
 				</div>
-				<span id="de-panel-buttons"${ Cfg.expandPanel ? '' : ' style="display: none;"' }>
+				<span id="de-panel-buttons"${ !Cfg.expandPanel ? ' style="display: none;"' : '' }>
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(!Cfg.addYouTube ? '' : this._getButton('vid')) +
-					(localData ? '' :
+					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(!localData ?
 						this._getButton('refresh') +
-						(!isThr && (aib.page === aib.firstPage) ? '' : this._getButton('goback')) +
-						(isThr || aib.page === aib.lastPage ? '' : this._getButton('gonext'))) +
+						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +
+						(!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') +
 					this._getButton('goup') +
 					this._getButton('godown') +
-					(imgLen === 0 ? '' :
-						this._getButton('expimg') +
-						this._getButton('maskimg')) +
-					(nav.isPresto || localData ? '' :
-						(imgLen === 0 || Cfg.preLoadImgs ? '' : this._getButton('preimg')) +
-						(!isThr ? '' : this._getButton('savethr'))) +
-					(!isThr || localData ? '' :
+					(imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') +
+					(!localData && !nav.isPresto ?
+						(imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') +
+						(isThr ? this._getButton('savethr') : '') : '') +
+					(!localData && isThr ?
 						this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') +
-						(nav.isSafari ? '' : this._getButton('audio-off'))) +
-					(!aib.hasCatalog ? '' : this._getButton('catalog')) +
+						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
+					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
-					(!isThr ? '' : `<span id="de-panel-info">
+					(isThr ? `<span id="de-panel-info">
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
 						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
 							${ imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
-					</span>`) }
+					</span>` : '') }
 				</span>
 			</div>
 			${ Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">' }
@@ -3009,7 +3021,7 @@ const Panel = Object.create({
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
-						preloadImages(el);
+						ContentLoader.preloadImages(el);
 					}
 				}
 				break;
@@ -3189,6 +3201,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
+				docBody.addEventListener('mouseleave', this);
 				docBody.addEventListener('mousemove', this);
 				docBody.addEventListener('mouseup', this);
 				$pd(e);
@@ -3212,7 +3225,9 @@ function makeDraggable(name, win, head) {
 				this._oldY = curY;
 				return;
 			}
-			default: // mouseup
+			case 'mouseleave':
+			case 'mouseup':
+				docBody.removeEventListener('mouseleave', this);
 				docBody.removeEventListener('mousemove', this);
 				docBody.removeEventListener('mouseup', this);
 				saveCfg(name + 'WinX', this._X);
@@ -3601,8 +3616,8 @@ function showHiddenWindow(body) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
 			try {
 				await $ajax(aib.getThrUrl(b, tNum));
-			} catch(e) {
-				if(e.code === 404) {
+			} catch(err) {
+				if(err.code === 404) {
 					HiddenThreads.removeStorage(tNum, b);
 					HiddenPosts.removeStorage(tNum, b);
 				}
@@ -3644,14 +3659,7 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		let len = Object.keys(f).length;
-		if(f.hasOwnProperty('url')) {
-			len--;
-		}
-		if(f.hasOwnProperty('hide')) {
-			len--;
-		}
-		if(!len) {
+		if(!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];
@@ -3662,7 +3670,9 @@ function removeFavEntry(favObj, h, b, num) {
 
 function toggleThrFavBtn(h, b, num, isEnable) {
 	if(h === aib.host && b === aib.b && pByNum.has(num)) {
-		pByNum.get(num).setFavBtn(isEnable);
+		const post = pByNum.get(num);
+		post.toggleFavBtn(isEnable);
+		post.thr.isFav = isEnable;
 	}
 }
 
@@ -3676,8 +3686,7 @@ function updateFavorites(num, value, mode) {
 		case 'error': f.err = value; break;
 		case 'update':
 			f.cnt = value[0];
-			f.new = 0;
-			f.you = 0;
+			f.new = f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
 		const data = [aib.host, aib.b, num, value, mode];
@@ -3751,7 +3760,6 @@ function showFavoritesWindow(body, favObj) {
 				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
 					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
 				}
-
 				// Generate DOM for separate entry
 				const favLinkHref = t.url + (
 					!t.last ? '' :
@@ -3813,11 +3821,11 @@ function showFavoritesWindow(body, favObj) {
 			const parentEl = el.parentNode;
 			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
 			case 'de-fav-link':
-				sesStorage['de-win-fav'] = '1'; // Favorites will open again after following a link
+				sesStorage['de-fav-win'] = '1'; // Favorites will open again after following a link
 				// We need to scroll to last seen post after following a link,
 				// remembering of scroll position is no longer needed
 				sesStorage.removeItem('de-scroll-' +
-					parentEl.getAttribute('de-board') + parentEl.getAttribute('de-num'));
+					parentEl.getAttribute('de-board') + (parentEl.getAttribute('de-num') || ''));
 				break;
 			case 'de-fav-del-btn': {
 				const wasChecked = el.getAttribute('de-checked') === '';
@@ -3890,8 +3898,8 @@ function showFavoritesWindow(body, favObj) {
 					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
 				}
 				last404 = false;
-			} catch(e) {
-				if((e instanceof AjaxError) && e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
 					} else {
@@ -3904,7 +3912,7 @@ function showFavoritesWindow(body, favObj) {
 				$hide(countEl);
 				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f.err = titleEl.title = getErrorMessage(e);
+				f.err = titleEl.title = getErrorMessage(err);
 				isUpdate = true;
 				continue;
 			}
@@ -3917,11 +3925,9 @@ function showFavoritesWindow(body, favObj) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
-				const bArch = b + '/arch';
-				if(!favObj[host][bArch]) {
-					favObj[host][bArch] = { url: favObj[host][b].url + 'arch/' };
-				}
-				favObj[host][bArch][num] = Object.assign({}, f);
+				const arch = b + '/arch';
+				const fo = favObj[host];
+				(fo[arch] || (fo[arch] = { url: favObj[host][b].url + 'arch/' }))[num] = Object.assign({}, f);
 				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
@@ -3973,12 +3979,12 @@ function showFavoritesWindow(body, favObj) {
 	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
 		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
 		const len = els.length;
-		const thrInfo = [];
 		if(!len) { // Cancel if no existed entries
 			return;
 		}
 		$popup('load-pages', Lng.loading[lang], true);
 		// Create indexed array of entries and "waiting" SVG icon for each entry
+		const thrInfo = [];
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
 			const iconEl = $q('.de-fav-inf-icon', el);
@@ -3999,23 +4005,25 @@ function showFavoritesWindow(body, favObj) {
 		// We cannot know a count of pages while in the thread
 		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
 		let infoLoaded = 0;
+		const updateInf = (inf, page) => {
+			inf.iconEl.setAttribute('class', inf.iconClass);
+			toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+			inf.pageEl.textContent = '@' + page;
+		};
 		for(let page = 0; page < endPage; ++page) {
 			let tNums;
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
 				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
-			} catch(e) {
+			} catch(err) {
 				continue;
 			}
 			// Search for threads on current page
 			for(let i = 0; i < len; ++i) {
-				const pInfo = thrInfo[i];
-				if(tNums.has(pInfo.num)) { // Check for matched thread numbers
-					// Restore old icon and title status
-					pInfo.iconEl.setAttribute('class', pInfo.iconClass);
-					toggleAttr(pInfo.titleEl, 'title', pInfo.iconTitle, pInfo.iconTitle);
-					pInfo.pageEl.textContent = '@' + page; // Shows page counter for current entry
-					pInfo.found = true;
+				const inf = thrInfo[i];
+				if(tNums.has(inf.num)) {
+					updateInf(inf, page);
+					inf.found = true;
 					infoLoaded++;
 				}
 			}
@@ -4025,12 +4033,9 @@ function showFavoritesWindow(body, favObj) {
 		}
 		// Process missed threads that not found
 		for(let i = 0; i < len; ++i) {
-			const { found, pageEl, iconClass, iconEl, iconTitle, titleEl } = thrInfo[i];
-			if(!found) {
-				// Restore old icon and title status
-				iconEl.setAttribute('class', iconClass);
-				toggleAttr(titleEl, 'title', iconTitle, iconTitle);
-				pageEl.textContent = '@?'; // Indicates that thread not found
+			const inf = thrInfo[i];
+			if(!inf.found) {
+				updateInf(inf, '?');
 			}
 		}
 		closePopup('load-pages');
@@ -4053,8 +4058,8 @@ function showFavoritesWindow(body, favObj) {
 				await $ajax(el.getAttribute('de-url'), null, false);
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(e) {
-				if(e.code === 404) { // Check for 404 error twice
+			} catch(err) {
+				if(err.code === 404) { // Check for 404 error twice
 					if(last404) {
 						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
 							+el.getAttribute('de-num'));
@@ -4066,7 +4071,7 @@ function showFavoritesWindow(body, favObj) {
 					}
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(e);
+				titleEl.title = getErrorMessage(err);
 			}
 			last404 = false;
 		}
@@ -4160,18 +4165,18 @@ const CfgWindow = {
 
 		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
 		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
+			const list = this._getList([
+				Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+				Lng.panelBtn.fav[lang],
+				Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+				Lng.myPosts[lang] + ` (${ aib.dm })`
+			]);
 			// Create popup with controls
-			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr>` +
-				`<div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend">` +
-					'<input type="file" accept=".json" id="de-import-file"></div></div><hr>' +
-				'<div class="de-list"><a id="de-export-file" href="#">' +
-					Lng.dataToFile[lang] + ':<div class="de-cfg-depend">' + this._getList([
-					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })`
-				]) + '</div></div>');
-
+			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
+				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend"><!--
+					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
+				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
+				--><div class="de-cfg-depend">${ list }</div></div>`);
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
@@ -4182,7 +4187,7 @@ const CfgWindow = {
 					let obj;
 					try {
 						obj = JSON.parse(data);
-					} catch(e) {
+					} catch(err) {
 						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
@@ -4198,7 +4203,7 @@ const CfgWindow = {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
 							setStored('DESU_Exclude', obj.exclude);
-						} catch(e) {}
+						} catch(err) {}
 					}
 					if(favObj) {
 						saveRenewFavorites(favObj);
@@ -4281,8 +4286,8 @@ const CfgWindow = {
 			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
 				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
 			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', ({ target }) => {
-			const els = $Q('input[type="checkbox"]', target.parentNode);
+		).appendChild($btn(Lng.clear[lang], '', e => {
+			const els = $Q('input[type="checkbox"]', e.target.parentNode);
 			for(let i = 1, len = els.length; i < len; ++i) {
 				if(!els[i].checked) {
 					continue;
@@ -4348,7 +4353,7 @@ const CfgWindow = {
 			case 'delHiddPost': {
 				const isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 				for(let post = Thread.first.op; post; post = post.next) {
-					if(post.hidden && !post.isOp) {
+					if(post.isHidden && !post.isOp) {
 						post.wrap.classList.toggle('de-hidden', isHide);
 					}
 				}
@@ -4362,6 +4367,7 @@ const CfgWindow = {
 					addSVGIcons();
 				}
 				break;
+			case 'thrBtns':
 			case 'noSpoilers': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
@@ -4388,7 +4394,6 @@ const CfgWindow = {
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
-			case 'updThrBtns':
 			case 'showHideBtn':
 			case 'showRepBtn':
 			case 'noPostNames':
@@ -4409,7 +4414,7 @@ const CfgWindow = {
 				for(let post = Thread.first.op; post; post = post.next) {
 					if(!Cfg.hideRefPsts) {
 						post.ref.unhideRef();
-					} else if(post.hidden) {
+					} else if(post.isHidden) {
 						post.ref.hideRef();
 					}
 				}
@@ -4483,7 +4488,10 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'altCaptcha': pr.cap.initCapPromise(); break;
-			case 'txtBtnsLoc': pr.addMarkupPanel(); break;
+			case 'txtBtnsLoc':
+				pr.addMarkupPanel();
+				updateCSS();
+				break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
 			case 'noName': PostForm.hideField(pr.name); break;
@@ -4536,7 +4544,7 @@ const CfgWindow = {
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
 					perf     : Logger.getLogData(true).reduce((obj, el) => {
-						obj[el[0]] = el[1];
+						obj[el[0]] = el[1]; // Transforms 2D-array into object with keys and values
 						return obj;
 					}, {})
 				}, (key, value) => {
@@ -4555,7 +4563,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
-				el.classList.toggle('de-error-input', !isCheck);
+				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
 					saveCfg('postBtnsBack', el.value);
 					updateCSS();
@@ -4714,12 +4722,12 @@ const CfgWindow = {
 				</div>` }
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
-				${ this._getBox('expandTrunc') }<br>
-				${ this._getBox('updThrBtns') }<br>` : '' }
+				${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
 			${ !localData ? this._getBox('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
+			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('widePosts') }<br>
@@ -4866,12 +4874,11 @@ const CfgWindow = {
 				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ statsTable }</div>
-				<div id="de-info-log">
-					${ this._getInfoTable(Logger.getLogData(false), true) }
+				<div id="de-info-stats">${ statsTable }
 					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
 						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 				</div>
+				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
@@ -4882,49 +4889,33 @@ const CfgWindow = {
 	},
 
 	// Creates a label with checkbox for option switching
-	_getBox(id) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }
-		</label>`;
-	},
+	_getBox: id => `<label class="de-cfg-label">
+		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
-	_getInfoTable(data, needMs) {
-		return data.map(data => `<div class="de-info-row">
-			<span class="de-info-name">${ data[0] }</span>
-			<span>${ data[1] + (needMs ? 'ms' : '') }</span>
-		</div>`).join('');
-	},
+	_getInfoTable: (data, needMs) => data.map(val => `<div class="de-info-row">
+		<span class="de-info-name">${ val[0] }</span>
+		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
-	_getInp(id, addText = true, size = 2) {
-		return `<label class="de-cfg-label">
-			<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="` +
-				`${ escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
-	},
+	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
+		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
+		escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
 	// Creates a menu with a list of checkboxes. Uses for popup window.
-	_getList(a) {
-		return arrTags(a, '<label class="de-block"><input type="checkbox"> ', '</label>');
-	},
+	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel(id) {
-		const x = Lng.cfg[id];
-		const opt = [];
-		for(let i = 0, len = x.sel[lang].length; i < len; ++i) {
-			opt.push('<option value="', i, '">', x.sel[lang][i], '</option>');
-		}
-		return `<label class="de-cfg-label">
-			<select class="de-cfg-select" info="${ id }">${ opt.join('') }</select> ${ x.txt[lang] }
-		</label>`;
-	},
+	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
+		Lng.cfg[id].sel[lang].map((val, i) => `<option value="${ i }">${ val }</option>`).join('')
+	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
 	// Creates a tab for tab bar
-	_getTab(name) {
-		return `<div class="${ aib.cReply } de-cfg-tab" info="${ name }">${ Lng.cfgTab[name][lang] }</div>`;
-	},
-	// Switching dependent checkboxes according to their parents
-	_toggleBox(state, arr) {
+	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
+	// Switching the dependent inputs according to their parents
+	_toggleDependant(state, arr) {
 		let i = arr.length;
 		const nState = !state;
 		while(i--) {
-			($q(arr[i]) || {}).disabled = nState;
+			const el = $q(arr[i]);
+			if(el) {
+				el.disabled = nState;
+			}
 		}
 	},
 	_updateCSS() {
@@ -4932,7 +4923,7 @@ const CfgWindow = {
 		scriptCSS();
 	},
 	_updateDependant() {
-		const fn = this._toggleBox;
+		const fn = this._toggleDependant;
 		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
 			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
@@ -5010,8 +5001,8 @@ function $popup(id, txt, isWait = false) {
 			<span class="de-popup-btn">${ buttonHTML }</span>
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`);
-		el.onclick = ({ target }) => {
-			let el = fixEventEl(target);
+		el.onclick = e => {
+			let el = fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -5133,13 +5124,9 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		el => {
-			const exp = el.textContent;
-			$txtInsert($id('de-spell-txt'), exp +
-				(!aib.t || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
-					`[${ aib.b },${ aib.t }]`) +
-				(Spells.needArg[Spells.names.indexOf(exp.substr(1))] ? '(' : ''));
-		});
+		({ textContent: s }) => $txtInsert($id('de-spell-txt'), s +
+			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
+			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
 		return new Menu(el, fn(Lng.selAjaxPages[lang]),
 			el => Pages.loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1));
@@ -5151,12 +5138,12 @@ function addMenu(el) {
 				return;
 			}
 			const imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-			if(Images_.preloading) {
+			if(ContentLoader.isLoading) {
 				$popup('savethr', Lng.loading[lang], true);
-				Images_.afterpreload = () => loadDocFiles(imgOnly);
-				Images_.progressId = 'savethr';
+				ContentLoader.afterFn = () => ContentLoader.downloadThread(imgOnly);
+				ContentLoader.popupId = 'savethr';
 			} else {
-				loadDocFiles(imgOnly);
+				ContentLoader.downloadThread(imgOnly);
 			}
 		});
 	case 'de-panel-audio-off':
@@ -5207,39 +5194,35 @@ const HotKeys = {
 			});
 		}
 	},
-	getDefaultKeys() {
-		const globKeys = [
-			/* One post/thread above      */ 0x004B /* = K          */,
-			/* One post/thread below      */ 0x004A /* = J          */,
-			/* Reply or create thread     */ 0x0052 /* = R          */,
-			/* Hide selected thread/post  */ 0x0048 /* = H          */,
-			/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
-			/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
-			/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
-			/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
-			/* Open/close panel           */ 0x0050 /* = P          */,
-			/* Mask/unmask images         */ 0x0042 /* = B          */,
-			/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
-			/* Expand current image       */ 0x0049 /* = I          */,
-			/* Bold text                  */ 0xC042 /* = Alt+B      */,
-			/* Italic text                */ 0xC049 /* = Alt+I      */,
-			/* Strike text                */ 0xC054 /* = Alt+T      */,
-			/* Spoiler text               */ 0xC050 /* = Alt+P      */,
-			/* Code text                  */ 0xC043 /* = Alt+C      */,
-			/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
-			/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
-		];
-		const nonThrKeys = [
-			/* One post above */ 0x004D /* = M */,
-			/* One post below */ 0x004E /* = N */,
-			/* Open thread    */ 0x0056 /* = V */,
-			/* Expand thread  */ 0x0045 /* = E */
-		];
-		const thrKeys = [
-			/* Update thread  */ 0x0055 /* = U */
-		];
-		return [this.version, nav.isFirefox, globKeys, nonThrKeys, thrKeys];
-	},
+	getDefaultKeys: () => [HotKeys.version, nav.isFirefox, [
+		// GLOBAL KEYS
+		/* One post/thread above      */ 0x004B /* = K          */,
+		/* One post/thread below      */ 0x004A /* = J          */,
+		/* Reply or create thread     */ 0x0052 /* = R          */,
+		/* Hide selected thread/post  */ 0x0048 /* = H          */,
+		/* Open previous page/image   */ 0x1025 /* = Ctrl+Left  */,
+		/* Send post (txt)            */ 0x900D /* = Ctrl+Enter */,
+		/* Open/close "Favorites"     */ 0x4046 /* = Alt+F      */,
+		/* Open/close "Hidden"        */ 0x4048 /* = Alt+H      */,
+		/* Open/close panel           */ 0x0050 /* = P          */,
+		/* Mask/unmask images         */ 0x0042 /* = B          */,
+		/* Open/close "Settings"      */ 0x4053 /* = Alt+S      */,
+		/* Expand current image       */ 0x0049 /* = I          */,
+		/* Bold text                  */ 0xC042 /* = Alt+B      */,
+		/* Italic text                */ 0xC049 /* = Alt+I      */,
+		/* Strike text                */ 0xC054 /* = Alt+T      */,
+		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+		/* Code text                  */ 0xC043 /* = Alt+C      */,
+		/* Open next page/image       */ 0x1027 /* = Ctrl+Right */,
+		/* Open/close "Video"         */ 0x4056 /* = Alt+V      */
+	], [// NON-THREAD KEYS
+		/* One post above */ 0x004D /* = M */,
+		/* One post below */ 0x004E /* = N */,
+		/* Open thread    */ 0x0056 /* = V */,
+		/* Expand thread  */ 0x0045 /* = E */
+	], [// THREAD KEYS
+		/* Update thread  */ 0x0055 /* = U */
+	]],
 	handleEvent(e) {
 		if(this._paused || e.metaKey) {
 			return;
@@ -5251,8 +5234,8 @@ const HotKeys = {
 		const kc = e.keyCode |
 			(e.ctrlKey ? 0x1000 : 0) |
 			(e.shiftKey ? 0x2000 : 0) |
-			(e.altKey ? 0x4000 : 0) | (
-				tag === 'TEXTAREA' ||
+			(e.altKey ? 0x4000 : 0) |
+			(tag === 'TEXTAREA' ||
 				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
@@ -5290,7 +5273,7 @@ const HotKeys = {
 			case 3: // Hide selected thread/post
 				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
-					post.setUserVisib(!post.hidden);
+					post.setUserVisib(!post.isHidden);
 					this._scroll(post, false, post.isOp);
 				}
 				break;
@@ -5466,21 +5449,9 @@ const HotKeys = {
 				setStored('DESU_keys', JSON.stringify(keys));
 			}
 			if(keys[1] ^ nav.isFirefox) {
-				const mapFunc = nav.isFirefox ? function mapFuncFF(key) {
-					switch(key) {
-					case 189: return 173;
-					case 187: return 61;
-					case 186: return 59;
-					default: return key;
-					}
-				} : function mapFuncNonFF(key) {
-					switch(key) {
-					case 173: return 189;
-					case 61: return 187;
-					case 59: return 186;
-					default: return key;
-					}
-				};
+				const mapFunc = nav.isFirefox ?
+					key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
+					key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
 				keys[1] = nav.isFirefox;
 				keys[2] = keys[2].map(mapFunc);
 				keys[3] = keys[3].map(mapFunc);
@@ -5498,11 +5469,11 @@ const HotKeys = {
 	_getNextVisPost(cPost, isOp, toUp) {
 		if(isOp) {
 			const thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
-				Thread.first.hidden ? Thread.first.nextNotHidden : Thread.first;
+				Thread.first.isHidden ? Thread.first.nextNotHidden : Thread.first;
 			return thr ? thr.op : null;
 		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.hidden ||
-			Thread.first.op.hidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
+		return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.isHidden ||
+			Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_getFirstVisPost(getThread, getFull) {
 		if(this.lastPageOffset !== window.pageYOffset) {
@@ -5559,8 +5530,8 @@ class KeyEditListener {
 			if(k !== 0) {
 				for(let j = i + 1; j < len; ++j) {
 					if(k === allKeys[j]) {
-						aInputs[i].classList.add('de-error-input');
-						aInputs[j].classList.add('de-error-input');
+						aInputs[i].classList.add('de-input-error');
+						aInputs[j].classList.add('de-input-error');
 						break;
 					}
 				}
@@ -5571,7 +5542,7 @@ class KeyEditListener {
 		this.initKeys = JSON.parse(JSON.stringify(keys));
 		this.allKeys = allKeys;
 		this.allInputs = aInputs;
-		this.errCount = $Q('.de-error-input', popupEl).length;
+		this.errCount = $Q('.de-input-error', popupEl).length;
 		if(this.errCount !== 0) {
 			this.saveButton.disabled = true;
 		}
@@ -5619,12 +5590,14 @@ class KeyEditListener {
 			if(HotKeys.enabled && this.errCount === 0) {
 				HotKeys.resume(this.keys);
 			}
+			el.classList.remove('de-input-selected');
 			this.cEl = null;
 			return;
 		case 'focus':
 			if(HotKeys.enabled) {
 				HotKeys.pauseHotKeys();
 			}
+			el.classList.add('de-input-selected');
 			this.cEl = el;
 			return;
 		case 'click': {
@@ -5699,7 +5672,7 @@ class KeyEditListener {
 				return;
 			}
 			let rEl;
-			const isError = el.classList.contains('de-error-input');
+			const isError = el.classList.contains('de-input-error');
 			if(!this.errorInput && key !== -1) {
 				let idx = this.allInputs.indexOf(el);
 				const oKey = this.allKeys[idx];
@@ -5713,14 +5686,14 @@ class KeyEditListener {
 					idx = this.allKeys.indexOf(oKey);
 					if(idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
 						rEl = this.allInputs[idx];
-						if(rEl.classList.contains('de-error-input')) {
+						if(rEl.classList.contains('de-input-error')) {
 							this.errCount--;
-							rEl.classList.remove('de-error-input');
+							rEl.classList.remove('de-input-error');
 						}
 					}
 					if(rIdx === -1) {
 						this.errCount--;
-						el.classList.remove('de-error-input');
+						el.classList.remove('de-input-error');
 					}
 				}
 				if(rIdx === -1) {
@@ -5732,14 +5705,14 @@ class KeyEditListener {
 					break;
 				}
 				rEl = this.allInputs[rIdx];
-				if(!rEl.classList.contains('de-error-input')) {
+				if(!rEl.classList.contains('de-input-error')) {
 					this.errCount++;
-					rEl.classList.add('de-error-input');
+					rEl.classList.add('de-input-error');
 				}
 			}
 			if(!isError) {
 				this.errCount++;
-				el.classList.add('de-error-input');
+				el.classList.add('de-input-error');
 			}
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
@@ -5770,81 +5743,134 @@ KeyEditListener.keyCodes = [
                      images/video preloading, rarjpeg detecting, thread/images downloading
 =========================================================================================================== */
 
-function detectImgFile(ab) {
-	let i, j;
-	const dat = new Uint8Array(ab);
-	let len = dat.length;
-	/* JPG [ff d8 ff e0] = [яШяа] */
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 0, j = 0; i < len - 1; i++) {
-			if(dat[i] === 0xFF) {
-				/* Built-in JPG */
-				if(dat[i + 1] === 0xD8) {
-					j++;
-				/* JPG end [ff d9] */
-				} else if(dat[i + 1] === 0xD9 && --j === 0) {
-					i += 2;
-					break;
+const ContentLoader = {
+	afterFn   : null,
+	isLoading : false,
+	popupId   : null,
+	downloadThread(imgOnly) {
+		let progress, counter, current = 1,
+			warnings = '',
+			tar = new TarBuilder();
+		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
+		let count = els.length;
+		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
+			const [url, fName, el, imgLink] = data;
+			let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+			progress.value = counter.innerHTML = current++;
+			if(imgLink) {
+				let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
+				if(imgOnly) {
+					thumbName = 'thumb-' + thumbName;
+				} else {
+					thumbName = 'thumbs/' + thumbName;
+					safeName = imgData ? 'images/' + safeName : thumbName;
+					imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 				}
+				if(imgData) {
+					tar.addFile(safeName, imgData);
+				} else {
+					warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
+						`<br>${ Lng.willSavePview[lang] }`;
+					$popup('err-files', Lng.loadErrors[lang] + warnings);
+					if(imgOnly) {
+						return this._getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+					}
+				}
+				return imgOnly ? null : this._getDataFromImg(el).then(data => {
+					el.src = thumbName;
+					tar.addFile(thumbName, data);
+				}, () => (el.src = safeName));
+			} else if(imgData && imgData.length > 0) {
+				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
+			} else {
+				$del(el);
 			}
-		}
-	/* PNG [89 50 4e 47] = [‰PNG] */
-	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0; i < len - 7; i++) {
-			/* PNG end [49 45 4e 44 ae 42 60 82] */
-			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-				i += 8;
-				break;
+		}), () => {
+			const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
+			if(!imgOnly) {
+				$q('head', dc).insertAdjacentHTML('beforeend',
+					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
+				$q('body', dc).classList.add('de-mode-local');
+				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				tar.addString('data/dollscript.js', `${ nav.isESNext ?
+					`(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ` :
+					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
+				}${ JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) });`);
+				const dt = doc.doctype;
+				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
+					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
+					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-		}
-	} else {
-		return {};
-	}
-	/* Ignore small files */
-	if(i !== len && len - i > 60) {
-		for(len = i + 90; i < len; i++) {
-			/* 7Z [37 7a bc af] = [7zјЇ] */
-			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-				return { type: 0, idx: i, data: ab };
-			/* ZIP [50 4b 03 04] = [PK..] */
-			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-				return { type: 1, idx: i, data: ab };
-			/* RAR [52 61 72 21] = [Rar!] */
-			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-				return { type: 2, idx: i, data: ab };
-			/* OGG [4f 67 67 53] = [OggS] */
-			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-				return { type: 3, idx: i, data: ab };
-			/* MP3 [0x49 0x44 0x33] = [ID3] */
-			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-				return { type: 4, idx: i, data: ab };
+			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+			$del($id('de-popup-load-files'));
+			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
+		});
+		els.forEach(el => {
+			const imgLink = $parent(el, 'A');
+			if(imgLink) {
+				const url = imgLink.href;
+				this._thrPool.runTask([url, imgLink.getAttribute('download') ||
+					url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
 			}
+		});
+		if(!imgOnly) {
+			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
+				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
+				aib.qForm, dc), $del);
+			$each($Q('a', dc), el => {
+				let num;
+				const tc = el.textContent;
+				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
+					el.href = aib.anchor + num;
+					if(!el.classList.contains('de-link-pref')) {
+						el.className = 'de-link-pref ' + el.className;
+					}
+				} else {
+					el.href = getAbsLink(el.href);
+				}
+			});
+			$each($Q(aib.qRPost, dc), (el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			const files = [];
+			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
+				quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
+			$each($Q('link, *[src]', dc), el => {
+				if(els.indexOf(el) !== -1) {
+					return;
+				}
+				let url = el.tagName === 'LINK' ? el.href : el.src;
+				if(!urlRegex.test(url)) {
+					$del(el);
+					return;
+				}
+				let fName = url.substring(url.lastIndexOf('/') + 1)
+					.replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				if(files.indexOf(fName) !== -1) {
+					let temp = url.lastIndexOf('.');
+					const ext = url.substring(temp);
+					url = url.substring(0, temp);
+					fName = fName.substring(0, fName.lastIndexOf('.'));
+					for(let i = 0; ; ++i) {
+						temp = `${ fName }(${ i })${ ext }`;
+						if(files.indexOf(temp) === -1) {
+							break;
+						}
+					}
+					fName = temp;
+				}
+				files.push(fName);
+				this._thrPool.runTask([url, fName, el, null]);
+				count++;
+			});
 		}
-	}
-	return {};
-}
-
-function addImgFileIcon(nameLink, fName, info) {
-	const { type } = info;
-	if(typeof type === 'undefined') {
-		return;
-	}
-	const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-	nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
-		new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
-			type: [
-				'application/x-7z-compressed',
-				'application/zip',
-				'application/x-rar-compressed',
-				'audio/ogg',
-				'audio/mpeg'][type]
-		})
-	) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-		fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
-}
-
-function downloadImgData(url, repeatOnError = true) {
-	return $ajax(url, {
+		$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br><progress ` +
+			`id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${ count }`, true);
+		progress = $id('de-loadprogress');
+		counter = progress.nextElementSibling;
+		this._thrPool.completeTasks();
+		els = null;
+	},
+	loadImgData: (url, repeatOnError = true) => $ajax(url, {
 		responseType     : 'arraybuffer',
 		overrideMimeType : 'text/plain; charset=x-user-defined'
 	}, url.startsWith('blob')).then(xhr => {
@@ -5854,241 +5880,179 @@ function downloadImgData(url, repeatOnError = true) {
 		if('response' in xhr) {
 			try {
 				return nav.getUnsafeUint8Array(xhr.response);
-			} catch(e) {}
+			} catch(err) {}
 		}
 		const txt = xhr.responseText;
-		const rv = new Uint8Array(txt.length);
-		for(let i = 0, len = txt.length; i < len; ++i) {
-			rv[i] = txt.charCodeAt(i) & 0xFF;
+		return new Uint8Array(txt.length).map((val, i) => txt.charCodeAt(i) & 0xFF);
+	}, err => err.code !== 404 && repeatOnError ? ContentLoader.loadImgData(url, false) : null),
+	preloadImages(data) {
+		if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
+			return;
 		}
-		return rv;
-	}, err => err.code !== 404 && repeatOnError ? downloadImgData(url, false) : null);
-}
-
-function preloadImages(data) {
-	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
-		return;
-	}
-	let pool;
-	const isPost = data instanceof AbstractPost;
-	const els = $Q(aib.qPostImg, isPost ? data.el : data);
-	const len = els.length;
-	if(isPreImg || Cfg.preLoadImgs) {
-		let cImg = 1;
-		const mReqs = isPost ? 1 : 4;
-		const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, detectImgFile,
-			e => console.error('File detector error:', `line: ${ e.lineno } - ${ e.message }`));
-		pool = new TasksPool(mReqs, (num, data) => downloadImgData(data[0]).then(imageData => {
-			const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
-			if(imageData) {
-				const fName = url.substring(url.lastIndexOf('/') + 1);
-				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-				imgLink.setAttribute('download', fName);
-				nameLink.setAttribute('download', fName);
-				nameLink.setAttribute('de-href', nameLink.href);
-				imgLink.href = nameLink.href =
-					window.URL.createObjectURL(new Blob([imageData], { type: iType }));
-				if(isVideo) {
-					el.setAttribute('de-video', '');
+		let preloadPool;
+		const isPost = data instanceof AbstractPost;
+		const els = $Q(aib.qPostImg, isPost ? data.el : data);
+		const len = els.length;
+		if(isPreImg || Cfg.preLoadImgs) {
+			let cImg = 1;
+			const mReqs = isPost ? 1 : 4;
+			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
+				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
+			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
+				const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
+				if(imageData) {
+					const fName = url.substring(url.lastIndexOf('/') + 1);
+					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
+					imgLink.setAttribute('download', fName);
+					nameLink.setAttribute('download', fName);
+					nameLink.setAttribute('de-href', nameLink.href);
+					imgLink.href = nameLink.href =
+						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+					if(isVideo) {
+						el.setAttribute('de-video', '');
+					}
+					if(isRepToOrig) {
+						el.src = imgLink.href;
+					}
+					if(rarJpgFinder) {
+						rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
+							info => this._addImgFileIcon(nameLink, fName, info));
+					}
 				}
-				if(isRepToOrig) {
-					el.src = imgLink.href;
+				if(this.popupId) {
+					$popup(this.popupId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
+				}
+				cImg++;
+			}), () => {
+				this.isLoading = false;
+				if(this.afterFn) {
+					this.afterFn();
+					this.afterFn = this.popupId = null;
 				}
 				if(rarJpgFinder) {
-					rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
-						info => addImgFileIcon(nameLink, fName, info));
+					rarJpgFinder.clearWorkers();
 				}
-			}
-			if(Images_.progressId) {
-				$popup(Images_.progressId, `${ Lng.loadImage[lang] }: ${ cImg }/${ len }`, true);
-			}
-			cImg++;
-		}), () => {
-			Images_.preloading = false;
-			if(Images_.afterpreload) {
-				Images_.afterpreload();
-				Images_.afterpreload = Images_.progressId = null;
-			}
-			if(rarJpgFinder) {
-				rarJpgFinder.clearWorkers();
-			}
-		});
-		Images_.preloading = true;
-	}
-	for(let i = 0; i < len; ++i) {
-		let el = els[i];
-		const imgLink = $parent(el = els[i], 'A');
-		if(!imgLink) {
-			continue;
+			});
+			this.isLoading = true;
 		}
-		let isRepToOrig = !!Cfg.openImgs;
-		const url = imgLink.href;
-		const iType = getFileType(url);
-		const isVideo = iType && (iType === 'video/webm' || iType === 'video/mp4' || iType === 'video/ogv');
-		if(!iType || isVideo && Cfg.preLoadImgs === 2) {
-			continue;
-		} else if(iType === 'image/gif') {
-			isRepToOrig &= Cfg.openImgs !== 3;
-		} else {
-			if(isVideo) {
-				isRepToOrig = false;
+		for(let i = 0; i < len; ++i) {
+			const el = els[i];
+			const imgLink = $parent(el, 'A');
+			if(!imgLink) {
+				continue;
 			}
-			isRepToOrig &= Cfg.openImgs !== 2;
-		}
-		if(pool) {
-			pool.runTask([url, imgLink, iType, isRepToOrig, el, isVideo]);
-		} else if(isRepToOrig) {
-			el.src = url;
-		}
-	}
-	if(pool) {
-		pool.completeTasks();
-	}
-}
-
-function getDataFromImg(el) {
-	try {
-		const cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-		cnv.width = el.width;
-		cnv.height = el.height;
-		cnv.getContext('2d').drawImage(el, 0, 0);
-		return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
-			.split('').map(a => a.charCodeAt())));
-	} catch(e) {
-		return downloadImgData(el.src);
-	}
-}
-
-function loadDocFiles(imgOnly) {
-	let progress, counter, current = 1,
-		warnings = '',
-		tar = new TarBuilder();
-	const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
-	let count = els.length;
-	Images_.pool = new TasksPool(4, (num, data) => downloadImgData(data[0]).then(imgData => {
-		const [url, fName, el, imgLink] = data;
-		let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
-		progress.value = counter.innerHTML = current++;
-		if(imgLink) {
-			let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
-			if(imgOnly) {
-				thumbName = 'thumb-' + thumbName;
-			} else {
-				thumbName = 'thumbs/' + thumbName;
-				safeName = imgData ? 'images/' + safeName : thumbName;
-				imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
-			}
-			if(imgData) {
-				tar.addFile(safeName, imgData);
-			} else {
-				warnings += `<br>${ Lng.cantLoad[lang] } <a href="${ url }">${ url }</a>` +
-					`<br>${ Lng.willSavePview[lang] }`;
-				$popup('err-files', Lng.loadErrors[lang] + warnings);
-				if(imgOnly) {
-					return getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
-				}
-			}
-			return imgOnly ? null : getDataFromImg(el).then(data => {
-				el.src = thumbName;
-				tar.addFile(thumbName, data);
-			}, () => (el.src = safeName));
-		} else if(imgData && imgData.length > 0) {
-			tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
-		} else {
-			$del(el);
-		}
-	}), () => {
-		const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
-		if(!imgOnly) {
-			$q('head', dc).insertAdjacentHTML('beforeend',
-				'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-			$q('body', dc).classList.add('de-mode-local');
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-			let scriptStr;
-			const localData = JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t });
-			if(nav.isESNext) {
-				scriptStr = `(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ${
-					localData });`;
-			} else {
-				/* global deMainFuncOuter */
-				scriptStr = `(${ String(deMainFuncOuter) })(${ localData });`;
-			}
-			tar.addString('data/dollscript.js', scriptStr);
-			const dt = doc.doctype;
-			tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
-				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
-				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
-		}
-		downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-		$del($id('de-popup-load-files'));
-		Images_.pool = tar = warnings = count = current = imgOnly = progress = counter = null;
-	});
-	els.forEach(el => {
-		const imgLink = $parent(el, 'A');
-		if(imgLink) {
+			let isRepToOrig = !!Cfg.openImgs;
 			const url = imgLink.href;
-			Images_.pool.runTask([url, imgLink.getAttribute('download') ||
-				url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
-		}
-	});
-	if(!imgOnly) {
-		$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, ' +
-			'.de-refmap, .de-thread-buttons, .de-video-obj, #de-win-reply, ' +
-			'link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
-		$each($Q('a', dc), el => {
-			let num;
-			const tc = el.textContent;
-			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
-				el.href = aib.anchor + num;
-				if(!el.classList.contains('de-link-pref')) {
-					el.className = 'de-link-pref ' + el.className;
-				}
+			const type = getFileType(url);
+			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
+			if(!type || isVideo && Cfg.preLoadImgs === 2) {
+				continue;
+			} else if(type === 'image/gif') {
+				isRepToOrig &= Cfg.openImgs !== 3;
 			} else {
-				el.href = getAbsLink(el.href);
+				if(isVideo) {
+					isRepToOrig = false;
+				}
+				isRepToOrig &= Cfg.openImgs !== 2;
 			}
-		});
-		$each($Q(aib.qRPost, dc),
-			(post, i) => post.setAttribute('de-num', i === 0 ? aib.t : aib.getPNum(post)));
-		const files = [];
-		const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-			quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
-		$each($Q('link, *[src]', dc), el => {
-			if(els.indexOf(el) !== -1) {
-				return;
+			if(preloadPool) {
+				preloadPool.runTask([url, imgLink, type, isRepToOrig, el, isVideo]);
+			} else if(isRepToOrig) {
+				el.src = url;
 			}
-			let url = el.tagName === 'LINK' ? el.href : el.src;
-			if(!urlRegex.test(url)) {
-				$del(el);
-				return;
-			}
-			let fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
-			if(files.indexOf(fName) !== -1) {
-				let temp = url.lastIndexOf('.');
-				const ext = url.substring(temp);
-				url = url.substring(0, temp);
-				fName = fName.substring(0, fName.lastIndexOf('.'));
-				for(let i = 0; ; ++i) {
-					temp = `${ fName }(${ i })${ ext }`;
-					if(files.indexOf(temp) === -1) {
+		}
+		if(preloadPool) {
+			preloadPool.completeTasks();
+		}
+	},
+
+	_canvas  : null,
+	_thrPool : null,
+	_addImgFileIcon(nameLink, fName, info) {
+		const { type } = info;
+		if(typeof type === 'undefined') {
+			return;
+		}
+		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
+		nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
+			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+				type: [
+					'application/x-7z-compressed',
+					'application/zip',
+					'application/x-rar-compressed',
+					'audio/ogg',
+					'audio/mpeg'][type]
+			})
+		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
+			fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
+	},
+	// Finds built-in files in jpg and png
+	_detectImgFile: arrBuf => {
+		let i, j;
+		const dat = new Uint8Array(arrBuf);
+		let len = dat.length;
+		/* JPG [ff d8 ff e0] = [яШяа] */
+		if(dat[0] === 0xFF && dat[1] === 0xD8) {
+			for(i = 0, j = 0; i < len - 1; ++i) {
+				if(dat[i] === 0xFF) {
+					/* Built-in JPG */
+					if(dat[i + 1] === 0xD8) {
+						j++;
+					/* JPG end [ff d9] */
+					} else if(dat[i + 1] === 0xD9 && --j === 0) {
+						i += 2;
 						break;
 					}
 				}
-				fName = temp;
 			}
-			files.push(fName);
-			Images_.pool.runTask([url, fName, el, null]);
-			count++;
-		});
+		/* PNG [89 50 4e 47] = [‰PNG] */
+		} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+			for(i = 0; i < len - 7; ++i) {
+				/* PNG end [49 45 4e 44 ae 42 60 82] */
+				if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+					i += 8;
+					break;
+				}
+			}
+		} else {
+			return {};
+		}
+		if(i === len || len - i <= 60) { // Ignore small files (<60 bytes)
+			return {};
+		}
+		for(len = i + 90; i < len; ++i) {
+			/* 7Z [37 7a bc af] = [7zјЇ] */
+			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
+				return { type: 0, idx: i, data: arrBuf };
+			/* ZIP [50 4b 03 04] = [PK..] */
+			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
+				return { type: 1, idx: i, data: arrBuf };
+			/* RAR [52 61 72 21] = [Rar!] */
+			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
+				return { type: 2, idx: i, data: arrBuf };
+			/* OGG [4f 67 67 53] = [OggS] */
+			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+				return { type: 3, idx: i, data: arrBuf };
+			/* MP3 [0x49 0x44 0x33] = [ID3] */
+			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+				return { type: 4, idx: i, data: arrBuf };
+			}
+		}
+		return {};
+	},
+	_getDataFromImg(el) {
+		try {
+			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
+			cnv.width = el.width;
+			cnv.height = el.height;
+			cnv.getContext('2d').drawImage(el, 0, 0);
+			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
+				.split('').map(a => a.charCodeAt())));
+		} catch(err) {
+			return this.loadImgData(el.src);
+		}
 	}
-	$popup('load-files', `${ imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang] }:<br>` +
-		`<progress id="de-loadprogress" value="0" max="${ count }"></progress> <span>1</span>/${
-			count }`, true);
-	progress = $id('de-loadprogress');
-	counter = progress.nextElementSibling;
-	Images_.pool.completeTasks();
-	els = null;
-}
+};
 
 /* ==[ TimeCorrection.js ]====================================================================================
                                                TIME CORRECTION
@@ -6239,7 +6203,7 @@ class Videos {
 			`<span class="de-video-resizer" title="${ Lng.expandVideo[lang] }"></span>`);
 		$show(el);
 		if(!enableJsapi) {
-			el.lastChild.onclick = ({ target }) => target.parentNode.classList.toggle('de-video-expanded');
+			el.lastChild.onclick = e => e.target.parentNode.classList.toggle('de-video-expanded');
 		}
 	}
 	static setLinkData(link, data, isCloned = false) {
@@ -6277,8 +6241,8 @@ class Videos {
 			return;
 		}
 		let dataObj;
-		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
-			this.vData[isYtube ? 0 : 1].push(dataObj);
+		if(loader && (dataObj = Videos._global.vData[+!isYtube][m[1]])) {
+			this.vData[+!isYtube].push(dataObj);
 		}
 		let time = '';
 		[time, m[2], m[3], m[4]] = Videos._fixTime(m[4], m[3], m[2]);
@@ -6436,8 +6400,8 @@ class Videos {
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
 		if(data.length !== 0) {
 			Videos.setLinkData(link, data);
-			Videos._global.vData[isYtube ? 0 : 1][id] = data;
-			videoObj.vData[isYtube ? 0 : 1].push(data);
+			Videos._global.vData[+!isYtube][id] = data;
+			videoObj.vData[+!isYtube].push(data);
 			if(videoObj.titleLoadFn) {
 				videoObj.titleLoadFn(data);
 			}
@@ -6465,7 +6429,7 @@ class Videos {
 		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
 			try {
 				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-			} catch(e) {}
+			} catch(err) {}
 		});
 	}
 }
@@ -6479,7 +6443,7 @@ Videos._global = {
 		try {
 			sesStorage.removeItem('de-videos-data1');
 			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
-		} catch(e) {
+		} catch(err) {
 			value = [{}, {}];
 		}
 		Object.defineProperty(this, 'vData', { value });
@@ -6499,29 +6463,9 @@ class VideosParser {
 	parse(data) {
 		const isPost = data instanceof AbstractPost;
 		const loader = this._loader;
-		let links = $Q('a[href*="youtu"]', isPost ? data.el : data);
-		for(let i = 0, len = links.length; i < len; ++i) {
-			const link = links[i];
-			const m = link.href.match(Videos.ytReg);
-			if(m) {
-				const mPost = isPost ? data : aib.getPostOfEl(link);
-				if(mPost) {
-					mPost.videos.addLink(m, loader, link, true);
-				}
-			}
-		}
+		VideosParser._parserHelper('a[href*="youtu"]', data, loader, isPost, true, Videos.ytReg);
 		if(Cfg.addVimeo) {
-			links = $Q('a[href*="vimeo.com"]', isPost ? data.el : data);
-			for(let i = 0, len = links.length; i < len; ++i) {
-				const link = links[i];
-				const m = link.href.match(Videos.vimReg);
-				if(m) {
-					const mPost = isPost ? data : aib.getPostOfEl(link);
-					if(mPost) {
-						mPost.videos.addLink(m, loader, link, false);
-					}
-				}
-			}
+			VideosParser._parserHelper('a[href*="vimeo.com"]', data, loader, isPost, false, Videos.vimReg);
 		}
 		const vids = aib.fixVideo(isPost, data);
 		for(let i = 0, len = vids.length; i < len; ++i) {
@@ -6531,6 +6475,20 @@ class VideosParser {
 			}
 		}
 		return this;
+	}
+
+	static _parserHelper(qPath, data, loader, isPost, isYtube, reg) {
+		const links = $Q(qPath, isPost ? data.el : data);
+		for(let i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const m = link.href.match(reg);
+			if(m) {
+				const mPost = isPost ? data : aib.getPostOfEl(link);
+				if(mPost) {
+					mPost.videos.addLink(m, loader, link, isYtube);
+				}
+			}
+		}
 	}
 }
 
@@ -6592,7 +6550,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
-			} catch(e) {}
+			} catch(err) {}
 		};
 		let loadTO = needTO && setTimeout(toFunc, 5e3);
 		const obj = {
@@ -6633,7 +6591,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				try {
 					gmxhr.abort();
-				} catch(e) {}
+				} catch(err) {}
 			};
 		}
 	} else {
@@ -6687,7 +6645,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				}
 				xhr.abort();
 			};
-		} catch(e) {
+		} catch(err) {
 			clearTimeout(loadTO);
 			nativeXHRworks = false;
 			return $ajax(url, params, false);
@@ -6711,24 +6669,14 @@ class AjaxError {
 	}
 }
 AjaxError.Success = new AjaxError(200, 'OK');
-AjaxError.Locked = new AjaxError(-1, {
-	toString() {
-		return Lng.thrClosed[lang];
-	}
-});
-AjaxError.Timeout = new AjaxError(0, {
-	toString() {
-		return Lng.noConnect[lang] + ' (timeout)';
-	}
-});
+AjaxError.Locked = new AjaxError(-1, { toString: () => Lng.thrClosed[lang] });
+AjaxError.Timeout = new AjaxError(0, { toString: () => Lng.noConnect[lang] + ' (timeout)' });
 
 const AjaxCache = {
-	fixURL(url) {
-		return `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`;
-	},
 	clearCache() {
 		this._data = new Map();
 	},
+	fixURL: url => `${ url }${ url.includes('?') ? '&' : '?' }nocache=${ Math.random() }`,
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
@@ -6741,10 +6689,8 @@ const AjaxCache = {
 		let LastModified = null;
 		let i = 0;
 		let hasCacheControl = false;
-		const ajaxHeaders = 'getAllResponseHeaders' in xhr ?
-			xhr.getAllResponseHeaders() :
-			xhr.responseHeaders;
-		for(const header of ajaxHeaders.split('\r\n')) {
+		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
+		for(const header of headers.split('\r\n')) {
 			const lHeader = header.toLowerCase();
 			if(lHeader.startsWith('cache-control: ')) {
 				hasCacheControl = true;
@@ -6760,7 +6706,7 @@ const AjaxCache = {
 				break;
 			}
 		}
-		let headers = null;
+		headers = null;
 		if(ETag || LastModified) {
 			headers = {};
 			if(ETag) {
@@ -6798,15 +6744,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
-			} catch(e) {
-				if(e instanceof AjaxError) {
-					return CancelablePromise.reject(e);
+			} catch(err) {
+				if(err instanceof AjaxError) {
+					return CancelablePromise.reject(err);
 				}
-				console.warn(`API error: ${ e }. Switching to DOM parsing!`);
+				console.warn(`API error: ${ err }. Switching to DOM parsing!`);
 				aib.JsonBuilder = null;
 				return ajaxPostsLoad(brd, tNum, useCache);
 			}
-		}, e => e.code === 304 ? null : CancelablePromise.reject(e));
+		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return aib.iichan ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
@@ -6815,15 +6761,15 @@ function ajaxPostsLoad(brd, tNum, useCache) {
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
-function infoLoadErrors(e, showError = true) {
-	const isAjax = e instanceof AjaxError;
-	const eCode = isAjax ? e.code : 0;
+function infoLoadErrors(err, showError = true) {
+	const isAjax = err instanceof AjaxError;
+	const eCode = isAjax ? err.code : 0;
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup('newposts', e.message ? String(e.message) : Lng.noConnect[lang]);
+		$popup('newposts', err.message ? String(err.message) : Lng.noConnect[lang]);
 	} else {
-		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(e) }`);
+		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(err) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
@@ -6837,10 +6783,10 @@ function infoLoadErrors(e, showError = true) {
 const Pages = {
 	addPage() {
 		const pageNum = DelForm.last.pageNum + 1;
-		if(this._adding || pageNum > aib.lastPage) {
+		if(this._isAdding || pageNum > aib.lastPage) {
 			return;
 		}
-		this._adding = true;
+		this._isAdding = true;
 		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
 			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
 		MyPosts.purge();
@@ -6851,9 +6797,9 @@ const Pages = {
 			this._endAdding();
 			this.addPage();
 			return CancelablePromise.reject(new CancelError());
-		}).then(() => this._endAdding()).catch(e => {
-			if(!(e instanceof CancelError)) {
-				$popup('add-page', getErrorMessage(e));
+		}).then(() => this._endAdding()).catch(err => {
+			if(!(err instanceof CancelError)) {
+				$popup('add-page', getErrorMessage(err));
 				this._endAdding();
 			}
 		});
@@ -6886,8 +6832,8 @@ const Pages = {
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
 			try {
 				this._addForm(await ajaxLoad(aib.getPageUrl(aib.b, i)), i);
-			} catch(e) {
-				$popup('load-pages', getErrorMessage(e));
+			} catch(err) {
+				$popup('load-pages', getErrorMessage(err));
 			}
 		}
 		const { first } = DelForm;
@@ -6899,7 +6845,7 @@ const Pages = {
 		}
 	},
 
-	_adding        : false,
+	_isAdding      : false,
 	_addingPromise : null,
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
@@ -6919,7 +6865,7 @@ const Pages = {
 	},
 	_endAdding() {
 		$del($q('.de-addpage-wait'));
-		this._adding = false;
+		this._isAdding = false;
 		this._addingPromise = null;
 	},
 	async _updateForms(newForm) {
@@ -6971,7 +6917,7 @@ const Spells = Object.create({
 		let data;
 		try {
 			data = JSON.parse(Cfg.spells);
-		} catch(e) {
+		} catch(err) {
 			return '';
 		}
 		const [, s, reps, oreps] = data;
@@ -7025,7 +6971,7 @@ const Spells = Object.create({
 			if(!spells) {
 				try {
 					spells = JSON.parse(Cfg.spells);
-				} catch(e) {}
+				} catch(err) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
 			let idx, isAdded = true;
@@ -7124,10 +7070,8 @@ const Spells = Object.create({
 				64 : 'whitespace'
 			};
 			for(const bit in bits) {
-				if(+bit !== msgBit) {
-					if(val & +bit) {
-						names.push(bits[bit]);
-					}
+				if(+bit !== msgBit && (val & +bit)) {
+					names.push(bits[bit]);
 				}
 			}
 			if(msgBit) {
@@ -7178,7 +7122,7 @@ const Spells = Object.create({
 		const codeGen = new SpellsCodegen(text);
 		const data = codeGen.generate();
 		if(codeGen.hasError) {
-			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.error);
+			$popup('err-spell', Lng.error[lang] + ': ' + codeGen.errorSpell);
 		} else if(data) {
 			if(data[0] && Cfg.sortSpells) {
 				this._sort(data[0]);
@@ -7242,7 +7186,7 @@ const Spells = Object.create({
 	_decompileScope(scope, indent) {
 		const dScope = [];
 		let hScope = false;
-		for(let i = 0, j = 0, len = scope.length; i < len; i++, j++) {
+		for(let i = 0, j = 0, len = scope.length; i < len; ++i, ++j) {
 			const spell = scope[i];
 			const type = spell[0] & 0xFF;
 			if(type === 0xFF) {
@@ -7283,7 +7227,7 @@ const Spells = Object.create({
 		try {
 			spells = JSON.parse(Cfg.spells);
 			data = JSON.parse(sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`]);
-		} catch(e) {}
+		} catch(err) {}
 		if(data && spells && data[0] === spells[0]) {
 			this.hash = data[0];
 			this._setData(data[1], data[2], data[3]);
@@ -7404,7 +7348,7 @@ const Spells = Object.create({
 	},
 	_sort(sp) {
 		// Wraps AND-spells with brackets for proper sorting
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			if(sp[i][0] > 0x200) {
 				const temp = [0xFF, []];
 				do {
@@ -7416,13 +7360,13 @@ const Spells = Object.create({
 			}
 		}
 		sp = sp.sort();
-		for(let i = 0, len = sp.length - 1; i < len; i++) {
+		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			// Removes duplicates and weaker spells
 			const j = i + 1;
 			if(sp[i][0] === sp[j][0] &&
 				sp[i][1] <= sp[j][1] &&
-				sp[i][1] >= sp[j][1] && (
-					sp[i][2] === null || // Stronger spell with 3 parameters
+				sp[i][1] >= sp[j][1] &&
+				(sp[i][2] === null || // Stronger spell with 3 parameters
 					sp[i][2] === undefined || // Equal spells with 2 parameters
 					(sp[i][2] <= sp[j][2] && sp[i][2] >= sp[j][2]))
 			) { // Equal spells with 3 parameters
@@ -7457,7 +7401,7 @@ class SpellsCodegen {
 		this._line = 1;
 		this._sList = sList;
 	}
-	get error() {
+	get errorSpell() {
 		return !this.hasError ? '' :
 			(this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
 			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
@@ -7660,7 +7604,7 @@ class SpellsCodegen {
 		const val = m[1];
 		try {
 			toRegExp(val, true);
-		} catch(e) {
+		} catch(err) {
 			this._setError(Lng.seErrRegex[lang], val);
 			return null;
 		}
@@ -7834,7 +7778,7 @@ class SpellsRunner {
 	static _unhidePost(post) {
 		if(post.spellHidden) {
 			post.spellUnhide();
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [false, null];
 			}
 		}
@@ -7844,7 +7788,7 @@ class SpellsRunner {
 		this.hasNumSpell |= hasNumSpell;
 		if(val) {
 			post.spellHide(msg);
-			if(SpellsRunner.cachedData && !post.deleted) {
+			if(SpellsRunner.cachedData && !post.isDeleted) {
 				SpellsRunner.cachedData[post.count] = [true, msg];
 			}
 			return 1;
@@ -8207,7 +8151,7 @@ class SpellsInterpreter {
 				let n = 0;
 				let capsw = 0;
 				let casew = 0;
-				for(let i = 0; i < len; i++) {
+				for(let i = 0; i < len; ++i) {
 					x = arr[i];
 					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 						continue;
@@ -8352,8 +8296,10 @@ class PostForm {
 			saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
-		for(const { passEl = {} } of DelForm) {
-			passEl.value = value;
+		for(const { passEl } of DelForm) {
+			if(passEl) {
+				passEl.value = value;
+			}
 		}
 	}
 	get isVisible() {
@@ -8381,21 +8327,15 @@ class PostForm {
 		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
-		const btns = aib.markupTags;
 		const mode = Cfg.addTextBtns;
-		let html = '';
-		for(let i = 0, len = btns.length; i < len; ++i) {
-			if(btns[i] === '') {
-				continue;
-			}
-			html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ btns[i] }">${
-				mode === 2 ? `${ html === '' ? '[ ' : '' }<a class="de-abtn" href="#">${ val[i] }</a> / ` :
+		const btnsHTML = aib.markupTags.reduce((html, str, i) => html + (str === '' ? '' :
+			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
+				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
 				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
 				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`;
-		}
-		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
-			mode === 2 ? '<a class="de-abtn" href="#">&gt;</a> ]' :
+			}</div>`), '');
+		el.innerHTML = `${ btnsHTML }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
 		}</span>`;
@@ -8495,7 +8435,7 @@ class PostForm {
 		$toggle(this.pForm, !needToHide);
 		this.updatePAreaBtns();
 	}
-	showMainReply(isBottom, evt) {
+	showMainReply(isBottom, e) {
 		this.closeReply();
 		if(!aib.t) {
 			this.tNum = false;
@@ -8509,17 +8449,17 @@ class PostForm {
 			this.isBottom = isBottom;
 			this.setReply(false, false);
 		}
-		if(evt) {
-			$pd(evt);
+		if(e) {
+			$pd(e);
 		}
 	}
-	showQuickReply(post, pNum, closeReply, isNumClick) {
+	showQuickReply(post, pNum, isCloseReply, isNumClick, isNoLink = false) {
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -8539,23 +8479,18 @@ class PostForm {
 			this.refreshCap();
 		}
 		this.tNum = qNum;
-		let temp = this.txta.value;
-		if(!Cfg.addOPLink && !aib.t && post.isOp && !isNumClick) {
-			this.txta.focus();
-		} else {
-			const isOnNewLine = temp === '' || temp.slice(-1) === '\n';
-			$txtInsert(this.txta, (
-				isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
-				(isOnNewLine ? '' : '\n') +
-					(this.lastQuickPNum === pNum && temp.includes('>>' + pNum) ? '' : `>>${ pNum }\n`)
-			) + (quotetxt ? `${ quotetxt.replace(/^\n|\n$/g, '')
-					.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n` : ''));
-		}
-		temp = pByNum.get(pNum).thr.op.title.trim();
-		if(temp.length > 27) {
-			temp = `${ temp.substr(0, 30) }\u2026`;
-		}
-		$q('.de-win-title', this.qArea).textContent = temp || `#${ pNum }`;
+		const txt = this.txta.value;
+		const isOnNewLine = txt === '' || txt.slice(-1) === '\n';
+		const link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' :
+			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
+			(isOnNewLine ? '' : '\n') +
+				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
+		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
+			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
+		$txtInsert(this.txta, link + quote);
+		const winTitle = pByNum.get(pNum).thr.op.title.trim();
+		$q('.de-win-title', this.qArea).textContent =
+			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
 	updateLanguage() {
@@ -8603,7 +8538,7 @@ class PostForm {
 			$pd(e);
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true).then(checkUpload)
-				.catch(e => $popup('upload', getErrorMessage(e)));
+				.catch(err => $popup('upload', getErrorMessage(err)));
 		};
 	}
 	_initCaptcha() {
@@ -8864,12 +8799,8 @@ function getSubmitError(dc) {
 	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
-	let err = '';
-	const els = $Q(aib.qError, dc);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		err += els[i].innerHTML + '\n';
-	}
-	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
+	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
+		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
@@ -8878,18 +8809,18 @@ function getUploadFunc() {
 		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
 		'</progress><div style="display: none; font: bold 12px arial;">' +
 		'<span></span> / <span></span> (<span></span>)</div>', true);
-	let inited = false;
+	let isInited = false;
 	const beginTime = Date.now();
 	const progress = $id('de-uploadprogress');
 	const counterWrap = progress.nextElementSibling;
 	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
 	return ({ total, loaded: i }) => {
-		if(!inited) {
+		if(!isInited) {
 			progress.setAttribute('max', total);
 			$show(progress);
 			totalEl.textContent = prettifySize(total);
 			$show(counterWrap);
-			inited = true;
+			isInited = true;
 		}
 		progress.value = i;
 		counterEl.textContent = prettifySize(i);
@@ -8907,7 +8838,7 @@ function checkUpload(data) {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
 					$popup('upload', xhr.responseText).style.cssText =
 						'width: 350px; text-align: center;';
-					$id('captcha_pop_submit').onclick = function() {
+					$id('captcha_pop_submit').onclick = () => {
 						$id('captcha_message_box').innerHTML =
 							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
 						const formData = new FormData();
@@ -8933,8 +8864,8 @@ function checkUpload(data) {
 			}
 			try {
 				data = JSON.parse(isDocument ? data.body.textContent : data);
-			} catch(e) {
-				error = getErrorMessage(e);
+			} catch(err) {
+				error = getErrorMessage(err);
 			}
 		}
 		if(!error) {
@@ -8960,8 +8891,15 @@ function checkUpload(data) {
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
-	if(Cfg.favOnReply && tNum && !$q('.de-btn-fav-sel', pByNum.get(tNum).el)) {
-		pByNum.get(tNum).thr.setFavorState(true);
+	if(Cfg.favOnReply && !Cfg.sageReply) {
+		if(tNum) {
+			const { thr } = pByNum.get(tNum);
+			if(!thr.isFav) {
+				thr.toggleFavState(true);
+			}
+		} else {
+			sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
+		}
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
@@ -8980,8 +8918,8 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success, e => e).then(e => {
-			infoLoadErrors(e);
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
+			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
@@ -9016,8 +8954,8 @@ async function checkDelete(data) {
 		Post.clearMarks();
 		try {
 			await Thread.first.loadNewPosts();
-		} catch(e) {
-			infoLoadErrors(e);
+		} catch(err) {
+			infoLoadErrors(err);
 		}
 	} else {
 		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
@@ -9162,7 +9100,7 @@ function cleanFile(data, extraData) {
 			img[i + 1] !== 0x45 ||
 			img[i + 2] !== 0x4E ||
 			img[i + 3] !== 0x44
-		); i++) /* empty */;
+		); ++i) /* empty */;
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
@@ -9189,7 +9127,7 @@ function readExif(data, off, len) {
 	if(i > len) {
 		return null;
 	}
-	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; j++) {
+	for(let j = 0, tgLen = dv.getUint16(i, le); j < tgLen; ++j) {
 		let dE = i + 2 + 12 * j;
 		const tag = dv.getUint16(dE, le);
 		if(tag === 0x0128) {
@@ -9222,12 +9160,7 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		const inputs = [];
-		const els = $Q('input[type="file"]', this.fileTd);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			inputs.push(new FileInput(this, els[i]));
-		}
-		this._inputs = inputs;
+		this._inputs = Array.from($Q('input[type="file"]', this.fileTd), el => new FileInput(this, el));
 		this._files = [];
 		this.hideEmpty();
 	}
@@ -9514,11 +9447,11 @@ class FileInput {
 	}
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
-		el.onchange = ({ target }) => {
+		el.onchange = e => {
 			$hide(this._btnRarJpg);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
-			const file = target.files[0];
+			const file = e.target.files[0];
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
@@ -9536,7 +9469,7 @@ class FileInput {
 			return Promise.reject(new Error('URL is null'));
 		}
 		$popup('file-loading', Lng.loading[lang], true);
-		return downloadImgData(url, false).then(data => {
+		return ContentLoader.loadImgData(url, false).then(data => {
 			if(file) {
 				window.URL.revokeObjectURL(url);
 			}
@@ -9743,9 +9676,9 @@ class Captcha {
 	initCapPromise() {
 		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 		if(initPromise) {
-			initPromise.then(() => this.showCaptcha(), e => {
-				if(e instanceof AjaxError) {
-					this._setUpdateError(e);
+			initPromise.then(() => this.showCaptcha(), err => {
+				if(err instanceof AjaxError) {
+					this._setUpdateError(err);
 				} else {
 					this.hasCaptcha = false;
 				}
@@ -9814,7 +9747,7 @@ class Captcha {
 		if(aib.updateCaptcha) {
 			const updatePromise = aib.updateCaptcha(this, isErr);
 			if(updatePromise) {
-				updatePromise.then(() => this._updateTextEl(isFocus), e => this._setUpdateError(e));
+				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
 		} else if(this._isRecap) {
 			this._updateRecap();
@@ -9842,10 +9775,10 @@ class Captcha {
 		return (aib._capUpdPromise = $ajax(url).then(xhr => {
 			aib._capUpdPromise = null;
 			fn(xhr);
-		}, e => {
-			if(!(e instanceof CancelError)) {
+		}, err => {
+			if(!(err instanceof CancelError)) {
 				aib._capUpdPromise = null;
-				return CancelablePromise.reject(e);
+				return CancelablePromise.reject(err);
 			}
 		}));
 	}
@@ -9906,9 +9839,14 @@ class AbstractPost {
 		this._menu = null;
 		this._menuDelay = 0;
 	}
-	get hideBtn() {
+	get btnFav() {
+		const value = $q('.de-btn-fav, .de-btn-fav-sel', this.btns);
+		Object.defineProperty(this, 'btnFav', { value });
+		return value;
+	}
+	get btnHide() {
 		const value = this.btns.firstChild;
-		Object.defineProperty(this, 'hideBtn', { value });
+		Object.defineProperty(this, 'btnHide', { value });
 		return value;
 	}
 	get images() {
@@ -10038,7 +9976,7 @@ class AbstractPost {
 				case 'like-div':
 				case 'dislike-div': {
 					const task = el.className.split('-')[0];
-					const num = el.id.match(/\d+/)[0];
+					const num = +el.id.match(/\d+/);
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
@@ -10059,19 +9997,19 @@ class AbstractPost {
 			}
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
-			case 'de-btn-fav': this.thr.setFavorState(true); return;
-			case 'de-btn-fav-sel': this.thr.setFavorState(false); return;
+			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
+			case 'de-btn-fav-sel': this.thr.toggleFavState(false, isPview ? this : null); return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
-			case 'de-btn-unhide-user': this.setUserVisib(!this.hidden); return;
+			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-rep':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
-			case 'de-btn-stick': this.setSticky(true); return;
-			case 'de-btn-stick-on': this.setSticky(false); return;
+			case 'de-btn-stick': this.toggleSticky(true); return;
+			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
 			return;
 		}
@@ -10100,7 +10038,7 @@ class AbstractPost {
 		case 'de-btn-hide-user':
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
-			this.btns.title = Lng.togglePost[lang];
+			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
 			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
 				this._addMenu(el, isOutEvent, this._getMenuHide(el));
 			}
@@ -10147,10 +10085,13 @@ class AbstractPost {
 			e.stopPropagation();
 		}
 	}
-	setFavBtn(state) {
-		const el = $q(state ? '.de-btn-fav' : '.de-btn-fav-sel', this.btns);
-		if(el) {
-			el.setAttribute('class', state ? 'de-btn-fav-sel' : 'de-btn-fav');
+	toggleFavBtn(isEnable) {
+		const elClass = isEnable ? 'de-btn-fav-sel' : 'de-btn-fav';
+		if(this.btnFav) {
+			this.btnFav.setAttribute('class', elClass);
+		}
+		if(this.thr.btnFav) {
+			this.thr.btnFav.setAttribute('class', elClass);
 		}
 	}
 	updateMsg(newMsg, sRunner) {
@@ -10203,38 +10144,40 @@ class AbstractPost {
 		}
 	}
 	_clickImage(el, e) {
-		const data = this.images.getImageByEl(el);
-		if(!data || (!data.isImage && !data.isVideo)) {
+		const image = this.images.getImageByEl(el);
+		if(!image || (!image.isImage && !image.isVideo)) {
 			return;
 		}
-		data.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
+		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		$pd(e);
 		e.stopPropagation();
 	}
-	_getFullMsg(el, isInit) {
+	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {
-			aib.deleteTruncMsg(this, el, isInit);
+			aib.deleteTruncMsg(this, truncEl, isInit);
 			return;
 		}
 		if(!isInit) {
 			$popup('load-fullmsg', Lng.loading[lang], true);
 		}
 		ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(form => {
+			let sourceEl;
 			const maybeSpells = new Maybe(SpellsRunner);
 			if(this.isOp) {
-				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, form))), maybeSpells.value);
-				$del(el);
+				sourceEl = form;
 			} else {
-				const els = $Q(aib.qRPost, form);
-				for(let i = 0, len = els.length; i < len; i++) {
-					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(
-							aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, els[i]))),
-							maybeSpells.value);
-						$del(el);
+				const posts = $Q(aib.qRPost, form);
+				for(let i = 0, len = posts.length; i < len; ++i) {
+					const post = posts[i];
+					if(this.num === aib.getPNum(post)) {
+						sourceEl = post;
 						break;
 					}
 				}
+			}
+			if(sourceEl) {
+				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+				$del(truncEl);
 			}
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
@@ -10254,15 +10197,15 @@ class Post extends AbstractPost {
 	constructor(el, thr, num, count, isOp, prev) {
 		super(thr, num, isOp);
 		this.count = count;
-		this.deleted = false;
 		this.el = el;
-		this.hidden = false;
+		this.isDeleted = false;
+		this.isHidden = false;
+		this.isOmitted = false;
+		this.isViewed = false;
 		this.next = null;
-		this.omitted = false;
 		this.prev = prev;
 		this.spellHidden = false;
 		this.userToggled = false;
-		this.viewed = false;
 		this._selRange = null;
 		this._selText = '';
 		if(prev) {
@@ -10274,23 +10217,12 @@ class Post extends AbstractPost {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-		const refEl = $q(aib.qPostRef, el);
-		let html = `<span class="de-post-btns${ isOp ? '' : ' de-post-counter' }">` +
-			'<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
-			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>';
-		this._pref = refEl;
-		if(isOp) {
-			if(!aib.t) {
-				html += '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>';
-			}
-			html += '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>';
-		}
 		this.sage = aib.getSage(el);
-		if(this.sage) {
-			html += '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>';
-		}
-		this.btns = $aEnd(refEl, html + '</span>');
+		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
+			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
+			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
+		this.counterEl = isOp ? null : this.btns.lastChild;
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}
@@ -10313,6 +10245,13 @@ class Post extends AbstractPost {
 			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
+	}
+	static getPostBtns(isOp, noExpThr) {
+		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
+			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ?
+			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
+				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}
 	static findSameText(pNum, isHidden, words, curPost) {
 		const curWords = Post.getWrds(curPost.text);
@@ -10357,9 +10296,9 @@ class Post extends AbstractPost {
 	static getWrds(text) {
 		return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').trim().substring(0, 800).split(' ');
 	}
-	static hideContent(headerEl, hideBtn, isUser, isHide) {
+	static hideContent(headerEl, btnHide, isUser, isHide) {
 		if(!isHide) {
-			hideBtn.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
+			btnHide.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
 			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
 				el => el.classList.remove('de-post-hiddencontent'));
 			return;
@@ -10367,7 +10306,7 @@ class Post extends AbstractPost {
 		if(aib.t) {
 			Thread.first.hidCounter++;
 		}
-		hideBtn.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
+		btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 		if(headerEl) {
 			for(let el = headerEl.nextElementSibling; el; el = el.nextElementSibling) {
 				el.classList.add('de-post-hiddencontent');
@@ -10380,7 +10319,7 @@ class Post extends AbstractPost {
 		return value;
 	}
 	get bottom() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().bottom;
 	}
 	get headerEl() {
@@ -10395,7 +10334,7 @@ class Post extends AbstractPost {
 	}
 	get nextNotDeleted() {
 		let post = this.nextInThread;
-		while(post && post.deleted) {
+		while(post && post.isDeleted) {
 			post = post.nextInThread;
 		}
 		return post;
@@ -10424,7 +10363,7 @@ class Post extends AbstractPost {
 		return this.thr.thrId;
 	}
 	get top() {
-		return (this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el)
+		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
 			.getBoundingClientRect().top;
 	}
 	get wrap() {
@@ -10436,12 +10375,20 @@ class Post extends AbstractPost {
 			this.toggleImages(true, false);
 		}
 	}
+	deleteCounter() {
+		this.isDeleted = true;
+		$del(this.counterEl);
+		this.counterEl = null;
+		this.btns.classList.add('de-post-deleted');
+		this.el.classList.add('de-post-removed');
+		this.wrap.classList.add('de-wrap-removed');
+	}
 	deletePost(isRemovePost) {
 		if(isRemovePost) {
 			$del(this.wrap);
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.ref.unhideRef();
 			}
 			RefMap.updateRefMap(this, false);
@@ -10450,19 +10397,15 @@ class Post extends AbstractPost {
 			}
 			return;
 		}
-		this.deleted = true;
-		this.btns.classList.remove('de-post-counter');
-		this.btns.classList.add('de-post-deleted');
-		this.el.classList.add('de-post-removed');
-		this.wrap.classList.add('de-wrap-removed');
+		this.deleteCounter();
 		($q('input[type="checkbox"]', this.el) || {}).disabled = true;
 	}
 	getAdjacentVisPost(toUp) {
 		let post = toUp ? this.prev : this.next;
 		while(post) {
-			if(post.thr.hidden) {
+			if(post.thr.isHidden) {
 				post = toUp ? post.thr.op.prev : post.thr.last.next;
-			} else if(post.hidden || post.omitted) {
+			} else if(post.isHidden || post.isOmitted) {
 				post = toUp ? post.prev : post.next;
 			} else {
 				return post;
@@ -10474,14 +10417,15 @@ class Post extends AbstractPost {
 		if(this.isOp) {
 			if(!aib.t) {
 				$toggle(this.thr.el, !needToHide);
+				$toggle(this.thr.btns, !needToHide);
 			}
 		} else {
-			Post.hideContent(this.headerEl, this.hideBtn, this.userToggled, needToHide);
+			Post.hideContent(this.headerEl, this.btnHide, this.userToggled, needToHide);
 		}
 	}
 	select() {
 		if(this.isOp) {
-			if(this.hidden) {
+			if(this.isHidden) {
 				this.thr.el.previousElementSibling.classList.add('de-selected');
 			}
 			this.thr.el.classList.add('de-selected');
@@ -10509,8 +10453,12 @@ class Post extends AbstractPost {
 	setUserVisib(isHide, isSave = true, note = null) {
 		this.userToggled = true;
 		this.setVisib(isHide, note);
-		if(this.isOp || this.hidden === isHide) {
-			this.hideBtn.setAttribute('class', isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user');
+		if(this.isOp || this.isHidden === isHide) {
+			const hideClass = isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user';
+			this.btnHide.setAttribute('class', hideClass);
+			if(this.isOp) {
+				this.thr.btnHide.setAttribute('class', hideClass);
+			}
 		}
 		if(isSave) {
 			const { num } = this;
@@ -10533,14 +10481,14 @@ class Post extends AbstractPost {
 		this.ref.toggleRef(isHide, false);
 	}
 	setVisib(isHide, note = null) {
-		if(this.hidden === isHide) {
+		if(this.isHidden === isHide) {
 			if(isHide && note) {
 				this.note.set(note);
 			}
 			return;
 		}
 		if(this.isOp) {
-			this.thr.hidden = isHide;
+			this.thr.isHidden = isHide;
 		} else {
 			if(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2) {
 				this.wrap.classList.toggle('de-hidden', isHide);
@@ -10560,7 +10508,7 @@ class Post extends AbstractPost {
 		} else {
 			this.note.hideNote();
 		}
-		this.hidden = isHide;
+		this.isHidden = isHide;
 		this.hideContent(isHide);
 	}
 	spellHide(note) {
@@ -10601,7 +10549,7 @@ class Post extends AbstractPost {
 	}
 
 	_clickMenu(el) {
-		const isHide = !this.hidden;
+		const isHide = !this.isHidden;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -10663,7 +10611,7 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
 		case 'thr-exp': {
-			const task = parseInt(el.textContent.match(/\d+/), 10);
+			const task = +el.textContent.match(/\d+/);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
 		}
 		}
@@ -10708,10 +10656,10 @@ Post.hiddenNums = new Set();
 Post.Сontent = class PostContent extends TemporaryContent {
 	constructor(post) {
 		super(post);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		this.el = post.el;
 		this.post = post;
 	}
@@ -10803,7 +10751,7 @@ Post.Note = class PostNote {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
 				$pd(e);
-				this._post.setUserVisib(!this._post.hidden);
+				this._post.setUserVisib(!this._post.isHidden);
 			};
 			text = (this._post.title ? `(${ this._post.title }) ` : '') +
 				(note ? `[autohide: ${ note }]` : '');
@@ -10861,6 +10809,7 @@ class Pview extends AbstractPost {
 		super(parent.thr, pNum, pNum === tNum);
 		this.isSticky = false;
 		this.parent = parent;
+		this.remoteThr = null;
 		this.tNum = tNum;
 		this._isCached = false;
 		this._isLeft = false;
@@ -10871,15 +10820,15 @@ class Pview extends AbstractPost {
 		this._readDelay = 0;
 		let post = pByNum.get(pNum);
 		if(post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-			this._showPost(post);
+			this._buildPview(post);
 			return;
 		}
 		this._isCached = true;
-		this._brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(PviewsCache.has(this._brd + tNum)) {
-			post = PviewsCache.get(this._brd + tNum).getPost(pNum);
+		this.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+		if(PviewsCache.has(this.brd + tNum)) {
+			post = PviewsCache.get(this.brd + tNum).getPost(pNum);
 			if(post) {
-				this._showPost(post);
+				this._buildPview(post);
 			} else {
 				this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 					${ Lng.postNotFound[lang] }</div>`));
@@ -10890,7 +10839,7 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this._brd, tNum, false).then(pBuilder => {
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false).then(pBuilder => {
 			if(!aib.JsonBuilder) {
 				this._onload(pBuilder._form);
 				return;
@@ -10900,14 +10849,14 @@ class Pview extends AbstractPost {
 				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
 			}
 			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-		}, e => this._onerror(e));
+		}, err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
 	}
 	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0];
+		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);
@@ -10947,7 +10896,7 @@ class Pview extends AbstractPost {
 			return;
 		}
 		const { parent } = pv;
-		if(parent.omitted) {
+		if(parent.isOmitted) {
 			pv.deletePview();
 			return;
 		}
@@ -10959,7 +10908,7 @@ class Pview extends AbstractPost {
 			}
 			pv._link = el;
 		}
-		const cr = parent.hidden ? parent : pv._link.getBoundingClientRect();
+		const cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
 			pv._offsetTop - window.pageYOffset - cr.bottom :
 			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
@@ -11064,13 +11013,9 @@ class Pview extends AbstractPost {
 			clearTimeout(Pview._delTO);
 		}
 	}
-	setSticky(val) {
-		this.stickBtn.setAttribute('class', val ? 'de-btn-stick-on' : 'de-btn-stick');
-		this.isSticky = val;
-	}
 	setUserVisib() {
 		const post = pByNum.get(this.num);
-		const isHide = post.hidden;
+		const isHide = post.isHidden;
 		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
@@ -11079,19 +11024,102 @@ class Pview extends AbstractPost {
 			el.parentNode.classList.toggle('de-post-hide', isHide);
 		});
 	}
+	toggleSticky(isEnabled) {
+		this.stickBtn.setAttribute('class', isEnabled ? 'de-btn-stick-on' : 'de-btn-stick');
+		this.isSticky = isEnabled;
+	}
 
 	static _markLink(el, num) {
 		$each($Q(`a[href*="${ num }"]`, el),
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
-	_onerror(e) {
-		if(!(e instanceof CancelError)) {
-			this.el.innerHTML = (e instanceof AjaxError) && e.code === 404 ?
-				Lng.postNotFound[lang] : getErrorMessage(e);
+	async _buildPview(post) {
+		$del(this.el);
+		const { num } = this;
+		const pv = this.el = post.el.cloneNode(true);
+		pByEl.set(pv, this);
+		pv.className = `${ aib.cReply } de-pview${
+			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }`;
+		$show(pv);
+		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
+		if(Cfg.linksNavig) {
+			Pview._markLink(pv, this.parent.num);
+		}
+		this._pref = $q(aib.qPostRef, pv);
+		this._link.classList.add('de-link-parent');
+		const { isOp } = this;
+		let f;
+		const isFav = isOp && (post.thr.isFav ||
+			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
+		const isCached = post instanceof CacheItem;
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
+				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
+			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
+			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
+			(post.isDeleted ? '' : '<span class="de-post-counter">' +
+				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>');
+		if(isCached) {
+			if(isOp) {
+				this.remoteThr = post.thr;
+			}
+			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
+			embedAudioLinks(this);
+			if(Cfg.addYouTube) {
+				new VideosParser().parse(this).endParser();
+			}
+			embedPostMsgImages(pv);
+			processImgInfoLinks(pv);
+		} else {
+			const btnsEl = this.btns = this._pref.nextSibling;
+			$del($q('.de-post-counter', btnsEl));
+			if(post.isHidden) {
+				btnsEl.classList.add('de-post-hide');
+			}
+			btnsEl.innerHTML = `<svg class="de-btn-${ post.isHidden ? 'unhide' : 'hide' }${
+				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
+				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
+				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
+			$each($Q(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv),
+				$del);
+			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
+			const link = $q('.de-link-parent', pv);
+			if(link) {
+				link.classList.remove('de-link-parent');
+			}
+			if(Cfg.addYouTube && post.videos.hasLinks) {
+				if(post.videos.playerInfo !== null) {
+					Object.defineProperty(this, 'videos',
+						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
+				}
+				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pv), true);
+			}
+			if(Cfg.addImgs) {
+				$each($Q('.de-img-embed', pv), $show);
+			}
+			if(Cfg.markViewed) {
+				this._readDelay = setTimeout(post => {
+					if(!post.isViewed) {
+						post.el.classList.add('de-viewed');
+						post.isViewed = true;
+					}
+					const arr = (sesStorage['de-viewed'] || '').split(',');
+					arr.push(post.num);
+					sesStorage['de-viewed'] = arr;
+				}, post.text.length > 100 ? 2e3 : 500, post);
+			}
+		}
+		pv.addEventListener('click', this, true);
+		this._showPview(pv);
+	}
+	_onerror(err) {
+		if(!(err instanceof CancelError)) {
+			this.el.innerHTML = (err instanceof AjaxError) && err.code === 404 ?
+				Lng.postNotFound[lang] : getErrorMessage(err);
 		}
 	}
 	_onload(form) {
-		const b = this._brd;
+		const b = this.brd;
 		const { num } = this.parent;
 		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
@@ -11101,7 +11129,7 @@ class Pview extends AbstractPost {
 					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
-			this._showPost(post);
+			this._buildPview(post);
 		} else {
 			this.el.innerHTML = Lng.postNotFound[lang];
 		}
@@ -11116,12 +11144,11 @@ class Pview extends AbstractPost {
 		const pv = this.el;
 		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
 		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const { style } = pv;
 		if(isAnim) {
-			oldCSS = pv.style.cssText;
-			pv.style.cssText = 'opacity: 0; ' + lmw;
-		} else {
-			pv.style.cssText = lmw;
+			oldCSS = style.cssText;
 		}
+		style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 		let top = pv.offsetHeight;
 		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
 		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
@@ -11129,99 +11156,26 @@ class Pview extends AbstractPost {
 		this._isLeft = isLeft;
 		this._isTop = isTop;
 		if(!isAnim) {
-			pv.style.top = top + 'px';
+			style.top = top + 'px';
 			return;
 		}
 		const uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 		$css(`@keyframes ${ uId } { to { ${ lmw } top:${ top }px; } }`).className = 'de-css-move';
 		if(this._newPos) {
-			pv.style.cssText = this._newPos;
+			style.cssText = this._newPos;
 			pv.removeEventListener('animationend', this);
 		} else {
-			pv.style.cssText = oldCSS;
+			style.cssText = oldCSS;
 		}
 		this._newPos = `${ lmw } top:${ top }px;`;
 		pv.addEventListener('animationend', this);
 		pv.classList.add('de-pview-anim');
-		pv.style.animationName = uId;
+		style.animationName = uId;
 	}
 	_showMenu(el, html) {
 		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
 		this._menu.onout = () => this.markToDel();
-	}
-	_showPost(post) {
-		if(this.el) {
-			$del(this.el);
-		}
-		const pviewEl = this.el = post.el.cloneNode(true);
-		const isMyPost = Cfg.markMyPosts && MyPosts.has(this.num);
-		pByEl.set(pviewEl, this);
-		pviewEl.className = `${ aib.cReply } de-pview${
-			post.viewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }`;
-		$show(pviewEl);
-		$each($Q('.de-post-hiddencontent', pviewEl), el => el.classList.remove('de-post-hiddencontent'));
-		if(Cfg.linksNavig) {
-			Pview._markLink(pviewEl, this.parent.num);
-		}
-		this._pref = $q(aib.qPostRef, pviewEl);
-		this._link.classList.add('de-link-parent');
-		const pText = `<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>${
-			post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : ''
-		}<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>${
-			post.deleted ? '' : `<span class="de-post-counter-pview">${
-				post.isOp ? 'OP' : post.count + +!aib.JsonBuilder }${ isMyPost ? ' (You)' : '' }</span>` }`;
-		if(post instanceof CacheItem) {
-			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
-			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
-				new VideosParser().parse(this).endParser();
-			}
-			embedPostMsgImages(pviewEl);
-			processImgInfoLinks(pviewEl);
-		} else {
-			let el = this._pref.nextSibling;
-			this.btns = el;
-			this.isOp = post.isOp;
-			el.classList.remove('de-post-counter');
-			if(post.hidden) {
-				el.classList.add('de-post-hide');
-			}
-			el.innerHTML = `<svg class="de-btn-${ post.hidden ? 'unhide' : 'hide' }${
-				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ this.num }"><!--
-				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
-				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && post.isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`,
-				pviewEl), $del);
-			$each($Q(aib.qPostImg, pviewEl), el => $show(el.parentNode));
-			el = $q('.de-link-parent', pviewEl);
-			if(el) {
-				el.classList.remove('de-link-parent');
-			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
-				if(post.videos.playerInfo !== null) {
-					Object.defineProperty(this, 'videos',
-						{ value: new Videos(this, $q('.de-video-obj', pviewEl), post.videos.playerInfo) });
-				}
-				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pviewEl), true);
-			}
-			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pviewEl), $show);
-			}
-			if(Cfg.markViewed) {
-				this._readDelay = setTimeout(post => {
-					if(!post.viewed) {
-						post.el.classList.add('de-viewed');
-						post.viewed = true;
-					}
-					const arr = (sesStorage['de-viewed'] || '').split(',');
-					arr.push(post.num);
-					sesStorage['de-viewed'] = arr;
-				}, post.text.length > 100 ? 2e3 : 500, post);
-			}
-		}
-		pviewEl.addEventListener('click', this, true);
-		this._showPview(pviewEl);
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -11246,10 +11200,10 @@ class CacheItem {
 	constructor(el, count) {
 		this.count = count;
 		this.el = el;
-		this.deleted = false;
+		this.isDeleted = false;
+		this.isInited = false;
 		this.isOp = count === 0;
-		this.itemInited = false;
-		this.viewed = false;
+		this.isViewed = false;
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -11266,23 +11220,29 @@ class CacheItem {
 		Object.defineProperty(this, 'sage', { value });
 		return value;
 	}
+	get title() {
+		return new Post.Сontent(this).title;
+	}
 }
 
 class PviewsCache extends TemporaryContent {
 	constructor(form, b, tNum) {
 		super(b + tNum);
-		if(this._inited) {
+		if(this._isInited) {
 			return;
 		}
-		this._inited = true;
+		this._isInited = true;
 		const pByNum = new Map();
 		const thr = $q(aib.qThread, form) || form;
 		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-		for(let i = 0, len = posts.length; i < len; ++i) {
+		const pcount = posts.length;
+		for(let i = 0; i < pcount; ++i) {
 			const post = posts[i];
 			pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 		}
-		pByNum.set(tNum, this._opObj = new CacheItem(aib.getOp(thr), 0));
+		this._opObj = new CacheItem(aib.getOp(thr), 0);
+		this._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount, title: this._opObj.title };
+		pByNum.set(tNum, this._opObj);
 		this._b = b;
 		this._tNum = tNum;
 		this._tUrl = aib.getThrUrl(b, tNum);
@@ -11293,7 +11253,7 @@ class PviewsCache extends TemporaryContent {
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.itemInited) {
+		if(!post || post.isInited) {
 			return post;
 		}
 		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
@@ -11302,10 +11262,9 @@ class PviewsCache extends TemporaryContent {
 		post.el = aib.fixHTML(post.el);
 		delete post.msg;
 		if(post.ref.hasMap) {
-			post.ref.initPostRef(this._tUrl,
-				Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null);
+			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 		}
-		post.itemInited = true;
+		post.isInited = true;
 		return post;
 	}
 }
@@ -11329,8 +11288,8 @@ class ImagesNavigBtns {
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
-		this._hidden = true;
 		this._hideTmt = 0;
+		this._isHidden = true;
 		this._oldX = -1;
 		this._oldY = -1;
 		this._viewer = viewerObj;
@@ -11354,7 +11313,7 @@ class ImagesNavigBtns {
 				this._btns.addEventListener('mouseout', this);
 				this._btns.addEventListener('click', this);
 			}
-			if(!this._hidden) {
+			if(!this._isHidden) {
 				clearTimeout(this._hideTmt);
 				KeyEditListener.setTitle(this.prevBtn, 4);
 				KeyEditListener.setTitle(this.nextBtn, 17);
@@ -11378,7 +11337,7 @@ class ImagesNavigBtns {
 	}
 	hideBtns() {
 		this._btnsStyle.display = 'none';
-		this._hidden = true;
+		this._isHidden = true;
 		this._oldX = this._oldY = -1;
 	}
 	removeBtns() {
@@ -11387,9 +11346,9 @@ class ImagesNavigBtns {
 		clearTimeout(this._hideTmt);
 	}
 	showBtns() {
-		if(this._hidden) {
+		if(this._isHidden) {
 			this._btnsStyle.removeProperty('display');
-			this._hidden = false;
+			this._isHidden = false;
 			this._setHideTmt();
 		}
 	}
@@ -11459,7 +11418,7 @@ class ImagesViewer {
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
-				el.target.className !== 'de-fullimg-load'
+				el.className !== 'de-fullimg-load'
 			) {
 				return;
 			}
@@ -11544,7 +11503,7 @@ class ImagesViewer {
 		const { data } = this;
 		data.cancelWebmLoad(this._fullEl);
 		if(data.inPview && data.post.isSticky) {
-			data.post.setSticky(false);
+			data.post.toggleSticky(false);
 		}
 		$del(this._obj);
 		if(e && data.inPview) {
@@ -11586,7 +11545,7 @@ class ImagesViewer {
 		this._elStyle.left = `${ this._oldL = parseInt(cPointX - width / 2, 10) }px`;
 		this._elStyle.top = `${ this._oldT = parseInt(cPointY - height / 2, 10) }px`;
 	}
-	_rotate(el) {
+	_rotateFullImg(el) {
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -11602,13 +11561,14 @@ class ImagesViewer {
 	}
 	_showFullImg(data) {
 		const [width, height, minSize] = data.computeFullSize();
-		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotate(el));
+		this._fullEl = data.getFullImg(false, el => this._resizeFullImg(el), el => this._rotateFullImg(el));
 		this._width = width;
 		this._height = height;
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center" style="top:${
+		const el = $add(`<div class="de-fullimg-center${
+			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
@@ -11620,7 +11580,7 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(data.inPview && !data.post.isSticky) {
-			this.data.post.setSticky(true);
+			this.data.post.toggleSticky(true);
 		}
 		const btns = this._btns;
 		if(!data.inPview) {
@@ -11710,7 +11670,9 @@ class ExpandableImage {
 	}
 	computeFullSize() {
 		if(!this._size) {
-			return this._getThumbSize();
+			const iEl = new Image();
+			iEl.src = this.el.src;
+			return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 		}
 		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
@@ -11784,7 +11746,7 @@ class ExpandableImage {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
 				post = isForward ? Thread.first.op : Thread.last.last;
-				if(post.hidden || post.thr.hidden) {
+				if(post.isHidden || post.thr.isHidden) {
 					post = post.getAdjacentVisPost(!isForward);
 					if(!post) {
 						return null;
@@ -11808,7 +11770,7 @@ class ExpandableImage {
 			name = origSrc.split('/').pop();
 		}
 		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
-			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }</a>`;
+			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
@@ -11819,33 +11781,34 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</div>
+				<div class="de-fullimg-info">${ imgNameEl }</a></div>
 			</div>`);
-			const img = $q('.de-fullimg', wrapEl);
-			img.onload = img.onerror = ({ target }) => {
-				if(target.naturalHeight + target.naturalWidth === 0) {
-					if(!target.onceLoaded) {
-						target.src = target.src;
-						target.onceLoaded = true;
+			const imgEl = $q('.de-fullimg', wrapEl);
+			imgEl.onload = imgEl.onerror = ({ target: img }) => {
+				if(!(img.naturalHeight + img.naturalWidth)) {
+					if(!img.onceLoaded) {
+						img.src = img.src;
+						img.onceLoaded = true;
 					}
 					return;
 				}
-				const { naturalWidth: newW, naturalHeight: newH } = target;
+				const { naturalWidth: newW, naturalHeight: newH } = img;
 				const ar = this._size ? this._size[1] / this._size[0] : newH / newW;
-				const isExifRotated = target.scrollHeight / target.scrollWidth > 1 ? ar < 1 : ar > 1;
-				if(!this._size || isExifRotated) {
-					this._size = isExifRotated ? [newH, newW] : [newW, newH];
+				const isRotated = !img.scrollWidth ? false :
+					img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
+				if(!this._size || isRotated) {
+					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
-				const el = target.previousElementSibling;
-				if(el) {
-					const p = el.parentNode;
-					$hide(el);
-					p.classList.remove('de-fullimg-wrap-nosize');
+				const waitEl = img.previousElementSibling;
+				if(waitEl) {
+					const parentEl = img.parentNode;
+					$hide(waitEl);
+					parentEl.classList.remove('de-fullimg-wrap-nosize');
 					if(onsizechange) {
-						onsizechange(p);
+						onsizechange(parentEl);
 					}
-				} else if(isExifRotated && onrotate) {
-					onrotate(target.parentNode);
+				} else if(isRotated && onrotate) {
+					onrotate(img.parentNode);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
@@ -11861,13 +11824,17 @@ class ExpandableImage {
 			const [width, height] = this.computeFullSize();
 			inPostSize = ` style="width: ${ width }px; height: ${ height }px;"`;
 		}
+		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
+		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" loop autoplay ` +
+			<video style="width: inherit; height: inherit" src="${ src }" ` +
+				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
 			<div class="de-fullimg-info">
-				${ imgNameEl }
-				${ needTitle ? '<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' : '' }
+				${ imgNameEl }${ hasTitle && title ? ` - ${ title }` : '' }</a>
+				${ needTitle && !hasTitle ? `<svg class="de-wait">
+					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
 		const videoEl = wrapEl.firstElementChild;
@@ -11881,9 +11848,9 @@ class ExpandableImage {
 		});
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', e => {
-			const val = e.target.muted ? 0 : Math.round(e.target.volume * 100);
-			if(e.isTrusted && val !== Cfg.webmVolume) {
+		videoEl.addEventListener('volumechange', ({ target, isTrusted }) => {
+			const val = target.muted ? 0 : Math.round(target.volume * 100);
+			if(isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
@@ -11895,35 +11862,33 @@ class ExpandableImage {
 				href }" target="_blank">${ href }</a>`, false);
 		}
 		// Get webm title: load file and parse its metadata
-		if(needTitle) {
-			this._webmTitleLoad = downloadImgData(videoEl.src, false).then(data => {
+		if(needTitle && !hasTitle) {
+			this._webmTitleLoad = ContentLoader.loadImgData(videoEl.src, false).then(data => {
 				$hide($q('.de-wait', wrapEl));
 				if(!data) {
 					return;
 				}
-				let title = '', d = (new WebmParser(data.buffer)).getWebmData();
+				let str = '', d = (new WebmParser(data.buffer)).getWebmData();
 				if(!d) {
 					return;
 				}
 				d = d[0];
-				for(let i = 0, len = d.length; i < len; i++) {
+				for(let i = 0, len = d.length; i < len; ++i) {
 					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 &&
-						d[i + 1] === 0xA9 &&
-						d[i + 2] === 0x66 &&
-						d[i + 18] === 0x7B &&
-						d[i + 19] === 0xA9
+					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
+						d[i + 18] === 0x7B && d[i + 19] === 0xA9
 					) {
 						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; i++) {
-							title += String.fromCharCode(d[i]);
-						}
-						if(title) {
-							$q('.de-fullimg-src', wrapEl).textContent +=
-								` - ${ videoEl.title = decodeURIComponent(escape(title)) }`;
+						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
+							str += String.fromCharCode(d[i]);
 						}
 						break;
 					}
+				}
+				const loadedTitle = decodeURIComponent(escape(str));
+				this.el.setAttribute('de-metatitle', loadedTitle);
+				if(str) {
+					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
 				}
 			});
 		}
@@ -11931,15 +11896,15 @@ class ExpandableImage {
 		return wrapEl;
 	}
 	sendCloseEvent(e, inPost) {
-		let pv = this.post;
-		let cr = pv.el.getBoundingClientRect();
+		let { post } = this;
+		let cr = post.el.getBoundingClientRect();
 		const x = e.pageX - window.pageXOffset;
 		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-				pv = pv.parent;
-				if(pv && (pv instanceof Pview)) {
-					cr = pv.el.getBoundingClientRect();
+				post = post.parent;
+				if(post && (post instanceof Pview)) {
+					cr = post.el.getBoundingClientRect();
 				} else {
 					if(Pview.top) {
 						Pview.top.markToDel();
@@ -11947,7 +11912,7 @@ class ExpandableImage {
 					return;
 				}
 			}
-			pv.mouseEnter();
+			post.mouseEnter();
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
@@ -11957,11 +11922,6 @@ class ExpandableImage {
 		const value = this._getImageSize();
 		Object.defineProperty(this, '_size', { value, writable: true });
 		return value;
-	}
-	_getThumbSize() {
-		const iEl = new Image();
-		iEl.src = this.el.src;
-		return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
 	}
 }
 
@@ -12120,9 +12080,42 @@ const ImagesHashStorage = Object.create({
 		}
 	},
 	get _workers() {
-		const value = new WorkerPool(4, genImgHash, emptyFn);
+		const value = new WorkerPool(4, this._genImgHash, emptyFn);
 		Object.defineProperty(this, '_workers', { value, configurable: true });
 		return value;
+	},
+	_genImgHash: ([arrBuf, oldw, oldh]) => {
+		const buf = new Uint8Array(arrBuf);
+		const size = oldw * oldh;
+		for(let i = 0, j = 0; i < size; i++, j += 4) {
+			buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+		}
+		const newh = 8;
+		const neww = 8;
+		const levels = 3;
+		const areas = 256 / levels;
+		const values = 256 / (levels - 1);
+		let hash = 0;
+		for(let i = 0; i < newh; ++i) {
+			for(let j = 0; j < neww; ++j) {
+				let tmp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(tmp | 0, oldh - 2);
+				const u = tmp - l;
+				tmp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(tmp | 0, oldw - 2);
+				const t = tmp - c;
+				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
+					buf[l * oldw + c + 1] * (t * (1 - u)) +
+					buf[(l + 1) * oldw + c + 1] * (t * u) +
+					buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
+				const g = hash & 0xF0000000;
+				if(g) {
+					hash ^= g >>> 24;
+				}
+				hash &= ~g;
+			}
+		}
+		return { hash };
 	},
 	async _getHashHelper({ el, src }) {
 		if(src in this._storage) {
@@ -12137,7 +12130,7 @@ const ImagesHashStorage = Object.create({
 		let data, buffer, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
 		if(aib.fch) {
-			const imgData = await downloadImgData(el.src);
+			const imgData = await ContentLoader.loadImgData(el.src);
 			if(imgData) {
 				({ buffer } = imgData);
 			}
@@ -12172,7 +12165,7 @@ function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgN
 		return;
 	}
 	const els = $Q(aib.qImgNameLink, el);
-	for(let i = 0, len = els.length; i < len; i++) {
+	for(let i = 0, len = els.length; i < len; ++i) {
 		const link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -12213,40 +12206,6 @@ function embedPostMsgImages(el) {
 			addImgSrcButtons(link);
 		}
 	}
-}
-
-function genImgHash([arrBuf, oldw, oldh]) {
-	const buf = new Uint8Array(arrBuf);
-	const size = oldw * oldh;
-	for(let i = 0, j = 0; i < size; i++, j += 4) {
-		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
-	}
-	const newh = 8;
-	const neww = 8;
-	const levels = 3;
-	const areas = 256 / levels;
-	const values = 256 / (levels - 1);
-	let hash = 0;
-	for(let i = 0; i < newh; i++) {
-		for(let j = 0; j < neww; j++) {
-			let tmp = i / (newh - 1) * (oldh - 1);
-			const l = Math.min(tmp | 0, oldh - 2);
-			const u = tmp - l;
-			tmp = j / (neww - 1) * (oldw - 1);
-			const c = Math.min(tmp | 0, oldw - 2);
-			const t = tmp - c;
-			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
-				buf[l * oldw + c + 1] * (t * (1 - u)) +
-				buf[(l + 1) * oldw + c + 1] * (t * u) +
-				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			const g = hash & 0xF0000000;
-			if(g) {
-				hash ^= g >>> 24;
-			}
-			hash &= ~g;
-		}
-	}
-	return { hash };
 }
 
 /* ==[ PostBuilders.js ]======================================================================================
@@ -12303,14 +12262,14 @@ class _4chanPostsBuilder {
 		};
 	}
 	static _setCustomSpoiler(board, val) {
-		if(!_4chanPostsBuilder._customSpoiler[board] && (val = parseInt(val))) {
+		const spoiler = _4chanPostsBuilder._customSpoiler;
+		if(!spoiler[board] && (val = parseInt(val))) {
 			let spoilerEl;
 			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
-				_4chanPostsBuilder._customSpoiler.set(board,
-					spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
+				spoiler.set(board, spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
 			}
 		} else {
-			_4chanPostsBuilder._customSpoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
+			spoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
 		}
 	}
 	get isClosed() {
@@ -12546,7 +12505,7 @@ class DobrochanPostsBuilder {
 
 		// --- POST ---
 		const date = data.date.replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
-			(_, y, mo, d, h, m, s) => {
+			(all, y, mo, d, h, m, s) => {
 				const dt = new Date(y, +mo - 1, d, h, m, s);
 				return `${ pad2(dt.getDate()) } ${ Lng.fullMonth[1][dt.getMonth()] } ${ dt.getFullYear()
 				} (${ Lng.week[1][dt.getDay()] }) ${ pad2(dt.getHours()) }:${ pad2(dt.getMinutes()) }`;
@@ -12724,7 +12683,7 @@ class _0chanPostsBuilder {
 			this._posts[0].message }</div></div>`));
 	}
 	getPNum(i) {
-		return +this._posts[i + 1].id; // Must return a Number, not a String!
+		return +this._posts[i + 1].id;
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i)));
@@ -12789,8 +12748,8 @@ class _0chanPostsBuilder {
 class RefMap {
 	constructor(post) {
 		this.hasMap = false;
-		this._hidden = false;
-		this._inited = false;
+		this._isHidden = false;
+		this._isInited = false;
 		this._post = post;
 		this._set = new Set();
 	}
@@ -12812,7 +12771,7 @@ class RefMap {
 					continue;
 				}
 				const { ref } = posts.get(lNum);
-				if(ref._inited) {
+				if(ref._isInited) {
 					ref.addRefNum(post, pNum);
 				} else {
 					ref._set.add(pNum);
@@ -12834,7 +12793,7 @@ class RefMap {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum, '');
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
 					post.ref.initPostRef('', strNums);
@@ -12844,7 +12803,7 @@ class RefMap {
 	}
 	static updateRefMap(post, isAdd) {
 		const pNum = post.num;
-		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+		const strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 		const links = $Q('a', post.msg);
 		for(let lNum, i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];
@@ -12879,13 +12838,13 @@ class RefMap {
 	}
 	addRefNum(post, num, isHidden = null) {
 		if(isHidden === null) {
-			const strNums = Cfg.strikeHidd && Post.hiddenNums.size !== 0 ? Post.hiddenNums : null;
+			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			isHidden = strNums ? strNums.has(+num) : false;
 		}
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.hidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}
@@ -12898,13 +12857,13 @@ class RefMap {
 		return this._set.has(num);
 	}
 	hideRef(isForced = false) {
-		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._hidden) {
+		if(!isForced && !Cfg.hideRefPsts || !this.hasMap || this._isHidden) {
 			return;
 		}
-		this._hidden = true;
+		this._isHidden = true;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && !post.hidden) {
+			if(post && !post.isHidden) {
 				if(isForced) {
 					post.setUserVisib(true, true, 'reference to >>' + this._post.num);
 					post.ref.hideRef(true);
@@ -12921,14 +12880,14 @@ class RefMap {
 			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
 		}
 		this._createEl(html, false);
-		this._inited = true;
+		this._isInited = true;
 	}
 	makeUnion(oRef) {
 		this._set = new Set([...this._set, ...oRef._set].sort((a, b) => a - b));
 	}
 	removeLink(num) {
 		this._set.delete(num);
-		if(this._set.size === 0) {
+		if(!this._set.size) {
 			this.removeMap();
 		} else {
 			const el = this.getElByNum(num);
@@ -12952,13 +12911,13 @@ class RefMap {
 		}
 	}
 	unhideRef(isForced = false) {
-		if(this._hidden && !this.hasMap) {
+		if(this._isHidden && !this.hasMap) {
 			return;
 		}
-		this._hidden = false;
+		this._isHidden = false;
 		for(const num of this._set) {
 			const post = pByNum.get(num);
-			if(post && post.hidden && !post.spellHidden) {
+			if(post && post.isHidden && !post.spellHidden) {
 				if(isForced) {
 					post.setUserVisib(false);
 					post.ref.unhideRef(true);
@@ -12973,7 +12932,7 @@ class RefMap {
 	get _el() {
 		let value = $q('.de-refmap', this._post.el);
 		if(!value) {
-			this._createEl('', this._post.hidden);
+			this._createEl('', this._post.isHidden);
 			value = $q('.de-refmap', this._post.el);
 		}
 		Object.defineProperty(this, '_el', { value, configurable: true });
@@ -13004,8 +12963,9 @@ class RefMap {
 class Thread {
 	constructor(el, num, prev, form) {
 		this.hasNew = false;
-		this.hidden = false;
 		this.hidCounter = 0;
+		this.isFav = false;
+		this.isHidden = false;
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
@@ -13023,36 +12983,28 @@ class Thread {
 		}
 		let lastPost = this.op = new Post(aib.getOp(el), this, num, 0, true, prev ? prev.last : null);
 		pByEl.set(el, lastPost);
-		for(let i = 0; i < len; i++) {
+		for(let i = 0; i < len; ++i) {
 			const pEl = els[i];
 			lastPost = new Post(pEl, this, aib.getPNum(pEl), omt + i, false, lastPost);
 		}
 		this.last = lastPost;
-		el.style.counterReset = 'de-cnt ' + omt;
 		el.setAttribute('de-thread', null);
 		visPosts = Math.max(visPosts, len);
-		if(aib.t) {
+		if(localData) {
 			return;
 		}
-		this.btns = $bEnd(el, '<div class="de-thread-buttons">' +
-			'<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>]</span></div>');
-		const updBtn = this.btns.firstChild;
-		updBtn.onclick = e => {
-			$pd(e);
-			this.loadPosts('new');
-		};
-		if(Cfg.hideReplies) {
-			const repBtn = $bEnd(this.btns,
-				' <span class="de-replies-btn">[<a class="de-abtn" href="#"></a>]</span>');
-			repBtn.onclick = e => {
-				$pd(e);
-				const nextCoord = !this.next || this.last.omitted ? null : this.next.top;
-				this._toggleReplies(repBtn, updBtn);
-				if(nextCoord) {
-					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
-				}
-			};
-			this._toggleReplies(repBtn, updBtn);
+		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
+			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
+			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
+				(aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
+			) + '</div>');
+		this.btns.addEventListener('click', this);
+		this.btns.addEventListener('mouseover', this);
+		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		if(!aib.t && Cfg.hideReplies) {
+			this.btnReplies = $bEnd(this.btns,
+				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
+			this._toggleReplies();
 		}
 	}
 	static get first() {
@@ -13065,23 +13017,23 @@ class Thread {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
-		return this.hidden ? this.op.bottom : this.last.bottom;
+		return this.isHidden ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
 		let post = this.last;
-		while(post.deleted) {
+		while(post.isDeleted) {
 			post = post.prev;
 		}
 		return post;
 	}
 	get nextNotHidden() {
 		let thr;
-		for(thr = this.next; thr && thr.hidden; thr = thr.next) /* empty */;
+		for(thr = this.next; thr && thr.isHidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
 		let thr;
-		for(thr = this.prev; thr && thr.hidden; thr = thr.prev) /* empty */;
+		for(thr = this.prev; thr && thr.isHidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get top() {
@@ -13104,10 +13056,65 @@ class Thread {
 			count++;
 		} while(delAll && post);
 		for(let tPost = post; tPost; tPost = tPost.nextInThread) {
-			tPost.count -= count;
+			if(!tPost.isDeleted) {
+				tPost.count -= count;
+				tPost.counterEl.textContent = tPost.count + 1;
+			}
 		}
 		this.pcount -= count;
 		return post;
+	}
+	handleEvent(e) {
+		$pd(e);
+		const el = fixEventEl(e.target);
+		const elClass = el.classList[0];
+		const nextThr = this.next;
+		let oldCoord = false;
+		if(e.type === 'click') {
+			switch(elClass) {
+			case 'de-btn-fav': this.toggleFavState(true); break;
+			case 'de-btn-fav-sel': this.toggleFavState(false); break;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide-user':
+				oldCoord = nextThr && nextThr.top;
+				this.op.setUserVisib(!this.isHidden);
+				break;
+			case 'de-btn-rep': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-replies':
+			case 'de-replies-show':
+			case 'de-replies-hide':
+				oldCoord = !nextThr || this.last.isOmitted ? null : nextThr.top;
+				this._toggleReplies();
+				break;
+			case 'de-thr-collapse':
+			case 'de-thr-collapse-link': this.loadPosts(visPosts, true); break;
+			case 'de-thr-updater':
+			case 'de-thr-updater-link':
+				if(aib.t) {
+					updater.forceLoad();
+				} else {
+					this.loadPosts('new');
+				}
+			}
+			if(oldCoord) {
+				scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
+			}
+		} else if(e.type === 'mouseover') {
+			switch(el.classList[0]) {
+			case 'de-btn-rep':
+				this.btns.title = Lng.replyToThr[lang];
+				quotetxt = window.getSelection().toString();
+				return;
+			case 'de-btn-hide':
+			case 'de-btn-hide-user':
+			case 'de-btn-unhide':
+			case 'de-btn-unhide-user': this.btns.title = Lng.toggleThr[lang]; return;
+			case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
+			case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+			default: this.btns.removeAttribute('title');
+			}
+		}
 	}
 	/*
 	* Thread loading via ajax.
@@ -13128,7 +13135,7 @@ class Thread {
 		}
 		return ajaxPostsLoad(aib.b, this.thrId, false).then(
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
-			e => $popup('load-thr', getErrorMessage(e)));
+			err => $popup('load-thr', getErrorMessage(err)));
 	}
 	/*
 	* New posts loading via ajax.
@@ -13140,31 +13147,36 @@ class Thread {
 		return ajaxPostsLoad(aib.b, this.thrId, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
-	setFavorState(val) {
-		this.op.setFavBtn(val);
+	toggleFavState(isEnable, preview = null) {
+		let h, b, num, cnt, txt, last;
+		if(preview) {
+			preview.toggleFavBtn(isEnable);
+		}
+		if(!preview || preview.num === this.num) { // Oppost or usual preview
+			this.op.toggleFavBtn(isEnable);
+			this.isFav = isEnable;
+			({ host: h, b } = aib);
+			num = this.thrId;
+			cnt = this.pcount;
+			txt = this.op.title;
+			last = aib.anchor + this.last.num;
+		} else { // Loaded preview for oppost in remote thread
+			h = aib.host;
+			({ brd: b, num } = preview);
+			cnt = preview.remoteThr.pcount;
+			txt = preview.remoteThr.title;
+			last = aib.anchor + preview.remoteThr.lastNum;
+		}
 		readFavorites().then(favObj => {
-			const { b, host: h } = aib;
-			const num = this.thrId;
-			if(val) {
-				if(!favObj[h]) {
-					favObj[h] = {};
-				}
-				if(!favObj[h][b]) {
-					favObj[h][b] = {};
-				}
-				favObj[h][b].url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				favObj[h][b][num] = {
-					cnt  : this.pcount,
-					new  : 0,
-					you  : 0,
-					txt  : this.op.title,
-					url  : aib.getThrUrl(b, num),
-					last : aib.anchor + this.last.num
-				};
+			if(isEnable) {
+				let f = favObj[h] || (favObj[h] = {});
+				f = f[b] || (f[b] = {});
+				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
+				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, favObj, val ? 'add' : 'delete']);
+			sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
 	}
@@ -13172,11 +13184,11 @@ class Thread {
 		let thr = this;
 		do {
 			const realHid = data ? data.hasOwnProperty(thr.num) : false;
-			if(thr.hidden ^ realHid) {
+			if(thr.isHidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
 					data[thr.num] = thr.op.title;
-				} else if(thr.hidden) {
+				} else if(thr.isHidden) {
 					thr.op.setUserVisib(false, false);
 				}
 			}
@@ -13200,7 +13212,7 @@ class Thread {
 		}
 		processImgInfoLinks(el);
 		post.addFuncs();
-		preloadImages(post);
+		ContentLoader.preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
@@ -13230,7 +13242,7 @@ class Thread {
 				html.push(pBuilder.getPostHTML(i));
 				nums.push(pBuilder.getPNum(i));
 			}
-			const temp = document.createElement('template');
+			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
 			const posts = $Q(aib.qRPost, fragm);
@@ -13299,7 +13311,7 @@ class Thread {
 		if(needToHide) {
 			while(existed-- !== needToShow) {
 				post.wrap.classList.add('de-hidden');
-				post.omitted = true;
+				post.isOmitted = true;
 				post = post.next;
 			}
 		} else {
@@ -13328,9 +13340,9 @@ class Thread {
 				const newMsg = doc.adoptNode($q(aib.qPostMsg, pBuilder.getPostEl(post.count - 1)));
 				post.updateMsg(aib.fixHTML(newMsg), maybeSpells.value);
 			}
-			if(post.omitted) {
+			if(post.isOmitted) {
 				post.wrap.classList.remove('de-hidden');
-				post.omitted = false;
+				post.isOmitted = false;
 			}
 			if(needRMUpdate) {
 				RefMap.updateRefMap(post, true);
@@ -13340,25 +13352,20 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		thrEl.style.counterReset = `de-cnt ${ needToOmit - needToHide + 1 }`;
-		const btn = this.btns;
-		if(btn !== thrEl.lastChild) {
-			thrEl.appendChild(btn);
+		const { btns } = this;
+		if(btns !== thrEl.lastChild) {
+			thrEl.appendChild(btns);
 		}
-		if(!$q('.de-thread-collapse', btn)) {
-			$bEnd(btn, `<span class="de-thread-collapse"> [<a class="de-abtn" href="${
-				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`
-			).onclick = e => {
-				$pd(e);
-				this.loadPosts(visPosts, true);
-			};
+		if(!$q('.de-thr-collapse', btns)) {
+			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
+				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
-			btn.lastChild.style.display = 'initial';
+			btns.lastChild.style.display = 'initial';
 		} else {
 			thrNavPanel.removeThr(this);
-			$hide(btn.lastChild);
+			$hide(btns.lastChild);
 		}
 		if(needToOmit > 0) {
 			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
@@ -13368,9 +13375,9 @@ class Thread {
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
-			$q('.de-replies-btn', this.btns).firstElementChild.className = 'de-abtn de-replies-hide';
+			this.btnReplies.firstElementChild.className = 'de-replies-hide de-abtn';
 			if(Cfg.updThrBtns) {
-				$show(btn.firstChild);
+				$show(this.btnUpd);
 			}
 		}
 		closePopup('load-thr');
@@ -13474,20 +13481,17 @@ class Thread {
 		}
 		return [newPosts, newVisPosts];
 	}
-	_toggleReplies(repBtn, updBtn) {
-		const isHide = !this.last.omitted;
+	_toggleReplies() {
+		const isHide = !this.last.isOmitted;
 		let post = this.op;
 		let i = 0;
-		for(; post !== this.last; i++) {
-			(post = post.next).omitted = isHide;
+		for(; post !== this.last; ++i) {
+			(post = post.next).isOmitted = isHide;
 			post.wrap.classList.toggle('de-hidden', isHide);
 		}
-		repBtn.firstElementChild.className = `de-abtn ${ isHide ? 'de-replies-show' : 'de-replies-hide' }`;
-		$toggle(updBtn, !isHide);
-		const colBtn = $q('.de-thread-collapse', this.el);
-		if(colBtn) {
-			$toggle(colBtn, !isHide);
-		}
+		this.btnReplies.firstElementChild.className =
+			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
+		$each(this.btns.children, el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
@@ -13533,7 +13537,7 @@ const thrNavPanel = {
 	},
 	removeThr(thr) {
 		this._thrs.delete(thr.el);
-		if(this._thrs.size === 0) {
+		if(!this._thrs.size) {
 			$hide(this._el);
 			this._currentThr = null;
 			this._visible = false;
@@ -13565,26 +13569,20 @@ const thrNavPanel = {
 		}
 	},
 	_findCurrentThread() {
-		if('elementsFromPoint' in doc) {
-			Object.defineProperty(this, '_findCurrentThread', {
-				value() {
-					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
-						.find(el => this._thrs.has(el));
-				}
-			});
-			return this._findCurrentThread();
-		}
 		Object.defineProperty(this, '_findCurrentThread', {
-			value() {
-				let el = document.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
-				while(el) {
-					if(this._thrs.has(el)) {
-						return el;
+			value: 'elementsFromPoint' in doc ?
+				() => doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2)
+					.find(el => this._thrs.has(el)) :
+				() => {
+					let el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
+					while(el) {
+						if(this._thrs.has(el)) {
+							return el;
+						}
+						el = el.parentElement;
 					}
-					el = el.parentElement;
+					return undefined;
 				}
-				return undefined;
-			}
 		});
 		return this._findCurrentThread();
 	},
@@ -13931,12 +13929,12 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			return value;
 		},
-		_handleNewPosts(lPosts, error) {
-			if(error instanceof CancelError) {
+		_handleNewPosts(lPosts, err) {
+			if(err instanceof CancelError) {
 				return;
 			}
-			infoLoadErrors(error, false);
-			const eCode = error instanceof AjaxError ? error.code : 0;
+			infoLoadErrors(err, false);
+			const eCode = err instanceof AjaxError ? err.code : 0;
 			if(eCode !== 200 && eCode !== 304) {
 				if(doc.hidden && favicon.canBlink) {
 					favicon.startBlink(true);
@@ -13953,7 +13951,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._makeStep();
 				}
 				lastECode = eCode;
-				updateFavorites(aib.t, getErrorMessage(error), 'error');
+				updateFavorites(aib.t, getErrorMessage(err), 'error');
 				return;
 			}
 			if(lastECode !== 200) {
@@ -14001,7 +13999,7 @@ function initThreadUpdater(title, enableUpdate) {
 					this._loadPromise = Thread.first.loadNewPosts().then(
 						({ newCount, locked }) =>
 							this._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success),
-						e => this._handleNewPosts(0, e));
+						err => this._handleNewPosts(0, err));
 					return;
 				case 2:
 					this._loadPromise = null;
@@ -14246,23 +14244,23 @@ class DelForm {
 		const threads = [];
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
-			const node = fNodes[i];
-			if(node.tagName === 'HR') {
-				formEl.insertBefore(cThr, node);
+			const el = fNodes[i];
+			if(el.tagName === 'HR') {
+				formEl.insertBefore(cThr, el);
 				if(!aib.tinyib) {
-					formEl.insertBefore(cThr.lastElementChild, node);
+					formEl.insertBefore(cThr.lastElementChild, el);
 				}
-				const el = cThr.lastElementChild;
-				if(el.tagName === 'BR') {
-					formEl.insertBefore(el, node);
+				const lastEl = cThr.lastElementChild;
+				if(lastEl.tagName === 'BR') {
+					formEl.insertBefore(lastEl, el);
 				}
 				try {
 					aib.getTNum(cThr);
 					threads.push(cThr);
-				} catch(e) {}
+				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
-				cThr.appendChild(node);
+				cThr.appendChild(el);
 			}
 		}
 		cThr.appendChild(fNodes[i]);
@@ -14285,12 +14283,12 @@ class DelForm {
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete).catch(
-						e => $popup('delete', getErrorMessage(e)));
+						err => $popup('delete', getErrorMessage(err)));
 				};
 			}
 			Logger.log('Init AJAX');
 		}
-		preloadImages(el);
+		ContentLoader.preloadImages(el);
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');
@@ -14314,8 +14312,8 @@ function checkStorage() {
 	try {
 		locStorage = window.localStorage;
 		sesStorage = window.sessionStorage;
-		sesStorage['__de-test'] = 1;
-	} catch(e) {
+		sesStorage['de-test'] = 1;
+	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
 			locStorage = unsafeWindow.localStorage;
 			sesStorage = unsafeWindow.sessionStorage;
@@ -14343,8 +14341,8 @@ function initNavFuncs() {
 		try {
 			isGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
-		} catch(e) {
-			isGM = e.message === 'Permission denied to access property "toString"';
+		} catch(err) {
+			isGM = err.message === 'Permission denied to access property "toString"';
 		}
 		scriptHandler = isChromeStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
@@ -14374,7 +14372,7 @@ function initNavFuncs() {
 		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
-	} catch(e) {
+	} catch(ett) {
 		needFileHack = true;
 	}
 	if(needFileHack && FormData) {
@@ -14414,14 +14412,13 @@ function initNavFuncs() {
 		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
 		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
-		fixLink: isSafari ? getAbsLink : url => url,
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
 			return value;
 		},
 		get hasTemplate() {
-			const value = 'content' in document.createElement('template');
+			const value = 'content' in doc.createElement('template');
 			Object.defineProperty(this, 'hasTemplate', { value });
 			return value;
 		},
@@ -14429,7 +14426,7 @@ function initNavFuncs() {
 			let value = false;
 			try {
 				value = 'Worker' in window && 'URL' in window;
-			} catch(e) {}
+			} catch(err) {}
 			value = value && this.firefoxVer >= 40;
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
@@ -14443,20 +14440,19 @@ function initNavFuncs() {
 			return value;
 		},
 		get viewportHeight() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientHeight : () => docBody.clientHeight;
 			Object.defineProperty(this, 'viewportHeight', { value });
 			return value;
 		},
 		get viewportWidth() {
-			const value = document.compatMode && document.compatMode === 'CSS1Compat' ?
+			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches(leftSel, ...rules) {
-			return leftSel + rules.join(', ' + leftSel);
-		},
+		cssMatches : (leftSel, ...rules) => leftSel + rules.join(', ' + leftSel),
+		fixLink    : isSafari ? getAbsLink : url => url,
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
@@ -14465,7 +14461,7 @@ function initNavFuncs() {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
 					}
-				} catch(e) {
+				} catch(err) {
 					Ctor = unsafeWindow.Uint8Array;
 				}
 			}
@@ -14526,7 +14522,7 @@ class BaseBoard {
 		this.formTd = 'td';
 		this.hasAltCaptcha = false; // Differs _4chanOrg only
 		this.hasCatalog = false;
-		this.hasOPNum = false; // Sets in Makaba only
+		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
 		this.host = window.location.hostname;
@@ -14678,7 +14674,7 @@ class BaseBoard {
 			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
 				try {
 					return decodeURI(match);
-				} catch(e) {}
+				} catch(err) {}
 				return match;
 			});
 		}
@@ -14741,8 +14737,7 @@ class BaseBoard {
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
-		let txt;
-		return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
+		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
 	getOp(thr) { // Differs Arhivach only
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
@@ -14767,7 +14762,7 @@ class BaseBoard {
 		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 	}
 	getPNum(post) {
-		return +post.id.match(/\d+/)[0]; // Must return a Number, not a String!
+		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
 		const sel = this.qRPost + ', [de-thread]';
@@ -14783,19 +14778,8 @@ class BaseBoard {
 		if(isOp) {
 			return el;
 		}
-		if(el.tagName === 'TD') {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el, isOp) {
-					return isOp ? el : $parent(el, 'TABLE');
-				}
-			});
-		} else {
-			Object.defineProperty(this, 'getPostWrap', {
-				value(el) {
-					return el;
-				}
-			});
-		}
+		Object.defineProperty(this, 'getPostWrap',
+			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : $parent(el, 'TABLE') : el => el });
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
@@ -14812,7 +14796,7 @@ class BaseBoard {
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
-		return status === 200;
+		return status === 200 || status === 206;
 	}
 	parseURL() {
 		const url = (window.location.pathname || '').replace(/^\//, '');
@@ -14882,13 +14866,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
-					img[alt="webm file"], .kupi-passcode-suka, .logo + hr, .media-expand-button,
-					#media-thumbnail, .message-byte-len, .nav-arrows, .news, .norm-reply, .postform-hr,
-					.postpanel > :not(img), .posts > hr, .prerekl-hr, .reflink::before, .thread-nav,
-					.toolbar-area, .top-user-boards + hr { display: none !important; }
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
+					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
+					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
+					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
+						display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
-				#de-txt-panel { font-size: 16px !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
@@ -14899,7 +14882,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
-				${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }`;
 		}
@@ -14918,12 +14900,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			$del(el);
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 8; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="image${ i + 1 }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="image${ i + 1 }"></div>`
+			).join('');
 		}
 		getBanId(postEl) {
 			const el = $q(this.qBan, postEl);
@@ -15020,7 +14999,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
-				} catch(e) {}
+				} catch(err) {}
 				switch(data.result) {
 				case 0:
 					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
@@ -15155,15 +15134,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			}, errFn);
 		}
 		fixVideo(isPost, data) {
-			const videos = [];
-			const els = $Q('.video-container, #ytplayer', isPost ? data.el : data);
-			for(let i = 0, len = els.length; i < len; ++i) {
-				const el = els[i];
-				videos.push([isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
-					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
+			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
+				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
+					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 				$del(el);
-			}
-			return videos;
+				return value;
+			});
 		}
 		getImgRealName(wrap) {
 			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
@@ -15172,11 +15148,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('window.FormData = void 0');
@@ -15195,7 +15171,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400;
+			return status === 200 || status === 206 || status === 400;
 		}
 		updateSubmitBtn() {}
 	}
@@ -15220,12 +15196,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 5; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : ''
-				}><input type="file" name="file${ i ? i + 1 : '' }"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 5 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file${ i ? i + 1 : '' }"></div>`
+			).join('');
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/"\/player\.php\?v=([^&]+)&[^"]+"/g, '"$1"');
@@ -15386,10 +15360,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPostWrap(el, isOp) {
 			return isOp ? el : el.parentNode;
 		}
-		getSubmitData(json) {
+		getSubmitData({ status, data }) {
 			return {
-				error   : json.status === 'error' ? json.data : null,
-				postNum : json.status === 'ok' ? +json.data : null
+				error   : status === 'error' ? data : null,
+				postNum : status === 'ok' ? +data : null
 			};
 		}
 		getTNum(op) {
@@ -15402,25 +15376,24 @@ function getImageBoard(checkDomains, checkEngines) {
 				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
 					'#fieldPostingPassword, #divUpload');
 				for(let i = 0, len = els.length; i < len; ++i) {
-					const td = $bEnd(table, '<tr><th></th><td></td></tr>').lastChild;
-					td.appendChild(els[i]);
+					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
 				}
 			}
 			return false;
 		}
 		isAjaxStatusOK(status) {
-			return status === 200 || status === 400 || status === 500;
+			return status === 200 || status === 206 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
 			const getBase64 = async file => new Promise((resolve, reject) => {
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
 				reader.onload = () => resolve(reader.result);
-				reader.onerror = error => reject(error);
+				reader.onerror = err => reject(err);
 			});
 			const getCookies = () => {
 				const obj = {};
-				const cookies = document.cookie.split(';');
+				const cookies = doc.cookie.split(';');
 				for(let i = 0, len = cookies.length; i < len; ++i) {
 					const parts = cookies[i].split('=');
 					obj[parts.shift().trim()] = decodeURI(parts.join('='));
@@ -15542,8 +15515,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				initObserver.disconnect();
-				doc.defaultView.addEventListener('message', ({ data }) => {
-					if(data !== '0chan-content-done') {
+				doc.defaultView.addEventListener('message', e => {
+					if(e.data !== '0chan-content-done') {
 						return;
 					}
 					if(updater) {
@@ -15567,7 +15540,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.page = 0;
 		}
 		thrId(op) {
-			return $q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/)[0];
+			return +$q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/);
 		}
 	}
 	ibDomains['0chan.hk'] = _0chanHk;
@@ -15631,7 +15604,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el;
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
@@ -15707,7 +15680,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getOmitted(el, len) {
 			let txt;
-			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
+			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
 		getPageUrl(b, p) {
 			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
@@ -15761,7 +15734,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thread-buttons { float: left; }
+				form > .de-thr-buttons { float: left; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { position: static; }`;
 		}
@@ -15781,7 +15754,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
 							el => $after(backBtn.lastChild, el));
 					}
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return el;
 		}
@@ -15924,12 +15897,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				try {
 					postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
-				} catch(e) {}
+				} catch(err) {}
 			}
 			return { error, postNum };
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -16013,6 +15986,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.post:not(:first-child):not([postid=""])';
 
 			this.docExt = '';
+			this.hasOPNum = true;
 			this.res = 'thread/';
 		}
 		get qImgNameLink() {
@@ -16022,28 +15996,28 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread_inner';
 		}
 		get css() {
-			return `.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
+			return `.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }
+				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
 					height: auto !important; font: 13px/15px arial !important; }
 				.de-cfg-label.de-block { display: block; }
-				.post_replies, .post_num, .poster_sage, .post[postid=""] { display: none !important; }
-				.post { overflow-x: auto !important; }`;
+				.post { overflow-x: auto !important; }
+				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
 		}
 		get isArchived() {
 			return true;
 		}
 		fixHTML(data, isForm) {
 			const el = super.fixHTML(data, isForm);
-			try {
-				const els = $Q('.expand_image', el);
-				for(let i = 0, tLen = els.length; i < tLen; ++i) {
-					els[i].href = els[i].getAttribute('onclick').match(/http:\/[^']+/)[0];
-				}
-			} catch(e) {}
+			const links = $Q('.expand_image', el);
+			for(let i = 0, len = links.length; i < len; ++i) {
+				const link = links[i];
+				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
+				link.removeAttribute('onclick');
+			}
 			return el;
 		}
 		getImgInfo(wrap) {
-			const data = wrap.firstElementChild.getAttribute('onclick').match(/'([1-9]\d*)','([1-9]\d*)'/);
-			return data ? `${ data[1] }x${ data[2] }, 0Kb` : null;
+			return wrap.title;
 		}
 		getImgWrap(img) {
 			return $parent(img, 'A').parentNode;
@@ -16061,23 +16035,17 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
 		getTNum(el) {
-			return +this.getOp(el).getAttribute('postid');
+			return this.getPNum(this.getOp(el));
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(() => {
-				const delPosts = $Q('.post[postid=""]');
+				const delPosts = $Q('.post_deleted');
 				for(let i = 0, len = delPosts.length; i < len; ++i) {
-					try {
-						const post = pByNum.get(+$q('blockquote', delPosts[i])
-							.getAttribute('id').substring(1));
-						if(post) {
-							post.deleted = true;
-							post.btns.classList.remove('de-post-counter');
-							post.btns.classList.add('de-post-deleted');
-							post.wrap.classList.add('de-post-removed');
-						}
-					} catch(e) {}
+					const post = pByNum.get(this.getPNum(delPosts[i]));
+					if(post) {
+						post.thr.deletePosts(post, false, false);
+					}
 				}
 			}, 0);
 			return false;
@@ -16228,7 +16196,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 		}
 		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/)[0];
+			return +$q('a[name]', op).name.match(/\d+/);
 		}
 		init() {
 			if(window.location.pathname === '/settings') {
@@ -16461,12 +16429,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
 		}
 		fixFileInputs(el) {
-			let str = '';
-			for(let i = 0; i < 4; ++i) {
-				str += `<div${ i ? ' style="display: none;"' : '' }>` +
-					`<input type="file" name="file_${ i }" tabindex="7"></div>`;
-			}
-			el.innerHTML = str;
+			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }>` +
+				`<input type="file" name="file_${ i }" tabindex="7"></div>`
+			).join('');
 			el.removeAttribute('id');
 		}
 		fixHTMLHelper(str) {
@@ -16479,7 +16445,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !!$q('.sage', post);
 		}
 		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
 		}
 		init() {
 			$script('highlightPost = Function.prototype');
@@ -16613,8 +16579,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPNum(post) {
 			return +post.getAttribute('data-num');
 		}
-		getSubmitData(json) {
-			return { error: json.error, postNum: json.id && +json.id };
+		getSubmitData({ error, id }) {
+			return { error, postNum: id && +id };
 		}
 		init() {
 			const el = $id('postform');
@@ -16720,20 +16686,17 @@ function getImageBoard(checkDomains, checkEngines) {
 	if(!dm) {
 		dm = window.location.hostname;
 	}
-	if(!dm) {
+	if(!dm || !checkEngines) {
 		return null;
 	}
 	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	if(checkEngines) {
-		for(let i = ibEngines.length - 1; i >= 0; --i) {
-			const [path, Ctor] = ibEngines[i];
-			if($q(path, doc)) {
-				return new Ctor(prot, dm);
-			}
+	for(let i = ibEngines.length - 1; i >= 0; --i) {
+		const [path, Ctor] = ibEngines[i];
+		if($q(path, doc)) {
+			return new Ctor(prot, dm);
 		}
-		return new BaseBoard(prot, dm);
 	}
-	return null;
+	return new BaseBoard(prot, dm);
 }
 
 /* ==[ Misc.js ]==============================================================================================
@@ -16753,16 +16716,14 @@ const DollchanAPI = {
 		this.port.onmessage = this._handleMessage;
 		this.activeListeners = new Set();
 		const port = channel.port2;
-		doc.defaultView.addEventListener('message', ({ data }) => {
-			if(data === 'de-request-api-message') {
+		doc.defaultView.addEventListener('message', e => {
+			if(e.data === 'de-request-api-message') {
 				this.hasListeners = true;
-				document.defaultView.postMessage('de-answer-api-message', '*', [port]);
+				doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 			}
 		});
 	},
-	hasListener(name) {
-		return this.hasListeners && this.activeListeners.has(name);
-	},
+	hasListener: name => DollchanAPI.hasListeners && DollchanAPI.activeListeners.has(name),
 	notify(name, data) {
 		if(this.hasListener(name)) {
 			this.port.postMessage({ name, data });
@@ -16828,15 +16789,14 @@ function checkForUpdates(isManual, lastUpdateTime) {
 			if(isManual) {
 				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
-				return c === commit ?
-					Lng.haveLatestCommit[lang].replace('%s', vc) :
+				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
 					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
 						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
 			}
 		}
 		return Promise.reject();
-	}, () => !isManual ? Promise.reject() :
-		`<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
+	}, () => !isManual ?
+		Promise.reject() : `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
 	);
 }
 
@@ -16848,20 +16808,12 @@ function initPage() {
 		if(!localData) {
 			Cfg.stats.view++;
 			saveCfgObj(aib.dm, Cfg);
-			Thread.first.el.insertAdjacentHTML('afterend', `<div class="de-thread-buttons">
-				<span class="de-thread-updater">[<a class="de-abtn" href="#"></a>` +
-				`<span id="de-updater-count" style="display: none;"></span>]</span>
-				${ aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '' }
-			</div>`);
 		}
 	} else {
 		thrNavPanel.initThrNav();
 	}
 	if(!localData) {
 		updater = initThreadUpdater(doc.title, aib.t && Cfg.ajaxUpdThr && !aib.isArchived);
-		if(aib.t) {
-			$q('.de-thread-updater > .de-abtn').addEventListener('click', updater.forceLoad);
-		}
 	}
 }
 
@@ -16876,7 +16828,7 @@ function scrollPage() {
 		return;
 	}
 	setTimeout(() => {
-		const id = 'de-scroll-' + aib.b + aib.t;
+		const id = 'de-scroll-' + aib.b + (aib.t || '');
 		const val = +sesStorage[id];
 		if(val) {
 			scrollTo(0, val);
@@ -17223,6 +17175,7 @@ function scriptCSS() {
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
+	#de-win-cfg.de-win-fixed { z-index: 10001 !important; }
 
 	/* Settings window theme */
 	${ [/* Gradient darkblue */
@@ -17283,9 +17236,8 @@ function scriptCSS() {
 	${ cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') }
 
 	/* Posts counter */
-	.de-post-counter::after, .de-post-counter-pview, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
-	.de-post-counter::after { counter-increment: de-cnt 1; content: counter(de-cnt); color: #4f7942; }
-	.de-post-counter-pview { color: #4f7942; }
+	.de-post-counter, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
+	.de-post-counter { color: #4f7942; }
 	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }
 
 	/* Text markup buttons */
@@ -17337,9 +17289,13 @@ function scriptCSS() {
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
 	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
-	nav.firefoxVer >= 59 ? `.de-fullimg-video { position: relative; }
-		.de-fullimg-video::before { content: "X"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px tahoma; cursor:pointer; }` : '' }
-	.de-fullimg-wrap-center, .de-fullimg-wrap-center > .de-fullimg, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	nav.firefoxVer >= 59 ?
+		`.de-fullimg-center-video { border-top: 20px solid #444 !important; border-radius: 10px 10px 0 0; cursor: pointer; }
+		.de-fullimg-center-video > .de-fullimg-video::before { right: 6px !important; top: -20px; }
+		.de-fullimg-video { position: relative; }
+		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap-center > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
@@ -17435,6 +17391,7 @@ function scriptCSS() {
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
+	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
 	.de-link-ref { text-decoration: none; }
@@ -17458,9 +17415,10 @@ function scriptCSS() {
 	.de-refmap::before { content: "${ Lng.replies[lang] } "; }
 	.de-replies-hide::after { content: "${ Lng.hidePosts[lang] }"; }
 	.de-replies-show::after { content: "${ Lng.showPosts[lang] }"; }
-	.de-thread-buttons { clear: left; margin-top: 5px; }
-	.de-thread-collapse > a::after { content: "${ Lng.collapseThr[lang] }"; }
-	.de-thread-updater > a::after { content: "${ Lng.getNewPosts[lang] }"; }
+	.de-thr-buttons { clear: left; margin-top: 5px; }
+	${ aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '' }
+	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
+	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
 	.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }
@@ -17481,13 +17439,13 @@ function updateCSS() {
 	.de-new-post { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)' } !important; }
-	.de-selected, .de-error-input { ${ nav.isPresto ?
+	.de-selected, .de-input-error { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)' } !important; }
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost .de-post-counter::after { content: counter(de-cnt) " (You)"; }
+		.de-mypost .de-post-counter::after { content: " (You)"; }
 		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
@@ -17504,7 +17462,6 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	${ Cfg.hideReplies || Cfg.updThrBtns ? '.de-thread-buttons::before { content: ">> "; }' : '' }
 	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
@@ -17520,7 +17477,7 @@ function updateCSS() {
 			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
-	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : ''	}
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : ''	}
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
@@ -17529,7 +17486,8 @@ function updateCSS() {
 	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-rep, ' }
-	${ Cfg.updThrBtns || aib.t ? '' : '.de-thread-updater, ' }
+	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }
+	${ Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
@@ -17596,7 +17554,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload',
-			() => (sesStorage['de-scroll-' + aib.b + aib.t] = window.pageYOffset));
+			() => (sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset));
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {
@@ -17617,8 +17575,8 @@ async function runMain(checkDomains, dataPromise) {
 		if(!Thread.first) {
 			console.error('No threads detected!');
 		}
-	} catch(e) {
-		console.error('Delform parsing error:', getErrorMessage(e));
+	} catch(err) {
+		console.error('Delform parsing error:', getErrorMessage(err));
 		$show(docBody);
 		return;
 	}

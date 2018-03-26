@@ -267,18 +267,14 @@ function readPostsData(firstPost, favObj) {
 		toggleWindow('fav', false, null, true);
 		sesStorage.removeItem('de-fav-win');
 	}
-	let thrData = sesStorage['de-fav-newthr'];
-	if(thrData) { // Detecting the created new thread and adding it to Favorites.
-		thrData = JSON.parse(thrData);
-		if(thrData.num) {
-			if(thrData.num === firstPost.num) {
-				firstPost.thr.toggleFavState(true);
-				sesStorage.removeItem('de-fav-newthr');
-			}
-		} else if(Date.now() - thrData.date > 2e4) {
-			sesStorage.removeItem('de-fav-newthr');
-		} else if(!firstPost.next) {
+	let data = sesStorage['de-fav-newthr'];
+	if(data) { // Detecting the created new thread and adding it to Favorites.
+		data = JSON.parse(data);
+		const isTimeOut = !data.num && (Date.now() - data.date > 2e4);
+		if(data.num === firstPost.num || !firstPost.next && !isTimeOut) {
 			firstPost.thr.toggleFavState(true);
+			sesStorage.removeItem('de-fav-newthr');
+		} else if(isTimeOut) {
 			sesStorage.removeItem('de-fav-newthr');
 		}
 	}

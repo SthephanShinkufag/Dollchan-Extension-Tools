@@ -48,7 +48,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
 					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.thread-nav, .toolbar-area, .top-user-boards + hr { display: none !important; }
+					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
+						display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }

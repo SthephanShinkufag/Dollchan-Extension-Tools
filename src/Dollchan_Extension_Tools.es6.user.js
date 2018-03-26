@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '66a0908';
+const commit = '1cbd70a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2634,18 +2634,14 @@ function readPostsData(firstPost, favObj) {
 		toggleWindow('fav', false, null, true);
 		sesStorage.removeItem('de-fav-win');
 	}
-	let thrData = sesStorage['de-fav-newthr'];
-	if(thrData) { // Detecting the created new thread and adding it to Favorites.
-		thrData = JSON.parse(thrData);
-		if(thrData.num) {
-			if(thrData.num === firstPost.num) {
-				firstPost.thr.toggleFavState(true);
-				sesStorage.removeItem('de-fav-newthr');
-			}
-		} else if(Date.now() - thrData.date > 2e4) {
-			sesStorage.removeItem('de-fav-newthr');
-		} else if(!firstPost.next) {
+	let data = sesStorage['de-fav-newthr'];
+	if(data) { // Detecting the created new thread and adding it to Favorites.
+		data = JSON.parse(data);
+		const isTimeOut = !data.num && (Date.now() - data.date > 2e4);
+		if(data.num === firstPost.num || !firstPost.next && !isTimeOut) {
 			firstPost.thr.toggleFavState(true);
+			sesStorage.removeItem('de-fav-newthr');
+		} else if(isTimeOut) {
 			sesStorage.removeItem('de-fav-newthr');
 		}
 	}
@@ -14873,7 +14869,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
 					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.thread-nav, .toolbar-area, .top-user-boards + hr { display: none !important; }
+					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
+						display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
@@ -14885,7 +14882,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					div[id^="original-post"] { display: block !important; }` : '' }
 				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
-				${ Cfg.expandImgs ? '#fullscreen-container { display: none !important; }' : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }`;
 		}
