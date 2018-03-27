@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '4d7bf82';
+const commit = 'f494249';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11670,9 +11670,12 @@ class ExpandableImage {
 	}
 	computeFullSize() {
 		if(!this._size) {
-			const iEl = new Image();
-			iEl.src = this.el.src;
-			return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
+			if(this.isVideo) {
+				return [0, 0, null];
+			}
+			const el = new Image();
+			el.src = this.el.src;
+			return [el.width, el.height, null];
 		}
 		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
@@ -11840,16 +11843,22 @@ class ExpandableImage {
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
-		videoEl.addEventListener('error', ({ target }) => {
-			if(!target.onceLoaded) {
-				target.load();
-				target.onceLoaded = true;
+		videoEl.addEventListener('error', ({ target: el }) => {
+			if(!el.onceLoaded) {
+				el.load();
+				el.onceLoaded = true;
 			}
 		});
+		if(!this._size) {
+			videoEl.addEventListener('loadedmetadata', ({ target: el }) => {
+				this._size = [el.videoWidth, el.videoHeight];
+				onsizechange(wrapEl);
+			});
+		}
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', ({ target, isTrusted }) => {
-			const val = target.muted ? 0 : Math.round(target.volume * 100);
+		videoEl.addEventListener('volumechange', ({ target: el, isTrusted }) => {
+			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
@@ -16494,7 +16503,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}
 			const id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
-				'-' + new Date().getTime() + '-' + Math.round(1e8 * Math.random());
+				`-${ Date.now() }-` + Math.round(1e8 * Math.random());
 			const img = $q('img', cap.parentEl);
 			img.src = '';
 			img.src = '/captcha?id=' + id;

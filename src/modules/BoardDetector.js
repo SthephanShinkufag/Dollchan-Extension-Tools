@@ -1673,7 +1673,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}
 			const id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
-				'-' + new Date().getTime() + '-' + Math.round(1e8 * Math.random());
+				`-${ Date.now() }-` + Math.round(1e8 * Math.random());
 			const img = $q('img', cap.parentEl);
 			img.src = '';
 			img.src = '/captcha?id=' + id;

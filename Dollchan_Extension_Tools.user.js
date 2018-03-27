@@ -3631,8 +3631,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 	var runMain = function () {
-		var _ref79 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(checkDomains, dataPromise) {
-			var formEl, favObj, oldMain, _ref80, _ref81, storageName, firstThr;
+		var _ref80 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(checkDomains, dataPromise) {
+			var formEl, favObj, oldMain, _ref81, _ref82, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee22$(_context27) {
 				while (1) {
@@ -3684,10 +3684,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 15:
-							_ref80 = _context27.sent;
-							_ref81 = _slicedToArray(_ref80, 2);
-							excludeList = _ref81[0];
-							favObj = _ref81[1];
+							_ref81 = _context27.sent;
+							_ref82 = _slicedToArray(_ref81, 2);
+							excludeList = _ref82[0];
+							favObj = _ref82[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
 								_context27.next = 21;
@@ -3818,7 +3818,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x84, _x85) {
-			return _ref79.apply(this, arguments);
+			return _ref80.apply(this, arguments);
 		};
 	}();
 
@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = '4d7bf82';
+	var commit = 'f494249';
 
 
 	var defaultCfg = {
@@ -16228,9 +16228,12 @@ true, true];
 			key: 'computeFullSize',
 			value: function computeFullSize() {
 				if (!this._size) {
-					var iEl = new Image();
-					iEl.src = this.el.src;
-					return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
+					if (this.isVideo) {
+						return [0, 0, null];
+					}
+					var el = new Image();
+					el.src = this.el.src;
+					return [el.width, el.height, null];
 				}
 
 				var _size = _slicedToArray(this._size, 2),
@@ -16408,21 +16411,29 @@ true, true];
 					return AttachedImage.viewer.navigate(true, true);
 				});
 				videoEl.addEventListener('error', function (_ref53) {
-					var target = _ref53.target;
+					var el = _ref53.target;
 
-					if (!target.onceLoaded) {
-						target.load();
-						target.onceLoaded = true;
+					if (!el.onceLoaded) {
+						el.load();
+						el.onceLoaded = true;
 					}
 				});
+				if (!this._size) {
+					videoEl.addEventListener('loadedmetadata', function (_ref54) {
+						var el = _ref54.target;
+
+						_this58._size = [el.videoWidth, el.videoHeight];
+						onsizechange(wrapEl);
+					});
+				}
 				setTimeout(function () {
 					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
-				videoEl.addEventListener('volumechange', function (_ref54) {
-					var target = _ref54.target,
-					    isTrusted = _ref54.isTrusted;
+				videoEl.addEventListener('volumechange', function (_ref55) {
+					var el = _ref55.target,
+					    isTrusted = _ref55.isTrusted;
 
-					var val = target.muted ? 0 : Math.round(target.volume * 100);
+					var val = el.muted ? 0 : Math.round(el.volume * 100);
 					if (isTrusted && val !== Cfg.webmVolume) {
 						saveCfg('webmVolume', val);
 						sendStorageEvent('__de-webmvolume', val);
@@ -16762,11 +16773,11 @@ true, true];
 			Object.defineProperty(this, '_workers', { value: value, configurable: true });
 			return value;
 		},
-		_genImgHash: function _genImgHash(_ref55) {
-			var _ref56 = _slicedToArray(_ref55, 3),
-			    arrBuf = _ref56[0],
-			    oldw = _ref56[1],
-			    oldh = _ref56[2];
+		_genImgHash: function _genImgHash(_ref56) {
+			var _ref57 = _slicedToArray(_ref56, 3),
+			    arrBuf = _ref57[0],
+			    oldw = _ref57[1],
+			    oldh = _ref57[2];
 
 			var buf = new Uint8Array(arrBuf);
 			var size = oldw * oldh;
@@ -16798,11 +16809,11 @@ true, true];
 			return { hash: hash };
 		},
 		_getHashHelper: function () {
-			var _ref58 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref57) {
+			var _ref59 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref58) {
 				var _this61 = this;
 
-				var el = _ref57.el,
-				    src = _ref57.src;
+				var el = _ref58.el,
+				    src = _ref58.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee17$(_context18) {
 					while (1) {
@@ -16900,7 +16911,7 @@ true, true];
 			}));
 
 			function _getHashHelper(_x57) {
-				return _ref58.apply(this, arguments);
+				return _ref59.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -17237,15 +17248,15 @@ true, true];
 
 				try {
 					for (var _iterator27 = data.files[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
-						var _ref59 = _step27.value;
-						var file_id = _ref59.file_id;
-						var metadata = _ref59.metadata;
-						var rating = _ref59.rating;
-						var size = _ref59.size;
-						var src = _ref59.src;
-						var thumb = _ref59.thumb;
-						var thumb_height = _ref59.thumb_height;
-						var thumb_width = _ref59.thumb_width;
+						var _ref60 = _step27.value;
+						var file_id = _ref60.file_id;
+						var metadata = _ref60.metadata;
+						var rating = _ref60.rating;
+						var size = _ref60.size;
+						var src = _ref60.src;
+						var thumb = _ref60.thumb;
+						var thumb_height = _ref60.thumb_height;
+						var thumb_width = _ref60.thumb_width;
 
 						var fileName = void 0,
 						    fullFileName = void 0,
@@ -17417,7 +17428,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref60, banned, num;
+				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
 					while (1) {
@@ -17435,9 +17446,9 @@ true, true];
 									break;
 								}
 
-								_ref60 = _step29.value;
-								banned = _ref60.banned;
-								num = _ref60.num;
+								_ref61 = _step29.value;
+								banned = _ref61.banned;
+								num = _ref61.num;
 								_context22.t0 = banned;
 								_context22.next = _context22.t0 === 1 ? 12 : _context22.t0 === 2 ? 15 : 18;
 								break;
@@ -17571,8 +17582,8 @@ true, true];
 
 					try {
 						for (var _iterator30 = data.attachments[Symbol.iterator](), _step30; !(_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done); _iteratorNormalCompletion30 = true) {
-							var _ref61 = _step30.value;
-							var images = _ref61.images;
+							var _ref62 = _step30.value;
+							var images = _ref62.images;
 							var orig = images.original,
 							    thumb200 = images.thumb_200px,
 							    thumb400 = images.thumb_400px;
@@ -17842,12 +17853,12 @@ true, true];
 
 				try {
 					for (var _iterator34 = posts[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref62 = _step34.value;
+						var _ref63 = _step34.value;
 
-						var _ref63 = _slicedToArray(_ref62, 2);
+						var _ref64 = _slicedToArray(_ref63, 2);
 
-						var pNum = _ref63[0];
-						var post = _ref63[1];
+						var pNum = _ref64[0];
+						var post = _ref64[1];
 
 						var links = $Q('a', post.msg);
 						for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -17995,11 +18006,11 @@ true, true];
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
-			var _ref64 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref65 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref64[0];
-			this.btnFav = _ref64[2];
-			this.btnUpd = _ref64[3];
+			this.btnHide = _ref65[0];
+			this.btnFav = _ref65[2];
+			this.btnUpd = _ref65[3];
 
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -18219,13 +18230,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref65 = _step35.value;
+						var _ref66 = _step35.value;
 
-						var _ref66 = _slicedToArray(_ref65, 3);
+						var _ref67 = _slicedToArray(_ref66, 3);
 
-						var banId = _ref66[0];
-						var bNum = _ref66[1];
-						var bEl = _ref66[2];
+						var banId = _ref67[0];
+						var bNum = _ref67[1];
+						var bEl = _ref67[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -19127,9 +19138,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
-								var newCount = _ref67.newCount,
-								    locked = _ref67.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref68) {
+								var newCount = _ref68.newCount,
+								    locked = _ref68.locked;
 								return _this74._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
 								return _this74._handleNewPosts(0, err);
@@ -20233,9 +20244,9 @@ true, true];
 					if (Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref68 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref68[0],
-						    inp = _ref68[1];
+						var _ref69 = [].concat(_toConsumableArray(box.children)),
+						    img = _ref69[0],
+						    inp = _ref69[1];
 
 						img.onclick = function () {
 							return _this77.updateCaptcha(cap);
@@ -20359,7 +20370,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref69 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
+					var _ref70 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
 						var _this79 = this;
 
 						var pageInp, query, errFn;
@@ -20440,7 +20451,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x75, _x76) {
-						return _ref69.apply(this, arguments);
+						return _ref70.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20468,9 +20479,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref70) {
-					var error = _ref70.error,
-					    id = _ref70.id;
+				value: function getSubmitData(_ref71) {
+					var error = _ref71.error,
+					    id = _ref71.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -20766,9 +20777,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref71) {
-					var status = _ref71.status,
-					    data = _ref71.data;
+				value: function getSubmitData(_ref72) {
+					var status = _ref72.status,
+					    data = _ref72.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -20801,7 +20812,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
+					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
 						var _this85 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len13, file, cookieObj, ajaxParams, xhr;
@@ -20811,7 +20822,7 @@ true, true];
 								switch (_context26.prev = _context26.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(file) {
+											var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(file) {
 												return regeneratorRuntime.wrap(function _callee19$(_context24) {
 													while (1) {
 														switch (_context24.prev = _context24.next) {
@@ -20836,7 +20847,7 @@ true, true];
 											}));
 
 											return function getBase64(_x81) {
-												return _ref73.apply(this, arguments);
+												return _ref74.apply(this, arguments);
 											};
 										}();
 
@@ -20854,7 +20865,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(value, key) {
+											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(value, key) {
 												return regeneratorRuntime.wrap(function _callee20$(_context25) {
 													while (1) {
 														switch (_context25.prev = _context25.next) {
@@ -20874,7 +20885,7 @@ true, true];
 											}));
 
 											return function (_x82, _x83) {
-												return _ref74.apply(this, arguments);
+												return _ref75.apply(this, arguments);
 											};
 										}());
 										i = 0, _len13 = files.length;
@@ -20954,7 +20965,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x77, _x78, _x79, _x80) {
-						return _ref72.apply(this, arguments);
+						return _ref73.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -21245,8 +21256,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref75) {
-						var id = _ref75.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref76) {
+						var id = _ref76.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -22429,7 +22440,7 @@ true, true];
 							}
 						}
 					}
-					var id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') + '-' + new Date().getTime() + '-' + Math.round(1e8 * Math.random());
+					var id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') + ('-' + Date.now() + '-') + Math.round(1e8 * Math.random());
 					var img = $q('img', cap.parentEl);
 					img.src = '';
 					img.src = '/captcha?id=' + id;
@@ -22622,9 +22633,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref76) {
-					var error = _ref76.error,
-					    id = _ref76.id;
+				value: function getSubmitData(_ref77) {
+					var error = _ref77.error,
+					    id = _ref77.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -22821,8 +22832,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref77) {
-			var arg = _ref77.data;
+		_handleMessage: function _handleMessage(_ref78) {
+			var arg = _ref78.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -22885,8 +22896,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref78) {
-			var responseText = _ref78.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref79) {
+			var responseText = _ref79.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
