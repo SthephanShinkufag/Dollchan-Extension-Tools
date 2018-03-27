@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.2.19.0';
-	var commit = 'f494249';
+	var commit = 'f588f8d';
 
 
 	var defaultCfg = {
@@ -20663,6 +20663,11 @@ true, true];
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
 					return str.replace(/="\.\.\//g, '="/' + this.b + '/');
+				}
+			}, {
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src) {
+					return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 				}
 			}, {
 				key: 'getImgWrap',

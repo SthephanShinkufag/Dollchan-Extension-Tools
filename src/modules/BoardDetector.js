@@ -448,6 +448,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/="\.\.\//g, `="/${ this.b }/`);
 		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
