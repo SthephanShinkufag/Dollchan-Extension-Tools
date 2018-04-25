@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.2.19.0
+// @version         18.4.26.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -3826,8 +3826,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
-	var version = '18.2.19.0';
-	var commit = 'a9eebc9';
+	var version = '18.4.26.0';
+	var commit = 'f6f5fdf';
 
 
 	var defaultCfg = {
@@ -4251,6 +4251,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		checkNow: ['Проверить сейчас', 'Check now', 'Перевірити зараз'],
 		updAvail: ['Доступно обновление Dollchan: %s', 'Dollchan update available: %s!', 'Доступне оновлення Dollchan: %s'],
 		newCommitsAvail: ['Обнаружены новые исправления: %s', 'New fixes detected: %s', 'Виявлено нові виправлення: %s'],
+		changeLog: ['Список изменений', 'List of changes', 'Список змін'],
 		haveLatestStable: ['Ваша версия %s является последней из стабильных.', 'Your %s version is the latest from stable versions.', 'Ваша версія %s є останньою зі стабільних.'],
 		haveLatestCommit: ['Ваша версия %s содержит последние исправления.', 'Your %s version contains all the latest fixes.', 'Ваша версія %s містить всі останні виправлення.'],
 		thrViewed: ['Тредов посещено', 'Threads visited', 'Тредів відвідано'],
@@ -8023,7 +8024,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |\n\t\t\t\t<a href="' + gitWiki + (lang ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t\t</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a>\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '\n\t\t\t\t\t<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t\t</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
 		},
 
 
@@ -22902,9 +22903,10 @@ true, true];
 				var src = '' + gitRaw + (nav.isESNext ? 'src/' : '') + 'Dollchan_Extension_Tools.' + (nav.isESNext ? 'es6.' : '') + 'user.js';
 				saveCfgObj('lastUpd', Date.now());
 				var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
+				var chLogLink = '<a target="_blank" href="' + gitWiki + (lang === 1 ? 'versions-en' : 'versions') + '">\r\n' + Lng.changeLog[lang] + '<a>';
 				for (var i = 0, _len17 = Math.max(currentVer.length, remoteVer.length); i < _len17; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-						return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>';
+						return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>' + chLogLink;
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 						break;
 					}
@@ -22912,7 +22914,7 @@ true, true];
 				if (isManual) {
 					var c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 					var vc = version + '.' + c;
-					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>');
+					return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : Lng.haveLatestStable[lang].replace('%s', version) + '\r\n' + Lng.newCommitsAvail[lang].replace('%s', '' + link + vc + '</a>' + chLogLink);
 				}
 			}
 			return Promise.reject();

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.2.19.0
+// @version         18.4.26.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.2.19.0';
-const commit = '1cbd70a';
+const version = '18.4.26.0';
+const commit = 'f6f5fdf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1181,6 +1181,10 @@ const Lng = {
 		'Обнаружены новые исправления: %s',
 		'New fixes detected: %s',
 		'Виявлено нові виправлення: %s'],
+	changeLog: [
+		'Список изменений',
+		'List of changes',
+		'Список змін'],
 	haveLatestStable: [
 		'Ваша версия %s является последней из стабильных.',
 		'Your %s version is the latest from stable versions.',
@@ -4871,7 +4875,7 @@ const CfgWindow = {
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
-				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
+				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }
@@ -11571,8 +11575,11 @@ class ImagesViewer {
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
-			.appendChild(this._fullEl);
+		el.appendChild(this._fullEl);
+		if(data.isImage) {
+			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
+				.appendChild($q('img', this._fullEl));
+		}
 		this._elStyle = el.style;
 		this.data = data;
 		this._obj = el;
@@ -11670,9 +11677,12 @@ class ExpandableImage {
 	}
 	computeFullSize() {
 		if(!this._size) {
-			const iEl = new Image();
-			iEl.src = this.el.src;
-			return this.isVideo ? [iEl.width * 5, iEl.height * 5] : [iEl.width, iEl.height, null];
+			if(this.isVideo) {
+				return [0, 0, null];
+			}
+			const el = new Image();
+			el.src = this.el.src;
+			return [el.width, el.height, null];
 		}
 		let [width, height] = this._size;
 		if(Cfg.resizeDPI) {
@@ -11840,16 +11850,22 @@ class ExpandableImage {
 		const videoEl = wrapEl.firstElementChild;
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
-		videoEl.addEventListener('error', ({ target }) => {
-			if(!target.onceLoaded) {
-				target.load();
-				target.onceLoaded = true;
+		videoEl.addEventListener('error', ({ target: el }) => {
+			if(!el.onceLoaded) {
+				el.load();
+				el.onceLoaded = true;
 			}
 		});
+		if(!this._size) {
+			videoEl.addEventListener('loadedmetadata', ({ target: el }) => {
+				this._size = [el.videoWidth, el.videoHeight];
+				onsizechange(wrapEl);
+			});
+		}
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', ({ target, isTrusted }) => {
-			const val = target.muted ? 0 : Math.round(target.volume * 100);
+		videoEl.addEventListener('volumechange', ({ target: el, isTrusted }) => {
+			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
 				saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
@@ -14850,7 +14866,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
-			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -14872,11 +14887,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
 						display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
+				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
 				.tmp_postform { width: auto; }
-				.de-win-inpost { position: static !important; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -14976,7 +14991,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			const box = $q('.captcha-box', cap.parentEl);
-			if(Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
+			if(box.firstChild.tagName !== 'IMG') {
 				box.innerHTML = `<img>
 					<input name="2chaptcha_value" maxlength="6" type="text">
 					<input name="captcha_type" value="2chaptcha" type="hidden">
@@ -14985,16 +15000,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				img.onclick = () => this.updateCaptcha(cap);
 				inp.tabIndex = 999;
 				cap.textEl = inp;
-			} else {
-				box.innerHTML = `<div id="captcha-widget-main"></div>
-					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
 			}
 			return null;
 		}
 		updateCaptcha(cap) {
-			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
-				'/api/captcha/invisible_recaptcha/id';
-			return cap.updateHelper(url, xhr => {
+			return cap.updateHelper(`/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
 				let data = xhr.responseText;
 				try {
@@ -15009,26 +15019,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(data.type === 'invisible_recaptcha') {
-						$q('.captcha-key').value = data.id;
-						if(!$id('captcha-widget').hasChildNodes()) {
-							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
-									sitekey : '${ data.id }',
-									theme   : 'light',
-									size    : 'invisible',
-									callback: function() {
-										var el = document.getElementById('captcha-widget-main');
-										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-										el.firstChild.value = grecaptcha.getResponse();
-									}
-								});
-								grecaptcha.execute(deCapWidget);`);
-						} else {
-							$script(`grecaptcha.reset(deCapWidget);
-								grecaptcha.execute(deCapWidget);`);
-						}
-						break;
-					} else if(data.type === '2chaptcha') {
+					if(data.type === '2chaptcha') {
 						const img = box.firstChild;
 						img.src = '';
 						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
@@ -15269,10 +15260,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/="\.\.\//g, `="/${ this.b }/`);
 		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		init() {
+			defaultCfg.addTextBtns = 0;
 			$each($Q('.message > .omittedposts'),
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
@@ -16493,7 +16488,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 			}
 			const id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
-				'-' + new Date().getTime() + '-' + Math.round(1e8 * Math.random());
+				`-${ Date.now() }-` + Math.round(1e8 * Math.random());
 			const img = $q('img', cap.parentEl);
 			img.src = '';
 			img.src = '/captcha?id=' + id;
@@ -16779,9 +16774,11 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				nav.isESNext ? 'es6.' : '' }user.js`;
 			saveCfgObj('lastUpd', Date.now());
 			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+			const chLogLink = `<a target="_blank" href="${ gitWiki }${
+				lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>`;
+					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
@@ -16790,8 +16787,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
 				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
-						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
+					`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 			}
 		}
 		return Promise.reject();
@@ -16853,7 +16850,7 @@ function scrollPage() {
 
 function addSVGIcons() {
 	docBody.insertAdjacentHTML('beforeend', `
-	<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">
+	<div id="de-svg-icons">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
 		<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">
@@ -17093,6 +17090,7 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
+	#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	use { fill: inherit; pointer-events: none; }
@@ -17295,9 +17293,9 @@ function scriptCSS() {
 		.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
-	.de-fullimg-wrap-center > .de-fullimg { height: 100%; }
+	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
+	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 20px; }

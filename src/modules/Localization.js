@@ -1010,6 +1010,10 @@ const Lng = {
 		'Обнаружены новые исправления: %s',
 		'New fixes detected: %s',
 		'Виявлено нові виправлення: %s'],
+	changeLog: [
+		'Список изменений',
+		'List of changes',
+		'Список змін'],
 	haveLatestStable: [
 		'Ваша версия %s является последней из стабильных.',
 		'Your %s version is the latest from stable versions.',

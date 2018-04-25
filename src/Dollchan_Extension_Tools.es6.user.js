@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.2.19.0
+// @version         18.4.26.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.2.19.0';
-const commit = 'a9eebc9';
+const version = '18.4.26.0';
+const commit = 'f6f5fdf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1181,6 +1181,10 @@ const Lng = {
 		'Обнаружены новые исправления: %s',
 		'New fixes detected: %s',
 		'Виявлено нові виправлення: %s'],
+	changeLog: [
+		'Список изменений',
+		'List of changes',
+		'Список змін'],
 	haveLatestStable: [
 		'Ваша версия %s является последней из стабильных.',
 		'Your %s version is the latest from stable versions.',
@@ -4871,7 +4875,7 @@ const CfgWindow = {
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
-				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
+				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }
@@ -16770,9 +16774,11 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				nav.isESNext ? 'es6.' : '' }user.js`;
 			saveCfgObj('lastUpd', Date.now());
 			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+			const chLogLink = `<a target="_blank" href="${ gitWiki }${
+				lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
 			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
 				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>`;
+					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
 				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
 					break;
 				}
@@ -16781,8 +16787,8 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
 				const vc = version + '.' + c;
 				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-					`${ Lng.haveLatestStable[lang].replace('%s', version) }\n${
-						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>`) }`;
+					`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 			}
 		}
 		return Promise.reject();

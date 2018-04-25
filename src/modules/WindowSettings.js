@@ -774,7 +774,7 @@ const CfgWindow = {
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
 				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
-				<a href="${ gitWiki }${ lang ? 'home-en/' : '' }" target="_blank">Github</a>
+				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a>
 			</div>
 			<div id="de-info-table">
 				<div id="de-info-stats">${ statsTable }

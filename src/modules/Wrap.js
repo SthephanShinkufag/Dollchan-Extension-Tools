@@ -5,8 +5,8 @@
 (function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.2.19.0';
-const commit = 'a9eebc9';
+const version = '18.4.26.0';
+const commit = 'f6f5fdf';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
