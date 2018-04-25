@@ -25,6 +25,7 @@ function scriptCSS() {
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
 	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
 	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
+	#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
 	use { fill: inherit; pointer-events: none; }

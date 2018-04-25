@@ -6,7 +6,7 @@
 
 function addSVGIcons() {
 	docBody.insertAdjacentHTML('beforeend', `
-	<div id="de-svg-icons" style="height: 0; width: 0; position: fixed;">
+	<div id="de-svg-icons">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
 		<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">

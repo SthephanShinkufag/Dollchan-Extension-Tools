@@ -29,7 +29,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
-			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -51,11 +50,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
 						display: none !important; }
 				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
+				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
 				.tmp_postform { width: auto; }
-				.de-win-inpost { position: static !important; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -155,7 +154,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			const box = $q('.captcha-box', cap.parentEl);
-			if(Cfg.altCaptcha && box.firstChild.tagName !== 'IMG') {
+			if(box.firstChild.tagName !== 'IMG') {
 				box.innerHTML = `<img>
 					<input name="2chaptcha_value" maxlength="6" type="text">
 					<input name="captcha_type" value="2chaptcha" type="hidden">
@@ -164,16 +163,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				img.onclick = () => this.updateCaptcha(cap);
 				inp.tabIndex = 999;
 				cap.textEl = inp;
-			} else {
-				box.innerHTML = `<div id="captcha-widget-main"></div>
-					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
 			}
 			return null;
 		}
 		updateCaptcha(cap) {
-			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
-				'/api/captcha/invisible_recaptcha/id';
-			return cap.updateHelper(url, xhr => {
+			return cap.updateHelper(`/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
 				const box = $q('.captcha-box', cap.parentEl);
 				let data = xhr.responseText;
 				try {
@@ -188,26 +182,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(data.type === 'invisible_recaptcha') {
-						$q('.captcha-key').value = data.id;
-						if(!$id('captcha-widget').hasChildNodes()) {
-							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
-									sitekey : '${ data.id }',
-									theme   : 'light',
-									size    : 'invisible',
-									callback: function() {
-										var el = document.getElementById('captcha-widget-main');
-										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-										el.firstChild.value = grecaptcha.getResponse();
-									}
-								});
-								grecaptcha.execute(deCapWidget);`);
-						} else {
-							$script(`grecaptcha.reset(deCapWidget);
-								grecaptcha.execute(deCapWidget);`);
-						}
-						break;
-					} else if(data.type === '2chaptcha') {
+					if(data.type === '2chaptcha') {
 						const img = box.firstChild;
 						img.src = '';
 						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
