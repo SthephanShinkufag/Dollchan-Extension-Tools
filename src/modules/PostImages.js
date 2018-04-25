@@ -299,8 +299,11 @@ class ImagesViewer {
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
-			.appendChild(this._fullEl);
+		el.appendChild(this._fullEl);
+		if(data.isImage) {
+			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
+				.appendChild($q('img', this._fullEl));
+		}
 		this._elStyle = el.style;
 		this.data = data;
 		this._obj = el;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.2.19.0';
-const commit = '9db2b36';
+const commit = 'a9eebc9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11571,8 +11571,11 @@ class ImagesViewer {
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		(data.isImage ? $aBegin(el, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`) : el)
-			.appendChild(this._fullEl);
+		el.appendChild(this._fullEl);
+		if(data.isImage) {
+			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
+				.appendChild($q('img', this._fullEl));
+		}
 		this._elStyle = el.style;
 		this.data = data;
 		this._obj = el;
@@ -17284,9 +17287,9 @@ function scriptCSS() {
 		.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
-	.de-fullimg-wrap-center > .de-fullimg { height: 100%; }
+	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-fullimg-wrap-nosize > .de-fullimg { opacity: .3; }
+	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: .3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 20px; }
