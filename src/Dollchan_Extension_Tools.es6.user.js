@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.26.0';
-const commit = '77a1f59';
+const commit = '8d2a71e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2404,7 +2404,8 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = { id: value };
+		const obj = {};
+		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded

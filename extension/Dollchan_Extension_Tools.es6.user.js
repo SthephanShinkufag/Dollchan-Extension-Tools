@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.26.0';
-const commit = 'f6f5fdf';
+const commit = '8d2a71e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2404,7 +2404,8 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = { id: value };
+		const obj = {};
+		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
@@ -17281,6 +17282,7 @@ function scriptCSS() {
 	/* Full images */
 	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-embed { max-width: 200px; max-height: 200px; }
+	.de-fullimg, .de-fullimg-wrap-link { transition: none !important; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { text-align: center; }

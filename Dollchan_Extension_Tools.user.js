@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.26.0';
-	var commit = '77a1f59';
+	var commit = '8d2a71e';
 
 
 	var defaultCfg = {
@@ -5481,7 +5481,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		} else if (nav.isGM) {
 			GM_setValue(id, value);
 		} else if (nav.isChromeStorage) {
-			var obj = { id: value };
+			var obj = {};
+			obj[id] = value;
 			chrome.storage.sync.set(obj, function () {
 				if (chrome.runtime.lastError) {
 					chrome.storage.local.set(obj, emptyFn);

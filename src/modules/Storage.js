@@ -33,7 +33,8 @@ function setStored(id, value) {
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
 	} else if(nav.isChromeStorage) {
-		const obj = { id: value };
+		const obj = {};
+		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
 			if(chrome.runtime.lastError) {
 				// Store into storage.local if the storage.sync limit is exceeded
