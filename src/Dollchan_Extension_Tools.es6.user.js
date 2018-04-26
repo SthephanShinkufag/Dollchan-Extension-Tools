@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.26.0';
-const commit = '77a1f59';
+const commit = '8d2a71e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9440,6 +9440,7 @@ class FileInput {
 		el.classList.remove('de-file-off');
 		el = el.firstChild.firstChild;
 		el.title = `${ fileName }, ${ (fileSize / 1024).toFixed(2) }KB`;
+		this._btnSpoil.checked = this._spoilEl.checked = false;
 		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
 			'<video class="de-file-img" loop autoplay muted src=""></video>' :
 			'<img class="de-file-img" src="">');
@@ -9556,7 +9557,6 @@ class FileInput {
 				$hide(this._txtWrap);
 			}
 			if(this._spoilEl) {
-				this._btnSpoil.checked = this._spoilEl.checked;
 				$show(this._btnSpoil);
 			}
 			this._txtInput.classList.add('de-file-txt-noedit');
