@@ -121,7 +121,9 @@ function initNavFuncs() {
 			try {
 				value = 'Worker' in window && 'URL' in window;
 			} catch(err) {}
-			value = value && this.firefoxVer >= 40;
+			if(value && this.isFirefox) {
+				value = this.firefoxVer >= 40;
+			}
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},

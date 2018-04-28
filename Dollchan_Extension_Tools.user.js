@@ -3827,7 +3827,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.26.0';
-	var commit = '8d2a71e';
+	var commit = '8c2c900';
 
 
 	var defaultCfg = {
@@ -19595,7 +19595,9 @@ true, true];
 				try {
 					value = 'Worker' in window && 'URL' in window;
 				} catch (err) {}
-				value = value && this.firefoxVer >= 40;
+				if (value && this.isFirefox) {
+					value = this.firefoxVer >= 40;
+				}
 				Object.defineProperty(this, 'hasWorker', { value: value });
 				return value;
 			},

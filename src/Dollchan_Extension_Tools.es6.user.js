@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.26.0';
-const commit = '8d2a71e';
+const commit = '8c2c900';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14444,7 +14444,9 @@ function initNavFuncs() {
 			try {
 				value = 'Worker' in window && 'URL' in window;
 			} catch(err) {}
-			value = value && this.firefoxVer >= 40;
+			if(value && this.isFirefox) {
+				value = this.firefoxVer >= 40;
+			}
 			Object.defineProperty(this, 'hasWorker', { value });
 			return value;
 		},
