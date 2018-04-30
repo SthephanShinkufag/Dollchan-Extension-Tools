@@ -49,7 +49,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
 					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
 						display: none !important; }
-				.captcha-box > img { display: block; width: 221px; cursor: pointer; }
+				.captcha-box { overflow: hidden; }
+				.captcha-box > img { display: block; width: 350px; margin: -45px 0 -22px 0; cursor: pointer; }
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
