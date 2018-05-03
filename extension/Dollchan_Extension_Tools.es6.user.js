@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '26ba0ed';
+const commit = '7c50970';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14889,8 +14889,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
 					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
 						display: none !important; }
-				.captcha-box { overflow: hidden; }
-				.captcha-box > img { display: block; width: 350px; margin: -45px -45px -22px 0; }
+				.captcha-box { overflow: hidden; max-width: 300px; }
+				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
