@@ -1527,6 +1527,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['iichan.hk'] = Iichan;
 
+	class Kohlchan extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qImgInfo = '.fileinfo';
+
+			this.hasTextLinks = true;
+		}
+		get qImgNameLink() {
+			return '.fileinfo > span > a';
+		}
+		get css() {
+			return `${ super.css }
+				div.post.reply::before { content: none; }`;
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
+		}
+	}
+	ibDomains['kohlchan.net'] = Kohlchan;
+
 	class Krautchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);

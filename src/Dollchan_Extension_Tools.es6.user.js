@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '7c50970';
+const commit = '38612b7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16366,6 +16366,27 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['iichan.hk'] = Iichan;
+
+	class Kohlchan extends Vichan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qImgInfo = '.fileinfo';
+
+			this.hasTextLinks = true;
+		}
+		get qImgNameLink() {
+			return '.fileinfo > span > a';
+		}
+		get css() {
+			return `${ super.css }
+				div.post.reply::before { content: none; }`;
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
+		}
+	}
+	ibDomains['kohlchan.net'] = Kohlchan;
 
 	class Krautchan extends BaseBoard {
 		constructor(prot, dm) {
