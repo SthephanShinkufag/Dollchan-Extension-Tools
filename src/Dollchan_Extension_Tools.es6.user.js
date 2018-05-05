@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '7fe6732';
+const commit = 'add1c2f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16383,6 +16383,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
+				.sage { display: none; }
 				div.post.reply::before { content: none; }`;
 		}
 		getSage(post) {

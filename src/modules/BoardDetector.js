@@ -1543,6 +1543,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
+				.sage { display: none; }
 				div.post.reply::before { content: none; }`;
 		}
 		getSage(post) {
