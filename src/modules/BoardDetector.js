@@ -1028,6 +1028,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				.replace(/<\/?wbr>/g, '')
 				.replace(/ \(OP\)<\/a/g, '</a');
 		}
+		fixVideo(isPost, data) {
+			return [];
+		}
 		getImgInfo(wrap) {
 			const el = $q(this.qImgInfo, wrap);
 			return el ? el.lastChild.textContent : '';

@@ -208,7 +208,7 @@ class BaseBoard {
 		data.innerHTML = str;
 		return data;
 	}
-	fixVideo(isPost, data) { // Differs Tinyboard only
+	fixVideo(isPost, data) {
 		const videos = [];
 		const els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(let i = 0, len = els.length; i < len; ++i) {

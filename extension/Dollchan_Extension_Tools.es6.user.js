@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '38612b7';
+const commit = '7fe6732';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14709,7 +14709,7 @@ class BaseBoard {
 		data.innerHTML = str;
 		return data;
 	}
-	fixVideo(isPost, data) { // Differs Tinyboard only
+	fixVideo(isPost, data) {
 		const videos = [];
 		const els = $Q('embed, object, iframe', isPost ? data.el : data);
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -15867,6 +15867,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
 				.replace(/<\/?wbr>/g, '')
 				.replace(/ \(OP\)<\/a/g, '</a');
+		}
+		fixVideo(isPost, data) {
+			return [];
 		}
 		getImgInfo(wrap) {
 			const el = $q(this.qImgInfo, wrap);
