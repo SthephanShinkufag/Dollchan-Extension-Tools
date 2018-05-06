@@ -4,14 +4,11 @@
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
-		return;
-	}
-	let formEl = $q(aib.qDForm + ', form[de-form]');
-	if(!formEl) {
-		if(aib.observeContent) {
-			aib.observeContent(checkDomains, dataPromise);
-		}
+	let formEl;
+	if(!(docBody = doc.body) ||
+		!aib && !(aib = getImageBoard(checkDomains, true)) ||
+		!(formEl = $q(aib.qDForm + ', form[de-form]'))
+	) {
 		return;
 	}
 	Logger.log('Imageboard check');

@@ -535,7 +535,7 @@ class Post extends AbstractPost {
 		return new Post.Сontent(this).title;
 	}
 	get tNum() {
-		return this.thr.thrId;
+		return this.thr.num;
 	}
 	get top() {
 		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)

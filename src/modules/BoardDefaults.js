@@ -61,7 +61,7 @@ class BaseBoard {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() {
+	get qFormName() { // Differs Iichan only
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -90,7 +90,7 @@ class BaseBoard {
 	get capLang() { // Differs _410chanOrg only
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() {
+	get catalogUrl() { // Differs Iichan only
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -102,7 +102,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() {
+	get fixDeadLinks() { // Differs _4chanOrg only
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -132,9 +132,6 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs _0chanHk only
-		return null;
-	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
 			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
@@ -142,9 +139,6 @@ class BaseBoard {
 		return value;
 	}
 	get sendHTML5Post() { // Differs LynxChan only
-		return null;
-	}
-	get thrId() { // Differs _0chanHk only
 		return null;
 	}
 	get updateCaptcha() {
@@ -310,13 +304,13 @@ class BaseBoard {
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	insertYtPlayer(msg, playerHtml) {
+	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan only
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
-	parseURL() {
+	parseURL() { // Sets here only
 		const url = (window.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'add1c2f';
+const commit = '3975336';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10365,7 +10365,7 @@ class Post extends AbstractPost {
 		return new Post.Сontent(this).title;
 	}
 	get tNum() {
-		return this.thr.thrId;
+		return this.thr.num;
 	}
 	get top() {
 		return (this.isOp && this.isHidden ? this.thr.el.previousElementSibling : this.el)
@@ -12685,79 +12685,6 @@ class MakabaPostsBuilder {
 	}
 }
 
-class _0chanPostsBuilder {
-	constructor(json) {
-		if(json.error) {
-			throw new AjaxError(0, `API error: ${ json.message }`);
-		}
-		this._json = json;
-		this._posts = json.posts;
-		this.length = json.posts.length - 1;
-		this.postersCount = '';
-	}
-	getOpMessage() {
-		return $add(aib.fixHTML(`<div class="post-body-message"><div> ${
-			this._posts[0].message }</div></div>`));
-	}
-	getPNum(i) {
-		return +this._posts[i + 1].id;
-	}
-	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i)));
-	}
-	getPostHTML(i) {
-		let filesHTML = '';
-		const isOp = i === -1;
-		const data = this._posts[i + 1];
-		const { id: num, boardDir: brd, parentId: parId } = data;
-		if(data.attachments.length) {
-			filesHTML += '<div class="post-attachments">';
-			for(const { images } of data.attachments) {
-				const { original: orig, thumb_200px: thumb200, thumb_400px: thumb400 } = images;
-				filesHTML += `<figure class="post-img"><span>
-					<figcaption>
-						<span class="pull-left">${ orig.width }x${ orig.height }, ${ orig.size_kb }Кб</span>
-					</figcaption>
-					<a href="${ orig.url }" target="_blank"><img src="${ thumb200.url }" srcset="` +
-						`${ thumb400.url } 2x" class="post-img-thumbnail" style="width: ` +
-						`${ thumb200.width }px; height: ${ thumb200.height }px;"></a>
-				</span></figure>`;
-			}
-			filesHTML += '</div>';
-		}
-
-		// --- POST ---
-		const d = new Date(data.date * 1e3);
-		const date = `${ d.getFullYear() }-${ pad2(d.getMonth() + 1) }-${ pad2(d.getDate()) } ${
-			pad2(d.getHours()) }:${ pad2(d.getMinutes()) }:${ pad2(d.getSeconds()) }`;
-		const postParentEl = parId === this._json.posts[0].id ? '' :
-			`<div class="post-parent"><a data-post="${ parId }" href="/${ brd }/${
-				data.threadId }#${ parId }">&gt;&gt;${ parId }</a></div>`;
-		return `<div><div class="block post${ isOp ? ' post-op' : '' }">
-			<div class="post-header">
-				<a name="${ num }"></a>
-				<span class="post-id">
-					<a href="/${ brd }" class="router-link-active">/${ brd }/</a>
-					${ isOp ? `<span>— ${ this._json.thread.board.name } —</span>` : '' }
-					<a href="/${ brd }/${ data.threadId + (isOp ? '' : '#' + num) }">#${ num }</a>
-				</span>
-				<span class="pull-right">
-					<span class="post-thread-options"></span>
-					<span class="post-date">${ date }</span>
-				</span>
-			</div>
-			<div class="post-body${ data.attachments.length > 1 ? '' : ' post-inline-attachment' }">
-				${ filesHTML }
-				<div class="post-body-message">
-					${ postParentEl }
-					<div> ${ data.messageHtml || '' }</div>
-				</div>
-			</div>
-			<div class="post-footer"></div>
-		</div></div>`;
-	}
-}
-
 /* ==[ RefMap.js ]============================================================================================
                                              REFERENCE LINKS MAP
 =========================================================================================================== */
@@ -12986,7 +12913,6 @@ class Thread {
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
-		this.thrId = aib.thrId ? aib.thrId(el) : num;
 		const els = $Q(aib.qRPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
@@ -13150,7 +13076,7 @@ class Thread {
 		if(isInformUser) {
 			$popup('load-thr', Lng.loading[lang], true);
 		}
-		return ajaxPostsLoad(aib.b, this.thrId, false).then(
+		return ajaxPostsLoad(aib.b, this.num, false).then(
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
 			err => $popup('load-thr', getErrorMessage(err)));
 	}
@@ -13161,7 +13087,7 @@ class Thread {
 	*  @returns {Promise} - resolves with Object, { newCount: Number, locked: Boolean }
 	*/
 	loadNewPosts() {
-		return ajaxPostsLoad(aib.b, this.thrId, true).then(
+		return ajaxPostsLoad(aib.b, this.num, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
@@ -13173,7 +13099,7 @@ class Thread {
 			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
 			({ host: h, b } = aib);
-			num = this.thrId;
+			({ num } = this);
 			cnt = this.pcount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
@@ -13375,7 +13301,7 @@ class Thread {
 		}
 		if(!$q('.de-thr-collapse', btns)) {
 			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`);
+				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
@@ -14562,7 +14488,7 @@ class BaseBoard {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() {
+	get qFormName() { // Differs Iichan only
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -14591,7 +14517,7 @@ class BaseBoard {
 	get capLang() { // Differs _410chanOrg only
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() {
+	get catalogUrl() { // Differs Iichan only
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -14603,7 +14529,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() {
+	get fixDeadLinks() { // Differs _4chanOrg only
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -14633,9 +14559,6 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs _0chanHk only
-		return null;
-	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
 			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
@@ -14643,9 +14566,6 @@ class BaseBoard {
 		return value;
 	}
 	get sendHTML5Post() { // Differs LynxChan only
-		return null;
-	}
-	get thrId() { // Differs _0chanHk only
 		return null;
 	}
 	get updateCaptcha() {
@@ -14811,13 +14731,13 @@ class BaseBoard {
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	insertYtPlayer(msg, playerHtml) {
+	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan only
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
-	parseURL() {
+	parseURL() { // Sets here only
 		const url = (window.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);
@@ -15452,98 +15372,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
 	// DOMAINS
-	class _0chanHk extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.cReply = 'block post';
-			this.qDForm = '#content > div > .threads-scroll-spy + div, .threads > div:first-of-type';
-			this.qForm = '.reply-form';
-			this.qImgInfo = 'figcaption';
-			this.qOmitted = 'div[style="margin-left: 25px; font-weight: bold;"]';
-			this.qOPost = '.post-op';
-			this.qPostHeader = '.post-header';
-			this.qPostImg = '.post-img-thumbnail';
-			this.qPostMsg = '.post-body-message';
-			this.qPostRef = '.post-id';
-			this.qRPost = '.block.post:not(.post-op)';
-
-			this.docExt = '';
-			this.JsonBuilder = _0chanPostsBuilder;
-			this.res = '';
-		}
-		get qThread() {
-			return 'div[style="margin-top: 20px; margin-bottom: 40px;"] > div, .thread > div';
-		}
-		get css() {
-			return `.post-embed, .post-replied-by, .post-referenced-by { display: none; }
-				.de-post-btns { float: right; }
-				#de-main { z-index: 1; position: relative; }
-				#de-main > hr { display: none; }
-				.de-pview { margin-left: -250px !important; }
-				label { font-weight: initial; }
-				hr { margin: 4px; border-top: 1px solid #bbb; }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getJsonApiUrl(brd, num) {
-			return '/api/thread?thread=' + num;
-		}
-		getPNum(post) {
-			return +$q('a[name]', post).name;
-		}
-		getPostWrap(el) {
-			return el.parentNode;
-		}
-		getTNum(op) {
-			return +$q('a[name]', op).name;
-		}
-		init() {
-			defaultCfg.postBtnsCSS = 0;
-			$del($q('base', doc.head)); // <base> is not compatible with SVG
-			$each($Q('a[data-post]'), el => (el.href =
-				$q('.post-id > a:nth-of-type(2)', el.parentNode.parentNode.parentNode.previousElementSibling)
-					.href.split('#')[0] + '#' + el.getAttribute('data-post')));
-			return false;
-		}
-		observeContent(checkDomains, dataPromise) {
-			const initObserver = new MutationObserver(mutations => {
-				const el = mutations[0].addedNodes[0];
-				if(!el || el.id !== 'app') {
-					return;
-				}
-				initObserver.disconnect();
-				doc.defaultView.addEventListener('message', e => {
-					if(e.data !== '0chan-content-done') {
-						return;
-					}
-					if(updater) {
-						updater.disableUpdater();
-					}
-					DelForm.tNums = new Set();
-					$each($Q('#de-css, #de-css-dynamic, #de-css-user, #de-svg-icons, #de-thr-navpanel'),
-						$del);
-					runMain(checkDomains, dataPromise);
-				});
-				$script(`window.app.$bus.on('refreshContentDone',
-					() => document.defaultView.postMessage('0chan-content-done', '*'))`);
-			});
-			initObserver.observe(docBody, { childList: true });
-		}
-		parseURL() {
-			const url = (window.location.pathname || '').replace(/^\//, '');
-			const temp = url.split('/');
-			this.b = temp[0];
-			this.t = temp[1] ? +temp[1].match(/^\d+/)[0] : 0;
-			this.page = 0;
-		}
-		thrId(op) {
-			return +$q('.post-id > a:nth-of-type(2)', op).href.match(/\d+$/);
-		}
-	}
-	ibDomains['0chan.hk'] = _0chanHk;
-
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16391,141 +16219,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
-
-	class Krautchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.cReply = 'postreply';
-			this.qBan = '.ban_mark';
-			this.qClosed = 'img[src="/images/locked.gif"]';
-			this.qDForm = 'form[action*="delete"]';
-			this.qError = '.message_text';
-			this.qFormRedir = 'input#forward_thread';
-			this.qFormRules = '#rules_row';
-			this.qImgInfo = '.fileinfo';
-			this.qOmitted = '.omittedinfo';
-			this.qPages = 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a';
-			this.qPostHeader = '.postheader';
-			this.qPostImg = 'img[id^="thumbnail_"]';
-			this.qPostRef = '.postnumber';
-			this.qPostSubj = '.postsubject';
-			this.qRPost = '.postreply';
-			this.qTrunc = 'p[id^="post_truncated"]';
-
-			this.hasCatalog = true;
-			this.hasPicWrap = true;
-			this.hasTextLinks = true;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.res = 'thread-';
-			this.timePattern = 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?';
-		}
-		get qFormName() {
-			return 'input[name="internal_n"]';
-		}
-		get qFormSubj() {
-			return 'input[name="internal_s"]';
-		}
-		get qImgNameLink() {
-			return '.filename > a';
-		}
-		get qThread() {
-			return '.thread_body';
-		}
-		get catalogUrl() {
-			return `${ this.prot }//${ this.host }/catalog/${ this.b }`;
-		}
-		get css() {
-			return `img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr,
-					form > div:first-of-type > hr, h2, .sage { display: none; }
-				.de-thr-hid { float: none; }
-				.de-video-obj-inline { margin-left: 5px; }
-				div[id^="Wz"] { z-index: 10000 !important; }
-				form[action="/paint"] > select { width: 105px; }
-				form[action="/paint"] > input[type="text"] { width: 24px !important; }`;
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'aa'];
-		}
-		fixDeadLinks(str) {
-			return str.replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
-				'<a class="de-ref-del" href="#$1">&gt;&gt;$1</a>');
-		}
-		fixFileInputs(el) {
-			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }>` +
-				`<input type="file" name="file_${ i }" tabindex="7"></div>`
-			).join('');
-			el.removeAttribute('id');
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/href="(#\d+)"/g, `href="/${ aib.b }/thread-${ aib.t }.html$1"`);
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
-		}
-		init() {
-			$script('highlightPost = Function.prototype');
-			return false;
-		}
-		initCaptcha(cap) {
-			cap.hasCaptcha = false;
-			const scripts = $Q('script:not([src])', doc);
-			for(let i = 0, len = scripts.length; i < len; ++i) {
-				const m = scripts[i].textContent.match(/var boardRequiresCaptcha = ([a-z]+);/);
-				if(m) {
-					if(m[1] === 'true') {
-						cap.hasCaptcha = true;
-					}
-					break;
-				}
-			}
-			return null;
-		}
-		insertYtPlayer(msg, playerHtml) {
-			const pMsg = msg.parentNode;
-			const prev = pMsg.previousElementSibling;
-			return $bBegin(prev.hasAttribute('style') ? prev : pMsg, playerHtml);
-		}
-		parseURL() {
-			super.parseURL();
-			if(this.b.startsWith('board/')) {
-				this.b = this.b.substr(6);
-			}
-		}
-		updateCaptcha(cap, isErr) {
-			if(isErr && !cap.hasCaptcha) {
-				cap.hasCaptcha = true;
-				cap.showCaptcha();
-			}
-			let sessionId = null;
-			const { cookie } = doc;
-			if(cookie.includes('desuchan.session')) {
-				for(const c of cookie.split(';')) {
-					const m = c.match(/^\s*desuchan\.session=(.*)$/);
-					if(m) {
-						sessionId = unescape(m[1].replace(/\+/g, ' '));
-						break;
-					}
-				}
-			}
-			const id = this.b + (pr.tNum ? pr.tNum : '') + (sessionId ? '-' + sessionId : '') +
-				`-${ Date.now() }-` + Math.round(1e8 * Math.random());
-			const img = $q('img', cap.parentEl);
-			img.src = '';
-			img.src = '/captcha?id=' + id;
-			$q('input[name="captcha_name"]', cap.parentEl).value = id;
-			return null;
-		}
-	}
-	ibDomains['krautchan.net'] = Krautchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {
@@ -17532,14 +17225,11 @@ function updateCSS() {
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
-		return;
-	}
-	let formEl = $q(aib.qDForm + ', form[de-form]');
-	if(!formEl) {
-		if(aib.observeContent) {
-			aib.observeContent(checkDomains, dataPromise);
-		}
+	let formEl;
+	if(!(docBody = doc.body) ||
+		!aib && !(aib = getImageBoard(checkDomains, true)) ||
+		!(formEl = $q(aib.qDForm + ', form[de-form]'))
+	) {
 		return;
 	}
 	Logger.log('Imageboard check');

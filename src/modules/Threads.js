@@ -11,7 +11,6 @@ class Thread {
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
-		this.thrId = aib.thrId ? aib.thrId(el) : num;
 		const els = $Q(aib.qRPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
@@ -175,7 +174,7 @@ class Thread {
 		if(isInformUser) {
 			$popup('load-thr', Lng.loading[lang], true);
 		}
-		return ajaxPostsLoad(aib.b, this.thrId, false).then(
+		return ajaxPostsLoad(aib.b, this.num, false).then(
 			pBuilder => this._loadFromBuilder(task, isSmartScroll, pBuilder),
 			err => $popup('load-thr', getErrorMessage(err)));
 	}
@@ -186,7 +185,7 @@ class Thread {
 	*  @returns {Promise} - resolves with Object, { newCount: Number, locked: Boolean }
 	*/
 	loadNewPosts() {
-		return ajaxPostsLoad(aib.b, this.thrId, true).then(
+		return ajaxPostsLoad(aib.b, this.num, true).then(
 			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
@@ -198,7 +197,7 @@ class Thread {
 			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
 			({ host: h, b } = aib);
-			num = this.thrId;
+			({ num } = this);
 			cnt = this.pcount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
@@ -400,7 +399,7 @@ class Thread {
 		}
 		if(!$q('.de-thr-collapse', btns)) {
 			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-				aib.getThrUrl(aib.b, this.thrId) }"></a>]</span>`);
+				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
