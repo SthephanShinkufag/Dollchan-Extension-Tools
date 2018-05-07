@@ -366,7 +366,12 @@ function showFavoritesWindow(body, favObj) {
 			let tNums;
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
+				const arr = [];
+				const els = DelForm.getThreads(form);
+				for(let i = 0, len = els.length; i < len; ++i) {
+					arr.push(aib.getTNum(els[i]));
+				}
+				tNums = new Set(arr);
 			} catch(err) {
 				continue;
 			}

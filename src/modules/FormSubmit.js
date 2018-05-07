@@ -166,7 +166,9 @@ async function checkDelete(data) {
 			infoLoadErrors(err);
 		}
 	} else {
-		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
+		for(const thr of threads) {
+			await thr.loadPosts(visPosts, false, false);
+		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }

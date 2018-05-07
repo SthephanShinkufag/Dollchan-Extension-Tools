@@ -131,13 +131,18 @@ class PostForm {
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
-		const btnsHTML = aib.markupTags.reduce((html, str, i) => html + (str === '' ? '' :
-			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
-				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
-				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
-				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`), '');
-		el.innerHTML = `${ btnsHTML }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		let html = '';
+		for(let i = 0, len = aib.markupTags.length; i < len; ++i) {
+			const tag = aib.markupTags[i];
+			if(tag) {
+				html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ tag }">${
+					mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
+					mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
+					`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
+				}</div>`;
+			}
+		}
+		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'

@@ -798,10 +798,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#resizer { display: none; }
+				#resizer, .threadlinksbottom { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thr-buttons { float: left; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { position: static; }`;
 		}

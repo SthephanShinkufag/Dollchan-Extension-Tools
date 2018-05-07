@@ -437,7 +437,12 @@ const CfgWindow = {
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
-			case 'de-cfg-btn-debug':
+			case 'de-cfg-btn-debug': {
+				const perf = {};
+				const arr = Logger.getLogData(true);
+				for(let i = 0, len = arr.length; i < len; ++i) {
+					perf[arr[i][0]] = arr[i][1];
+				}
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version  : version + '.' + commit,
@@ -446,10 +451,7 @@ const CfgWindow = {
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
-					perf     : Logger.getLogData(true).reduce((obj, el) => {
-						obj[el[0]] = el[1]; // Transforms 2D-array into object with keys and values
-						return obj;
-					}, {})
+					perf
 				}, (key, value) => {
 					switch(key) {
 					case 'stats':
@@ -459,6 +461,7 @@ const CfgWindow = {
 					}
 					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
 				}, '\t');
+			}
 			}
 		}
 		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {

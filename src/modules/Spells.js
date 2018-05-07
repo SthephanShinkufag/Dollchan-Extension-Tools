@@ -773,18 +773,20 @@ class SpellsCodegen {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = m[1].split(/, */).reduce((val, str) => {
-					switch(str) {
-					case 'samelines': return (val |= 1);
-					case 'samewords': return (val |= 2);
-					case 'longwords': return (val |= 4);
-					case 'symbols': return (val |= 8);
-					case 'capslock': return (val |= 16);
-					case 'numbers': return (val |= 32);
-					case 'whitespace': return (val |= 64);
-					default: return -1;
+				let val = 0;
+				const arr = m[1].split(/, */);
+				for(let i = 0, len = arr.length; i < len; ++i) {
+					switch(arr[i]) {
+					case 'samelines': val |= 1; break;
+					case 'samewords': val |= 2; break;
+					case 'longwords': val |= 4; break;
+					case 'symbols': val |= 8; break;
+					case 'capslock': val |= 16; break;
+					case 'numbers': val |= 32; break;
+					case 'whitespace': val |= 64; break;
+					default: val = -1;
 					}
-				}, 0);
+				}
 				if(val !== -1) {
 					return [i + m[0].length, [spellType, val, scope]];
 				}

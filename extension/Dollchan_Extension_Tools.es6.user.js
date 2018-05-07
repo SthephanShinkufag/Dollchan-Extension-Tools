@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '3975336';
+const commit = 'd01fab6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4019,7 +4019,12 @@ function showFavoritesWindow(body, favObj) {
 			let tNums;
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				tNums = new Set(Array.from(DelForm.getThreads(form), thrEl => aib.getTNum(thrEl)));
+				const arr = [];
+				const els = DelForm.getThreads(form);
+				for(let i = 0, len = els.length; i < len; ++i) {
+					arr.push(aib.getTNum(els[i]));
+				}
+				tNums = new Set(arr);
 			} catch(err) {
 				continue;
 			}
@@ -4539,7 +4544,12 @@ const CfgWindow = {
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
-			case 'de-cfg-btn-debug':
+			case 'de-cfg-btn-debug': {
+				const perf = {};
+				const arr = Logger.getLogData(true);
+				for(let i = 0, len = arr.length; i < len; ++i) {
+					perf[arr[i][0]] = arr[i][1];
+				}
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version  : version + '.' + commit,
@@ -4548,10 +4558,7 @@ const CfgWindow = {
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
 					oSpells  : sesStorage[`de-spells-${ aib.b }${ aib.t || '' }`],
-					perf     : Logger.getLogData(true).reduce((obj, el) => {
-						obj[el[0]] = el[1]; // Transforms 2D-array into object with keys and values
-						return obj;
-					}, {})
+					perf
 				}, (key, value) => {
 					switch(key) {
 					case 'stats':
@@ -4561,6 +4568,7 @@ const CfgWindow = {
 					}
 					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
 				}, '\t');
+			}
 			}
 		}
 		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
@@ -7680,18 +7688,20 @@ class SpellsCodegen {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = m[1].split(/, */).reduce((val, str) => {
-					switch(str) {
-					case 'samelines': return (val |= 1);
-					case 'samewords': return (val |= 2);
-					case 'longwords': return (val |= 4);
-					case 'symbols': return (val |= 8);
-					case 'capslock': return (val |= 16);
-					case 'numbers': return (val |= 32);
-					case 'whitespace': return (val |= 64);
-					default: return -1;
+				let val = 0;
+				const arr = m[1].split(/, */);
+				for(let i = 0, len = arr.length; i < len; ++i) {
+					switch(arr[i]) {
+					case 'samelines': val |= 1; break;
+					case 'samewords': val |= 2; break;
+					case 'longwords': val |= 4; break;
+					case 'symbols': val |= 8; break;
+					case 'capslock': val |= 16; break;
+					case 'numbers': val |= 32; break;
+					case 'whitespace': val |= 64; break;
+					default: val = -1;
 					}
-				}, 0);
+				}
 				if(val !== -1) {
 					return [i + m[0].length, [spellType, val, scope]];
 				}
@@ -8333,13 +8343,18 @@ class PostForm {
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
-		const btnsHTML = aib.markupTags.reduce((html, str, i) => html + (str === '' ? '' :
-			`<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ str }">${
-				mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
-				mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
-				`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
-			}</div>`), '');
-		el.innerHTML = `${ btnsHTML }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
+		let html = '';
+		for(let i = 0, len = aib.markupTags.length; i < len; ++i) {
+			const tag = aib.markupTags[i];
+			if(tag) {
+				html += `<div id="de-btn-${ id[i] }" de-title="${ Lng.txtBtn[i][lang] }" de-tag="${ tag }">${
+					mode === 2 ? `${ !html ? '[' : '' }&nbsp;<a class="de-abtn" href="#">${ val[i] }</a> /` :
+					mode === 3 ? `<button type="button" style="font-weight: bold;">${ val[i] }</button>` :
+					`<svg><use xlink:href="#de-symbol-markup-${ id[i] }"/></svg>`
+				}</div>`;
+			}
+		}
+		el.innerHTML = `${ html }<div id="de-btn-quote" de-title="${ Lng.txtBtn[8][lang] }" de-tag="q">${
 			mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' :
 			mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' :
 			'<svg><use xlink:href="#de-symbol-markup-quote"/></svg>'
@@ -8963,7 +8978,9 @@ async function checkDelete(data) {
 			infoLoadErrors(err);
 		}
 	} else {
-		await Promise.all(Array.from(threads, thr => thr.loadPosts(visPosts, false, false)));
+		for(const thr of threads) {
+			await thr.loadPosts(visPosts, false, false);
+		}
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }
@@ -9165,7 +9182,11 @@ class Files {
 		this.fileTd = $parent(fileEl, 'TD');
 		this.onchange = null;
 		this._form = form;
-		this._inputs = Array.from($Q('input[type="file"]', this.fileTd), el => new FileInput(this, el));
+		this._inputs = [];
+		const els = $Q('input[type="file"]', this.fileTd);
+		for(let i = 0, len = els.length; i < len; ++i) {
+			this._inputs.push(new FileInput(this, els[i]));
+		}
 		this._files = [];
 		this.hideEmpty();
 	}
@@ -15558,10 +15579,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#resizer { display: none; }
+				#resizer, .threadlinksbottom { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
-				form > .de-thr-buttons { float: left; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { position: static; }`;
 		}
@@ -16869,7 +16889,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 328px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
+	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }

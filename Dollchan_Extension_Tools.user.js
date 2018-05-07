@@ -3355,7 +3355,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var checkDelete = function () {
 		var _ref41 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
-			var err, els, threads, isThr, i, len, el;
+			var err, els, threads, isThr, i, len, el, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, thr;
+
 			return regeneratorRuntime.wrap(function _callee13$(_context14) {
 				while (1) {
 					switch (_context14.prev = _context14.next) {
@@ -3406,24 +3407,74 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							infoLoadErrors(_context14.t0);
 
 						case 19:
-							_context14.next = 23;
+							_context14.next = 47;
 							break;
 
 						case 21:
-							_context14.next = 23;
-							return Promise.all(Array.from(threads, function (thr) {
-								return thr.loadPosts(visPosts, false, false);
-							}));
+							_iteratorNormalCompletion23 = true;
+							_didIteratorError23 = false;
+							_iteratorError23 = undefined;
+							_context14.prev = 24;
+							_iterator23 = threads[Symbol.iterator]();
 
-						case 23:
+						case 26:
+							if (_iteratorNormalCompletion23 = (_step23 = _iterator23.next()).done) {
+								_context14.next = 33;
+								break;
+							}
+
+							thr = _step23.value;
+							_context14.next = 30;
+							return thr.loadPosts(visPosts, false, false);
+
+						case 30:
+							_iteratorNormalCompletion23 = true;
+							_context14.next = 26;
+							break;
+
+						case 33:
+							_context14.next = 39;
+							break;
+
+						case 35:
+							_context14.prev = 35;
+							_context14.t1 = _context14['catch'](24);
+							_didIteratorError23 = true;
+							_iteratorError23 = _context14.t1;
+
+						case 39:
+							_context14.prev = 39;
+							_context14.prev = 40;
+
+							if (!_iteratorNormalCompletion23 && _iterator23.return) {
+								_iterator23.return();
+							}
+
+						case 42:
+							_context14.prev = 42;
+
+							if (!_didIteratorError23) {
+								_context14.next = 45;
+								break;
+							}
+
+							throw _iteratorError23;
+
+						case 45:
+							return _context14.finish(42);
+
+						case 46:
+							return _context14.finish(39);
+
+						case 47:
 							$popup('delete', Lng.succDeleted[lang]);
 
-						case 24:
+						case 48:
 						case 'end':
 							return _context14.stop();
 					}
 				}
-			}, _callee13, this, [[11, 16]]);
+			}, _callee13, this, [[11, 16], [24, 35, 39, 47], [40,, 42, 46]]);
 		}));
 
 		return function checkDelete(_x39) {
@@ -3435,7 +3486,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref42 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref43, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
+			var data, hasFiles, _iteratorNormalCompletion24, _didIteratorError24, _iteratorError24, _iterator24, _step24, _ref43, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
 
 			return regeneratorRuntime.wrap(function _callee14$(_context15) {
 				while (1) {
@@ -3443,19 +3494,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 0:
 							data = new FormData();
 							hasFiles = false;
-							_iteratorNormalCompletion23 = true;
-							_didIteratorError23 = false;
-							_iteratorError23 = undefined;
+							_iteratorNormalCompletion24 = true;
+							_didIteratorError24 = false;
+							_iteratorError24 = undefined;
 							_context15.prev = 5;
-							_iterator23 = getFormElements(form, submitter)[Symbol.iterator]();
+							_iterator24 = getFormElements(form, submitter)[Symbol.iterator]();
 
 						case 7:
-							if (_iteratorNormalCompletion23 = (_step23 = _iterator23.next()).done) {
+							if (_iteratorNormalCompletion24 = (_step24 = _iterator24.next()).done) {
 								_context15.next = 38;
 								break;
 							}
 
-							_ref43 = _step23.value;
+							_ref43 = _step24.value;
 							name = _ref43.name;
 							value = _ref43.value;
 							type = _ref43.type;
@@ -3515,7 +3566,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							data.append(name, val);
 
 						case 35:
-							_iteratorNormalCompletion23 = true;
+							_iteratorNormalCompletion24 = true;
 							_context15.next = 7;
 							break;
 
@@ -3526,26 +3577,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 40:
 							_context15.prev = 40;
 							_context15.t3 = _context15['catch'](5);
-							_didIteratorError23 = true;
-							_iteratorError23 = _context15.t3;
+							_didIteratorError24 = true;
+							_iteratorError24 = _context15.t3;
 
 						case 44:
 							_context15.prev = 44;
 							_context15.prev = 45;
 
-							if (!_iteratorNormalCompletion23 && _iterator23.return) {
-								_iterator23.return();
+							if (!_iteratorNormalCompletion24 && _iterator24.return) {
+								_iterator24.return();
 							}
 
 						case 47:
 							_context15.prev = 47;
 
-							if (!_didIteratorError23) {
+							if (!_didIteratorError24) {
 								_context15.next = 50;
 								break;
 							}
 
-							throw _iteratorError23;
+							throw _iteratorError24;
 
 						case 50:
 							return _context15.finish(47);
@@ -3815,7 +3866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '3975336';
+	var commit = 'd01fab6';
 
 
 	var defaultCfg = {
@@ -7074,7 +7125,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}))));
 
 		btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
-			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, _i, inf, _i2, _inf;
+			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, arr, _els, _i, _len2, _i2, inf, _i3, _inf;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context7) {
 				while (1) {
@@ -7125,7 +7176,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 11:
 							if (!(page < endPage)) {
-								_context7.next = 29;
+								_context7.next = 32;
 								break;
 							}
 
@@ -7136,21 +7187,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 16:
 							form = _context7.sent;
+							arr = [];
+							_els = DelForm.getThreads(form);
 
-							tNums = new Set(Array.from(DelForm.getThreads(form), function (thrEl) {
-								return aib.getTNum(thrEl);
-							}));
-							_context7.next = 23;
+							for (_i = 0, _len2 = _els.length; _i < _len2; ++_i) {
+								arr.push(aib.getTNum(_els[_i]));
+							}
+							tNums = new Set(arr);
+							_context7.next = 26;
 							break;
 
-						case 20:
-							_context7.prev = 20;
-							_context7.t0 = _context7['catch'](13);
-							return _context7.abrupt('continue', 26);
-
 						case 23:
-							for (_i = 0; _i < len; ++_i) {
-								inf = thrInfo[_i];
+							_context7.prev = 23;
+							_context7.t0 = _context7['catch'](13);
+							return _context7.abrupt('continue', 29);
+
+						case 26:
+							for (_i2 = 0; _i2 < len; ++_i2) {
+								inf = thrInfo[_i2];
 
 								if (tNums.has(inf.num)) {
 									updateInf(inf, page);
@@ -7160,20 +7214,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 
 							if (!(infoLoaded === len)) {
-								_context7.next = 26;
+								_context7.next = 29;
 								break;
 							}
 
-							return _context7.abrupt('break', 29);
+							return _context7.abrupt('break', 32);
 
-						case 26:
+						case 29:
 							++page;
 							_context7.next = 11;
 							break;
 
-						case 29:
-							for (_i2 = 0; _i2 < len; ++_i2) {
-								_inf = thrInfo[_i2];
+						case 32:
+							for (_i3 = 0; _i3 < len; ++_i3) {
+								_inf = thrInfo[_i3];
 
 								if (!_inf.found) {
 									updateInf(_inf, '?');
@@ -7181,12 +7235,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							closePopup('load-pages');
 
-						case 31:
+						case 34:
 						case 'end':
 							return _context7.stop();
 					}
 				}
-			}, _callee6, _this13, [[13, 20]]);
+			}, _callee6, _this13, [[13, 23]]);
 		}))));
 
 		btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee7() {
@@ -7824,27 +7878,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}, emptyFn);
 						break;
 					case 'de-cfg-btn-debug':
-						$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
-							version: version + '.' + commit,
-							location: String(window.location),
-							nav: nav,
-							Cfg: Cfg,
-							sSpells: Spells.list.split('\n'),
-							oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
-							perf: Logger.getLogData(true).reduce(function (obj, el) {
-								obj[el[0]] = el[1]; 
-								return obj;
-							}, {})
-						}, function (key, value) {
-							switch (key) {
-								case 'stats':
-								case 'nameValue':
-								case 'passwValue':
-								case 'ytApiKey':
-									return void 0;
+						{
+							var perf = {};
+							var arr = Logger.getLogData(true);
+							for (var i = 0, len = arr.length; i < len; ++i) {
+								perf[arr[i][0]] = arr[i][1];
 							}
-							return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
-						}, '\t');
+							$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
+								version: version + '.' + commit,
+								location: String(window.location),
+								nav: nav,
+								Cfg: Cfg,
+								sSpells: Spells.list.split('\n'),
+								oSpells: sesStorage['de-spells-' + aib.b + (aib.t || '')],
+								perf: perf
+							}, function (key, value) {
+								switch (key) {
+									case 'stats':
+									case 'nameValue':
+									case 'passwValue':
+									case 'ytApiKey':
+										return void 0;
+								}
+								return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+							}, '\t');
+						}
 				}
 			}
 			if (type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
@@ -9310,7 +9368,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return txt;
 				}
 				return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-					for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key = 1; _key < _len2; _key++) {
+					for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key = 1; _key < _len3; _key++) {
 						args[_key - 1] = arguments[_key];
 					}
 
@@ -9646,7 +9704,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    videoObj = _ref21[2],
 				    id = _ref21[3];
 
-				for (var _len3 = arguments.length, data = Array(_len3 > 2 ? _len3 - 2 : 0), _key2 = 2; _key2 < _len3; _key2++) {
+				for (var _len4 = arguments.length, data = Array(_len4 > 2 ? _len4 - 2 : 0), _key2 = 2; _key2 < _len4; _key2++) {
 					data[_key2 - 2] = arguments[_key2];
 				}
 
@@ -9766,9 +9824,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}
 		if (Cfg.addVocaroo) {
-			var _els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-			for (var _i3 = 0, _len4 = _els.length; _i3 < _len4; ++_i3) {
-				var _link = _els[_i3];
+			var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
+			for (var _i4 = 0, _len5 = _els2.length; _i4 < _len5; ++_i4) {
+				var _link = _els2[_i4];
 				var _el6 = _link.previousSibling;
 				if (!_el6 || _el6.className !== 'de-vocaroo') {
 					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
@@ -10931,18 +10989,18 @@ true, true];
 				}
 			}
 			sp = sp.sort();
-			for (var _i4 = 0, _len5 = sp.length - 1; _i4 < _len5; ++_i4) {
-				var j = _i4 + 1;
-				if (sp[_i4][0] === sp[j][0] && sp[_i4][1] <= sp[j][1] && sp[_i4][1] >= sp[j][1] && (sp[_i4][2] === null || 
-				sp[_i4][2] === undefined || 
-				sp[_i4][2] <= sp[j][2] && sp[_i4][2] >= sp[j][2])) {
+			for (var _i5 = 0, _len6 = sp.length - 1; _i5 < _len6; ++_i5) {
+				var j = _i5 + 1;
+				if (sp[_i5][0] === sp[j][0] && sp[_i5][1] <= sp[j][1] && sp[_i5][1] >= sp[j][1] && (sp[_i5][2] === null || 
+				sp[_i5][2] === undefined || 
+				sp[_i5][2] <= sp[j][2] && sp[_i5][2] >= sp[j][2])) {
 					sp.splice(j, 1);
-					_i4--;
-					_len5--;
-				} else if (sp[_i4][0] === 0xFF) {
-					sp.push(sp.splice(_i4, 1)[0]);
-					_i4--;
-					_len5--;
+					_i5--;
+					_len6--;
+				} else if (sp[_i5][0] === 0xFF) {
+					sp.push(sp.splice(_i5, 1)[0]);
+					_i5--;
+					_len6--;
 				}
 			}
 		},
@@ -11209,28 +11267,30 @@ true, true];
 					case 14:
 						m = str.match(/^\(([a-z, ]+)\)/);
 						if (m) {
-							val = m[1].split(/, */).reduce(function (val, str) {
-								switch (str) {
+							var _val = 0;
+							var arr = m[1].split(/, */);
+							for (var _i6 = 0, len = arr.length; _i6 < len; ++_i6) {
+								switch (arr[_i6]) {
 									case 'samelines':
-										return val |= 1;
+										_val |= 1;break;
 									case 'samewords':
-										return val |= 2;
+										_val |= 2;break;
 									case 'longwords':
-										return val |= 4;
+										_val |= 4;break;
 									case 'symbols':
-										return val |= 8;
+										_val |= 8;break;
 									case 'capslock':
-										return val |= 16;
+										_val |= 16;break;
 									case 'numbers':
-										return val |= 32;
+										_val |= 32;break;
 									case 'whitespace':
-										return val |= 64;
+										_val |= 64;break;
 									default:
-										return -1;
+										_val = -1;
 								}
-							}, 0);
-							if (val !== -1) {
-								return [i + m[0].length, [spellType, val, scope]];
+							}
+							if (_val !== -1) {
+								return [i + m[0].length, [spellType, _val, scope]];
 							}
 						}
 						break;
@@ -11767,10 +11827,10 @@ true, true];
 			value: function _img(val) {
 				var images = this._post.images;
 
-				var _val = _slicedToArray(val, 3),
-				    compareRule = _val[0],
-				    weightVals = _val[1],
-				    sizeVals = _val[2];
+				var _val2 = _slicedToArray(val, 3),
+				    compareRule = _val2[0],
+				    weightVals = _val2[1],
+				    sizeVals = _val2[2];
 
 				if (!val) {
 					return images.hasAttachments;
@@ -12029,10 +12089,10 @@ true, true];
 						arr.sort();
 						var keys = 0;
 						var pop = 0;
-						for (var _i5 = 0, _n = len / 4; _i5 < len; keys++) {
-							x = arr[_i5];
+						for (var _i7 = 0, _n = len / 4; _i7 < len; keys++) {
+							x = arr[_i7];
 							var _j2 = 0;
-							while (arr[_i5++] === x) {
+							while (arr[_i7++] === x) {
 								_j2++;
 							}
 							if (len > 25) {
@@ -12072,8 +12132,8 @@ true, true];
 						var _n2 = 0;
 						var capsw = 0;
 						var casew = 0;
-						for (var _i6 = 0; _i6 < len; ++_i6) {
-							x = arr[_i6];
+						for (var _i8 = 0; _i8 < len; ++_i8) {
+							x = arr[_i8];
 							if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 								continue;
 							}
@@ -12122,8 +12182,8 @@ true, true];
 						return true;
 					}
 				}
-				for (var _arr = val[1], _i7 = _arr.length - 1; _i7 >= 0; --_i7) {
-					if (num >= _arr[_i7][0] && num <= _arr[_i7][1]) {
+				for (var _arr = val[1], _i9 = _arr.length - 1; _i9 >= 0; --_i9) {
+					if (num >= _arr[_i9][0] && num <= _arr[_i9][1]) {
 						return true;
 					}
 				}
@@ -12243,10 +12303,14 @@ true, true];
 				var id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 				var val = ['B', 'i', 'U', 'S', '%', 'C', 'x\xB2', 'x\u2082'];
 				var mode = Cfg.addTextBtns;
-				var btnsHTML = aib.markupTags.reduce(function (html, str, i) {
-					return html + (str === '' ? '' : '<div id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + str + '">' + (mode === 2 ? (!html ? '[' : '') + '&nbsp;<a class="de-abtn" href="#">' + val[i] + '</a> /' : mode === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '<svg><use xlink:href="#de-symbol-markup-' + id[i] + '"/></svg>') + '</div>');
-				}, '');
-				el.innerHTML = btnsHTML + '<div id="de-btn-quote" de-title="' + Lng.txtBtn[8][lang] + '" de-tag="q">' + (mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>') + '</span>';
+				var html = '';
+				for (var i = 0, len = aib.markupTags.length; i < len; ++i) {
+					var tag = aib.markupTags[i];
+					if (tag) {
+						html += '<div id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] + '" de-tag="' + tag + '">' + (mode === 2 ? (!html ? '[' : '') + '&nbsp;<a class="de-abtn" href="#">' + val[i] + '</a> /' : mode === 3 ? '<button type="button" style="font-weight: bold;">' + val[i] + '</button>' : '<svg><use xlink:href="#de-symbol-markup-' + id[i] + '"/></svg>') + '</div>';
+					}
+				}
+				el.innerHTML = html + '<div id="de-btn-quote" de-title="' + Lng.txtBtn[8][lang] + '" de-tag="q">' + (mode === 2 ? '&nbsp;<a class="de-abtn" href="#">&gt;</a> ]' : mode === 3 ? '<button type="button" style="font-weight: bold;">&gt;</button>' : '<svg><use xlink:href="#de-symbol-markup-quote"/></svg>') + '</span>';
 			}
 		}, {
 			key: 'clearForm',
@@ -13130,17 +13194,17 @@ true, true];
 
 	var Files = function () {
 		function Files(form, fileEl) {
-			var _this34 = this;
-
 			_classCallCheck(this, Files);
 
 			this.filesCount = 0;
 			this.fileTd = $parent(fileEl, 'TD');
 			this.onchange = null;
 			this._form = form;
-			this._inputs = Array.from($Q('input[type="file"]', this.fileTd), function (el) {
-				return new FileInput(_this34, el);
-			});
+			this._inputs = [];
+			var els = $Q('input[type="file"]', this.fileTd);
+			for (var i = 0, len = els.length; i < len; ++i) {
+				this._inputs.push(new FileInput(this, els[i]));
+			}
 			this._files = [];
 			this.hideEmpty();
 		}
@@ -13149,36 +13213,6 @@ true, true];
 			key: 'changeMode',
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
-				var _iteratorNormalCompletion24 = true;
-				var _didIteratorError24 = false;
-				var _iteratorError24 = undefined;
-
-				try {
-					for (var _iterator24 = this._inputs[Symbol.iterator](), _step24; !(_iteratorNormalCompletion24 = (_step24 = _iterator24.next()).done); _iteratorNormalCompletion24 = true) {
-						var inp = _step24.value;
-
-						inp.changeMode(cfg);
-					}
-				} catch (err) {
-					_didIteratorError24 = true;
-					_iteratorError24 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion24 && _iterator24.return) {
-							_iterator24.return();
-						}
-					} finally {
-						if (_didIteratorError24) {
-							throw _iteratorError24;
-						}
-					}
-				}
-
-				this.hideEmpty();
-			}
-		}, {
-			key: 'clearInputs',
-			value: function clearInputs() {
 				var _iteratorNormalCompletion25 = true;
 				var _didIteratorError25 = false;
 				var _iteratorError25 = undefined;
@@ -13187,7 +13221,7 @@ true, true];
 					for (var _iterator25 = this._inputs[Symbol.iterator](), _step25; !(_iteratorNormalCompletion25 = (_step25 = _iterator25.next()).done); _iteratorNormalCompletion25 = true) {
 						var inp = _step25.value;
 
-						inp.clearInp();
+						inp.changeMode(cfg);
 					}
 				} catch (err) {
 					_didIteratorError25 = true;
@@ -13207,13 +13241,43 @@ true, true];
 				this.hideEmpty();
 			}
 		}, {
+			key: 'clearInputs',
+			value: function clearInputs() {
+				var _iteratorNormalCompletion26 = true;
+				var _didIteratorError26 = false;
+				var _iteratorError26 = undefined;
+
+				try {
+					for (var _iterator26 = this._inputs[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
+						var inp = _step26.value;
+
+						inp.clearInp();
+					}
+				} catch (err) {
+					_didIteratorError26 = true;
+					_iteratorError26 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion26 && _iterator26.return) {
+							_iterator26.return();
+						}
+					} finally {
+						if (_didIteratorError26) {
+							throw _iteratorError26;
+						}
+					}
+				}
+
+				this.hideEmpty();
+			}
+		}, {
 			key: 'hideEmpty',
 			value: function hideEmpty() {
-				for (var els = this._inputs, i = els.length - 1; i > 0; --i) {
-					var inp = els[i];
+				for (var _els3 = this._inputs, i = _els3.length - 1; i > 0; --i) {
+					var inp = _els3[i];
 					if (inp.hasFile) {
 						break;
-					} else if (els[i - 1].hasFile) {
+					} else if (_els3[i - 1].hasFile) {
 						inp.showInp();
 						break;
 					}
@@ -13358,7 +13422,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this35 = this;
+				var _this34 = this;
 
 				var el = e.target;
 				var thumb = this._thumb;
@@ -13376,15 +13440,15 @@ true, true];
 									for (var i = 0; i < allowedLen; ++i) {
 										FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
 											if (! --j) {
-												_this35._removeFileHelper();
+												_this34._removeFileHelper();
 											}
 										});
-										_this35._parent._files[curInpIdx + i] = el.files[i];
+										_this34._parent._files[curInpIdx + i] = el.files[i];
 									}
 								})();
 							} else {
 								setTimeout(function () {
-									return _this35._onFileChange(false);
+									return _this34._onFileChange(false);
 								}, 20);
 								if (filesLen > 0) {
 									this._parent._files[curInpIdx] = el.files[0];
@@ -13497,22 +13561,22 @@ true, true];
 		}, {
 			key: '_addRarJpeg',
 			value: function _addRarJpeg() {
-				var _this36 = this;
+				var _this35 = this;
 
 				var el = this._parent.rarInput;
 				el.onchange = function (e) {
-					$hide(_this36._btnRarJpg);
-					var myBtn = _this36._rarMsg = $aBegin(_this36._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+					$hide(_this35._btnRarJpg);
+					var myBtn = _this35._rarMsg = $aBegin(_this35._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
 					readFile(file).then(function (_ref47) {
 						var data = _ref47.data;
 
-						if (_this36._rarMsg === myBtn) {
+						if (_this35._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
-							var origFileName = _this36.imgFile ? _this36.imgFile[1] : _this36._input.files[0].name;
+							var origFileName = _this35.imgFile ? _this35.imgFile[1] : _this35._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
 							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
-							_this36.extraFile = data;
+							_this35.extraFile = data;
 						}
 					});
 				};
@@ -13521,7 +13585,7 @@ true, true];
 		}, {
 			key: '_addUrlFile',
 			value: function _addUrlFile(url) {
-				var _this37 = this;
+				var _this36 = this;
 
 				var file = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -13538,7 +13602,7 @@ true, true];
 						return;
 					}
 					closePopup('file-loading');
-					_this37._isTxtEditable = false;
+					_this36._isTxtEditable = false;
 					var name = file ? file.name : url.split('/').pop();
 					var type = file && file.type || getFileType(name);
 					if (!type || name.includes('?')) {
@@ -13559,17 +13623,17 @@ true, true];
 							name = name.split('?').shift() + '.' + ext;
 						}
 					}
-					_this37.imgFile = [data.buffer, name, type || getFileType(name)];
+					_this36.imgFile = [data.buffer, name, type || getFileType(name)];
 					if (!file) {
-						file = new Blob([data], { type: _this37.imgFile[2] });
+						file = new Blob([data], { type: _this36.imgFile[2] });
 						file.name = name;
 					}
-					_this37._parent._files[_this37._parent._inputs.indexOf(_this37)] = file;
-					DollchanAPI.notify('filechange', _this37._parent._files);
+					_this36._parent._files[_this36._parent._inputs.indexOf(_this36)] = file;
+					DollchanAPI.notify('filechange', _this36._parent._files);
 					if (FileInput._isThumb) {
-						$hide(_this37._txtWrap);
+						$hide(_this36._txtWrap);
 					}
-					_this37._onFileChange(true);
+					_this36._onFileChange(true);
 				});
 			}
 		}, {
@@ -13659,7 +13723,7 @@ true, true];
 		}, {
 			key: '_showFileThumb',
 			value: function _showFileThumb() {
-				var _this38 = this;
+				var _this37 = this;
 
 				var imgFile = this.imgFile;
 
@@ -13672,8 +13736,8 @@ true, true];
 					readFile(file).then(function (_ref48) {
 						var data = _ref48.data;
 
-						if (_this38._input.files[0] === file) {
-							_this38._addNewThumb(data, file.name, file.type, file.size);
+						if (_this37._input.files[0] === file) {
+							_this37._addNewThumb(data, file.name, file.type, file.size);
 						}
 					});
 				}
@@ -13787,17 +13851,17 @@ true, true];
 		}, {
 			key: 'initCapPromise',
 			value: function initCapPromise() {
-				var _this39 = this;
+				var _this38 = this;
 
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this39.showCaptcha();
+						return _this38.showCaptcha();
 					}, function (err) {
 						if (err instanceof AjaxError) {
-							_this39._setUpdateError(err);
+							_this38._setUpdateError(err);
 						} else {
-							_this39.hasCaptcha = false;
+							_this38.hasCaptcha = false;
 						}
 					});
 				} else if (this.hasCaptcha) {
@@ -13807,13 +13871,13 @@ true, true];
 		}, {
 			key: 'initImage',
 			value: function initImage(img) {
-				var _this40 = this;
+				var _this39 = this;
 
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this40.refreshCaptcha(true);
+					return _this39.refreshCaptcha(true);
 				};
 			}
 		}, {
@@ -13863,7 +13927,7 @@ true, true];
 		}, {
 			key: 'refreshCaptcha',
 			value: function refreshCaptcha(isFocus) {
-				var _this41 = this;
+				var _this40 = this;
 
 				var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -13884,9 +13948,9 @@ true, true];
 					var updatePromise = aib.updateCaptcha(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
-							return _this41._updateTextEl(isFocus);
+							return _this40._updateTextEl(isFocus);
 						}, function (err) {
-							return _this41._setUpdateError(err);
+							return _this40._setUpdateError(err);
 						});
 					}
 				} else if (this._isRecap) {
@@ -13939,14 +14003,14 @@ true, true];
 		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
-				var _this42 = this;
+				var _this41 = this;
 
 				if (e) {
 					this.parentEl = e.toString();
 					this.isAdded = false;
 					this.parentEl.onclick = function () {
-						_this42.parentEl.onclick = null;
-						_this42.addCaptcha();
+						_this41.parentEl.onclick = null;
+						_this41.addCaptcha();
 					};
 					$show(this.parentEl);
 				}
@@ -14006,7 +14070,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this43 = this;
+				var _this42 = this;
 
 				var temp = void 0,
 				    el = fixEventEl(e.target);
@@ -14213,7 +14277,7 @@ true, true];
 							}
 						} else {
 							this._linkDelay = setTimeout(function () {
-								return _this43.kid = Pview.showPview(_this43, el);
+								return _this42.kid = Pview.showPview(_this42, el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -14261,7 +14325,7 @@ true, true];
 		}, {
 			key: '_addMenu',
 			value: function _addMenu(el, isOutEvent, html) {
-				var _this44 = this;
+				var _this43 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
 					return;
@@ -14270,7 +14334,7 @@ true, true];
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this44._showMenu(el, html);
+						return _this43._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -14288,7 +14352,7 @@ true, true];
 		}, {
 			key: '_getFullMsg',
 			value: function _getFullMsg(truncEl, isInit) {
-				var _this45 = this;
+				var _this44 = this;
 
 				if (aib.deleteTruncMsg) {
 					aib.deleteTruncMsg(this, truncEl, isInit);
@@ -14300,20 +14364,20 @@ true, true];
 				ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
 					var sourceEl = void 0;
 					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this45.isOp) {
+					if (_this44.isOp) {
 						sourceEl = form;
 					} else {
 						var posts = $Q(aib.qRPost, form);
 						for (var i = 0, len = posts.length; i < len; ++i) {
 							var post = posts[i];
-							if (_this45.num === aib.getPNum(post)) {
+							if (_this44.num === aib.getPNum(post)) {
 								sourceEl = post;
 								break;
 							}
 						}
 					}
 					if (sourceEl) {
-						_this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+						_this44.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
 						$del(truncEl);
 					}
 					if (maybeSpells.hasValue) {
@@ -14324,16 +14388,16 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this46 = this;
+				var _this45 = this;
 
 				if (this._menu) {
 					this._menu.removeMenu();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this46._clickMenu(el);
+					return _this45._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
-					return _this46._menu = null;
+					return _this45._menu = null;
 				};
 			}
 		}, {
@@ -14407,37 +14471,37 @@ true, true];
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			var _this47 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
+			var _this46 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
 
-			_this47.count = count;
-			_this47.el = el;
-			_this47.isDeleted = false;
-			_this47.isHidden = false;
-			_this47.isOmitted = false;
-			_this47.isViewed = false;
-			_this47.next = null;
-			_this47.prev = prev;
-			_this47.spellHidden = false;
-			_this47.userToggled = false;
-			_this47._selRange = null;
-			_this47._selText = '';
+			_this46.count = count;
+			_this46.el = el;
+			_this46.isDeleted = false;
+			_this46.isHidden = false;
+			_this46.isOmitted = false;
+			_this46.isViewed = false;
+			_this46.next = null;
+			_this46.prev = prev;
+			_this46.spellHidden = false;
+			_this46.userToggled = false;
+			_this46._selRange = null;
+			_this46._selText = '';
 			if (prev) {
-				prev.next = _this47;
+				prev.next = _this46;
 			}
-			pByEl.set(el, _this47);
-			pByNum.set(num, _this47);
+			pByEl.set(el, _this46);
+			pByNum.set(num, _this46);
 			if (MyPosts.has(num)) {
-				_this47.el.classList.add('de-mypost');
+				_this46.el.classList.add('de-mypost');
 			}
 			el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-			_this47.sage = aib.getSage(el);
-			_this47.btns = $aEnd(_this47._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this47.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : '<span class="de-post-counter">' + (count + 1) + '</span>') + '</span>');
-			_this47.counterEl = isOp ? null : _this47.btns.lastChild;
-			if (Cfg.expandTrunc && _this47.trunc) {
-				_this47._getFullMsg(_this47.trunc, true);
+			_this46.sage = aib.getSage(el);
+			_this46.btns = $aEnd(_this46._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this46.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : '<span class="de-post-counter">' + (count + 1) + '</span>') + '</span>');
+			_this46.counterEl = isOp ? null : _this46.btns.lastChild;
+			if (Cfg.expandTrunc && _this46.trunc) {
+				_this46._getFullMsg(_this46.trunc, true);
 			}
-			el.addEventListener('mouseover', _this47, true);
-			return _this47;
+			el.addEventListener('mouseover', _this46, true);
+			return _this46;
 		}
 
 		_createClass(Post, [{
@@ -14575,7 +14639,7 @@ true, true];
 		}, {
 			key: 'setVisib',
 			value: function setVisib(isHide) {
-				var _this48 = this;
+				var _this47 = this;
 
 				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -14593,14 +14657,14 @@ true, true];
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
 							var yOffset = window.pageYOffset;
-							_this48.hideContent(e.type === 'mouseout');
+							_this47.hideContent(e.type === 'mouseout');
 							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this48._strikePostNum(isHide);
+						return _this47._strikePostNum(isHide);
 					}, 50);
 				}
 				if (isHide) {
@@ -14634,13 +14698,13 @@ true, true];
 			value: function toggleImages() {
 				var isExpand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 				var isExpandVideos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-				var _iteratorNormalCompletion26 = true;
-				var _didIteratorError26 = false;
-				var _iteratorError26 = undefined;
+				var _iteratorNormalCompletion27 = true;
+				var _didIteratorError27 = false;
+				var _iteratorError27 = undefined;
 
 				try {
-					for (var _iterator26 = this.images[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
-						var image = _step26.value;
+					for (var _iterator27 = this.images[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
+						var image = _step27.value;
 
 						if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ isExpand) {
 							if (isExpand) {
@@ -14651,16 +14715,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError26 = true;
-					_iteratorError26 = err;
+					_didIteratorError27 = true;
+					_iteratorError27 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion26 && _iterator26.return) {
-							_iterator26.return();
+						if (!_iteratorNormalCompletion27 && _iterator27.return) {
+							_iterator27.return();
 						}
 					} finally {
-						if (_didIteratorError26) {
-							throw _iteratorError26;
+						if (_didIteratorError27) {
+							throw _iteratorError27;
 						}
 					}
 				}
@@ -14989,15 +15053,15 @@ true, true];
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this49 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
+			var _this48 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
 
-			if (_this49._isInited) {
-				return _possibleConstructorReturn(_this49);
+			if (_this48._isInited) {
+				return _possibleConstructorReturn(_this48);
 			}
-			_this49._isInited = true;
-			_this49.el = post.el;
-			_this49.post = post;
-			return _this49;
+			_this48._isInited = true;
+			_this48.el = post.el;
+			_this48.post = post;
+			return _this48;
 		}
 
 		_createClass(PostContent, [{
@@ -15100,17 +15164,17 @@ true, true];
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this50 = this;
+				var _this49 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this50._post.hideContent(e.type === 'mouseout');
+						return _this49._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this50._post.setUserVisib(!_this50._post.isHidden);
+						_this49._post.setUserVisib(!_this49._post.isHidden);
 					};
 					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
@@ -15169,51 +15233,51 @@ true, true];
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this51 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
+			var _this50 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this51.isSticky = false;
-			_this51.parent = parent;
-			_this51.remoteThr = null;
-			_this51.tNum = tNum;
-			_this51._isCached = false;
-			_this51._isLeft = false;
-			_this51._isTop = false;
-			_this51._link = link;
-			_this51._newPos = null;
-			_this51._offsetTop = 0;
-			_this51._readDelay = 0;
+			_this50.isSticky = false;
+			_this50.parent = parent;
+			_this50.remoteThr = null;
+			_this50.tNum = tNum;
+			_this50._isCached = false;
+			_this50._isLeft = false;
+			_this50._isTop = false;
+			_this50._link = link;
+			_this50._newPos = null;
+			_this50._offsetTop = 0;
+			_this50._readDelay = 0;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-				_this51._buildPview(post);
-				return _possibleConstructorReturn(_this51);
+				_this50._buildPview(post);
+				return _possibleConstructorReturn(_this50);
 			}
-			_this51._isCached = true;
-			_this51.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this51.brd + tNum)) {
-				post = PviewsCache.get(_this51.brd + tNum).getPost(pNum);
+			_this50._isCached = true;
+			_this50.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this50.brd + tNum)) {
+				post = PviewsCache.get(_this50.brd + tNum).getPost(pNum);
 				if (post) {
-					_this51._buildPview(post);
+					_this50._buildPview(post);
 				} else {
-					_this51._showPview(_this51.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
+					_this50._showPview(_this50.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
 				}
-				return _possibleConstructorReturn(_this51);
+				return _possibleConstructorReturn(_this50);
 			}
-			_this51._showPview(_this51.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this50._showPview(_this50.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this51._loadPromise = ajaxPostsLoad(_this51.brd, tNum, false).then(function (pBuilder) {
+			_this50._loadPromise = ajaxPostsLoad(_this50.brd, tNum, false).then(function (pBuilder) {
 				if (!aib.JsonBuilder) {
-					_this51._onload(pBuilder._form);
+					_this50._onload(pBuilder._form);
 					return;
 				}
 				var html = [];
 				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
 					html.push(pBuilder.getPostHTML(i - 1)); 
 				}
-				_this51._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+				_this50._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
 			}, function (err) {
-				return _this51._onerror(err);
+				return _this50._onerror(err);
 			});
-			return _this51;
+			return _this50;
 		}
 
 		_createClass(Pview, [{
@@ -15302,11 +15366,11 @@ true, true];
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this52 = this;
+				var _this51 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this52.deleteNonSticky();
+					return _this51.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -15544,14 +15608,14 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this53 = this;
+				var _this52 = this;
 
 				_get(Pview.prototype.__proto__ || Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this53.mouseEnter();
+					return _this52.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this53.markToDel();
+					return _this52.markToDel();
 				};
 			}
 		}, {
@@ -15719,12 +15783,12 @@ true, true];
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this54 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this53 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this54._isInited) {
-				return _possibleConstructorReturn(_this54);
+			if (_this53._isInited) {
+				return _possibleConstructorReturn(_this53);
 			}
-			_this54._isInited = true;
+			_this53._isInited = true;
 			var pByNum = new Map();
 			var thr = $q(aib.qThread, form) || form;
 			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -15733,17 +15797,17 @@ true, true];
 				var post = posts[i];
 				pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 			}
-			_this54._opObj = new CacheItem(aib.getOp(thr), 0);
-			_this54._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this54._opObj.title };
-			pByNum.set(tNum, _this54._opObj);
-			_this54._b = b;
-			_this54._tNum = tNum;
-			_this54._tUrl = aib.getThrUrl(b, tNum);
-			_this54._posts = pByNum;
+			_this53._opObj = new CacheItem(aib.getOp(thr), 0);
+			_this53._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this53._opObj.title };
+			pByNum.set(tNum, _this53._opObj);
+			_this53._b = b;
+			_this53._tNum = tNum;
+			_this53._tUrl = aib.getThrUrl(b, tNum);
+			_this53._posts = pByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this54._tUrl);
+				RefMap.gen(pByNum, _this53._tUrl);
 			}
-			return _this54;
+			return _this53;
 		}
 
 		_createClass(PviewsCache, [{
@@ -15869,11 +15933,11 @@ true, true];
 		}, {
 			key: '_setHideTmt',
 			value: function _setHideTmt() {
-				var _this55 = this;
+				var _this54 = this;
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this55.hideBtns();
+					return _this54.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -16105,7 +16169,7 @@ true, true];
 		}, {
 			key: '_showFullImg',
 			value: function _showFullImg(data) {
-				var _this56 = this;
+				var _this55 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
 				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
@@ -16114,9 +16178,9 @@ true, true];
 				    minSize = _data$computeFullSize4[2];
 
 				this._fullEl = data.getFullImg(false, function (el) {
-					return _this56._resizeFullImg(el);
+					return _this55._resizeFullImg(el);
 				}, function (el) {
-					return _this56._rotateFullImg(el);
+					return _this55._rotateFullImg(el);
 				});
 				this._width = width;
 				this._height = height;
@@ -16270,7 +16334,7 @@ true, true];
 		}, {
 			key: 'expandImg',
 			value: function expandImg(inPost, e) {
-				var _this57 = this;
+				var _this56 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -16296,7 +16360,7 @@ true, true];
 				(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this57.collapseImg(e);
+					return _this56.collapseImg(e);
 				}, true);
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
@@ -16328,7 +16392,7 @@ true, true];
 		}, {
 			key: 'getFullImg',
 			value: function getFullImg(inPost, onsizechange, onrotate) {
-				var _this58 = this;
+				var _this57 = this;
 
 				var wrapEl = void 0,
 				    name = void 0,
@@ -16363,10 +16427,10 @@ true, true];
 						var newW = img.naturalWidth,
 						    newH = img.naturalHeight;
 
-						var ar = _this58._size ? _this58._size[1] / _this58._size[0] : newH / newW;
+						var ar = _this57._size ? _this57._size[1] / _this57._size[0] : newH / newW;
 						var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
-						if (!_this58._size || isRotated) {
-							_this58._size = isRotated ? [newH, newW] : [newW, newH];
+						if (!_this57._size || isRotated) {
+							_this57._size = isRotated ? [newH, newW] : [newW, newH];
 						}
 						var waitEl = img.previousElementSibling;
 						if (waitEl) {
@@ -16415,7 +16479,7 @@ true, true];
 					videoEl.addEventListener('loadedmetadata', function (_ref54) {
 						var el = _ref54.target;
 
-						_this58._size = [el.videoWidth, el.videoHeight];
+						_this57._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
 					});
 				}
@@ -16458,7 +16522,7 @@ true, true];
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
-						_this58.el.setAttribute('de-metatitle', loadedTitle);
+						_this57.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
 							$q('.de-fullimg-src', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle);
 						}
@@ -16672,8 +16736,8 @@ true, true];
 			}
 			if (Cfg.addImgs || localData) {
 				els = $Q('.de-img-embed', post.el);
-				for (var _i8 = 0, _len6 = els.length; _i8 < _len6; ++_i8) {
-					var _el8 = els[_i8];
+				for (var _i10 = 0, _len7 = els.length; _i10 < _len7; ++_i10) {
+					var _el8 = els[_i10];
 					last = new EmbeddedImage(post, _el8, last);
 					filesMap.set(_el8, last);
 					if (!first) {
@@ -16783,9 +16847,9 @@ true, true];
 			var areas = 256 / levels;
 			var values = 256 / (levels - 1);
 			var hash = 0;
-			for (var _i9 = 0; _i9 < newh; ++_i9) {
+			for (var _i11 = 0; _i11 < newh; ++_i11) {
 				for (var _j3 = 0; _j3 < neww; ++_j3) {
-					var tmp = _i9 / (newh - 1) * (oldh - 1);
+					var tmp = _i11 / (newh - 1) * (oldh - 1);
 					var l = Math.min(tmp | 0, oldh - 2);
 					var u = tmp - l;
 					tmp = _j3 / (neww - 1) * (oldw - 1);
@@ -16803,7 +16867,7 @@ true, true];
 		},
 		_getHashHelper: function () {
 			var _ref59 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref58) {
-				var _this61 = this;
+				var _this60 = this;
 
 				var el = _ref58.el,
 				    src = _ref58.src;
@@ -16879,7 +16943,7 @@ true, true];
 
 								_context18.next = 25;
 								return new Promise(function (resolve) {
-									return _this61._workers.runWorker([buffer, w, h], [buffer], function (val) {
+									return _this60._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
@@ -17235,13 +17299,13 @@ true, true];
 				var multiFile = data.files.length > 1;
 
 				var filesHTML = '';
-				var _iteratorNormalCompletion27 = true;
-				var _didIteratorError27 = false;
-				var _iteratorError27 = undefined;
+				var _iteratorNormalCompletion28 = true;
+				var _didIteratorError28 = false;
+				var _iteratorError28 = undefined;
 
 				try {
-					for (var _iterator27 = data.files[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
-						var _ref60 = _step27.value;
+					for (var _iterator28 = data.files[Symbol.iterator](), _step28; !(_iteratorNormalCompletion28 = (_step28 = _iterator28.next()).done); _iteratorNormalCompletion28 = true) {
+						var _ref60 = _step28.value;
 						var file_id = _ref60.file_id;
 						var metadata = _ref60.metadata;
 						var rating = _ref60.rating;
@@ -17283,16 +17347,16 @@ true, true];
 					}
 
 				} catch (err) {
-					_didIteratorError27 = true;
-					_iteratorError27 = err;
+					_didIteratorError28 = true;
+					_iteratorError28 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion27 && _iterator27.return) {
-							_iterator27.return();
+						if (!_iteratorNormalCompletion28 && _iterator28.return) {
+							_iterator28.return();
 						}
 					} finally {
-						if (_didIteratorError27) {
-							throw _iteratorError27;
+						if (_didIteratorError28) {
+							throw _iteratorError28;
 						}
 					}
 				}
@@ -17370,13 +17434,13 @@ true, true];
 				var filesHTML = '';
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images images-' + (data.files.length === 1 ? 'single' : 'multi') + '">';
-					var _iteratorNormalCompletion28 = true;
-					var _didIteratorError28 = false;
-					var _iteratorError28 = undefined;
+					var _iteratorNormalCompletion29 = true;
+					var _didIteratorError29 = false;
+					var _iteratorError29 = undefined;
 
 					try {
-						for (var _iterator28 = data.files[Symbol.iterator](), _step28; !(_iteratorNormalCompletion28 = (_step28 = _iterator28.next()).done); _iteratorNormalCompletion28 = true) {
-							var file = _step28.value;
+						for (var _iterator29 = data.files[Symbol.iterator](), _step29; !(_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done); _iteratorNormalCompletion29 = true) {
+							var file = _step29.value;
 
 							var imgId = num + '-' + file.md5;
 							var _file$fullname = file.fullname,
@@ -17388,16 +17452,16 @@ true, true];
 							filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + file.path + '"' + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height) + ((isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '" class="image-link">\n\t\t\t\t\t\t<a href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="img preview' + (isWebm ? ' webm-file' : '') + '" src="') + (file.thumbnail + '" alt="' + file.size + '" width="') + (file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
 						}
 					} catch (err) {
-						_didIteratorError28 = true;
-						_iteratorError28 = err;
+						_didIteratorError29 = true;
+						_iteratorError29 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion28 && _iterator28.return) {
-								_iterator28.return();
+							if (!_iteratorNormalCompletion29 && _iterator29.return) {
+								_iterator29.return();
 							}
 						} finally {
-							if (_didIteratorError28) {
-								throw _iteratorError28;
+							if (_didIteratorError29) {
+								throw _iteratorError29;
 							}
 						}
 					}
@@ -17421,25 +17485,25 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
+				var _iteratorNormalCompletion30, _didIteratorError30, _iteratorError30, _iterator30, _step30, _ref61, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
 					while (1) {
 						switch (_context22.prev = _context22.next) {
 							case 0:
-								_iteratorNormalCompletion29 = true;
-								_didIteratorError29 = false;
-								_iteratorError29 = undefined;
+								_iteratorNormalCompletion30 = true;
+								_didIteratorError30 = false;
+								_iteratorError30 = undefined;
 								_context22.prev = 3;
-								_iterator29 = this._posts[Symbol.iterator]();
+								_iterator30 = this._posts[Symbol.iterator]();
 
 							case 5:
-								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
+								if (_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done) {
 									_context22.next = 21;
 									break;
 								}
 
-								_ref61 = _step29.value;
+								_ref61 = _step30.value;
 								banned = _ref61.banned;
 								num = _ref61.num;
 								_context22.t0 = banned;
@@ -17461,7 +17525,7 @@ true, true];
 								return _context22.abrupt('break', 18);
 
 							case 18:
-								_iteratorNormalCompletion29 = true;
+								_iteratorNormalCompletion30 = true;
 								_context22.next = 5;
 								break;
 
@@ -17472,26 +17536,26 @@ true, true];
 							case 23:
 								_context22.prev = 23;
 								_context22.t1 = _context22['catch'](3);
-								_didIteratorError29 = true;
-								_iteratorError29 = _context22.t1;
+								_didIteratorError30 = true;
+								_iteratorError30 = _context22.t1;
 
 							case 27:
 								_context22.prev = 27;
 								_context22.prev = 28;
 
-								if (!_iteratorNormalCompletion29 && _iterator29.return) {
-									_iterator29.return();
+								if (!_iteratorNormalCompletion30 && _iterator30.return) {
+									_iterator30.return();
 								}
 
 							case 30:
 								_context22.prev = 30;
 
-								if (!_didIteratorError29) {
+								if (!_didIteratorError30) {
 									_context22.next = 33;
 									break;
 								}
 
-								throw _iteratorError29;
+								throw _iteratorError30;
 
 							case 33:
 								return _context22.finish(30);
@@ -17578,13 +17642,13 @@ true, true];
 					return;
 				}
 				this._isHidden = true;
-				var _iteratorNormalCompletion30 = true;
-				var _didIteratorError30 = false;
-				var _iteratorError30 = undefined;
+				var _iteratorNormalCompletion31 = true;
+				var _didIteratorError31 = false;
+				var _iteratorError31 = undefined;
 
 				try {
-					for (var _iterator30 = this._set[Symbol.iterator](), _step30; !(_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done); _iteratorNormalCompletion30 = true) {
-						var num = _step30.value;
+					for (var _iterator31 = this._set[Symbol.iterator](), _step31; !(_iteratorNormalCompletion31 = (_step31 = _iterator31.next()).done); _iteratorNormalCompletion31 = true) {
+						var num = _step31.value;
 
 						var post = pByNum.get(num);
 						if (post && !post.isHidden) {
@@ -17598,35 +17662,6 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError30 = true;
-					_iteratorError30 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion30 && _iterator30.return) {
-							_iterator30.return();
-						}
-					} finally {
-						if (_didIteratorError30) {
-							throw _iteratorError30;
-						}
-					}
-				}
-			}
-		}, {
-			key: 'initPostRef',
-			value: function initPostRef(tUrl, strNums) {
-				var html = '';
-				var _iteratorNormalCompletion31 = true;
-				var _didIteratorError31 = false;
-				var _iteratorError31 = undefined;
-
-				try {
-					for (var _iterator31 = this._set[Symbol.iterator](), _step31; !(_iteratorNormalCompletion31 = (_step31 = _iterator31.next()).done); _iteratorNormalCompletion31 = true) {
-						var num = _step31.value;
-
-						html += this._getHTML(num, tUrl, strNums && strNums.has(num));
-					}
-				} catch (err) {
 					_didIteratorError31 = true;
 					_iteratorError31 = err;
 				} finally {
@@ -17637,6 +17672,35 @@ true, true];
 					} finally {
 						if (_didIteratorError31) {
 							throw _iteratorError31;
+						}
+					}
+				}
+			}
+		}, {
+			key: 'initPostRef',
+			value: function initPostRef(tUrl, strNums) {
+				var html = '';
+				var _iteratorNormalCompletion32 = true;
+				var _didIteratorError32 = false;
+				var _iteratorError32 = undefined;
+
+				try {
+					for (var _iterator32 = this._set[Symbol.iterator](), _step32; !(_iteratorNormalCompletion32 = (_step32 = _iterator32.next()).done); _iteratorNormalCompletion32 = true) {
+						var num = _step32.value;
+
+						html += this._getHTML(num, tUrl, strNums && strNums.has(num));
+					}
+				} catch (err) {
+					_didIteratorError32 = true;
+					_iteratorError32 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion32 && _iterator32.return) {
+							_iterator32.return();
+						}
+					} finally {
+						if (_didIteratorError32) {
+							throw _iteratorError32;
 						}
 					}
 				}
@@ -17691,13 +17755,13 @@ true, true];
 					return;
 				}
 				this._isHidden = false;
-				var _iteratorNormalCompletion32 = true;
-				var _didIteratorError32 = false;
-				var _iteratorError32 = undefined;
+				var _iteratorNormalCompletion33 = true;
+				var _didIteratorError33 = false;
+				var _iteratorError33 = undefined;
 
 				try {
-					for (var _iterator32 = this._set[Symbol.iterator](), _step32; !(_iteratorNormalCompletion32 = (_step32 = _iterator32.next()).done); _iteratorNormalCompletion32 = true) {
-						var num = _step32.value;
+					for (var _iterator33 = this._set[Symbol.iterator](), _step33; !(_iteratorNormalCompletion33 = (_step33 = _iterator33.next()).done); _iteratorNormalCompletion33 = true) {
+						var num = _step33.value;
 
 						var post = pByNum.get(num);
 						if (post && post.isHidden && !post.spellHidden) {
@@ -17711,16 +17775,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError32 = true;
-					_iteratorError32 = err;
+					_didIteratorError33 = true;
+					_iteratorError33 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion32 && _iterator32.return) {
-							_iterator32.return();
+						if (!_iteratorNormalCompletion33 && _iterator33.return) {
+							_iterator33.return();
 						}
 					} finally {
-						if (_didIteratorError32) {
-							throw _iteratorError32;
+						if (_didIteratorError33) {
+							throw _iteratorError33;
 						}
 					}
 				}
@@ -17758,13 +17822,13 @@ true, true];
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var tNums = DelForm.tNums;
-				var _iteratorNormalCompletion33 = true;
-				var _didIteratorError33 = false;
-				var _iteratorError33 = undefined;
+				var _iteratorNormalCompletion34 = true;
+				var _didIteratorError34 = false;
+				var _iteratorError34 = undefined;
 
 				try {
-					for (var _iterator33 = posts[Symbol.iterator](), _step33; !(_iteratorNormalCompletion33 = (_step33 = _iterator33.next()).done); _iteratorNormalCompletion33 = true) {
-						var _ref62 = _step33.value;
+					for (var _iterator34 = posts[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
+						var _ref62 = _step34.value;
 
 						var _ref63 = _slicedToArray(_ref62, 2);
 
@@ -17807,16 +17871,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError33 = true;
-					_iteratorError33 = err;
+					_didIteratorError34 = true;
+					_iteratorError34 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion33 && _iterator33.return) {
-							_iterator33.return();
+						if (!_iteratorNormalCompletion34 && _iterator34.return) {
+							_iterator34.return();
 						}
 					} finally {
-						if (_didIteratorError33) {
-							throw _iteratorError33;
+						if (_didIteratorError34) {
+							throw _iteratorError34;
 						}
 					}
 				}
@@ -18016,7 +18080,7 @@ true, true];
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this62 = this;
+				var _this61 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -18025,7 +18089,7 @@ true, true];
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-					return _this62._loadFromBuilder(task, isSmartScroll, pBuilder);
+					return _this61._loadFromBuilder(task, isSmartScroll, pBuilder);
 				}, function (err) {
 					return $popup('load-thr', getErrorMessage(err));
 				});
@@ -18034,10 +18098,10 @@ true, true];
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this63 = this;
+				var _this62 = this;
 
 				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-					return pBuilder ? _this63._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this62._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
@@ -18134,13 +18198,13 @@ true, true];
 				if (!aib.qBan) {
 					return;
 				}
-				var _iteratorNormalCompletion34 = true;
-				var _didIteratorError34 = false;
-				var _iteratorError34 = undefined;
+				var _iteratorNormalCompletion35 = true;
+				var _didIteratorError35 = false;
+				var _iteratorError35 = undefined;
 
 				try {
-					for (var _iterator34 = pBuilder.bannedPostsData()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref65 = _step34.value;
+					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
+						var _ref65 = _step35.value;
 
 						var _ref66 = _slicedToArray(_ref65, 3);
 
@@ -18156,16 +18220,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError34 = true;
-					_iteratorError34 = err;
+					_didIteratorError35 = true;
+					_iteratorError35 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion34 && _iterator34.return) {
-							_iterator34.return();
+						if (!_iteratorNormalCompletion35 && _iterator35.return) {
+							_iterator35.return();
 						}
 					} finally {
-						if (_didIteratorError34) {
-							throw _iteratorError34;
+						if (_didIteratorError35) {
+							throw _iteratorError35;
 						}
 					}
 				}
@@ -18187,8 +18251,8 @@ true, true];
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts = $Q(aib.qRPost, fragm);
-					for (var _i10 = 0, _len7 = _posts.length; _i10 < _len7; ++_i10) {
-						last = this._addPost(fragm, _posts[_i10], begin + _i10 + 1, last, maybeVParser);
+					for (var _i12 = 0, _len8 = _posts.length; _i12 < _len8; ++_i12) {
+						last = this._addPost(fragm, _posts[_i12], begin + _i12 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
@@ -18442,7 +18506,7 @@ true, true];
 		}, {
 			key: '_toggleReplies',
 			value: function _toggleReplies() {
-				var _this64 = this;
+				var _this63 = this;
 
 				var isHide = !this.last.isOmitted;
 				var post = this.op;
@@ -18453,7 +18517,7 @@ true, true];
 				}
 				this.btnReplies.firstElementChild.className = (isHide ? 'de-replies-show' : 'de-replies-hide') + ' de-abtn';
 				$each(this.btns.children, function (el) {
-					return el !== _this64.btnReplies && $toggle(el, !isHide);
+					return el !== _this63.btnReplies && $toggle(el, !isHide);
 				});
 				$del($q(aib.qOmitted + ', .de-omitted', this.el));
 				i = this.pcount - 1 - (isHide ? 0 : i);
@@ -18531,12 +18595,12 @@ true, true];
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this65 = this;
+			var _this64 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						return _this65._checkThreads();
+						return _this64._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -18582,27 +18646,27 @@ true, true];
 			}
 		},
 		_expandCollapse: function _expandCollapse(isExpand, rt) {
-			var _this66 = this;
+			var _this65 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
 				this._toggleTO = setTimeout(function () {
-					return _this66._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+					return _this65._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},
 		_findCurrentThread: function _findCurrentThread() {
-			var _this67 = this;
+			var _this66 = this;
 
 			Object.defineProperty(this, '_findCurrentThread', {
 				value: 'elementsFromPoint' in doc ? function () {
 					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-						return _this67._thrs.has(el);
+						return _this66._thrs.has(el);
 					});
 				} : function () {
 					var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 					while (el) {
-						if (_this67._thrs.has(el)) {
+						if (_this66._thrs.has(el)) {
 							return el;
 						}
 						el = el.parentElement;
@@ -18656,7 +18720,7 @@ true, true];
 				}
 			},
 			playAudio: function playAudio() {
-				var _this68 = this;
+				var _this67 = this;
 
 				this.stopAudio();
 				if (this.repeatMS === 0) {
@@ -18664,7 +18728,7 @@ true, true];
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this68._el.play();
+					return _this67._el.play();
 				}, this.repeatMS);
 			},
 			stopAudio: function stopAudio() {
@@ -18686,11 +18750,11 @@ true, true];
 
 		var counter = {
 			count: function count(delayMS, useCounter, callback) {
-				var _this69 = this;
+				var _this68 = this;
 
 				if (!this._enabled || !useCounter) {
 					this._countingTO = setTimeout(function () {
-						_this69._countingTO = null;
+						_this68._countingTO = null;
 						callback();
 					}, delayMS);
 					return;
@@ -18700,10 +18764,10 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this69._stopCounter();
+						_this68._stopCounter();
 						callback();
 					} else {
-						_this69._set(seconds);
+						_this68._set(seconds);
 					}
 				}, 1e3);
 			},
@@ -18755,7 +18819,7 @@ true, true];
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this70 = this;
+				var _this69 = this;
 
 				if (this._isInited) {
 					return;
@@ -18764,7 +18828,7 @@ true, true];
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this70._initIconsHelper(e.target);
+						_this69._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -18778,7 +18842,7 @@ true, true];
 				icon.src = this._iconEl.href;
 			},
 			startBlink: function startBlink(isError) {
-				var _this71 = this;
+				var _this70 = this;
 
 				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew;
 				if (this._blinkInterv) {
@@ -18789,7 +18853,7 @@ true, true];
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterv = setInterval(function () {
-					return _this71._setIcon((_this71._isOrigIcon = !_this71._isOrigIcon) ? _this71.originalIcon : _this71._currentIcon);
+					return _this70._setIcon((_this70._isOrigIcon = !_this70._isOrigIcon) ? _this70.originalIcon : _this70._currentIcon);
 				}, this._blinkMS);
 			},
 			stopBlink: function stopBlink() {
@@ -18887,7 +18951,7 @@ true, true];
 				}
 			},
 			showNotif: function showNotif() {
-				var _this72 = this;
+				var _this71 = this;
 
 				var new10 = newPosts % 10;
 				var quantity = lang !== 0 ? +(newPosts !== 1) : new10 > 4 || new10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
@@ -18899,7 +18963,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this72._notifEl && _this72.closeNotif();
+						return notif === _this71._notifEl && _this71.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -18907,7 +18971,7 @@ true, true];
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this72._requestPermission();
+					_this71._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -18917,14 +18981,14 @@ true, true];
 			_granted: true,
 			_notifEl: null,
 			_requestPermission: function _requestPermission() {
-				var _this73 = this;
+				var _this72 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this73._granted = true;
+						_this72._granted = true;
 					}
 				});
 			}
@@ -19031,7 +19095,7 @@ true, true];
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this74 = this;
+				var _this73 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -19041,7 +19105,7 @@ true, true];
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this74._makeStep();
+									return _this73._makeStep();
 								});
 								return;
 							}
@@ -19051,9 +19115,9 @@ true, true];
 							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
 								var newCount = _ref67.newCount,
 								    locked = _ref67.locked;
-								return _this74._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this73._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
-								return _this74._handleNewPosts(0, err);
+								return _this73._handleNewPosts(0, err);
 							});
 							return;
 						case 2:
@@ -19240,7 +19304,7 @@ true, true];
 			formEl.removeAttribute('id');
 			$each($Q('script', this.el), $del);
 			var threads = DelForm.getThreads(this.el);
-			for (var i = 0, _len8 = threads.length; i < _len8; ++i) {
+			for (var i = 0, _len9 = threads.length; i < _len9; ++i) {
 				var num = aib.getTNum(threads[i]);
 				if (DelForm.tNums.has(num)) {
 					var el = threads[i];
@@ -19534,7 +19598,7 @@ true, true];
 				return value;
 			},
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len9 = arguments.length, rules = Array(_len9 > 1 ? _len9 - 1 : 0), _key3 = 1; _key3 < _len9; _key3++) {
+				for (var _len10 = arguments.length, rules = Array(_len10 > 1 ? _len10 - 1 : 0), _key3 = 1; _key3 < _len10; _key3++) {
 					rules[_key3 - 1] = arguments[_key3];
 				}
 
@@ -19701,7 +19765,7 @@ true, true];
 			value: function fixVideo(isPost, data) {
 				var videos = [];
 				var els = $Q('embed, object, iframe', isPost ? data.el : data);
-				for (var i = 0, _len10 = els.length; i < _len10; ++i) {
+				for (var i = 0, _len11 = els.length; i < _len11; ++i) {
 					var el = els[i];
 					var src = el.src || el.data;
 					if (!src) {
@@ -20012,38 +20076,38 @@ true, true];
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this75 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this74 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this75.mak = true;
+				_this74.mak = true;
 
-				_this75.cReply = 'post reply';
-				_this75.qBan = '.pomyanem';
-				_this75.qClosed = '.sticky-img[src$="locked.png"]';
-				_this75.qDForm = '#posts-form';
-				_this75.qFormRedir = null;
-				_this75.qFormRules = '.rules-area';
-				_this75.qImgInfo = '.file-attr';
-				_this75.qOmitted = '.mess-post';
-				_this75.qPostHeader = '.post-details';
-				_this75.qPostImg = '.preview';
-				_this75.qPostMsg = '.post-message';
-				_this75.qPostName = '.ananimas, .post-email';
-				_this75.qPostSubj = '.post-title';
-				_this75.qRPost = '.post.reply[data-num]';
-				_this75.qTrunc = null;
+				_this74.cReply = 'post reply';
+				_this74.qBan = '.pomyanem';
+				_this74.qClosed = '.sticky-img[src$="locked.png"]';
+				_this74.qDForm = '#posts-form';
+				_this74.qFormRedir = null;
+				_this74.qFormRules = '.rules-area';
+				_this74.qImgInfo = '.file-attr';
+				_this74.qOmitted = '.mess-post';
+				_this74.qPostHeader = '.post-details';
+				_this74.qPostImg = '.preview';
+				_this74.qPostMsg = '.post-message';
+				_this74.qPostName = '.ananimas, .post-email';
+				_this74.qPostSubj = '.post-title';
+				_this74.qRPost = '.post.reply[data-num]';
+				_this74.qTrunc = null;
 
-				_this75.formParent = 'thread';
-				_this75.hasCatalog = true;
-				_this75.hasOPNum = true;
-				_this75.hasPicWrap = true;
-				_this75.JsonBuilder = MakabaPostsBuilder;
-				_this75.jsonSubmit = true;
-				_this75.markupBB = true;
-				_this75.multiFile = true;
-				_this75.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this74.formParent = 'thread';
+				_this74.hasCatalog = true;
+				_this74.hasOPNum = true;
+				_this74.hasPicWrap = true;
+				_this74.JsonBuilder = MakabaPostsBuilder;
+				_this74.jsonSubmit = true;
+				_this74.markupBB = true;
+				_this74.multiFile = true;
+				_this74.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 
-				_this75._capUpdPromise = null;
-				return _this75;
+				_this74._capUpdPromise = null;
+				return _this74;
 			}
 
 			_createClass(Makaba, [{
@@ -20089,11 +20153,11 @@ true, true];
 			}, {
 				key: 'getSage',
 				value: function getSage(post) {
-					var _this76 = this;
+					var _this75 = this;
 
 					if ($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
 						this.getSage = function (post) {
-							var name = $q(_this76.qPostName, post);
+							var name = $q(_this75.qPostName, post);
 							return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
 						};
 					} else {
@@ -20139,7 +20203,7 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var _this77 = this;
+					var _this76 = this;
 
 					var box = $q('.captcha-box', cap.parentEl);
 					if (box.firstChild.tagName !== 'IMG') {
@@ -20150,7 +20214,7 @@ true, true];
 						    inp = _ref68[1];
 
 						img.onclick = function () {
-							return _this77.updateCaptcha(cap);
+							return _this76.updateCaptcha(cap);
 						};
 						inp.tabIndex = 999;
 						cap.textEl = inp;
@@ -20226,42 +20290,42 @@ true, true];
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this78 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this77 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this78.cReply = 'post reply';
-				_this78.qClosed = '.fa-lock';
-				_this78.qDForm = 'form[name*="postcontrols"]';
-				_this78.qForm = 'form[name="post"]';
-				_this78.qFormPassw = 'input[name="password"]';
-				_this78.qFormRedir = null;
-				_this78.qImgInfo = '.fileinfo';
-				_this78.qOmitted = '.omitted';
-				_this78.qPages = '.pages';
-				_this78.qPostHeader = '.intro';
-				_this78.qPostMsg = '.body';
-				_this78.qPostName = '.name';
-				_this78.qPostRef = '.post_no + a';
-				_this78.qPostSubj = '.subject';
-				_this78.qPostTrip = '.trip';
-				_this78.qTrunc = '.toolong';
+				_this77.cReply = 'post reply';
+				_this77.qClosed = '.fa-lock';
+				_this77.qDForm = 'form[name*="postcontrols"]';
+				_this77.qForm = 'form[name="post"]';
+				_this77.qFormPassw = 'input[name="password"]';
+				_this77.qFormRedir = null;
+				_this77.qImgInfo = '.fileinfo';
+				_this77.qOmitted = '.omitted';
+				_this77.qPages = '.pages';
+				_this77.qPostHeader = '.intro';
+				_this77.qPostMsg = '.body';
+				_this77.qPostName = '.name';
+				_this77.qPostRef = '.post_no + a';
+				_this77.qPostSubj = '.subject';
+				_this77.qPostTrip = '.trip';
+				_this77.qTrunc = '.toolong';
 
-				_this78.firstPage = 1;
-				_this78.formParent = 'thread';
-				_this78.formTd = 'th';
-				_this78.hasCatalog = true;
-				_this78.jsonSubmit = true;
-				_this78.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this77.firstPage = 1;
+				_this77.formParent = 'thread';
+				_this77.formTd = 'th';
+				_this77.hasCatalog = true;
+				_this77.jsonSubmit = true;
+				_this77.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
-				_this78._origInputs = null;
-				_this78._qTable = '.post.reply';
-				return _this78;
+				_this77._origInputs = null;
+				_this77._qTable = '.post.reply';
+				return _this77;
 			}
 
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
 					var _ref69 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
-						var _this79 = this;
+						var _this78 = this;
 
 						var pageInp, query, errFn;
 						return regeneratorRuntime.wrap(function _callee18$(_context23) {
@@ -20293,7 +20357,7 @@ true, true];
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this79._origInputs[0].appendChild(el);
+											return _this78._origInputs[0].appendChild(el);
 										});
 										_context23.next = 17;
 										break;
@@ -20319,12 +20383,12 @@ true, true];
 										$popup('load-form', Lng.loading[lang], true);
 										_context23.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-											var loadedForm = $q(_this79.qForm, loadedDoc);
+											var loadedForm = $q(_this78.qForm, loadedDoc);
 											if (!loadedForm) {
 												errFn();
 												return;
 											}
-											pr.subm.value = $q(_this79.qFormSubm, loadedDoc).value;
+											pr.subm.value = $q(_this78.qFormSubm, loadedDoc).value;
 											$each($Q(query, form), $del);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
@@ -20349,10 +20413,10 @@ true, true];
 			}, {
 				key: 'fixVideo',
 				value: function fixVideo(isPost, data) {
-					var _this80 = this;
+					var _this79 = this;
 
 					return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-						var value = [isPost ? data : _this80.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+						var value = [isPost ? data : _this79.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 						$del(el);
 						return value;
 					});
@@ -20433,13 +20497,13 @@ true, true];
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this81 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this80 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this81.qDelPassw = '#password';
-				_this81.qPostImg = '.post-image[alt]:not(.deleted)';
+				_this80.qDelPassw = '#password';
+				_this80.qPostImg = '.post-image[alt]:not(.deleted)';
 
-				_this81.multiFile = true;
-				return _this81;
+				_this80.multiFile = true;
+				return _this80;
 			}
 
 			_createClass(Vichan, [{
@@ -20491,16 +20555,16 @@ true, true];
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this82 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this82.kus = true;
+				_this81.kus = true;
 
-				_this82.qError = 'h1, h2, div[style*="1.25em"]';
-				_this82.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this81.qError = 'h1, h2, div[style*="1.25em"]';
+				_this81.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this82.formParent = 'replythread';
-				_this82.markupBB = true;
-				return _this82;
+				_this81.formParent = 'replythread';
+				_this81.markupBB = true;
+				return _this81;
 			}
 
 			_createClass(Kusaba, [{
@@ -20540,13 +20604,13 @@ true, true];
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this83 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this83.tinyib = true;
+				_this82.tinyib = true;
 
-				_this83.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this83.qPostMsg = '.message';
-				return _this83;
+				_this82.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this82.qPostMsg = '.message';
+				return _this82;
 			}
 
 			_createClass(TinyIB, [{
@@ -20591,35 +20655,35 @@ true, true];
 			function LynxChan(prot, dm) {
 				_classCallCheck(this, LynxChan);
 
-				var _this84 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
 
-				_this84.cReply = 'innerPost';
-				_this84.qDForm = 'form[action$="contentActions.js"]';
-				_this84.qError = '#errorLabel, #labelMessage';
-				_this84.qForm = '.form-post';
-				_this84.qFormPassw = 'input[name="password"]';
-				_this84.qFormRules = '.form-post > .small';
-				_this84.qFormSubm = '#formButton';
-				_this84.qImgInfo = '.uploadDetails';
-				_this84.qOmitted = '.labelOmission';
-				_this84.qOPost = '.innerOP';
-				_this84.qPages = '#divPages';
-				_this84.qPostHeader = '.postInfo, .de-post-btns';
-				_this84.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-				_this84.qPostMsg = '.divMessage';
-				_this84.qPostRef = '.linkQuote';
-				_this84.qRPost = '.innerPost';
-				_this84.qTrunc = '.contentOmissionIndicator';
+				_this83.cReply = 'innerPost';
+				_this83.qDForm = 'form[action$="contentActions.js"]';
+				_this83.qError = '#errorLabel, #labelMessage';
+				_this83.qForm = '.form-post';
+				_this83.qFormPassw = 'input[name="password"]';
+				_this83.qFormRules = '.form-post > .small';
+				_this83.qFormSubm = '#formButton';
+				_this83.qImgInfo = '.uploadDetails';
+				_this83.qOmitted = '.labelOmission';
+				_this83.qOPost = '.innerOP';
+				_this83.qPages = '#divPages';
+				_this83.qPostHeader = '.postInfo, .de-post-btns';
+				_this83.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+				_this83.qPostMsg = '.divMessage';
+				_this83.qPostRef = '.linkQuote';
+				_this83.qRPost = '.innerPost';
+				_this83.qTrunc = '.contentOmissionIndicator';
 
-				_this84.firstPage = 1;
-				_this84.formParent = 'threadId';
-				_this84.formTd = 'th';
-				_this84.hasCatalog = true;
-				_this84.jsonSubmit = true;
-				_this84.multiFile = true;
+				_this83.firstPage = 1;
+				_this83.formParent = 'threadId';
+				_this83.formTd = 'th';
+				_this83.hasCatalog = true;
+				_this83.jsonSubmit = true;
+				_this83.multiFile = true;
 
-				_this84._qTable = '.divPosts';
-				return _this84;
+				_this83._qTable = '.divPosts';
+				return _this83;
 			}
 
 			_createClass(LynxChan, [{
@@ -20692,9 +20756,9 @@ true, true];
 					$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
 					if (!$q(this.qForm + ' td')) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
-						var _els2 = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' + '#fieldPostingPassword, #divUpload');
-						for (var i = 0, _len11 = _els2.length; i < _len11; ++i) {
-							$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(_els2[i]);
+						var _els4 = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' + '#fieldPostingPassword, #divUpload');
+						for (var i = 0, _len12 = _els4.length; i < _len12; ++i) {
+							$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(_els4[i]);
 						}
 					}
 					return false;
@@ -20708,9 +20772,9 @@ true, true];
 				key: 'sendHTML5Post',
 				value: function () {
 					var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
-						var _this85 = this;
+						var _this84 = this;
 
-						var getBase64, getCookies, dataObj, files, i, _len13, file, cookieObj, ajaxParams, xhr;
+						var getBase64, getCookies, dataObj, files, i, _len14, file, cookieObj, ajaxParams, xhr;
 
 						return regeneratorRuntime.wrap(function _callee21$(_context26) {
 							while (1) {
@@ -20738,7 +20802,7 @@ true, true];
 																return _context24.stop();
 														}
 													}
-												}, _callee19, _this85);
+												}, _callee19, _this84);
 											}));
 
 											return function getBase64(_x81) {
@@ -20749,7 +20813,7 @@ true, true];
 										getCookies = function getCookies() {
 											var obj = {};
 											var cookies = doc.cookie.split(';');
-											for (var i = 0, _len12 = cookies.length; i < _len12; ++i) {
+											for (var i = 0, _len13 = cookies.length; i < _len13; ++i) {
 												var parts = cookies[i].split('=');
 												obj[parts.shift().trim()] = decodeURI(parts.join('='));
 											}
@@ -20776,17 +20840,17 @@ true, true];
 																return _context25.stop();
 														}
 													}
-												}, _callee20, _this85);
+												}, _callee20, _this84);
 											}));
 
 											return function (_x82, _x83) {
 												return _ref74.apply(this, arguments);
 											};
 										}());
-										i = 0, _len13 = files.length;
+										i = 0, _len14 = files.length;
 
 									case 6:
-										if (!(i < _len13)) {
+										if (!(i < _len14)) {
 											_context26.next = 21;
 											break;
 										}
@@ -20910,12 +20974,12 @@ true, true];
 			function _02chSu(prot, dm) {
 				_classCallCheck(this, _02chSu);
 
-				var _this86 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
 
-				_this86.hasCatalog = true;
+				_this85.hasCatalog = true;
 
-				_this86._capUpdPromise = null;
-				return _this86;
+				_this85._capUpdPromise = null;
+				return _this85;
 			}
 
 			_createClass(_02chSu, [{
@@ -20941,20 +21005,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this87 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this87.qDForm = 'form:not([enctype])';
-				_this87.qForm = 'form[enctype]';
-				_this87.qFormRedir = null;
-				_this87.qFormRules = '.chui';
-				_this87.qOmitted = 'font[color="#707070"]';
-				_this87.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this87.qPostRef = '.del';
-				_this87.qRPost = 'td:nth-child(2)';
+				_this86.qDForm = 'form:not([enctype])';
+				_this86.qForm = 'form[enctype]';
+				_this86.qFormRedir = null;
+				_this86.qFormRules = '.chui';
+				_this86.qOmitted = 'font[color="#707070"]';
+				_this86.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this86.qPostRef = '.del';
+				_this86.qRPost = 'td:nth-child(2)';
 
-				_this87.docExt = '.htm';
-				_this87.formParent = 'resto';
-				return _this87;
+				_this86.docExt = '.htm';
+				_this86.formParent = 'resto';
+				return _this86;
 			}
 
 			_createClass(_2chan, [{
@@ -21014,12 +21078,12 @@ true, true];
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this88 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this88.ru = true;
+				_this87.ru = true;
 
-				_this88._capUpdPromise = null;
-				return _this88;
+				_this87._capUpdPromise = null;
+				return _this87;
 			}
 
 			_createClass(_2chRip, [{
@@ -21056,19 +21120,19 @@ true, true];
 			function _2chRu(prot, dm) {
 				_classCallCheck(this, _2chRu);
 
-				var _this89 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
 
-				_this89.qPages = 'table[border="1"] td > a:last-of-type';
+				_this88.qPages = 'table[border="1"] td > a:last-of-type';
 
-				_this89.docExt = '.html';
-				_this89.hasPicWrap = true;
-				_this89.jsonSubmit = true;
-				_this89.markupBB = true;
-				_this89.multiFile = true;
-				_this89.ru = true;
+				_this88.docExt = '.html';
+				_this88.hasPicWrap = true;
+				_this88.jsonSubmit = true;
+				_this88.markupBB = true;
+				_this88.multiFile = true;
+				_this88.ru = true;
 
-				_this89._qTable = 'table:not(.postfiles)';
-				return _this89;
+				_this88._qTable = 'table:not(.postfiles)';
+				return _this88;
 			}
 
 			_createClass(_2chRu, [{
@@ -21160,18 +21224,18 @@ true, true];
 			function _410chanOrg(prot, dm) {
 				_classCallCheck(this, _410chanOrg);
 
-				var _this90 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
 
-				_this90.qFormRedir = 'input#noko';
-				_this90.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this89.qFormRedir = 'input#noko';
+				_this89.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this90.ru = true;
-				_this90.hasCatalog = true;
-				_this90.markupBB = false;
-				_this90.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this89.ru = true;
+				_this89.hasCatalog = true;
+				_this89.markupBB = false;
+				_this89.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 
-				_this90._capUpdPromise = null;
-				return _this90;
+				_this89._capUpdPromise = null;
+				return _this89;
 			}
 
 			_createClass(_410chanOrg, [{
@@ -21212,7 +21276,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this91 = this;
+					var _this90 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -21227,7 +21291,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this91.getCaptchaSrc(src);
+						img.src = _this90.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -21238,7 +21302,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\tform > .de-thr-buttons { float: left; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
+					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\t\t#resizer, .threadlinksbottom { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -21258,40 +21322,40 @@ true, true];
 			function _4chanOrg(prot, dm) {
 				_classCallCheck(this, _4chanOrg);
 
-				var _this92 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
 
-				_this92.fch = true;
+				_this91.fch = true;
 
-				_this92.cReply = 'post reply';
-				_this92.qBan = 'strong[style="color: red;"]';
-				_this92.qClosed = '.archivedIcon';
-				_this92.qDelBut = '.deleteform > input[type="submit"]';
-				_this92.qError = '#errmsg';
-				_this92.qForm = 'form[name="post"]';
-				_this92.qFormRedir = null;
-				_this92.qImgInfo = '.fileText';
-				_this92.qOmitted = '.summary.desktop';
-				_this92.qOPost = '.op';
-				_this92.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this92.qPostHeader = '.postInfo';
-				_this92.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this92.qPostName = '.name';
-				_this92.qPostRef = '.postInfo > .postNum';
-				_this92.qPostSubj = '.subject';
+				_this91.cReply = 'post reply';
+				_this91.qBan = 'strong[style="color: red;"]';
+				_this91.qClosed = '.archivedIcon';
+				_this91.qDelBut = '.deleteform > input[type="submit"]';
+				_this91.qError = '#errmsg';
+				_this91.qForm = 'form[name="post"]';
+				_this91.qFormRedir = null;
+				_this91.qImgInfo = '.fileText';
+				_this91.qOmitted = '.summary.desktop';
+				_this91.qOPost = '.op';
+				_this91.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this91.qPostHeader = '.postInfo';
+				_this91.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this91.qPostName = '.name';
+				_this91.qPostRef = '.postInfo > .postNum';
+				_this91.qPostSubj = '.subject';
 
-				_this92.anchor = '#p';
-				_this92.docExt = '';
-				_this92.firstPage = 1;
-				_this92.formParent = 'resto';
-				_this92.hasAltCaptcha = true;
-				_this92.hasCatalog = true;
-				_this92.hasTextLinks = true;
-				_this92.JsonBuilder = _4chanPostsBuilder;
-				_this92.res = 'thread/';
-				_this92.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this91.anchor = '#p';
+				_this91.docExt = '';
+				_this91.firstPage = 1;
+				_this91.formParent = 'resto';
+				_this91.hasAltCaptcha = true;
+				_this91.hasCatalog = true;
+				_this91.hasTextLinks = true;
+				_this91.JsonBuilder = _4chanPostsBuilder;
+				_this91.res = 'thread/';
+				_this91.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-				_this92._qTable = '.replyContainer';
-				return _this92;
+				_this91._qTable = '.replyContainer';
+				return _this91;
 			}
 
 			_createClass(_4chanOrg, [{
@@ -21425,12 +21489,12 @@ true, true];
 			function _8chNet(prot, dm) {
 				_classCallCheck(this, _8chNet);
 
-				var _this93 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
 
-				_this93._8ch = true;
+				_this92._8ch = true;
 
-				_this93._capUpdPromise = null;
-				return _this93;
+				_this92._capUpdPromise = null;
+				return _this92;
 			}
 
 			_createClass(_8chNet, [{
@@ -21472,12 +21536,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this94 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this93 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this94._8ch = null;
+				_this93._8ch = null;
 
-				_this94.qFormRules = '.regras';
-				return _this94;
+				_this93.qFormRules = '.regras';
+				return _this93;
 			}
 
 			_createClass(_55chan, [{
@@ -21519,21 +21583,21 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this96 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this96.cReply = 'post';
-				_this96.qDForm = 'body > .container-fluid';
-				_this96.qPostHeader = '.post_head';
-				_this96.qPostImg = '.post_image > img';
-				_this96.qPostMsg = '.post_comment_body';
-				_this96.qPostRef = '.post_id, .post_head > b';
-				_this96.qPostSubj = '.post_subject';
-				_this96.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this95.cReply = 'post';
+				_this95.qDForm = 'body > .container-fluid';
+				_this95.qPostHeader = '.post_head';
+				_this95.qPostImg = '.post_image > img';
+				_this95.qPostMsg = '.post_comment_body';
+				_this95.qPostRef = '.post_id, .post_head > b';
+				_this95.qPostSubj = '.post_subject';
+				_this95.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this96.docExt = '';
-				_this96.hasOPNum = true;
-				_this96.res = 'thread/';
-				return _this96;
+				_this95.docExt = '';
+				_this95.hasOPNum = true;
+				_this95.res = 'thread/';
+				return _this95;
 			}
 
 			_createClass(Arhivach, [{
@@ -21541,7 +21605,7 @@ true, true];
 				value: function fixHTML(data, isForm) {
 					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					var links = $Q('.expand_image', el);
-					for (var i = 0, _len14 = links.length; i < _len14; ++i) {
+					for (var i = 0, _len15 = links.length; i < _len15; ++i) {
 						var link = links[i];
 						link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
 						link.removeAttribute('onclick');
@@ -21586,13 +21650,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var _this97 = this;
+					var _this96 = this;
 
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
-						for (var i = 0, _len15 = delPosts.length; i < _len15; ++i) {
-							var post = pByNum.get(_this97.getPNum(delPosts[i]));
+						for (var i = 0, _len16 = delPosts.length; i < _len16; ++i) {
+							var post = pByNum.get(_this96.getPNum(delPosts[i]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
 							}
@@ -21633,12 +21697,12 @@ true, true];
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this98 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this98.qPostTrip = '.poster_id';
+				_this97.qPostTrip = '.poster_id';
 
-				_this98.markupBB = true;
-				return _this98;
+				_this97.markupBB = true;
+				return _this97;
 			}
 
 			_createClass(Brchan, [{
@@ -21713,10 +21777,10 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this100 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this99 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this100.multiFile = true;
-				return _this100;
+				_this99.multiFile = true;
+				return _this99;
 			}
 
 			_createClass(Diochan, [{
@@ -21744,29 +21808,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this101 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this101.dobr = true;
+				_this100.dobr = true;
 
-				_this101.qClosed = 'img[src="/images/locked.png"]';
-				_this101.qDForm = 'form[action*="delete"]';
-				_this101.qError = '.post-error, h2';
-				_this101.qFormRedir = 'select[name="goto"]';
-				_this101.qImgInfo = '.fileinfo';
-				_this101.qOmitted = '.abbrev > span:last-of-type';
-				_this101.qPages = '.pages > tbody > tr > td';
-				_this101.qPostMsg = '.postbody';
-				_this101.qPostSubj = '.replytitle';
-				_this101.qTrunc = '.abbrev > span:first-of-type';
+				_this100.qClosed = 'img[src="/images/locked.png"]';
+				_this100.qDForm = 'form[action*="delete"]';
+				_this100.qError = '.post-error, h2';
+				_this100.qFormRedir = 'select[name="goto"]';
+				_this100.qImgInfo = '.fileinfo';
+				_this100.qOmitted = '.abbrev > span:last-of-type';
+				_this100.qPages = '.pages > tbody > tr > td';
+				_this100.qPostMsg = '.postbody';
+				_this100.qPostSubj = '.replytitle';
+				_this100.qTrunc = '.abbrev > span:first-of-type';
 
-				_this101.anchor = '#i';
-				_this101.formParent = 'thread_id';
-				_this101.hasPicWrap = true;
-				_this101.JsonBuilder = DobrochanPostsBuilder;
-				_this101.multiFile = true;
-				_this101.ru = true;
-				_this101.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this101;
+				_this100.anchor = '#i';
+				_this100.formParent = 'thread_id';
+				_this100.hasPicWrap = true;
+				_this100.JsonBuilder = DobrochanPostsBuilder;
+				_this100.multiFile = true;
+				_this100.ru = true;
+				_this100.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this100;
 			}
 
 			_createClass(Dobrochan, [{
@@ -21911,10 +21975,10 @@ true, true];
 			function EndChan(prot, dm) {
 				_classCallCheck(this, EndChan);
 
-				var _this102 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
 
-				_this102.qTrunc = '.contentOmissionIndicator > p';
-				return _this102;
+				_this101.qTrunc = '.contentOmissionIndicator > p';
+				return _this101;
 			}
 
 			_createClass(EndChan, [{
@@ -21948,26 +22012,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this103 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this103.cReply = 'post';
-				_this103.qError = '.error';
-				_this103.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this103.qOPost = '.thread_OP';
-				_this103.qPages = '.pagelist > li:nth-last-child(2)';
-				_this103.qPostHeader = '.post_head';
-				_this103.qPostMsg = '.text';
-				_this103.qPostSubj = '.subject';
-				_this103.qPostTrip = '.tripcode';
-				_this103.qRPost = '.thread_reply';
-				_this103.qTrunc = '.tldr';
+				_this102.cReply = 'post';
+				_this102.qError = '.error';
+				_this102.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this102.qOPost = '.thread_OP';
+				_this102.qPages = '.pagelist > li:nth-last-child(2)';
+				_this102.qPostHeader = '.post_head';
+				_this102.qPostMsg = '.text';
+				_this102.qPostSubj = '.subject';
+				_this102.qPostTrip = '.tripcode';
+				_this102.qRPost = '.thread_reply';
+				_this102.qTrunc = '.tldr';
 
-				_this103.docExt = '';
-				_this103.firstPage = 1;
-				_this103.markupBB = true;
-				_this103.multiFile = true;
-				_this103.res = 'thread/';
-				return _this103;
+				_this102.docExt = '';
+				_this102.firstPage = 1;
+				_this102.markupBB = true;
+				_this102.multiFile = true;
+				_this102.res = 'thread/';
+				return _this102;
 			}
 
 			_createClass(Ernstchan, [{
@@ -22022,12 +22086,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this104 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this103 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this104.iichan = true;
+				_this103.iichan = true;
 
-				_this104.hasCatalog = true;
-				return _this104;
+				_this103.hasCatalog = true;
+				return _this103;
 			}
 
 			_createClass(Iichan, [{
@@ -22085,12 +22149,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this105 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this105.qImgInfo = '.fileinfo';
+				_this104.qImgInfo = '.fileinfo';
 
-				_this105.hasTextLinks = true;
-				return _this105;
+				_this104.hasTextLinks = true;
+				return _this104;
 			}
 
 			_createClass(Kohlchan, [{
@@ -22121,10 +22185,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this106 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this106.markupBB = true;
-				return _this106;
+				_this105.markupBB = true;
+				return _this105;
 			}
 
 			_createClass(Kropyvach, [{
@@ -22150,10 +22214,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this107 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this107.qOPost = '.op';
-				return _this107;
+				_this106.qOPost = '.op';
+				return _this106;
 			}
 
 			_createClass(Lainchan, [{
@@ -22231,15 +22295,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this110 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this110.qBan = 'font[color="#FF0000"]';
-				_this110.qImgInfo = '.filesize[style="display: inline;"]';
+				_this109.qBan = 'font[color="#FF0000"]';
+				_this109.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this110.formParent = 'replythread';
-				_this110.jsonSubmit = true;
-				_this110.multiFile = true;
-				return _this110;
+				_this109.formParent = 'replythread';
+				_this109.jsonSubmit = true;
+				_this109.multiFile = true;
+				return _this109;
 			}
 
 			_createClass(Ponyach, [{
@@ -22305,12 +22369,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this111 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this111.qOPost = '.opContainer';
+				_this110.qOPost = '.opContainer';
 
-				_this111.jsonSubmit = false;
-				return _this111;
+				_this110.jsonSubmit = false;
+				return _this110;
 			}
 
 			_createClass(Ponychan, [{
@@ -22345,12 +22409,12 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this112 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this112.qImgInfo = '.unimportant';
+				_this111.qImgInfo = '.unimportant';
 
-				_this112.markupBB = true;
-				return _this112;
+				_this111.markupBB = true;
+				return _this111;
 			}
 
 			_createClass(Synch, [{
@@ -22416,8 +22480,8 @@ true, true];
 			return null;
 		}
 		dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		for (var _i11 = ibEngines.length - 1; _i11 >= 0; --_i11) {
-			var _ibEngines$_i = _slicedToArray(ibEngines[_i11], 2),
+		for (var _i13 = ibEngines.length - 1; _i13 >= 0; --_i13) {
+			var _ibEngines$_i = _slicedToArray(ibEngines[_i13], 2),
 			    path = _ibEngines$_i[0],
 			    Ctor = _ibEngines$_i[1];
 
@@ -22431,7 +22495,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this113 = this;
+			var _this112 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in window)) {
@@ -22444,7 +22508,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this113.hasListeners = true;
+					_this112.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -22472,27 +22536,27 @@ true, true];
 				case 'registerapi':
 					if (data) {
 						rv = {};
-						var _iteratorNormalCompletion35 = true;
-						var _didIteratorError35 = false;
-						var _iteratorError35 = undefined;
+						var _iteratorNormalCompletion36 = true;
+						var _didIteratorError36 = false;
+						var _iteratorError36 = undefined;
 
 						try {
-							for (var _iterator35 = data[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-								var aName = _step35.value;
+							for (var _iterator36 = data[Symbol.iterator](), _step36; !(_iteratorNormalCompletion36 = (_step36 = _iterator36.next()).done); _iteratorNormalCompletion36 = true) {
+								var aName = _step36.value;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
 						} catch (err) {
-							_didIteratorError35 = true;
-							_iteratorError35 = err;
+							_didIteratorError36 = true;
+							_iteratorError36 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion35 && _iterator35.return) {
-									_iterator35.return();
+								if (!_iteratorNormalCompletion36 && _iterator36.return) {
+									_iterator36.return();
 								}
 							} finally {
-								if (_didIteratorError35) {
-									throw _iteratorError35;
+								if (_didIteratorError36) {
+									throw _iteratorError36;
 								}
 							}
 						}
@@ -22533,7 +22597,7 @@ true, true];
 				saveCfgObj('lastUpd', Date.now());
 				var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
 				var chLogLink = '<a target="_blank" href="' + gitWiki + (lang === 1 ? 'versions-en' : 'versions') + '">\r\n' + Lng.changeLog[lang] + '<a>';
-				for (var i = 0, _len16 = Math.max(currentVer.length, remoteVer.length); i < _len16; ++i) {
+				for (var i = 0, _len17 = Math.max(currentVer.length, remoteVer.length); i < _len17; ++i) {
 					if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 						return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>' + chLogLink;
 					} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
@@ -22626,7 +22690,7 @@ true, true];
 			return;
 		}
 
-		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 328px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
+		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
 		'#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }',
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',
