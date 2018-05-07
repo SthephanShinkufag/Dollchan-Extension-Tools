@@ -1152,6 +1152,22 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 
+	class Dscript extends TinyIB {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = true;
+			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+		}
+		get fixHTMLHelper() {
+			return null;
+		}
+		init() {
+			return false;
+		}
+	}
+	ibDomains['dscript.me'] = Dscript;
+
 	class Lolifox extends Brchan {
 		get css() {
 			return `${ super.css }\r\n\t${

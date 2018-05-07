@@ -3866,7 +3866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '63e4615';
+	var commit = '2d5fbe7';
 
 
 	var defaultCfg = {
@@ -21737,6 +21737,36 @@ true, true];
 
 		ibDomains['brchan.org'] = Brchan;
 
+		var Dscript = function (_TinyIB) {
+			_inherits(Dscript, _TinyIB);
+
+			function Dscript(prot, dm) {
+				_classCallCheck(this, Dscript);
+
+				var _this98 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
+
+				_this98.markupBB = true;
+				_this98.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+				return _this98;
+			}
+
+			_createClass(Dscript, [{
+				key: 'init',
+				value: function init() {
+					return false;
+				}
+			}, {
+				key: 'fixHTMLHelper',
+				get: function get() {
+					return null;
+				}
+			}]);
+
+			return Dscript;
+		}(TinyIB);
+
+		ibDomains['dscript.me'] = Dscript;
+
 		var Lolifox = function (_Brchan) {
 			_inherits(Lolifox, _Brchan);
 
@@ -21783,10 +21813,10 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this99 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this99.multiFile = true;
-				return _this99;
+				_this100.multiFile = true;
+				return _this100;
 			}
 
 			_createClass(Diochan, [{
@@ -21814,29 +21844,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this100 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this100.dobr = true;
+				_this101.dobr = true;
 
-				_this100.qClosed = 'img[src="/images/locked.png"]';
-				_this100.qDForm = 'form[action*="delete"]';
-				_this100.qError = '.post-error, h2';
-				_this100.qFormRedir = 'select[name="goto"]';
-				_this100.qImgInfo = '.fileinfo';
-				_this100.qOmitted = '.abbrev > span:last-of-type';
-				_this100.qPages = '.pages > tbody > tr > td';
-				_this100.qPostMsg = '.postbody';
-				_this100.qPostSubj = '.replytitle';
-				_this100.qTrunc = '.abbrev > span:first-of-type';
+				_this101.qClosed = 'img[src="/images/locked.png"]';
+				_this101.qDForm = 'form[action*="delete"]';
+				_this101.qError = '.post-error, h2';
+				_this101.qFormRedir = 'select[name="goto"]';
+				_this101.qImgInfo = '.fileinfo';
+				_this101.qOmitted = '.abbrev > span:last-of-type';
+				_this101.qPages = '.pages > tbody > tr > td';
+				_this101.qPostMsg = '.postbody';
+				_this101.qPostSubj = '.replytitle';
+				_this101.qTrunc = '.abbrev > span:first-of-type';
 
-				_this100.anchor = '#i';
-				_this100.formParent = 'thread_id';
-				_this100.hasPicWrap = true;
-				_this100.JsonBuilder = DobrochanPostsBuilder;
-				_this100.multiFile = true;
-				_this100.ru = true;
-				_this100.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this100;
+				_this101.anchor = '#i';
+				_this101.formParent = 'thread_id';
+				_this101.hasPicWrap = true;
+				_this101.JsonBuilder = DobrochanPostsBuilder;
+				_this101.multiFile = true;
+				_this101.ru = true;
+				_this101.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this101;
 			}
 
 			_createClass(Dobrochan, [{
@@ -21981,10 +22011,10 @@ true, true];
 			function EndChan(prot, dm) {
 				_classCallCheck(this, EndChan);
 
-				var _this101 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
 
-				_this101.qTrunc = '.contentOmissionIndicator > p';
-				return _this101;
+				_this102.qTrunc = '.contentOmissionIndicator > p';
+				return _this102;
 			}
 
 			_createClass(EndChan, [{
@@ -22018,26 +22048,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this102 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this103 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this102.cReply = 'post';
-				_this102.qError = '.error';
-				_this102.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this102.qOPost = '.thread_OP';
-				_this102.qPages = '.pagelist > li:nth-last-child(2)';
-				_this102.qPostHeader = '.post_head';
-				_this102.qPostMsg = '.text';
-				_this102.qPostSubj = '.subject';
-				_this102.qPostTrip = '.tripcode';
-				_this102.qRPost = '.thread_reply';
-				_this102.qTrunc = '.tldr';
+				_this103.cReply = 'post';
+				_this103.qError = '.error';
+				_this103.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this103.qOPost = '.thread_OP';
+				_this103.qPages = '.pagelist > li:nth-last-child(2)';
+				_this103.qPostHeader = '.post_head';
+				_this103.qPostMsg = '.text';
+				_this103.qPostSubj = '.subject';
+				_this103.qPostTrip = '.tripcode';
+				_this103.qRPost = '.thread_reply';
+				_this103.qTrunc = '.tldr';
 
-				_this102.docExt = '';
-				_this102.firstPage = 1;
-				_this102.markupBB = true;
-				_this102.multiFile = true;
-				_this102.res = 'thread/';
-				return _this102;
+				_this103.docExt = '';
+				_this103.firstPage = 1;
+				_this103.markupBB = true;
+				_this103.multiFile = true;
+				_this103.res = 'thread/';
+				return _this103;
 			}
 
 			_createClass(Ernstchan, [{
@@ -22092,12 +22122,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this103 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this103.iichan = true;
+				_this104.iichan = true;
 
-				_this103.hasCatalog = true;
-				return _this103;
+				_this104.hasCatalog = true;
+				return _this104;
 			}
 
 			_createClass(Iichan, [{
@@ -22155,12 +22185,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this104 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this104.qImgInfo = '.fileinfo';
+				_this105.qImgInfo = '.fileinfo';
 
-				_this104.hasTextLinks = true;
-				return _this104;
+				_this105.hasTextLinks = true;
+				return _this105;
 			}
 
 			_createClass(Kohlchan, [{
@@ -22191,10 +22221,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this105 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this105.markupBB = true;
-				return _this105;
+				_this106.markupBB = true;
+				return _this106;
 			}
 
 			_createClass(Kropyvach, [{
@@ -22220,10 +22250,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this106 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this106.qOPost = '.op';
-				return _this106;
+				_this107.qOPost = '.op';
+				return _this107;
 			}
 
 			_createClass(Lainchan, [{
@@ -22301,15 +22331,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this109 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this109.qBan = 'font[color="#FF0000"]';
-				_this109.qImgInfo = '.filesize[style="display: inline;"]';
+				_this110.qBan = 'font[color="#FF0000"]';
+				_this110.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this109.formParent = 'replythread';
-				_this109.jsonSubmit = true;
-				_this109.multiFile = true;
-				return _this109;
+				_this110.formParent = 'replythread';
+				_this110.jsonSubmit = true;
+				_this110.multiFile = true;
+				return _this110;
 			}
 
 			_createClass(Ponyach, [{
@@ -22375,12 +22405,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this110 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this110.qOPost = '.opContainer';
+				_this111.qOPost = '.opContainer';
 
-				_this110.jsonSubmit = false;
-				return _this110;
+				_this111.jsonSubmit = false;
+				return _this111;
 			}
 
 			_createClass(Ponychan, [{
@@ -22415,12 +22445,12 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this111 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this111.qImgInfo = '.unimportant';
+				_this112.qImgInfo = '.unimportant';
 
-				_this111.markupBB = true;
-				return _this111;
+				_this112.markupBB = true;
+				return _this112;
 			}
 
 			_createClass(Synch, [{
@@ -22501,7 +22531,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this112 = this;
+			var _this113 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in window)) {
@@ -22514,7 +22544,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this112.hasListeners = true;
+					_this113.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});

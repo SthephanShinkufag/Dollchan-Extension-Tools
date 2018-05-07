@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '63e4615';
+const commit = '2d5fbe7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15932,6 +15932,22 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;
+
+	class Dscript extends TinyIB {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = true;
+			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+		}
+		get fixHTMLHelper() {
+			return null;
+		}
+		init() {
+			return false;
+		}
+	}
+	ibDomains['dscript.me'] = Dscript;
 
 	class Lolifox extends Brchan {
 		get css() {
