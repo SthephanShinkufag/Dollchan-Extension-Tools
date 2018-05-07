@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'd01fab6';
+const commit = '126b2b5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14917,7 +14917,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$each($Q('.autorefresh'), $del);
+			$each($Q('.autorefresh'), el => {
+				const inpEl = $q('input', el);
+				if(inpEl.checked) {
+					inpEl.click();
+				}
+				$del(el);
+			});
 			let el = $q('td > .anoniconsselectlist');
 			if(el) {
 				$q('.option-area > td:last-child').appendChild(el);

@@ -3866,7 +3866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'd01fab6';
+	var commit = '126b2b5';
 
 
 	var defaultCfg = {
@@ -20183,7 +20183,13 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('(function() {\n\t\t\t\tvar emptyFn = Function.prototype;\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
-					$each($Q('.autorefresh'), $del);
+					$each($Q('.autorefresh'), function (el) {
+						var inpEl = $q('input', el);
+						if (inpEl.checked) {
+							inpEl.click();
+						}
+						$del(el);
+					});
 					var el = $q('td > .anoniconsselectlist');
 					if (el) {
 						$q('.option-area > td:last-child').appendChild(el);
