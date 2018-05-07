@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '126b2b5';
+const commit = '63e4615';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4745,7 +4745,7 @@ const CfgWindow = {
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('widePosts') }<br>
 			${ this._getBox('correctTime') }
-			${ this._getInp('timeOffset') }
+			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
 				`${ lang ? 'en' : 'ru' }">[?]</a>
 			<div class="de-cfg-depend">
