@@ -3355,8 +3355,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var checkDelete = function () {
 		var _ref41 = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(data) {
-			var err, els, threads, isThr, i, len, el, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, thr;
-
+			var err, els, threads, isThr, i, len, el;
 			return regeneratorRuntime.wrap(function _callee13$(_context14) {
 				while (1) {
 					switch (_context14.prev = _context14.next) {
@@ -3407,74 +3406,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							infoLoadErrors(_context14.t0);
 
 						case 19:
-							_context14.next = 47;
+							_context14.next = 23;
 							break;
 
 						case 21:
-							_iteratorNormalCompletion23 = true;
-							_didIteratorError23 = false;
-							_iteratorError23 = undefined;
-							_context14.prev = 24;
-							_iterator23 = threads[Symbol.iterator]();
+							_context14.next = 23;
+							return Promise.all([].concat(_toConsumableArray(threads)).map(function (thr) {
+								return thr.loadPosts(visPosts, false, false);
+							}));
 
-						case 26:
-							if (_iteratorNormalCompletion23 = (_step23 = _iterator23.next()).done) {
-								_context14.next = 33;
-								break;
-							}
-
-							thr = _step23.value;
-							_context14.next = 30;
-							return thr.loadPosts(visPosts, false, false);
-
-						case 30:
-							_iteratorNormalCompletion23 = true;
-							_context14.next = 26;
-							break;
-
-						case 33:
-							_context14.next = 39;
-							break;
-
-						case 35:
-							_context14.prev = 35;
-							_context14.t1 = _context14['catch'](24);
-							_didIteratorError23 = true;
-							_iteratorError23 = _context14.t1;
-
-						case 39:
-							_context14.prev = 39;
-							_context14.prev = 40;
-
-							if (!_iteratorNormalCompletion23 && _iterator23.return) {
-								_iterator23.return();
-							}
-
-						case 42:
-							_context14.prev = 42;
-
-							if (!_didIteratorError23) {
-								_context14.next = 45;
-								break;
-							}
-
-							throw _iteratorError23;
-
-						case 45:
-							return _context14.finish(42);
-
-						case 46:
-							return _context14.finish(39);
-
-						case 47:
+						case 23:
 							$popup('delete', Lng.succDeleted[lang]);
 
-						case 48:
+						case 24:
 						case 'end':
 							return _context14.stop();
 					}
 				}
-			}, _callee13, this, [[11, 16], [24, 35, 39, 47], [40,, 42, 46]]);
+			}, _callee13, this, [[11, 16]]);
 		}));
 
 		return function checkDelete(_x39) {
@@ -3486,7 +3435,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref42 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion24, _didIteratorError24, _iteratorError24, _iterator24, _step24, _ref43, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
+			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref43, name, value, type, el, val, fileName, newFileName, mime, cleanData, ajaxParams, xhr;
 
 			return regeneratorRuntime.wrap(function _callee14$(_context15) {
 				while (1) {
@@ -3494,19 +3443,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 0:
 							data = new FormData();
 							hasFiles = false;
-							_iteratorNormalCompletion24 = true;
-							_didIteratorError24 = false;
-							_iteratorError24 = undefined;
+							_iteratorNormalCompletion23 = true;
+							_didIteratorError23 = false;
+							_iteratorError23 = undefined;
 							_context15.prev = 5;
-							_iterator24 = getFormElements(form, submitter)[Symbol.iterator]();
+							_iterator23 = getFormElements(form, submitter)[Symbol.iterator]();
 
 						case 7:
-							if (_iteratorNormalCompletion24 = (_step24 = _iterator24.next()).done) {
+							if (_iteratorNormalCompletion23 = (_step23 = _iterator23.next()).done) {
 								_context15.next = 38;
 								break;
 							}
 
-							_ref43 = _step24.value;
+							_ref43 = _step23.value;
 							name = _ref43.name;
 							value = _ref43.value;
 							type = _ref43.type;
@@ -3566,7 +3515,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							data.append(name, val);
 
 						case 35:
-							_iteratorNormalCompletion24 = true;
+							_iteratorNormalCompletion23 = true;
 							_context15.next = 7;
 							break;
 
@@ -3577,26 +3526,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 40:
 							_context15.prev = 40;
 							_context15.t3 = _context15['catch'](5);
-							_didIteratorError24 = true;
-							_iteratorError24 = _context15.t3;
+							_didIteratorError23 = true;
+							_iteratorError23 = _context15.t3;
 
 						case 44:
 							_context15.prev = 44;
 							_context15.prev = 45;
 
-							if (!_iteratorNormalCompletion24 && _iterator24.return) {
-								_iterator24.return();
+							if (!_iteratorNormalCompletion23 && _iterator23.return) {
+								_iterator23.return();
 							}
 
 						case 47:
 							_context15.prev = 47;
 
-							if (!_didIteratorError24) {
+							if (!_didIteratorError23) {
 								_context15.next = 50;
 								break;
 							}
 
-							throw _iteratorError24;
+							throw _iteratorError23;
 
 						case 50:
 							return _context15.finish(47);
@@ -3866,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '2d5fbe7';
+	var commit = 'fbe9c44';
 
 
 	var defaultCfg = {
@@ -6880,7 +6829,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					continue;
 				}
 				var isHide = f.hide === undefined ? h !== aib.host : f.hide;
-				html += '<div class="de-fold-block' + (isHide || b !== aib.b ? '' : ' de-fav-current') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t' + delBtn + '\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
+				html += '<div class="de-fold-block' + (h === aib.host && b === aib.b ? ' de-fav-current' : '') + '">\n\t\t\t\t<div class="de-fav-header">\n\t\t\t\t\t' + delBtn + '\n\t\t\t\t\t<a class="de-fav-header-link" title="' + Lng.goToBoard[lang] + '"' + (' href="' + f.url + '" rel="noreferrer">' + h + '/' + b + '</a>\n\t\t\t\t\t<a class="de-abtn de-fav-header-btn" title="' + Lng.toggleEntries[lang] + '"') + (' href="#">' + (isHide ? '&#x25BC;' : '&#x25B2;') + '</a>\n\t\t\t\t</div>\n\t\t\t\t<div class="de-fav-entries' + (isHide ? ' de-fav-entries-hide' : '') + '" ' + hb + '>\n\t\t\t\t\t' + innerHtml + '\n\t\t\t\t</div>\n\t\t\t</div>');
 			}
 		}
 
@@ -7125,7 +7074,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}))));
 
 		btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
-			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, arr, _els, _i, _len2, _i2, inf, _i3, _inf;
+			var els, len, thrInfo, i, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, _els, _i, _len2, _i2, inf, _i3, _inf;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context7) {
 				while (1) {
@@ -7176,33 +7125,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 11:
 							if (!(page < endPage)) {
-								_context7.next = 32;
+								_context7.next = 30;
 								break;
 							}
 
-							tNums = void 0;
+							tNums = new Set();
 							_context7.prev = 13;
 							_context7.next = 16;
 							return ajaxLoad(aib.getPageUrl(aib.b, page));
 
 						case 16:
 							form = _context7.sent;
-							arr = [];
 							_els = DelForm.getThreads(form);
 
 							for (_i = 0, _len2 = _els.length; _i < _len2; ++_i) {
-								arr.push(aib.getTNum(_els[_i]));
+								tNums.add(aib.getTNum(_els[_i]));
 							}
-							tNums = new Set(arr);
-							_context7.next = 26;
+							_context7.next = 24;
 							break;
 
-						case 23:
-							_context7.prev = 23;
+						case 21:
+							_context7.prev = 21;
 							_context7.t0 = _context7['catch'](13);
-							return _context7.abrupt('continue', 29);
+							return _context7.abrupt('continue', 27);
 
-						case 26:
+						case 24:
 							for (_i2 = 0; _i2 < len; ++_i2) {
 								inf = thrInfo[_i2];
 
@@ -7214,18 +7161,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 
 							if (!(infoLoaded === len)) {
-								_context7.next = 29;
+								_context7.next = 27;
 								break;
 							}
 
-							return _context7.abrupt('break', 32);
+							return _context7.abrupt('break', 30);
 
-						case 29:
+						case 27:
 							++page;
 							_context7.next = 11;
 							break;
 
-						case 32:
+						case 30:
 							for (_i3 = 0; _i3 < len; ++_i3) {
 								_inf = thrInfo[_i3];
 
@@ -7235,12 +7182,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							closePopup('load-pages');
 
-						case 34:
+						case 32:
 						case 'end':
 							return _context7.stop();
 					}
 				}
-			}, _callee6, _this13, [[13, 23]]);
+			}, _callee6, _this13, [[13, 21]]);
 		}))));
 
 		btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee7() {
@@ -13213,6 +13160,36 @@ true, true];
 			key: 'changeMode',
 			value: function changeMode() {
 				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+				var _iteratorNormalCompletion24 = true;
+				var _didIteratorError24 = false;
+				var _iteratorError24 = undefined;
+
+				try {
+					for (var _iterator24 = this._inputs[Symbol.iterator](), _step24; !(_iteratorNormalCompletion24 = (_step24 = _iterator24.next()).done); _iteratorNormalCompletion24 = true) {
+						var inp = _step24.value;
+
+						inp.changeMode(cfg);
+					}
+				} catch (err) {
+					_didIteratorError24 = true;
+					_iteratorError24 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion24 && _iterator24.return) {
+							_iterator24.return();
+						}
+					} finally {
+						if (_didIteratorError24) {
+							throw _iteratorError24;
+						}
+					}
+				}
+
+				this.hideEmpty();
+			}
+		}, {
+			key: 'clearInputs',
+			value: function clearInputs() {
 				var _iteratorNormalCompletion25 = true;
 				var _didIteratorError25 = false;
 				var _iteratorError25 = undefined;
@@ -13221,7 +13198,7 @@ true, true];
 					for (var _iterator25 = this._inputs[Symbol.iterator](), _step25; !(_iteratorNormalCompletion25 = (_step25 = _iterator25.next()).done); _iteratorNormalCompletion25 = true) {
 						var inp = _step25.value;
 
-						inp.changeMode(cfg);
+						inp.clearInp();
 					}
 				} catch (err) {
 					_didIteratorError25 = true;
@@ -13234,36 +13211,6 @@ true, true];
 					} finally {
 						if (_didIteratorError25) {
 							throw _iteratorError25;
-						}
-					}
-				}
-
-				this.hideEmpty();
-			}
-		}, {
-			key: 'clearInputs',
-			value: function clearInputs() {
-				var _iteratorNormalCompletion26 = true;
-				var _didIteratorError26 = false;
-				var _iteratorError26 = undefined;
-
-				try {
-					for (var _iterator26 = this._inputs[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
-						var inp = _step26.value;
-
-						inp.clearInp();
-					}
-				} catch (err) {
-					_didIteratorError26 = true;
-					_iteratorError26 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion26 && _iterator26.return) {
-							_iterator26.return();
-						}
-					} finally {
-						if (_didIteratorError26) {
-							throw _iteratorError26;
 						}
 					}
 				}
@@ -14698,13 +14645,13 @@ true, true];
 			value: function toggleImages() {
 				var isExpand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
 				var isExpandVideos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-				var _iteratorNormalCompletion27 = true;
-				var _didIteratorError27 = false;
-				var _iteratorError27 = undefined;
+				var _iteratorNormalCompletion26 = true;
+				var _didIteratorError26 = false;
+				var _iteratorError26 = undefined;
 
 				try {
-					for (var _iterator27 = this.images[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
-						var image = _step27.value;
+					for (var _iterator26 = this.images[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
+						var image = _step26.value;
 
 						if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ isExpand) {
 							if (isExpand) {
@@ -14715,16 +14662,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError27 = true;
-					_iteratorError27 = err;
+					_didIteratorError26 = true;
+					_iteratorError26 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion27 && _iterator27.return) {
-							_iterator27.return();
+						if (!_iteratorNormalCompletion26 && _iterator26.return) {
+							_iterator26.return();
 						}
 					} finally {
-						if (_didIteratorError27) {
-							throw _iteratorError27;
+						if (_didIteratorError26) {
+							throw _iteratorError26;
 						}
 					}
 				}
@@ -17299,13 +17246,13 @@ true, true];
 				var multiFile = data.files.length > 1;
 
 				var filesHTML = '';
-				var _iteratorNormalCompletion28 = true;
-				var _didIteratorError28 = false;
-				var _iteratorError28 = undefined;
+				var _iteratorNormalCompletion27 = true;
+				var _didIteratorError27 = false;
+				var _iteratorError27 = undefined;
 
 				try {
-					for (var _iterator28 = data.files[Symbol.iterator](), _step28; !(_iteratorNormalCompletion28 = (_step28 = _iterator28.next()).done); _iteratorNormalCompletion28 = true) {
-						var _ref60 = _step28.value;
+					for (var _iterator27 = data.files[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
+						var _ref60 = _step27.value;
 						var file_id = _ref60.file_id;
 						var metadata = _ref60.metadata;
 						var rating = _ref60.rating;
@@ -17347,16 +17294,16 @@ true, true];
 					}
 
 				} catch (err) {
-					_didIteratorError28 = true;
-					_iteratorError28 = err;
+					_didIteratorError27 = true;
+					_iteratorError27 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion28 && _iterator28.return) {
-							_iterator28.return();
+						if (!_iteratorNormalCompletion27 && _iterator27.return) {
+							_iterator27.return();
 						}
 					} finally {
-						if (_didIteratorError28) {
-							throw _iteratorError28;
+						if (_didIteratorError27) {
+							throw _iteratorError27;
 						}
 					}
 				}
@@ -17434,13 +17381,13 @@ true, true];
 				var filesHTML = '';
 				if (data.files && data.files.length !== 0) {
 					filesHTML = '<div class="images images-' + (data.files.length === 1 ? 'single' : 'multi') + '">';
-					var _iteratorNormalCompletion29 = true;
-					var _didIteratorError29 = false;
-					var _iteratorError29 = undefined;
+					var _iteratorNormalCompletion28 = true;
+					var _didIteratorError28 = false;
+					var _iteratorError28 = undefined;
 
 					try {
-						for (var _iterator29 = data.files[Symbol.iterator](), _step29; !(_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done); _iteratorNormalCompletion29 = true) {
-							var file = _step29.value;
+						for (var _iterator28 = data.files[Symbol.iterator](), _step28; !(_iteratorNormalCompletion28 = (_step28 = _iterator28.next()).done); _iteratorNormalCompletion28 = true) {
+							var file = _step28.value;
 
 							var imgId = num + '-' + file.md5;
 							var _file$fullname = file.fullname,
@@ -17452,16 +17399,16 @@ true, true];
 							filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + file.path + '"' + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height) + ((isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '" class="image-link">\n\t\t\t\t\t\t<a href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="img preview' + (isWebm ? ' webm-file' : '') + '" src="') + (file.thumbnail + '" alt="' + file.size + '" width="') + (file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
 						}
 					} catch (err) {
-						_didIteratorError29 = true;
-						_iteratorError29 = err;
+						_didIteratorError28 = true;
+						_iteratorError28 = err;
 					} finally {
 						try {
-							if (!_iteratorNormalCompletion29 && _iterator29.return) {
-								_iterator29.return();
+							if (!_iteratorNormalCompletion28 && _iterator28.return) {
+								_iterator28.return();
 							}
 						} finally {
-							if (_didIteratorError29) {
-								throw _iteratorError29;
+							if (_didIteratorError28) {
+								throw _iteratorError28;
 							}
 						}
 					}
@@ -17485,25 +17432,25 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iteratorNormalCompletion30, _didIteratorError30, _iteratorError30, _iterator30, _step30, _ref61, banned, num;
+				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
 					while (1) {
 						switch (_context22.prev = _context22.next) {
 							case 0:
-								_iteratorNormalCompletion30 = true;
-								_didIteratorError30 = false;
-								_iteratorError30 = undefined;
+								_iteratorNormalCompletion29 = true;
+								_didIteratorError29 = false;
+								_iteratorError29 = undefined;
 								_context22.prev = 3;
-								_iterator30 = this._posts[Symbol.iterator]();
+								_iterator29 = this._posts[Symbol.iterator]();
 
 							case 5:
-								if (_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done) {
+								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
 									_context22.next = 21;
 									break;
 								}
 
-								_ref61 = _step30.value;
+								_ref61 = _step29.value;
 								banned = _ref61.banned;
 								num = _ref61.num;
 								_context22.t0 = banned;
@@ -17525,7 +17472,7 @@ true, true];
 								return _context22.abrupt('break', 18);
 
 							case 18:
-								_iteratorNormalCompletion30 = true;
+								_iteratorNormalCompletion29 = true;
 								_context22.next = 5;
 								break;
 
@@ -17536,26 +17483,26 @@ true, true];
 							case 23:
 								_context22.prev = 23;
 								_context22.t1 = _context22['catch'](3);
-								_didIteratorError30 = true;
-								_iteratorError30 = _context22.t1;
+								_didIteratorError29 = true;
+								_iteratorError29 = _context22.t1;
 
 							case 27:
 								_context22.prev = 27;
 								_context22.prev = 28;
 
-								if (!_iteratorNormalCompletion30 && _iterator30.return) {
-									_iterator30.return();
+								if (!_iteratorNormalCompletion29 && _iterator29.return) {
+									_iterator29.return();
 								}
 
 							case 30:
 								_context22.prev = 30;
 
-								if (!_didIteratorError30) {
+								if (!_didIteratorError29) {
 									_context22.next = 33;
 									break;
 								}
 
-								throw _iteratorError30;
+								throw _iteratorError29;
 
 							case 33:
 								return _context22.finish(30);
@@ -17642,13 +17589,13 @@ true, true];
 					return;
 				}
 				this._isHidden = true;
-				var _iteratorNormalCompletion31 = true;
-				var _didIteratorError31 = false;
-				var _iteratorError31 = undefined;
+				var _iteratorNormalCompletion30 = true;
+				var _didIteratorError30 = false;
+				var _iteratorError30 = undefined;
 
 				try {
-					for (var _iterator31 = this._set[Symbol.iterator](), _step31; !(_iteratorNormalCompletion31 = (_step31 = _iterator31.next()).done); _iteratorNormalCompletion31 = true) {
-						var num = _step31.value;
+					for (var _iterator30 = this._set[Symbol.iterator](), _step30; !(_iteratorNormalCompletion30 = (_step30 = _iterator30.next()).done); _iteratorNormalCompletion30 = true) {
+						var num = _step30.value;
 
 						var post = pByNum.get(num);
 						if (post && !post.isHidden) {
@@ -17662,6 +17609,35 @@ true, true];
 						}
 					}
 				} catch (err) {
+					_didIteratorError30 = true;
+					_iteratorError30 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion30 && _iterator30.return) {
+							_iterator30.return();
+						}
+					} finally {
+						if (_didIteratorError30) {
+							throw _iteratorError30;
+						}
+					}
+				}
+			}
+		}, {
+			key: 'initPostRef',
+			value: function initPostRef(tUrl, strNums) {
+				var html = '';
+				var _iteratorNormalCompletion31 = true;
+				var _didIteratorError31 = false;
+				var _iteratorError31 = undefined;
+
+				try {
+					for (var _iterator31 = this._set[Symbol.iterator](), _step31; !(_iteratorNormalCompletion31 = (_step31 = _iterator31.next()).done); _iteratorNormalCompletion31 = true) {
+						var num = _step31.value;
+
+						html += this._getHTML(num, tUrl, strNums && strNums.has(num));
+					}
+				} catch (err) {
 					_didIteratorError31 = true;
 					_iteratorError31 = err;
 				} finally {
@@ -17672,35 +17648,6 @@ true, true];
 					} finally {
 						if (_didIteratorError31) {
 							throw _iteratorError31;
-						}
-					}
-				}
-			}
-		}, {
-			key: 'initPostRef',
-			value: function initPostRef(tUrl, strNums) {
-				var html = '';
-				var _iteratorNormalCompletion32 = true;
-				var _didIteratorError32 = false;
-				var _iteratorError32 = undefined;
-
-				try {
-					for (var _iterator32 = this._set[Symbol.iterator](), _step32; !(_iteratorNormalCompletion32 = (_step32 = _iterator32.next()).done); _iteratorNormalCompletion32 = true) {
-						var num = _step32.value;
-
-						html += this._getHTML(num, tUrl, strNums && strNums.has(num));
-					}
-				} catch (err) {
-					_didIteratorError32 = true;
-					_iteratorError32 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion32 && _iterator32.return) {
-							_iterator32.return();
-						}
-					} finally {
-						if (_didIteratorError32) {
-							throw _iteratorError32;
 						}
 					}
 				}
@@ -17755,13 +17702,13 @@ true, true];
 					return;
 				}
 				this._isHidden = false;
-				var _iteratorNormalCompletion33 = true;
-				var _didIteratorError33 = false;
-				var _iteratorError33 = undefined;
+				var _iteratorNormalCompletion32 = true;
+				var _didIteratorError32 = false;
+				var _iteratorError32 = undefined;
 
 				try {
-					for (var _iterator33 = this._set[Symbol.iterator](), _step33; !(_iteratorNormalCompletion33 = (_step33 = _iterator33.next()).done); _iteratorNormalCompletion33 = true) {
-						var num = _step33.value;
+					for (var _iterator32 = this._set[Symbol.iterator](), _step32; !(_iteratorNormalCompletion32 = (_step32 = _iterator32.next()).done); _iteratorNormalCompletion32 = true) {
+						var num = _step32.value;
 
 						var post = pByNum.get(num);
 						if (post && post.isHidden && !post.spellHidden) {
@@ -17775,16 +17722,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError33 = true;
-					_iteratorError33 = err;
+					_didIteratorError32 = true;
+					_iteratorError32 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion33 && _iterator33.return) {
-							_iterator33.return();
+						if (!_iteratorNormalCompletion32 && _iterator32.return) {
+							_iterator32.return();
 						}
 					} finally {
-						if (_didIteratorError33) {
-							throw _iteratorError33;
+						if (_didIteratorError32) {
+							throw _iteratorError32;
 						}
 					}
 				}
@@ -17822,13 +17769,13 @@ true, true];
 			key: 'gen',
 			value: function gen(posts, thrURL) {
 				var tNums = DelForm.tNums;
-				var _iteratorNormalCompletion34 = true;
-				var _didIteratorError34 = false;
-				var _iteratorError34 = undefined;
+				var _iteratorNormalCompletion33 = true;
+				var _didIteratorError33 = false;
+				var _iteratorError33 = undefined;
 
 				try {
-					for (var _iterator34 = posts[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref62 = _step34.value;
+					for (var _iterator33 = posts[Symbol.iterator](), _step33; !(_iteratorNormalCompletion33 = (_step33 = _iterator33.next()).done); _iteratorNormalCompletion33 = true) {
+						var _ref62 = _step33.value;
 
 						var _ref63 = _slicedToArray(_ref62, 2);
 
@@ -17871,16 +17818,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError34 = true;
-					_iteratorError34 = err;
+					_didIteratorError33 = true;
+					_iteratorError33 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion34 && _iterator34.return) {
-							_iterator34.return();
+						if (!_iteratorNormalCompletion33 && _iterator33.return) {
+							_iterator33.return();
 						}
 					} finally {
-						if (_didIteratorError34) {
-							throw _iteratorError34;
+						if (_didIteratorError33) {
+							throw _iteratorError33;
 						}
 					}
 				}
@@ -18198,13 +18145,13 @@ true, true];
 				if (!aib.qBan) {
 					return;
 				}
-				var _iteratorNormalCompletion35 = true;
-				var _didIteratorError35 = false;
-				var _iteratorError35 = undefined;
+				var _iteratorNormalCompletion34 = true;
+				var _didIteratorError34 = false;
+				var _iteratorError34 = undefined;
 
 				try {
-					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref65 = _step35.value;
+					for (var _iterator34 = pBuilder.bannedPostsData()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
+						var _ref65 = _step34.value;
 
 						var _ref66 = _slicedToArray(_ref65, 3);
 
@@ -18220,16 +18167,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError35 = true;
-					_iteratorError35 = err;
+					_didIteratorError34 = true;
+					_iteratorError34 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion35 && _iterator35.return) {
-							_iterator35.return();
+						if (!_iteratorNormalCompletion34 && _iterator34.return) {
+							_iterator34.return();
 						}
 					} finally {
-						if (_didIteratorError35) {
-							throw _iteratorError35;
+						if (_didIteratorError34) {
+							throw _iteratorError34;
 						}
 					}
 				}
@@ -22572,27 +22519,27 @@ true, true];
 				case 'registerapi':
 					if (data) {
 						rv = {};
-						var _iteratorNormalCompletion36 = true;
-						var _didIteratorError36 = false;
-						var _iteratorError36 = undefined;
+						var _iteratorNormalCompletion35 = true;
+						var _didIteratorError35 = false;
+						var _iteratorError35 = undefined;
 
 						try {
-							for (var _iterator36 = data[Symbol.iterator](), _step36; !(_iteratorNormalCompletion36 = (_step36 = _iterator36.next()).done); _iteratorNormalCompletion36 = true) {
-								var aName = _step36.value;
+							for (var _iterator35 = data[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
+								var aName = _step35.value;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
 						} catch (err) {
-							_didIteratorError36 = true;
-							_iteratorError36 = err;
+							_didIteratorError35 = true;
+							_iteratorError35 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion36 && _iterator36.return) {
-									_iterator36.return();
+								if (!_iteratorNormalCompletion35 && _iterator35.return) {
+									_iterator35.return();
 								}
 							} finally {
-								if (_didIteratorError36) {
-									throw _iteratorError36;
+								if (_didIteratorError35) {
+									throw _iteratorError35;
 								}
 							}
 						}

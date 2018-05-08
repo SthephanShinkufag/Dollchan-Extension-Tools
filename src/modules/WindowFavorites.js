@@ -151,7 +151,7 @@ function showFavoritesWindow(body, favObj) {
 			}
 			const isHide = f.hide === undefined ? h !== aib.host : f.hide;
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${ isHide || b !== aib.b ? '' : ' de-fav-current' }">
+			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
 					${ delBtn }
 					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
@@ -363,15 +363,13 @@ function showFavoritesWindow(body, favObj) {
 			inf.pageEl.textContent = '@' + page;
 		};
 		for(let page = 0; page < endPage; ++page) {
-			let tNums;
+			const tNums = new Set();
 			try {
 				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				const arr = [];
 				const els = DelForm.getThreads(form);
 				for(let i = 0, len = els.length; i < len; ++i) {
-					arr.push(aib.getTNum(els[i]));
+					tNums.add(aib.getTNum(els[i]));
 				}
-				tNums = new Set(arr);
 			} catch(err) {
 				continue;
 			}
