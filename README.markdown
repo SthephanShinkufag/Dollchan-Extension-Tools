@@ -15,27 +15,27 @@
 ### Home page
 
 >
-**[http://www.freedollchan.org/scripts](http://www.freedollchan.org/scripts)**
+**[https://dscript.me/](https://dscript.me/)**
 
 ### License
 
 © 2017 Dollchan Extension Tools Team. See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
-### Script compilation
+### Userscript compilation
 
 * Install [Node.js](https://nodejs.org/) if not yet.
 * Install [Gulp](http://gulpjs.com/) globally: `npm install -g gulp`
 * Go to Dollchan repo and run `npm install` to update dependencies.
 
-You can make both ES5 and ESNext script versions from [/src/modules](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/tree/master/src/modules) by running:
+You can make both ES5 and ESNext userscript versions from [/src/modules](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/tree/master/src/modules) by running:
 
 `gulp make`
 
-Or you can make ESNext script only:
+Or you can make ESNext version only:
 
 `gulp make:es6`
 
-Also you can make separate source modules from your ESNext script:
+Also you can make separate source modules from your ESNext version:
 
 `gulp make:modules`
 
