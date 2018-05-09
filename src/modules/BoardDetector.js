@@ -1468,9 +1468,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.hasTextLinks = true;
 		}
-		get qImgNameLink() {
-			return '.fileinfo > span > a';
-		}
 		get css() {
 			return `${ super.css }
 				.sage { display: none; }

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '0df86e6';
+const commit = 'cd2886b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16244,9 +16244,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.fileinfo';
 
 			this.hasTextLinks = true;
-		}
-		get qImgNameLink() {
-			return '.fileinfo > span > a';
 		}
 		get css() {
 			return `${ super.css }
