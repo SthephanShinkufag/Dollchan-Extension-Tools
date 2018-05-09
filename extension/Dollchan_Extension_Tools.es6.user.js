@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '0df86e6';
+const commit = 'a41d3e4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15904,6 +15904,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['arhivach.cf'] = Arhivach;
 	ibDomains['arhivach.org'] = Arhivach;
 
 	class Brchan extends Vichan {
@@ -16244,9 +16245,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.fileinfo';
 
 			this.hasTextLinks = true;
-		}
-		get qImgNameLink() {
-			return '.fileinfo > span > a';
 		}
 		get css() {
 			return `${ super.css }

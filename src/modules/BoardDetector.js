@@ -1127,6 +1127,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['arhivach.cf'] = Arhivach;
 	ibDomains['arhivach.org'] = Arhivach;
 
 	class Brchan extends Vichan {
