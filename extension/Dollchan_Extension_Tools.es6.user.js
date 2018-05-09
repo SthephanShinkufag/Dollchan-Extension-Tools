@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'fbe9c44';
+const commit = '0df86e6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14359,7 +14359,7 @@ function initNavFuncs() {
 		scriptHandler,
 		isESNext   : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		firefoxVer : isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+		firefoxVer : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		isWebkit,
 		isChrome,
 		isSafari,
@@ -14832,6 +14832,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
+				.reply { max-width: unset; }
 				.tmp_postform { width: auto; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }

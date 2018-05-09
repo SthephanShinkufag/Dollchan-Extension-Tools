@@ -93,7 +93,7 @@ function initNavFuncs() {
 		scriptHandler,
 		isESNext   : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		firefoxVer : isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+		firefoxVer : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		isWebkit,
 		isChrome,
 		isSafari,

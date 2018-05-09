@@ -55,6 +55,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post.reply .post-message { max-height: initial !important; }
+				.reply { max-width: unset; }
 				.tmp_postform { width: auto; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }

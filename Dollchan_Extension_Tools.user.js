@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'fbe9c44';
+	var commit = '0df86e6';
 
 
 	var defaultCfg = {
@@ -19484,7 +19484,7 @@ true, true];
 			scriptHandler: scriptHandler,
 			isESNext: typeof deMainFuncOuter === 'undefined',
 			isFirefox: isFirefox,
-			firefoxVer: isFirefox ? +(ua.match(/Gecko\/[^/]+\/(\d+)/) || [0, 0])[1] : 0,
+			firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 			isWebkit: isWebkit,
 			isChrome: isChrome,
 			isSafari: isSafari,
@@ -20213,7 +20213,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,\n\t\t\t\t\t.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {\n\t\t\t\t\t\tdisplay: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '');
+					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,\n\t\t\t\t\t.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {\n\t\t\t\t\t\tdisplay: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: unset; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '');
 				}
 			}, {
 				key: 'lastPage',
