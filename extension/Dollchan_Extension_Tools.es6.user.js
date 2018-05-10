@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'a41d3e4';
+const commit = '1c748f4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2993,9 +2993,7 @@ const Panel = Object.create({
 			return;
 		}
 		let el = fixEventEl(e.target);
-		if(el.tagName.toLowerCase() === 'svg') {
-			el = el.parentNode;
-		}
+		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
 			switch(el.id) {
@@ -3755,7 +3753,9 @@ function showFavoritesWindow(body, favObj) {
 		for(const b in favObj[h]) {
 			const f = favObj[h][b];
 			const hb = `de-host="${ h }" de-board="${ b }"`;
-			const delBtn = '<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>';
+			const delBtn = `<span class="de-fav-del-btn">
+				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
+			</span>`;
 			let innerHtml = '';
 			for(const tNum in f) {
 				if(tNum === 'url' || tNum === 'hide') {
@@ -3822,9 +3822,13 @@ function showFavoritesWindow(body, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			const el = fixEventEl(e.target);
-			const parentEl = el.parentNode;
-			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
+			let el = fixEventEl(e.target);
+			let parentEl = el.parentNode;
+			if(el.tagName.toLowerCase() === 'svg') {
+				el = parentEl;
+				parentEl = parentEl.parentNode;
+			}
+			switch(el.className) {
 			case 'de-fav-link':
 				sesStorage['de-fav-win'] = '1'; // Favorites will open again after following a link
 				// We need to scroll to last seen post after following a link,
@@ -4881,14 +4885,13 @@ const CfgWindow = {
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
-				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
-				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a>
+				<a href="https://dscript.me/" target="_blank">Homepage</a> |
+				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a> |
+				<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+					`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ statsTable }
-					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
-						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
-				</div>
+				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
@@ -13547,11 +13550,8 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		let el = fixEventEl(e.target);
-		if(el.tagName.toLowerCase() === 'svg') {
-			el = el.parentNode;
-		}
-		switch(el.id) {
+		const el = fixEventEl(e.target);
+		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(window.pageXOffset, window.pageYOffset +
 				this._currentThr.getBoundingClientRect().top - 50);
@@ -16957,8 +16957,9 @@ function scriptCSS() {
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
 	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
-	.de-fav-del-btn { flex: 0 0 auto; align-self: center; width: 13px; height: 13px; margin-left: 2px; opacity: 0.65; cursor: pointer; }
-	.de-fav-del-btn[de-checked] { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
+	.de-fav-del-btn { flex: 0 0 auto; align-self: center; margin-left: 2px; cursor: pointer; }
+	.de-fav-del-btn > svg { width: 13px; height: 13px; opacity: 0.65; }
+	.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
 	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
 	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }
 	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }

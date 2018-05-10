@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '21e2c69';
+const commit = '1c748f4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4885,14 +4885,13 @@ const CfgWindow = {
 			<div style="padding-bottom: 10px;">
 				<a href="${ gitWiki }versions" target="_blank">v${ version }.${ commit }` +
 					`${ nav.isESNext ? '.es6' : '' }</a> |
-				<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a> |
-				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a>
+				<a href="https://dscript.me/" target="_blank">Homepage</a> |
+				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a> |
+				<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+					`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 			</div>
 			<div id="de-info-table">
-				<div id="de-info-stats">${ statsTable }
-					<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
-						`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
-				</div>
+				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
