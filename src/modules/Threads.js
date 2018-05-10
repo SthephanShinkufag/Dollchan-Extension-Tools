@@ -628,11 +628,8 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		let el = fixEventEl(e.target);
-		if(el.tagName.toLowerCase() === 'svg') {
-			el = el.parentNode;
-		}
-		switch(el.id) {
+		const el = fixEventEl(e.target);
+		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(window.pageXOffset, window.pageYOffset +
 				this._currentThr.getBoundingClientRect().top - 50);

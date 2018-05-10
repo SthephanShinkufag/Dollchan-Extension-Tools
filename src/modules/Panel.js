@@ -67,9 +67,7 @@ const Panel = Object.create({
 			return;
 		}
 		let el = fixEventEl(e.target);
-		if(el.tagName.toLowerCase() === 'svg') {
-			el = el.parentNode;
-		}
+		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
 			switch(el.id) {

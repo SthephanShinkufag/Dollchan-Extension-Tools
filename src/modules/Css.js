@@ -133,8 +133,9 @@ function scriptCSS() {
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
 	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
-	.de-fav-del-btn { flex: 0 0 auto; align-self: center; width: 13px; height: 13px; margin-left: 2px; opacity: 0.65; cursor: pointer; }
-	.de-fav-del-btn[de-checked] { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
+	.de-fav-del-btn { flex: 0 0 auto; align-self: center; margin-left: 2px; cursor: pointer; }
+	.de-fav-del-btn > svg { width: 13px; height: 13px; opacity: 0.65; }
+	.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
 	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
 	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }
 	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }

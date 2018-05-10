@@ -102,7 +102,9 @@ function showFavoritesWindow(body, favObj) {
 		for(const b in favObj[h]) {
 			const f = favObj[h][b];
 			const hb = `de-host="${ h }" de-board="${ b }"`;
-			const delBtn = '<svg class="de-fav-del-btn"><use xlink:href="#de-symbol-win-close"></use></svg>';
+			const delBtn = `<span class="de-fav-del-btn">
+				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
+			</span>`;
 			let innerHtml = '';
 			for(const tNum in f) {
 				if(tNum === 'url' || tNum === 'hide') {
@@ -169,9 +171,13 @@ function showFavoritesWindow(body, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			const el = fixEventEl(e.target);
-			const parentEl = el.parentNode;
-			switch(el.tagName.toLowerCase() === 'svg' ? el.classList[0] : el.className) {
+			let el = fixEventEl(e.target);
+			let parentEl = el.parentNode;
+			if(el.tagName.toLowerCase() === 'svg') {
+				el = parentEl;
+				parentEl = parentEl.parentNode;
+			}
+			switch(el.className) {
 			case 'de-fav-link':
 				sesStorage['de-fav-win'] = '1'; // Favorites will open again after following a link
 				// We need to scroll to last seen post after following a link,
