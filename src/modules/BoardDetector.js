@@ -1469,6 +1469,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.hasTextLinks = true;
 		}
+		get qImgNameLink() {
+			return '.postfilename';
+		}
 		get css() {
 			return `${ super.css }
 				.sage { display: none; }

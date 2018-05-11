@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '1c748f4';
+	var commit = '3d8771b';
 
 
 	var defaultCfg = {
@@ -22144,6 +22144,11 @@ true, true];
 				key: 'getSage',
 				value: function getSage(post) {
 					return !!$q('.sage', post);
+				}
+			}, {
+				key: 'qImgNameLink',
+				get: function get() {
+					return '.postfilename';
 				}
 			}, {
 				key: 'css',
