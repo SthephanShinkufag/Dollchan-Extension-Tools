@@ -25,10 +25,8 @@ class Captcha {
 		if(!this._isRecap) {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
-		} else if(this._isOldRecap()) {
-			this.textEl = $id('recaptcha_response_field');
 		} else {
-			const el = $q(`#g-recaptcha, .g-recaptcha${ aib.fch ? ', #qrCaptchaContainerAlt' : '' }`);
+			const el = $q('#g-recaptcha, .g-recaptcha');
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
 		}
@@ -178,9 +176,6 @@ class Captcha {
 		}
 	}
 
-	_isOldRecap() {
-		return !!$id('recaptcha_widget_div');
-	}
 	_setUpdateError(e) {
 		if(e) {
 			this.parentEl = e.toString();
@@ -193,15 +188,11 @@ class Captcha {
 		}
 	}
 	_updateRecap() {
-		if(this._isOldRecap()) {
-			$script('Recaptcha.reload()');
-		} else {
-			const script = doc.createElement('script');
-			script.type = 'text/javascript';
-			script.src = aib.prot + '//www.google.com/recaptcha/api.js';
-			doc.head.appendChild(script);
-			setTimeout(() => $del(script), 1e5);
-		}
+		const script = doc.createElement('script');
+		script.type = 'text/javascript';
+		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
+		doc.head.appendChild(script);
+		setTimeout(() => $del(script), 1e5);
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {

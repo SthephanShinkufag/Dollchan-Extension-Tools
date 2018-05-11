@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '3d8771b';
+	var commit = 'eb5d265';
 
 
 	var defaultCfg = {
@@ -7798,11 +7798,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			if (type === 'click' && tag === 'INPUT' && el.type === 'button') {
 				switch (el.id) {
-					case 'de-cfg-btn-pass':
+					case 'de-cfg-button-pass':
 						$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
 						PostForm.setUserPassw();
 						break;
-					case 'de-cfg-btn-keys':
+					case 'de-cfg-button-keys':
 						$pd(e);
 						if ($id('de-popup-edit-hotkeys')) {
 							return;
@@ -7818,7 +7818,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							el.addEventListener('keyup', fn, true);
 						});
 						break;
-					case 'de-cfg-btn-updnow':
+					case 'de-cfg-button-updnow':
 						$popup('updavail', Lng.loading[lang], true);
 						getStoredObj('DESU_Config').then(function (data) {
 							return checkForUpdates(true, data.lastUpd);
@@ -7826,7 +7826,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return $popup('updavail', html);
 						}, emptyFn);
 						break;
-					case 'de-cfg-btn-debug':
+					case 'de-cfg-button-debug':
 						{
 							var perf = {};
 							var arr = Logger.getLogData(true);
@@ -8009,18 +8009,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.hasAltCaptcha ? this._getBox('altCaptcha') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib.fch ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + '<input type="button" id="de-cfg-btn-pass' + ('" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '\n\t\t\t\t' + this._getBox('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.hasAltCaptcha ? this._getBox('altCaptcha') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib.fch ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + '<input type="button"' + (' id="de-cfg-button-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + (!localData ? this._getBox('inftyScroll') + '<br>\n\t\t\t\t' + this._getBox('scrollToTop') + '<br>' : '') + '\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">' + this._getInp('loadPages') + '</div>\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '\n\t\t\t\t<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;' + ' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + (!localData ? this._getBox('inftyScroll') + '<br>\n\t\t\t\t' + this._getBox('scrollToTop') + '<br>' : '') + '\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-cfg-depend">' + this._getInp('loadPages') + '</div>\n\t\t\t' + (nav.isGlobal ? Lng.cfg.excludeList[lang] + '\n\t\t\t\t<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;' + ' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '') + '\n\t\t</div>';
 		},
 
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dscript.me/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-btn-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dscript.me/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
 		},
 
 
@@ -12940,7 +12940,7 @@ true, true];
 					return;
 				}
 				try {
-					data = JSON.parse(isDocument ? data.body.textContent : data);
+					data = JSON.parse((isDocument ? data.body.textContent : data).trim());
 				} catch (err) {
 					error = getErrorMessage(err);
 				}
@@ -13755,10 +13755,8 @@ true, true];
 				if (!this._isRecap) {
 					this.parentEl.innerHTML = this.originHTML;
 					this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
-				} else if (this._isOldRecap()) {
-					this.textEl = $id('recaptcha_response_field');
 				} else {
-					var el = $q('#g-recaptcha, .g-recaptcha' + (aib.fch ? ', #qrCaptchaContainerAlt' : ''));
+					var el = $q('#g-recaptcha, .g-recaptcha');
 					$replace(el, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + el.getAttribute('data-sitekey') + '"></div>');
 				}
 				this.initCapPromise();
@@ -13945,11 +13943,6 @@ true, true];
 				}
 			}
 		}, {
-			key: '_isOldRecap',
-			value: function _isOldRecap() {
-				return !!$id('recaptcha_widget_div');
-			}
-		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
 				var _this41 = this;
@@ -13967,17 +13960,13 @@ true, true];
 		}, {
 			key: '_updateRecap',
 			value: function _updateRecap() {
-				if (this._isOldRecap()) {
-					$script('Recaptcha.reload()');
-				} else {
-					var script = doc.createElement('script');
-					script.type = 'text/javascript';
-					script.src = aib.prot + '//www.google.com/recaptcha/api.js';
-					doc.head.appendChild(script);
-					setTimeout(function () {
-						return $del(script);
-					}, 1e5);
-				}
+				var script = doc.createElement('script');
+				script.type = 'text/javascript';
+				script.src = aib.prot + '//www.google.com/recaptcha/api.js';
+				doc.head.appendChild(script);
+				setTimeout(function () {
+					return $del(script);
+				}, 1e5);
 			}
 		}, {
 			key: '_updateTextEl',
@@ -20920,174 +20909,28 @@ true, true];
 		ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
 
-		var _02chSu = function (_Kusaba) {
-			_inherits(_02chSu, _Kusaba);
+		var _2__chRu = function (_BaseBoard6) {
+			_inherits(_2__chRu, _BaseBoard6);
 
-			function _02chSu(prot, dm) {
-				_classCallCheck(this, _02chSu);
+			function _2__chRu(prot, dm) {
+				_classCallCheck(this, _2__chRu);
 
-				var _this85 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (_2__chRu.__proto__ || Object.getPrototypeOf(_2__chRu)).call(this, prot, dm));
 
-				_this85.hasCatalog = true;
+				_this85.qPages = 'table[border="1"] td > a:last-of-type';
 
-				_this85._capUpdPromise = null;
+				_this85.docExt = '.html';
+				_this85.hasPicWrap = true;
+				_this85.jsonSubmit = true;
+				_this85.markupBB = true;
+				_this85.multiFile = true;
+				_this85.ru = true;
+
+				_this85._qTable = 'table:not(.postfiles)';
 				return _this85;
 			}
 
-			_createClass(_02chSu, [{
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/captcha_update.php', function (xhr) {
-						cap.parentEl.innerHTML = xhr.responseText;
-						cap.textEl = $id('recaptcha_response_field');
-						cap.initImage($q('img', cap.parentEl));
-						cap.initTextEl();
-					});
-				}
-			}]);
-
-			return _02chSu;
-		}(Kusaba);
-
-		ibDomains['02ch.su'] = _02chSu;
-
-		var _2chan = function (_BaseBoard6) {
-			_inherits(_2chan, _BaseBoard6);
-
-			function _2chan(prot, dm) {
-				_classCallCheck(this, _2chan);
-
-				var _this86 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
-
-				_this86.qDForm = 'form:not([enctype])';
-				_this86.qForm = 'form[enctype]';
-				_this86.qFormRedir = null;
-				_this86.qFormRules = '.chui';
-				_this86.qOmitted = 'font[color="#707070"]';
-				_this86.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this86.qPostRef = '.del';
-				_this86.qRPost = 'td:nth-child(2)';
-
-				_this86.docExt = '.htm';
-				_this86.formParent = 'resto';
-				return _this86;
-			}
-
-			_createClass(_2chan, [{
-				key: 'getPageUrl',
-				value: function getPageUrl(b, p) {
-					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
-				}
-			}, {
-				key: 'getPNum',
-				value: function getPNum(post) {
-					return +$q('input', post).name;
-				}
-			}, {
-				key: 'getPostElOfEl',
-				value: function getPostElOfEl(el) {
-					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
-						el = el.parentElement;
-					}
-					return el;
-				}
-			}, {
-				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
-				}
-			}, {
-				key: 'init',
-				value: function init() {
-					$del($q('base', doc.head)); 
-					return false;
-				}
-			}, {
-				key: 'qImgNameLink',
-				get: function get() {
-					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
-				}
-			}, {
-				key: 'qThread',
-				get: function get() {
-					return '.thre';
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
-				}
-			}]);
-
-			return _2chan;
-		}(BaseBoard);
-
-		ibDomains['2chan.net'] = _2chan;
-
-		var _2chRip = function (_BaseBoard7) {
-			_inherits(_2chRip, _BaseBoard7);
-
-			function _2chRip(prot, dm) {
-				_classCallCheck(this, _2chRip);
-
-				var _this87 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
-
-				_this87.ru = true;
-
-				_this87._capUpdPromise = null;
-				return _this87;
-			}
-
-			_createClass(_2chRip, [{
-				key: 'init',
-				value: function init() {
-					var el = $id('submit_button');
-					if (el) {
-						$del(el.previousElementSibling);
-						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-					}
-					return false;
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref75) {
-						var id = _ref75.responseText;
-
-						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-						$id('captchaid').value = id;
-					});
-				}
-			}]);
-
-			return _2chRip;
-		}(BaseBoard);
-
-		ibDomains['2ch.rip'] = _2chRip;
-		ibDomains['dva-ch.com'] = _2chRip;
-
-		var _2chRu = function (_BaseBoard8) {
-			_inherits(_2chRu, _BaseBoard8);
-
-			function _2chRu(prot, dm) {
-				_classCallCheck(this, _2chRu);
-
-				var _this88 = _possibleConstructorReturn(this, (_2chRu.__proto__ || Object.getPrototypeOf(_2chRu)).call(this, prot, dm));
-
-				_this88.qPages = 'table[border="1"] td > a:last-of-type';
-
-				_this88.docExt = '.html';
-				_this88.hasPicWrap = true;
-				_this88.jsonSubmit = true;
-				_this88.markupBB = true;
-				_this88.multiFile = true;
-				_this88.ru = true;
-
-				_this88._qTable = 'table:not(.postfiles)';
-				return _this88;
-			}
-
-			_createClass(_2chRu, [{
+			_createClass(_2__chRu, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '><input type="file" name="file"></div>';
@@ -21164,11 +21007,157 @@ true, true];
 				}
 			}]);
 
-			return _2chRu;
+			return _2__chRu;
 		}(BaseBoard);
 
-		ibDomains['2--ch.ru'] = _2chRu;
-		ibDomains['2-ch.su'] = _2chRu;
+		ibDomains['2--ch.ru'] = _2__chRu;
+		ibDomains['2-ch.su'] = _2__chRu;
+
+		var _02chSu = function (_Kusaba) {
+			_inherits(_02chSu, _Kusaba);
+
+			function _02chSu(prot, dm) {
+				_classCallCheck(this, _02chSu);
+
+				var _this86 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+
+				_this86.hasCatalog = true;
+
+				_this86._capUpdPromise = null;
+				return _this86;
+			}
+
+			_createClass(_02chSu, [{
+				key: 'updateCaptcha',
+				value: function updateCaptcha(cap) {
+					return cap.updateHelper('/captcha_update.php', function (xhr) {
+						cap.parentEl.innerHTML = xhr.responseText;
+						cap.textEl = $id('recaptcha_response_field');
+						cap.initImage($q('img', cap.parentEl));
+						cap.initTextEl();
+					});
+				}
+			}]);
+
+			return _02chSu;
+		}(Kusaba);
+
+		ibDomains['02ch.su'] = _02chSu;
+
+		var _2chan = function (_BaseBoard7) {
+			_inherits(_2chan, _BaseBoard7);
+
+			function _2chan(prot, dm) {
+				_classCallCheck(this, _2chan);
+
+				var _this87 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+
+				_this87.qDForm = 'form:not([enctype])';
+				_this87.qForm = 'form[enctype]';
+				_this87.qFormRedir = null;
+				_this87.qFormRules = '.chui';
+				_this87.qOmitted = 'font[color="#707070"]';
+				_this87.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this87.qPostRef = '.del';
+				_this87.qRPost = 'td:nth-child(2)';
+
+				_this87.docExt = '.htm';
+				_this87.formParent = 'resto';
+				return _this87;
+			}
+
+			_createClass(_2chan, [{
+				key: 'getPageUrl',
+				value: function getPageUrl(b, p) {
+					return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +$q('input', post).name;
+				}
+			}, {
+				key: 'getPostElOfEl',
+				value: function getPostElOfEl(el) {
+					while (el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+						el = el.parentElement;
+					}
+					return el;
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					$del($q('base', doc.head)); 
+					return false;
+				}
+			}, {
+				key: 'qImgNameLink',
+				get: function get() {
+					return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thre';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.ftbl { width: auto; margin: 0; }\n\t\t\t\t.reply { background: #f0e0d6; }\n\t\t\t\tspan { font-size: inherit; }';
+				}
+			}]);
+
+			return _2chan;
+		}(BaseBoard);
+
+		ibDomains['2chan.net'] = _2chan;
+
+		var _2chRip = function (_BaseBoard8) {
+			_inherits(_2chRip, _BaseBoard8);
+
+			function _2chRip(prot, dm) {
+				_classCallCheck(this, _2chRip);
+
+				var _this88 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+
+				_this88.ru = true;
+
+				_this88._capUpdPromise = null;
+				return _this88;
+			}
+
+			_createClass(_2chRip, [{
+				key: 'init',
+				value: function init() {
+					var el = $id('submit_button');
+					if (el) {
+						$del(el.previousElementSibling);
+						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
+					}
+					return false;
+				}
+			}, {
+				key: 'updateCaptcha',
+				value: function updateCaptcha(cap) {
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref75) {
+						var id = _ref75.responseText;
+
+						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+						$id('captchaid').value = id;
+					});
+				}
+			}]);
+
+			return _2chRip;
+		}(BaseBoard);
+
+		ibDomains['2ch.rip'] = _2chRip;
+		ibDomains['dva-ch.com'] = _2chRip;
 
 		var _410chanOrg = function (_Kusaba2) {
 			_inherits(_410chanOrg, _Kusaba2);
@@ -21191,24 +21180,6 @@ true, true];
 			}
 
 			_createClass(_410chanOrg, [{
-				key: 'fixHTML',
-				value: function fixHTML(data, isForm) {
-					var el = _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'fixHTML', this).call(this, data, isForm);
-					if (aib.t) {
-						try {
-							var backBtn = $q(this.qThread + ' > span[style]', el);
-							if (backBtn) {
-								var modBtn = $q('a[accesskey="m"]', el);
-								$after(backBtn.parentElement, backBtn);
-								[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(function (el) {
-									return $after(backBtn.lastChild, el);
-								});
-							}
-						} catch (err) {}
-					}
-					return el;
-				}
-			}, {
 				key: 'getCaptchaSrc',
 				value: function getCaptchaSrc(src) {
 					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
@@ -21224,6 +21195,7 @@ true, true];
 				value: function init() {
 					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
 					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
+					return false;
 				}
 			}, {
 				key: 'updateCaptcha',
@@ -21254,7 +21226,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\t\t#resizer, .threadlinksbottom { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
+					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -22333,18 +22305,10 @@ true, true];
 			return Ponyach;
 		}(BaseBoard);
 
-		ibDomains['ponyach.cf'] = Ponyach;
 		ibDomains['ponyach.ga'] = Ponyach;
 		ibDomains['ponyach.gq'] = Ponyach;
-		ibDomains['ponyach.ml'] = Ponyach;
 		ibDomains['ponyach.ru'] = Ponyach;
 		ibDomains['ponyach.tk'] = Ponyach;
-		ibDomains['cafe-asylum.cf'] = Ponyach;
-		ibDomains['cafe-bb.cf'] = Ponyach;
-		ibDomains['cafe-bb.ga'] = Ponyach;
-		ibDomains['cafe-bb.gq'] = Ponyach;
-		ibDomains['cafe-bb.ml'] = Ponyach;
-		ibDomains['cafe-bb.tk'] = Ponyach;
 
 		var Ponychan = function (_Tinyboard2) {
 			_inherits(Ponychan, _Tinyboard2);
@@ -22673,7 +22637,7 @@ true, true];
 			return;
 		}
 
-		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
+		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t.de-cfg-depend { padding-left: 17px; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\t.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
 		'#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }',
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',

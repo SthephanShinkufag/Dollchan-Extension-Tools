@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '3d8771b';
+const commit = 'eb5d265';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4520,11 +4520,11 @@ const CfgWindow = {
 		}
 		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
 			switch(el.id) {
-			case 'de-cfg-btn-pass':
+			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
 				break;
-			case 'de-cfg-btn-keys':
+			case 'de-cfg-button-keys':
 				$pd(e);
 				if($id('de-popup-edit-hotkeys')) {
 					return;
@@ -4540,13 +4540,13 @@ const CfgWindow = {
 					el.addEventListener('keyup', fn, true);
 				});
 				break;
-			case 'de-cfg-btn-updnow':
+			case 'de-cfg-button-updnow':
 				$popup('updavail', Lng.loading[lang], true);
 				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
-			case 'de-cfg-btn-debug': {
+			case 'de-cfg-button-debug': {
 				const perf = {};
 				const arr = Logger.getLogData(true);
 				for(let i = 0, len = arr.length; i < len; ++i) {
@@ -4840,8 +4840,8 @@ const CfgWindow = {
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
-			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
-				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
+			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button"` +
+				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
 				${ this._getBox('userName') }<br>` : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
@@ -4865,7 +4865,7 @@ const CfgWindow = {
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
-			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
+			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
@@ -4887,7 +4887,7 @@ const CfgWindow = {
 					`${ nav.isESNext ? '.es6' : '' }</a> |
 				<a href="https://dscript.me/" target="_blank">Homepage</a> |
 				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a> |
-				<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+				<input type="button" id="de-cfg-button-debug" value="` +
 					`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 			</div>
 			<div id="de-info-table">
@@ -4896,7 +4896,7 @@ const CfgWindow = {
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
-					<input type="button" id="de-cfg-btn-updnow" value="${ Lng.checkNow[lang] }">
+					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>
 				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
@@ -8884,7 +8884,7 @@ function checkUpload(data) {
 				return;
 			}
 			try {
-				data = JSON.parse(isDocument ? data.body.textContent : data);
+				data = JSON.parse((isDocument ? data.body.textContent : data).trim());
 			} catch(err) {
 				error = getErrorMessage(err);
 			}
@@ -9660,10 +9660,8 @@ class Captcha {
 		if(!this._isRecap) {
 			this.parentEl.innerHTML = this.originHTML;
 			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
-		} else if(this._isOldRecap()) {
-			this.textEl = $id('recaptcha_response_field');
 		} else {
-			const el = $q(`#g-recaptcha, .g-recaptcha${ aib.fch ? ', #qrCaptchaContainerAlt' : '' }`);
+			const el = $q('#g-recaptcha, .g-recaptcha');
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
 		}
@@ -9813,9 +9811,6 @@ class Captcha {
 		}
 	}
 
-	_isOldRecap() {
-		return !!$id('recaptcha_widget_div');
-	}
 	_setUpdateError(e) {
 		if(e) {
 			this.parentEl = e.toString();
@@ -9828,15 +9823,11 @@ class Captcha {
 		}
 	}
 	_updateRecap() {
-		if(this._isOldRecap()) {
-			$script('Recaptcha.reload()');
-		} else {
-			const script = doc.createElement('script');
-			script.type = 'text/javascript';
-			script.src = aib.prot + '//www.google.com/recaptcha/api.js';
-			doc.head.appendChild(script);
-			setTimeout(() => $del(script), 1e5);
-		}
+		const script = doc.createElement('script');
+		script.type = 'text/javascript';
+		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
+		doc.head.appendChild(script);
+		setTimeout(() => $del(script), 1e5);
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
@@ -15396,6 +15387,79 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
 	// DOMAINS
+	class _2__chRu extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qPages = 'table[border="1"] td > a:last-of-type';
+
+			this.docExt = '.html';
+			this.hasPicWrap = true;
+			this.jsonSubmit = true;
+			this.markupBB = true;
+			this.multiFile = true;
+			this.ru = true;
+
+			this._qTable = 'table:not(.postfiles)';
+		}
+		get qThread() {
+			return '.threadz';
+		}
+		get css() {
+			return 'span[id$="_display"], #fastload { display: none; }';
+		}
+		get initCaptcha() {
+			$id('captchadiv').innerHTML =
+				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
+			return null;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/data-original="\//g, 'src="/');
+		}
+		getCaptchaSrc() {
+			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getOmitted(el, len) {
+			let txt;
+			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
+		}
+		getPageUrl(b, p) {
+			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
+		}
+		getSubmitData(json) {
+			let error = null;
+			let postNum = null;
+			if(json.post) {
+				postNum = +json.post;
+			} else {
+				error = Lng.error[lang];
+				if(json.error) {
+					error += ':\n' + json.error.text;
+				}
+			}
+			return { error, postNum };
+		}
+		init() {
+			const btnEl = $q('#postform input[type="button"]');
+			if(btnEl) {
+				$replace(btnEl, '<input type="submit" value="Отправить">');
+			}
+			const dFormEl = $q(this.qDForm);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
+			dFormEl.appendChild($q('.userdelete'));
+			return false;
+		}
+	}
+	ibDomains['2--ch.ru'] = _2__chRu;
+	ibDomains['2-ch.su'] = _2__chRu;
+
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -15490,79 +15554,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.rip'] = _2chRip;
 	ibDomains['dva-ch.com'] = _2chRip;
 
-	class _2chRu extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qPages = 'table[border="1"] td > a:last-of-type';
-
-			this.docExt = '.html';
-			this.hasPicWrap = true;
-			this.jsonSubmit = true;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.ru = true;
-
-			this._qTable = 'table:not(.postfiles)';
-		}
-		get qThread() {
-			return '.threadz';
-		}
-		get css() {
-			return 'span[id$="_display"], #fastload { display: none; }';
-		}
-		get initCaptcha() {
-			$id('captchadiv').innerHTML =
-				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = '><input type="file" name="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/data-original="\//g, 'src="/');
-		}
-		getCaptchaSrc() {
-			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getOmitted(el, len) {
-			let txt;
-			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
-		}
-		getPageUrl(b, p) {
-			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
-		}
-		getSubmitData(json) {
-			let error = null;
-			let postNum = null;
-			if(json.post) {
-				postNum = +json.post;
-			} else {
-				error = Lng.error[lang];
-				if(json.error) {
-					error += ':\n' + json.error.text;
-				}
-			}
-			return { error, postNum };
-		}
-		init() {
-			const btnEl = $q('#postform input[type="button"]');
-			if(btnEl) {
-				$replace(btnEl, '<input type="submit" value="Отправить">');
-			}
-			const dFormEl = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', dFormEl), $del);
-			dFormEl.appendChild($q('.userdelete'));
-			return false;
-		}
-	}
-	ibDomains['2--ch.ru'] = _2chRu;
-	ibDomains['2-ch.su'] = _2chRu;
-
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -15582,7 +15573,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#resizer, .threadlinksbottom { display: none; }
+				#resizer { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
@@ -15590,23 +15581,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
-		}
-		fixHTML(data, isForm) {
-			const el = super.fixHTML(data, isForm);
-			// Move [ Back ] link outside of thread div,
-			// so this will prevent new posts from being appended after that link
-			if(aib.t) {
-				try {
-					const backBtn = $q(`${ this.qThread } > span[style]`, el);
-					if(backBtn) {
-						const modBtn = $q('a[accesskey="m"]', el);
-						$after(backBtn.parentElement, backBtn);
-						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
-							el => $after(backBtn.lastChild, el));
-					}
-				} catch(err) {}
-			}
-			return el;
 		}
 		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
@@ -15619,6 +15593,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
+			return false;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
@@ -16349,18 +16324,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['ponyach.cf'] = Ponyach;
 	ibDomains['ponyach.ga'] = Ponyach;
 	ibDomains['ponyach.gq'] = Ponyach;
-	ibDomains['ponyach.ml'] = Ponyach;
 	ibDomains['ponyach.ru'] = Ponyach;
 	ibDomains['ponyach.tk'] = Ponyach;
-	ibDomains['cafe-asylum.cf'] = Ponyach;
-	ibDomains['cafe-bb.cf'] = Ponyach;
-	ibDomains['cafe-bb.ga'] = Ponyach;
-	ibDomains['cafe-bb.gq'] = Ponyach;
-	ibDomains['cafe-bb.ml'] = Ponyach;
-	ibDomains['cafe-bb.tk'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
 		constructor(prot, dm) {
@@ -16912,6 +16879,7 @@ function scriptCSS() {
 	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
+	#de-cfg-button-debug { padding: 0 2px; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }

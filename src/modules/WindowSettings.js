@@ -411,11 +411,11 @@ const CfgWindow = {
 		}
 		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
 			switch(el.id) {
-			case 'de-cfg-btn-pass':
+			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
 				break;
-			case 'de-cfg-btn-keys':
+			case 'de-cfg-button-keys':
 				$pd(e);
 				if($id('de-popup-edit-hotkeys')) {
 					return;
@@ -431,13 +431,13 @@ const CfgWindow = {
 					el.addEventListener('keyup', fn, true);
 				});
 				break;
-			case 'de-cfg-btn-updnow':
+			case 'de-cfg-button-updnow':
 				$popup('updavail', Lng.loading[lang], true);
 				getStoredObj('DESU_Config')
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
-			case 'de-cfg-btn-debug': {
+			case 'de-cfg-button-debug': {
 				const perf = {};
 				const arr = Logger.getLogData(true);
 				for(let i = 0, len = arr.length; i < len; ++i) {
@@ -731,8 +731,8 @@ const CfgWindow = {
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
-			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button" id="de-cfg-btn-pass` +
-				`" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
+			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button"` +
+				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
 				${ this._getBox('userName') }<br>` : '' }
 			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
@@ -756,7 +756,7 @@ const CfgWindow = {
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
-			<input type="button" id="de-cfg-btn-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
+			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
@@ -778,7 +778,7 @@ const CfgWindow = {
 					`${ nav.isESNext ? '.es6' : '' }</a> |
 				<a href="https://dscript.me/" target="_blank">Homepage</a> |
 				<a href="${ gitWiki }${ lang === 1 ? 'home-en/' : '' }" target="_blank">Github</a> |
-				<input type="button" id="de-cfg-btn-debug" style="margin-top: 3px;" value="` +
+				<input type="button" id="de-cfg-button-debug" value="` +
 					`${ Lng.debug[lang] }" title="${ Lng.infoDebug[lang] }">
 			</div>
 			<div id="de-info-table">
@@ -787,7 +787,7 @@ const CfgWindow = {
 			</div>
 			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
-					<input type="button" id="de-cfg-btn-updnow" value="${ Lng.checkNow[lang] }">
+					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>
 				${ this._getSel('updDollchan') }` : '' }
 		</div>`;

@@ -71,7 +71,7 @@ function checkUpload(data) {
 				return;
 			}
 			try {
-				data = JSON.parse(isDocument ? data.body.textContent : data);
+				data = JSON.parse((isDocument ? data.body.textContent : data).trim());
 			} catch(err) {
 				error = getErrorMessage(err);
 			}

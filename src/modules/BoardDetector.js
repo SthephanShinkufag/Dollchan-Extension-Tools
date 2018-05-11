@@ -619,6 +619,79 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
 	// DOMAINS
+	class _2__chRu extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qPages = 'table[border="1"] td > a:last-of-type';
+
+			this.docExt = '.html';
+			this.hasPicWrap = true;
+			this.jsonSubmit = true;
+			this.markupBB = true;
+			this.multiFile = true;
+			this.ru = true;
+
+			this._qTable = 'table:not(.postfiles)';
+		}
+		get qThread() {
+			return '.threadz';
+		}
+		get css() {
+			return 'span[id$="_display"], #fastload { display: none; }';
+		}
+		get initCaptcha() {
+			$id('captchadiv').innerHTML =
+				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
+			return null;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/data-original="\//g, 'src="/');
+		}
+		getCaptchaSrc() {
+			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getOmitted(el, len) {
+			let txt;
+			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
+		}
+		getPageUrl(b, p) {
+			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
+		}
+		getSubmitData(json) {
+			let error = null;
+			let postNum = null;
+			if(json.post) {
+				postNum = +json.post;
+			} else {
+				error = Lng.error[lang];
+				if(json.error) {
+					error += ':\n' + json.error.text;
+				}
+			}
+			return { error, postNum };
+		}
+		init() {
+			const btnEl = $q('#postform input[type="button"]');
+			if(btnEl) {
+				$replace(btnEl, '<input type="submit" value="Отправить">');
+			}
+			const dFormEl = $q(this.qDForm);
+			$each($Q('input[type="hidden"]', dFormEl), $del);
+			dFormEl.appendChild($q('.userdelete'));
+			return false;
+		}
+	}
+	ibDomains['2--ch.ru'] = _2__chRu;
+	ibDomains['2-ch.su'] = _2__chRu;
+
 	class _02chSu extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -713,79 +786,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.rip'] = _2chRip;
 	ibDomains['dva-ch.com'] = _2chRip;
 
-	class _2chRu extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qPages = 'table[border="1"] td > a:last-of-type';
-
-			this.docExt = '.html';
-			this.hasPicWrap = true;
-			this.jsonSubmit = true;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.ru = true;
-
-			this._qTable = 'table:not(.postfiles)';
-		}
-		get qThread() {
-			return '.threadz';
-		}
-		get css() {
-			return 'span[id$="_display"], #fastload { display: none; }';
-		}
-		get initCaptcha() {
-			$id('captchadiv').innerHTML =
-				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = '><input type="file" name="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		fixHTMLHelper(str) {
-			return str.replace(/data-original="\//g, 'src="/');
-		}
-		getCaptchaSrc() {
-			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getOmitted(el, len) {
-			let txt;
-			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
-		}
-		getPageUrl(b, p) {
-			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
-		}
-		getSubmitData(json) {
-			let error = null;
-			let postNum = null;
-			if(json.post) {
-				postNum = +json.post;
-			} else {
-				error = Lng.error[lang];
-				if(json.error) {
-					error += ':\n' + json.error.text;
-				}
-			}
-			return { error, postNum };
-		}
-		init() {
-			const btnEl = $q('#postform input[type="button"]');
-			if(btnEl) {
-				$replace(btnEl, '<input type="submit" value="Отправить">');
-			}
-			const dFormEl = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', dFormEl), $del);
-			dFormEl.appendChild($q('.userdelete'));
-			return false;
-		}
-	}
-	ibDomains['2--ch.ru'] = _2chRu;
-	ibDomains['2-ch.su'] = _2chRu;
-
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -805,7 +805,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#resizer, .threadlinksbottom { display: none; }
+				#resizer { display: none; }
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
@@ -813,23 +813,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
-		}
-		fixHTML(data, isForm) {
-			const el = super.fixHTML(data, isForm);
-			// Move [ Back ] link outside of thread div,
-			// so this will prevent new posts from being appended after that link
-			if(aib.t) {
-				try {
-					const backBtn = $q(`${ this.qThread } > span[style]`, el);
-					if(backBtn) {
-						const modBtn = $q('a[accesskey="m"]', el);
-						$after(backBtn.parentElement, backBtn);
-						[modBtn.previousSibling, modBtn, modBtn.nextSibling].forEach(
-							el => $after(backBtn.lastChild, el));
-					}
-				} catch(err) {}
-			}
-			return el;
 		}
 		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
@@ -842,6 +825,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			// Workaround for "OK bug" #921
 			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
+			return false;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
@@ -1572,18 +1556,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['ponyach.cf'] = Ponyach;
 	ibDomains['ponyach.ga'] = Ponyach;
 	ibDomains['ponyach.gq'] = Ponyach;
-	ibDomains['ponyach.ml'] = Ponyach;
 	ibDomains['ponyach.ru'] = Ponyach;
 	ibDomains['ponyach.tk'] = Ponyach;
-	ibDomains['cafe-asylum.cf'] = Ponyach;
-	ibDomains['cafe-bb.cf'] = Ponyach;
-	ibDomains['cafe-bb.ga'] = Ponyach;
-	ibDomains['cafe-bb.gq'] = Ponyach;
-	ibDomains['cafe-bb.ml'] = Ponyach;
-	ibDomains['cafe-bb.tk'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
 		constructor(prot, dm) {
