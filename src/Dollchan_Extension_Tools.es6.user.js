@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'eb5d265';
+const commit = 'b1c1c6d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11821,16 +11821,16 @@ class ExpandableImage {
 				if(!this._size || isRotated) {
 					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
-				const waitEl = img.previousElementSibling;
+				const parentEl = img.parentNode.parentNode;
+				const waitEl = $q('.de-fullimg-load', parentEl);
 				if(waitEl) {
-					const parentEl = img.parentNode;
 					$hide(waitEl);
 					parentEl.classList.remove('de-fullimg-wrap-nosize');
 					if(onsizechange) {
 						onsizechange(parentEl);
 					}
 				} else if(isRotated && onrotate) {
-					onrotate(img.parentNode);
+					onrotate(parentEl);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);
@@ -15787,6 +15787,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qFormRules = '.regras';
 		}
+		get qImgNameLink() {
+			return '.fileinfo > a:last-of-type';
+		}
 		get qThread() {
 			return 'div[data-board]';
 		}
@@ -15886,22 +15889,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qPostTrip = '.poster_id';
-
 			this.markupBB = true;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			if(Cfg.ajaxUpdThr) {
-				locStorage.auto_thread_update = false;
-			}
-			return false;
+			return ['b', 'i', 'u', 's', 'spoiler', ''];
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;
@@ -15955,12 +15946,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.resize, .postblock { display: none; }`;
+				.resize, .backlink, .postblock, .sage { display: none; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -16147,7 +16141,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.filename > a';
 		}
 		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
+			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
 				#de-win-reply { float:left; margin-left:2em }
 				${ Cfg.widePosts ? `.doubledash { display: none; }
@@ -16885,7 +16879,7 @@ function scriptCSS() {
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	.de-cfg-depend { padding-left: 17px; }
 	#de-cfg-info { display: flex; flex-direction: column; }
-	.de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	input[type="text"].de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
@@ -17027,7 +17021,7 @@ function scriptCSS() {
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
-	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: .3; }
+	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 20px; }

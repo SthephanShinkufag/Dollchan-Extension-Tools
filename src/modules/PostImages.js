@@ -533,16 +533,16 @@ class ExpandableImage {
 				if(!this._size || isRotated) {
 					this._size = isRotated ? [newH, newW] : [newW, newH];
 				}
-				const waitEl = img.previousElementSibling;
+				const parentEl = img.parentNode.parentNode;
+				const waitEl = $q('.de-fullimg-load', parentEl);
 				if(waitEl) {
-					const parentEl = img.parentNode;
 					$hide(waitEl);
 					parentEl.classList.remove('de-fullimg-wrap-nosize');
 					if(onsizechange) {
 						onsizechange(parentEl);
 					}
 				} else if(isRotated && onrotate) {
-					onrotate(img.parentNode);
+					onrotate(parentEl);
 				}
 			};
 			DollchanAPI.notify('expandmedia', src);

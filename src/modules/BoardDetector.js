@@ -1019,6 +1019,9 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qFormRules = '.regras';
 		}
+		get qImgNameLink() {
+			return '.fileinfo > a:last-of-type';
+		}
 		get qThread() {
 			return 'div[data-board]';
 		}
@@ -1118,22 +1121,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qPostTrip = '.poster_id';
-
 			this.markupBB = true;
 		}
 		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			if(Cfg.ajaxUpdThr) {
-				locStorage.auto_thread_update = false;
-			}
-			return false;
+			return ['b', 'i', 'u', 's', 'spoiler', ''];
 		}
 	}
 	ibDomains['brchan.org'] = Brchan;
@@ -1187,12 +1178,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				.resize, .postblock { display: none; }`;
+				.resize, .backlink, .postblock, .sage { display: none; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+		}
+		getSage(post) {
+			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -1379,7 +1373,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.filename > a';
 		}
 		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash { display: none !important }
+			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
 				#de-win-reply { float:left; margin-left:2em }
 				${ Cfg.widePosts ? `.doubledash { display: none; }
