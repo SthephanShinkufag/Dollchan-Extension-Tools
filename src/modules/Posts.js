@@ -137,32 +137,29 @@ class AbstractPost {
 				return;
 			}
 			if(aib.mak) {
-				switch(el.className) {
-				case 'fa fa-bolt':
-				case 'fa fa-thumbs-down': el = el.parentNode;
-					/* falls through */
-				case 'like-icon':
-				case 'dislike-icon':
-				case 'like-caption':
-				case 'dislike-caption':
-				case 'like-count':
-				case 'dislike-count': el = el.parentNode;
-					/* falls through */
-				case 'like-div':
-				case 'dislike-div': {
-					const task = el.className.split('-')[0];
-					const num = +el.id.match(/\d+/);
+				let temp = el;
+				let c = el.classList;
+				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
+					(temp = el.parentNode) && (
+						(c = temp.classList).contains('post__rate') ||
+						c[0] === 'like-div' ||
+						c[0] === 'dislike-div') ||
+					(temp = temp.parentNode) && (
+						(c = temp.className) === 'like-div' ||
+						c === 'dislike-div')
+				) {
+					const task = temp.id.split('-')[0];
+					const num = +temp.id.match(/\d+/);
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
 							$popup('err-2chlike', data.Reason);
 							return;
 						}
-						el.classList.add(`${ task }-div-checked`);
-						const countEl = $q(`.${ task }-count`, el);
+						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
+						const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
 						countEl.textContent = +countEl.textContent + 1;
 					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
-				}
 				}
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);

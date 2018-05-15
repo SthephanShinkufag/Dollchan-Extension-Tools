@@ -7,7 +7,8 @@ async function runMain(checkDomains, dataPromise) {
 	let formEl;
 	if(!(docBody = doc.body) ||
 		!aib && !(aib = getImageBoard(checkDomains, true)) ||
-		!(formEl = $q(aib.qDForm + ', form[de-form]'))
+		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
+		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
 		return;
 	}

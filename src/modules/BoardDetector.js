@@ -12,20 +12,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.mak = true;
 
-			this.cReply = 'post reply';
-			this.qBan = '.pomyanem';
+			this.cReply = 'post reply post_type_reply';
+			this.qBan = '.pomyanem, .post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
+			this.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
-			this.qFormRules = '.rules-area';
-			this.qImgInfo = '.file-attr';
-			this.qOmitted = '.mess-post';
-			this.qPostHeader = '.post-details';
+			this.qFormRules = '.rules-area, .rules';
+			this.qFormSubm = '#submit';
+			this.qFormTd = 'td, .postform__raw';
+			this.qFormTr = 'tr, .postform__raw';
+			this.qFormTxta = '#shampoo';
+			this.qImgInfo = '.file-attr, .post__file-attr';
+			this.qOmitted = '.mess-post, .thread__missed';
+			this.qOPost = '.oppost, .post_type_oppost';
+			this.qPostHeader = '.post-details, .post__details';
 			this.qPostImg = '.preview';
-			this.qPostMsg = '.post-message';
-			this.qPostName = '.ananimas, .post-email';
-			this.qPostSubj = '.post-title';
-			this.qRPost = '.post.reply[data-num]';
+			this.qPostMsg = '.post-message, .post__message';
+			this.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
+			this.qPostRef = '.reflink, .post__reflink:nth-child(2)';
+			this.qPostSubj = '.post-title, .post__title';
+			this.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -40,8 +47,17 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._capUpdPromise = null;
 		}
+		get qFormMail() {
+			return 'input[name="email"]';
+		}
+		get qFormName() {
+			return 'input[name="name"]';
+		}
+		get qFormSubj() {
+			return 'input[name="subject"]';
+		}
 		get qImgNameLink() {
-			return '.file-attr > .desktop';
+			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
@@ -63,7 +79,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
-					bottom: 25px !important; }` : '' }`;
+					bottom: 25px !important; }` : '' }
+				/* Test */
+				.cntnt__header > hr, #CommentToolbar, .newpost, .post__number, .post__panel, .post__refmap,
+					.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }
+				.captcha { overflow: hidden; max-width: 300px; }
+				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
 		}
 		get lastPage() {
 			const els = $Q('.pager > a:not([class])');
@@ -101,14 +122,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 		getSage(post) {
-			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-				this.getSage = post => {
-					const name = $q(this.qPostName, post);
-					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
-				};
-			} else {
-				this.getSage = super.getSage;
-			}
+			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
+				const name = $q(this.qPostName, post);
+				return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+			};
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
@@ -144,9 +161,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				$del(el);
 			});
-			let el = $q('td > .anoniconsselectlist');
+			let el = $q('.anoniconsselectlist');
 			if(el) {
-				$q('.option-area > td:last-child').appendChild(el);
+				$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
 			}
 			if((el = $q('.search'))) {
 				let node = $q('.adminbar__menu, .menu');
@@ -161,8 +178,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			const box = $q('.captcha-box', cap.parentEl);
-			if(box.firstChild.tagName !== 'IMG') {
+			const box = $q('.captcha-box, .captcha');
+			const img = box.firstChild;
+			if(!img || img.tagName !== 'IMG') {
 				box.innerHTML = `<img>
 					<input name="2chaptcha_value" maxlength="6" type="text">
 					<input name="captcha_type" value="2chaptcha" type="hidden">
@@ -174,9 +192,23 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
+		observeContent(checkDomains, dataPromise) {
+			if($q('#posts-form > .thread')) {
+				return true;
+			}
+			const initObserver = new MutationObserver(mutations => {
+				const el = mutations[0].addedNodes[0];
+				if(el && el.className === 'thread') {
+					initObserver.disconnect();
+					runMain(checkDomains, dataPromise);
+				}
+			});
+			initObserver.observe($id('posts-form'), { childList: true });
+			return false;
+		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
-				const box = $q('.captcha-box', cap.parentEl);
+				const box = $q('.captcha-box, .captcha');
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
@@ -230,7 +262,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.formParent = 'thread';
-			this.formTd = 'th';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
@@ -470,7 +501,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.formParent = 'threadId';
-			this.formTd = 'th';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.multiFile = true;
@@ -504,9 +534,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
 		}
-		getCapParent(el) {
-			return $id('captchaDiv');
-		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).textContent;
 		}
@@ -539,8 +566,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
 			if(!$q(this.qForm + ' td')) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
-				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
-					'#fieldPostingPassword, #divUpload');
+				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
+					' #fieldPostingPassword, #fieldSubject');
 				for(let i = 0, len = els.length; i < len; ++i) {
 					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
 				}
@@ -951,7 +978,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData(data) {
 			let error = null;
 			let postNum = null;
-			const errEl = $q('#errmsg', data);
+			const errEl = $id('errmsg', data);
 			if(errEl) {
 				error = errEl.textContent;
 			} else {

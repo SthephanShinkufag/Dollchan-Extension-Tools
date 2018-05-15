@@ -17,6 +17,13 @@ function $parent(el, tagName) {
 	return el;
 }
 
+function $qParent(el, path) {
+	do {
+		el = el.parentElement;
+	} while(el && !nav.matchesSelector(el, path));
+	return el;
+}
+
 // DOM MODIFIERS
 
 function $before(el, node) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'b1c1c6d';
+const commit = 'c646ed5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1576,6 +1576,13 @@ function $parent(el, tagName) {
 	do {
 		el = el.parentElement;
 	} while(el && el.tagName !== tagName);
+	return el;
+}
+
+function $qParent(el, path) {
+	do {
+		el = el.parentElement;
+	} while(el && !nav.matchesSelector(el, path));
 	return el;
 }
 
@@ -4505,7 +4512,7 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'userName': PostForm.setUserName(); break;
-			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
+			case 'noPassword': $toggle($qParent(pr.passw, aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;
@@ -8243,7 +8250,7 @@ class PostForm {
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
-		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
+		this.txta = $q(aib.qFormTxta, form);
 		this.subm = $q(aib.qFormSubm, form);
 		this.name = $q(aib.qFormName, form);
 		this.mail = $q(aib.qFormMail, form);
@@ -8277,7 +8284,7 @@ class PostForm {
 			this._makeSageBtn();
 		}
 		if(Cfg.noPassword && this.passw) {
-			$hide($parent(this.passw, 'TR'));
+			$hide($qParent(this.passw, aib.qFormTr));
 		}
 		if(Cfg.noName && this.name) {
 			PostForm.hideField(this.name);
@@ -8296,8 +8303,8 @@ class PostForm {
 	}
 	static hideField(el) {
 		const next = el.nextElementSibling;
-		$toggle(next && (next.style.display !== 'none') || el.previousElementSibling ?
-			el : $parent(el, 'TR'));
+		$toggle(next && (next.style.display !== 'none') ||
+			el.previousElementSibling ? el : $qParent(el, aib.qFormTr));
 	}
 	static setUserName() {
 		const el = $q('input[info="nameValue"]');
@@ -8581,14 +8588,14 @@ class PostForm {
 		this.form.addEventListener('click', () => this.cap.addCaptcha(), true);
 	}
 	_initFileInputs() {
-		const fileEl = $q('tr input[type="file"]', this.form);
+		const fileEl = $q(aib.qFormFile, this.form);
 		if(!fileEl) {
 			return;
 		}
 		if(aib.fixFileInputs) {
-			aib.fixFileInputs($parent(fileEl, 'TD'));
+			aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
 		}
-		this.files = new Files(this, $q('tr input[type="file"]', this.form));
+		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
 		window.addEventListener('load',
 			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
@@ -9178,11 +9185,11 @@ function readExif(data, off, len) {
 class Files {
 	constructor(form, fileEl) {
 		this.filesCount = 0;
-		this.fileTd = $parent(fileEl, 'TD');
+		this.fileTr = $qParent(fileEl, aib.qFormTr);
 		this.onchange = null;
 		this._form = form;
 		this._inputs = [];
-		const els = $Q('input[type="file"]', this.fileTd);
+		const els = $Q('input[type="file"]', this.fileTr);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			this._inputs.push(new FileInput(this, els[i]));
 		}
@@ -9197,9 +9204,9 @@ class Files {
 	get thumbsEl() {
 		let value;
 		if(aib.multiFile) {
-			value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
+			value = $aEnd(this.fileTr, '<div id="de-file-area"></div>');
 		} else {
-			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
+			value = $qParent(this._form.txta, aib.qFormTd).previousElementSibling;
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
@@ -9296,7 +9303,7 @@ class FileInput {
 		$before(this._input, this._txtWrap);
 		$after(this._input, this._utils);
 		$del(el);
-		$show(this._parent.fileTd.parentNode);
+		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
 			window.URL.revokeObjectURL(this._mediaEl.src);
@@ -9535,15 +9542,18 @@ class FileInput {
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
 		if(aib.dobr) {
-			this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
+			$id('post_files_count').value = this._parent.filesCount + 1;
 		}
 	}
 	_initThumbs() {
-		const fileTr = this._parent.fileTd.parentNode;
+		const { fileTr } = this._parent;
 		$hide(fileTr);
 		$hide(this._txtWrap);
-		($q('.de-file-txt-area') || $bBegin(fileTr, `<tr class="de-file-txt-area">
-			<td class="postblock"></td><td></td></tr>`)).lastChild.appendChild(this._txtWrap);
+		const isTr = fileTr.tagName === 'TR';
+		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
+			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
+			'<div class="de-file-txt-area"></div>');
+		(isTr ? txtArea.lastChild : txtArea).appendChild(this._txtWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
@@ -9642,7 +9652,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = el.tagName === 'TR' ? el : aib.getCapParent(el);
+		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : $qParent(el, aib.qFormTr);
 		this.isAdded = false;
 		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
@@ -9978,32 +9988,29 @@ class AbstractPost {
 				return;
 			}
 			if(aib.mak) {
-				switch(el.className) {
-				case 'fa fa-bolt':
-				case 'fa fa-thumbs-down': el = el.parentNode;
-					/* falls through */
-				case 'like-icon':
-				case 'dislike-icon':
-				case 'like-caption':
-				case 'dislike-caption':
-				case 'like-count':
-				case 'dislike-count': el = el.parentNode;
-					/* falls through */
-				case 'like-div':
-				case 'dislike-div': {
-					const task = el.className.split('-')[0];
-					const num = +el.id.match(/\d+/);
+				let temp = el;
+				let c = el.classList;
+				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
+					(temp = el.parentNode) && (
+						(c = temp.classList).contains('post__rate') ||
+						c[0] === 'like-div' ||
+						c[0] === 'dislike-div') ||
+					(temp = temp.parentNode) && (
+						(c = temp.className) === 'like-div' ||
+						c === 'dislike-div')
+				) {
+					const task = temp.id.split('-')[0];
+					const num = +temp.id.match(/\d+/);
 					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
 							$popup('err-2chlike', data.Reason);
 							return;
 						}
-						el.classList.add(`${ task }-div-checked`);
-						const countEl = $q(`.${ task }-count`, el);
+						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
+						const countEl = $q(`.${ task }-count, #${ task }-count${ num }`, temp);
 						countEl.textContent = +countEl.textContent + 1;
 					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
-				}
 				}
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);
@@ -12588,79 +12595,89 @@ class MakabaPostsBuilder {
 		const data = this._posts[i + 1];
 		const { num } = data;
 		const brd = this._brd;
+		const isNew = this._isNew;
+		const p = isNew ? 'post__' : '';
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images images-${ data.files.length === 1 ? 'single' : 'multi' }">`;
+			filesHTML = `<div class="${ isNew ? 'post__images post__images_type_' : 'images images-' }${
+				data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name } = file;
-				const isWebm = fullname.substr(-5) === '.webm';
-				filesHTML += `<figure class="image">
-					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
-							`${	dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
+				const isWebm = file.type === 6;
+				const imgClass = isNew ?
+					`post__file-preview preview${ isWebm ? ' post__file-webm' : '' }${
+						data.nsfw ? ' post__file-nsfw' : '' }` :
+					`img preview${ isWebm ? ' webm-file' : '' }`;
+				filesHTML += `<figure class="${ p }image">
+					<figcaption class="${ p }file-attr">
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
+							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
+							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
+						<span class="${ p }filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
 							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ imgId }" class="image-link">
-						<a href="${ file.path }">
-							<img class="img preview${ isWebm ? ' webm-file' : '' }" src="` +
-								`${ file.thumbnail }" alt="${ file.size }" width="` +
-								`${ file.tn_width }" height="${ file.tn_height }">
+					<div id="exlink-${ imgId }"${ isNew ? '' : 'class="image-link"' }>
+						<a ${ isNew ? 'class="post__image-link" ' : '' }href="${ file.path }">
+							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.size }"` +
+								` width="${ file.tn_width }" height="${ file.tn_height }">
 						</a>
 					</div>
 				</figure>`;
 			}
 			filesHTML += '</div>';
-		} else if(data.video) {
-			filesHTML = `<div class="images">
-				<div style="float: left; margin: 5px; margin-right:10px">${ data.video }</div>
-			</div>`;
 		}
 
 		// --- POST ---
 		const emailEl = data.email ?
-			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
-			`<span class="ananimas">${ data.name }</span>`;
+			`<a href="${ data.email }" class="${ isNew ? 'post__' : 'post-' }email">${ data.name }</a>` :
+			`<span class="${ isNew ? 'post__anon' : 'ananimas' }">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : 'adm">## Abu ##',
-			'!!%mod%!!'        : 'mod">## Mod ##',
-			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
-			'!!%coder%!!'      : 'mod">## Кодер ##',
-			'@@default'        : 'postertrip">' + data.trip
+			'!!%adm%!!'        : `${ p }adm">## Abu ##`,
+			'!!%mod%!!'        : `${ p }mod">## Mod ##`,
+			'!!%Inquisitor%!!' : `${ p }inquisitor">## Applejack ##`,
+			'!!%coder%!!'      : `${ p }mod">## Кодер ##`,
+			'!!%curunir%!!'    : `${ p }mod">## Curunir ##`,
+			'@@default'        :
+				`${ data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
-		return `<div id="post-${ num }" class="post-wrapper">
-			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
+		let rate = '';
+		if(this._brd === 'po' || isNew) {
+			rate = `<div id="like-div${ num }" class="${ isNew ?
+				`post__rate post__rate_type_like">
+					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
+				`like-div">
+					<span class="like-icon"><i class="fa fa-bolt"></i></span>
+					<span class="like-caption">Двачую</span>` }
+				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>
+				${ data.likes || '' }</span></div>`;
+			rate += rate.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+		}
+		const isOp =  i === -1;
+		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
+		return `<div id="post-${ num }" class="${ wrapClass }">
+			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }"` +
+				` id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
-					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
-						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
+					${ !data.subject ? '' : `<span class="${ isNew ? 'post__' : 'post-' }title">` +
+						`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
-					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
+					${ data.icon ? `<span class="${ isNew ? 'post__' : 'post-' }icon">` +
+						`${ data.icon }</span>` : '' }
 					${ tripEl }
-					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
-					<span class="posttime-reflink">
-						<span class="posttime">${ data.date }&nbsp;</span>
-						<span class="reflink">
-							<a href="${ refHref }">№</a>` +
-							`<a href="${ refHref }" class="postbtn-reply-href" name="${ num }">${ num }</a>
-						</span>
+					${ data.op === 1 ? `<span class="${ p }ophui"># OP</span>&nbsp;` : '' }
+					<span class="${ isNew ? 'post__time' : 'posttime-reflink' }">${ data.date }&nbsp;</span>
+					<span${ isNew ? '' : ' class="reflink"' }>
+						<a ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
+						`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href"` +
+							` href="${ refHref }" name="${ num }">${ num }</a>
 					</span>
-					${ this._brd === 'po' ? `<div id="like-div${ num }" class="like-div">
-							<span class="like-icon"><i class="fa fa-bolt"></i></span>
-							<span class="like-caption">Двачую</span>
-							<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
-						</div>
-						<div id="dislike-div${ num }" class="dislike-div">
-							<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>
-							<span class="dislike-caption">RRRAGE!</span>
-							<span id="dislike-count${ num }" class="dislike-count">
-								${ data.dislikes || '' }</span>
-						</div>` : '' }
+					${ rate }
 				</div>
 				${ filesHTML }
 				${ this._getPostMsg(data) }
@@ -12668,31 +12685,36 @@ class MakabaPostsBuilder {
 		</div>`;
 	}
 	* bannedPostsData() {
+		const p = this._isNew ? 'post__' : '';
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add('<span class="pomyanem">' +
-					'(Автор этого поста был забанен. Помянем.)</span>')];
+				yield [1, num, $add(`<span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`)];
 				break;
 			case 2:
-				yield [2, num, $add('<span class="pomyanem">' +
+				yield [2, num, $add(`<span class="${ p }pomyanem">` +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
 		}
 	}
 
+	get _isNew() {
+		const value = !!$q('.post_type_oppost');
+		Object.defineProperty(this, '_isNew', { value });
+		return value;
+	}
 	_getPostMsg(data) {
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
 			.replace(/<\/script>/ig, '</textarea>-->');
-		return `<blockquote id="m${ data.num }" class="post-message">${ comment }${ _switch(
-			data.banned, {
-				1           : '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-				2           : '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+		const p = this._isNew ? 'post__' : '';
+		return `<blockquote id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
+			`${ comment }${ _switch(data.banned, {
+				1           : `<br><span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`,
+				2           : `<br><span class="${ p }pomyanem">(Автор этого поста был предупрежден.)</span>`,
 				'@@default' : ''
-			}) }
-		</blockquote>`;
+			}) }</blockquote>`;
 	}
 }
 
@@ -14443,15 +14465,19 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg only
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
+		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg
+		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
+		this.qFormFile = 'tr input[type="file"]'; // Differs Makaba
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSubm = 'tr input[type="submit"]'; // Differs LynxChan only
+		this.qFormSubm = 'tr input[type="submit"]';
+		this.qFormTd = 'td'; // Differs Makaba
+		this.qFormTr = 'tr'; // Differs Makaba
+		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -14472,8 +14498,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
-		this.formTd = 'td';
-		this.hasAltCaptcha = false; // Differs _4chanOrg only
+		this.hasAltCaptcha = false; // Differs _4chanOrg
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -14492,11 +14517,11 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() { // Differs Iichan only
+	get qFormMail() { // Differs Iichan
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() { // Differs Iichan only
+	get qFormName() { // Differs Iichan
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -14522,10 +14547,10 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // Differs _410chanOrg only
+	get capLang() { // Differs _410chanOrg
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() { // Differs Iichan only
+	get catalogUrl() { // Differs Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -14537,7 +14562,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() { // Differs _4chanOrg only
+	get fixDeadLinks() { // Differs _4chanOrg
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -14555,7 +14580,7 @@ class BaseBoard {
 	get isArchived() {
 		return false;
 	}
-	get lastPage() { // Differs Makaba only
+	get lastPage() { // Differs Makaba
 		const el = $q(this.qPages);
 		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
@@ -14567,20 +14592,23 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
+	get observeContent() { // Differs Makaba only
+		return null;
+	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
 			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
-	get sendHTML5Post() { // Differs LynxChan only
+	get sendHTML5Post() { // Differs LynxChan
 		return null;
 	}
 	get updateCaptcha() {
 		return null;
 	}
-	disableRedirection(el) { // Differs Dobrochan only
-		$hide($parent(el, 'TR'));
+	disableRedirection(el) { // Differs Dobrochan
+		$hide($qParent(el, aib.qFormTr));
 		el.checked = true;
 	}
 	fixHTML(data, isForm = false) {
@@ -14658,11 +14686,8 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getBanId(postEl) { // Differs Makaba only
+	getBanId(postEl) { // Differs Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
-	}
-	getCapParent(el) { // Differs LynxChan only
-		return $parent(el, 'TR');
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -14686,7 +14711,7 @@ class BaseBoard {
 	getOmitted(el) {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
-	getOp(thr) { // Differs Arhivach only
+	getOp(thr) { // Differs Arhivach
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
@@ -14733,13 +14758,13 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Differs Arhivach only
+	getThrUrl(b, tNum) { // Differs Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan only
+	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
@@ -14780,20 +14805,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.mak = true;
 
-			this.cReply = 'post reply';
-			this.qBan = '.pomyanem';
+			this.cReply = 'post reply post_type_reply';
+			this.qBan = '.pomyanem, .post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
+			this.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
-			this.qFormRules = '.rules-area';
-			this.qImgInfo = '.file-attr';
-			this.qOmitted = '.mess-post';
-			this.qPostHeader = '.post-details';
+			this.qFormRules = '.rules-area, .rules';
+			this.qFormSubm = '#submit';
+			this.qFormTd = 'td, .postform__raw';
+			this.qFormTr = 'tr, .postform__raw';
+			this.qFormTxta = '#shampoo';
+			this.qImgInfo = '.file-attr, .post__file-attr';
+			this.qOmitted = '.mess-post, .thread__missed';
+			this.qOPost = '.oppost, .post_type_oppost';
+			this.qPostHeader = '.post-details, .post__details';
 			this.qPostImg = '.preview';
-			this.qPostMsg = '.post-message';
-			this.qPostName = '.ananimas, .post-email';
-			this.qPostSubj = '.post-title';
-			this.qRPost = '.post.reply[data-num]';
+			this.qPostMsg = '.post-message, .post__message';
+			this.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
+			this.qPostRef = '.reflink, .post__reflink:nth-child(2)';
+			this.qPostSubj = '.post-title, .post__title';
+			this.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -14808,8 +14840,17 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._capUpdPromise = null;
 		}
+		get qFormMail() {
+			return 'input[name="email"]';
+		}
+		get qFormName() {
+			return 'input[name="name"]';
+		}
+		get qFormSubj() {
+			return 'input[name="subject"]';
+		}
 		get qImgNameLink() {
-			return '.file-attr > .desktop';
+			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
 			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
@@ -14831,7 +14872,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
-					bottom: 25px !important; }` : '' }`;
+					bottom: 25px !important; }` : '' }
+				/* Test */
+				.cntnt__header > hr, #CommentToolbar, .newpost, .post__number, .post__panel, .post__refmap,
+					.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }
+				.captcha { overflow: hidden; max-width: 300px; }
+				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
 		}
 		get lastPage() {
 			const els = $Q('.pager > a:not([class])');
@@ -14869,14 +14915,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 		getSage(post) {
-			if($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-				this.getSage = post => {
-					const name = $q(this.qPostName, post);
-					return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
-				};
-			} else {
-				this.getSage = super.getSage;
-			}
+			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
+				const name = $q(this.qPostName, post);
+				return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+			};
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
@@ -14912,9 +14954,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				$del(el);
 			});
-			let el = $q('td > .anoniconsselectlist');
+			let el = $q('.anoniconsselectlist');
 			if(el) {
-				$q('.option-area > td:last-child').appendChild(el);
+				$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
 			}
 			if((el = $q('.search'))) {
 				let node = $q('.adminbar__menu, .menu');
@@ -14929,8 +14971,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			const box = $q('.captcha-box', cap.parentEl);
-			if(box.firstChild.tagName !== 'IMG') {
+			const box = $q('.captcha-box, .captcha');
+			const img = box.firstChild;
+			if(!img || img.tagName !== 'IMG') {
 				box.innerHTML = `<img>
 					<input name="2chaptcha_value" maxlength="6" type="text">
 					<input name="captcha_type" value="2chaptcha" type="hidden">
@@ -14942,9 +14985,23 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return null;
 		}
+		observeContent(checkDomains, dataPromise) {
+			if($q('#posts-form > .thread')) {
+				return true;
+			}
+			const initObserver = new MutationObserver(mutations => {
+				const el = mutations[0].addedNodes[0];
+				if(el && el.className === 'thread') {
+					initObserver.disconnect();
+					runMain(checkDomains, dataPromise);
+				}
+			});
+			initObserver.observe($id('posts-form'), { childList: true });
+			return false;
+		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
-				const box = $q('.captcha-box', cap.parentEl);
+				const box = $q('.captcha-box, .captcha');
 				let data = xhr.responseText;
 				try {
 					data = JSON.parse(data);
@@ -14998,7 +15055,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.formParent = 'thread';
-			this.formTd = 'th';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
@@ -15238,7 +15294,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.firstPage = 1;
 			this.formParent = 'threadId';
-			this.formTd = 'th';
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.multiFile = true;
@@ -15272,9 +15327,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
 		}
-		getCapParent(el) {
-			return $id('captchaDiv');
-		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).textContent;
 		}
@@ -15307,8 +15359,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
 			if(!$q(this.qForm + ' td')) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
-				const els = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' +
-					'#fieldPostingPassword, #divUpload');
+				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
+					' #fieldPostingPassword, #fieldSubject');
 				for(let i = 0, len = els.length; i < len; ++i) {
 					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
 				}
@@ -15719,7 +15771,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData(data) {
 			let error = null;
 			let postNum = null;
-			const errEl = $q('#errmsg', data);
+			const errEl = $id('errmsg', data);
 			if(errEl) {
 				error = errEl.textContent;
 			} else {
@@ -17231,7 +17283,8 @@ async function runMain(checkDomains, dataPromise) {
 	let formEl;
 	if(!(docBody = doc.body) ||
 		!aib && !(aib = getImageBoard(checkDomains, true)) ||
-		!(formEl = $q(aib.qDForm + ', form[de-form]'))
+		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
+		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
 		return;
 	}

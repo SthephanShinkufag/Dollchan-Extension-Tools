@@ -8,15 +8,19 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg only
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan only
+		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg
+		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
+		this.qFormFile = 'tr input[type="file"]'; // Differs Makaba
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSubm = 'tr input[type="submit"]'; // Differs LynxChan only
+		this.qFormSubm = 'tr input[type="submit"]';
+		this.qFormTd = 'td'; // Differs Makaba
+		this.qFormTr = 'tr'; // Differs Makaba
+		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -37,8 +41,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
-		this.formTd = 'td';
-		this.hasAltCaptcha = false; // Differs _4chanOrg only
+		this.hasAltCaptcha = false; // Differs _4chanOrg
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -57,11 +60,11 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() { // Differs Iichan only
+	get qFormMail() { // Differs Iichan
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() { // Differs Iichan only
+	get qFormName() { // Differs Iichan
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -87,10 +90,10 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // Differs _410chanOrg only
+	get capLang() { // Differs _410chanOrg
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() { // Differs Iichan only
+	get catalogUrl() { // Differs Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -102,7 +105,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() { // Differs _4chanOrg only
+	get fixDeadLinks() { // Differs _4chanOrg
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -120,7 +123,7 @@ class BaseBoard {
 	get isArchived() {
 		return false;
 	}
-	get lastPage() { // Differs Makaba only
+	get lastPage() { // Differs Makaba
 		const el = $q(this.qPages);
 		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
@@ -132,20 +135,23 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
+	get observeContent() { // Differs Makaba only
+		return null;
+	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
 			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
-	get sendHTML5Post() { // Differs LynxChan only
+	get sendHTML5Post() { // Differs LynxChan
 		return null;
 	}
 	get updateCaptcha() {
 		return null;
 	}
-	disableRedirection(el) { // Differs Dobrochan only
-		$hide($parent(el, 'TR'));
+	disableRedirection(el) { // Differs Dobrochan
+		$hide($qParent(el, aib.qFormTr));
 		el.checked = true;
 	}
 	fixHTML(data, isForm = false) {
@@ -223,11 +229,8 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getBanId(postEl) { // Differs Makaba only
+	getBanId(postEl) { // Differs Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
-	}
-	getCapParent(el) { // Differs LynxChan only
-		return $parent(el, 'TR');
 	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -251,7 +254,7 @@ class BaseBoard {
 	getOmitted(el) {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
-	getOp(thr) { // Differs Arhivach only
+	getOp(thr) { // Differs Arhivach
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
@@ -298,13 +301,13 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Differs Arhivach only
+	getThrUrl(b, tNum) { // Differs Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan only
+	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {

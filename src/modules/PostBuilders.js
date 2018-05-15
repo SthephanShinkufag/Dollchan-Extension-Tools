@@ -350,79 +350,89 @@ class MakabaPostsBuilder {
 		const data = this._posts[i + 1];
 		const { num } = data;
 		const brd = this._brd;
+		const isNew = this._isNew;
+		const p = isNew ? 'post__' : '';
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files && data.files.length !== 0) {
-			filesHTML = `<div class="images images-${ data.files.length === 1 ? 'single' : 'multi' }">`;
+			filesHTML = `<div class="${ isNew ? 'post__images post__images_type_' : 'images images-' }${
+				data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name } = file;
-				const isWebm = fullname.substr(-5) === '.webm';
-				filesHTML += `<figure class="image">
-					<figcaption class="file-attr">
-						<a id="title-${ imgId }" class="desktop" target="_blank" href="${ file.path }"` +
-							`${	dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
-						<span class="filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
+				const isWebm = file.type === 6;
+				const imgClass = isNew ?
+					`post__file-preview preview${ isWebm ? ' post__file-webm' : '' }${
+						data.nsfw ? ' post__file-nsfw' : '' }` :
+					`img preview${ isWebm ? ' webm-file' : '' }`;
+				filesHTML += `<figure class="${ p }image">
+					<figcaption class="${ p }file-attr">
+						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
+							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
+							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
+						<span class="${ p }filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
 							`${ isWebm ? ', ' + file.duration : '' })</span>
 					</figcaption>
-					<div id="exlink-${ imgId }" class="image-link">
-						<a href="${ file.path }">
-							<img class="img preview${ isWebm ? ' webm-file' : '' }" src="` +
-								`${ file.thumbnail }" alt="${ file.size }" width="` +
-								`${ file.tn_width }" height="${ file.tn_height }">
+					<div id="exlink-${ imgId }"${ isNew ? '' : 'class="image-link"' }>
+						<a ${ isNew ? 'class="post__image-link" ' : '' }href="${ file.path }">
+							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.size }"` +
+								` width="${ file.tn_width }" height="${ file.tn_height }">
 						</a>
 					</div>
 				</figure>`;
 			}
 			filesHTML += '</div>';
-		} else if(data.video) {
-			filesHTML = `<div class="images">
-				<div style="float: left; margin: 5px; margin-right:10px">${ data.video }</div>
-			</div>`;
 		}
 
 		// --- POST ---
 		const emailEl = data.email ?
-			`<a href="${ data.email }" class="post-email">${ data.name }</a>` :
-			`<span class="ananimas">${ data.name }</span>`;
+			`<a href="${ data.email }" class="${ isNew ? 'post__' : 'post-' }email">${ data.name }</a>` :
+			`<span class="${ isNew ? 'post__anon' : 'ananimas' }">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : 'adm">## Abu ##',
-			'!!%mod%!!'        : 'mod">## Mod ##',
-			'!!%Inquisitor%!!' : 'inquisitor">## Applejack ##',
-			'!!%coder%!!'      : 'mod">## Кодер ##',
-			'@@default'        : 'postertrip">' + data.trip
+			'!!%adm%!!'        : `${ p }adm">## Abu ##`,
+			'!!%mod%!!'        : `${ p }mod">## Mod ##`,
+			'!!%Inquisitor%!!' : `${ p }inquisitor">## Applejack ##`,
+			'!!%coder%!!'      : `${ p }mod">## Кодер ##`,
+			'!!%curunir%!!'    : `${ p }mod">## Curunir ##`,
+			'@@default'        :
+				`${ data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip' }">` + data.trip
 		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
-		return `<div id="post-${ num }" class="post-wrapper">
-			<div class="post ${ i === -1 ? 'oppost' : 'reply' }" id="post-body-${ num }" data-num="${ num }">
+		let rate = '';
+		if(this._brd === 'po' || isNew) {
+			rate = `<div id="like-div${ num }" class="${ isNew ?
+				`post__rate post__rate_type_like">
+					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
+				`like-div">
+					<span class="like-icon"><i class="fa fa-bolt"></i></span>
+					<span class="like-caption">Двачую</span>` }
+				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>
+				${ data.likes || '' }</span></div>`;
+			rate += rate.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+		}
+		const isOp =  i === -1;
+		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
+		return `<div id="post-${ num }" class="${ wrapClass }">
+			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }"` +
+				` id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="post-details">
 					<input type="checkbox" name="delete" value="${ num }">
-					${ !data.subject ? '' : `<span class="post-title">${ data.subject +
-						(data.tags ? ` /${ data.tags }/` : '') }</span>` }
+					${ !data.subject ? '' : `<span class="${ isNew ? 'post__' : 'post-' }title">` +
+						`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>` }
 					${ emailEl }
-					${ data.icon ? `<span class="post-icon">${ data.icon }</span>` : '' }
+					${ data.icon ? `<span class="${ isNew ? 'post__' : 'post-' }icon">` +
+						`${ data.icon }</span>` : '' }
 					${ tripEl }
-					${ data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '' }
-					<span class="posttime-reflink">
-						<span class="posttime">${ data.date }&nbsp;</span>
-						<span class="reflink">
-							<a href="${ refHref }">№</a>` +
-							`<a href="${ refHref }" class="postbtn-reply-href" name="${ num }">${ num }</a>
-						</span>
+					${ data.op === 1 ? `<span class="${ p }ophui"># OP</span>&nbsp;` : '' }
+					<span class="${ isNew ? 'post__time' : 'posttime-reflink' }">${ data.date }&nbsp;</span>
+					<span${ isNew ? '' : ' class="reflink"' }>
+						<a ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
+						`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href"` +
+							` href="${ refHref }" name="${ num }">${ num }</a>
 					</span>
-					${ this._brd === 'po' ? `<div id="like-div${ num }" class="like-div">
-							<span class="like-icon"><i class="fa fa-bolt"></i></span>
-							<span class="like-caption">Двачую</span>
-							<span id="like-count${ num }" class="like-count">${ data.likes || '' }</span>
-						</div>
-						<div id="dislike-div${ num }" class="dislike-div">
-							<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>
-							<span class="dislike-caption">RRRAGE!</span>
-							<span id="dislike-count${ num }" class="dislike-count">
-								${ data.dislikes || '' }</span>
-						</div>` : '' }
+					${ rate }
 				</div>
 				${ filesHTML }
 				${ this._getPostMsg(data) }
@@ -430,30 +440,35 @@ class MakabaPostsBuilder {
 		</div>`;
 	}
 	* bannedPostsData() {
+		const p = this._isNew ? 'post__' : '';
 		for(const { banned, num } of this._posts) {
 			switch(banned) {
 			case 1:
-				yield [1, num, $add('<span class="pomyanem">' +
-					'(Автор этого поста был забанен. Помянем.)</span>')];
+				yield [1, num, $add(`<span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`)];
 				break;
 			case 2:
-				yield [2, num, $add('<span class="pomyanem">' +
+				yield [2, num, $add(`<span class="${ p }pomyanem">` +
 					'(Автор этого поста был предупрежден.)</span>')];
 				break;
 			}
 		}
 	}
 
+	get _isNew() {
+		const value = !!$q('.post_type_oppost');
+		Object.defineProperty(this, '_isNew', { value });
+		return value;
+	}
 	_getPostMsg(data) {
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
 			.replace(/<\/script>/ig, '</textarea>-->');
-		return `<blockquote id="m${ data.num }" class="post-message">${ comment }${ _switch(
-			data.banned, {
-				1           : '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-				2           : '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+		const p = this._isNew ? 'post__' : '';
+		return `<blockquote id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
+			`${ comment }${ _switch(data.banned, {
+				1           : `<br><span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`,
+				2           : `<br><span class="${ p }pomyanem">(Автор этого поста был предупрежден.)</span>`,
 				'@@default' : ''
-			}) }
-		</blockquote>`;
+			}) }</blockquote>`;
 	}
 }

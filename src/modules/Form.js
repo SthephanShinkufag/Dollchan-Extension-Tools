@@ -30,7 +30,7 @@ class PostForm {
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
-		this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
+		this.txta = $q(aib.qFormTxta, form);
 		this.subm = $q(aib.qFormSubm, form);
 		this.name = $q(aib.qFormName, form);
 		this.mail = $q(aib.qFormMail, form);
@@ -64,7 +64,7 @@ class PostForm {
 			this._makeSageBtn();
 		}
 		if(Cfg.noPassword && this.passw) {
-			$hide($parent(this.passw, 'TR'));
+			$hide($qParent(this.passw, aib.qFormTr));
 		}
 		if(Cfg.noName && this.name) {
 			PostForm.hideField(this.name);
@@ -83,8 +83,8 @@ class PostForm {
 	}
 	static hideField(el) {
 		const next = el.nextElementSibling;
-		$toggle(next && (next.style.display !== 'none') || el.previousElementSibling ?
-			el : $parent(el, 'TR'));
+		$toggle(next && (next.style.display !== 'none') ||
+			el.previousElementSibling ? el : $qParent(el, aib.qFormTr));
 	}
 	static setUserName() {
 		const el = $q('input[info="nameValue"]');
@@ -368,14 +368,14 @@ class PostForm {
 		this.form.addEventListener('click', () => this.cap.addCaptcha(), true);
 	}
 	_initFileInputs() {
-		const fileEl = $q('tr input[type="file"]', this.form);
+		const fileEl = $q(aib.qFormFile, this.form);
 		if(!fileEl) {
 			return;
 		}
 		if(aib.fixFileInputs) {
-			aib.fixFileInputs($parent(fileEl, 'TD'));
+			aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
 		}
-		this.files = new Files(this, $q('tr input[type="file"]', this.form));
+		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
 		window.addEventListener('load',
 			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));

@@ -6,11 +6,11 @@
 class Files {
 	constructor(form, fileEl) {
 		this.filesCount = 0;
-		this.fileTd = $parent(fileEl, 'TD');
+		this.fileTr = $qParent(fileEl, aib.qFormTr);
 		this.onchange = null;
 		this._form = form;
 		this._inputs = [];
-		const els = $Q('input[type="file"]', this.fileTd);
+		const els = $Q('input[type="file"]', this.fileTr);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			this._inputs.push(new FileInput(this, els[i]));
 		}
@@ -25,9 +25,9 @@ class Files {
 	get thumbsEl() {
 		let value;
 		if(aib.multiFile) {
-			value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
+			value = $aEnd(this.fileTr, '<div id="de-file-area"></div>');
 		} else {
-			value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
+			value = $qParent(this._form.txta, aib.qFormTd).previousElementSibling;
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
@@ -124,7 +124,7 @@ class FileInput {
 		$before(this._input, this._txtWrap);
 		$after(this._input, this._utils);
 		$del(el);
-		$show(this._parent.fileTd.parentNode);
+		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
 			window.URL.revokeObjectURL(this._mediaEl.src);
@@ -363,15 +363,18 @@ class FileInput {
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
 		if(aib.dobr) {
-			this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
+			$id('post_files_count').value = this._parent.filesCount + 1;
 		}
 	}
 	_initThumbs() {
-		const fileTr = this._parent.fileTd.parentNode;
+		const { fileTr } = this._parent;
 		$hide(fileTr);
 		$hide(this._txtWrap);
-		($q('.de-file-txt-area') || $bBegin(fileTr, `<tr class="de-file-txt-area">
-			<td class="postblock"></td><td></td></tr>`)).lastChild.appendChild(this._txtWrap);
+		const isTr = fileTr.tagName === 'TR';
+		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
+			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
+			'<div class="de-file-txt-area"></div>');
+		(isTr ? txtArea.lastChild : txtArea).appendChild(this._txtWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);

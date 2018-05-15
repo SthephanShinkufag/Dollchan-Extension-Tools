@@ -396,7 +396,7 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'userName': PostForm.setUserName(); break;
-			case 'noPassword': $toggle($parent(pr.passw, 'TR')); break;
+			case 'noPassword': $toggle($qParent(pr.passw, aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;

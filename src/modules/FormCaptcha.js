@@ -7,7 +7,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = el.tagName === 'TR' ? el : aib.getCapParent(el);
+		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : $qParent(el, aib.qFormTr);
 		this.isAdded = false;
 		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;

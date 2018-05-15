@@ -3641,7 +3641,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.initLogger();
 							formEl = void 0;
 
-							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)) || !(formEl = $q(aib.qDForm + ', form[de-form]')))) {
+							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)) || !(formEl = $q(aib.qDForm + ', form[de-form]')) || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
 								_context27.next = 4;
 								break;
 							}
@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'b1c1c6d';
+	var commit = 'c646ed5';
 
 
 	var defaultCfg = {
@@ -4412,6 +4412,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		do {
 			el = el.parentElement;
 		} while (el && el.tagName !== tagName);
+		return el;
+	}
+
+	function $qParent(el, path) {
+		do {
+			el = el.parentElement;
+		} while (el && !nav.matchesSelector(el, path));
 		return el;
 	}
 
@@ -7780,7 +7787,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'userName':
 						PostForm.setUserName();break;
 					case 'noPassword':
-						$toggle($parent(pr.passw, 'TR'));break;
+						$toggle($qParent(pr.passw, aib.qFormTr));break;
 					case 'noName':
 						PostForm.hideField(pr.name);break;
 					case 'noSubj':
@@ -12180,7 +12187,7 @@ true, true];
 			this.tNum = aib.t;
 			this.form = form;
 			this.files = null;
-			this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
+			this.txta = $q(aib.qFormTxta, form);
 			this.subm = $q(aib.qFormSubm, form);
 			this.name = $q(aib.qFormName, form);
 			this.mail = $q(aib.qFormMail, form);
@@ -12216,7 +12223,7 @@ true, true];
 				this._makeSageBtn();
 			}
 			if (Cfg.noPassword && this.passw) {
-				$hide($parent(this.passw, 'TR'));
+				$hide($qParent(this.passw, aib.qFormTr));
 			}
 			if (Cfg.noName && this.name) {
 				PostForm.hideField(this.name);
@@ -12496,14 +12503,14 @@ true, true];
 			value: function _initFileInputs() {
 				var _this28 = this;
 
-				var fileEl = $q('tr input[type="file"]', this.form);
+				var fileEl = $q(aib.qFormFile, this.form);
 				if (!fileEl) {
 					return;
 				}
 				if (aib.fixFileInputs) {
-					aib.fixFileInputs($parent(fileEl, 'TD'));
+					aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
 				}
-				this.files = new Files(this, $q('tr input[type="file"]', this.form));
+				this.files = new Files(this, $q(aib.qFormFile, this.form));
 				window.addEventListener('load', function () {
 					return setTimeout(function () {
 						return !_this28.files.filesCount && _this28.files.clearInputs();
@@ -12787,7 +12794,7 @@ true, true];
 			key: 'hideField',
 			value: function hideField(el) {
 				var next = el.nextElementSibling;
-				$toggle(next && next.style.display !== 'none' || el.previousElementSibling ? el : $parent(el, 'TR'));
+				$toggle(next && next.style.display !== 'none' || el.previousElementSibling ? el : $qParent(el, aib.qFormTr));
 			}
 		}, {
 			key: 'setUserName',
@@ -13146,11 +13153,11 @@ true, true];
 			_classCallCheck(this, Files);
 
 			this.filesCount = 0;
-			this.fileTd = $parent(fileEl, 'TD');
+			this.fileTr = $qParent(fileEl, aib.qFormTr);
 			this.onchange = null;
 			this._form = form;
 			this._inputs = [];
-			var els = $Q('input[type="file"]', this.fileTd);
+			var els = $Q('input[type="file"]', this.fileTr);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				this._inputs.push(new FileInput(this, els[i]));
 			}
@@ -13245,9 +13252,9 @@ true, true];
 			get: function get() {
 				var value = void 0;
 				if (aib.multiFile) {
-					value = $aEnd(this.fileTd.parentNode, '<div id="de-file-area"></div>');
+					value = $aEnd(this.fileTr, '<div id="de-file-area"></div>');
 				} else {
-					value = $q(aib.formTd, $parent(this._form.txta, 'TR'));
+					value = $qParent(this._form.txta, aib.qFormTd).previousElementSibling;
 					value.innerHTML = '<div style="display: none;">' + value.innerHTML + '</div><div></div>';
 					value = value.lastChild;
 				}
@@ -13329,7 +13336,7 @@ true, true];
 				$before(this._input, this._txtWrap);
 				$after(this._input, this._utils);
 				$del(el);
-				$show(this._parent.fileTd.parentNode);
+				$show(this._parent.fileTr);
 				$show(this._txtWrap);
 				if (this._mediaEl) {
 					window.URL.revokeObjectURL(this._mediaEl.src);
@@ -13590,16 +13597,19 @@ true, true];
 			value: function _changeFilesCount(val) {
 				this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
 				if (aib.dobr) {
-					this._parent.fileTd.firstElementChild.value = this._parent.filesCount + 1;
+					$id('post_files_count').value = this._parent.filesCount + 1;
 				}
 			}
 		}, {
 			key: '_initThumbs',
 			value: function _initThumbs() {
-				var fileTr = this._parent.fileTd.parentNode;
+				var fileTr = this._parent.fileTr;
+
 				$hide(fileTr);
 				$hide(this._txtWrap);
-				($q('.de-file-txt-area') || $bBegin(fileTr, '<tr class="de-file-txt-area">\n\t\t\t<td class="postblock"></td><td></td></tr>')).lastChild.appendChild(this._txtWrap);
+				var isTr = fileTr.tagName === 'TR';
+				var txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ? '<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' : '<div class="de-file-txt-area"></div>');
+				(isTr ? txtArea.lastChild : txtArea).appendChild(this._txtWrap);
 				this._thumb = $bEnd(this._parent.thumbsEl, '<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="' + Lng.youCanDrag[lang] + '"></div></div></div>');
 				this._thumb.addEventListener('click', this);
 				this._thumb.addEventListener('dragenter', this);
@@ -13734,7 +13744,7 @@ true, true];
 			this.hasCaptcha = true;
 			this.textEl = null;
 			this.tNum = initNum;
-			this.parentEl = el.tagName === 'TR' ? el : aib.getCapParent(el);
+			this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : $qParent(el, aib.qFormTr);
 			this.isAdded = false;
 			this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 			this._lastUpdate = null;
@@ -14089,35 +14099,23 @@ true, true];
 							return;
 					}
 					if (aib.mak) {
-						switch (el.className) {
-							case 'fa fa-bolt':
-							case 'fa fa-thumbs-down':
-								el = el.parentNode;
-							case 'like-icon':
-							case 'dislike-icon':
-							case 'like-caption':
-							case 'dislike-caption':
-							case 'like-count':
-							case 'dislike-count':
-								el = el.parentNode;
-							case 'like-div':
-							case 'dislike-div':
-								{
-									var task = el.className.split('-')[0];
-									var num = +el.id.match(/\d+/);
-									$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
-										var data = JSON.parse(xhr.responseText);
-										if (data.Status !== 'OK') {
-											$popup('err-2chlike', data.Reason);
-											return;
-										}
-										el.classList.add(task + '-div-checked');
-										var countEl = $q('.' + task + '-count', el);
-										countEl.textContent = +countEl.textContent + 1;
-									}, function () {
-										return $popup('err-2chlike', Lng.noConnect[lang]);
-									});
+						var _temp = el;
+						var c = el.classList;
+						if (c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' || (_temp = el.parentNode) && ((c = _temp.classList).contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div') || (_temp = _temp.parentNode) && ((c = _temp.className) === 'like-div' || c === 'dislike-div')) {
+							var task = _temp.id.split('-')[0];
+							var num = +_temp.id.match(/\d+/);
+							$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
+								var data = JSON.parse(xhr.responseText);
+								if (data.Status !== 'OK') {
+									$popup('err-2chlike', data.Reason);
+									return;
 								}
+								_temp.classList.add(task + '-div-checked', 'post__rate_' + task + 'd');
+								var countEl = $q('.' + task + '-count, #' + task + '-count' + num, _temp);
+								countEl.textContent = +countEl.textContent + 1;
+							}, function () {
+								return $popup('err-2chlike', Lng.noConnect[lang]);
+							});
 						}
 						if (el.classList.contains('expand-large-comment')) {
 							this._getFullMsg(el, false);
@@ -17365,13 +17363,15 @@ true, true];
 				var num = data.num;
 
 				var brd = this._brd;
+				var isNew = this._isNew;
+				var p = isNew ? 'post__' : '';
 				var _switch = function _switch(val, obj) {
 					return val in obj ? obj[val] : obj['@@default'];
 				};
 
 				var filesHTML = '';
 				if (data.files && data.files.length !== 0) {
-					filesHTML = '<div class="images images-' + (data.files.length === 1 ? 'single' : 'multi') + '">';
+					filesHTML = '<div class="' + (isNew ? 'post__images post__images_type_' : 'images images-') + (data.files.length === 1 ? 'single' : 'multi') + '">';
 					var _iteratorNormalCompletion28 = true;
 					var _didIteratorError28 = false;
 					var _iteratorError28 = undefined;
@@ -17386,8 +17386,9 @@ true, true];
 							    _file$displayname = file.displayname,
 							    dispName = _file$displayname === undefined ? file.name : _file$displayname;
 
-							var isWebm = fullname.substr(-5) === '.webm';
-							filesHTML += '<figure class="image">\n\t\t\t\t\t<figcaption class="file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + file.path + '"' + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height) + ((isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '" class="image-link">\n\t\t\t\t\t\t<a href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="img preview' + (isWebm ? ' webm-file' : '') + '" src="') + (file.thumbnail + '" alt="' + file.size + '" width="') + (file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
+							var isWebm = file.type === 6;
+							var imgClass = isNew ? 'post__file-preview preview' + (isWebm ? ' post__file-webm' : '') + (data.nsfw ? ' post__file-nsfw' : '') : 'img preview' + (isWebm ? ' webm-file' : '');
+							filesHTML += '<figure class="' + p + 'image">\n\t\t\t\t\t<figcaption class="' + p + 'file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + ((file.type === 100  ? file.install : file.path) + '"') + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="' + p + 'filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height) + ((isWebm ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '"' + (isNew ? '' : 'class="image-link"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__image-link" ' : '') + 'href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="' + imgClass + '" src="' + file.thumbnail + '" alt="' + file.size + '"') + (' width="' + file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
 						}
 					} catch (err) {
 						_didIteratorError28 = true;
@@ -17405,39 +17406,46 @@ true, true];
 					}
 
 					filesHTML += '</div>';
-				} else if (data.video) {
-					filesHTML = '<div class="images">\n\t\t\t\t<div style="float: left; margin: 5px; margin-right:10px">' + data.video + '</div>\n\t\t\t</div>';
 				}
 
-				var emailEl = data.email ? '<a href="' + data.email + '" class="post-email">' + data.name + '</a>' : '<span class="ananimas">' + data.name + '</span>';
+				var emailEl = data.email ? '<a href="' + data.email + '" class="' + (isNew ? 'post__' : 'post-') + 'email">' + data.name + '</a>' : '<span class="' + (isNew ? 'post__anon' : 'ananimas') + '">' + data.name + '</span>';
 				var tripEl = !data.trip ? '' : '<span class="' + _switch(data.trip, {
-					'!!%adm%!!': 'adm">## Abu ##',
-					'!!%mod%!!': 'mod">## Mod ##',
-					'!!%Inquisitor%!!': 'inquisitor">## Applejack ##',
-					'!!%coder%!!': 'mod">## Кодер ##',
-					'@@default': 'postertrip">' + data.trip
+					'!!%adm%!!': p + 'adm">## Abu ##',
+					'!!%mod%!!': p + 'mod">## Mod ##',
+					'!!%Inquisitor%!!': p + 'inquisitor">## Applejack ##',
+					'!!%coder%!!': p + 'mod">## \u041A\u043E\u0434\u0435\u0440 ##',
+					'!!%curunir%!!': p + 'mod">## Curunir ##',
+					'@@default': (data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip') + '">' + data.trip
 				}) + '</span>';
 				var refHref = '/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num;
-				return '<div id="post-' + num + '" class="post-wrapper">\n\t\t\t<div class="post ' + (i === -1 ? 'oppost' : 'reply') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="post-title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '')) + '</span>') + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="post-icon">' + data.icon + '</span>' : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="posttime-reflink">\n\t\t\t\t\t\t<span class="posttime">' + data.date + '&nbsp;</span>\n\t\t\t\t\t\t<span class="reflink">\n\t\t\t\t\t\t\t<a href="' + refHref + '">\u2116</a>' + ('<a href="' + refHref + '" class="postbtn-reply-href" name="' + num + '">' + num + '</a>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t' + (this._brd === 'po' ? '<div id="like-div' + num + '" class="like-div">\n\t\t\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>\n\t\t\t\t\t\t\t<span id="like-count' + num + '" class="like-count">' + (data.likes || '') + '</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div id="dislike-div' + num + '" class="dislike-div">\n\t\t\t\t\t\t\t<span class="dislike-icon"><i class="fa fa-thumbs-down"></i></span>\n\t\t\t\t\t\t\t<span class="dislike-caption">RRRAGE!</span>\n\t\t\t\t\t\t\t<span id="dislike-count' + num + '" class="dislike-count">\n\t\t\t\t\t\t\t\t' + (data.dislikes || '') + '</span>\n\t\t\t\t\t\t</div>' : '') + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
+				var rate = '';
+				if (this._brd === 'po' || isNew) {
+					rate = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>\n\t\t\t\t' + (data.likes || '') + '</span></div>';
+					rate += rate.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+				}
+				var isOp = i === -1;
+				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
+				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + '"' + (' id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="' + (isNew ? 'post__time' : 'posttime-reflink') + '">' + data.date + '&nbsp;</span>\n\t\t\t\t\t<span' + (isNew ? '' : ' class="reflink"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">\u2116</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href"') + (' href="' + refHref + '" name="' + num + '">' + num + '</a>\n\t\t\t\t\t</span>\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
+				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref61, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
 					while (1) {
 						switch (_context22.prev = _context22.next) {
 							case 0:
+								p = this._isNew ? 'post__' : '';
 								_iteratorNormalCompletion29 = true;
 								_didIteratorError29 = false;
 								_iteratorError29 = undefined;
-								_context22.prev = 3;
+								_context22.prev = 4;
 								_iterator29 = this._posts[Symbol.iterator]();
 
-							case 5:
+							case 6:
 								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
-									_context22.next = 21;
+									_context22.next = 22;
 									break;
 								}
 
@@ -17445,68 +17453,68 @@ true, true];
 								banned = _ref61.banned;
 								num = _ref61.num;
 								_context22.t0 = banned;
-								_context22.next = _context22.t0 === 1 ? 12 : _context22.t0 === 2 ? 15 : 18;
+								_context22.next = _context22.t0 === 1 ? 13 : _context22.t0 === 2 ? 16 : 19;
 								break;
 
-							case 12:
-								_context22.next = 14;
-								return [1, num, $add('<span class="pomyanem">' + '(Автор этого поста был забанен. Помянем.)</span>')];
-
-							case 14:
-								return _context22.abrupt('break', 18);
+							case 13:
+								_context22.next = 15;
+								return [1, num, $add('<span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>')];
 
 							case 15:
-								_context22.next = 17;
-								return [2, num, $add('<span class="pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
+								return _context22.abrupt('break', 19);
 
-							case 17:
-								return _context22.abrupt('break', 18);
+							case 16:
+								_context22.next = 18;
+								return [2, num, $add('<span class="' + p + 'pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
 
 							case 18:
+								return _context22.abrupt('break', 19);
+
+							case 19:
 								_iteratorNormalCompletion29 = true;
-								_context22.next = 5;
+								_context22.next = 6;
 								break;
 
-							case 21:
-								_context22.next = 27;
+							case 22:
+								_context22.next = 28;
 								break;
 
-							case 23:
-								_context22.prev = 23;
-								_context22.t1 = _context22['catch'](3);
+							case 24:
+								_context22.prev = 24;
+								_context22.t1 = _context22['catch'](4);
 								_didIteratorError29 = true;
 								_iteratorError29 = _context22.t1;
 
-							case 27:
-								_context22.prev = 27;
+							case 28:
 								_context22.prev = 28;
+								_context22.prev = 29;
 
 								if (!_iteratorNormalCompletion29 && _iterator29.return) {
 									_iterator29.return();
 								}
 
-							case 30:
-								_context22.prev = 30;
+							case 31:
+								_context22.prev = 31;
 
 								if (!_didIteratorError29) {
-									_context22.next = 33;
+									_context22.next = 34;
 									break;
 								}
 
 								throw _iteratorError29;
 
-							case 33:
-								return _context22.finish(30);
-
 							case 34:
-								return _context22.finish(27);
+								return _context22.finish(31);
 
 							case 35:
+								return _context22.finish(28);
+
+							case 36:
 							case 'end':
 								return _context22.stop();
 						}
 					}
-				}, bannedPostsData, this, [[3, 23, 27, 35], [28,, 30, 34]]);
+				}, bannedPostsData, this, [[4, 24, 28, 36], [29,, 31, 35]]);
 			})
 		}, {
 			key: '_getPostMsg',
@@ -17515,16 +17523,24 @@ true, true];
 					return val in obj ? obj[val] : obj['@@default'];
 				};
 				var comment = data.comment.replace(/<script /ig, '<!--<textarea ').replace(/<\/script>/ig, '</textarea>-->');
-				return '<blockquote id="m' + data.num + '" class="post-message">' + comment + _switch(data.banned, {
-					1: '<br><span class="pomyanem">(Автор этого поста был забанен. Помянем.)</span>',
-					2: '<br><span class="pomyanem">(Автор этого поста был предупрежден.)</span>',
+				var p = this._isNew ? 'post__' : '';
+				return '<blockquote id="m' + data.num + '" class="' + (this._isNew ? 'post__' : 'post-') + 'message">' + ('' + comment + _switch(data.banned, {
+					1: '<br><span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>',
+					2: '<br><span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D.)</span>',
 					'@@default': ''
-				}) + '\n\t\t</blockquote>';
+				}) + '</blockquote>');
 			}
 		}, {
 			key: 'isClosed',
 			get: function get() {
 				return this._json.is_closed;
+			}
+		}, {
+			key: '_isNew',
+			get: function get() {
+				var value = !!$q('.post_type_oppost');
+				Object.defineProperty(this, '_isNew', { value: value });
+				return value;
 			}
 		}]);
 
@@ -19583,10 +19599,14 @@ true, true];
 			this.qDForm = '#delform, form[name="delform"]';
 			this.qError = 'h1, h2, font[size="5"]';
 			this.qForm = '#postform';
+			this.qFormFile = 'tr input[type="file"]'; 
 			this.qFormPassw = 'tr input[type="password"]';
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
 			this.qFormRules = '.rules, #rules';
-			this.qFormSubm = 'tr input[type="submit"]'; 
+			this.qFormSubm = 'tr input[type="submit"]';
+			this.qFormTd = 'td'; 
+			this.qFormTr = 'tr'; 
+			this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; 
 			this.qImgInfo = '.filesize';
 			this.qOmitted = '.omittedposts';
 			this.qOPost = '.oppost';
@@ -19607,7 +19627,6 @@ true, true];
 			this.docExt = null;
 			this.firstPage = 0;
 			this.formParent = 'parent';
-			this.formTd = 'td';
 			this.hasAltCaptcha = false; 
 			this.hasCatalog = false;
 			this.hasOPNum = false;
@@ -19631,7 +19650,7 @@ true, true];
 		_createClass(BaseBoard, [{
 			key: 'disableRedirection',
 			value: function disableRedirection(el) {
-				$hide($parent(el, 'TR'));
+				$hide($qParent(el, aib.qFormTr));
 				el.checked = true;
 			}
 		}, {
@@ -19722,11 +19741,6 @@ true, true];
 			key: 'getBanId',
 			value: function getBanId(postEl) {
 				return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
-			}
-		}, {
-			key: 'getCapParent',
-			value: function getCapParent(el) {
-				return $parent(el, 'TR');
 			}
 		}, {
 			key: 'getCaptchaSrc',
@@ -19857,9 +19871,9 @@ true, true];
 					this.t = +temp[1].match(/^\d+/)[0];
 					this.page = this.firstPage;
 				} else {
-					var _temp = url.match(/\/?(\d+)[^/]*?$/);
-					this.page = _temp && +_temp[1] || this.firstPage;
-					this.b = url.replace(_temp && this.page ? _temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
+					var _temp2 = url.match(/\/?(\d+)[^/]*?$/);
+					this.page = _temp2 && +_temp2[1] || this.firstPage;
+					this.b = url.replace(_temp2 && this.page ? _temp2[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
 				}
 				if (this.docExt === null) {
 					this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];
@@ -19978,6 +19992,11 @@ true, true];
 				return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 			}
 		}, {
+			key: 'observeContent',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'reCrossLinks',
 			get: function get() {
 				var value = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' + quoteReg(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
@@ -20015,20 +20034,27 @@ true, true];
 
 				_this74.mak = true;
 
-				_this74.cReply = 'post reply';
-				_this74.qBan = '.pomyanem';
+				_this74.cReply = 'post reply post_type_reply';
+				_this74.qBan = '.pomyanem, .post__pomyanem';
 				_this74.qClosed = '.sticky-img[src$="locked.png"]';
 				_this74.qDForm = '#posts-form';
+				_this74.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
 				_this74.qFormRedir = null;
-				_this74.qFormRules = '.rules-area';
-				_this74.qImgInfo = '.file-attr';
-				_this74.qOmitted = '.mess-post';
-				_this74.qPostHeader = '.post-details';
+				_this74.qFormRules = '.rules-area, .rules';
+				_this74.qFormSubm = '#submit';
+				_this74.qFormTd = 'td, .postform__raw';
+				_this74.qFormTr = 'tr, .postform__raw';
+				_this74.qFormTxta = '#shampoo';
+				_this74.qImgInfo = '.file-attr, .post__file-attr';
+				_this74.qOmitted = '.mess-post, .thread__missed';
+				_this74.qOPost = '.oppost, .post_type_oppost';
+				_this74.qPostHeader = '.post-details, .post__details';
 				_this74.qPostImg = '.preview';
-				_this74.qPostMsg = '.post-message';
-				_this74.qPostName = '.ananimas, .post-email';
-				_this74.qPostSubj = '.post-title';
-				_this74.qRPost = '.post.reply[data-num]';
+				_this74.qPostMsg = '.post-message, .post__message';
+				_this74.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
+				_this74.qPostRef = '.reflink, .post__reflink:nth-child(2)';
+				_this74.qPostSubj = '.post-title, .post__title';
+				_this74.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
 				_this74.qTrunc = null;
 
 				_this74.formParent = 'thread';
@@ -20090,14 +20116,10 @@ true, true];
 				value: function getSage(post) {
 					var _this75 = this;
 
-					if ($q('.ananimas > span[id^="id_tag_"], .post-email > span[id^="id_tag_"]')) {
-						this.getSage = function (post) {
-							var name = $q(_this75.qPostName, post);
-							return name ? name.childElementCount === 0 && !$q('.ophui', post) : false;
-						};
-					} else {
-						this.getSage = _get(Makaba.prototype.__proto__ || Object.getPrototypeOf(Makaba.prototype), 'getSage', this);
-					}
+					this.getSage = !$q('span[id^="id_tag_"]') ? _get(Makaba.prototype.__proto__ || Object.getPrototypeOf(Makaba.prototype), 'getSage', this) : function (post) {
+						var name = $q(_this75.qPostName, post);
+						return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+					};
 					return this.getSage(post);
 				}
 			}, {
@@ -20125,9 +20147,9 @@ true, true];
 						}
 						$del(el);
 					});
-					var el = $q('td > .anoniconsselectlist');
+					var el = $q('.anoniconsselectlist');
 					if (el) {
-						$q('.option-area > td:last-child').appendChild(el);
+						$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
 					}
 					if (el = $q('.search')) {
 						var node = $q('.adminbar__menu, .menu');
@@ -20146,15 +20168,16 @@ true, true];
 				value: function initCaptcha(cap) {
 					var _this76 = this;
 
-					var box = $q('.captcha-box', cap.parentEl);
-					if (box.firstChild.tagName !== 'IMG') {
+					var box = $q('.captcha-box, .captcha');
+					var img = box.firstChild;
+					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
 						var _ref68 = [].concat(_toConsumableArray(box.children)),
-						    img = _ref68[0],
+						    _img2 = _ref68[0],
 						    inp = _ref68[1];
 
-						img.onclick = function () {
+						_img2.onclick = function () {
 							return _this76.updateCaptcha(cap);
 						};
 						inp.tabIndex = 999;
@@ -20163,10 +20186,26 @@ true, true];
 					return null;
 				}
 			}, {
+				key: 'observeContent',
+				value: function observeContent(checkDomains, dataPromise) {
+					if ($q('#posts-form > .thread')) {
+						return true;
+					}
+					var initObserver = new MutationObserver(function (mutations) {
+						var el = mutations[0].addedNodes[0];
+						if (el && el.className === 'thread') {
+							initObserver.disconnect();
+							runMain(checkDomains, dataPromise);
+						}
+					});
+					initObserver.observe($id('posts-form'), { childList: true });
+					return false;
+				}
+			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
 					return cap.updateHelper('/api/captcha/2chaptcha/id?board=' + this.b + '&thread=' + pr.tNum, function (xhr) {
-						var box = $q('.captcha-box', cap.parentEl);
+						var box = $q('.captcha-box, .captcha');
 						var data = xhr.responseText;
 						try {
 							data = JSON.parse(data);
@@ -20194,14 +20233,29 @@ true, true];
 					});
 				}
 			}, {
+				key: 'qFormMail',
+				get: function get() {
+					return 'input[name="email"]';
+				}
+			}, {
+				key: 'qFormName',
+				get: function get() {
+					return 'input[name="name"]';
+				}
+			}, {
+				key: 'qFormSubj',
+				get: function get() {
+					return 'input[name="subject"]';
+				}
+			}, {
 				key: 'qImgNameLink',
 				get: function get() {
-					return '.file-attr > .desktop';
+					return '.file-attr > .desktop, .post__file-attr > .desktop';
 				}
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,\n\t\t\t\t\t.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {\n\t\t\t\t\t\tdisplay: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: unset; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '');
+					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,\n\t\t\t\t\t.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {\n\t\t\t\t\t\tdisplay: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: unset; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.delImgNames ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '') + '\n\t\t\t\t/* Test */\n\t\t\t\t.cntnt__header > hr, #CommentToolbar, .newpost, .post__number, .post__panel, .post__refmap,\n\t\t\t\t\t.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }';
 				}
 			}, {
 				key: 'lastPage',
@@ -20252,7 +20306,6 @@ true, true];
 
 				_this77.firstPage = 1;
 				_this77.formParent = 'thread';
-				_this77.formTd = 'th';
 				_this77.hasCatalog = true;
 				_this77.jsonSubmit = true;
 				_this77.timePattern = 'nn+dd+yy++w++hh+ii+ss';
@@ -20618,7 +20671,6 @@ true, true];
 
 				_this83.firstPage = 1;
 				_this83.formParent = 'threadId';
-				_this83.formTd = 'th';
 				_this83.hasCatalog = true;
 				_this83.jsonSubmit = true;
 				_this83.multiFile = true;
@@ -20638,11 +20690,6 @@ true, true];
 				value: function fixFileInputs(el) {
 					var str = '><input name="files" type="file"></div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
-				}
-			}, {
-				key: 'getCapParent',
-				value: function getCapParent(el) {
-					return $id('captchaDiv');
 				}
 			}, {
 				key: 'getImgRealName',
@@ -20697,7 +20744,7 @@ true, true];
 					$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
 					if (!$q(this.qForm + ' td')) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
-						var _els4 = $Q('#fieldName, #fieldEmail, #fieldSubject, #fieldMessage, ' + '#fieldPostingPassword, #divUpload');
+						var _els4 = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' + ' #fieldPostingPassword, #fieldSubject');
 						for (var i = 0, _len12 = _els4.length; i < _len12; ++i) {
 							$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(_els4[i]);
 						}
@@ -21333,7 +21380,7 @@ true, true];
 				value: function getSubmitData(data) {
 					var error = null;
 					var postNum = null;
-					var errEl = $q('#errmsg', data);
+					var errEl = $id('errmsg', data);
 					if (errEl) {
 						error = errEl.textContent;
 					} else {
