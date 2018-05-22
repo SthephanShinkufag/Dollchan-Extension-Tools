@@ -298,6 +298,9 @@ class BaseBoard {
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
+		if($q('.sage', post)) {
+			return true;
+		}
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}

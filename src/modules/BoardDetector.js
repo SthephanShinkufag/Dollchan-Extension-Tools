@@ -123,8 +123,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				const name = $q(this.qPostName, post);
-				return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+				const nameEl = $q(this.qPostName, post);
+				return !!nameEl && nameEl.hasChildNodes() && !$q('.ophui, .post__ophui', post);
 			};
 			return this.getSage(post);
 		}
@@ -846,7 +846,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			const el = $q('.filetitle', post);
-			return el && el.textContent.includes('\u21E9');
+			return !!el && el.textContent.includes('\u21E9');
 		}
 		init() {
 			super.init();
@@ -1184,9 +1184,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
 		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
 		init() {
 			super.init();
 			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
@@ -1211,9 +1208,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -1422,9 +1416,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el.parentNode;
 		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
 
@@ -1481,9 +1472,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.sage { display: none; }
 				div.post.reply::before { content: none; }`;
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;

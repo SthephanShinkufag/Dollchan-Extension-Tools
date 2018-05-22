@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'c646ed5';
+const commit = 'c1c32bc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9008,6 +9008,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||
 				mime === 'image/png' ||
+				mime === 'image/gif' ||
 				mime === 'video/webm' && !aib.mak)
 			) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
@@ -9072,6 +9073,7 @@ function cleanFile(data, extraData) {
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
+					// Remove exif data
 					if(!jpgDat && deep === 1) {
 						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
@@ -9089,12 +9091,12 @@ function cleanFile(data, extraData) {
 						lIdx = i;
 						continue;
 					}
-				} else if(img[i + 1] === 0xD8) {
+				} else if(img[i + 1] === 0xD8) { // Jpg start marker [0xFFD8]
 					deep++;
 					i++;
 					continue;
 				}
-				if(img[i + 1] === 0xD9 && --deep === 0) {
+				if(img[i + 1] === 0xD9 && --deep === 0) { // Jpg end marker [0xFFD9]
 					break;
 				}
 			}
@@ -9105,6 +9107,7 @@ function cleanFile(data, extraData) {
 			i = len;
 		}
 		if(lIdx === 2) {
+			// Remove data after the end marker
 			if(i !== len) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
@@ -9123,6 +9126,7 @@ function cleanFile(data, extraData) {
 	}
 	// PNG
 	if(img[0] === 0x89 && img[1] === 0x50) {
+		// Search for end marker [0x49454e44]
 		for(i = 0, len = img.length - 7; i < len && (
 			img[i] !== 0x49 ||
 			img[i + 1] !== 0x45 ||
@@ -9130,7 +9134,19 @@ function cleanFile(data, extraData) {
 			img[i + 3] !== 0x44
 		); ++i) /* empty */;
 		i += 8;
+		// Remove data after the end marker
 		if(i !== len && (extraData || len - i <= 75)) {
+			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+		}
+		return rv;
+	}
+	// GIF
+	if(img[0] === 0x47 && img[1] === 0x49 && img[2] === 0x46) {
+		// Search for last frame end marker [0x003B]
+		i = len = img.length;
+		while(i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) /* empty */;
+		// Remove data after the end marker
+		if(++i !== len) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 		}
 		return rv;
@@ -14755,6 +14771,9 @@ class BaseBoard {
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
+		if($q('.sage', post)) {
+			return true;
+		}
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
@@ -14916,8 +14935,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				const name = $q(this.qPostName, post);
-				return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+				const nameEl = $q(this.qPostName, post);
+				return !!nameEl && nameEl.hasChildNodes() && !$q('.ophui, .post__ophui', post);
 			};
 			return this.getSage(post);
 		}
@@ -15639,7 +15658,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			const el = $q('.filetitle', post);
-			return el && el.textContent.includes('\u21E9');
+			return !!el && el.textContent.includes('\u21E9');
 		}
 		init() {
 			super.init();
@@ -15977,9 +15996,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
 		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
 		init() {
 			super.init();
 			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
@@ -16004,9 +16020,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = '><input type="file" name="imagefile[]"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;
@@ -16215,9 +16228,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el.parentNode;
 		}
-		getSage(post) {
-			return !!$q('.sage', post);
-		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
 
@@ -16274,9 +16284,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.sage { display: none; }
 				div.post.reply::before { content: none; }`;
-		}
-		getSage(post) {
-			return !!$q('.sage', post);
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;

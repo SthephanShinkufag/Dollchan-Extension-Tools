@@ -3480,7 +3480,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 							mime = value.type;
 
-							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'video/webm' && !aib.mak))) {
+							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.mak))) {
 								_context15.next = 33;
 								break;
 							}
@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'c646ed5';
+	var commit = 'c1c32bc';
 
 
 	var defaultCfg = {
@@ -13106,6 +13106,14 @@ true, true];
 			}
 			return rv;
 		}
+		if (img[0] === 0x47 && img[1] === 0x49 && img[2] === 0x46) {
+			i = len = img.length;
+			while (i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) {}
+			if (++i !== len) {
+				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			}
+			return rv;
+		}
 		if (img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
 			return new WebmParser(data).addWebmData(rand).getWebmData();
 		}
@@ -19838,6 +19846,9 @@ true, true];
 		}, {
 			key: 'getSage',
 			value: function getSage(post) {
+				if ($q('.sage', post)) {
+					return true;
+				}
 				var el = $q('a[href^="mailto:"], a[href="sage"]', post);
 				return !!el && /sage/i.test(el.href);
 			}
@@ -20117,8 +20128,8 @@ true, true];
 					var _this75 = this;
 
 					this.getSage = !$q('span[id^="id_tag_"]') ? _get(Makaba.prototype.__proto__ || Object.getPrototypeOf(Makaba.prototype), 'getSage', this) : function (post) {
-						var name = $q(_this75.qPostName, post);
-						return name ? name.childElementCount === 0 && !$q('.ophui, .post__ophui', post) : false;
+						var nameEl = $q(_this75.qPostName, post);
+						return !!nameEl && nameEl.hasChildNodes() && !$q('.ophui, .post__ophui', post);
 					};
 					return this.getSage(post);
 				}
@@ -21235,7 +21246,7 @@ true, true];
 				key: 'getSage',
 				value: function getSage(post) {
 					var el = $q('.filetitle', post);
-					return el && el.textContent.includes('\u21E9');
+					return !!el && el.textContent.includes('\u21E9');
 				}
 			}, {
 				key: 'init',
@@ -21737,11 +21748,6 @@ true, true];
 					return img.parentNode.parentNode;
 				}
 			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
-				}
-			}, {
 				key: 'init',
 				value: function init() {
 					_get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'init', this).call(this);
@@ -21780,11 +21786,6 @@ true, true];
 					var str = '><input type="file" name="imagefile[]"></div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
-				}
-			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
 				}
 			}, {
 				key: 'css',
@@ -22055,11 +22056,6 @@ true, true];
 					return el.parentNode;
 				}
 			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
-				}
-			}, {
 				key: 'qImgNameLink',
 				get: function get() {
 					return '.filename > a';
@@ -22154,11 +22150,6 @@ true, true];
 			}
 
 			_createClass(Kohlchan, [{
-				key: 'getSage',
-				value: function getSage(post) {
-					return !!$q('.sage', post);
-				}
-			}, {
 				key: 'qImgNameLink',
 				get: function get() {
 					return '.postfilename';

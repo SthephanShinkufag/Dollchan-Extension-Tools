@@ -188,6 +188,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||
 				mime === 'image/png' ||
+				mime === 'image/gif' ||
 				mime === 'video/webm' && !aib.mak)
 			) {
 				const cleanData = cleanFile((await readFile(value)).data, el.obj ? el.obj.extraFile : null);
@@ -252,6 +253,7 @@ function cleanFile(data, extraData) {
 		for(i = 2, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 			if(img[i] === 0xFF) {
 				if(rExif) {
+					// Remove exif data
 					if(!jpgDat && deep === 1) {
 						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
@@ -269,12 +271,12 @@ function cleanFile(data, extraData) {
 						lIdx = i;
 						continue;
 					}
-				} else if(img[i + 1] === 0xD8) {
+				} else if(img[i + 1] === 0xD8) { // Jpg start marker [0xFFD8]
 					deep++;
 					i++;
 					continue;
 				}
-				if(img[i + 1] === 0xD9 && --deep === 0) {
+				if(img[i + 1] === 0xD9 && --deep === 0) { // Jpg end marker [0xFFD9]
 					break;
 				}
 			}
@@ -285,6 +287,7 @@ function cleanFile(data, extraData) {
 			i = len;
 		}
 		if(lIdx === 2) {
+			// Remove data after the end marker
 			if(i !== len) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
@@ -303,6 +306,7 @@ function cleanFile(data, extraData) {
 	}
 	// PNG
 	if(img[0] === 0x89 && img[1] === 0x50) {
+		// Search for end marker [0x49454e44]
 		for(i = 0, len = img.length - 7; i < len && (
 			img[i] !== 0x49 ||
 			img[i + 1] !== 0x45 ||
@@ -310,7 +314,19 @@ function cleanFile(data, extraData) {
 			img[i + 3] !== 0x44
 		); ++i) /* empty */;
 		i += 8;
+		// Remove data after the end marker
 		if(i !== len && (extraData || len - i <= 75)) {
+			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+		}
+		return rv;
+	}
+	// GIF
+	if(img[0] === 0x47 && img[1] === 0x49 && img[2] === 0x46) {
+		// Search for last frame end marker [0x003B]
+		i = len = img.length;
+		while(i && img[--i - 1] !== 0x00 && img[i] !== 0x3B) /* empty */;
+		// Remove data after the end marker
+		if(++i !== len) {
 			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 		}
 		return rv;
