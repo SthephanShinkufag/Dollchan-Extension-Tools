@@ -421,7 +421,7 @@ class ExpandableImage {
 				height = width / ar;
 			} else {
 				height = minSize;
-				width = height * ar;
+				width = this.isVideo ? minSize : height * ar;
 			}
 		}
 		if(Cfg.resizeImgs) {

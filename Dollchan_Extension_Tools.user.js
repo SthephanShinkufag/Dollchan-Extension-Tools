@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'c1c32bc';
+	var commit = '4d1582e';
 
 
 	var defaultCfg = {
@@ -16253,7 +16253,7 @@ true, true];
 						height = width / ar;
 					} else {
 						height = minSize;
-						width = height * ar;
+						width = this.isVideo ? minSize : height * ar;
 					}
 				}
 				if (Cfg.resizeImgs) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'c1c32bc';
+const commit = '4d1582e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11732,7 +11732,7 @@ class ExpandableImage {
 				height = width / ar;
 			} else {
 				height = minSize;
-				width = height * ar;
+				width = this.isVideo ? minSize : height * ar;
 			}
 		}
 		if(Cfg.resizeImgs) {
