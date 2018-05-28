@@ -50,7 +50,7 @@ const defaultCfg = {
 	findImgFile  : 0,    //    detect embedded files in images
 	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
 	imgSrcBtns   : 1,    // add "Search" buttons for images
-	delImgNames  : 0,    // hide filenames
+	imgNames     : 0,    // image names in links [0=off, 1=original, 2=hide]
 	maskImgs     : 0,    // NSFW mode
 	maskVisib    : 7,    // image opacity in NSFW mode [0-100%]
 	linksNavig   : 1,    // posts navigation by >>links

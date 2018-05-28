@@ -267,7 +267,7 @@ class Pview extends AbstractPost {
 				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pv);
-			processImgInfoLinks(pv);
+			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = this._pref.nextSibling;
 			$del($q('.de-post-counter', btnsEl));

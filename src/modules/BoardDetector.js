@@ -76,7 +76,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
+				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }
@@ -276,7 +276,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.banner, .hide-thread-link, .mentioned,
 					.post-hover { display: none !important; }
 				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
-					float: left !important; clear: left; display: block; }`;
+					float: left !important; clear: left; display: block; }
+				${ Cfg.imgNames === 1 ? '.postfilename, .unimportant > a[download] { display: none }' : '' }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
@@ -335,8 +336,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 		getImgRealName(wrap) {
-			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
-				$q(this.qImgNameLink, wrap)).textContent;
+			const el = $q('.postfilename', wrap) ||
+				$q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
+			return el.title || el.textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -385,7 +387,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					.post-btn, small { display: none !important; }
 				body { padding: 0 5px !important; }
 				.boardlist { position: static !important; }
-				.fileinfo { width: 250px; }
+				.fileinfo { width: 240px; }
 				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
@@ -436,8 +438,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 		}
 		getImgRealName(wrap) {
-			const el = $q('.filesize', wrap).textContent.split(',')[2];
-			return !el && super.getImgRealName(wrap) || el.replace(')', '');
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
 		}
 		init() {
 			const el = $id('posttypeindicator');
@@ -454,6 +462,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.tinyib = true;
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
 		}
 		get css() {
@@ -467,6 +476,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
 		}
 		init() {
 			defaultCfg.addTextBtns = 0;
@@ -533,6 +552,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = '><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+		}
+		getCapParent(el) {
+			return $id('captchaDiv');
 		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).textContent;
@@ -794,6 +816,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.ru = true;
 
 			this._capUpdPromise = null;
+		}
+		get css() {
+			return `small[id^="rfmap_"] { display: none; }`;
 		}
 		init() {
 			const el = $id('submit_button');
@@ -1166,6 +1191,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get fixHTMLHelper() {
 			return null;
 		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
 		init() {
 			return false;
 		}
@@ -1198,7 +1226,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qImgInfo = '.filesize, .fileinfo';
+
 			this.multiFile = true;
+		}
+		get qImgNameLink() {
+			return '.filesize > a, .file_reply > a';
 		}
 		get css() {
 			return `${ super.css }
@@ -1261,7 +1294,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
-			// There are can be censored <img> that may not have <a> containers
+			// There can be a censored <img> without <a> parent
 			const el = img.parentNode;
 			return el.tagName === 'A' ? el :
 				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
@@ -1500,7 +1533,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				.sidearrows { display: none !important; }
-				.bar { position: static; }`;
+				.bar { position: static; }
+				${ Cfg.imgNames === 1 ? '.details > a { display: none; }' : '' }`;
+		}
+		getImgRealName(wrap) {
+			return $q('.details > a', wrap).textContent;
 		}
 		init() {
 			super.init();
@@ -1581,7 +1618,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				.mature_thread { display: block !important; }
-				.mature_warning { display: none; }`;
+				.mature_warning { display: none; }
+				${ Cfg.imgNames === 1 ? '.post-filename { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.post-filename', wrap).textContent;
@@ -1603,7 +1641,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get qImgNameLink() {
-			return '.file-info > .btn-group > .btn-xs > a';
+			return '.file-info > a';
 		}
 		get css() {
 			return `${ super.css }
@@ -1625,6 +1663,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.timeOffset = 4;
 			defaultCfg.correctTime = 1;
 			return false;
+		}
+		fixHTML(data, isForm) {
+			const form = super.fixHTML(data, isForm);
+			const els = $Q('.btn-group', form);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				$replace(els[i], $q('a', els[i]));
+			}
+			return form;
 		}
 	}
 	ibDomains['syn-ch.ru'] = Synch;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '4d1582e';
+const commit = 'ca7f178';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -84,7 +84,7 @@ const defaultCfg = {
 	findImgFile  : 0,    //    detect embedded files in images
 	openImgs     : 0,    // replace thumbs with original images [0=off, 1=all, 2=GIFs only, 3=non-GIFs]
 	imgSrcBtns   : 1,    // add "Search" buttons for images
-	delImgNames  : 0,    // hide filenames
+	imgNames     : 0,    // image names in links [0=off, 1=original, 2=hide]
 	maskImgs     : 0,    // NSFW mode
 	maskVisib    : 7,    // image opacity in NSFW mode [0-100%]
 	linksNavig   : 1,    // posts navigation by >>links
@@ -414,10 +414,16 @@ const Lng = {
 			'Добавлять кнопки "Поиск" для картинок',
 			'Add "Search" buttons for images',
 			'Додавати кнопки "Пошук" для зображень'],
-		delImgNames: [
-			'Скрывать имена картинок',
-			'Hide filenames',
-			'Ховати імена зображень'],
+		imgNames: {
+			sel: [
+				['Не изменять', 'Настоящие', 'Скрывать'],
+				['Don`t change', 'Original', 'Hide'],
+				['Не змінювати', 'Справжні', 'Ховати']],
+			txt: [
+				'имена картинок',
+				'filenames',
+				'імена зображень']
+		},
 		maskVisib: [
 			'Видимость для NSFW-картинок [0-100%]',
 			'Visibility for NSFW images [0-100%]',
@@ -4392,6 +4398,24 @@ const CfgWindow = {
 				updateCSS();
 				AttachedImage.closeImg();
 				break;
+			case 'imgNames':
+				if(Cfg.imgNames) {
+					for(const { el } of DelForm) {
+						processImgInfoLinks(el, 0, Cfg.imgNames);
+					}
+				} else {
+					$each($Q('.de-img-name'), el => {
+						el.classList.remove('de-img-name');
+						el.textContent = decodeURIComponent(el.getAttribute('de-href').split('/').pop());
+						el.removeAttribute('title');
+						if(!isPreImg && !Cfg.preLoadImgs) {
+							el.removeAttribute('download');
+							el.removeAttribute('de-href');
+						}
+					});
+				}
+				updateCSS();
+				break;
 			case 'fileInputs':
 				pr.files.changeMode();
 				pr.setPlaceholders();
@@ -4480,20 +4504,6 @@ const CfgWindow = {
 				} else {
 					$each($Q('.de-btn-src'), $del);
 				}
-				break;
-			case 'delImgNames':
-				if(Cfg.delImgNames) {
-					for(const { el } of DelForm) {
-						processImgInfoLinks(el, 0, 1);
-					}
-				} else {
-					$each($Q('.de-img-name'), el => {
-						el.classList.remove('de-img-name');
-						el.textContent = el.title;
-						el.removeAttribute('title');
-					});
-				}
-				updateCSS();
 				break;
 			case 'markMyLinks':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
@@ -4786,7 +4796,7 @@ const CfgWindow = {
 			</div>` }
 			${ this._getSel('openImgs') }<br>
 			${ this._getBox('imgSrcBtns') }<br>
-			${ this._getBox('delImgNames') }<br>
+			${ this._getSel('imgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
 	},
@@ -5925,8 +5935,10 @@ const ContentLoader = {
 					const fName = url.substring(url.lastIndexOf('/') + 1);
 					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 					imgLink.setAttribute('download', fName);
-					nameLink.setAttribute('download', fName);
-					nameLink.setAttribute('de-href', nameLink.href);
+					if(!Cfg.imgNames) {
+						nameLink.setAttribute('download', fName);
+						nameLink.setAttribute('de-href', nameLink.href);
+					}
 					imgLink.href = nameLink.href =
 						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 					if(isVideo) {
@@ -9668,7 +9680,7 @@ class Captcha {
 		this.hasCaptcha = true;
 		this.textEl = null;
 		this.tNum = initNum;
-		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : $qParent(el, aib.qFormTr);
+		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
 		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
@@ -11108,7 +11120,7 @@ class Pview extends AbstractPost {
 				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pv);
-			processImgInfoLinks(pv);
+			processImgInfoLinks(this);
 		} else {
 			const btnsEl = this.btns = this._pref.nextSibling;
 			$del($q('.de-post-counter', btnsEl));
@@ -11702,7 +11714,7 @@ class ExpandableImage {
 		$del(this._fullEl);
 		this._fullEl = null;
 		$show(this.el.parentNode);
-		$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+		$del((aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling);
 		if(e) {
 			$pd(e);
 			if(this.inPview) {
@@ -11774,7 +11786,7 @@ class ExpandableImage {
 		}
 		this.expanded = true;
 		const { el } = this;
-		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
+		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullImg(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
@@ -11805,9 +11817,9 @@ class ExpandableImage {
 	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
 		const { src } = this;
-		const parent = this._getImageParent();
+		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
-			const nameEl = $q(aib.qImgNameLink, parent);
+			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
 		} else {
@@ -11978,8 +11990,10 @@ class ExpandableImage {
 
 // Initialization of embedded image that added to the link in post message
 class EmbeddedImage extends ExpandableImage {
-	_getImageParent() {
-		return this.el.parentNode;
+	get _getImageParent() {
+		const value = this.el.parentNode;
+		Object.defineProperty(this, '_getImageParent', { value });
+		return value;
 	}
 	_getImageSize() {
 		return [this.el.naturalWidth, this.el.naturalHeight];
@@ -11999,13 +12013,18 @@ class AttachedImage extends ExpandableImage {
 		}
 	}
 	get info() {
-		const value = aib.getImgInfo(aib.getImgWrap(this.el));
+		const value = aib.getImgInfo(this._getImageParent);
 		Object.defineProperty(this, 'info', { value });
 		return value;
 	}
 	get name() {
-		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		const value = aib.getImgRealName(this._getImageParent).trim();
 		Object.defineProperty(this, 'name', { value });
+		return value;
+	}
+	get nameLink() {
+		const value = $q(aib.qImgNameLink, this._getImageParent);
+		Object.defineProperty(this, 'nameLink', { value });
 		return value;
 	}
 	get weight() {
@@ -12019,8 +12038,10 @@ class AttachedImage extends ExpandableImage {
 		return value;
 	}
 
-	_getImageParent() {
-		return aib.getImgWrap(this.el);
+	get _getImageParent() {
+		const value = aib.getImgWrap(this.el);
+		Object.defineProperty(this, '_getImageParent', { value });
+		return value;
 	}
 	_getImageSize() {
 		if(this.info) {
@@ -12211,28 +12232,41 @@ function addImgSrcButtons(link) {
 }
 
 // Adding features for info links of images
-function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
-	if(!addSrc && !delNames) {
-		return;
-	}
-	const els = $Q(aib.qImgNameLink, el);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		const link = els[i];
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
-			$del(link);
-			continue;
+function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.imgNames) {
+	if(addSrc || imgNames) {
+		if(parent instanceof AbstractPost) {
+			processPostImgInfoLinks(parent, addSrc, imgNames);
+		} else {
+			const posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+			for(let i = 0, len = posts.length; i < len; ++i) {
+				processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
+			}
 		}
-		if(link.firstElementChild) {
-			continue;
+	}
+}
+
+function processPostImgInfoLinks(post, addSrc, imgNames) {
+	for(const image of post.images) {
+		const link = image.nameLink;
+		if(!link) {
+			return;
 		}
 		if(addSrc) {
 			addImgSrcButtons(link);
 		}
-		if(delNames) {
+		if(imgNames) {
+			let { name } = image;
+			link.setAttribute('download', name);
+			if(!link.getAttribute('de-href')) {
+				link.setAttribute('de-href', link.href);
+			}
 			link.classList.add('de-img-name');
-			const text = link.textContent;
-			link.textContent = text.split('.').pop();
-			link.title = text;
+			link.title = name;
+			const ext = (name = name.split('.')).pop() || link.href.split('.').pop();
+			if(!link.getAttribute('de-ext')) {
+				link.setAttribute('de-ext', ext);
+			}
+			link.textContent = imgNames === 1 ? name.join('.') : ext;
 		}
 	}
 }
@@ -13193,7 +13227,7 @@ class Thread {
 		const post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
-			$animate(post.el, 'de-post-new');
+			$animate(el, 'de-post-new');
 		}
 		if(this.userTouched.has(num)) {
 			post.setUserVisib(this.userTouched.get(num), false);
@@ -13202,7 +13236,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImgInfoLinks(el);
+		processImgInfoLinks(post);
 		post.addFuncs();
 		ContentLoader.preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {
@@ -14442,8 +14476,10 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches : (leftSel, ...rules) => leftSel + rules.join(', ' + leftSel),
-		fixLink    : isSafari ? getAbsLink : url => url,
+		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
+			val => val + rules.join(', ' + val)
+		).join(', '),
+		fixLink: isSafari ? getAbsLink : url => url,
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
@@ -14546,15 +14582,15 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = nav.cssMatches(this.qImgInfo + ' a',
+		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
-			'[href$=".png"]', '[href$=".gif"]');
+		const value = nav.cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
@@ -14705,6 +14741,9 @@ class BaseBoard {
 	getBanId(postEl) { // Differs Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
+	getCapParent(el) { // Differs LynxChan
+		return $qParent(el, this.qFormTr);
+	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
@@ -14715,13 +14754,14 @@ class BaseBoard {
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		return $q(this.qImgNameLink, wrap)[Cfg.delImgNames ? 'title' : 'textContent'];
+		const el = $q(this.qImgNameLink, wrap);
+		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {
 		return $parent(img, 'A');
 	}
 	getImgWrap(img) {
-		return $parent(img, 'A').parentNode;
+		return ($parent(img, 'A') || img).parentNode;
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
@@ -14888,7 +14928,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.delImgNames ? `.filesize { display: inline !important; }
+				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }
@@ -15088,7 +15128,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.banner, .hide-thread-link, .mentioned,
 					.post-hover { display: none !important; }
 				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
-					float: left !important; clear: left; display: block; }`;
+					float: left !important; clear: left; display: block; }
+				${ Cfg.imgNames === 1 ? '.postfilename, .unimportant > a[download] { display: none }' : '' }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
@@ -15147,8 +15188,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 		getImgRealName(wrap) {
-			return ($q('.postfilename, .unimportant > a[download]', wrap) ||
-				$q(this.qImgNameLink, wrap)).textContent;
+			const el = $q('.postfilename', wrap) ||
+				$q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
+			return el.title || el.textContent;
 		}
 		getPageUrl(b, p) {
 			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -15197,7 +15239,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					.post-btn, small { display: none !important; }
 				body { padding: 0 5px !important; }
 				.boardlist { position: static !important; }
-				.fileinfo { width: 250px; }
+				.fileinfo { width: 240px; }
 				.multifile { width: auto !important; }`;
 		}
 		fixFileInputs(el) {
@@ -15248,8 +15290,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
 		}
 		getImgRealName(wrap) {
-			const el = $q('.filesize', wrap).textContent.split(',')[2];
-			return !el && super.getImgRealName(wrap) || el.replace(')', '');
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
 		}
 		init() {
 			const el = $id('posttypeindicator');
@@ -15266,6 +15314,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.tinyib = true;
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
 		}
 		get css() {
@@ -15279,6 +15328,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
 		}
 		init() {
 			defaultCfg.addTextBtns = 0;
@@ -15345,6 +15404,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = '><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+		}
+		getCapParent(el) {
+			return $id('captchaDiv');
 		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).textContent;
@@ -15606,6 +15668,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.ru = true;
 
 			this._capUpdPromise = null;
+		}
+		get css() {
+			return `small[id^="rfmap_"] { display: none; }`;
 		}
 		init() {
 			const el = $id('submit_button');
@@ -15978,6 +16043,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get fixHTMLHelper() {
 			return null;
 		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
 		init() {
 			return false;
 		}
@@ -16010,7 +16078,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qImgInfo = '.filesize, .fileinfo';
+
 			this.multiFile = true;
+		}
+		get qImgNameLink() {
+			return '.filesize > a, .file_reply > a';
 		}
 		get css() {
 			return `${ super.css }
@@ -16073,7 +16146,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
-			// There are can be censored <img> that may not have <a> containers
+			// There can be a censored <img> without <a> parent
 			const el = img.parentNode;
 			return el.tagName === 'A' ? el :
 				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
@@ -16312,7 +16385,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				.sidearrows { display: none !important; }
-				.bar { position: static; }`;
+				.bar { position: static; }
+				${ Cfg.imgNames === 1 ? '.details > a { display: none; }' : '' }`;
+		}
+		getImgRealName(wrap) {
+			return $q('.details > a', wrap).textContent;
 		}
 		init() {
 			super.init();
@@ -16393,7 +16470,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				.mature_thread { display: block !important; }
-				.mature_warning { display: none; }`;
+				.mature_warning { display: none; }
+				${ Cfg.imgNames === 1 ? '.post-filename { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.post-filename', wrap).textContent;
@@ -16415,7 +16493,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get qImgNameLink() {
-			return '.file-info > .btn-group > .btn-xs > a';
+			return '.file-info > a';
 		}
 		get css() {
 			return `${ super.css }
@@ -16437,6 +16515,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.timeOffset = 4;
 			defaultCfg.correctTime = 1;
 			return false;
+		}
+		fixHTML(data, isForm) {
+			const form = super.fixHTML(data, isForm);
+			const els = $Q('.btn-group', form);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				$replace(els[i], $q('a', els[i]));
+			}
+			return form;
 		}
 	}
 	ibDomains['syn-ch.ru'] = Synch;
@@ -16938,9 +17024,9 @@ function scriptCSS() {
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	.de-cfg-depend { padding-left: 17px; }
 	#de-cfg-info { display: flex; flex-direction: column; }
-	input[type="text"].de-cfg-inptxt { width: auto; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	input[type="text"].de-cfg-inptxt { width: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
-	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; }
+	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
@@ -17088,6 +17174,7 @@ function scriptCSS() {
 	#de-img-btn-next { right: 0; margin-top: -18px; }
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
+	.de-img-name { text-decoration: none !important; }
 
 	/* Embedders */
 	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }
@@ -17249,15 +17336,15 @@ function updateCSS() {
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.delImgNames ? '.de-img-name { text-transform: capitalize; text-decoration: none; }' : '' }
+	${ Cfg.imgNames === 1 ? `.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }
+		.de-img-name::before { content: "." attr(de-ext); float: right; }` : '' }
+	${ Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
-	${ Cfg.noSpoilers === 1 ?
-		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
-		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` :
-		Cfg.noSpoilers === 2 ?
-			`.spoiler, s { color: inherit !important; }
-			.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
+	${ Cfg.noSpoilers === 1 ? `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
+		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` : '' }
+	${ Cfg.noSpoilers === 2 ? `.spoiler, s { color: inherit !important; }
+		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : ''	}
@@ -17274,7 +17361,6 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
-
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }

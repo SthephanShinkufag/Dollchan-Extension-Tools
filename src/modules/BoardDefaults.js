@@ -73,15 +73,15 @@ class BaseBoard {
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = nav.cssMatches(this.qImgInfo + ' a',
+		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
 			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = nav.cssMatches(this.qPostMsg + ' a', '[href$=".jpg"]', '[href$=".jpeg"]',
-			'[href$=".png"]', '[href$=".gif"]');
+		const value = nav.cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
 	}
@@ -232,6 +232,9 @@ class BaseBoard {
 	getBanId(postEl) { // Differs Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
+	getCapParent(el) { // Differs LynxChan
+		return $qParent(el, this.qFormTr);
+	}
 	getCaptchaSrc(src, tNum) {
 		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
@@ -242,13 +245,14 @@ class BaseBoard {
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		return $q(this.qImgNameLink, wrap)[Cfg.delImgNames ? 'title' : 'textContent'];
+		const el = $q(this.qImgNameLink, wrap);
+		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {
 		return $parent(img, 'A');
 	}
 	getImgWrap(img) {
-		return $parent(img, 'A').parentNode;
+		return ($parent(img, 'A') || img).parentNode;
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {

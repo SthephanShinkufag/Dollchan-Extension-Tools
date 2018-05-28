@@ -147,8 +147,10 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches : (leftSel, ...rules) => leftSel + rules.join(', ' + leftSel),
-		fixLink    : isSafari ? getAbsLink : url => url,
+		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
+			val => val + rules.join(', ' + val)
+		).join(', '),
+		fixLink: isSafari ? getAbsLink : url => url,
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;

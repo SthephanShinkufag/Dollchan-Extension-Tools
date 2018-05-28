@@ -242,7 +242,7 @@ class Thread {
 		const post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
-			$animate(post.el, 'de-post-new');
+			$animate(el, 'de-post-new');
 		}
 		if(this.userTouched.has(num)) {
 			post.setUserVisib(this.userTouched.get(num), false);
@@ -251,7 +251,7 @@ class Thread {
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);
 		}
-		processImgInfoLinks(el);
+		processImgInfoLinks(post);
 		post.addFuncs();
 		ContentLoader.preloadImages(post);
 		if(aib.t && Cfg.markNewPosts) {

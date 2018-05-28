@@ -276,6 +276,24 @@ const CfgWindow = {
 				updateCSS();
 				AttachedImage.closeImg();
 				break;
+			case 'imgNames':
+				if(Cfg.imgNames) {
+					for(const { el } of DelForm) {
+						processImgInfoLinks(el, 0, Cfg.imgNames);
+					}
+				} else {
+					$each($Q('.de-img-name'), el => {
+						el.classList.remove('de-img-name');
+						el.textContent = decodeURIComponent(el.getAttribute('de-href').split('/').pop());
+						el.removeAttribute('title');
+						if(!isPreImg && !Cfg.preLoadImgs) {
+							el.removeAttribute('download');
+							el.removeAttribute('de-href');
+						}
+					});
+				}
+				updateCSS();
+				break;
 			case 'fileInputs':
 				pr.files.changeMode();
 				pr.setPlaceholders();
@@ -364,20 +382,6 @@ const CfgWindow = {
 				} else {
 					$each($Q('.de-btn-src'), $del);
 				}
-				break;
-			case 'delImgNames':
-				if(Cfg.delImgNames) {
-					for(const { el } of DelForm) {
-						processImgInfoLinks(el, 0, 1);
-					}
-				} else {
-					$each($Q('.de-img-name'), el => {
-						el.classList.remove('de-img-name');
-						el.textContent = el.title;
-						el.removeAttribute('title');
-					});
-				}
-				updateCSS();
 				break;
 			case 'markMyLinks':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
@@ -670,7 +674,7 @@ const CfgWindow = {
 			</div>` }
 			${ this._getSel('openImgs') }<br>
 			${ this._getBox('imgSrcBtns') }<br>
-			${ this._getBox('delImgNames') }<br>
+			${ this._getSel('imgNames') }<br>
 			${ this._getInp('maskVisib') }
 		</div>`;
 	},

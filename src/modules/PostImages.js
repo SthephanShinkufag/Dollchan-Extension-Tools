@@ -391,7 +391,7 @@ class ExpandableImage {
 		$del(this._fullEl);
 		this._fullEl = null;
 		$show(this.el.parentNode);
-		$del((aib.hasPicWrap ? this._getImageParent() : this.el.parentNode).nextSibling);
+		$del((aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling);
 		if(e) {
 			$pd(e);
 			if(this.inPview) {
@@ -463,7 +463,7 @@ class ExpandableImage {
 		}
 		this.expanded = true;
 		const { el } = this;
-		(aib.hasPicWrap ? this._getImageParent() : el.parentNode).insertAdjacentHTML('afterend',
+		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullImg(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
@@ -494,9 +494,9 @@ class ExpandableImage {
 	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
 		const { src } = this;
-		const parent = this._getImageParent();
+		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
-			const nameEl = $q(aib.qImgNameLink, parent);
+			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
 		} else {
@@ -667,8 +667,10 @@ class ExpandableImage {
 
 // Initialization of embedded image that added to the link in post message
 class EmbeddedImage extends ExpandableImage {
-	_getImageParent() {
-		return this.el.parentNode;
+	get _getImageParent() {
+		const value = this.el.parentNode;
+		Object.defineProperty(this, '_getImageParent', { value });
+		return value;
 	}
 	_getImageSize() {
 		return [this.el.naturalWidth, this.el.naturalHeight];
@@ -688,13 +690,18 @@ class AttachedImage extends ExpandableImage {
 		}
 	}
 	get info() {
-		const value = aib.getImgInfo(aib.getImgWrap(this.el));
+		const value = aib.getImgInfo(this._getImageParent);
 		Object.defineProperty(this, 'info', { value });
 		return value;
 	}
 	get name() {
-		const value = aib.getImgRealName(aib.getImgWrap(this.el)).trim();
+		const value = aib.getImgRealName(this._getImageParent).trim();
 		Object.defineProperty(this, 'name', { value });
+		return value;
+	}
+	get nameLink() {
+		const value = $q(aib.qImgNameLink, this._getImageParent);
+		Object.defineProperty(this, 'nameLink', { value });
 		return value;
 	}
 	get weight() {
@@ -708,8 +715,10 @@ class AttachedImage extends ExpandableImage {
 		return value;
 	}
 
-	_getImageParent() {
-		return aib.getImgWrap(this.el);
+	get _getImageParent() {
+		const value = aib.getImgWrap(this.el);
+		Object.defineProperty(this, '_getImageParent', { value });
+		return value;
 	}
 	_getImageSize() {
 		if(this.info) {
@@ -900,28 +909,41 @@ function addImgSrcButtons(link) {
 }
 
 // Adding features for info links of images
-function processImgInfoLinks(el, addSrc = Cfg.imgSrcBtns, delNames = Cfg.delImgNames) {
-	if(!addSrc && !delNames) {
-		return;
-	}
-	const els = $Q(aib.qImgNameLink, el);
-	for(let i = 0, len = els.length; i < len; ++i) {
-		const link = els[i];
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
-			$del(link);
-			continue;
+function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.imgNames) {
+	if(addSrc || imgNames) {
+		if(parent instanceof AbstractPost) {
+			processPostImgInfoLinks(parent, addSrc, imgNames);
+		} else {
+			const posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+			for(let i = 0, len = posts.length; i < len; ++i) {
+				processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
+			}
 		}
-		if(link.firstElementChild) {
-			continue;
+	}
+}
+
+function processPostImgInfoLinks(post, addSrc, imgNames) {
+	for(const image of post.images) {
+		const link = image.nameLink;
+		if(!link) {
+			return;
 		}
 		if(addSrc) {
 			addImgSrcButtons(link);
 		}
-		if(delNames) {
+		if(imgNames) {
+			let { name } = image;
+			link.setAttribute('download', name);
+			if(!link.getAttribute('de-href')) {
+				link.setAttribute('de-href', link.href);
+			}
 			link.classList.add('de-img-name');
-			const text = link.textContent;
-			link.textContent = text.split('.').pop();
-			link.title = text;
+			link.title = name;
+			const ext = (name = name.split('.')).pop() || link.href.split('.').pop();
+			if(!link.getAttribute('de-ext')) {
+				link.setAttribute('de-ext', ext);
+			}
+			link.textContent = imgNames === 1 ? name.join('.') : ext;
 		}
 	}
 }

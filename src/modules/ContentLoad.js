@@ -164,8 +164,10 @@ const ContentLoader = {
 					const fName = url.substring(url.lastIndexOf('/') + 1);
 					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 					imgLink.setAttribute('download', fName);
-					nameLink.setAttribute('download', fName);
-					nameLink.setAttribute('de-href', nameLink.href);
+					if(!Cfg.imgNames) {
+						nameLink.setAttribute('download', fName);
+						nameLink.setAttribute('de-href', nameLink.href);
+					}
 					imgLink.href = nameLink.href =
 						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 					if(isVideo) {
