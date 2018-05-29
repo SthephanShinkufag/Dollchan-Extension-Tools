@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'c1a9a2c';
+const commit = '8fcacc7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14923,6 +14923,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.pager { display: inline-block !important; }
 				.post.reply .post-message { max-height: initial !important; }
 				.reply { max-width: unset; }
 				.tmp_postform { width: auto; }

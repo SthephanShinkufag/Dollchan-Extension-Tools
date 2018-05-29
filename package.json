@@ -27,9 +27,9 @@
 		]
 	},
 	"devDependencies": {
-		"babel-core": "^6.26.0",
+		"babel-core": "^6.26.3",
 		"babel-polyfill": "^6.26.0",
-		"babel-preset-env": "^1.6.1",
+		"babel-preset-env": "^1.7.0",
 		"babelify": "^8.0.0",
 		"browserify": "^16.2.0",
 		"eslint": "^4.19.1",

@@ -70,6 +70,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.pager { display: inline-block !important; }
 				.post.reply .post-message { max-height: initial !important; }
 				.reply { max-width: unset; }
 				.tmp_postform { width: auto; }
