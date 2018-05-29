@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '3748da2';
+const commit = '4eb28c8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17269,7 +17269,7 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 9999; border: 1px solid grey !important; }
+	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }
