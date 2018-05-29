@@ -96,7 +96,7 @@ const defaultCfg = {
 	passwValue   : '',   // user password value
 	userName     : 0,    // user name
 	nameValue    : '',   //    value
-	noBoardRule  : 1,    // hide board rules
+	noBoardRule  : 0,    // hide board rules
 	noPassword   : 1,    // hide form "Password" field
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field

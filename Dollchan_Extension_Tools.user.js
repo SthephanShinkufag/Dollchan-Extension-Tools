@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '8fcacc7';
+	var commit = '3748da2';
 
 
 	var defaultCfg = {
@@ -3911,7 +3911,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		passwValue: '', 
 		userName: 0, 
 		nameValue: '', 
-		noBoardRule: 1, 
+		noBoardRule: 0, 
 		noPassword: 1, 
 		noName: 0, 
 		noSubj: 0, 

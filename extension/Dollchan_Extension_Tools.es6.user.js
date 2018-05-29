@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '8fcacc7';
+const commit = '3748da2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -130,7 +130,7 @@ const defaultCfg = {
 	passwValue   : '',   // user password value
 	userName     : 0,    // user name
 	nameValue    : '',   //    value
-	noBoardRule  : 1,    // hide board rules
+	noBoardRule  : 0,    // hide board rules
 	noPassword   : 1,    // hide form "Password" field
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field
