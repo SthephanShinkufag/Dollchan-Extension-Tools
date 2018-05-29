@@ -15965,7 +15965,7 @@ true, true];
 					case 'click':
 						{
 							var el = e.target;
-							if (this.data.isVideo && ExpandableImage.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && el.className !== 'de-fullimg-load') {
+							if (this.data.isVideo && ExpandableImage.isControlClick(e) || el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && !el.classList.contains('de-fullimg-wrap') && !el.classList.contains('de-fullimg-wrap-link') && el.className !== 'de-fullimg-load') {
 								return;
 							}
 							if (e.button === 0) {

@@ -146,6 +146,7 @@ class ImagesViewer {
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
+				!el.classList.contains('de-fullimg-wrap-link') &&
 				el.className !== 'de-fullimg-load'
 			) {
 				return;

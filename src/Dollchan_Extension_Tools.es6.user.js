@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = 'ca7f178';
+const commit = 'c1a9a2c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11469,6 +11469,7 @@ class ImagesViewer {
 				el.tagName !== 'IMG' &&
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
+				!el.classList.contains('de-fullimg-wrap-link') &&
 				el.className !== 'de-fullimg-load'
 			) {
 				return;
