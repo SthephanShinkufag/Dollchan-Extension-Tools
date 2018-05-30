@@ -51,8 +51,9 @@ async function runMain(checkDomains, dataPromise) {
 		aib.parseURL();
 	}
 	if(aib.t || !Cfg.scrollToTop) {
-		doc.defaultView.addEventListener('beforeunload',
-			() => (sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset));
+		doc.defaultView.addEventListener('beforeunload', () => {
+			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+		});
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {

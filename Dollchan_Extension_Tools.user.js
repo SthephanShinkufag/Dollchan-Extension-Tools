@@ -3715,7 +3715,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							if (aib.t || !Cfg.scrollToTop) {
 								doc.defaultView.addEventListener('beforeunload', function () {
-									return sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+									sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
 								});
 							}
 							Logger.log('Init');
@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = '4eb28c8';
+	var commit = 'be301ab';
 
 
 	var defaultCfg = {

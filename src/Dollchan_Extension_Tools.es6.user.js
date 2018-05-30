@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '4eb28c8';
+const commit = 'be301ab';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17422,8 +17422,9 @@ async function runMain(checkDomains, dataPromise) {
 		aib.parseURL();
 	}
 	if(aib.t || !Cfg.scrollToTop) {
-		doc.defaultView.addEventListener('beforeunload',
-			() => (sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset));
+		doc.defaultView.addEventListener('beforeunload', () => {
+			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+		});
 	}
 	Logger.log('Init');
 	if(Cfg.correctTime) {
