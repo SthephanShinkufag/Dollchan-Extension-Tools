@@ -3477,7 +3477,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							hasFiles = true;
 							fileName = value.name;
-							newFileName = Cfg.removeFName ? ' ' + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+							newFileName = Cfg.removeFName ? Date.now() + fileName.substring(fileName.lastIndexOf('.')) : fileName;
 							mime = value.type;
 
 							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.mak))) {
@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.4.28.0';
-	var commit = 'be301ab';
+	var commit = '735e442';
 
 
 	var defaultCfg = {
@@ -14410,7 +14410,7 @@ true, true];
 			key: '_getMenuImgSrc',
 			value: function _getMenuImgSrc(el) {
 				var link = el.nextSibling;
-				var p = encodeURIComponent(link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
+				var p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				return '<a class="de-menu-item ' + ['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB', 'de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' + p : p) + 'WhatAnime'].join('</a><a class="de-menu-item ') + '</a>';
 			}
 		}]);
@@ -16939,8 +16939,8 @@ true, true];
 		}()
 	});
 
-	function addImgSrcButtons(link) {
-		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+	function addImgSrcButtons(link, src) {
+		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-src"' + (src ? ' de-href="' + src + '"' : '') + '><use xlink:href="#de-symbol-post-src"/></svg>');
 	}
 
 	function processImgInfoLinks(parent) {
@@ -16973,7 +16973,7 @@ true, true];
 					return;
 				}
 				if (addSrc) {
-					addImgSrcButtons(link);
+					addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 				}
 				if (imgNames) {
 					var name = image.name;
