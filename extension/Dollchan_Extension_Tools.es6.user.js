@@ -10172,8 +10172,8 @@ class AbstractPost {
 
 	static _getMenuImgSrc(el) {
 		const link = el.nextSibling;
-		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
-			'" target="_blank">' + Lng.searchIn[lang];
+		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
+			link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		return `<a class="de-menu-item ${ [
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
@@ -12227,9 +12227,9 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgSrcButtons(link) {
-	link.insertAdjacentHTML('beforebegin',
-		'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+function addImgSrcButtons(link, src) {
+	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-src"${
+		src ? ` de-href="${ src }"` : '' }><use xlink:href="#de-symbol-post-src"/></svg>`);
 }
 
 // Adding features for info links of images
@@ -12253,7 +12253,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgSrcButtons(link);
+			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 		}
 		if(imgNames) {
 			let { name } = image;
@@ -15672,7 +15672,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return `small[id^="rfmap_"] { display: none; }`;
+			return 'small[id^="rfmap_"] { display: none; }';
 		}
 		init() {
 			const el = $id('submit_button');

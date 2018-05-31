@@ -819,7 +819,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return `small[id^="rfmap_"] { display: none; }`;
+			return 'small[id^="rfmap_"] { display: none; }';
 		}
 		init() {
 			const el = $id('submit_button');

@@ -293,8 +293,8 @@ class AbstractPost {
 
 	static _getMenuImgSrc(el) {
 		const link = el.nextSibling;
-		const p = encodeURIComponent(link.getAttribute('de-href') || link.href) +
-			'" target="_blank">' + Lng.searchIn[lang];
+		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
+			link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		return `<a class="de-menu-item ${ [
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,

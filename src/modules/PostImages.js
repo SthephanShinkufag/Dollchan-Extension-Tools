@@ -904,9 +904,9 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgSrcButtons(link) {
-	link.insertAdjacentHTML('beforebegin',
-		'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"/></svg>');
+function addImgSrcButtons(link, src) {
+	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-src"${
+		src ? ` de-href="${ src }"` : '' }><use xlink:href="#de-symbol-post-src"/></svg>`);
 }
 
 // Adding features for info links of images
@@ -930,7 +930,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgSrcButtons(link);
+			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 		}
 		if(imgNames) {
 			let { name } = image;
