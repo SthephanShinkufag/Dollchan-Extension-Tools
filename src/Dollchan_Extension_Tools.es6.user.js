@@ -20,6 +20,7 @@
 // @grant           unsafeWindow
 // @include         *
 // @nocompat        Chrome
+// @exclude http://arhivach.cf/favs/
 // ==/UserScript==
 
 /* eslint indent: ["error", "tab", {
