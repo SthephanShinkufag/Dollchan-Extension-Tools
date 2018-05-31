@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '735e442';
+const commit = '98e5bf2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10428,9 +10428,8 @@ class Post extends AbstractPost {
 	}
 	deleteCounter() {
 		this.isDeleted = true;
-		$del(this.counterEl);
-		this.counterEl = null;
-		this.btns.classList.add('de-post-deleted');
+		this.counterEl.textContent = Lng.deleted[lang];
+		this.counterEl.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');
 	}
@@ -17106,9 +17105,8 @@ function scriptCSS() {
 	${ cont('.de-src-whatanime', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAMAAADarb8dAAAAWlBMVEX////29fbT1NOOj44dGx0SEhIHCAfX2NfQ0NDBwcGztLOwsbA7Ozs4ODgeHh7/2Nf/1dTMsbGpkZGWZWRyRUQ8NTYoIyMZAAAAAAAGBASBaGeBZ2Z2XVtmTUw2fryxAAAAGHRSTlP+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v4W3wyUAAAAZElEQVQI152OSQ6AMBRCadU6zxN1uP81/Y2NSY0r2fBgA+BL/wrbWEcewEqrrHa5zpSuCJMC0IY0WiA1iJW4ikkPYCFeUlQKFASTKI8SyTc8s8sc/rBDvwbF1LVjUJzbftjv6xfbkBHGT8GSnQAAAABJRU5ErkJggg==') }
 
 	/* Posts counter */
-	.de-post-counter, .de-post-deleted::after { margin: 0 4px 0 2px; vertical-align: 1px;  font: bold 11px tahoma; cursor: default; }
-	.de-post-counter { color: #4f7942; }
-	.de-post-deleted::after { content: "${ Lng.deleted[lang] }"; color: #727579; }
+	.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }
+	.de-post-deleted { color: #727579; }
 
 	/* Text markup buttons */
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
@@ -17317,8 +17315,7 @@ function updateCSS() {
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost .de-post-counter::after { content: " (You)"; }
-		.de-mypost .de-post-deleted::after { content: "${ Lng.deleted[lang] } (You)"; }` : '' }
+		.de-mypost .de-post-counter::after { content: " (You)"; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }

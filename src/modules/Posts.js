@@ -549,9 +549,8 @@ class Post extends AbstractPost {
 	}
 	deleteCounter() {
 		this.isDeleted = true;
-		$del(this.counterEl);
-		this.counterEl = null;
-		this.btns.classList.add('de-post-deleted');
+		this.counterEl.textContent = Lng.deleted[lang];
+		this.counterEl.classList.add('de-post-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');
 	}
