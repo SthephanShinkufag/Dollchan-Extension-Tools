@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.4.28.0';
-const commit = '98e5bf2';
+const commit = '57c95b3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -111,7 +111,7 @@ const defaultCfg = {
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
 	removeEXIF   : 1,    //    remove EXIF from JPEG
-	removeFName  : 0,    //    clear file names
+	removeFName  : 0,    //    clear file names [0=off, 1=empty, 2=unixtime]
 	sendErrNotif : 1,    //    inform in title about post send error
 	scrAfterRep  : 0,    //    scroll to bottom after reply
 	fileInputs   : 2,    //    enhanced file attachment field  [0=off, 1=simple, 2=preview]
@@ -526,10 +526,16 @@ const Lng = {
 			'Удалять EXIF из JPEG ',
 			'Remove EXIF from JPEG ',
 			'Видаляти EXIF з JPEG '],
-		removeFName: [
-			'Очищать имена файлов',
-			'Clear file names',
-			'Видаляти імена файлів'],
+		removeFName: {
+			sel: [
+				['Не изменять', 'Удалять', 'Unixtime'],
+				['Don`t change', 'Clear', 'Unixtime'],
+				['Не змінювати', 'Видаляти', 'Unixtime']],
+			txt: [
+				'имена файлов',
+				'file names',
+				'імена файлів']
+		},
 		sendErrNotif: [
 			'Оповещать в заголовке об ошибке отправки',
 			'Inform in title about post send error',
@@ -4840,8 +4846,8 @@ const CfgWindow = {
 			${ this._getBox('ajaxPosting') }<br>
 			${ pr.form ? `<div class="de-cfg-depend">
 				${ this._getBox('postSameImg') }<br>
-				${ this._getBox('removeEXIF') }
-				${ this._getBox('removeFName') }<br>
+				${ this._getBox('removeEXIF') }<br>
+				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
 				${ pr.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
@@ -4978,7 +4984,7 @@ const CfgWindow = {
 		]);
 		fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		fn(Cfg.ajaxPosting, [
-			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
+			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'select[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
 		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
@@ -9014,8 +9020,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName = Cfg.removeFName ?
-				Date.now() + fileName.substring(fileName.lastIndexOf('.')) : fileName;
+			const newFileName = !Cfg.removeFName ? fileName :
+				(Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||

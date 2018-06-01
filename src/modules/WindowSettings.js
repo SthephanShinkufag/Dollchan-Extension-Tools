@@ -718,8 +718,8 @@ const CfgWindow = {
 			${ this._getBox('ajaxPosting') }<br>
 			${ pr.form ? `<div class="de-cfg-depend">
 				${ this._getBox('postSameImg') }<br>
-				${ this._getBox('removeEXIF') }
-				${ this._getBox('removeFName') }<br>
+				${ this._getBox('removeEXIF') }<br>
+				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
 				${ pr.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
@@ -856,7 +856,7 @@ const CfgWindow = {
 		]);
 		fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 		fn(Cfg.ajaxPosting, [
-			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]',
+			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'select[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
 		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);

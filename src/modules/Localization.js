@@ -355,10 +355,16 @@ const Lng = {
 			'Удалять EXIF из JPEG ',
 			'Remove EXIF from JPEG ',
 			'Видаляти EXIF з JPEG '],
-		removeFName: [
-			'Очищать имена файлов',
-			'Clear file names',
-			'Видаляти імена файлів'],
+		removeFName: {
+			sel: [
+				['Не изменять', 'Удалять', 'Unixtime'],
+				['Don`t change', 'Clear', 'Unixtime'],
+				['Не змінювати', 'Видаляти', 'Unixtime']],
+			txt: [
+				'имена файлов',
+				'file names',
+				'імена файлів']
+		},
 		sendErrNotif: [
 			'Оповещать в заголовке об ошибке отправки',
 			'Inform in title about post send error',
