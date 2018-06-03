@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '12a8489';
+const commit = '3012eff';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14925,6 +14925,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.de-btn-src + a { display: inline-block; }
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
@@ -15532,6 +15533,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qPages = 'table[border="1"] td > a:last-of-type';
+			this.qPostImg = 'img.thumb';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
