@@ -312,7 +312,8 @@ function showFavoritesWindow(body, favObj) {
 				if(myposts && myposts[b]) {
 					f.you = 0;
 					for(let j = 0; j < cnt; ++j) {
-						const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
+							posts[posts.length - 1 - j]);
 						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
 							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {

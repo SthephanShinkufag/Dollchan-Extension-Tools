@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '6ac6dd1';
+	var commit = '54f8b97';
 
 
 	var defaultCfg = {
@@ -7052,7 +7052,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								if (myposts && myposts[_b]) {
 									_f.you = 0;
 									for (j = 0; j < cnt; ++j) {
-										links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+										links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', posts[posts.length - 1 - j]);
 
 										for (a = 0, _len = links.length; a < _len; ++a) {
 											tc = links[a].textContent;
