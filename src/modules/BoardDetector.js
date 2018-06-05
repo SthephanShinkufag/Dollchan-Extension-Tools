@@ -125,8 +125,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				const nameEl = $q(this.qPostName, post);
-				return !!nameEl && nameEl.hasChildNodes() && !$q('.ophui, .post__ophui', post);
+				return !$q('span[id^="id_tag_"], .ophui, .post__ophui', post);
 			};
 			return this.getSage(post);
 		}
