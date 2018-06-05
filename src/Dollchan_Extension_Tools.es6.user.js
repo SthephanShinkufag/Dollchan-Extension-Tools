@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '9ec895c';
+const commit = '34bc49f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16291,9 +16291,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }
-				${ Cfg.widePosts ? `.doubledash { display: none; }
-					.thread_reply { float: none; }` : '' }`;
+				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input name="file" type="file"></div>';
@@ -16313,6 +16311,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
+	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {

@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '9ec895c';
+	var commit = '34bc49f';
 
 
 	var defaultCfg = {
@@ -22168,7 +22168,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }\n\t\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t\t#de-win-reply { float:left; margin-left:2em }\n\t\t\t\t' + (Cfg.widePosts ? '.doubledash { display: none; }\n\t\t\t\t\t.thread_reply { float: none; }' : '');
+					return '.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }\n\t\t\t\t.de-pview > .post { margin-left: 0; border: none; }\n\t\t\t\t#de-win-reply { float:left; margin-left:2em }';
 				}
 			}]);
 
@@ -22176,6 +22176,7 @@ true, true];
 		}(BaseBoard);
 
 		ibDomains['ernstchan.com'] = Ernstchan;
+		ibDomains['ernstchan.xyz'] = Ernstchan;
 
 		var Iichan = function (_BaseBoard14) {
 			_inherits(Iichan, _BaseBoard14);
