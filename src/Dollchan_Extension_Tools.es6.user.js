@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '3012eff';
+const commit = '6ac6dd1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14362,7 +14362,8 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = (typeof chrome === 'object') && !!chrome && !!chrome.storage;
+	const isChromeStorage = ('chrome' in window) &&
+		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let scriptHandler, isGM = false;
@@ -14931,7 +14932,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.pager { display: inline-block !important; }
 				.post.reply .post-message { max-height: initial !important; }
-				.reply { max-width: unset; }
+				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }

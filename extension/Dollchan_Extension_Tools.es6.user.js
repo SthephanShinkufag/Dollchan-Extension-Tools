@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '12a8489';
+const commit = '6ac6dd1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14362,7 +14362,8 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = (typeof chrome === 'object') && !!chrome && !!chrome.storage;
+	const isChromeStorage = ('chrome' in window) &&
+		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let scriptHandler, isGM = false;
@@ -14925,6 +14926,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.de-btn-src + a { display: inline-block; }
 				.de-win-inpost { position: static !important; }
 				.mess-post { display: block; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
@@ -15532,6 +15534,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qPages = 'table[border="1"] td > a:last-of-type';
+			this.qPostImg = 'img.thumb';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;

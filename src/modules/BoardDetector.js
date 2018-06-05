@@ -73,7 +73,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.pager { display: inline-block !important; }
 				.post.reply .post-message { max-height: initial !important; }
-				.reply { max-width: unset; }
+				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
