@@ -92,10 +92,10 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
-		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
+		embedPostMsgImages(newForm.el);
 		if(HotKeys.enabled) {
 			HotKeys.clearCPost();
 		}

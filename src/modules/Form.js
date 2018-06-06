@@ -72,14 +72,12 @@ class PostForm {
 		if(Cfg.noSubj && this.subj) {
 			PostForm.hideField(this.subj);
 		}
-		window.addEventListener('load', () => {
-			if(Cfg.userName && this.name) {
-				setTimeout(PostForm.setUserName, 1e3);
-			}
-			if(this.passw) {
-				setTimeout(PostForm.setUserPassw, 1e3);
-			}
-		});
+		if(Cfg.userName && this.name) {
+			setTimeout(PostForm.setUserName, 0);
+		}
+		if(this.passw) {
+			setTimeout(PostForm.setUserPassw, 0);
+		}
 	}
 	static hideField(el) {
 		const next = el.nextElementSibling;

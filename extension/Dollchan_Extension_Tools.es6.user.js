@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '6ac6dd1';
+const commit = '3a450ec';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3982,7 +3982,8 @@ function showFavoritesWindow(body, favObj) {
 				if(myposts && myposts[b]) {
 					f.you = 0;
 					for(let j = 0; j < cnt; ++j) {
-						const links = $Q(aib.qPostMsg + ' a', posts[posts.length - 1 - j]);
+						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
+							posts[posts.length - 1 - j]);
 						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
 							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
@@ -6909,10 +6910,10 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
-		embedPostMsgImages(newForm.el);
 		if(pr.passw) {
 			PostForm.setUserPassw();
 		}
+		embedPostMsgImages(newForm.el);
 		if(HotKeys.enabled) {
 			HotKeys.clearCPost();
 		}
@@ -8310,14 +8311,12 @@ class PostForm {
 		if(Cfg.noSubj && this.subj) {
 			PostForm.hideField(this.subj);
 		}
-		window.addEventListener('load', () => {
-			if(Cfg.userName && this.name) {
-				setTimeout(PostForm.setUserName, 1e3);
-			}
-			if(this.passw) {
-				setTimeout(PostForm.setUserPassw, 1e3);
-			}
-		});
+		if(Cfg.userName && this.name) {
+			setTimeout(PostForm.setUserName, 0);
+		}
+		if(this.passw) {
+			setTimeout(PostForm.setUserPassw, 0);
+		}
 	}
 	static hideField(el) {
 		const next = el.nextElementSibling;
@@ -14932,7 +14931,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.pager { display: inline-block !important; }
 				.post.reply .post-message { max-height: initial !important; }
-				.reply { max-width: unset; }
+				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
@@ -14984,8 +14983,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				const nameEl = $q(this.qPostName, post);
-				return !!nameEl && nameEl.hasChildNodes() && !$q('.ophui, .post__ophui', post);
+				return !$q('span[id^="id_tag_"], .ophui, .post__ophui', post);
 			};
 			return this.getSage(post);
 		}
@@ -15188,6 +15186,17 @@ function getImageBoard(checkDomains, checkEngines) {
 				closePopup('load-form');
 			}, errFn);
 		}
+		fixHTML(data, isForm) {
+			const formEl = super.fixHTML(data, isForm);
+			$each($Q('br.clear', formEl), brEl => {
+				const hr = brEl.nextElementSibling;
+				if(hr && hr.tagName === 'HR') {
+					$after(brEl.parentNode, hr);
+				}
+				$del(brEl);
+			});
+			return formEl;
+		}
 		fixVideo(isPost, data) {
 			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
 				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
@@ -15212,18 +15221,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0');
-			const form = $q('form[name="post"]');
-			if(form) {
-				form.insertAdjacentHTML('beforeend',
+			const formEl = $q('form[name="post"]');
+			if(formEl) {
+				formEl.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
-			$each($Q('br.clear'), el => {
-				const hr = el.nextElementSibling;
-				if(hr && hr.tagName === 'HR') {
-					$after(el.parentNode, hr);
-				}
-				$del(el);
-			});
 			return false;
 		}
 		isAjaxStatusOK(status) {
@@ -15984,14 +15986,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			return true;
 		}
 		fixHTML(data, isForm) {
-			const el = super.fixHTML(data, isForm);
-			const links = $Q('.expand_image', el);
+			const formEl = super.fixHTML(data, isForm);
+			const links = $Q('.expand_image', formEl);
 			for(let i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
 				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
 				link.removeAttribute('onclick');
 			}
-			return el;
+			return formEl;
 		}
 		getImgInfo(wrap) {
 			return wrap.title;
@@ -16261,6 +16263,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['endchan.net'] = EndChan;
 	ibDomains['endchan.xyz'] = EndChan;
 
 	class Ernstchan extends BaseBoard {
@@ -16291,9 +16294,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
 				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }
-				${ Cfg.widePosts ? `.doubledash { display: none; }
-					.thread_reply { float: none; }` : '' }`;
+				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input name="file" type="file"></div>';
@@ -16313,6 +16314,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ernstchan.com'] = Ernstchan;
+	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16527,12 +16529,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		fixHTML(data, isForm) {
-			const form = super.fixHTML(data, isForm);
-			const els = $Q('.btn-group', form);
+			const formEl = super.fixHTML(data, isForm);
+			const els = $Q('.btn-group', formEl);
 			for(let i = 0, len = els.length; i < len; ++i) {
 				$replace(els[i], $q('a', els[i]));
 			}
-			return form;
+			return formEl;
 		}
 	}
 	ibDomains['syn-ch.ru'] = Synch;

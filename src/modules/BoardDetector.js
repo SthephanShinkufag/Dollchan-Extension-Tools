@@ -328,6 +328,17 @@ function getImageBoard(checkDomains, checkEngines) {
 				closePopup('load-form');
 			}, errFn);
 		}
+		fixHTML(data, isForm) {
+			const formEl = super.fixHTML(data, isForm);
+			$each($Q('br.clear', formEl), brEl => {
+				const hr = brEl.nextElementSibling;
+				if(hr && hr.tagName === 'HR') {
+					$after(brEl.parentNode, hr);
+				}
+				$del(brEl);
+			});
+			return formEl;
+		}
 		fixVideo(isPost, data) {
 			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
 				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
@@ -352,18 +363,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0');
-			const form = $q('form[name="post"]');
-			if(form) {
-				form.insertAdjacentHTML('beforeend',
+			const formEl = $q('form[name="post"]');
+			if(formEl) {
+				formEl.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 			}
-			$each($Q('br.clear'), el => {
-				const hr = el.nextElementSibling;
-				if(hr && hr.tagName === 'HR') {
-					$after(el.parentNode, hr);
-				}
-				$del(el);
-			});
 			return false;
 		}
 		isAjaxStatusOK(status) {
@@ -1124,14 +1128,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			return true;
 		}
 		fixHTML(data, isForm) {
-			const el = super.fixHTML(data, isForm);
-			const links = $Q('.expand_image', el);
+			const formEl = super.fixHTML(data, isForm);
+			const links = $Q('.expand_image', formEl);
 			for(let i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
 				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
 				link.removeAttribute('onclick');
 			}
-			return el;
+			return formEl;
 		}
 		getImgInfo(wrap) {
 			return wrap.title;
@@ -1401,6 +1405,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['endchan.net'] = EndChan;
 	ibDomains['endchan.xyz'] = EndChan;
 
 	class Ernstchan extends BaseBoard {
@@ -1666,12 +1671,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		fixHTML(data, isForm) {
-			const form = super.fixHTML(data, isForm);
-			const els = $Q('.btn-group', form);
+			const formEl = super.fixHTML(data, isForm);
+			const els = $Q('.btn-group', formEl);
 			for(let i = 0, len = els.length; i < len; ++i) {
 				$replace(els[i], $q('a', els[i]));
 			}
-			return form;
+			return formEl;
 		}
 	}
 	ibDomains['syn-ch.ru'] = Synch;

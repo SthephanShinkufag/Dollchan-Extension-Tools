@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '34bc49f';
+	var commit = '3a450ec';
 
 
 	var defaultCfg = {
@@ -10313,10 +10313,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								_context12.t2 = _context12.sent;
 								(0, _context12.t0)(_context12.t1, _context12.t2);
 
-								embedPostMsgImages(newForm.el);
 								if (pr.passw) {
 									PostForm.setUserPassw();
 								}
+								embedPostMsgImages(newForm.el);
 								if (HotKeys.enabled) {
 									HotKeys.clearCPost();
 								}
@@ -12165,8 +12165,6 @@ true, true];
 
 	var PostForm = function () {
 		function PostForm(form) {
-			var _this25 = this;
-
 			var oeForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 			var ignoreForm = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
@@ -12243,14 +12241,12 @@ true, true];
 			if (Cfg.noSubj && this.subj) {
 				PostForm.hideField(this.subj);
 			}
-			window.addEventListener('load', function () {
-				if (Cfg.userName && _this25.name) {
-					setTimeout(PostForm.setUserName, 1e3);
-				}
-				if (_this25.passw) {
-					setTimeout(PostForm.setUserPassw, 1e3);
-				}
-			});
+			if (Cfg.userName && this.name) {
+				setTimeout(PostForm.setUserName, 0);
+			}
+			if (this.passw) {
+				setTimeout(PostForm.setUserPassw, 0);
+			}
 		}
 
 		_createClass(PostForm, [{
@@ -12473,7 +12469,7 @@ true, true];
 		}, {
 			key: '_initAjaxPosting',
 			value: function _initAjaxPosting() {
-				var _this26 = this;
+				var _this25 = this;
 
 				var el = void 0;
 				if (aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
@@ -12482,7 +12478,7 @@ true, true];
 				this.form.onsubmit = function (e) {
 					$pd(e);
 					$popup('upload', Lng.sending[lang], true);
-					html5Submit(_this26.form, _this26.subm, true).then(checkUpload).catch(function (err) {
+					html5Submit(_this25.form, _this25.subm, true).then(checkUpload).catch(function (err) {
 						return $popup('upload', getErrorMessage(err));
 					});
 				};
@@ -12490,7 +12486,7 @@ true, true];
 		}, {
 			key: '_initCaptcha',
 			value: function _initCaptcha() {
-				var _this27 = this;
+				var _this26 = this;
 
 				var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
 				if (!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
@@ -12499,21 +12495,21 @@ true, true];
 				}
 				this.cap = new Captcha(capEl, this.tNum);
 				var updCapFn = function updCapFn() {
-					_this27.cap.addCaptcha();
-					_this27.cap.updateOutdated();
+					_this26.cap.addCaptcha();
+					_this26.cap.updateOutdated();
 				};
 				this.txta.addEventListener('focus', updCapFn);
 				if (this.files) {
 					this.files.onchange = updCapFn;
 				}
 				this.form.addEventListener('click', function () {
-					return _this27.cap.addCaptcha();
+					return _this26.cap.addCaptcha();
 				}, true);
 			}
 		}, {
 			key: '_initFileInputs',
 			value: function _initFileInputs() {
-				var _this28 = this;
+				var _this27 = this;
 
 				var fileEl = $q(aib.qFormFile, this.form);
 				if (!fileEl) {
@@ -12525,42 +12521,42 @@ true, true];
 				this.files = new Files(this, $q(aib.qFormFile, this.form));
 				window.addEventListener('load', function () {
 					return setTimeout(function () {
-						return !_this28.files.filesCount && _this28.files.clearInputs();
+						return !_this27.files.filesCount && _this27.files.clearInputs();
 					}, 0);
 				});
 			}
 		}, {
 			key: '_initSubmit',
 			value: function _initSubmit() {
-				var _this29 = this;
+				var _this28 = this;
 
 				this.subm.addEventListener('click', function (e) {
-					if (Cfg.warnSubjTrip && _this29.subj && /#.|##./.test(_this29.subj.value)) {
+					if (Cfg.warnSubjTrip && _this28.subj && /#.|##./.test(_this28.subj.value)) {
 						$pd(e);
 						$popup('upload', Lng.subjHasTrip[lang]);
 						return;
 					}
-					var val = _this29.txta.value;
+					var val = _this28.txta.value;
 					if (Spells.outreps) {
 						val = Spells.outReplace(val);
 					}
-					if (_this29.tNum && pByNum.get(_this29.tNum).subj === 'Dollchan Extension Tools') {
+					if (_this28.tNum && pByNum.get(_this28.tNum).subj === 'Dollchan Extension Tools') {
 						var temp = '\n\n' + PostForm._wrapText(aib.markupTags[5], '-'.repeat(50) + '\n' + nav.ua + '\nv' + version + '.' + commit + (nav.isESNext ? '.es6' : '') + ' [' + nav.scriptHandler + ']')[1];
 						if (!val.includes(temp)) {
 							val += temp;
 						}
 					}
-					_this29.txta.value = val;
+					_this28.txta.value = val;
 					if (Cfg.ajaxPosting) {
 						$popup('upload', Lng.checking[lang], true);
 					}
-					if (_this29.video && (val = _this29.video.value) && (val = val.match(Videos.ytReg))) {
-						_this29.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+					if (_this28.video && (val = _this28.video.value) && (val = val.match(Videos.ytReg))) {
+						_this28.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 					}
-					if (_this29.isQuick) {
-						$hide(_this29.pForm);
-						$hide(_this29.qArea);
-						$after(_this29._pBtn[+_this29.isBottom], _this29.pForm);
+					if (_this28.isQuick) {
+						$hide(_this28.pForm);
+						$hide(_this28.qArea);
+						$after(_this28._pBtn[+_this28.isBottom], _this28.pForm);
 					}
 					updater.pauseUpdater();
 				});
@@ -12568,7 +12564,7 @@ true, true];
 		}, {
 			key: '_initTextarea',
 			value: function _initTextarea() {
-				var _this30 = this;
+				var _this29 = this;
 
 				var el = this.txta;
 				if (aib.dobr) {
@@ -12594,7 +12590,7 @@ true, true];
 								var item = _step21.value;
 
 								if (item.kind === 'file') {
-									var inputs = _this30.files._inputs;
+									var inputs = _this29.files._inputs;
 									for (var i = 0, len = inputs.length; i < len; ++i) {
 										var input = inputs[i];
 										if (!input.hasFile) {
@@ -12662,7 +12658,7 @@ true, true];
 		}, {
 			key: '_makeHideableContainer',
 			value: function _makeHideableContainer() {
-				var _this31 = this;
+				var _this30 = this;
 
 				this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
 				if (this.form) {
@@ -12675,10 +12671,10 @@ true, true];
 				this.pArea = [$bBegin(DelForm.first.el, html), $aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)];
 				this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 				this._pBtn[0].firstElementChild.onclick = function (e) {
-					return _this31.showMainReply(false, e);
+					return _this30.showMainReply(false, e);
 				};
 				this._pBtn[1].firstElementChild.onclick = function (e) {
-					return _this31.showMainReply(true, e);
+					return _this30.showMainReply(true, e);
 				};
 				this.qArea = $add('<div style="display: none; ' + Cfg.replyWinX + '; ' + Cfg.replyWinY + '; z-index: ' + ++topWinZ + ';" id="de-win-reply" class="' + (aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost')) + '"></div>');
 				this.isBottom = Cfg.addPostForm === 1;
@@ -12687,23 +12683,23 @@ true, true];
 		}, {
 			key: '_makeSageBtn',
 			value: function _makeSageBtn() {
-				var _this32 = this;
+				var _this31 = this;
 
 				PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 				$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg>').onclick = function (e) {
 					e.stopPropagation();
 					$pd(e);
 					toggleCfg('sageReply');
-					_this32._setSage();
+					_this31._setSage();
 				};
 				setTimeout(function () {
-					return _this32._setSage();
+					return _this31._setSage();
 				}, 0);
 			}
 		}, {
 			key: '_makeWindow',
 			value: function _makeWindow() {
-				var _this33 = this;
+				var _this32 = this;
 
 				makeDraggable('reply', this.qArea, $aBegin(this.qArea, '<div class="de-win-head">\n\t\t\t<span class="de-win-title"></span>\n\t\t\t<span class="de-win-buttons">\n\t\t\t\t<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>\n\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class="de-resizer de-resizer-top"></div>\n\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t<div class="de-resizer de-resizer-right"></div>\n\t\t<div class="de-resizer de-resizer-bottom"></div>'));
 				var buttons = $q('.de-win-buttons', this.qArea);
@@ -12728,24 +12724,24 @@ true, true];
 
 				clearBtn.onclick = function () {
 					saveCfg('sageReply', 0);
-					_this33._setSage();
-					_this33.files.clearInputs();
-					[_this33.txta, _this33.name, _this33.mail, _this33.subj, _this33.video, _this33.cap && _this33.cap.textEl].forEach(function (el) {
+					_this32._setSage();
+					_this32.files.clearInputs();
+					[_this32.txta, _this32.name, _this32.mail, _this32.subj, _this32.video, _this32.cap && _this32.cap.textEl].forEach(function (el) {
 						return el && (el.value = '');
 					});
 				};
 				toggleBtn.onclick = function () {
 					toggleCfg('replyWinDrag');
 					if (Cfg.replyWinDrag) {
-						_this33.qArea.className = aib.cReply + ' de-win';
-						updateWinZ(_this33.qArea.style);
+						_this32.qArea.className = aib.cReply + ' de-win';
+						updateWinZ(_this32.qArea.style);
 					} else {
-						_this33.qArea.className = aib.cReply + ' de-win-inpost';
-						_this33.txta.focus();
+						_this32.qArea.className = aib.cReply + ' de-win-inpost';
+						_this32.txta.focus();
 					}
 				};
 				closeBtn.onclick = function () {
-					return _this33.closeReply();
+					return _this32.closeReply();
 				};
 			}
 		}, {
@@ -13398,7 +13394,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this34 = this;
+				var _this33 = this;
 
 				var el = e.target;
 				var thumb = this._thumb;
@@ -13416,15 +13412,15 @@ true, true];
 									for (var i = 0; i < allowedLen; ++i) {
 										FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
 											if (! --j) {
-												_this34._removeFileHelper();
+												_this33._removeFileHelper();
 											}
 										});
-										_this34._parent._files[curInpIdx + i] = el.files[i];
+										_this33._parent._files[curInpIdx + i] = el.files[i];
 									}
 								})();
 							} else {
 								setTimeout(function () {
-									return _this34._onFileChange(false);
+									return _this33._onFileChange(false);
 								}, 20);
 								if (filesLen > 0) {
 									this._parent._files[curInpIdx] = el.files[0];
@@ -13537,22 +13533,22 @@ true, true];
 		}, {
 			key: '_addRarJpeg',
 			value: function _addRarJpeg() {
-				var _this35 = this;
+				var _this34 = this;
 
 				var el = this._parent.rarInput;
 				el.onchange = function (e) {
-					$hide(_this35._btnRarJpg);
-					var myBtn = _this35._rarMsg = $aBegin(_this35._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+					$hide(_this34._btnRarJpg);
+					var myBtn = _this34._rarMsg = $aBegin(_this34._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
 					readFile(file).then(function (_ref47) {
 						var data = _ref47.data;
 
-						if (_this35._rarMsg === myBtn) {
+						if (_this34._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
-							var origFileName = _this35.imgFile ? _this35.imgFile[1] : _this35._input.files[0].name;
+							var origFileName = _this34.imgFile ? _this34.imgFile[1] : _this34._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
 							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
-							_this35.extraFile = data;
+							_this34.extraFile = data;
 						}
 					});
 				};
@@ -13561,7 +13557,7 @@ true, true];
 		}, {
 			key: '_addUrlFile',
 			value: function _addUrlFile(url) {
-				var _this36 = this;
+				var _this35 = this;
 
 				var file = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -13578,7 +13574,7 @@ true, true];
 						return;
 					}
 					closePopup('file-loading');
-					_this36._isTxtEditable = false;
+					_this35._isTxtEditable = false;
 					var name = file ? file.name : url.split('/').pop();
 					var type = file && file.type || getFileType(name);
 					if (!type || name.includes('?')) {
@@ -13599,17 +13595,17 @@ true, true];
 							name = name.split('?').shift() + '.' + ext;
 						}
 					}
-					_this36.imgFile = [data.buffer, name, type || getFileType(name)];
+					_this35.imgFile = [data.buffer, name, type || getFileType(name)];
 					if (!file) {
-						file = new Blob([data], { type: _this36.imgFile[2] });
+						file = new Blob([data], { type: _this35.imgFile[2] });
 						file.name = name;
 					}
-					_this36._parent._files[_this36._parent._inputs.indexOf(_this36)] = file;
-					DollchanAPI.notify('filechange', _this36._parent._files);
+					_this35._parent._files[_this35._parent._inputs.indexOf(_this35)] = file;
+					DollchanAPI.notify('filechange', _this35._parent._files);
 					if (FileInput._isThumb) {
-						$hide(_this36._txtWrap);
+						$hide(_this35._txtWrap);
 					}
-					_this36._onFileChange(true);
+					_this35._onFileChange(true);
 				});
 			}
 		}, {
@@ -13702,7 +13698,7 @@ true, true];
 		}, {
 			key: '_showFileThumb',
 			value: function _showFileThumb() {
-				var _this37 = this;
+				var _this36 = this;
 
 				var imgFile = this.imgFile;
 
@@ -13715,8 +13711,8 @@ true, true];
 					readFile(file).then(function (_ref48) {
 						var data = _ref48.data;
 
-						if (_this37._input.files[0] === file) {
-							_this37._addNewThumb(data, file.name, file.type, file.size);
+						if (_this36._input.files[0] === file) {
+							_this36._addNewThumb(data, file.name, file.type, file.size);
 						}
 					});
 				}
@@ -13828,17 +13824,17 @@ true, true];
 		}, {
 			key: 'initCapPromise',
 			value: function initCapPromise() {
-				var _this38 = this;
+				var _this37 = this;
 
 				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
-						return _this38.showCaptcha();
+						return _this37.showCaptcha();
 					}, function (err) {
 						if (err instanceof AjaxError) {
-							_this38._setUpdateError(err);
+							_this37._setUpdateError(err);
 						} else {
-							_this38.hasCaptcha = false;
+							_this37.hasCaptcha = false;
 						}
 					});
 				} else if (this.hasCaptcha) {
@@ -13848,13 +13844,13 @@ true, true];
 		}, {
 			key: 'initImage',
 			value: function initImage(img) {
-				var _this39 = this;
+				var _this38 = this;
 
 				img.title = Lng.refresh[lang];
 				img.alt = Lng.loading[lang];
 				img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 				img.onclick = function () {
-					return _this39.refreshCaptcha(true);
+					return _this38.refreshCaptcha(true);
 				};
 			}
 		}, {
@@ -13904,7 +13900,7 @@ true, true];
 		}, {
 			key: 'refreshCaptcha',
 			value: function refreshCaptcha(isFocus) {
-				var _this40 = this;
+				var _this39 = this;
 
 				var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -13925,9 +13921,9 @@ true, true];
 					var updatePromise = aib.updateCaptcha(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
-							return _this40._updateTextEl(isFocus);
+							return _this39._updateTextEl(isFocus);
 						}, function (err) {
-							return _this40._setUpdateError(err);
+							return _this39._setUpdateError(err);
 						});
 					}
 				} else if (this._isRecap) {
@@ -13975,14 +13971,14 @@ true, true];
 		}, {
 			key: '_setUpdateError',
 			value: function _setUpdateError(e) {
-				var _this41 = this;
+				var _this40 = this;
 
 				if (e) {
 					this.parentEl = e.toString();
 					this.isAdded = false;
 					this.parentEl.onclick = function () {
-						_this41.parentEl.onclick = null;
-						_this41.addCaptcha();
+						_this40.parentEl.onclick = null;
+						_this40.addCaptcha();
 					};
 					$show(this.parentEl);
 				}
@@ -14038,7 +14034,7 @@ true, true];
 		}, {
 			key: 'handleEvent',
 			value: function handleEvent(e) {
-				var _this42 = this;
+				var _this41 = this;
 
 				var temp = void 0,
 				    el = fixEventEl(e.target);
@@ -14233,7 +14229,7 @@ true, true];
 							}
 						} else {
 							this._linkDelay = setTimeout(function () {
-								return _this42.kid = Pview.showPview(_this42, el);
+								return _this41.kid = Pview.showPview(_this41, el);
 							}, Cfg.linksOver);
 						}
 						$pd(e);
@@ -14281,7 +14277,7 @@ true, true];
 		}, {
 			key: '_addMenu',
 			value: function _addMenu(el, isOutEvent, html) {
-				var _this43 = this;
+				var _this42 = this;
 
 				if (this.menu && this.menu.parentEl === el) {
 					return;
@@ -14290,7 +14286,7 @@ true, true];
 					clearTimeout(this._menuDelay);
 				} else {
 					this._menuDelay = setTimeout(function () {
-						return _this43._showMenu(el, html);
+						return _this42._showMenu(el, html);
 					}, Cfg.linksOver);
 				}
 			}
@@ -14308,7 +14304,7 @@ true, true];
 		}, {
 			key: '_getFullMsg',
 			value: function _getFullMsg(truncEl, isInit) {
-				var _this44 = this;
+				var _this43 = this;
 
 				if (aib.deleteTruncMsg) {
 					aib.deleteTruncMsg(this, truncEl, isInit);
@@ -14320,20 +14316,20 @@ true, true];
 				ajaxLoad(aib.getThrUrl(aib.b, this.tNum)).then(function (form) {
 					var sourceEl = void 0;
 					var maybeSpells = new Maybe(SpellsRunner);
-					if (_this44.isOp) {
+					if (_this43.isOp) {
 						sourceEl = form;
 					} else {
 						var posts = $Q(aib.qRPost, form);
 						for (var i = 0, len = posts.length; i < len; ++i) {
 							var post = posts[i];
-							if (_this44.num === aib.getPNum(post)) {
+							if (_this43.num === aib.getPNum(post)) {
 								sourceEl = post;
 								break;
 							}
 						}
 					}
 					if (sourceEl) {
-						_this44.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+						_this43.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
 						$del(truncEl);
 					}
 					if (maybeSpells.hasValue) {
@@ -14344,16 +14340,16 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this45 = this;
+				var _this44 = this;
 
 				if (this._menu) {
 					this._menu.removeMenu();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this45._clickMenu(el);
+					return _this44._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
-					return _this45._menu = null;
+					return _this44._menu = null;
 				};
 			}
 		}, {
@@ -14427,37 +14423,37 @@ true, true];
 		function Post(el, thr, num, count, isOp, prev) {
 			_classCallCheck(this, Post);
 
-			var _this46 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
+			var _this45 = _possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).call(this, thr, num, isOp));
 
-			_this46.count = count;
-			_this46.el = el;
-			_this46.isDeleted = false;
-			_this46.isHidden = false;
-			_this46.isOmitted = false;
-			_this46.isViewed = false;
-			_this46.next = null;
-			_this46.prev = prev;
-			_this46.spellHidden = false;
-			_this46.userToggled = false;
-			_this46._selRange = null;
-			_this46._selText = '';
+			_this45.count = count;
+			_this45.el = el;
+			_this45.isDeleted = false;
+			_this45.isHidden = false;
+			_this45.isOmitted = false;
+			_this45.isViewed = false;
+			_this45.next = null;
+			_this45.prev = prev;
+			_this45.spellHidden = false;
+			_this45.userToggled = false;
+			_this45._selRange = null;
+			_this45._selText = '';
 			if (prev) {
-				prev.next = _this46;
+				prev.next = _this45;
 			}
-			pByEl.set(el, _this46);
-			pByNum.set(num, _this46);
+			pByEl.set(el, _this45);
+			pByNum.set(num, _this45);
 			if (MyPosts.has(num)) {
-				_this46.el.classList.add('de-mypost');
+				_this45.el.classList.add('de-mypost');
 			}
 			el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-			_this46.sage = aib.getSage(el);
-			_this46.btns = $aEnd(_this46._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this46.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : '<span class="de-post-counter">' + (count + 1) + '</span>') + '</span>');
-			_this46.counterEl = isOp ? null : _this46.btns.lastChild;
-			if (Cfg.expandTrunc && _this46.trunc) {
-				_this46._getFullMsg(_this46.trunc, true);
+			_this45.sage = aib.getSage(el);
+			_this45.btns = $aEnd(_this45._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this45.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : '<span class="de-post-counter">' + (count + 1) + '</span>') + '</span>');
+			_this45.counterEl = isOp ? null : _this45.btns.lastChild;
+			if (Cfg.expandTrunc && _this45.trunc) {
+				_this45._getFullMsg(_this45.trunc, true);
 			}
-			el.addEventListener('mouseover', _this46, true);
-			return _this46;
+			el.addEventListener('mouseover', _this45, true);
+			return _this45;
 		}
 
 		_createClass(Post, [{
@@ -14594,7 +14590,7 @@ true, true];
 		}, {
 			key: 'setVisib',
 			value: function setVisib(isHide) {
-				var _this47 = this;
+				var _this46 = this;
 
 				var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -14612,14 +14608,14 @@ true, true];
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
 							var yOffset = window.pageYOffset;
-							_this47.hideContent(e.type === 'mouseout');
+							_this46.hideContent(e.type === 'mouseout');
 							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
 				if (Cfg.strikeHidd) {
 					setTimeout(function () {
-						return _this47._strikePostNum(isHide);
+						return _this46._strikePostNum(isHide);
 					}, 50);
 				}
 				if (isHide) {
@@ -15008,15 +15004,15 @@ true, true];
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this48 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
+			var _this47 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
 
-			if (_this48._isInited) {
-				return _possibleConstructorReturn(_this48);
+			if (_this47._isInited) {
+				return _possibleConstructorReturn(_this47);
 			}
-			_this48._isInited = true;
-			_this48.el = post.el;
-			_this48.post = post;
-			return _this48;
+			_this47._isInited = true;
+			_this47.el = post.el;
+			_this47.post = post;
+			return _this47;
 		}
 
 		_createClass(PostContent, [{
@@ -15119,17 +15115,17 @@ true, true];
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this49 = this;
+				var _this48 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this49._post.hideContent(e.type === 'mouseout');
+						return _this48._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this49._post.setUserVisib(!_this49._post.isHidden);
+						_this48._post.setUserVisib(!_this48._post.isHidden);
 					};
 					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
@@ -15188,51 +15184,51 @@ true, true];
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this50 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
+			var _this49 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this50.isSticky = false;
-			_this50.parent = parent;
-			_this50.remoteThr = null;
-			_this50.tNum = tNum;
-			_this50._isCached = false;
-			_this50._isLeft = false;
-			_this50._isTop = false;
-			_this50._link = link;
-			_this50._newPos = null;
-			_this50._offsetTop = 0;
-			_this50._readDelay = 0;
+			_this49.isSticky = false;
+			_this49.parent = parent;
+			_this49.remoteThr = null;
+			_this49.tNum = tNum;
+			_this49._isCached = false;
+			_this49._isLeft = false;
+			_this49._isTop = false;
+			_this49._link = link;
+			_this49._newPos = null;
+			_this49._offsetTop = 0;
+			_this49._readDelay = 0;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-				_this50._buildPview(post);
-				return _possibleConstructorReturn(_this50);
+				_this49._buildPview(post);
+				return _possibleConstructorReturn(_this49);
 			}
-			_this50._isCached = true;
-			_this50.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this50.brd + tNum)) {
-				post = PviewsCache.get(_this50.brd + tNum).getPost(pNum);
+			_this49._isCached = true;
+			_this49.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this49.brd + tNum)) {
+				post = PviewsCache.get(_this49.brd + tNum).getPost(pNum);
 				if (post) {
-					_this50._buildPview(post);
+					_this49._buildPview(post);
 				} else {
-					_this50._showPview(_this50.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
+					_this49._showPview(_this49.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
 				}
-				return _possibleConstructorReturn(_this50);
+				return _possibleConstructorReturn(_this49);
 			}
-			_this50._showPview(_this50.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this49._showPview(_this49.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this50._loadPromise = ajaxPostsLoad(_this50.brd, tNum, false).then(function (pBuilder) {
+			_this49._loadPromise = ajaxPostsLoad(_this49.brd, tNum, false).then(function (pBuilder) {
 				if (!aib.JsonBuilder) {
-					_this50._onload(pBuilder._form);
+					_this49._onload(pBuilder._form);
 					return;
 				}
 				var html = [];
 				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
 					html.push(pBuilder.getPostHTML(i - 1)); 
 				}
-				_this50._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+				_this49._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
 			}, function (err) {
-				return _this50._onerror(err);
+				return _this49._onerror(err);
 			});
-			return _this50;
+			return _this49;
 		}
 
 		_createClass(Pview, [{
@@ -15321,11 +15317,11 @@ true, true];
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this51 = this;
+				var _this50 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this51.deleteNonSticky();
+					return _this50.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -15563,14 +15559,14 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this52 = this;
+				var _this51 = this;
 
 				_get(Pview.prototype.__proto__ || Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this52.mouseEnter();
+					return _this51.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this52.markToDel();
+					return _this51.markToDel();
 				};
 			}
 		}, {
@@ -15738,12 +15734,12 @@ true, true];
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this53 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this52 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this53._isInited) {
-				return _possibleConstructorReturn(_this53);
+			if (_this52._isInited) {
+				return _possibleConstructorReturn(_this52);
 			}
-			_this53._isInited = true;
+			_this52._isInited = true;
 			var pByNum = new Map();
 			var thr = $q(aib.qThread, form) || form;
 			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -15752,17 +15748,17 @@ true, true];
 				var post = posts[i];
 				pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
 			}
-			_this53._opObj = new CacheItem(aib.getOp(thr), 0);
-			_this53._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this53._opObj.title };
-			pByNum.set(tNum, _this53._opObj);
-			_this53._b = b;
-			_this53._tNum = tNum;
-			_this53._tUrl = aib.getThrUrl(b, tNum);
-			_this53._posts = pByNum;
+			_this52._opObj = new CacheItem(aib.getOp(thr), 0);
+			_this52._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this52._opObj.title };
+			pByNum.set(tNum, _this52._opObj);
+			_this52._b = b;
+			_this52._tNum = tNum;
+			_this52._tUrl = aib.getThrUrl(b, tNum);
+			_this52._posts = pByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this53._tUrl);
+				RefMap.gen(pByNum, _this52._tUrl);
 			}
-			return _this53;
+			return _this52;
 		}
 
 		_createClass(PviewsCache, [{
@@ -15888,11 +15884,11 @@ true, true];
 		}, {
 			key: '_setHideTmt',
 			value: function _setHideTmt() {
-				var _this54 = this;
+				var _this53 = this;
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this54.hideBtns();
+					return _this53.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -16124,7 +16120,7 @@ true, true];
 		}, {
 			key: '_showFullImg',
 			value: function _showFullImg(data) {
-				var _this55 = this;
+				var _this54 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
 				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
@@ -16133,9 +16129,9 @@ true, true];
 				    minSize = _data$computeFullSize4[2];
 
 				this._fullEl = data.getFullImg(false, function (el) {
-					return _this55._resizeFullImg(el);
+					return _this54._resizeFullImg(el);
 				}, function (el) {
-					return _this55._rotateFullImg(el);
+					return _this54._rotateFullImg(el);
 				});
 				this._width = width;
 				this._height = height;
@@ -16289,7 +16285,7 @@ true, true];
 		}, {
 			key: 'expandImg',
 			value: function expandImg(inPost, e) {
-				var _this56 = this;
+				var _this55 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -16315,7 +16311,7 @@ true, true];
 				(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this56.collapseImg(e);
+					return _this55.collapseImg(e);
 				}, true);
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
@@ -16347,7 +16343,7 @@ true, true];
 		}, {
 			key: 'getFullImg',
 			value: function getFullImg(inPost, onsizechange, onrotate) {
-				var _this57 = this;
+				var _this56 = this;
 
 				var wrapEl = void 0,
 				    name = void 0,
@@ -16382,10 +16378,10 @@ true, true];
 						var newW = img.naturalWidth,
 						    newH = img.naturalHeight;
 
-						var ar = _this57._size ? _this57._size[1] / _this57._size[0] : newH / newW;
+						var ar = _this56._size ? _this56._size[1] / _this56._size[0] : newH / newW;
 						var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
-						if (!_this57._size || isRotated) {
-							_this57._size = isRotated ? [newH, newW] : [newW, newH];
+						if (!_this56._size || isRotated) {
+							_this56._size = isRotated ? [newH, newW] : [newW, newH];
 						}
 						var parentEl = img.parentNode.parentNode;
 						var waitEl = $q('.de-fullimg-load', parentEl);
@@ -16434,7 +16430,7 @@ true, true];
 					videoEl.addEventListener('loadedmetadata', function (_ref54) {
 						var el = _ref54.target;
 
-						_this57._size = [el.videoWidth, el.videoHeight];
+						_this56._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
 					});
 				}
@@ -16477,7 +16473,7 @@ true, true];
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
-						_this57.el.setAttribute('de-metatitle', loadedTitle);
+						_this56.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
 							$q('.de-fullimg-src', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle);
 						}
@@ -16833,7 +16829,7 @@ true, true];
 		},
 		_getHashHelper: function () {
 			var _ref59 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref58) {
-				var _this60 = this;
+				var _this59 = this;
 
 				var el = _ref58.el,
 				    src = _ref58.src;
@@ -16909,7 +16905,7 @@ true, true];
 
 								_context18.next = 25;
 								return new Promise(function (resolve) {
-									return _this60._workers.runWorker([buffer, w, h], [buffer], function (val) {
+									return _this59._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
@@ -18099,7 +18095,7 @@ true, true];
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this61 = this;
+				var _this60 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -18108,7 +18104,7 @@ true, true];
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-					return _this61._loadFromBuilder(task, isSmartScroll, pBuilder);
+					return _this60._loadFromBuilder(task, isSmartScroll, pBuilder);
 				}, function (err) {
 					return $popup('load-thr', getErrorMessage(err));
 				});
@@ -18117,10 +18113,10 @@ true, true];
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this62 = this;
+				var _this61 = this;
 
 				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-					return pBuilder ? _this62._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this61._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
@@ -18525,7 +18521,7 @@ true, true];
 		}, {
 			key: '_toggleReplies',
 			value: function _toggleReplies() {
-				var _this63 = this;
+				var _this62 = this;
 
 				var isHide = !this.last.isOmitted;
 				var post = this.op;
@@ -18536,7 +18532,7 @@ true, true];
 				}
 				this.btnReplies.firstElementChild.className = (isHide ? 'de-replies-show' : 'de-replies-hide') + ' de-abtn';
 				$each(this.btns.children, function (el) {
-					return el !== _this63.btnReplies && $toggle(el, !isHide);
+					return el !== _this62.btnReplies && $toggle(el, !isHide);
 				});
 				$del($q(aib.qOmitted + ', .de-omitted', this.el));
 				i = this.pcount - 1 - (isHide ? 0 : i);
@@ -18614,12 +18610,12 @@ true, true];
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this64 = this;
+			var _this63 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					window.requestAnimationFrame(function () {
-						return _this64._checkThreads();
+						return _this63._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -18665,27 +18661,27 @@ true, true];
 			}
 		},
 		_expandCollapse: function _expandCollapse(isExpand, rt) {
-			var _this65 = this;
+			var _this64 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
 				this._toggleTO = setTimeout(function () {
-					return _this65._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+					return _this64._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},
 		_findCurrentThread: function _findCurrentThread() {
-			var _this66 = this;
+			var _this65 = this;
 
 			Object.defineProperty(this, '_findCurrentThread', {
 				value: 'elementsFromPoint' in doc ? function () {
 					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-						return _this66._thrs.has(el);
+						return _this65._thrs.has(el);
 					});
 				} : function () {
 					var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 					while (el) {
-						if (_this66._thrs.has(el)) {
+						if (_this65._thrs.has(el)) {
 							return el;
 						}
 						el = el.parentElement;
@@ -18736,7 +18732,7 @@ true, true];
 				}
 			},
 			playAudio: function playAudio() {
-				var _this67 = this;
+				var _this66 = this;
 
 				this.stopAudio();
 				if (this.repeatMS === 0) {
@@ -18744,7 +18740,7 @@ true, true];
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this67._el.play();
+					return _this66._el.play();
 				}, this.repeatMS);
 			},
 			stopAudio: function stopAudio() {
@@ -18766,11 +18762,11 @@ true, true];
 
 		var counter = {
 			count: function count(delayMS, useCounter, callback) {
-				var _this68 = this;
+				var _this67 = this;
 
 				if (!this._enabled || !useCounter) {
 					this._countingTO = setTimeout(function () {
-						_this68._countingTO = null;
+						_this67._countingTO = null;
 						callback();
 					}, delayMS);
 					return;
@@ -18780,10 +18776,10 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this68._stopCounter();
+						_this67._stopCounter();
 						callback();
 					} else {
-						_this68._set(seconds);
+						_this67._set(seconds);
 					}
 				}, 1e3);
 			},
@@ -18835,7 +18831,7 @@ true, true];
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this69 = this;
+				var _this68 = this;
 
 				if (this._isInited) {
 					return;
@@ -18844,7 +18840,7 @@ true, true];
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this69._initIconsHelper(e.target);
+						_this68._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -18858,7 +18854,7 @@ true, true];
 				icon.src = this._iconEl.href;
 			},
 			startBlink: function startBlink(isError) {
-				var _this70 = this;
+				var _this69 = this;
 
 				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew;
 				if (this._blinkInterv) {
@@ -18869,7 +18865,7 @@ true, true];
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterv = setInterval(function () {
-					return _this70._setIcon((_this70._isOrigIcon = !_this70._isOrigIcon) ? _this70.originalIcon : _this70._currentIcon);
+					return _this69._setIcon((_this69._isOrigIcon = !_this69._isOrigIcon) ? _this69.originalIcon : _this69._currentIcon);
 				}, this._blinkMS);
 			},
 			stopBlink: function stopBlink() {
@@ -18967,7 +18963,7 @@ true, true];
 				}
 			},
 			showNotif: function showNotif() {
-				var _this71 = this;
+				var _this70 = this;
 
 				var new10 = newPosts % 10;
 				var quantity = lang !== 0 ? +(newPosts !== 1) : new10 > 4 || new10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
@@ -18979,7 +18975,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this71._notifEl && _this71.closeNotif();
+						return notif === _this70._notifEl && _this70.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -18987,7 +18983,7 @@ true, true];
 				};
 				notif.onerror = function () {
 					window.focus();
-					_this71._requestPermission();
+					_this70._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -18997,14 +18993,14 @@ true, true];
 			_granted: true,
 			_notifEl: null,
 			_requestPermission: function _requestPermission() {
-				var _this72 = this;
+				var _this71 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this72._granted = true;
+						_this71._granted = true;
 					}
 				});
 			}
@@ -19111,7 +19107,7 @@ true, true];
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this73 = this;
+				var _this72 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -19121,7 +19117,7 @@ true, true];
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this73._makeStep();
+									return _this72._makeStep();
 								});
 								return;
 							}
@@ -19131,9 +19127,9 @@ true, true];
 							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref67) {
 								var newCount = _ref67.newCount,
 								    locked = _ref67.locked;
-								return _this73._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+								return _this72._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
-								return _this73._handleNewPosts(0, err);
+								return _this72._handleNewPosts(0, err);
 							});
 							return;
 						case 2:
@@ -20106,45 +20102,45 @@ true, true];
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this74 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this73 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this74.mak = true;
+				_this73.mak = true;
 
-				_this74.cReply = 'post reply post_type_reply';
-				_this74.qBan = '.pomyanem, .post__pomyanem';
-				_this74.qClosed = '.sticky-img[src$="locked.png"]';
-				_this74.qDForm = '#posts-form';
-				_this74.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
-				_this74.qFormRedir = null;
-				_this74.qFormRules = '.rules-area, .rules';
-				_this74.qFormSubm = '#submit';
-				_this74.qFormTd = 'td, .postform__raw';
-				_this74.qFormTr = 'tr, .postform__raw';
-				_this74.qFormTxta = '#shampoo';
-				_this74.qImgInfo = '.file-attr, .post__file-attr';
-				_this74.qOmitted = '.mess-post, .thread__missed';
-				_this74.qOPost = '.oppost, .post_type_oppost';
-				_this74.qPostHeader = '.post-details, .post__details';
-				_this74.qPostImg = '.preview';
-				_this74.qPostMsg = '.post-message, .post__message';
-				_this74.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
-				_this74.qPostRef = '.reflink, .post__reflink:nth-child(2)';
-				_this74.qPostSubj = '.post-title, .post__title';
-				_this74.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
-				_this74.qTrunc = null;
+				_this73.cReply = 'post reply post_type_reply';
+				_this73.qBan = '.pomyanem, .post__pomyanem';
+				_this73.qClosed = '.sticky-img[src$="locked.png"]';
+				_this73.qDForm = '#posts-form';
+				_this73.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
+				_this73.qFormRedir = null;
+				_this73.qFormRules = '.rules-area, .rules';
+				_this73.qFormSubm = '#submit';
+				_this73.qFormTd = 'td, .postform__raw';
+				_this73.qFormTr = 'tr, .postform__raw';
+				_this73.qFormTxta = '#shampoo';
+				_this73.qImgInfo = '.file-attr, .post__file-attr';
+				_this73.qOmitted = '.mess-post, .thread__missed';
+				_this73.qOPost = '.oppost, .post_type_oppost';
+				_this73.qPostHeader = '.post-details, .post__details';
+				_this73.qPostImg = '.preview';
+				_this73.qPostMsg = '.post-message, .post__message';
+				_this73.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
+				_this73.qPostRef = '.reflink, .post__reflink:nth-child(2)';
+				_this73.qPostSubj = '.post-title, .post__title';
+				_this73.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
+				_this73.qTrunc = null;
 
-				_this74.formParent = 'thread';
-				_this74.hasCatalog = true;
-				_this74.hasOPNum = true;
-				_this74.hasPicWrap = true;
-				_this74.JsonBuilder = MakabaPostsBuilder;
-				_this74.jsonSubmit = true;
-				_this74.markupBB = true;
-				_this74.multiFile = true;
-				_this74.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this73.formParent = 'thread';
+				_this73.hasCatalog = true;
+				_this73.hasOPNum = true;
+				_this73.hasPicWrap = true;
+				_this73.JsonBuilder = MakabaPostsBuilder;
+				_this73.jsonSubmit = true;
+				_this73.markupBB = true;
+				_this73.multiFile = true;
+				_this73.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 
-				_this74._capUpdPromise = null;
-				return _this74;
+				_this73._capUpdPromise = null;
+				return _this73;
 			}
 
 			_createClass(Makaba, [{
@@ -20239,7 +20235,7 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var _this75 = this;
+					var _this74 = this;
 
 					var box = $q('.captcha-box, .captcha');
 					var img = box.firstChild;
@@ -20251,7 +20247,7 @@ true, true];
 						    inp = _ref68[1];
 
 						_img2.onclick = function () {
-							return _this75.updateCaptcha(cap);
+							return _this74.updateCaptcha(cap);
 						};
 						inp.tabIndex = 999;
 						cap.textEl = inp;
@@ -20358,41 +20354,41 @@ true, true];
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this76 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this75 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this76.cReply = 'post reply';
-				_this76.qClosed = '.fa-lock';
-				_this76.qDForm = 'form[name*="postcontrols"]';
-				_this76.qForm = 'form[name="post"]';
-				_this76.qFormPassw = 'input[name="password"]';
-				_this76.qFormRedir = null;
-				_this76.qImgInfo = '.fileinfo';
-				_this76.qOmitted = '.omitted';
-				_this76.qPages = '.pages';
-				_this76.qPostHeader = '.intro';
-				_this76.qPostMsg = '.body';
-				_this76.qPostName = '.name';
-				_this76.qPostRef = '.post_no + a';
-				_this76.qPostSubj = '.subject';
-				_this76.qPostTrip = '.trip';
-				_this76.qTrunc = '.toolong';
+				_this75.cReply = 'post reply';
+				_this75.qClosed = '.fa-lock';
+				_this75.qDForm = 'form[name*="postcontrols"]';
+				_this75.qForm = 'form[name="post"]';
+				_this75.qFormPassw = 'input[name="password"]';
+				_this75.qFormRedir = null;
+				_this75.qImgInfo = '.fileinfo';
+				_this75.qOmitted = '.omitted';
+				_this75.qPages = '.pages';
+				_this75.qPostHeader = '.intro';
+				_this75.qPostMsg = '.body';
+				_this75.qPostName = '.name';
+				_this75.qPostRef = '.post_no + a';
+				_this75.qPostSubj = '.subject';
+				_this75.qPostTrip = '.trip';
+				_this75.qTrunc = '.toolong';
 
-				_this76.firstPage = 1;
-				_this76.formParent = 'thread';
-				_this76.hasCatalog = true;
-				_this76.jsonSubmit = true;
-				_this76.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				_this75.firstPage = 1;
+				_this75.formParent = 'thread';
+				_this75.hasCatalog = true;
+				_this75.jsonSubmit = true;
+				_this75.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
-				_this76._origInputs = null;
-				_this76._qTable = '.post.reply';
-				return _this76;
+				_this75._origInputs = null;
+				_this75._qTable = '.post.reply';
+				return _this75;
 			}
 
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
 					var _ref69 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
-						var _this77 = this;
+						var _this76 = this;
 
 						var pageInp, query, errFn;
 						return regeneratorRuntime.wrap(function _callee18$(_context23) {
@@ -20424,7 +20420,7 @@ true, true];
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this77._origInputs[0].appendChild(el);
+											return _this76._origInputs[0].appendChild(el);
 										});
 										_context23.next = 17;
 										break;
@@ -20450,12 +20446,12 @@ true, true];
 										$popup('load-form', Lng.loading[lang], true);
 										_context23.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-											var loadedForm = $q(_this77.qForm, loadedDoc);
+											var loadedForm = $q(_this76.qForm, loadedDoc);
 											if (!loadedForm) {
 												errFn();
 												return;
 											}
-											pr.subm.value = $q(_this77.qFormSubm, loadedDoc).value;
+											pr.subm.value = $q(_this76.qFormSubm, loadedDoc).value;
 											$each($Q(query, form), $del);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
@@ -20478,12 +20474,25 @@ true, true];
 					return changeReplyMode;
 				}()
 			}, {
+				key: 'fixHTML',
+				value: function fixHTML(data, isForm) {
+					var formEl = _get(Tinyboard.prototype.__proto__ || Object.getPrototypeOf(Tinyboard.prototype), 'fixHTML', this).call(this, data, isForm);
+					$each($Q('br.clear', formEl), function (brEl) {
+						var hr = brEl.nextElementSibling;
+						if (hr && hr.tagName === 'HR') {
+							$after(brEl.parentNode, hr);
+						}
+						$del(brEl);
+					});
+					return formEl;
+				}
+			}, {
 				key: 'fixVideo',
 				value: function fixVideo(isPost, data) {
-					var _this78 = this;
+					var _this77 = this;
 
 					return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-						var value = [isPost ? data : _this78.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+						var value = [isPost ? data : _this77.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 						$del(el);
 						return value;
 					});
@@ -20516,17 +20525,10 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('window.FormData = void 0');
-					var form = $q('form[name="post"]');
-					if (form) {
-						form.insertAdjacentHTML('beforeend', '<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
+					var formEl = $q('form[name="post"]');
+					if (formEl) {
+						formEl.insertAdjacentHTML('beforeend', '<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
 					}
-					$each($Q('br.clear'), function (el) {
-						var hr = el.nextElementSibling;
-						if (hr && hr.tagName === 'HR') {
-							$after(el.parentNode, hr);
-						}
-						$del(el);
-					});
 					return false;
 				}
 			}, {
@@ -20565,13 +20567,13 @@ true, true];
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this79 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this78 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this79.qDelPassw = '#password';
-				_this79.qPostImg = '.post-image[alt]:not(.deleted)';
+				_this78.qDelPassw = '#password';
+				_this78.qPostImg = '.post-image[alt]:not(.deleted)';
 
-				_this79.multiFile = true;
-				return _this79;
+				_this78.multiFile = true;
+				return _this78;
 			}
 
 			_createClass(Vichan, [{
@@ -20623,16 +20625,16 @@ true, true];
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this80 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this79 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this80.kus = true;
+				_this79.kus = true;
 
-				_this80.qError = 'h1, h2, div[style*="1.25em"]';
-				_this80.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this79.qError = 'h1, h2, div[style*="1.25em"]';
+				_this79.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this80.formParent = 'replythread';
-				_this80.markupBB = true;
-				return _this80;
+				_this79.formParent = 'replythread';
+				_this79.markupBB = true;
+				return _this79;
 			}
 
 			_createClass(Kusaba, [{
@@ -20678,14 +20680,14 @@ true, true];
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this81 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this80 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this81.tinyib = true;
+				_this80.tinyib = true;
 
-				_this81.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this81.qPostImg = 'img.thumb, video.thumb';
-				_this81.qPostMsg = '.message';
-				return _this81;
+				_this80.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this80.qPostImg = 'img.thumb, video.thumb';
+				_this80.qPostMsg = '.message';
+				return _this80;
 			}
 
 			_createClass(TinyIB, [{
@@ -20742,34 +20744,34 @@ true, true];
 			function LynxChan(prot, dm) {
 				_classCallCheck(this, LynxChan);
 
-				var _this82 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
 
-				_this82.cReply = 'innerPost';
-				_this82.qDForm = 'form[action$="contentActions.js"]';
-				_this82.qError = '#errorLabel, #labelMessage';
-				_this82.qForm = '.form-post';
-				_this82.qFormPassw = 'input[name="password"]';
-				_this82.qFormRules = '.form-post > .small';
-				_this82.qFormSubm = '#formButton';
-				_this82.qImgInfo = '.uploadDetails';
-				_this82.qOmitted = '.labelOmission';
-				_this82.qOPost = '.innerOP';
-				_this82.qPages = '#divPages';
-				_this82.qPostHeader = '.postInfo, .de-post-btns';
-				_this82.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-				_this82.qPostMsg = '.divMessage';
-				_this82.qPostRef = '.linkQuote';
-				_this82.qRPost = '.innerPost';
-				_this82.qTrunc = '.contentOmissionIndicator';
+				_this81.cReply = 'innerPost';
+				_this81.qDForm = 'form[action$="contentActions.js"]';
+				_this81.qError = '#errorLabel, #labelMessage';
+				_this81.qForm = '.form-post';
+				_this81.qFormPassw = 'input[name="password"]';
+				_this81.qFormRules = '.form-post > .small';
+				_this81.qFormSubm = '#formButton';
+				_this81.qImgInfo = '.uploadDetails';
+				_this81.qOmitted = '.labelOmission';
+				_this81.qOPost = '.innerOP';
+				_this81.qPages = '#divPages';
+				_this81.qPostHeader = '.postInfo, .de-post-btns';
+				_this81.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+				_this81.qPostMsg = '.divMessage';
+				_this81.qPostRef = '.linkQuote';
+				_this81.qRPost = '.innerPost';
+				_this81.qTrunc = '.contentOmissionIndicator';
 
-				_this82.firstPage = 1;
-				_this82.formParent = 'threadId';
-				_this82.hasCatalog = true;
-				_this82.jsonSubmit = true;
-				_this82.multiFile = true;
+				_this81.firstPage = 1;
+				_this81.formParent = 'threadId';
+				_this81.hasCatalog = true;
+				_this81.jsonSubmit = true;
+				_this81.multiFile = true;
 
-				_this82._qTable = '.divPosts';
-				return _this82;
+				_this81._qTable = '.divPosts';
+				return _this81;
 			}
 
 			_createClass(LynxChan, [{
@@ -20858,7 +20860,7 @@ true, true];
 				key: 'sendHTML5Post',
 				value: function () {
 					var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
-						var _this83 = this;
+						var _this82 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len14, file, cookieObj, ajaxParams, xhr;
 
@@ -20888,7 +20890,7 @@ true, true];
 																return _context24.stop();
 														}
 													}
-												}, _callee19, _this83);
+												}, _callee19, _this82);
 											}));
 
 											return function getBase64(_x81) {
@@ -20926,7 +20928,7 @@ true, true];
 																return _context25.stop();
 														}
 													}
-												}, _callee20, _this83);
+												}, _callee20, _this82);
 											}));
 
 											return function (_x82, _x83) {
@@ -21060,20 +21062,20 @@ true, true];
 			function _2__chRu(prot, dm) {
 				_classCallCheck(this, _2__chRu);
 
-				var _this84 = _possibleConstructorReturn(this, (_2__chRu.__proto__ || Object.getPrototypeOf(_2__chRu)).call(this, prot, dm));
+				var _this83 = _possibleConstructorReturn(this, (_2__chRu.__proto__ || Object.getPrototypeOf(_2__chRu)).call(this, prot, dm));
 
-				_this84.qPages = 'table[border="1"] td > a:last-of-type';
-				_this84.qPostImg = 'img.thumb';
+				_this83.qPages = 'table[border="1"] td > a:last-of-type';
+				_this83.qPostImg = 'img.thumb';
 
-				_this84.docExt = '.html';
-				_this84.hasPicWrap = true;
-				_this84.jsonSubmit = true;
-				_this84.markupBB = true;
-				_this84.multiFile = true;
-				_this84.ru = true;
+				_this83.docExt = '.html';
+				_this83.hasPicWrap = true;
+				_this83.jsonSubmit = true;
+				_this83.markupBB = true;
+				_this83.multiFile = true;
+				_this83.ru = true;
 
-				_this84._qTable = 'table:not(.postfiles)';
-				return _this84;
+				_this83._qTable = 'table:not(.postfiles)';
+				return _this83;
 			}
 
 			_createClass(_2__chRu, [{
@@ -21165,12 +21167,12 @@ true, true];
 			function _02chSu(prot, dm) {
 				_classCallCheck(this, _02chSu);
 
-				var _this85 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this84 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
 
-				_this85.hasCatalog = true;
+				_this84.hasCatalog = true;
 
-				_this85._capUpdPromise = null;
-				return _this85;
+				_this84._capUpdPromise = null;
+				return _this84;
 			}
 
 			_createClass(_02chSu, [{
@@ -21196,20 +21198,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this86 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this86.qDForm = 'form:not([enctype])';
-				_this86.qForm = 'form[enctype]';
-				_this86.qFormRedir = null;
-				_this86.qFormRules = '.chui';
-				_this86.qOmitted = 'font[color="#707070"]';
-				_this86.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this86.qPostRef = '.del';
-				_this86.qRPost = 'td:nth-child(2)';
+				_this85.qDForm = 'form:not([enctype])';
+				_this85.qForm = 'form[enctype]';
+				_this85.qFormRedir = null;
+				_this85.qFormRules = '.chui';
+				_this85.qOmitted = 'font[color="#707070"]';
+				_this85.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this85.qPostRef = '.del';
+				_this85.qRPost = 'td:nth-child(2)';
 
-				_this86.docExt = '.htm';
-				_this86.formParent = 'resto';
-				return _this86;
+				_this85.docExt = '.htm';
+				_this85.formParent = 'resto';
+				return _this85;
 			}
 
 			_createClass(_2chan, [{
@@ -21269,12 +21271,12 @@ true, true];
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this87 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this87.ru = true;
+				_this86.ru = true;
 
-				_this87._capUpdPromise = null;
-				return _this87;
+				_this86._capUpdPromise = null;
+				return _this86;
 			}
 
 			_createClass(_2chRip, [{
@@ -21316,18 +21318,18 @@ true, true];
 			function _410chanOrg(prot, dm) {
 				_classCallCheck(this, _410chanOrg);
 
-				var _this88 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
 
-				_this88.qFormRedir = 'input#noko';
-				_this88.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this87.qFormRedir = 'input#noko';
+				_this87.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this88.ru = true;
-				_this88.hasCatalog = true;
-				_this88.markupBB = false;
-				_this88.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this87.ru = true;
+				_this87.hasCatalog = true;
+				_this87.markupBB = false;
+				_this87.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 
-				_this88._capUpdPromise = null;
-				return _this88;
+				_this87._capUpdPromise = null;
+				return _this87;
 			}
 
 			_createClass(_410chanOrg, [{
@@ -21351,7 +21353,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this89 = this;
+					var _this88 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -21366,7 +21368,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this89.getCaptchaSrc(src);
+						img.src = _this88.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -21397,40 +21399,40 @@ true, true];
 			function _4chanOrg(prot, dm) {
 				_classCallCheck(this, _4chanOrg);
 
-				var _this90 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
 
-				_this90.fch = true;
+				_this89.fch = true;
 
-				_this90.cReply = 'post reply';
-				_this90.qBan = 'strong[style="color: red;"]';
-				_this90.qClosed = '.archivedIcon';
-				_this90.qDelBut = '.deleteform > input[type="submit"]';
-				_this90.qError = '#errmsg';
-				_this90.qForm = 'form[name="post"]';
-				_this90.qFormRedir = null;
-				_this90.qImgInfo = '.fileText';
-				_this90.qOmitted = '.summary.desktop';
-				_this90.qOPost = '.op';
-				_this90.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this90.qPostHeader = '.postInfo';
-				_this90.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this90.qPostName = '.name';
-				_this90.qPostRef = '.postInfo > .postNum';
-				_this90.qPostSubj = '.subject';
+				_this89.cReply = 'post reply';
+				_this89.qBan = 'strong[style="color: red;"]';
+				_this89.qClosed = '.archivedIcon';
+				_this89.qDelBut = '.deleteform > input[type="submit"]';
+				_this89.qError = '#errmsg';
+				_this89.qForm = 'form[name="post"]';
+				_this89.qFormRedir = null;
+				_this89.qImgInfo = '.fileText';
+				_this89.qOmitted = '.summary.desktop';
+				_this89.qOPost = '.op';
+				_this89.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this89.qPostHeader = '.postInfo';
+				_this89.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this89.qPostName = '.name';
+				_this89.qPostRef = '.postInfo > .postNum';
+				_this89.qPostSubj = '.subject';
 
-				_this90.anchor = '#p';
-				_this90.docExt = '';
-				_this90.firstPage = 1;
-				_this90.formParent = 'resto';
-				_this90.hasAltCaptcha = true;
-				_this90.hasCatalog = true;
-				_this90.hasTextLinks = true;
-				_this90.JsonBuilder = _4chanPostsBuilder;
-				_this90.res = 'thread/';
-				_this90.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				_this89.anchor = '#p';
+				_this89.docExt = '';
+				_this89.firstPage = 1;
+				_this89.formParent = 'resto';
+				_this89.hasAltCaptcha = true;
+				_this89.hasCatalog = true;
+				_this89.hasTextLinks = true;
+				_this89.JsonBuilder = _4chanPostsBuilder;
+				_this89.res = 'thread/';
+				_this89.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-				_this90._qTable = '.replyContainer';
-				return _this90;
+				_this89._qTable = '.replyContainer';
+				return _this89;
 			}
 
 			_createClass(_4chanOrg, [{
@@ -21564,12 +21566,12 @@ true, true];
 			function _8chNet(prot, dm) {
 				_classCallCheck(this, _8chNet);
 
-				var _this91 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
+				var _this90 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
 
-				_this91._8ch = true;
+				_this90._8ch = true;
 
-				_this91._capUpdPromise = null;
-				return _this91;
+				_this90._capUpdPromise = null;
+				return _this90;
 			}
 
 			_createClass(_8chNet, [{
@@ -21611,12 +21613,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this92 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this92._8ch = null;
+				_this91._8ch = null;
 
-				_this92.qFormRules = '.regras';
-				return _this92;
+				_this91.qFormRules = '.regras';
+				return _this91;
 			}
 
 			_createClass(_55chan, [{
@@ -21663,34 +21665,34 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this94 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this93 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this94.cReply = 'post';
-				_this94.qDForm = 'body > .container-fluid';
-				_this94.qPostHeader = '.post_head';
-				_this94.qPostImg = '.post_image > img';
-				_this94.qPostMsg = '.post_comment_body';
-				_this94.qPostRef = '.post_id, .post_head > b';
-				_this94.qPostSubj = '.post_subject';
-				_this94.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this93.cReply = 'post';
+				_this93.qDForm = 'body > .container-fluid';
+				_this93.qPostHeader = '.post_head';
+				_this93.qPostImg = '.post_image > img';
+				_this93.qPostMsg = '.post_comment_body';
+				_this93.qPostRef = '.post_id, .post_head > b';
+				_this93.qPostSubj = '.post_subject';
+				_this93.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this94.docExt = '';
-				_this94.hasOPNum = true;
-				_this94.res = 'thread/';
-				return _this94;
+				_this93.docExt = '';
+				_this93.hasOPNum = true;
+				_this93.res = 'thread/';
+				return _this93;
 			}
 
 			_createClass(Arhivach, [{
 				key: 'fixHTML',
 				value: function fixHTML(data, isForm) {
-					var el = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
-					var links = $Q('.expand_image', el);
+					var formEl = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
+					var links = $Q('.expand_image', formEl);
 					for (var i = 0, _len15 = links.length; i < _len15; ++i) {
 						var link = links[i];
 						link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
 						link.removeAttribute('onclick');
 					}
-					return el;
+					return formEl;
 				}
 			}, {
 				key: 'getImgInfo',
@@ -21730,13 +21732,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var _this95 = this;
+					var _this94 = this;
 
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
 						for (var i = 0, _len16 = delPosts.length; i < _len16; ++i) {
-							var post = pByNum.get(_this95.getPNum(delPosts[i]));
+							var post = pByNum.get(_this94.getPNum(delPosts[i]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
 							}
@@ -21778,10 +21780,10 @@ true, true];
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this96 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this96.markupBB = true;
-				return _this96;
+				_this95.markupBB = true;
+				return _this95;
 			}
 
 			_createClass(Brchan, [{
@@ -21802,11 +21804,11 @@ true, true];
 			function Dscript(prot, dm) {
 				_classCallCheck(this, Dscript);
 
-				var _this97 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
 
-				_this97.markupBB = true;
-				_this97.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-				return _this97;
+				_this96.markupBB = true;
+				_this96.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+				return _this96;
 			}
 
 			_createClass(Dscript, [{
@@ -21872,12 +21874,12 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this99 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this99.qImgInfo = '.filesize, .fileinfo';
+				_this98.qImgInfo = '.filesize, .fileinfo';
 
-				_this99.multiFile = true;
-				return _this99;
+				_this98.multiFile = true;
+				return _this98;
 			}
 
 			_createClass(Diochan, [{
@@ -21910,29 +21912,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this100 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this99 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this100.dobr = true;
+				_this99.dobr = true;
 
-				_this100.qClosed = 'img[src="/images/locked.png"]';
-				_this100.qDForm = 'form[action*="delete"]';
-				_this100.qError = '.post-error, h2';
-				_this100.qFormRedir = 'select[name="goto"]';
-				_this100.qImgInfo = '.fileinfo';
-				_this100.qOmitted = '.abbrev > span:last-of-type';
-				_this100.qPages = '.pages > tbody > tr > td';
-				_this100.qPostMsg = '.postbody';
-				_this100.qPostSubj = '.replytitle';
-				_this100.qTrunc = '.abbrev > span:first-of-type';
+				_this99.qClosed = 'img[src="/images/locked.png"]';
+				_this99.qDForm = 'form[action*="delete"]';
+				_this99.qError = '.post-error, h2';
+				_this99.qFormRedir = 'select[name="goto"]';
+				_this99.qImgInfo = '.fileinfo';
+				_this99.qOmitted = '.abbrev > span:last-of-type';
+				_this99.qPages = '.pages > tbody > tr > td';
+				_this99.qPostMsg = '.postbody';
+				_this99.qPostSubj = '.replytitle';
+				_this99.qTrunc = '.abbrev > span:first-of-type';
 
-				_this100.anchor = '#i';
-				_this100.formParent = 'thread_id';
-				_this100.hasPicWrap = true;
-				_this100.JsonBuilder = DobrochanPostsBuilder;
-				_this100.multiFile = true;
-				_this100.ru = true;
-				_this100.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this100;
+				_this99.anchor = '#i';
+				_this99.formParent = 'thread_id';
+				_this99.hasPicWrap = true;
+				_this99.JsonBuilder = DobrochanPostsBuilder;
+				_this99.multiFile = true;
+				_this99.ru = true;
+				_this99.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this99;
 			}
 
 			_createClass(Dobrochan, [{
@@ -22077,10 +22079,10 @@ true, true];
 			function EndChan(prot, dm) {
 				_classCallCheck(this, EndChan);
 
-				var _this101 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
 
-				_this101.qTrunc = '.contentOmissionIndicator > p';
-				return _this101;
+				_this100.qTrunc = '.contentOmissionIndicator > p';
+				return _this100;
 			}
 
 			_createClass(EndChan, [{
@@ -22106,6 +22108,7 @@ true, true];
 			return EndChan;
 		}(LynxChan);
 
+		ibDomains['endchan.net'] = EndChan;
 		ibDomains['endchan.xyz'] = EndChan;
 
 		var Ernstchan = function (_BaseBoard13) {
@@ -22114,26 +22117,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this102 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this102.cReply = 'post';
-				_this102.qError = '.error';
-				_this102.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this102.qOPost = '.thread_OP';
-				_this102.qPages = '.pagelist > li:nth-last-child(2)';
-				_this102.qPostHeader = '.post_head';
-				_this102.qPostMsg = '.text';
-				_this102.qPostSubj = '.subject';
-				_this102.qPostTrip = '.tripcode';
-				_this102.qRPost = '.thread_reply';
-				_this102.qTrunc = '.tldr';
+				_this101.cReply = 'post';
+				_this101.qError = '.error';
+				_this101.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this101.qOPost = '.thread_OP';
+				_this101.qPages = '.pagelist > li:nth-last-child(2)';
+				_this101.qPostHeader = '.post_head';
+				_this101.qPostMsg = '.text';
+				_this101.qPostSubj = '.subject';
+				_this101.qPostTrip = '.tripcode';
+				_this101.qRPost = '.thread_reply';
+				_this101.qTrunc = '.tldr';
 
-				_this102.docExt = '';
-				_this102.firstPage = 1;
-				_this102.markupBB = true;
-				_this102.multiFile = true;
-				_this102.res = 'thread/';
-				return _this102;
+				_this101.docExt = '';
+				_this101.firstPage = 1;
+				_this101.markupBB = true;
+				_this101.multiFile = true;
+				_this101.res = 'thread/';
+				return _this101;
 			}
 
 			_createClass(Ernstchan, [{
@@ -22184,12 +22187,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this103 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this103.iichan = true;
+				_this102.iichan = true;
 
-				_this103.hasCatalog = true;
-				return _this103;
+				_this102.hasCatalog = true;
+				return _this102;
 			}
 
 			_createClass(Iichan, [{
@@ -22247,12 +22250,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this104 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this103 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this104.qImgInfo = '.fileinfo';
+				_this103.qImgInfo = '.fileinfo';
 
-				_this104.hasTextLinks = true;
-				return _this104;
+				_this103.hasTextLinks = true;
+				return _this103;
 			}
 
 			_createClass(Kohlchan, [{
@@ -22278,10 +22281,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this105 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this105.markupBB = true;
-				return _this105;
+				_this104.markupBB = true;
+				return _this104;
 			}
 
 			_createClass(Kropyvach, [{
@@ -22307,10 +22310,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this106 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this106.qOPost = '.op';
-				return _this106;
+				_this105.qOPost = '.op';
+				return _this105;
 			}
 
 			_createClass(Lainchan, [{
@@ -22393,15 +22396,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this109 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this109.qBan = 'font[color="#FF0000"]';
-				_this109.qImgInfo = '.filesize[style="display: inline;"]';
+				_this108.qBan = 'font[color="#FF0000"]';
+				_this108.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this109.formParent = 'replythread';
-				_this109.jsonSubmit = true;
-				_this109.multiFile = true;
-				return _this109;
+				_this108.formParent = 'replythread';
+				_this108.jsonSubmit = true;
+				_this108.multiFile = true;
+				return _this108;
 			}
 
 			_createClass(Ponyach, [{
@@ -22459,12 +22462,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this110 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this110.qOPost = '.opContainer';
+				_this109.qOPost = '.opContainer';
 
-				_this110.jsonSubmit = false;
-				return _this110;
+				_this109.jsonSubmit = false;
+				return _this109;
 			}
 
 			_createClass(Ponychan, [{
@@ -22499,12 +22502,12 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this111 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this111.qImgInfo = '.unimportant';
+				_this110.qImgInfo = '.unimportant';
 
-				_this111.markupBB = true;
-				return _this111;
+				_this110.markupBB = true;
+				return _this110;
 			}
 
 			_createClass(Synch, [{
@@ -22525,12 +22528,12 @@ true, true];
 			}, {
 				key: 'fixHTML',
 				value: function fixHTML(data, isForm) {
-					var form = _get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'fixHTML', this).call(this, data, isForm);
-					var els = $Q('.btn-group', form);
+					var formEl = _get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'fixHTML', this).call(this, data, isForm);
+					var els = $Q('.btn-group', formEl);
 					for (var i = 0, _len17 = els.length; i < _len17; ++i) {
 						$replace(els[i], $q('a', els[i]));
 					}
-					return form;
+					return formEl;
 				}
 			}, {
 				key: 'qImgNameLink',
@@ -22595,7 +22598,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this112 = this;
+			var _this111 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in window)) {
@@ -22608,7 +22611,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this112.hasListeners = true;
+					_this111.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
