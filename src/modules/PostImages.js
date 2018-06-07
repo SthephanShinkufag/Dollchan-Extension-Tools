@@ -311,6 +311,13 @@ class ImagesViewer {
 		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
+		if(Cfg.imgSrcBtns) {
+			const srcBtn = $q('.de-btn-src', el);
+			srcBtn.addEventListener('mouseover', ({ target: el }) => {
+				el.odelay = setTimeout(() => new Menu(el, AbstractPost._getMenuImgSrc(el)), Cfg.linksOver);
+			});
+			srcBtn.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+		}
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.toggleSticky(true);
 		}
@@ -504,8 +511,10 @@ class ExpandableImage {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
-		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
-			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
+		const imgNameEl = (Cfg.imgSrcBtns ?
+			'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"></use></svg>' : '') +
+			`<a class="de-fullimg-link" target="_blank" title="${
+				Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
@@ -629,7 +638,7 @@ class ExpandableImage {
 				const loadedTitle = decodeURIComponent(escape(str));
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
+					$q('.de-fullimg-link', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
 				}
 			});
 		}

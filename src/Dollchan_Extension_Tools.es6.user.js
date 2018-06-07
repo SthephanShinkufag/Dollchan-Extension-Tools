@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '3a450ec';
+const commit = '4e374da';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10101,10 +10101,8 @@ class AbstractPost {
 			return;
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
-			if(!(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
-					'<span class="de-menu-item" info="thr-exp">', '</span>'));
-			}
+			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
+				'<span class="de-menu-item" info="thr-exp">', '</span>'));
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
@@ -10190,13 +10188,12 @@ class AbstractPost {
 		].join('</a><a class="de-menu-item ') }</a>`;
 	}
 	_addMenu(el, isOutEvent, html) {
-		if(this.menu && this.menu.parentEl === el) {
-			return;
-		}
-		if(isOutEvent) {
-			clearTimeout(this._menuDelay);
-		} else {
-			this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
+		if(!this.menu || this.menu.parentEl !== el) {
+			if(isOutEvent) {
+				clearTimeout(this._menuDelay);
+			} else {
+				this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
+			}
 		}
 	}
 	_clickImage(el, e) {
@@ -11638,6 +11635,13 @@ class ImagesViewer {
 		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
+		if(Cfg.imgSrcBtns) {
+			const srcBtn = $q('.de-btn-src', el);
+			srcBtn.addEventListener('mouseover', ({ target: el }) => {
+				el.odelay = setTimeout(() => new Menu(el, AbstractPost._getMenuImgSrc(el)), Cfg.linksOver);
+			});
+			srcBtn.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+		}
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.toggleSticky(true);
 		}
@@ -11831,8 +11835,10 @@ class ExpandableImage {
 			origSrc = parent.href;
 			name = origSrc.split('/').pop();
 		}
-		const imgNameEl = `<a class="de-fullimg-src" target="_blank" title="${
-			Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
+		const imgNameEl = (Cfg.imgSrcBtns ?
+			'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"></use></svg>' : '') +
+			`<a class="de-fullimg-link" target="_blank" title="${
+				Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
@@ -11956,7 +11962,7 @@ class ExpandableImage {
 				const loadedTitle = decodeURIComponent(escape(str));
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-src', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
+					$q('.de-fullimg-link', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
 				}
 			});
 		}
@@ -17162,18 +17168,20 @@ function scriptCSS() {
 	/* Full images */
 	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-embed { max-width: 200px; max-height: 200px; }
-	.de-fullimg, .de-fullimg-wrap-link { transition: none !important; }
+	.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; }
 	.de-fullimg-after { clear: left; }
-	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
-	.de-fullimg-info { text-align: center; }
-	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
-	.de-fullimg-src { float: none !important; display: inline-block; padding: 2px 4px; margin: 2px 0 2px -1px; background: rgba(64,64,64,.8); font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
-	.de-fullimg-src:hover { color: #fff !important; background: rgba(64,64,64,.6); }${
+	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }${
 	nav.firefoxVer >= 59 ?
 		`.de-fullimg-center-video { border-top: 20px solid #444 !important; border-radius: 10px 10px 0 0; cursor: pointer; }
 		.de-fullimg-center-video > .de-fullimg-video::before { right: 6px !important; top: -20px; }
 		.de-fullimg-video { position: relative; }
 		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
+	.de-fullimg-info { text-align: center; background-color: rgba(64,64,64,.8); padding: 2px 4px; margin-top: 2px; white-space: nowrap; }
+	.de-fullimg-info > .de-btn-src { color: #fff; }
+	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
+	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
+	.de-fullimg-wrap { display: flex; flex-direction: column; align-items: center; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
@@ -17278,7 +17286,7 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; }
+	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
 	.de-omitted { color: grey; }

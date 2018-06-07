@@ -217,10 +217,8 @@ class AbstractPost {
 			return;
 		case 'de-btn-expthr':
 			this.btns.title = Lng.expandThr[lang];
-			if(!(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
-					'<span class="de-menu-item" info="thr-exp">', '</span>'));
-			}
+			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
+				'<span class="de-menu-item" info="thr-exp">', '</span>'));
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
@@ -306,13 +304,12 @@ class AbstractPost {
 		].join('</a><a class="de-menu-item ') }</a>`;
 	}
 	_addMenu(el, isOutEvent, html) {
-		if(this.menu && this.menu.parentEl === el) {
-			return;
-		}
-		if(isOutEvent) {
-			clearTimeout(this._menuDelay);
-		} else {
-			this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
+		if(!this.menu || this.menu.parentEl !== el) {
+			if(isOutEvent) {
+				clearTimeout(this._menuDelay);
+			} else {
+				this._menuDelay = setTimeout(() => this._showMenu(el, html), Cfg.linksOver);
+			}
 		}
 	}
 	_clickImage(el, e) {
