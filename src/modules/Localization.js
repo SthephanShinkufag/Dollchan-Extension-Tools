@@ -660,10 +660,6 @@ const Lng = {
 		'Закрепить превью',
 		'Attach preview',
 		'Закріпити превʼю'],
-	searchIn: [
-		'Искать в ',
-		'Search in ',
-		'Шукати в '],
 
 	// Windows buttons: tooltips
 	closeWindow: [
@@ -766,6 +762,24 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+
+	// Sauce search for images and video frames
+	searchIn: [
+		'Искать в ',
+		'Search in ',
+		'Шукати в '],
+	frameSearch: [
+		'Поиск кадра в ',
+		'Frame search in ',
+		'Пошук кадру в '],
+	gotoResults: [
+		'Перейти к результатам поиска',
+		'Go to search results',
+		'Перейти до результатів пошуку'],
+	saveFrame: [
+		'Сохранить полученный кадр',
+		'Save the received frame',
+		'Зберегти отриманий кадр'],
 
 	// Hotkeys editor
 	hotKeyEdit: [[

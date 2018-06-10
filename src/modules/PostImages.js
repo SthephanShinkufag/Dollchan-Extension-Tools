@@ -296,8 +296,9 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+		const { isVideo } = data;
 		const el = $add(`<div class="de-fullimg-center${
-			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
+			isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -312,11 +313,40 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(Cfg.imgSrcBtns) {
-			const srcBtn = $q('.de-btn-src', el);
-			srcBtn.addEventListener('mouseover', ({ target: el }) => {
-				el.odelay = setTimeout(() => new Menu(el, AbstractPost._getMenuImgSrc(el)), Cfg.linksOver);
-			});
-			srcBtn.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+			const srcBtnEl = $q('.de-btn-src', el);
+			srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
+				new Menu(srcBtnEl, Menu.getMenuImgSrc(srcBtnEl, isVideo), optiontEl => {
+					if(!isVideo) {
+						return;
+					}
+					ContentLoader.getDataFromImg($q('video', el)).then(arr => {
+						const obj = {
+							google: {
+								url   : 'https://www.google.com/searchbyimage/upload',
+								input : 'encoded_image'
+							},
+							tineye: {
+								url   : 'https://www.tineye.com/search',
+								input : 'image'
+							}
+						}[optiontEl.className.split('-').pop()];
+						const formData = new FormData();
+						const blob = new Blob([arr], { type: 'image/png' });
+						const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
+						formData.append(obj.input, blob, name);
+						$popup('upload', Lng.sending[lang], true);
+						$ajax(obj.url, { data: formData, method: 'POST' }, false).then(xhr => {
+							const blobUrl = window.URL.createObjectURL(blob);
+							$popup('upload', optiontEl.textContent +
+								`:<div class="de-list"><a href="${ xhr.finalUrl }"` +
+									` target="_blank">${ Lng.gotoResults[lang] }</a></div>` +
+								`<div class="de-list"><a href="${ blobUrl }" download="${ name }"` +
+									` target="_blank">${ Lng.saveFrame[lang] }</a></div>`);
+						});
+					}, emptyFn);
+				});
+			}, Cfg.linksOver)));
+			srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
 		}
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.toggleSticky(true);
@@ -324,7 +354,7 @@ class ImagesViewer {
 		const btns = this._btns;
 		if(!data.inPview) {
 			btns.showBtns();
-			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
+			btns.autoBtn.classList.toggle('de-img-btn-none', !isVideo);
 		} else if(this.hasOwnProperty('_btns')) {
 			btns.hideBtns();
 		}

@@ -94,11 +94,31 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
+	static getMenuImgSrc(el, isVideoFrame) {
+		if(isVideoFrame) {
+			return arrTags([
+				`de-src-google">${ Lng.frameSearch[lang] }Google`,
+				`de-src-tineye">${ Lng.frameSearch[lang] }TinEye`
+			], '<span class="de-menu-item ', '</span>');
+		}
+		const link = el.nextSibling;
+		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
+			link.href) + '" target="_blank">' + Lng.searchIn[lang];
+		return arrTags([
+			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
+			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
+				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+		], '<a class="de-menu-item ', '</a>');
+	}
 	handleEvent(e) {
 		let isOverEvent = false;
 		switch(e.type) {
 		case 'click':
-			if(e.target.className === 'de-menu-item') {
+			if(e.target.classList.contains('de-menu-item')) {
 				this.removeMenu();
 				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '4e374da';
+const commit = '2e111cc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -831,10 +831,6 @@ const Lng = {
 		'Закрепить превью',
 		'Attach preview',
 		'Закріпити превʼю'],
-	searchIn: [
-		'Искать в ',
-		'Search in ',
-		'Шукати в '],
 
 	// Windows buttons: tooltips
 	closeWindow: [
@@ -937,6 +933,24 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+
+	// Sauce search for images and video frames
+	searchIn: [
+		'Искать в ',
+		'Search in ',
+		'Шукати в '],
+	frameSearch: [
+		'Поиск кадра в ',
+		'Frame search in ',
+		'Пошук кадру в '],
+	gotoResults: [
+		'Перейти к результатам поиска',
+		'Go to search results',
+		'Перейти до результатів пошуку'],
+	saveFrame: [
+		'Сохранить полученный кадр',
+		'Save the received frame',
+		'Зберегти отриманий кадр'],
 
 	// Hotkeys editor
 	hotKeyEdit: [[
@@ -5105,11 +5119,31 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
+	static getMenuImgSrc(el, isVideoFrame) {
+		if(isVideoFrame) {
+			return arrTags([
+				`de-src-google">${ Lng.frameSearch[lang] }Google`,
+				`de-src-tineye">${ Lng.frameSearch[lang] }TinEye`
+			], '<span class="de-menu-item ', '</span>');
+		}
+		const link = el.nextSibling;
+		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
+			link.href) + '" target="_blank">' + Lng.searchIn[lang];
+		return arrTags([
+			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
+			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
+				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+		], '<a class="de-menu-item ', '</a>');
+	}
 	handleEvent(e) {
 		let isOverEvent = false;
 		switch(e.type) {
 		case 'click':
-			if(e.target.className === 'de-menu-item') {
+			if(e.target.classList.contains('de-menu-item')) {
 				this.removeMenu();
 				this._clickFn(e.target);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
@@ -5812,10 +5846,10 @@ const ContentLoader = {
 						`<br>${ Lng.willSavePview[lang] }`;
 					$popup('err-files', Lng.loadErrors[lang] + warnings);
 					if(imgOnly) {
-						return this._getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+						return this.getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
 					}
 				}
-				return imgOnly ? null : this._getDataFromImg(el).then(data => {
+				return imgOnly ? null : this.getDataFromImg(el).then(data => {
 					el.src = thumbName;
 					tar.addFile(thumbName, data);
 				}, () => (el.src = safeName));
@@ -5907,6 +5941,18 @@ const ContentLoader = {
 		counter = progress.nextElementSibling;
 		this._thrPool.completeTasks();
 		els = null;
+	},
+	getDataFromImg(el) {
+		try {
+			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
+			cnv.width = el.width || el.videoWidth;
+			cnv.height = el.height || el.videoHeight;
+			cnv.getContext('2d').drawImage(el, 0, 0);
+			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
+				.split('').map(a => a.charCodeAt())));
+		} catch(err) {
+			return this.loadImgData(el.src);
+		}
 	},
 	loadImgData: (url, repeatOnError = true) => $ajax(url, {
 		responseType     : 'arraybuffer',
@@ -6079,18 +6125,6 @@ const ContentLoader = {
 			}
 		}
 		return {};
-	},
-	_getDataFromImg(el) {
-		try {
-			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
-			cnv.width = el.width;
-			cnv.height = el.height;
-			cnv.getContext('2d').drawImage(el, 0, 0);
-			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
-				.split('').map(a => a.charCodeAt())));
-		} catch(err) {
-			return this.loadImgData(el.src);
-		}
 	}
 };
 
@@ -10108,7 +10142,7 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, AbstractPost._getMenuImgSrc(el)); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el, false)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
@@ -10173,20 +10207,6 @@ class AbstractPost {
 		closePopup('load-fullmsg');
 	}
 
-	static _getMenuImgSrc(el) {
-		const link = el.nextSibling;
-		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
-			link.href) + '" target="_blank">' + Lng.searchIn[lang];
-		return `<a class="de-menu-item ${ [
-			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
-			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
-			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
-			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
-			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
-				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
-		].join('</a><a class="de-menu-item ') }</a>`;
-	}
 	_addMenu(el, isOutEvent, html) {
 		if(!this.menu || this.menu.parentEl !== el) {
 			if(isOutEvent) {
@@ -11620,8 +11640,9 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
+		const { isVideo } = data;
 		const el = $add(`<div class="de-fullimg-center${
-			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
+			isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -11636,11 +11657,40 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(Cfg.imgSrcBtns) {
-			const srcBtn = $q('.de-btn-src', el);
-			srcBtn.addEventListener('mouseover', ({ target: el }) => {
-				el.odelay = setTimeout(() => new Menu(el, AbstractPost._getMenuImgSrc(el)), Cfg.linksOver);
-			});
-			srcBtn.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+			const srcBtnEl = $q('.de-btn-src', el);
+			srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
+				new Menu(srcBtnEl, Menu.getMenuImgSrc(srcBtnEl, isVideo), optiontEl => {
+					if(!isVideo) {
+						return;
+					}
+					ContentLoader.getDataFromImg($q('video', el)).then(arr => {
+						const obj = {
+							google: {
+								url   : 'https://www.google.com/searchbyimage/upload',
+								input : 'encoded_image'
+							},
+							tineye: {
+								url   : 'https://www.tineye.com/search',
+								input : 'image'
+							}
+						}[optiontEl.className.split('-').pop()];
+						const formData = new FormData();
+						const blob = new Blob([arr], { type: 'image/png' });
+						const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
+						formData.append(obj.input, blob, name);
+						$popup('upload', Lng.sending[lang], true);
+						$ajax(obj.url, { data: formData, method: 'POST' }, false).then(xhr => {
+							const blobUrl = window.URL.createObjectURL(blob);
+							$popup('upload', optiontEl.textContent +
+								`:<div class="de-list"><a href="${ xhr.finalUrl }"` +
+									` target="_blank">${ Lng.gotoResults[lang] }</a></div>` +
+								`<div class="de-list"><a href="${ blobUrl }" download="${ name }"` +
+									` target="_blank">${ Lng.saveFrame[lang] }</a></div>`);
+						});
+					}, emptyFn);
+				});
+			}, Cfg.linksOver)));
+			srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
 		}
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.toggleSticky(true);
@@ -11648,7 +11698,7 @@ class ImagesViewer {
 		const btns = this._btns;
 		if(!data.inPview) {
 			btns.showBtns();
-			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
+			btns.autoBtn.classList.toggle('de-img-btn-none', !isVideo);
 		} else if(this.hasOwnProperty('_btns')) {
 			btns.hideBtns();
 		}
@@ -17178,7 +17228,7 @@ function scriptCSS() {
 		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
 	.de-fullimg-info { text-align: center; background-color: rgba(64,64,64,.8); padding: 2px 4px; margin-top: 2px; white-space: nowrap; }
 	.de-fullimg-info > .de-btn-src { color: #fff; }
-	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff  !important; text-decoration: none; outline: none; }
+	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-wrap { display: flex; flex-direction: column; align-items: center; }

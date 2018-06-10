@@ -34,10 +34,10 @@ const ContentLoader = {
 						`<br>${ Lng.willSavePview[lang] }`;
 					$popup('err-files', Lng.loadErrors[lang] + warnings);
 					if(imgOnly) {
-						return this._getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
+						return this.getDataFromImg(el).then(data => tar.addFile(thumbName, data), emptyFn);
 					}
 				}
-				return imgOnly ? null : this._getDataFromImg(el).then(data => {
+				return imgOnly ? null : this.getDataFromImg(el).then(data => {
 					el.src = thumbName;
 					tar.addFile(thumbName, data);
 				}, () => (el.src = safeName));
@@ -129,6 +129,18 @@ const ContentLoader = {
 		counter = progress.nextElementSibling;
 		this._thrPool.completeTasks();
 		els = null;
+	},
+	getDataFromImg(el) {
+		try {
+			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
+			cnv.width = el.width || el.videoWidth;
+			cnv.height = el.height || el.videoHeight;
+			cnv.getContext('2d').drawImage(el, 0, 0);
+			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
+				.split('').map(a => a.charCodeAt())));
+		} catch(err) {
+			return this.loadImgData(el.src);
+		}
 	},
 	loadImgData: (url, repeatOnError = true) => $ajax(url, {
 		responseType     : 'arraybuffer',
@@ -301,17 +313,5 @@ const ContentLoader = {
 			}
 		}
 		return {};
-	},
-	_getDataFromImg(el) {
-		try {
-			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
-			cnv.width = el.width;
-			cnv.height = el.height;
-			cnv.getContext('2d').drawImage(el, 0, 0);
-			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
-				.split('').map(a => a.charCodeAt())));
-		} catch(err) {
-			return this.loadImgData(el.src);
-		}
 	}
 };

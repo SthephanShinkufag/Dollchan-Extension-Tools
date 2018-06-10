@@ -224,7 +224,7 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, AbstractPost._getMenuImgSrc(el)); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el, false)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
@@ -289,20 +289,6 @@ class AbstractPost {
 		closePopup('load-fullmsg');
 	}
 
-	static _getMenuImgSrc(el) {
-		const link = el.nextSibling;
-		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
-			link.href) + '" target="_blank">' + Lng.searchIn[lang];
-		return `<a class="de-menu-item ${ [
-			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
-			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
-			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
-			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
-			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
-				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
-		].join('</a><a class="de-menu-item ') }</a>`;
-	}
 	_addMenu(el, isOutEvent, html) {
 		if(!this.menu || this.menu.parentEl !== el) {
 			if(isOutEvent) {
