@@ -94,24 +94,23 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	static getMenuImgSrc(el, isVideoFrame) {
-		if(isVideoFrame) {
-			return arrTags([
-				`de-src-google">${ Lng.frameSearch[lang] }Google`,
-				`de-src-tineye">${ Lng.frameSearch[lang] }TinEye`
-			], '<span class="de-menu-item ', '</span>');
+	static getMenuImgSrc(data) {
+		let p;
+		if(typeof data === 'string') {
+			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
+		} else {
+			const link = data.nextSibling;
+			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
+				link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		}
-		const link = el.nextSibling;
-		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
-			link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
 			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
-				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${ aib.iichan ? 'http://reho.st/' : '' }${
+				p }WhatAnime`
 		], '<a class="de-menu-item ', '</a>');
 	}
 	handleEvent(e) {

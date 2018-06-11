@@ -776,10 +776,18 @@ const Lng = {
 		'Перейти к результатам поиска',
 		'Go to search results',
 		'Перейти до результатів пошуку'],
+	getFrameLinks: [
+		'Получить ссылки для поиска этого кадра',
+		'Get links to search this frame',
+		'Отримати посилання для пошуку цього кадру'],
 	saveFrame: [
 		'Сохранить полученный кадр',
 		'Save the received frame',
 		'Зберегти отриманий кадр'],
+	errSaucenao: [
+		'Ошибка: не могу загрузить на saucenao.com',
+		'Error: can`t load to saucenao.com',
+		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
 	hotKeyEdit: [[

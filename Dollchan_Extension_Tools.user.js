@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '2e111cc';
+	var commit = 'e4cfd11';
 
 
 	var defaultCfg = {
@@ -4192,7 +4192,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		searchIn: ['Искать в ', 'Search in ', 'Шукати в '],
 		frameSearch: ['Поиск кадра в ', 'Frame search in ', 'Пошук кадру в '],
 		gotoResults: ['Перейти к результатам поиска', 'Go to search results', 'Перейти до результатів пошуку'],
+		getFrameLinks: ['Получить ссылки для поиска этого кадра', 'Get links to search this frame', 'Отримати посилання для пошуку цього кадру'],
 		saveFrame: ['Сохранить полученный кадр', 'Save the received frame', 'Зберегти отриманий кадр'],
+		errSaucenao: ['Ошибка: не могу загрузить на saucenao.com', 'Error: can`t load to saucenao.com', 'Помилка: не можу завантажити на saucenao.com'],
 
 		hotKeyEdit: [[
 		'%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. режим NSFW%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], [
@@ -8270,13 +8272,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}], [{
 			key: 'getMenuImgSrc',
-			value: function getMenuImgSrc(el, isVideoFrame) {
-				if (isVideoFrame) {
-					return arrTags(['de-src-google">' + Lng.frameSearch[lang] + 'Google', 'de-src-tineye">' + Lng.frameSearch[lang] + 'TinEye'], '<span class="de-menu-item ', '</span>');
+			value: function getMenuImgSrc(data) {
+				var p = void 0;
+				if (typeof data === 'string') {
+					p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
+				} else {
+					var link = data.nextSibling;
+					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
-				var link = el.nextSibling;
-				var p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
-				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB', 'de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' + p : p) + 'WhatAnime'], '<a class="de-menu-item ', '</a>');
+				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB', 'de-src-whatanime" href="http://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' : '') + p + 'WhatAnime'], '<a class="de-menu-item ', '</a>');
 			}
 		}]);
 
@@ -14217,7 +14221,7 @@ true, true];
 					case 'de-btn-stick':
 						this.btns.title = Lng.attachPview[lang];return;
 					case 'de-btn-src':
-						this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el, false));return;
+						this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el));return;
 					default:
 						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 							return;
@@ -16159,29 +16163,27 @@ true, true];
 					var srcBtnEl = $q('.de-btn-src', el);
 					srcBtnEl.addEventListener('mouseover', function () {
 						return srcBtnEl.odelay = setTimeout(function () {
-							new Menu(srcBtnEl, Menu.getMenuImgSrc(srcBtnEl, isVideo), function (optiontEl) {
-								if (!isVideo) {
-									return;
-								}
+							var menuHtml = isVideo ? '<span class="de-menu-item">' + Lng.getFrameLinks[lang] + '</span>' : Menu.getMenuImgSrc(srcBtnEl);
+							new Menu(srcBtnEl, menuHtml, !isVideo ? emptyFn : function (optiontEl) {
 								ContentLoader.getDataFromImg($q('video', el)).then(function (arr) {
-									var obj = {
-										google: {
-											url: 'https://www.google.com/searchbyimage/upload',
-											input: 'encoded_image'
-										},
-										tineye: {
-											url: 'https://www.tineye.com/search',
-											input: 'image'
-										}
-									}[optiontEl.className.split('-').pop()];
+									$popup('upload', Lng.sending[lang], true);
 									var formData = new FormData();
 									var blob = new Blob([arr], { type: 'image/png' });
 									var name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
-									formData.append(obj.input, blob, name);
-									$popup('upload', Lng.sending[lang], true);
-									$ajax(obj.url, { data: formData, method: 'POST' }, false).then(function (xhr) {
-										var blobUrl = window.URL.createObjectURL(blob);
-										$popup('upload', optiontEl.textContent + (':<div class="de-list"><a href="' + xhr.finalUrl + '"') + (' target="_blank">' + Lng.gotoResults[lang] + '</a></div>') + ('<div class="de-list"><a href="' + blobUrl + '" download="' + name + '"') + (' target="_blank">' + Lng.saveFrame[lang] + '</a></div>'));
+									formData.append('file', blob, name);
+									var ajaxParams = { data: formData, method: 'POST' };
+									var frameLinkHtml = '<a class="de-menu-item de-list" href="' + window.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
+									$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(function (xhr) {
+										var hostUrl = void 0;
+										try {
+											var res = JSON.parse(xhr.responseText);
+											if (res.status === 'success') {
+												hostUrl = res.url;
+											}
+										} catch (e) {}
+										$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : Lng.errSaucenao[lang]) + frameLinkHtml);
+									}, function () {
+										return $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml);
 									});
 								}, emptyFn);
 							});
