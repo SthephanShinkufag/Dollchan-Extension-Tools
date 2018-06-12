@@ -105,11 +105,11 @@ class Menu {
 		}
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
-			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
-			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
-			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
-			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${ aib.iichan ? 'http://reho.st/' : '' }${
+			`de-src-yandex" href="https://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
+			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
+			`de-src-iqdb" href="https://iqdb.org/?url=${ p }IQDB`,
+			`de-src-whatanime" href="https://whatanime.ga/?auto&url=${ aib.iichan ? 'http://reho.st/' : '' }${
 				p }WhatAnime`
 		], '<a class="de-menu-item ', '</a>');
 	}
