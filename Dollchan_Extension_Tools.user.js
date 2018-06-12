@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = 'e4cfd11';
+	var commit = '65e3218';
 
 
 	var defaultCfg = {
@@ -16174,14 +16174,17 @@ true, true];
 									var ajaxParams = { data: formData, method: 'POST' };
 									var frameLinkHtml = '<a class="de-menu-item de-list" href="' + window.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
 									$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(function (xhr) {
-										var hostUrl = void 0;
+										var hostUrl = void 0,
+										    errMsg = Lng.errSaucenao[lang];
 										try {
 											var res = JSON.parse(xhr.responseText);
 											if (res.status === 'success') {
 												hostUrl = res.url;
+											} else {
+												errMsg += ':<br>' + res.error_message;
 											}
 										} catch (e) {}
-										$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : Lng.errSaucenao[lang]) + frameLinkHtml);
+										$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : errMsg) + frameLinkHtml);
 									}, function () {
 										return $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml);
 									});

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '2e111cc';
+const commit = '65e3218';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -947,10 +947,18 @@ const Lng = {
 		'Перейти к результатам поиска',
 		'Go to search results',
 		'Перейти до результатів пошуку'],
+	getFrameLinks: [
+		'Получить ссылки для поиска этого кадра',
+		'Get links to search this frame',
+		'Отримати посилання для пошуку цього кадру'],
 	saveFrame: [
 		'Сохранить полученный кадр',
 		'Save the received frame',
 		'Зберегти отриманий кадр'],
+	errSaucenao: [
+		'Ошибка: не могу загрузить на saucenao.com',
+		'Error: can`t load to saucenao.com',
+		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
 	hotKeyEdit: [[
@@ -5119,24 +5127,23 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	static getMenuImgSrc(el, isVideoFrame) {
-		if(isVideoFrame) {
-			return arrTags([
-				`de-src-google">${ Lng.frameSearch[lang] }Google`,
-				`de-src-tineye">${ Lng.frameSearch[lang] }TinEye`
-			], '<span class="de-menu-item ', '</span>');
+	static getMenuImgSrc(data) {
+		let p;
+		if(typeof data === 'string') {
+			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
+		} else {
+			const link = data.nextSibling;
+			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
+				link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		}
-		const link = el.nextSibling;
-		const p = encodeURIComponent(el.getAttribute('de-href') || link.getAttribute('de-href') ||
-			link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=${ p }Yandex`,
 			`de-src-tineye" href="http://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="http://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="http://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${
-				aib.iichan ? 'http://reho.st/' + p : p }WhatAnime`
+			`de-src-whatanime" href="http://whatanime.ga/?auto&url=${ aib.iichan ? 'http://reho.st/' : '' }${
+				p }WhatAnime`
 		], '<a class="de-menu-item ', '</a>');
 	}
 	handleEvent(e) {
@@ -10142,7 +10149,7 @@ class AbstractPost {
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src': this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el, false)); return;
+		case 'de-btn-src': this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el)); return;
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
 				return;
@@ -11659,34 +11666,32 @@ class ImagesViewer {
 		if(Cfg.imgSrcBtns) {
 			const srcBtnEl = $q('.de-btn-src', el);
 			srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
-				new Menu(srcBtnEl, Menu.getMenuImgSrc(srcBtnEl, isVideo), optiontEl => {
-					if(!isVideo) {
-						return;
-					}
+				const menuHtml = isVideo ? `<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>` :
+					Menu.getMenuImgSrc(srcBtnEl);
+				new Menu(srcBtnEl, menuHtml, !isVideo ? emptyFn : optiontEl => {
 					ContentLoader.getDataFromImg($q('video', el)).then(arr => {
-						const obj = {
-							google: {
-								url   : 'https://www.google.com/searchbyimage/upload',
-								input : 'encoded_image'
-							},
-							tineye: {
-								url   : 'https://www.tineye.com/search',
-								input : 'image'
-							}
-						}[optiontEl.className.split('-').pop()];
+						$popup('upload', Lng.sending[lang], true);
 						const formData = new FormData();
 						const blob = new Blob([arr], { type: 'image/png' });
 						const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
-						formData.append(obj.input, blob, name);
-						$popup('upload', Lng.sending[lang], true);
-						$ajax(obj.url, { data: formData, method: 'POST' }, false).then(xhr => {
-							const blobUrl = window.URL.createObjectURL(blob);
-							$popup('upload', optiontEl.textContent +
-								`:<div class="de-list"><a href="${ xhr.finalUrl }"` +
-									` target="_blank">${ Lng.gotoResults[lang] }</a></div>` +
-								`<div class="de-list"><a href="${ blobUrl }" download="${ name }"` +
-									` target="_blank">${ Lng.saveFrame[lang] }</a></div>`);
-						});
+						formData.append('file', blob, name);
+						const ajaxParams = { data: formData, method: 'POST' };
+						const frameLinkHtml = `<a class="de-menu-item de-list" href="${
+							window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
+							Lng.saveFrame[lang] }</a>`;
+						$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
+							let hostUrl, errMsg = Lng.errSaucenao[lang];
+							try {
+								const res = JSON.parse(xhr.responseText);
+								if(res.status === 'success') {
+									hostUrl = res.url;
+								} else {
+									errMsg += ':<br>' + res.error_message;
+								}
+							} catch(e) {}
+							$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : errMsg) +
+								frameLinkHtml);
+						}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
 					}, emptyFn);
 				});
 			}, Cfg.linksOver)));

@@ -329,14 +329,16 @@ class ImagesViewer {
 							window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 							Lng.saveFrame[lang] }</a>`;
 						$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
-							let hostUrl;
+							let hostUrl, errMsg = Lng.errSaucenao[lang];
 							try {
 								const res = JSON.parse(xhr.responseText);
 								if(res.status === 'success') {
 									hostUrl = res.url;
+								} else {
+									errMsg += ':<br>' + res.error_message;
 								}
 							} catch(e) {}
-							$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : Lng.errSaucenao[lang]) +
+							$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : errMsg) +
 								frameLinkHtml);
 						}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
 					}, emptyFn);
