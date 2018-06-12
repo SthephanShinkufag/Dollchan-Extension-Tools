@@ -203,6 +203,40 @@ class ImagesViewer {
 		Object.defineProperty(this, '_zoomFactor', { value });
 		return value;
 	}
+	_addSrcBtn() {
+		const srcBtnEl = $q('.de-btn-src', this._obj);
+		const { data } = this;
+		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
+			const menuHtml = !data.isVideo ? Menu.getMenuImgSrc(srcBtnEl) :
+				`<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>`;
+			new Menu(srcBtnEl, menuHtml, !data.isVideo ? emptyFn : optiontEl => {
+				ContentLoader.getDataFromImg($q('video', this._obj)).then(arr => {
+					$popup('upload', Lng.sending[lang], true);
+					const formData = new FormData();
+					const blob = new Blob([arr], { type: 'image/png' });
+					const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
+					formData.append('file', blob, name);
+					const ajaxParams = { data: formData, method: 'POST' };
+					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
+						window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
+						Lng.saveFrame[lang] }</a>`;
+					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
+						let hostUrl, errMsg = Lng.errSaucenao[lang];
+						try {
+							const res = JSON.parse(xhr.responseText);
+							if(res.status === 'success') {
+								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							} else {
+								errMsg += ':<br>' + res.error_message;
+							}
+						} catch(e) {}
+						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
+					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
+				}, emptyFn);
+			});
+		}, Cfg.linksOver)));
+		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+	}
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
@@ -296,9 +330,8 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const { isVideo } = data;
 		const el = $add(`<div class="de-fullimg-center${
-			isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
+			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${
 			this._oldT - (Cfg.imgInfoLink ? 11 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -313,38 +346,7 @@ class ImagesViewer {
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
 		if(Cfg.imgSrcBtns) {
-			const srcBtnEl = $q('.de-btn-src', el);
-			srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
-				const menuHtml = isVideo ? `<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>` :
-					Menu.getMenuImgSrc(srcBtnEl);
-				new Menu(srcBtnEl, menuHtml, !isVideo ? emptyFn : optiontEl => {
-					ContentLoader.getDataFromImg($q('video', el)).then(arr => {
-						$popup('upload', Lng.sending[lang], true);
-						const formData = new FormData();
-						const blob = new Blob([arr], { type: 'image/png' });
-						const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
-						formData.append('file', blob, name);
-						const ajaxParams = { data: formData, method: 'POST' };
-						const frameLinkHtml = `<a class="de-menu-item de-list" href="${
-							window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
-							Lng.saveFrame[lang] }</a>`;
-						$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
-							let hostUrl, errMsg = Lng.errSaucenao[lang];
-							try {
-								const res = JSON.parse(xhr.responseText);
-								if(res.status === 'success') {
-									hostUrl = res.url;
-								} else {
-									errMsg += ':<br>' + res.error_message;
-								}
-							} catch(e) {}
-							$popup('upload', (hostUrl ? Menu.getMenuImgSrc(hostUrl) : errMsg) +
-								frameLinkHtml);
-						}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
-					}, emptyFn);
-				});
-			}, Cfg.linksOver)));
-			srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
+			this._addSrcBtn();
 		}
 		if(data.inPview && !data.post.isSticky) {
 			this.data.post.toggleSticky(true);
@@ -352,7 +354,7 @@ class ImagesViewer {
 		const btns = this._btns;
 		if(!data.inPview) {
 			btns.showBtns();
-			btns.autoBtn.classList.toggle('de-img-btn-none', !isVideo);
+			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
 		} else if(this.hasOwnProperty('_btns')) {
 			btns.hideBtns();
 		}
