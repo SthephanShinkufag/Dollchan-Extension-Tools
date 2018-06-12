@@ -1006,15 +1006,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
-		getSubmitData(data) {
+		getSubmitData(dc) {
 			let error = null;
 			let postNum = null;
-			const errEl = $id('errmsg', data);
+			const errEl = $q('#errmsg', dc);
 			if(errEl) {
-				error = errEl.textContent;
+				error = errEl.innerHTML;
 			} else {
 				try {
-					postNum = +$q('h1', data).nextSibling.textContent.match(/no:(\d+)/)[1];
+					postNum = +$q('h1', dc).nextSibling.textContent.match(/no:(\d+)/)[1];
 				} catch(err) {}
 			}
 			return { error, postNum };
