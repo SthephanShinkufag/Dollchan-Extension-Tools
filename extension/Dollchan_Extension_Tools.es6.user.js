@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '97370fd';
+const commit = '345b4c9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16081,6 +16081,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(el));
 		}
 		init() {
+			if(window.location.pathname.startsWith('/favs')) {
+				return true;
+			}
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(() => {
 				const delPosts = $Q('.post_deleted');

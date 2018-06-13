@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '97370fd';
+	var commit = '345b4c9';
 
 
 	var defaultCfg = {
@@ -21789,6 +21789,9 @@ true, true];
 				value: function init() {
 					var _this95 = this;
 
+					if (window.location.pathname.startsWith('/favs')) {
+						return true;
+					}
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
