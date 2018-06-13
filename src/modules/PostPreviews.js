@@ -237,7 +237,8 @@ class Pview extends AbstractPost {
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }`;
+			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }` +
+			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {

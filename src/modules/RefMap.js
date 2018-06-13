@@ -22,7 +22,9 @@ class RefMap {
 				}
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-my');
-					post.el.classList.add('de-reply-post');
+					if(!MyPosts.has(pNum)) {
+						post.el.classList.add('de-mypost-answer');
+					}
 				}
 				if(!posts.has(lNum)) {
 					continue;
@@ -70,7 +72,9 @@ class RefMap {
 			}
 			if(isAdd && MyPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
-				post.el.classList.add('de-reply-post');
+				if(!MyPosts.has(pNum)) {
+					post.el.classList.add('de-mypost-answer');
+				}
 				updater.refToYou();
 			}
 			if(!pByNum.has(lNum)) {

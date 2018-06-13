@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '45f4a60';
+const commit = '408aac7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11118,7 +11118,8 @@ class Pview extends AbstractPost {
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }`;
+			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }` +
+			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
@@ -12861,7 +12862,9 @@ class RefMap {
 				}
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-my');
-					post.el.classList.add('de-reply-post');
+					if(!MyPosts.has(pNum)) {
+						post.el.classList.add('de-mypost-answer');
+					}
 				}
 				if(!posts.has(lNum)) {
 					continue;
@@ -12909,7 +12912,9 @@ class RefMap {
 			}
 			if(isAdd && MyPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
-				post.el.classList.add('de-reply-post');
+				if(!MyPosts.has(pNum)) {
+					post.el.classList.add('de-mypost-answer');
+				}
 				updater.refToYou();
 			}
 			if(!pByNum.has(lNum)) {
@@ -17397,7 +17402,8 @@ function updateCSS() {
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost .de-post-counter::after { content: " (You)"; }` : '' }
+		.de-mypost .de-post-counter::after { content: " (You)"; }
+		.de-mypost-answer { border-left: 4px dotted rgba(97,107,134,.9) !important; border-right: 4px dotted rgba(97,107,134,.9) !important; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
