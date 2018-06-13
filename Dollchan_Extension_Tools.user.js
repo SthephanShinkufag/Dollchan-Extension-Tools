@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '7748a57';
+	var commit = 'fa7b9a3';
 
 
 	var defaultCfg = {
@@ -8280,7 +8280,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var link = data.nextSibling;
 					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
-				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-whatanime" href="https://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' : '') + p + 'WhatAnime'], '<a class="de-menu-item ', '</a>');
+				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-whatanime" href="https://whatanime.ga/?auto&url=' + (aib.iichan ? 'http://reho.st/' : '') + p + 'WhatAnime'], '<a class="de-menu-item ', '</a>');
 			}
 		}]);
 
