@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '790184b';
+const commit = '97370fd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12928,6 +12928,7 @@ class RefMap {
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
+			lPost.ref.hasMap = true;
 			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 		}
 	}

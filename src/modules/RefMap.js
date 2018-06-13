@@ -90,6 +90,7 @@ class RefMap {
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
+			lPost.ref.hasMap = true;
 			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
 		}
 	}
