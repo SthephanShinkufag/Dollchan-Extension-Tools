@@ -88,6 +88,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
 		}
+		get isArchived() {
+			return this.b.includes('/arch');
+		}
 		get lastPage() {
 			const els = $Q('.pager > a:not([class])');
 			const value = els ? els.length : 1;

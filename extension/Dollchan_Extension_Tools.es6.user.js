@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = 'fa7b9a3';
+const commit = '45f4a60';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15010,6 +15010,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
+		}
+		get isArchived() {
+			return this.b.includes('/arch');
 		}
 		get lastPage() {
 			const els = $Q('.pager > a:not([class])');
