@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '408aac7';
+	var commit = '54ae491';
 
 
 	var defaultCfg = {
@@ -16257,7 +16257,7 @@ true, true];
 			key: 'cancelWebmLoad',
 			value: function cancelWebmLoad(fullEl) {
 				if (this.isVideo) {
-					var videoEl = fullEl.firstElementChild;
+					var videoEl = $q('video', fullEl);
 					videoEl.pause();
 					videoEl.removeAttribute('src');
 					videoEl.load();

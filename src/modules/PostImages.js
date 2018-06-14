@@ -410,7 +410,7 @@ class ExpandableImage {
 	}
 	cancelWebmLoad(fullEl) {
 		if(this.isVideo) {
-			const videoEl = fullEl.firstElementChild;
+			const videoEl = $q('video', fullEl);
 			videoEl.pause();
 			videoEl.removeAttribute('src');
 			videoEl.load();

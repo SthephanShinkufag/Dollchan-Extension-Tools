@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '408aac7';
+const commit = '54ae491';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11762,7 +11762,7 @@ class ExpandableImage {
 	}
 	cancelWebmLoad(fullEl) {
 		if(this.isVideo) {
-			const videoEl = fullEl.firstElementChild;
+			const videoEl = $q('video', fullEl);
 			videoEl.pause();
 			videoEl.removeAttribute('src');
 			videoEl.load();
