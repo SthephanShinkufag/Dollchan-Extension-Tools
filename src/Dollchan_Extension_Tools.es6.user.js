@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = 'ee67002';
+const commit = '876e7a8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -910,11 +910,11 @@ const Lng = {
 			'Сховати схожий текст'],
 		refs: [
 			'Скрыть с ответами',
-			'Hide with answers',
+			'Hide with replies',
 			'Сховати з відповідями'],
 		refsonly: [
 			'Скрывать ответы',
-			'Hide answers',
+			'Hide replies',
 			'Ховати відповіді']
 	},
 	selExpandThr: [ // "Expand thread" post button
@@ -1574,9 +1574,17 @@ const Lng = {
 		'Posts omitted: ',
 		'Пропущено відповідей: '],
 	newPost: [
-		['новый пост', 'новых поста', 'новых постов', 'Последний'],
-		['new post', 'new posts', 'new posts', 'Latest'],
-		['новий пост', 'нових пости', 'нових постів', 'Останній']]
+		['новый пост', 'новых поста', 'новых постов'],
+		['new post', 'new posts', 'new posts'],
+		['новий пост', 'нових пости', 'нових постів']],
+	youReplies: [
+		['ответ Вам', 'ответа Вам', 'ответов Вам'],
+		['reply to You', 'replies to You', 'replies to You'],
+		['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
+	latestPost: [
+		'Последний пост',
+		'Latest post',
+		'Останній пост']
 };
 
 /* ==[ GlobalVars.js ]== */
@@ -11122,7 +11130,7 @@ class Pview extends AbstractPost {
 		const isYou = MyPosts.has(num);
 		pv.className = `${ aib.cReply } de-pview${
 			post.isViewed ? ' de-viewed' : '' }${ isYou ? ' de-mypost' : '' }` +
-			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
+			`${ post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
@@ -12868,7 +12876,7 @@ class RefMap {
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-my');
 					if(!MyPosts.has(pNum)) {
-						post.el.classList.add('de-mypost-answer');
+						post.el.classList.add('de-mypost-reply');
 					}
 				}
 				if(!posts.has(lNum)) {
@@ -12918,9 +12926,12 @@ class RefMap {
 			if(isAdd && MyPosts.has(lNum)) {
 				link.classList.add('de-ref-my');
 				if(!MyPosts.has(pNum)) {
-					post.el.classList.add('de-mypost-answer');
+					const postClass = post.el.classList;
+					if(!postClass.contains('de-mypost-reply')) {
+						postClass.add('de-mypost-reply');
+						updater.refToYou(pNum);
+					}
 				}
-				updater.refToYou();
 			}
 			if(!pByNum.has(lNum)) {
 				continue;
@@ -13718,7 +13729,7 @@ const thrNavPanel = {
 function initThreadUpdater(title, enableUpdate) {
 	let focusLoadTime, disabledByUser = true;
 	let enabled = false;
-	let hasYouRefs = false;
+	let repliesToYou = new Set();
 	let lastECode = 200;
 	let newPosts = 0;
 	let paused = false;
@@ -13852,7 +13863,7 @@ function initThreadUpdater(title, enableUpdate) {
 		startBlink(isError) {
 			const iconUrl = !this._hasIcons ? this._emptyIcon :
 				isError ? this._iconError :
-				hasYouRefs ? this._iconYou : this._iconNew;
+				repliesToYou.size ? this._iconYou : this._iconNew;
 			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
@@ -13877,7 +13888,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!isError && !newPosts) {
 				this._setIcon(this.originalIcon);
 			} else if(this._hasIcons) {
-				this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
+				this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew);
 			}
 		},
 
@@ -13956,15 +13967,19 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 		showNotif() {
-			const new10 = newPosts % 10;
-			const quantity = lang !== 0 ? +(newPosts !== 1) :
-				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-				new10 === 1 ? 0 : 1;
+			const lngQuantity = num => {
+				const new10 = num % 10;
+				return lang === 1 ? +(num !== 1) :
+					new10 > 4 || new10 === 0 || (((num % 100) / 10) | 0) === 1 ? 2 :
+					new10 === 1 ? 0 : 1;
+			};
 			const post = Thread.first.last;
+			const toYou = repliesToYou.size;
 			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
-				Lng.newPost[lang][quantity] }. ${ Lng.newPost[lang][3] }:`,
+				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
+				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body : post.text.substring(0, 250).replace(/\s+/g, ' '),
+				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
@@ -14132,7 +14147,8 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enableUpdater() {
 		enabled = true;
-		disabledByUser = paused = hasYouRefs = false;
+		disabledByUser = paused = false;
+		repliesToYou = new Set();
 		newPosts = 0;
 		focusLoadTime = -1e4;
 		notification.checkPermission();
@@ -14175,7 +14191,7 @@ function initThreadUpdater(title, enableUpdate) {
 			audio.stopAudio();
 			notification.closeNotif();
 			newPosts = 0;
-			hasYouRefs = false;
+			repliesToYou = new Set();
 			sendError = false;
 			setTimeout(() => {
 				updateTitle();
@@ -14227,9 +14243,9 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = true;
 			}
 		},
-		refToYou() {
+		refToYou(pNum) {
 			if(doc.hidden) {
-				hasYouRefs = true;
+				repliesToYou.add(pNum);
 			}
 		},
 		toggle() {
@@ -17408,7 +17424,7 @@ function updateCSS() {
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost-answer { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
+		.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
 		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }

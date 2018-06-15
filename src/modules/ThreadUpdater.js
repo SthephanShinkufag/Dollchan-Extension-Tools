@@ -5,7 +5,7 @@
 function initThreadUpdater(title, enableUpdate) {
 	let focusLoadTime, disabledByUser = true;
 	let enabled = false;
-	let hasYouRefs = false;
+	let repliesToYou = new Set();
 	let lastECode = 200;
 	let newPosts = 0;
 	let paused = false;
@@ -139,7 +139,7 @@ function initThreadUpdater(title, enableUpdate) {
 		startBlink(isError) {
 			const iconUrl = !this._hasIcons ? this._emptyIcon :
 				isError ? this._iconError :
-				hasYouRefs ? this._iconYou : this._iconNew;
+				repliesToYou.size ? this._iconYou : this._iconNew;
 			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
@@ -164,7 +164,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!isError && !newPosts) {
 				this._setIcon(this.originalIcon);
 			} else if(this._hasIcons) {
-				this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
+				this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew);
 			}
 		},
 
@@ -243,15 +243,19 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		},
 		showNotif() {
-			const new10 = newPosts % 10;
-			const quantity = lang !== 0 ? +(newPosts !== 1) :
-				new10 > 4 || new10 === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-				new10 === 1 ? 0 : 1;
+			const lngQuantity = num => {
+				const new10 = num % 10;
+				return lang === 1 ? +(num !== 1) :
+					new10 > 4 || new10 === 0 || (((num % 100) / 10) | 0) === 1 ? 2 :
+					new10 === 1 ? 0 : 1;
+			};
 			const post = Thread.first.last;
+			const toYou = repliesToYou.size;
 			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
-				Lng.newPost[lang][quantity] }. ${ Lng.newPost[lang][3] }:`,
+				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
+				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body : post.text.substring(0, 250).replace(/\s+/g, ' '),
+				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
@@ -419,7 +423,8 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enableUpdater() {
 		enabled = true;
-		disabledByUser = paused = hasYouRefs = false;
+		disabledByUser = paused = false;
+		repliesToYou = new Set();
 		newPosts = 0;
 		focusLoadTime = -1e4;
 		notification.checkPermission();
@@ -462,7 +467,7 @@ function initThreadUpdater(title, enableUpdate) {
 			audio.stopAudio();
 			notification.closeNotif();
 			newPosts = 0;
-			hasYouRefs = false;
+			repliesToYou = new Set();
 			sendError = false;
 			setTimeout(() => {
 				updateTitle();
@@ -514,9 +519,9 @@ function initThreadUpdater(title, enableUpdate) {
 				paused = true;
 			}
 		},
-		refToYou() {
+		refToYou(pNum) {
 			if(doc.hidden) {
-				hasYouRefs = true;
+				repliesToYou.add(pNum);
 			}
 		},
 		toggle() {

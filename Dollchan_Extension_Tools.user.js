@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = 'ee67002';
+	var commit = '876e7a8';
 
 
 	var defaultCfg = {
@@ -4177,8 +4177,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			noimg: ['Скрывать без картинок', 'Hide without images', 'Ховати без зображень'],
 			notext: ['Скрывать без текста', 'Hide without text', 'Ховати без тексту'],
 			text: ['Скрыть схожий текст', 'Hide similar text', 'Сховати схожий текст'],
-			refs: ['Скрыть с ответами', 'Hide with answers', 'Сховати з відповідями'],
-			refsonly: ['Скрывать ответы', 'Hide answers', 'Ховати відповіді']
+			refs: ['Скрыть с ответами', 'Hide with replies', 'Сховати з відповідями'],
+			refsonly: ['Скрывать ответы', 'Hide replies', 'Ховати відповіді']
 		},
 		selExpandThr: [
 		['+10 постов', 'Последние 30', 'Последние 50', 'Последние 100', 'Весь тред'], ['+10 posts', 'Last 30 posts', 'Last 50 posts', 'Last 100 posts', 'Entire thread'], ['+10 постів', 'Останні 30', 'Останні 50', 'Останні 100', 'Весь тред']],
@@ -4371,7 +4371,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		hideForm: ['Скрыть форму', 'Hide form', 'Сховати форму'],
 		noSage: ['Без сажи', 'No sage', 'Без сажі'],
 		postsOmitted: ['Пропущено ответов: ', 'Posts omitted: ', 'Пропущено відповідей: '],
-		newPost: [['новый пост', 'новых поста', 'новых постов', 'Последний'], ['new post', 'new posts', 'new posts', 'Latest'], ['новий пост', 'нових пости', 'нових постів', 'Останній']]
+		newPost: [['новый пост', 'новых поста', 'новых постов'], ['new post', 'new posts', 'new posts'], ['новий пост', 'нових пости', 'нових постів']],
+		youReplies: [['ответ Вам', 'ответа Вам', 'ответов Вам'], ['reply to You', 'replies to You', 'replies to You'], ['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
+		latestPost: ['Последний пост', 'Latest post', 'Останній пост']
 	};
 
 
@@ -15376,7 +15378,7 @@ true, true];
 									pByEl.set(pv, this);
 									isYou = MyPosts.has(num);
 
-									pv.className = aib.cReply + ' de-pview' + (post.isViewed ? ' de-viewed' : '') + (isYou ? ' de-mypost' : '') + ('' + (post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : ''));
+									pv.className = aib.cReply + ' de-pview' + (post.isViewed ? ' de-viewed' : '') + (isYou ? ' de-mypost' : '') + ('' + (post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : ''));
 									$show(pv);
 									$each($Q('.de-post-hiddencontent', pv), function (el) {
 										return el.classList.remove('de-post-hiddencontent');
@@ -17918,7 +17920,7 @@ true, true];
 							if (MyPosts.has(lNum)) {
 								link.classList.add('de-ref-my');
 								if (!MyPosts.has(pNum)) {
-									post.el.classList.add('de-mypost-answer');
+									post.el.classList.add('de-mypost-reply');
 								}
 							}
 							if (!posts.has(lNum)) {
@@ -17989,9 +17991,12 @@ true, true];
 					if (isAdd && MyPosts.has(lNum)) {
 						link.classList.add('de-ref-my');
 						if (!MyPosts.has(pNum)) {
-							post.el.classList.add('de-mypost-answer');
+							var postClass = post.el.classList;
+							if (!postClass.contains('de-mypost-reply')) {
+								postClass.add('de-mypost-reply');
+								updater.refToYou(pNum);
+							}
 						}
-						updater.refToYou();
 					}
 					if (!pByNum.has(lNum)) {
 						continue;
@@ -18776,7 +18781,7 @@ true, true];
 		var focusLoadTime = void 0,
 		    disabledByUser = true;
 		var enabled = false;
-		var hasYouRefs = false;
+		var repliesToYou = new Set();
 		var lastECode = 200;
 		var newPosts = 0;
 		var paused = false;
@@ -18919,7 +18924,7 @@ true, true];
 			startBlink: function startBlink(isError) {
 				var _this70 = this;
 
-				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew;
+				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew;
 				if (this._blinkInterv) {
 					if (this._currentIcon === iconUrl) {
 						return;
@@ -18945,7 +18950,7 @@ true, true];
 				if (!isError && !newPosts) {
 					this._setIcon(this.originalIcon);
 				} else if (this._hasIcons) {
-					this._setIcon(isError ? this._iconError : hasYouRefs ? this._iconYou : this._iconNew);
+					this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew);
 				}
 			},
 
@@ -19028,11 +19033,14 @@ true, true];
 			showNotif: function showNotif() {
 				var _this71 = this;
 
-				var new10 = newPosts % 10;
-				var quantity = lang !== 0 ? +(newPosts !== 1) : new10 > 4 || new10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
+				var lngQuantity = function lngQuantity(num) {
+					var new10 = num % 10;
+					return lang === 1 ? +(num !== 1) : new10 > 4 || new10 === 0 || (num % 100 / 10 | 0) === 1 ? 2 : new10 === 1 ? 0 : 1;
+				};
 				var post = Thread.first.last;
-				var notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' + Lng.newPost[lang][quantity] + '. ' + Lng.newPost[lang][3] + ':', {
-					body: post.text.substring(0, 250).replace(/\s+/g, ' '),
+				var toYou = repliesToYou.size;
+				var notif = new Notification(aib.dm + '/' + aib.b + '/' + aib.t + ': ' + newPosts + ' ' + Lng.newPost[lang][lngQuantity(newPosts)] + '. ' + (toYou ? toYou + ' ' + Lng.youReplies[lang][lngQuantity(toYou)] + '.' : ''), {
+					body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 					icon: post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 					tag: aib.dm + aib.b + aib.t
 				});
@@ -19222,7 +19230,8 @@ true, true];
 
 		function _enableUpdater() {
 			enabled = true;
-			disabledByUser = paused = hasYouRefs = false;
+			disabledByUser = paused = false;
+			repliesToYou = new Set();
 			newPosts = 0;
 			focusLoadTime = -1e4;
 			notification.checkPermission();
@@ -19265,7 +19274,7 @@ true, true];
 				audio.stopAudio();
 				notification.closeNotif();
 				newPosts = 0;
-				hasYouRefs = false;
+				repliesToYou = new Set();
 				sendError = false;
 				setTimeout(function () {
 					updateTitle();
@@ -19319,9 +19328,9 @@ true, true];
 					paused = true;
 				}
 			},
-			refToYou: function refToYou() {
+			refToYou: function refToYou(pNum) {
 				if (doc.hidden) {
-					hasYouRefs = true;
+					repliesToYou.add(pNum);
 				}
 			},
 			toggle: function toggle() {
@@ -22887,7 +22896,7 @@ true, true];
 	}
 
 	function updateCSS() {
-		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-answer { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { width: ' + (Cfg.resizeImgs ? '100%' : 'auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
+		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-my::after { content: " (You)"; }\n\t\t.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }' : '') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { width: ' + (Cfg.resizeImgs ? '100%' : 'auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
 		$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

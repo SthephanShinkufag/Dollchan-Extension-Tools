@@ -239,7 +239,7 @@ class Pview extends AbstractPost {
 		const isYou = MyPosts.has(num);
 		pv.className = `${ aib.cReply } de-pview${
 			post.isViewed ? ' de-viewed' : '' }${ isYou ? ' de-mypost' : '' }` +
-			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
+			`${ post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {

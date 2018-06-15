@@ -739,11 +739,11 @@ const Lng = {
 			'Сховати схожий текст'],
 		refs: [
 			'Скрыть с ответами',
-			'Hide with answers',
+			'Hide with replies',
 			'Сховати з відповідями'],
 		refsonly: [
 			'Скрывать ответы',
-			'Hide answers',
+			'Hide replies',
 			'Ховати відповіді']
 	},
 	selExpandThr: [ // "Expand thread" post button
@@ -1403,7 +1403,15 @@ const Lng = {
 		'Posts omitted: ',
 		'Пропущено відповідей: '],
 	newPost: [
-		['новый пост', 'новых поста', 'новых постов', 'Последний'],
-		['new post', 'new posts', 'new posts', 'Latest'],
-		['новий пост', 'нових пости', 'нових постів', 'Останній']]
+		['новый пост', 'новых поста', 'новых постов'],
+		['new post', 'new posts', 'new posts'],
+		['новий пост', 'нових пости', 'нових постів']],
+	youReplies: [
+		['ответ Вам', 'ответа Вам', 'ответов Вам'],
+		['reply to You', 'replies to You', 'replies to You'],
+		['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
+	latestPost: [
+		'Последний пост',
+		'Latest post',
+		'Останній пост']
 };
