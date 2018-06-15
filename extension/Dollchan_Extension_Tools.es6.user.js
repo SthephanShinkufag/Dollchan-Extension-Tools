@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '940c111';
+const commit = 'ee67002';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10293,7 +10293,8 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		if(MyPosts.has(num)) {
+		const isYou = MyPosts.has(num);
+		if(isYou) {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
@@ -10301,8 +10302,9 @@ class Post extends AbstractPost {
 		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
-		this.counterEl = isOp ? null : this.btns.lastChild;
+			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) +
+			(isYou ? '<span class="de-post-you">(You)</span>' : '') + '</span>');
+		this.counterEl = isOp ? null : $q('.de-post-counter', this.btns);
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}
@@ -11117,8 +11119,9 @@ class Pview extends AbstractPost {
 		const { num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
+		const isYou = MyPosts.has(num);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }` +
+			post.isViewed ? ' de-viewed' : '' }${ isYou ? ' de-mypost' : '' }` +
 			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
@@ -11132,13 +11135,15 @@ class Pview extends AbstractPost {
 		const isFav = isOp && (post.thr.isFav ||
 			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
 		const isCached = post instanceof CacheItem;
+		const pCountHtml = (post.isDeleted ? ` de-post-deleted">${ Lng.deleted[lang] }</span>` :
+			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
+			(isYou ? '<span class="de-post-you">(You)</span>' : '');
 		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.isDeleted ? '' : '<span class="de-post-counter">' +
-				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>');
+			'<span class="de-post-counter' + pCountHtml;
 		if(isCached) {
 			if(isOp) {
 				this.remoteThr = post.thr;
@@ -17194,6 +17199,7 @@ function scriptCSS() {
 	/* Posts counter */
 	.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }
 	.de-post-deleted { color: #727579; }
+	.de-post-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }
 
 	/* Text markup buttons */
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
@@ -17402,7 +17408,6 @@ function updateCSS() {
 	${ Cfg.markMyPosts ? `.de-mypost { ${ nav.isPresto ?
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
-		.de-mypost .de-post-counter::after { content: " (You)"; }
 		.de-mypost-answer { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
 	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
 		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }

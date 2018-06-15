@@ -368,7 +368,8 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		if(MyPosts.has(num)) {
+		const isYou = MyPosts.has(num);
+		if(isYou) {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
@@ -376,8 +377,9 @@ class Post extends AbstractPost {
 		this.btns = $aEnd(this._pref = $q(aib.qPostRef, el),
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
-			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) + '</span>');
-		this.counterEl = isOp ? null : this.btns.lastChild;
+			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) +
+			(isYou ? '<span class="de-post-you">(You)</span>' : '') + '</span>');
+		this.counterEl = isOp ? null : $q('.de-post-counter', this.btns);
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
 		}

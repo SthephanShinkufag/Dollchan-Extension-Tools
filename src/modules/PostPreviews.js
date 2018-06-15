@@ -236,8 +236,9 @@ class Pview extends AbstractPost {
 		const { num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
+		const isYou = MyPosts.has(num);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ Cfg.markMyPosts && MyPosts.has(num) ? ' de-mypost' : '' }` +
+			post.isViewed ? ' de-viewed' : '' }${ isYou ? ' de-mypost' : '' }` +
 			`${ post.el.classList.contains('de-mypost-answer') ? ' de-mypost-answer' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
@@ -251,13 +252,15 @@ class Pview extends AbstractPost {
 		const isFav = isOp && (post.thr.isFav ||
 			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
 		const isCached = post instanceof CacheItem;
+		const pCountHtml = (post.isDeleted ? ` de-post-deleted">${ Lng.deleted[lang] }</span>` :
+			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
+			(isYou ? '<span class="de-post-you">(You)</span>' : '');
 		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			'<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' +
-			(post.isDeleted ? '' : '<span class="de-post-counter">' +
-				(isOp ? 'OP' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>');
+			'<span class="de-post-counter' + pCountHtml;
 		if(isCached) {
 			if(isOp) {
 				this.remoteThr = post.thr;
