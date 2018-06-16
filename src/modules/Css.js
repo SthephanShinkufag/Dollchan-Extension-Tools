@@ -172,8 +172,8 @@ function scriptCSS() {
 
 	/* Posts counter */
 	.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }
-	.de-post-deleted { color: #727579; }
-	.de-post-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }
+	.de-post-counter-deleted { color: #727579; }
+	.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }
 
 	/* Text markup buttons */
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
@@ -383,9 +383,11 @@ function updateCSS() {
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
 		.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
-	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
-		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
-		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
+	${ Cfg.markMyLinks ?
+		`.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }
+		.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }
+		.de-ref-you::after { content: " (You)"; }` :
+		'.de-post-counter-you { display: none; }' }
 	${ Cfg.postBtnsCSS === 0 ?
 		`.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :

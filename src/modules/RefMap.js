@@ -21,7 +21,7 @@ class RefMap {
 					continue;
 				}
 				if(MyPosts.has(lNum)) {
-					link.classList.add('de-ref-my');
+					link.classList.add('de-ref-you');
 					if(!MyPosts.has(pNum)) {
 						post.el.classList.add('de-mypost-reply');
 					}
@@ -71,7 +71,7 @@ class RefMap {
 				continue;
 			}
 			if(isAdd && MyPosts.has(lNum)) {
-				link.classList.add('de-ref-my');
+				link.classList.add('de-ref-you');
 				if(!MyPosts.has(pNum)) {
 					const postClass = post.el.classList;
 					if(!postClass.contains('de-mypost-reply')) {
@@ -216,7 +216,7 @@ class RefMap {
 	}
 	_getHTML(num, tUrl, isHidden) {
 		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
-			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-my' : ''
+			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-you' : ''
 		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }

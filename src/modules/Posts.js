@@ -368,8 +368,8 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		const isYou = MyPosts.has(num);
-		if(isYou) {
+		const isMyPost = MyPosts.has(num);
+		if(isMyPost) {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
@@ -378,7 +378,7 @@ class Post extends AbstractPost {
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) +
-			(isYou ? '<span class="de-post-you">(You)</span>' : '') + '</span>');
+			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
 		this.counterEl = isOp ? null : $q('.de-post-counter', this.btns);
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
@@ -535,7 +535,7 @@ class Post extends AbstractPost {
 	deleteCounter() {
 		this.isDeleted = true;
 		this.counterEl.textContent = Lng.deleted[lang];
-		this.counterEl.classList.add('de-post-deleted');
+		this.counterEl.classList.add('de-post-counter-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');
 	}

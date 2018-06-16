@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '876e7a8';
+const commit = '1f9baac';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4517,6 +4517,7 @@ const CfgWindow = {
 			case 'markNewPosts': Post.clearMarks(); break;
 			case 'useDobrAPI': aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
+			case 'markMyLinks':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
 					MyPosts.purge();
@@ -4541,13 +4542,6 @@ const CfgWindow = {
 				} else {
 					$each($Q('.de-btn-src'), $del);
 				}
-				break;
-			case 'markMyLinks':
-				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-					locStorage.removeItem('de-myposts');
-					MyPosts.purge();
-				}
-				updateCSS();
 				break;
 			case 'addSageBtn':
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
@@ -10301,8 +10295,8 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		const isYou = MyPosts.has(num);
-		if(isYou) {
+		const isMyPost = MyPosts.has(num);
+		if(isMyPost) {
 			this.el.classList.add('de-mypost');
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
@@ -10311,7 +10305,7 @@ class Post extends AbstractPost {
 			'<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) +
 			(this.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
 			(isOp ? '' : `<span class="de-post-counter">${ count + 1 }</span>`) +
-			(isYou ? '<span class="de-post-you">(You)</span>' : '') + '</span>');
+			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
 		this.counterEl = isOp ? null : $q('.de-post-counter', this.btns);
 		if(Cfg.expandTrunc && this.trunc) {
 			this._getFullMsg(this.trunc, true);
@@ -10468,7 +10462,7 @@ class Post extends AbstractPost {
 	deleteCounter() {
 		this.isDeleted = true;
 		this.counterEl.textContent = Lng.deleted[lang];
-		this.counterEl.classList.add('de-post-deleted');
+		this.counterEl.classList.add('de-post-counter-deleted');
 		this.el.classList.add('de-post-removed');
 		this.wrap.classList.add('de-wrap-removed');
 	}
@@ -11127,9 +11121,9 @@ class Pview extends AbstractPost {
 		const { num } = this;
 		const pv = this.el = post.el.cloneNode(true);
 		pByEl.set(pv, this);
-		const isYou = MyPosts.has(num);
+		const isMyPost = MyPosts.has(num);
 		pv.className = `${ aib.cReply } de-pview${
-			post.isViewed ? ' de-viewed' : '' }${ isYou ? ' de-mypost' : '' }` +
+			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }` +
 			`${ post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : '' }`;
 		$show(pv);
 		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
@@ -11143,9 +11137,9 @@ class Pview extends AbstractPost {
 		const isFav = isOp && (post.thr.isFav ||
 			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
 		const isCached = post instanceof CacheItem;
-		const pCountHtml = (post.isDeleted ? ` de-post-deleted">${ Lng.deleted[lang] }</span>` :
+		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
-			(isYou ? '<span class="de-post-you">(You)</span>' : '');
+			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
 		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
@@ -12874,7 +12868,7 @@ class RefMap {
 					continue;
 				}
 				if(MyPosts.has(lNum)) {
-					link.classList.add('de-ref-my');
+					link.classList.add('de-ref-you');
 					if(!MyPosts.has(pNum)) {
 						post.el.classList.add('de-mypost-reply');
 					}
@@ -12924,7 +12918,7 @@ class RefMap {
 				continue;
 			}
 			if(isAdd && MyPosts.has(lNum)) {
-				link.classList.add('de-ref-my');
+				link.classList.add('de-ref-you');
 				if(!MyPosts.has(pNum)) {
 					const postClass = post.el.classList;
 					if(!postClass.contains('de-mypost-reply')) {
@@ -13069,7 +13063,7 @@ class RefMap {
 	}
 	_getHTML(num, tUrl, isHidden) {
 		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
-			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-my' : ''
+			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-you' : ''
 		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
 }
@@ -17214,8 +17208,8 @@ function scriptCSS() {
 
 	/* Posts counter */
 	.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }
-	.de-post-deleted { color: #727579; }
-	.de-post-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }
+	.de-post-counter-deleted { color: #727579; }
+	.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }
 
 	/* Text markup buttons */
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
@@ -17425,9 +17419,11 @@ function updateCSS() {
 		'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 		'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)' } !important; }
 		.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
-	${ Cfg.markMyLinks ? `.de-ref-my::after { content: " (You)"; }
-		.de-ref-del.de-ref-my::after { content: " (Del)(You)"; }
-		.de-ref-op.de-ref-my::after { content: " (OP)(You)"; }` : '' }
+	${ Cfg.markMyLinks ?
+		`.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }
+		.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }
+		.de-ref-you::after { content: " (You)"; }` :
+		'.de-post-counter-you { display: none; }' }
 	${ Cfg.postBtnsCSS === 0 ?
 		`.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }
 		.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :

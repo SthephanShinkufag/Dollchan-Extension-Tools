@@ -358,6 +358,7 @@ const CfgWindow = {
 			case 'markNewPosts': Post.clearMarks(); break;
 			case 'useDobrAPI': aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null; break;
 			case 'markMyPosts':
+			case 'markMyLinks':
 				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
 					locStorage.removeItem('de-myposts');
 					MyPosts.purge();
@@ -382,13 +383,6 @@ const CfgWindow = {
 				} else {
 					$each($Q('.de-btn-src'), $del);
 				}
-				break;
-			case 'markMyLinks':
-				if(!Cfg.markMyPosts && !Cfg.markMyLinks) {
-					locStorage.removeItem('de-myposts');
-					MyPosts.purge();
-				}
-				updateCSS();
 				break;
 			case 'addSageBtn':
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
