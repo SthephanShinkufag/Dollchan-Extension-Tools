@@ -362,18 +362,18 @@ class MakabaPostsBuilder {
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name } = file;
-				const isWebm = file.type === 6;
+				const isVideo = file.type === 6 || file.type === 10;
 				const imgClass = isNew ?
-					`post__file-preview preview${ isWebm ? ' post__file-webm' : '' }${
+					`post__file-preview preview${ isVideo ? ' post__file-webm' : '' }${
 						data.nsfw ? ' post__file-nsfw' : '' }` :
-					`img preview${ isWebm ? ' webm-file' : '' }`;
+					`img preview${ isVideo ? ' webm-file' : '' }`;
 				filesHTML += `<figure class="${ p }image">
 					<figcaption class="${ p }file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
 							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
 						<span class="${ p }filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
-							`${ isWebm ? ', ' + file.duration : '' })</span>
+							`${ isVideo ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }"${ isNew ? '' : 'class="image-link"' }>
 						<a ${ isNew ? 'class="post__image-link" ' : '' }href="${ file.path }">
