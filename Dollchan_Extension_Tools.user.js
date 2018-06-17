@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '4957fe6';
+	var commit = '20b1b02';
 
 
 	var defaultCfg = {
@@ -12585,7 +12585,10 @@ true, true];
 					el.removeAttribute('id');
 				}
 				el.classList.add('de-textarea');
-				el.style.cssText = 'width: ' + Cfg.textaWidth + 'px !important; height: ' + Cfg.textaHeight + 'px !important;';
+				var style = el.style;
+
+				style.setProperty('width', Cfg.textaWidth + 'px', 'important');
+				style.setProperty('height', Cfg.textaHeight + 'px', 'important');
 				el.addEventListener('keypress', function (e) {
 					var code = e.charCode || e.keyCode;
 					if ((code === 33  || code === 34 ) && e.which === 0) {
@@ -12634,11 +12637,13 @@ true, true];
 				if (nav.isFirefox) {
 					el.addEventListener('mouseup', function (_ref35) {
 						var target = _ref35.target;
-						var _target$style = target.style,
-						    width = _target$style.width,
-						    height = _target$style.height;
 
-						target.style.cssText = 'width: ' + width + ' !important; height: ' + height + ' !important;';
+						var s = target.style;
+						var width = s.width,
+						    height = s.height;
+
+						s.setProperty('width', width + 'px', 'important');
+						s.setProperty('height', height + 'px', 'important');
 						saveCfg('textaWidth', parseInt(width, 10));
 						saveCfg('textaHeight', parseInt(height, 10));
 					});
@@ -12646,7 +12651,7 @@ true, true];
 				}
 				$aEnd(el, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
 					_el: el,
-					_elStyle: el.style,
+					_elStyle: style,
 					handleEvent: function handleEvent(e) {
 						switch (e.type) {
 							case 'mousedown':
@@ -12657,7 +12662,8 @@ true, true];
 							case 'mousemove':
 								{
 									var cr = this._el.getBoundingClientRect();
-									this._elStyle.cssText = 'width: ' + (e.clientX - cr.left) + 'px !important; height: ' + (e.clientY - cr.top) + 'px !important;';
+									this._elStyle.setProperty('width', e.clientX - cr.left + 'px', 'important');
+									this._elStyle.setProperty('height', e.clientY - cr.top + 'px', 'important');
 									return;
 								}
 							default:

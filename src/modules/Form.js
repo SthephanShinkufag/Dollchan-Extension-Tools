@@ -419,8 +419,9 @@ class PostForm {
 			el.removeAttribute('id');
 		}
 		el.classList.add('de-textarea');
-		el.style.cssText = `width: ${ Cfg.textaWidth }px !important; height: ${
-			Cfg.textaHeight }px !important;`;
+		const { style } = el;
+		style.setProperty('width', Cfg.textaWidth + 'px', 'important');
+		style.setProperty('height', Cfg.textaHeight + 'px', 'important');
 		// Allow to scroll page on PgUp/PgDn
 		el.addEventListener('keypress', e => {
 			const code = e.charCode || e.keyCode;
@@ -450,8 +451,10 @@ class PostForm {
 		// Make textarea resizer
 		if(nav.isFirefox) {
 			el.addEventListener('mouseup', ({ target }) => {
-				const { width, height } = target.style;
-				target.style.cssText = `width: ${ width } !important; height: ${ height } !important;`;
+				const s = target.style;
+				const { width, height } = s;
+				s.setProperty('width', width + 'px', 'important');
+				s.setProperty('height', height + 'px', 'important');
 				saveCfg('textaWidth', parseInt(width, 10));
 				saveCfg('textaHeight', parseInt(height, 10));
 			});
@@ -459,7 +462,7 @@ class PostForm {
 		}
 		$aEnd(el, '<div id="de-resizer-text"></div>').addEventListener('mousedown', {
 			_el      : el,
-			_elStyle : el.style,
+			_elStyle : style,
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
@@ -469,8 +472,8 @@ class PostForm {
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
-					this._elStyle.cssText = `width: ${ e.clientX - cr.left }px !important; height: ${
-						e.clientY - cr.top }px !important;`;
+					this._elStyle.setProperty('width', (e.clientX - cr.left) + 'px', 'important');
+					this._elStyle.setProperty('height', (e.clientY - cr.top) + 'px', 'important');
 					return;
 				}
 				default: // mouseup
