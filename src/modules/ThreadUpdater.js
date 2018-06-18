@@ -255,7 +255,7 @@ function initThreadUpdater(title, enableUpdate) {
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
+				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});

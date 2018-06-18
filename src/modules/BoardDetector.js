@@ -1124,6 +1124,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
 					height: auto !important; font: 13px/15px arial !important; }
 				.de-cfg-label.de-block { display: block; }
+				.navbar-fixed-top, .thread_header_fixed { z-index: 0 !important; }
 				.post { overflow-x: auto !important; }
 				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
 		}
@@ -1162,7 +1163,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(el));
 		}
 		init() {
-			if(window.location.pathname.startsWith('/favs')) {
+			const path = window.location.pathname;
+			if(path.startsWith('/favs') || path.startsWith('/auth')) {
 				return true;
 			}
 			defaultCfg.ajaxUpdThr = 0;

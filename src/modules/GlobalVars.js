@@ -11,4 +11,4 @@ let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lan
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;
-let topWinZ = 0;
+let topWinZ = 1;

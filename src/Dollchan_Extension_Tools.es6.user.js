@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '3912f93';
+const commit = 'ae04604';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1600,7 +1600,7 @@ let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lan
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;
-let topWinZ = 0;
+let topWinZ = 1;
 
 /* ==[ Utils.js ]=============================================================================================
                                                     UTILS
@@ -13975,7 +13975,7 @@ function initThreadUpdater(title, enableUpdate) {
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
-				body: Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
+				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
 				tag  : aib.dm + aib.b + aib.t
 			});
@@ -16069,6 +16069,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
 					height: auto !important; font: 13px/15px arial !important; }
 				.de-cfg-label.de-block { display: block; }
+				.navbar-fixed-top, .thread_header_fixed { z-index: 0 !important; }
 				.post { overflow-x: auto !important; }
 				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
 		}
@@ -16107,7 +16108,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(el));
 		}
 		init() {
-			if(window.location.pathname.startsWith('/favs')) {
+			const path = window.location.pathname;
+			if(path.startsWith('/favs') || path.startsWith('/auth')) {
 				return true;
 			}
 			defaultCfg.ajaxUpdThr = 0;
