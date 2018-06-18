@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = 'a44fd45';
+const commit = '3c3532f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17270,6 +17270,7 @@ function scriptCSS() {
 	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
+	.de-fullimg-wrap { position: relative; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
