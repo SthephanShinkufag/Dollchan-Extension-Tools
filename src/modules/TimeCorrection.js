@@ -42,18 +42,17 @@ class DateTime {
 		}
 	}
 	genRFunc(rPattern) {
-		return new Function('dtime', `return '${
-			rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
-				.replace('_s', "' + this.pad2(dtime.getSeconds()) + '")
-				.replace('_i', "' + this.pad2(dtime.getMinutes()) + '")
-				.replace('_h', "' + this.pad2(dtime.getHours()) + '")
-				.replace('_d', "' + this.pad2(dtime.getDate()) + '")
-				.replace('_w', "' + this.arrW[dtime.getDay()] + '")
-				.replace('_n', "' + this.pad2(dtime.getMonth() + 1) + '")
-				.replace('_m', "' + this.arrM[dtime.getMonth()] + '")
-				.replace('_M', "' + this.arrFM[dtime.getMonth()] + '")
-				.replace('_y', "' + ('' + dtime.getFullYear()).substring(2) + '")
-				.replace('_Y', "' + dtime.getFullYear() + '") }';`);
+		return dtime => rPattern.replace('_o', (this.diff < 0 ? '' : '+') + this.diff)
+			.replace('_s', () => this.pad2(dtime.getSeconds()))
+			.replace('_i', () => this.pad2(dtime.getMinutes()))
+			.replace('_h', () => this.pad2(dtime.getHours()))
+			.replace('_d', () => this.pad2(dtime.getDate()))
+			.replace('_w', () => this.arrW[dtime.getDay()])
+			.replace('_n', () => this.pad2(dtime.getMonth() + 1))
+			.replace('_m', () => this.arrM[dtime.getMonth()])
+			.replace('_M', () => this.arrFM[dtime.getMonth()])
+			.replace('_y', () => ('' + dtime.getFullYear()).substring(2))
+			.replace('_Y', () => dtime.getFullYear());
 	}
 	getRPattern(txt) {
 		const m = txt.match(new RegExp(this.regex));
