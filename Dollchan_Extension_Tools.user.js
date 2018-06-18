@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '3e226ff';
+	var commit = 'a44fd45';
 
 
 	var defaultCfg = {
@@ -4404,7 +4404,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var quotetxt = '';
 	var nativeXHRworks = true;
 	var visPosts = 2;
-	var topWinZ = 1;
+	var topWinZ = 10;
 
 
 
@@ -21864,7 +21864,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }\n\t\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;\n\t\t\t\t\theight: auto !important; font: 13px/15px arial !important; }\n\t\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t\t.navbar-fixed-top, .thread_header_fixed { z-index: 0 !important; }\n\t\t\t\t.post { overflow-x: auto !important; }\n\t\t\t\t.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }';
+					return '.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }\n\t\t\t\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;\n\t\t\t\t\theight: auto !important; font: 13px/15px arial !important; }\n\t\t\t\t.de-cfg-label.de-block { display: block; }\n\t\t\t\t.navbar-fixed-top, .thread_header_fixed { z-index: 5 !important; }\n\t\t\t\t.post { overflow-x: auto !important; }\n\t\t\t\t.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }';
 				}
 			}, {
 				key: 'isArchived',
