@@ -431,7 +431,7 @@ class Thread {
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
-				pBuilder.length + 1 - this.hidCounter,
+				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0),
 				$Q(aib.qPostImg, this.el).length,
 				pBuilder.postersCount);
 			Pview.updatePosition(true);

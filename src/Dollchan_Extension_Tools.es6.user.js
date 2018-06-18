@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '3c3532f';
+const commit = '3c85cac';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3013,8 +3013,8 @@ const Panel = Object.create({
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
-						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
-							${ imgLen }</span>
+						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">${
+							imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
 					</span>` : '') }
 				</span>
@@ -13503,7 +13503,7 @@ class Thread {
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
-				pBuilder.length + 1 - this.hidCounter,
+				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0),
 				$Q(aib.qPostImg, this.el).length,
 				pBuilder.postersCount);
 			Pview.updatePosition(true);

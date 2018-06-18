@@ -38,8 +38,8 @@ const Panel = Object.create({
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
-						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">
-							${ imgLen }</span>
+						<span id="de-panel-info-icount" title="${ Lng.panelBtn.imglen[lang] }">${
+							imgLen }</span>
 						<span id="de-panel-info-acount" title="${ Lng.panelBtn.posters[lang] }"></span>
 					</span>` : '') }
 				</span>
