@@ -98,11 +98,11 @@ class ImagesViewer {
 		this._height = 0;
 		this._minSize = 0;
 		this._moved = false;
-		this._obj = null;
 		this._oldL = 0;
 		this._oldT = 0;
 		this._oldX = 0;
 		this._oldY = 0;
+		this._parentEl = null;
 		this._width = 0;
 		this._showFullImg(data);
 	}
@@ -203,40 +203,6 @@ class ImagesViewer {
 		Object.defineProperty(this, '_zoomFactor', { value });
 		return value;
 	}
-	_addSrcBtn() {
-		const srcBtnEl = $q('.de-btn-src', this._obj);
-		const { data } = this;
-		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
-			const menuHtml = !data.isVideo ? Menu.getMenuImgSrc(srcBtnEl) :
-				`<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>`;
-			new Menu(srcBtnEl, menuHtml, !data.isVideo ? emptyFn : optiontEl => {
-				ContentLoader.getDataFromImg($q('video', this._obj)).then(arr => {
-					$popup('upload', Lng.sending[lang], true);
-					const formData = new FormData();
-					const blob = new Blob([arr], { type: 'image/png' });
-					const name = data.name.substring(0, data.name.lastIndexOf('.')) + '.png';
-					formData.append('file', blob, name);
-					const ajaxParams = { data: formData, method: 'POST' };
-					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
-						window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
-						Lng.saveFrame[lang] }</a>`;
-					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
-						let hostUrl, errMsg = Lng.errSaucenao[lang];
-						try {
-							const res = JSON.parse(xhr.responseText);
-							if(res.status === 'success') {
-								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
-							} else {
-								errMsg += ':<br>' + res.error_message;
-							}
-						} catch(e) {}
-						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
-					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
-				}, emptyFn);
-			});
-		}, Cfg.linksOver)));
-		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
-	}
 	_handleWheelEvent(clientX, clientY, delta) {
 		if(delta === 0) {
 			return;
@@ -268,7 +234,7 @@ class ImagesViewer {
 		if(data.inPview && data.post.isSticky) {
 			data.post.toggleSticky(false);
 		}
-		$del(this._obj);
+		$del(this._parentEl);
 		if(e && data.inPview) {
 			data.sendCloseEvent(e, false);
 		}
@@ -341,15 +307,13 @@ class ImagesViewer {
 		}
 		this._elStyle = el.style;
 		this.data = data;
-		this._obj = el;
+		this._parentEl = el;
 		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
 		el.addEventListener('mousedown', this, true);
 		el.addEventListener('click', this, true);
-		if(Cfg.imgSrcBtns) {
-			this._addSrcBtn();
-		}
+		data.srcBtnEvents(this);
 		if(data.inPview && !data.post.isSticky) {
-			this.data.post.toggleSticky(true);
+			data.post.toggleSticky(true);
 		}
 		const btns = this._btns;
 		if(!data.inPview) {
@@ -506,6 +470,7 @@ class ExpandableImage {
 			'<div class="de-fullimg-after"></div>');
 		this._fullEl = this.getFullImg(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
+		this.srcBtnEvents(this);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 	}
@@ -697,6 +662,42 @@ class ExpandableImage {
 		} else if(x > cr.right || y > cr.bottom && Pview.top) {
 			Pview.top.markToDel();
 		}
+	}
+	srcBtnEvents({ _fullEl }) {
+		if(!Cfg.imgSrcBtns) {
+			return;
+		}
+		const srcBtnEl = $q('.de-btn-src', _fullEl);
+		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
+			const menuHtml = !this.isVideo ? Menu.getMenuImgSrc(srcBtnEl) :
+				`<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>`;
+			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
+				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
+					$popup('upload', Lng.sending[lang], true);
+					const formData = new FormData();
+					const blob = new Blob([arr], { type: 'image/png' });
+					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
+					formData.append('file', blob, name);
+					const ajaxParams = { data: formData, method: 'POST' };
+					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
+						window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
+						Lng.saveFrame[lang] }</a>`;
+					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
+						let hostUrl, errMsg = Lng.errSaucenao[lang];
+						try {
+							const res = JSON.parse(xhr.responseText);
+							if(res.status === 'success') {
+								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							} else {
+								errMsg += ':<br>' + res.error_message;
+							}
+						} catch(e) {}
+						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
+					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
+				}, emptyFn);
+			});
+		}, Cfg.linksOver)));
+		srcBtnEl.addEventListener('mouseout', e => clearTimeout(e.target.odelay));
 	}
 
 	get _size() {
