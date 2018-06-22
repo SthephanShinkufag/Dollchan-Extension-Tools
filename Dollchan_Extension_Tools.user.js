@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.6.3.0';
-	var commit = '867f610';
+	var commit = '2902bc4';
 
 
 	var defaultCfg = {
@@ -4016,7 +4016,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			imgNavBtns: ['Добавлять кнопки навигации по картинкам', 'Add buttons to navigate images', 'Додавати кнопки навігації по зображеннях'],
 			imgInfoLink: ['Имя файла под раскрытой картинкой', 'Show file name under expanded image', 'Імʼя файлу під розкритим зображенням'],
 			resizeDPI: ['Не растягивать на дисплеях с высоким DPI', 'Donʼt upscale images on high DPI displays', 'Не розтягувати на дисплеях з високим DPI'],
-			resizeImgs: ['Умещать большие картинки в экран', 'Resize large images to fit screen', 'Вміщувати великі зображення в екран'],
+			resizeImgs: {
+				sel: [['Откл.', 'По ширине', 'Шир.+выс.'], ['Disable', 'By width', 'Width+Height'], ['Вимк.', 'По ширині', 'Шир.+выс.']],
+				txt: ['Уменьшать при раскрытии в посте', 'Fit to screen for expanding in post', 'Зменшувати при розкритті в пості']
+			},
 			minImgSize: ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)', 'Мінім. розмір розгорнутих зображень (px)'],
 			zoomFactor: ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]', 'Чутливість зуму зображень [1-100%]'],
 			webmControl: ['Показывать контрол-бар для WebM', 'Show control bar for WebM', 'Показувати смугу керування для WebM'],
@@ -7618,6 +7621,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'thrBtns':
 					case 'noSpoilers':
+					case 'resizeImgs':
 						updateCSS();break;
 					case 'expandImgs':
 						updateCSS();
@@ -7691,7 +7695,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'noPostNames':
 					case 'widePosts':
 					case 'imgNavBtns':
-					case 'resizeImgs':
 					case 'strikeHidd':
 					case 'removeHidd':
 					case 'noBoardRule':
@@ -8018,7 +8021,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgImages: function _getCfgImages() {
-			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getBox('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.isPresto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getSel('imgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
+			return '<div id="de-cfg-images" class="de-cfg-unvis">\n\t\t\t' + this._getSel('expandImgs') + '<br>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('imgNavBtns') + '<br>\n\t\t\t\t' + this._getBox('imgInfoLink') + '<br>\n\t\t\t\t' + this._getSel('resizeImgs') + '<br>\n\t\t\t\t' + (Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('minImgSize') + '<br>\n\t\t\t\t' + this._getInp('zoomFactor') + '<br>\n\t\t\t\t' + this._getBox('webmControl') + '<br>\n\t\t\t\t' + this._getBox('webmTitles') + '<br>\n\t\t\t\t' + this._getInp('webmVolume') + '<br>\n\t\t\t\t' + this._getInp('minWebmWidth') + '\n\t\t\t</div>\n\t\t\t' + (nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>') + '\n\t\t\t' + (nav.isPresto || aib.fch ? '' : '<div class="de-cfg-depend">\n\t\t\t\t' + this._getBox('findImgFile') + '\n\t\t\t</div>') + '\n\t\t\t' + this._getSel('openImgs') + '<br>\n\t\t\t' + this._getBox('imgSrcBtns') + '<br>\n\t\t\t' + this._getSel('imgNames') + '<br>\n\t\t\t' + this._getInp('maskVisib') + '\n\t\t</div>';
 		},
 
 
@@ -8085,7 +8088,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var fn = this._toggleDependant;
 			fn(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]']);
 			fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-			fn(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+			fn(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
 			fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 			fn(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 			fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
@@ -16305,21 +16308,19 @@ true, true];
 						width = this.isVideo ? minSize : height * ar;
 					}
 				}
-				if (Cfg.resizeImgs) {
-					var maxWidth = Post.sizing.wWidth - 2;
-					var maxHeight = Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
-					if (width > maxWidth || height > maxHeight) {
-						var _ar = width / height;
-						if (_ar > maxWidth / maxHeight) {
-							width = maxWidth;
-							height = width / _ar;
-						} else {
-							height = maxHeight;
-							width = height * _ar;
-						}
-						if (width < minSize || height < minSize) {
-							return [width, height, Math.max(width, height)];
-						}
+				var maxWidth = Post.sizing.wWidth - 2;
+				var maxHeight = Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+				if (width > maxWidth || height > maxHeight) {
+					var _ar = width / height;
+					if (_ar > maxWidth / maxHeight) {
+						width = maxWidth;
+						height = width / _ar;
+					} else {
+						height = maxHeight;
+						width = height * _ar;
+					}
+					if (width < minSize || height < minSize) {
+						return [width, height, Math.max(width, height)];
 					}
 				}
 				return [width, height, null];
@@ -22926,7 +22927,7 @@ true, true];
 	}
 
 	function updateCSS() {
-		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { width: ' + (Cfg.resizeImgs ? '100%' : 'auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
+		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
 		$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {

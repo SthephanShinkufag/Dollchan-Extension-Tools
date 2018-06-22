@@ -187,10 +187,16 @@ const Lng = {
 			'Не растягивать на дисплеях с высоким DPI',
 			'Donʼt upscale images on high DPI displays',
 			'Не розтягувати на дисплеях з високим DPI'],
-		resizeImgs: [
-			'Умещать большие картинки в экран',
-			'Resize large images to fit screen',
-			'Вміщувати великі зображення в екран'],
+		resizeImgs: {
+			sel: [
+				['Откл.', 'По ширине', 'Шир.+выс.'],
+				['Disable', 'By width', 'Width+Height'],
+				['Вимк.', 'По ширині', 'Шир.+выс.']],
+			txt: [
+				'Уменьшать при раскрытии в посте',
+				'Fit to screen for expanding in post',
+				'Зменшувати при розкритті в пості']
+		},
 		minImgSize: [
 			'Миним. размер раскрытых картинок (px)',
 			'Minimal size for expanded images (px)',

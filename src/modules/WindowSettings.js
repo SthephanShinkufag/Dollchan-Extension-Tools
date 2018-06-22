@@ -271,7 +271,8 @@ const CfgWindow = {
 				}
 				break;
 			case 'thrBtns':
-			case 'noSpoilers': updateCSS(); break;
+			case 'noSpoilers':
+			case 'resizeImgs': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
 				AttachedImage.closeImg();
@@ -320,7 +321,6 @@ const CfgWindow = {
 			case 'noPostNames':
 			case 'widePosts':
 			case 'imgNavBtns':
-			case 'resizeImgs':
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
@@ -653,7 +653,7 @@ const CfgWindow = {
 			<div class="de-cfg-depend">
 				${ this._getBox('imgNavBtns') }<br>
 				${ this._getBox('imgInfoLink') }<br>
-				${ this._getBox('resizeImgs') }<br>
+				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }<br>
 				${ this._getInp('zoomFactor') }<br>
@@ -834,7 +834,7 @@ const CfgWindow = {
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
-			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
+			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
 			'input[info="minWebmWidth"]'
 		]);

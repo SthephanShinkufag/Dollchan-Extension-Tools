@@ -401,7 +401,7 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
+	.de-fullimg-wrap-inpost > .de-fullimg { ${ Cfg.resizeImgs ? `width: 100%;${ Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '' }` : 'width: auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }

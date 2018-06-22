@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.3.0';
-const commit = '867f610';
+const commit = '2902bc4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -73,7 +73,7 @@ const defaultCfg = {
 	imgNavBtns   : 1,    //    add buttons to navigate images
 	imgInfoLink  : 1,    //    show name under expanded image
 	resizeDPI    : 0,    //    don't upscale images on high DPI displays
-	resizeImgs   : 1,    //    resize large images to fit screen
+	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
@@ -358,10 +358,16 @@ const Lng = {
 			'Не растягивать на дисплеях с высоким DPI',
 			'Donʼt upscale images on high DPI displays',
 			'Не розтягувати на дисплеях з високим DPI'],
-		resizeImgs: [
-			'Умещать большие картинки в экран',
-			'Resize large images to fit screen',
-			'Вміщувати великі зображення в екран'],
+		resizeImgs: {
+			sel: [
+				['Откл.', 'По ширине', 'Шир.+выс.'],
+				['Disable', 'By width', 'Width+Height'],
+				['Вимк.', 'По ширині', 'Шир.+выс.']],
+			txt: [
+				'Уменьшать при раскрытии в посте',
+				'Fit to screen for expanding in post',
+				'Зменшувати при розкритті в пості']
+		},
 		minImgSize: [
 			'Миним. размер раскрытых картинок (px)',
 			'Minimal size for expanded images (px)',
@@ -4430,7 +4436,8 @@ const CfgWindow = {
 				}
 				break;
 			case 'thrBtns':
-			case 'noSpoilers': updateCSS(); break;
+			case 'noSpoilers':
+			case 'resizeImgs': updateCSS(); break;
 			case 'expandImgs':
 				updateCSS();
 				AttachedImage.closeImg();
@@ -4479,7 +4486,6 @@ const CfgWindow = {
 			case 'noPostNames':
 			case 'widePosts':
 			case 'imgNavBtns':
-			case 'resizeImgs':
 			case 'strikeHidd':
 			case 'removeHidd':
 			case 'noBoardRule':
@@ -4812,7 +4818,7 @@ const CfgWindow = {
 			<div class="de-cfg-depend">
 				${ this._getBox('imgNavBtns') }<br>
 				${ this._getBox('imgInfoLink') }<br>
-				${ this._getBox('resizeImgs') }<br>
+				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
 				${ this._getInp('minImgSize') }<br>
 				${ this._getInp('zoomFactor') }<br>
@@ -4993,7 +4999,7 @@ const CfgWindow = {
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
-			'input[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
+			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
 			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
 			'input[info="minWebmWidth"]'
 		]);
@@ -11791,22 +11797,20 @@ class ExpandableImage {
 				width = this.isVideo ? minSize : height * ar;
 			}
 		}
-		if(Cfg.resizeImgs) {
-			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight -
-				(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
-			if(width > maxWidth || height > maxHeight) {
-				const ar = width / height;
-				if(ar > maxWidth / maxHeight) {
-					width = maxWidth;
-					height = width / ar;
-				} else {
-					height = maxHeight;
-					width = height * ar;
-				}
-				if(width < minSize || height < minSize) {
-					return [width, height, Math.max(width, height)];
-				}
+		const maxWidth = Post.sizing.wWidth - 2;
+		const maxHeight = Post.sizing.wHeight -
+			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+		if(width > maxWidth || height > maxHeight) {
+			const ar = width / height;
+			if(ar > maxWidth / maxHeight) {
+				width = maxWidth;
+				height = width / ar;
+			} else {
+				height = maxHeight;
+				width = height * ar;
+			}
+			if(width < minSize || height < minSize) {
+				return [width, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];
@@ -17446,7 +17450,7 @@ function updateCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,
 		.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,
 		.de-btn-stick-on { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }` }
-	.de-fullimg-wrap-inpost > .de-fullimg { width: ${ Cfg.resizeImgs ? '100%' : 'auto' }; }
+	.de-fullimg-wrap-inpost > .de-fullimg { ${ Cfg.resizeImgs ? `width: 100%;${ Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '' }` : 'width: auto' }; }
 	${ Cfg.maskImgs ? `${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 		${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 		.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }

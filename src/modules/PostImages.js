@@ -426,22 +426,20 @@ class ExpandableImage {
 				width = this.isVideo ? minSize : height * ar;
 			}
 		}
-		if(Cfg.resizeImgs) {
-			const maxWidth = Post.sizing.wWidth - 2;
-			const maxHeight = Post.sizing.wHeight -
-				(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
-			if(width > maxWidth || height > maxHeight) {
-				const ar = width / height;
-				if(ar > maxWidth / maxHeight) {
-					width = maxWidth;
-					height = width / ar;
-				} else {
-					height = maxHeight;
-					width = height * ar;
-				}
-				if(width < minSize || height < minSize) {
-					return [width, height, Math.max(width, height)];
-				}
+		const maxWidth = Post.sizing.wWidth - 2;
+		const maxHeight = Post.sizing.wHeight -
+			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+		if(width > maxWidth || height > maxHeight) {
+			const ar = width / height;
+			if(ar > maxWidth / maxHeight) {
+				width = maxWidth;
+				height = width / ar;
+			} else {
+				height = maxHeight;
+				width = height * ar;
+			}
+			if(width < minSize || height < minSize) {
+				return [width, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];

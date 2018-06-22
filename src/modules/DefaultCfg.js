@@ -39,7 +39,7 @@ const defaultCfg = {
 	imgNavBtns   : 1,    //    add buttons to navigate images
 	imgInfoLink  : 1,    //    show name under expanded image
 	resizeDPI    : 0,    //    don't upscale images on high DPI displays
-	resizeImgs   : 1,    //    resize large images to fit screen
+	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
