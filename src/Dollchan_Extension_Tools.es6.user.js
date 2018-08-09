@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.6.25.0';
-const commit = '771d95d';
+const commit = '41bc6c1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14990,6 +14990,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
+			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -15137,6 +15138,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		initCaptcha(cap) {
 			const box = $q('.captcha-box, .captcha');
+			if(!Cfg.altCaptcha) {
+				box.innerHTML = `<div id="captcha-widget-main"></div>
+					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
+				return null;
+			}
 			const img = box.firstChild;
 			if(!img || img.tagName !== 'IMG') {
 				box.innerHTML = `<img>
@@ -15165,7 +15171,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		updateCaptcha(cap) {
-			return cap.updateHelper(`/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum, xhr => {
+			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
+				'/api/captcha/invisible_recaptcha/id';
+			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box, .captcha');
 				let data = xhr.responseText;
 				try {
@@ -15180,7 +15188,26 @@ function getImageBoard(checkDomains, checkEngines) {
 					break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(data.type === '2chaptcha') {
+					if(data.type === 'invisible_recaptcha') {
+						$q('.captcha-key').value = data.id;
+						if(!$id('captcha-widget').hasChildNodes()) {
+							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
+									sitekey : '${ data.id }',
+									theme   : 'light',
+									size    : 'invisible',
+									callback: function() {
+										var el = document.getElementById('captcha-widget-main');
+										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
+										el.firstChild.value = grecaptcha.getResponse();
+									}
+								});
+								grecaptcha.execute(deCapWidget);`);
+						} else {
+							$script(`grecaptcha.reset(deCapWidget);
+								grecaptcha.execute(deCapWidget);`);
+						}
+						break;
+					} else if(data.type === '2chaptcha') {
 						const img = box.firstChild;
 						img.src = '';
 						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
