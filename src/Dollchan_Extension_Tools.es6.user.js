@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'f39a818';
+const commit = '2970f27';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15189,7 +15189,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
-						$q('.captcha-key').value = data.id;
+						$q('.captcha-key, .captcha__key').value = data.id;
 						if(!$id('captcha-widget').hasChildNodes()) {
 							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
 									sitekey : '${ data.id }',
