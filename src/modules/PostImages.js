@@ -632,7 +632,8 @@ class ExpandableImage {
 				const loadedTitle = decodeURIComponent(escape(str));
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-link', wrapEl).textContent += ` - ${ videoEl.title = loadedTitle }`;
+					$q('.de-fullimg-link', wrapEl).textContent +=
+						` - ${ videoEl.title = loadedTitle.replace(/\./g, ' ') }`;
 				}
 			});
 		}

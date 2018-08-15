@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '2970f27';
+	var commit = '87fff30';
 
 
 	var defaultCfg = {
@@ -16519,7 +16519,7 @@ true, true];
 						var loadedTitle = decodeURIComponent(escape(str));
 						_this57.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
-							$q('.de-fullimg-link', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle);
+							$q('.de-fullimg-link', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle.replace(/\./g, ' '));
 						}
 					});
 				}
