@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'f778e42';
+	var commit = 'afb6593';
 
 
 	var defaultCfg = {
@@ -21788,7 +21788,7 @@ true, true];
 					var _this94 = this;
 
 					var path = window.location.pathname;
-					if (path.startsWith('/favs') || path.startsWith('/auth')) {
+					if (path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 						return true;
 					}
 					defaultCfg.ajaxUpdThr = 0;

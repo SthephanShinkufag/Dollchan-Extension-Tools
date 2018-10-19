@@ -1155,7 +1155,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			const path = window.location.pathname;
-			if(path.startsWith('/favs') || path.startsWith('/auth')) {
+			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 				return true;
 			}
 			defaultCfg.ajaxUpdThr = 0;

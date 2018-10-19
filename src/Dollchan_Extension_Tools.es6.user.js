@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'f778e42';
+const commit = 'afb6593';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16110,7 +16110,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			const path = window.location.pathname;
-			if(path.startsWith('/favs') || path.startsWith('/auth')) {
+			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 				return true;
 			}
 			defaultCfg.ajaxUpdThr = 0;
