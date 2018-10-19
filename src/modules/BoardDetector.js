@@ -845,35 +845,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['2chan.net'] = _2chan;
 
-	class _2chRip extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.ru = true;
-
-			this._capUpdPromise = null;
-		}
-		get css() {
-			return 'small[id^="rfmap_"] { display: none; }';
-		}
-		init() {
-			const el = $id('submit_button');
-			if(el) {
-				$del(el.previousElementSibling);
-				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-			}
-			return false;
-		}
-		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
-				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-				$id('captchaid').value = id;
-			});
-		}
-	}
-	ibDomains['2ch.rip'] = _2chRip;
-	ibDomains['dva-ch.com'] = _2chRip;
-
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -1116,13 +1087,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['55chan.org'] = _55chan;
 
-	class _7chanOrg extends BaseBoard {
-		init() {
-			return true;
-		}
-	}
-	ibDomains['7chan.org'] = _7chanOrg;
-
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -1208,7 +1172,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.cf'] = Arhivach;
-	ibDomains['arhivach.org'] = Arhivach;
 
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
@@ -1441,57 +1404,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.xyz'] = EndChan;
-
-	class Ernstchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.cReply = 'post';
-			this.qError = '.error';
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-			this.qOPost = '.thread_OP';
-			this.qPages = '.pagelist > li:nth-last-child(2)';
-			this.qPostHeader = '.post_head';
-			this.qPostMsg = '.text';
-			this.qPostSubj = '.subject';
-			this.qPostTrip = '.tripcode';
-			this.qRPost = '.thread_reply';
-			this.qTrunc = '.tldr';
-
-			this.docExt = '';
-			this.firstPage = 1;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.res = 'thread/';
-		}
-		get qImgNameLink() {
-			return '.filename > a';
-		}
-		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
-				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
-		}
-		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
-		}
-		getPostElOfEl(el) {
-			while(el && !nav.matchesSelector(el, '.post')) {
-				el = el.parentElement;
-			}
-			return el.parentNode;
-		}
-	}
-	ibDomains['ernstchan.com'] = Ernstchan;
-	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
@@ -1619,13 +1531,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get qImgNameLink() {
-			return '.filesize > a:first-of-type';
+			return 'a:first-of-type';
+		}
+		getImgInfo(wrap) {
+			return wrap.textContent;
 		}
 		getImgRealName(wrap) {
-			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap).textContent;
+			return $q('.mobile_filename_hide', wrap).textContent;
 		}
 		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode.parentNode;
+			return $id('fs_' + img.alt);
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
