@@ -294,7 +294,7 @@ class PostForm {
 		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
 		$txtInsert(this.txta, link + quote);
-		const winTitle = pByNum.get(pNum).thr.op.title.trim();
+		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;

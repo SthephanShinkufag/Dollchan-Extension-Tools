@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'afb6593';
+	var commit = 'ae0c8bd';
 
 
 	var defaultCfg = {
@@ -12489,7 +12489,7 @@ true, true];
 				var link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' : isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') : (isOnNewLine ? '' : '\n') + (this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : '>>' + pNum + '\n');
 				var quote = !quotetxt ? '' : quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n';
 				$txtInsert(this.txta, link + quote);
-				var winTitle = pByNum.get(pNum).thr.op.title.trim();
+				var winTitle = post.thr.op.title.trim();
 				$q('.de-win-title', this.qArea).textContent = (winTitle.length < 28 ? winTitle : winTitle.substr(0, 30) + '\u2026') || '#' + pNum;
 				this.lastQuickPNum = pNum;
 			}
