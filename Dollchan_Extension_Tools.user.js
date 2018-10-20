@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'ae0c8bd';
+	var commit = 'a2ee1e6';
 
 
 	var defaultCfg = {
@@ -6408,15 +6408,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!win) {
 			var winAttr = (Cfg[name + 'WinDrag'] ? 'de-win" style="' + Cfg[name + 'WinX'] + '; ' + Cfg[name + 'WinY'] : 'de-win-fixed" style="right: 0; bottom: 25px') + (name !== 'fav' ? '' : '; width: ' + Cfg.favWinWidth + 'px; ');
 			win = $aBegin($id('de-main'), '<div id="de-win-' + name + '" class="' + winAttr + '; display: none;">\n\t\t\t<div class="de-win-head">\n\t\t\t\t<span class="de-win-title">\n\t\t\t\t\t' + (name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang]) + '\n\t\t\t\t</span>\n\t\t\t\t<span class="de-win-buttons">\n\t\t\t\t\t<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>\n\t\t\t\t\t<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t<div class="de-win-body"></div>\n\t\t\t' + (name !== 'fav' ? '' : '\n\t\t\t\t<div class="de-resizer de-resizer-left"></div>\n\t\t\t\t<div class="de-resizer de-resizer-right"></div>') + '\n\t\t</div>');
-			setTimeout(function () {
-				var el = $q('.de-win-body', win);
-				if (name === 'cfg') {
-					el.className = 'de-win-body ' + aib.cReply;
-				} else {
+			var winBody = $q('.de-win-body', win);
+			if (name === 'cfg') {
+				winBody.className = 'de-win-body ' + aib.cReply;
+			} else {
+				setTimeout(function () {
 					var backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-					el.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
-				}
-			}, 0);
+					winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
+				}, 100);
+			}
 			if (name === 'fav') {
 				new WinResizer('fav', 'left', 'favWinWidth', win, win);
 				new WinResizer('fav', 'right', 'favWinWidth', win, win);

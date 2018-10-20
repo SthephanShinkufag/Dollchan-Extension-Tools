@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'ae0c8bd';
+const commit = 'a2ee1e6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3393,15 +3393,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				<div class="de-resizer de-resizer-left"></div>
 				<div class="de-resizer de-resizer-right"></div>` }
 		</div>`);
-		setTimeout(() => {
-			const el = $q('.de-win-body', win);
-			if(name === 'cfg') {
-				el.className = 'de-win-body ' + aib.cReply;
-			} else {
+		const winBody = $q('.de-win-body', win);
+		if(name === 'cfg') {
+			winBody.className = 'de-win-body ' + aib.cReply;
+		} else {
+			setTimeout(() => {
 				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-				el.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
-			}
-		}, 0);
+				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
+			}, 100);
+		}
 		if(name === 'fav') {
 			new WinResizer('fav', 'left', 'favWinWidth', win, win);
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
