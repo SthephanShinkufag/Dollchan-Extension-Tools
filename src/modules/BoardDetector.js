@@ -1426,7 +1426,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
-			.iichan-hide-thread-btn { display: none; }
+			.iichan-hide-thread-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
