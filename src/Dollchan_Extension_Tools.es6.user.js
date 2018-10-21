@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '7e4840e';
+const commit = '7a1116f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11570,12 +11570,10 @@ class ImagesViewer {
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
 		if(angle === 90 || angle === 270) {
-			img.style.transformOrigin = 'top left';
+			img.classList.add('de-fullimg-rotated');
 			img.style.height = (this._height / this._width * 100) + '%';
-			img.style.removeProperty('width');
-			img.style.maxWidth = 'none'; // 2ch.hk
 		} else {
-			img.style.transformOrigin = 'center center';
+			img.classList.remove('de-fullimg-rotated');
 			img.style.height = '100%';
 		}
 		this._rotateFullImg(this._fullEl);
@@ -11966,7 +11964,7 @@ class ExpandableImage {
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" ` +
+			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
@@ -17256,8 +17254,9 @@ function scriptCSS() {
 	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
+	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
-	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }

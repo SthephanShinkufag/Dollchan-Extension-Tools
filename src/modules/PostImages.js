@@ -195,12 +195,10 @@ class ImagesViewer {
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
 		if(angle === 90 || angle === 270) {
-			img.style.transformOrigin = 'top left';
+			img.classList.add('de-fullimg-rotated');
 			img.style.height = (this._height / this._width * 100) + '%';
-			img.style.removeProperty('width');
-			img.style.maxWidth = 'none'; // 2ch.hk
 		} else {
-			img.style.transformOrigin = 'center center';
+			img.classList.remove('de-fullimg-rotated');
 			img.style.height = '100%';
 		}
 		this._rotateFullImg(this._fullEl);
@@ -591,7 +589,7 @@ class ExpandableImage {
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" ` +
+			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
