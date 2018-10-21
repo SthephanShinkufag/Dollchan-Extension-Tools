@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'aee3588';
+	var commit = '7e4840e';
 
 
 	var defaultCfg = {
@@ -15837,7 +15837,7 @@ true, true];
 		function ImagesNavigBtns(viewerObj) {
 			_classCallCheck(this, ImagesNavigBtns);
 
-			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>\n\t\t\t<div id="de-img-btn-rotate" class="de-img-btn" de-title="' + Lng.rotateImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>');
+			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>\n\t\t\t<div id="de-img-btn-rotate" class="de-img-btn" title="' + Lng.rotateImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>');
 
 			var _ref51 = [].concat(_toConsumableArray(btns.children));
 

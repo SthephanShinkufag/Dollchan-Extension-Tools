@@ -13,7 +13,7 @@ class ImagesNavigBtns {
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>
-			<div id="de-img-btn-rotate" class="de-img-btn" de-title="${ Lng.rotateImg[lang] }">
+			<div id="de-img-btn-rotate" class="de-img-btn" title="${ Lng.rotateImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
