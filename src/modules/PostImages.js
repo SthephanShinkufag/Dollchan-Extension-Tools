@@ -12,7 +12,9 @@ class ImagesNavigBtns {
 			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
-				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>`);
+				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>
+			<div id="de-img-btn-rotate" class="de-img-btn" de-title="${ Lng.rotateImg[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
@@ -52,8 +54,9 @@ class ImagesNavigBtns {
 			const parent = e.target.parentNode;
 			const viewer = this._viewer;
 			switch(parent.id) {
-			case 'de-img-btn-prev': viewer.navigate(false); return;
 			case 'de-img-btn-next': viewer.navigate(true); return;
+			case 'de-img-btn-prev': viewer.navigate(false); return;
+			case 'de-img-btn-rotate': viewer.rotateView(true); return;
 			case 'de-img-btn-auto':
 				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
 					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
@@ -182,6 +185,25 @@ class ImagesViewer {
 			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
+	}
+	rotateView(isNextAngle) {
+		const img = $q('img, video', this._fullEl);
+		if(isNextAngle) {
+			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
+		}
+		const angle = this.data.rotate;
+		img.style.transform = `rotate(${ angle }deg)${
+			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
+		if(angle === 90 || angle === 270) {
+			img.style.transformOrigin = 'top left';
+			img.style.height = (this._height / this._width * 100) + '%';
+			img.style.removeProperty('width');
+			img.style.maxWidth = 'none'; // 2ch.hk
+		} else {
+			img.style.transformOrigin = 'center center';
+			img.style.height = '100%';
+		}
+		this._rotateFullImg(this._fullEl);
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
@@ -324,6 +346,9 @@ class ImagesViewer {
 		}
 		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
+		if(this.data.rotate) {
+			this.rotateView(false);
+		}
 	}
 }
 
@@ -335,6 +360,7 @@ class ExpandableImage {
 		this.next = null;
 		this.post = post;
 		this.prev = prev;
+		this.rotate = 0;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
 		if(prev) {

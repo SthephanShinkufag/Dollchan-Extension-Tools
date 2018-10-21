@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '87fff30';
+const commit = 'aee3588';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1389,6 +1389,10 @@ const Lng = {
 		'Предыдущая картинка',
 		'Previous image',
 		'Попереднє зображення'],
+	rotateImg: [
+		'Повернуть вправо',
+		'Rotate right',
+		'Повернути вправо'],
 	autoPlayOn: [
 		'Автоматически воспроизводить следующее видео',
 		'Automatically play the next video',
@@ -3393,15 +3397,15 @@ function toggleWindow(name, isUpd, data, noAnim) {
 				<div class="de-resizer de-resizer-left"></div>
 				<div class="de-resizer de-resizer-right"></div>` }
 		</div>`);
-		setTimeout(() => {
-			const el = $q('.de-win-body', win);
-			if(name === 'cfg') {
-				el.className = 'de-win-body ' + aib.cReply;
-			} else {
+		const winBody = $q('.de-win-body', win);
+		if(name === 'cfg') {
+			winBody.className = 'de-win-body ' + aib.cReply;
+		} else {
+			setTimeout(() => {
 				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
-				el.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
-			}
-		}, 0);
+				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
+			}, 100);
+		}
 		if(name === 'fav') {
 			new WinResizer('fav', 'left', 'favWinWidth', win, win);
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
@@ -8581,7 +8585,7 @@ class PostForm {
 		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
 		$txtInsert(this.txta, link + quote);
-		const winTitle = pByNum.get(pNum).thr.op.title.trim();
+		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
@@ -11383,7 +11387,9 @@ class ImagesNavigBtns {
 			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
-				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>`);
+				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>
+			<div id="de-img-btn-rotate" class="de-img-btn" de-title="${ Lng.rotateImg[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
@@ -11423,8 +11429,9 @@ class ImagesNavigBtns {
 			const parent = e.target.parentNode;
 			const viewer = this._viewer;
 			switch(parent.id) {
-			case 'de-img-btn-prev': viewer.navigate(false); return;
 			case 'de-img-btn-next': viewer.navigate(true); return;
+			case 'de-img-btn-prev': viewer.navigate(false); return;
+			case 'de-img-btn-rotate': viewer.rotateView(true); return;
 			case 'de-img-btn-auto':
 				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
 					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
@@ -11553,6 +11560,25 @@ class ImagesViewer {
 			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
+	}
+	rotateView(isNextAngle) {
+		const img = $q('img, video', this._fullEl);
+		if(isNextAngle) {
+			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
+		}
+		const angle = this.data.rotate;
+		img.style.transform = `rotate(${ angle }deg)${
+			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
+		if(angle === 90 || angle === 270) {
+			img.style.transformOrigin = 'top left';
+			img.style.height = (this._height / this._width * 100) + '%';
+			img.style.removeProperty('width');
+			img.style.maxWidth = 'none'; // 2ch.hk
+		} else {
+			img.style.transformOrigin = 'center center';
+			img.style.height = '100%';
+		}
+		this._rotateFullImg(this._fullEl);
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
@@ -11695,6 +11721,9 @@ class ImagesViewer {
 		}
 		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
+		if(this.data.rotate) {
+			this.rotateView(false);
+		}
 	}
 }
 
@@ -11706,6 +11735,7 @@ class ExpandableImage {
 		this.next = null;
 		this.post = post;
 		this.prev = prev;
+		this.rotate = 0;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
 		if(prev) {
@@ -15800,35 +15830,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['2chan.net'] = _2chan;
 
-	class _2chRip extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.ru = true;
-
-			this._capUpdPromise = null;
-		}
-		get css() {
-			return 'small[id^="rfmap_"] { display: none; }';
-		}
-		init() {
-			const el = $id('submit_button');
-			if(el) {
-				$del(el.previousElementSibling);
-				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-			}
-			return false;
-		}
-		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
-				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-				$id('captchaid').value = id;
-			});
-		}
-	}
-	ibDomains['2ch.rip'] = _2chRip;
-	ibDomains['dva-ch.com'] = _2chRip;
-
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16071,13 +16072,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['55chan.org'] = _55chan;
 
-	class _7chanOrg extends BaseBoard {
-		init() {
-			return true;
-		}
-	}
-	ibDomains['7chan.org'] = _7chanOrg;
-
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16146,7 +16140,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			const path = window.location.pathname;
-			if(path.startsWith('/favs') || path.startsWith('/auth')) {
+			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 				return true;
 			}
 			defaultCfg.ajaxUpdThr = 0;
@@ -16163,7 +16157,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.cf'] = Arhivach;
-	ibDomains['arhivach.org'] = Arhivach;
 
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
@@ -16396,57 +16389,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.xyz'] = EndChan;
-
-	class Ernstchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.cReply = 'post';
-			this.qError = '.error';
-			this.qFormRedir = 'input[name="gb2"][value="thread"]';
-			this.qOPost = '.thread_OP';
-			this.qPages = '.pagelist > li:nth-last-child(2)';
-			this.qPostHeader = '.post_head';
-			this.qPostMsg = '.text';
-			this.qPostSubj = '.subject';
-			this.qPostTrip = '.tripcode';
-			this.qRPost = '.thread_reply';
-			this.qTrunc = '.tldr';
-
-			this.docExt = '';
-			this.firstPage = 1;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.res = 'thread/';
-		}
-		get qImgNameLink() {
-			return '.filename > a';
-		}
-		get css() {
-			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
-				.de-pview > .post { margin-left: 0; border: none; }
-				#de-win-reply { float:left; margin-left:2em }`;
-		}
-		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
-		}
-		getPostElOfEl(el) {
-			while(el && !nav.matchesSelector(el, '.post')) {
-				el = el.parentElement;
-			}
-			return el.parentNode;
-		}
-	}
-	ibDomains['ernstchan.com'] = Ernstchan;
-	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16574,13 +16516,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get qImgNameLink() {
-			return '.filesize > a:first-of-type';
+			return 'a:first-of-type';
+		}
+		getImgInfo(wrap) {
+			return wrap.textContent;
 		}
 		getImgRealName(wrap) {
-			return $q('.filesize[style="display: inline;"] > .mobile_filename_hide', wrap).textContent;
+			return $q('.mobile_filename_hide', wrap).textContent;
 		}
 		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode.parentNode;
+			return $id('fs_' + img.alt);
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -16939,6 +16884,10 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">
 		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
+	</symbol>
+	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-rotate">
+		<path class="de-svg-stroke" stroke-width="7" d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16"/>
+		<path class="de-svg-fill" d="M13.5 19.2L0 27V11.4z"/>
 	</symbol>
 
 	<!-- MAIN PANEL -->
@@ -17314,11 +17263,12 @@ function scriptCSS() {
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
-	#de-img-btn-auto { right: 0; margin-top: 20px; }
+	#de-img-btn-auto { right: 0; margin-top: 58px; }
 	.de-img-btn-auto-on { color: #ffe100; }
 	#de-img-btn-next { right: 0; margin-top: -18px; }
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
+	#de-img-btn-rotate { right: 0; margin-top: 20px; }
 	.de-img-name { text-decoration: none !important; }
 
 	/* Embedders */

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'a2ee1e6';
+const commit = 'aee3588';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1389,6 +1389,10 @@ const Lng = {
 		'Предыдущая картинка',
 		'Previous image',
 		'Попереднє зображення'],
+	rotateImg: [
+		'Повернуть вправо',
+		'Rotate right',
+		'Повернути вправо'],
 	autoPlayOn: [
 		'Автоматически воспроизводить следующее видео',
 		'Automatically play the next video',
@@ -11383,7 +11387,9 @@ class ImagesNavigBtns {
 			<div id="de-img-btn-next" class="de-img-btn" de-title="${ Lng.nextImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
-				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div></div>`);
+				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>
+			<div id="de-img-btn-rotate" class="de-img-btn" de-title="${ Lng.rotateImg[lang] }">
+				<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
 		this._btnsStyle = btns.style;
@@ -11423,8 +11429,9 @@ class ImagesNavigBtns {
 			const parent = e.target.parentNode;
 			const viewer = this._viewer;
 			switch(parent.id) {
-			case 'de-img-btn-prev': viewer.navigate(false); return;
 			case 'de-img-btn-next': viewer.navigate(true); return;
+			case 'de-img-btn-prev': viewer.navigate(false); return;
+			case 'de-img-btn-rotate': viewer.rotateView(true); return;
 			case 'de-img-btn-auto':
 				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
 					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
@@ -11553,6 +11560,25 @@ class ImagesViewer {
 			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
 		}
+	}
+	rotateView(isNextAngle) {
+		const img = $q('img, video', this._fullEl);
+		if(isNextAngle) {
+			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
+		}
+		const angle = this.data.rotate;
+		img.style.transform = `rotate(${ angle }deg)${
+			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
+		if(angle === 90 || angle === 270) {
+			img.style.transformOrigin = 'top left';
+			img.style.height = (this._height / this._width * 100) + '%';
+			img.style.removeProperty('width');
+			img.style.maxWidth = 'none'; // 2ch.hk
+		} else {
+			img.style.transformOrigin = 'center center';
+			img.style.height = '100%';
+		}
+		this._rotateFullImg(this._fullEl);
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
@@ -11695,6 +11721,9 @@ class ImagesViewer {
 		}
 		data.post.thr.form.el.appendChild(el);
 		this.toggleVideoLoop();
+		if(this.data.rotate) {
+			this.rotateView(false);
+		}
 	}
 }
 
@@ -11706,6 +11735,7 @@ class ExpandableImage {
 		this.next = null;
 		this.post = post;
 		this.prev = prev;
+		this.rotate = 0;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
 		if(prev) {
@@ -16855,6 +16885,10 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">
 		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
 	</symbol>
+	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-rotate">
+		<path class="de-svg-stroke" stroke-width="7" d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16"/>
+		<path class="de-svg-fill" d="M13.5 19.2L0 27V11.4z"/>
+	</symbol>
 
 	<!-- MAIN PANEL -->
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">
@@ -17229,11 +17263,12 @@ function scriptCSS() {
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
-	#de-img-btn-auto { right: 0; margin-top: 20px; }
+	#de-img-btn-auto { right: 0; margin-top: 58px; }
 	.de-img-btn-auto-on { color: #ffe100; }
 	#de-img-btn-next { right: 0; margin-top: -18px; }
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
+	#de-img-btn-rotate { right: 0; margin-top: 20px; }
 	.de-img-name { text-decoration: none !important; }
 
 	/* Embedders */

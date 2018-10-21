@@ -237,11 +237,12 @@ function scriptCSS() {
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
-	#de-img-btn-auto { right: 0; margin-top: 20px; }
+	#de-img-btn-auto { right: 0; margin-top: 58px; }
 	.de-img-btn-auto-on { color: #ffe100; }
 	#de-img-btn-next { right: 0; margin-top: -18px; }
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
+	#de-img-btn-rotate { right: 0; margin-top: 20px; }
 	.de-img-name { text-decoration: none !important; }
 
 	/* Embedders */

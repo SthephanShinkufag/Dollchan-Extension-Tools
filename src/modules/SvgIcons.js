@@ -84,6 +84,10 @@ function addSVGIcons() {
 	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">
 		<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>
 	</symbol>
+	<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-rotate">
+		<path class="de-svg-stroke" stroke-width="7" d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16"/>
+		<path class="de-svg-fill" d="M13.5 19.2L0 27V11.4z"/>
+	</symbol>
 
 	<!-- MAIN PANEL -->
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">

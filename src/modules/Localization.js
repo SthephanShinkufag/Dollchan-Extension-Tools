@@ -1218,6 +1218,10 @@ const Lng = {
 		'Предыдущая картинка',
 		'Previous image',
 		'Попереднє зображення'],
+	rotateImg: [
+		'Повернуть вправо',
+		'Rotate right',
+		'Повернути вправо'],
 	autoPlayOn: [
 		'Автоматически воспроизводить следующее видео',
 		'Automatically play the next video',
