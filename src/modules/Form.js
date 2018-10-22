@@ -509,8 +509,8 @@ class PostForm {
 	}
 	_makeSageBtn() {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg>'
+		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
 		).onclick = e => {
 			e.stopPropagation();
 			$pd(e);

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '2266592';
+const commit = '56ca54f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8800,8 +8800,8 @@ class PostForm {
 	}
 	_makeSageBtn() {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg>'
+		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
 		).onclick = e => {
 			e.stopPropagation();
 			$pd(e);
@@ -12743,7 +12743,7 @@ class MakabaPostsBuilder {
 		this._json = json;
 		this._brd = brd;
 		this._posts = json.threads[0].posts;
-		this.length = json.posts_count;
+		this.length = json.posts_count - +aib._2chMoe;
 		this.postersCount = json.unique_posters;
 	}
 	get isClosed() {
@@ -14658,8 +14658,8 @@ class BaseBoard {
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
 		this.qFormSubm = 'tr input[type="submit"]';
-		this.qFormTd = 'td'; // Differs Makaba
-		this.qFormTr = 'tr'; // Differs Makaba
+		this.qFormTd = 'td';
+		this.qFormTr = 'tr';
 		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
@@ -15091,7 +15091,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="image${ i + 1 }"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -15827,6 +15827,63 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2chan.net'] = _2chan;
+
+	class _2channelMoe extends Makaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this._2chMoe = true;
+
+			this.qFormFile = '.postform__field input[type="file"]';
+			this.qFormPassw = '#postpasswd';
+			this.qFormTd = '.postform__field';
+			this.qFormTr = '.postform__field';
+
+			this.hasAltCaptcha = false;
+		}
+		get css() {
+			return `${ super.css }
+				#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }
+				#postform { display: inline-table !important; }`;
+		}
+		init() {
+			super.init();
+			const el = $id('postform');
+			if(el) {
+				el.setAttribute('action', el.getAttribute('action') + '?json=1');
+			}
+			return false;
+		}
+		initCaptcha(cap) {
+			return this.updateCaptcha(cap);
+		}
+		updateCaptcha(cap) {
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
+			return cap.updateHelper(url, xhr => {
+				const box = $q('.captcha');
+				let data = xhr.responseText;
+				try {
+					data = JSON.parse(data);
+				} catch(err) {}
+				switch(data.result) {
+				case 1: { // Captcha is enabled
+					const el = $q('.captcha__image');
+					const img = $q('img', el) || $aBegin(el, '<img>');
+					img.src = '';
+					img.src = `/api/captcha/image/${ data.id }`;
+					$q('input[name="captcha_id"]').value = data.id;
+					break;
+				}
+				case 2: return CancelablePromise.reject(); // Captcha is disabled
+				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
+				default: box.innerHTML = data;
+				}
+				$show(box);
+				box.removeAttribute('hidden');
+				cap.textEl.tabIndex = 999;
+			});
+		}
+	}
+	ibDomains['2channel.moe'] = _2channelMoe;
 
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
@@ -17336,7 +17393,7 @@ function scriptCSS() {
 	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }
-	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }
+	#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }
 
 	/* Thread navigation */

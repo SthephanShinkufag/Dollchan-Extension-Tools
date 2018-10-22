@@ -18,8 +18,8 @@ class BaseBoard {
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
 		this.qFormSubm = 'tr input[type="submit"]';
-		this.qFormTd = 'td'; // Differs Makaba
-		this.qFormTr = 'tr'; // Differs Makaba
+		this.qFormTd = 'td';
+		this.qFormTr = 'tr';
 		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';

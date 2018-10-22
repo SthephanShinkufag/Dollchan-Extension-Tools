@@ -312,7 +312,7 @@ function scriptCSS() {
 	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }
-	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }
+	#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }
 
 	/* Thread navigation */
