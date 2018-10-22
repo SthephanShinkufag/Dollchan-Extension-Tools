@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '56ca54f';
+	var commit = 'c12e40e';
 
 
 	var defaultCfg = {
@@ -17513,7 +17513,7 @@ true, true];
 			this._json = json;
 			this._brd = brd;
 			this._posts = json.threads[0].posts;
-			this.length = json.posts_count - +aib._2chMoe;
+			this.length = json.posts_count - +!!aib._2chMoe;
 			this.postersCount = json.unique_posters;
 		}
 

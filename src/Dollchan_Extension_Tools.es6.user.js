@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '56ca54f';
+const commit = 'c12e40e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12743,7 +12743,7 @@ class MakabaPostsBuilder {
 		this._json = json;
 		this._brd = brd;
 		this._posts = json.threads[0].posts;
-		this.length = json.posts_count - +aib._2chMoe;
+		this.length = json.posts_count - +!!aib._2chMoe;
 		this.postersCount = json.unique_posters;
 	}
 	get isClosed() {
