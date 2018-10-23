@@ -410,7 +410,7 @@ function updateCSS() {
 	${ Cfg.imgNames === 1 ? `.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }
 		.de-img-name::before { content: "." attr(de-ext); float: right; }` : '' }
 	${ Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
-	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9vw; margin-left: 0; }' : '' }
+	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ? `.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
 		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` : '' }
