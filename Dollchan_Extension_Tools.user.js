@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '33b43cf';
+	var commit = 'a28c46a';
 
 
 	var defaultCfg = {
@@ -18114,7 +18114,7 @@ true, true];
 			if (localData) {
 				return;
 			}
-			this.btns = $aEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')) + '</div>');
+			this.btns = $aEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak && !aib._2chMoe ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')) + '</div>');
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
@@ -21487,7 +21487,9 @@ true, true];
 			return _2channelMoe;
 		}(Makaba);
 
+		ibDomains['2channel.ga'] = _2channelMoe;
 		ibDomains['2channel.moe'] = _2channelMoe;
+		ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
 
 		var _410chanOrg = function (_Kusaba2) {
 			_inherits(_410chanOrg, _Kusaba2);
@@ -22025,7 +22027,8 @@ true, true];
 		}(Brchan);
 
 		ibDomains['lolifox.org'] = Lolifox;
-		ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
+		ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
+		ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 		var Diochan = function (_Kusaba3) {
 			_inherits(Diochan, _Kusaba3);

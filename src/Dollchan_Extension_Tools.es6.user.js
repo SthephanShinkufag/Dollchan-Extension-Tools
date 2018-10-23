@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '33b43cf';
+const commit = 'a28c46a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13147,7 +13147,8 @@ class Thread {
 		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
-				(aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
+				(aib.mak && !aib._2chMoe ?
+					' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
 			) + '</div>');
 		this.btns.addEventListener('click', this);
 		this.btns.addEventListener('mouseover', this);
@@ -15883,7 +15884,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
+	ibDomains['2channel.ga'] = _2channelMoe;
 	ibDomains['2channel.moe'] = _2channelMoe;
+	ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
 
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
@@ -16264,7 +16267,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
+	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {

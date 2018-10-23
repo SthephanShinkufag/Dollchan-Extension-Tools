@@ -900,7 +900,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
+	ibDomains['2channel.ga'] = _2channelMoe;
 	ibDomains['2channel.moe'] = _2channelMoe;
+	ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
 
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
@@ -1281,7 +1283,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
+	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
