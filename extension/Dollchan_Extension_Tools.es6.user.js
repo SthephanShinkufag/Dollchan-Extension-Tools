@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'aee3588';
+const commit = '2108bf2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8800,8 +8800,8 @@ class PostForm {
 	}
 	_makeSageBtn() {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		$aEnd(this.subm, '<svg id="de-sagebtn" class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg>'
+		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
 		).onclick = e => {
 			e.stopPropagation();
 			$pd(e);
@@ -11119,8 +11119,8 @@ class Pview extends AbstractPost {
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
 			el.setAttribute('class',
-				`${ isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user' } de-btn-pview-hide`);
-			el.parentNode.classList.toggle('de-post-hide', isHide);
+				`${ isHide ? 'de-btn-hide-user' : 'de-btn-unhide-user' } de-btn-pview-hide`);
+			el.parentNode.classList.toggle('de-post-hide', !isHide);
 		});
 	}
 	toggleSticky(isEnabled) {
@@ -11388,7 +11388,7 @@ class ImagesNavigBtns {
 				<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>
 			<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="${ Lng.autoPlayOn[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>
-			<div id="de-img-btn-rotate" class="de-img-btn" de-title="${ Lng.rotateImg[lang] }">
+			<div id="de-img-btn-rotate" class="de-img-btn" title="${ Lng.rotateImg[lang] }">
 				<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>`);
 		[this.prevBtn, this.nextBtn, this.autoBtn] = [...btns.children];
 		this._btns = btns;
@@ -11570,12 +11570,10 @@ class ImagesViewer {
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
 		if(angle === 90 || angle === 270) {
-			img.style.transformOrigin = 'top left';
+			img.classList.add('de-fullimg-rotated');
 			img.style.height = (this._height / this._width * 100) + '%';
-			img.style.removeProperty('width');
-			img.style.maxWidth = 'none'; // 2ch.hk
 		} else {
-			img.style.transformOrigin = 'center center';
+			img.classList.remove('de-fullimg-rotated');
 			img.style.height = '100%';
 		}
 		this._rotateFullImg(this._fullEl);
@@ -11966,7 +11964,7 @@ class ExpandableImage {
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
 		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
-			<video style="width: inherit; height: inherit" src="${ src }" ` +
+			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
@@ -12745,7 +12743,7 @@ class MakabaPostsBuilder {
 		this._json = json;
 		this._brd = brd;
 		this._posts = json.threads[0].posts;
-		this.length = json.posts_count;
+		this.length = json.posts_count - +!!aib._2chMoe;
 		this.postersCount = json.unique_posters;
 	}
 	get isClosed() {
@@ -13149,7 +13147,8 @@ class Thread {
 		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
-				(aib.mak ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
+				(aib.mak && !aib._2chMoe ?
+					' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
 			) + '</div>');
 		this.btns.addEventListener('click', this);
 		this.btns.addEventListener('mouseover', this);
@@ -14660,8 +14659,8 @@ class BaseBoard {
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
 		this.qFormSubm = 'tr input[type="submit"]';
-		this.qFormTd = 'td'; // Differs Makaba
-		this.qFormTr = 'tr'; // Differs Makaba
+		this.qFormTd = 'td';
+		this.qFormTr = 'tr';
 		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
@@ -15093,7 +15092,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="image${ i + 1 }"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -15830,6 +15829,65 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['2chan.net'] = _2chan;
 
+	class _2channelMoe extends Makaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this._2chMoe = true;
+
+			this.qFormFile = '.postform__field input[type="file"]';
+			this.qFormPassw = '#postpasswd';
+			this.qFormTd = '.postform__field';
+			this.qFormTr = '.postform__field';
+
+			this.hasAltCaptcha = false;
+		}
+		get css() {
+			return `${ super.css }
+				#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }
+				#postform { display: inline-table !important; }`;
+		}
+		init() {
+			super.init();
+			const el = $id('postform');
+			if(el) {
+				el.setAttribute('action', el.getAttribute('action') + '?json=1');
+			}
+			return false;
+		}
+		initCaptcha(cap) {
+			return this.updateCaptcha(cap);
+		}
+		updateCaptcha(cap) {
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
+			return cap.updateHelper(url, xhr => {
+				const box = $q('.captcha');
+				let data = xhr.responseText;
+				try {
+					data = JSON.parse(data);
+				} catch(err) {}
+				switch(data.result) {
+				case 1: { // Captcha is enabled
+					const el = $q('.captcha__image');
+					const img = $q('img', el) || $aBegin(el, '<img>');
+					img.src = '';
+					img.src = `/api/captcha/image/${ data.id }`;
+					$q('input[name="captcha_id"]').value = data.id;
+					break;
+				}
+				case 2: return CancelablePromise.reject(); // Captcha is disabled
+				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
+				default: box.innerHTML = data;
+				}
+				$show(box);
+				box.removeAttribute('hidden');
+				cap.textEl.tabIndex = 999;
+			});
+		}
+	}
+	ibDomains['2channel.ga'] = _2channelMoe;
+	ibDomains['2channel.moe'] = _2channelMoe;
+	ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
+
 	class _410chanOrg extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16209,7 +16267,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['brchanansdnhvvnm.onion'] = Lolifox;
+	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
@@ -16411,7 +16470,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
-			.iichan-hide-thread-btn { display: none; }
+			.iichan-hide-thread-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
@@ -17256,8 +17315,9 @@ function scriptCSS() {
 	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
+	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
-	.de-fullimg-wrap-center, .de-fullimg-wrap-link { width: inherit; height: inherit; }
+	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
@@ -17337,7 +17397,7 @@ function scriptCSS() {
 	#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }
 	#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }
 	#de-win-reply.de-win #de-resizer-text { display: none !important; }
-	#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }
+	#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }
 	.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }
 
 	/* Thread navigation */
