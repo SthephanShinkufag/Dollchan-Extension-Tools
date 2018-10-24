@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'a28c46a';
+	var commit = 'bca935d';
 
 
 	var defaultCfg = {
@@ -15383,8 +15383,8 @@ true, true];
 				post.setUserVisib(!isHide);
 				Pview.updatePosition(true);
 				$each($Q('.de-btn-pview-hide[de-num="' + this.num + '"]'), function (el) {
-					el.setAttribute('class', (isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user') + ' de-btn-pview-hide');
-					el.parentNode.classList.toggle('de-post-hide', isHide);
+					el.setAttribute('class', (isHide ? 'de-btn-hide-user' : 'de-btn-unhide-user') + ' de-btn-pview-hide');
+					el.parentNode.classList.toggle('de-post-hide', !isHide);
 				});
 			}
 		}, {

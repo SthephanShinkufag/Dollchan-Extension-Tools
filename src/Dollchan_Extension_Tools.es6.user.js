@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'a28c46a';
+const commit = 'bca935d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11119,8 +11119,8 @@ class Pview extends AbstractPost {
 		Pview.updatePosition(true);
 		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
 			el.setAttribute('class',
-				`${ isHide ? 'de-btn-unhide-user' : 'de-btn-hide-user' } de-btn-pview-hide`);
-			el.parentNode.classList.toggle('de-post-hide', isHide);
+				`${ isHide ? 'de-btn-hide-user' : 'de-btn-unhide-user' } de-btn-pview-hide`);
+			el.parentNode.classList.toggle('de-post-hide', !isHide);
 		});
 	}
 	toggleSticky(isEnabled) {
