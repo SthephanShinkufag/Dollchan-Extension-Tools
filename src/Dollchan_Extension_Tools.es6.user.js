@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '2108bf2';
+const commit = '0bf2deb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11525,6 +11525,7 @@ class ImagesViewer {
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
 				!el.classList.contains('de-fullimg-wrap-link') &&
+				!el.classList.contains('de-fullimg-video-hack') &&
 				el.className !== 'de-fullimg-load'
 			) {
 				return;
@@ -11691,8 +11692,7 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center${
-			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
+		const el = $add(`<div class="de-fullimg-center" style="top:${ this._oldT -
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -11963,7 +11963,8 @@ class ExpandableImage {
 		}
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
+			nav.firefoxVer < 59 ? '' : '<div class="de-fullimg-video-hack"></div>' }
 			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
@@ -11974,7 +11975,7 @@ class ExpandableImage {
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
-		const videoEl = wrapEl.firstElementChild;
+		const videoEl = $q('video', wrapEl);
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target: el }) => {
@@ -17305,17 +17306,14 @@ function scriptCSS() {
 	.de-img-embed { max-width: 200px; max-height: 200px; }
 	.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; }
 	.de-fullimg-after { clear: left; }
-	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }${
-	nav.firefoxVer >= 59 ?
-		`.de-fullimg-center-video { border-top: 20px solid #444 !important; border-radius: 10px 10px 0 0; cursor: pointer; }
-		.de-fullimg-center-video > .de-fullimg-video::before { right: 6px !important; top: -20px; }
-		.de-fullimg-video::before { content: "\u2716"; color: #fff; background-color: rgba(64, 64, 64, 0.8); text-align: center; width: 20px; height: 20px; position: absolute; right: 0; font: bold 14px/18px tahoma; cursor: pointer; }` : '' }
+	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }
 	.de-fullimg-info > .de-btn-src { color: #fff; }
 	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
+	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }

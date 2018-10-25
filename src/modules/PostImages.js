@@ -150,6 +150,7 @@ class ImagesViewer {
 				el.tagName !== 'VIDEO' &&
 				!el.classList.contains('de-fullimg-wrap') &&
 				!el.classList.contains('de-fullimg-wrap-link') &&
+				!el.classList.contains('de-fullimg-video-hack') &&
 				el.className !== 'de-fullimg-load'
 			) {
 				return;
@@ -316,8 +317,7 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center${
-			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
+		const el = $add(`<div class="de-fullimg-center" style="top:${ this._oldT -
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -588,7 +588,8 @@ class ExpandableImage {
 		}
 		const hasTitle = needTitle && this.el.hasAttribute('de-metatitle');
 		const title = hasTitle ? this.el.getAttribute('de-metatitle') : '';
-		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>
+		wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }"${ inPostSize }>${
+			nav.firefoxVer < 59 ? '' : '<div class="de-fullimg-video-hack"></div>' }
 			<video src="${ src }" ` +
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
@@ -599,7 +600,7 @@ class ExpandableImage {
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
 		</div>`);
-		const videoEl = wrapEl.firstElementChild;
+		const videoEl = $q('video', wrapEl);
 		videoEl.volume = Cfg.webmVolume / 100;
 		videoEl.addEventListener('ended', () => AttachedImage.viewer.navigate(true, true));
 		videoEl.addEventListener('error', ({ target: el }) => {
