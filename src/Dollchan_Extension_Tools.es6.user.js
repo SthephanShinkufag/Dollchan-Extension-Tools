@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'f76fa10';
+const commit = '3e52c19';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11584,7 +11584,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
+			toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {

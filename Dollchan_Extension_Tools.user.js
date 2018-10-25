@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'f76fa10';
+	var commit = '3e52c19';
 
 
 	var defaultCfg = {
@@ -16071,7 +16071,7 @@ true, true];
 			key: 'toggleVideoLoop',
 			value: function toggleVideoLoop() {
 				if (this.data.isVideo) {
-					toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
+					toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
 				}
 			}
 		}, {

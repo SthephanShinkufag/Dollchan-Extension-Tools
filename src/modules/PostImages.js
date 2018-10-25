@@ -210,7 +210,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			toggleAttr(this._fullEl.firstElementChild, 'loop', '', !this.isAutoPlay);
+			toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {
