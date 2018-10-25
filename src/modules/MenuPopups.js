@@ -109,8 +109,7 @@ class Menu {
 			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="https://iqdb.org/?url=${ p }IQDB`,
-			`de-src-whatanime" href="https://whatanime.ga/?auto&url=${ aib.iichan ? 'http://reho.st/' : '' }${
-				p }WhatAnime`
+			`de-src-tracemoe" href="https://trace.moe/?auto&url=${ p }TraceMoe`
 		], '<a class="de-menu-item ', '</a>');
 	}
 	handleEvent(e) {
