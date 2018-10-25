@@ -1282,6 +1282,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['lisach.pw'] = Lolifox;
 	ibDomains['lolifox.org'] = Lolifox;
 	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
 	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox

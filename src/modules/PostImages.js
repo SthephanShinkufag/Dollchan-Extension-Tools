@@ -188,21 +188,25 @@ class ImagesViewer {
 		}
 	}
 	rotateView(isNextAngle) {
-		const img = $q('img, video', this._fullEl);
 		if(isNextAngle) {
 			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
 		}
 		const angle = this.data.rotate;
+		const isVert = angle === 90 || angle === 270;
+		const img = $q('img, video', this._fullEl);
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
-		if(angle === 90 || angle === 270) {
-			img.classList.add('de-fullimg-rotated');
-			img.style.height = (this._height / this._width * 100) + '%';
-		} else {
-			img.classList.remove('de-fullimg-rotated');
-			img.style.height = '100%';
+		img.classList.toggle('de-fullimg-rotated', isVert);
+		img.style.height = isVert ? (this._height / this._width * 100) + '%' : '100%';
+		if(this.data.isVideo && nav.firefoxVer >= 59) {
+			img.previousElementSibling.style =
+				(isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') +
+				(angle === 90 ? 'right: 0; ' : '') +
+				(angle === 180 ? 'bottom: 0;' : '');
 		}
-		this._rotateFullImg(this._fullEl);
+		if(isNextAngle || angle !== 180) {
+			this._rotateFullImg(this._fullEl);
+		}
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {

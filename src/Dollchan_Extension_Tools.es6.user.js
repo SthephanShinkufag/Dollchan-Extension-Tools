@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = 'e7d163e';
+const commit = 'f76fa10';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11562,21 +11562,25 @@ class ImagesViewer {
 		}
 	}
 	rotateView(isNextAngle) {
-		const img = $q('img, video', this._fullEl);
 		if(isNextAngle) {
 			this.data.rotate += this.data.rotate === 270 ? -270 : 90;
 		}
 		const angle = this.data.rotate;
+		const isVert = angle === 90 || angle === 270;
+		const img = $q('img, video', this._fullEl);
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
-		if(angle === 90 || angle === 270) {
-			img.classList.add('de-fullimg-rotated');
-			img.style.height = (this._height / this._width * 100) + '%';
-		} else {
-			img.classList.remove('de-fullimg-rotated');
-			img.style.height = '100%';
+		img.classList.toggle('de-fullimg-rotated', isVert);
+		img.style.height = isVert ? (this._height / this._width * 100) + '%' : '100%';
+		if(this.data.isVideo && nav.firefoxVer >= 59) {
+			img.previousElementSibling.style =
+				(isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') +
+				(angle === 90 ? 'right: 0; ' : '') +
+				(angle === 180 ? 'bottom: 0;' : '');
 		}
-		this._rotateFullImg(this._fullEl);
+		if(isNextAngle || angle !== 180) {
+			this._rotateFullImg(this._fullEl);
+		}
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
@@ -16266,6 +16270,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['lisach.pw'] = Lolifox;
 	ibDomains['lolifox.org'] = Lolifox;
 	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
 	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
@@ -17312,7 +17317,7 @@ function scriptCSS() {
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
-	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; cursor: pointer; }
+	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
