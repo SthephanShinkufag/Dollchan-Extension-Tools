@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '8ecf532';
+const commit = 'ca1f897';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16219,6 +16219,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.cf'] = Arhivach;
+	ibDomains['arhivach.tk'] = Arhivach;
+	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Brchan extends Vichan {
 		constructor(prot, dm) {
