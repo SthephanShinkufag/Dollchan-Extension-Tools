@@ -81,9 +81,9 @@ class Menu {
 			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
 		const cr = parentEl.getBoundingClientRect();
 		const { style, offsetWidth: w, offsetHeight: h } = el;
-		style.left = (isFixed ? 0 : deWindow.pageXOffset) +
+		style.left = (isFixed ? 0 : window.pageXOffset) +
 			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
-		style.top = (isFixed ? 0 : deWindow.pageYOffset) +
+		style.top = (isFixed ? 0 : window.pageYOffset) +
 			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 		style.removeProperty('visibility');
 		this._clickFn = clickFn;

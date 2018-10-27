@@ -27,7 +27,7 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = ('chrome' in deWindow) &&
+	const isChromeStorage = ('chrome' in window) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
@@ -46,8 +46,8 @@ function initNavFuncs() {
 	} else {
 		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: nav.isPresto
-		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
+	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
+		window.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
@@ -83,7 +83,7 @@ function initNavFuncs() {
 			};
 			return rv;
 		};
-		deWindow.File = function File(arr, name) {
+		window.File = function File(arr, name) {
 			const rv = new Blob(arr);
 			rv.name = name;
 			return rv;
@@ -98,7 +98,7 @@ function initNavFuncs() {
 		isWebkit,
 		isChrome,
 		isSafari,
-		isPresto   : !!deWindow.opera,
+		isPresto   : !!window.opera,
 		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
@@ -120,7 +120,7 @@ function initNavFuncs() {
 		get hasWorker() {
 			let value = false;
 			try {
-				value = 'Worker' in deWindow && 'URL' in deWindow;
+				value = 'Worker' in window && 'URL' in window;
 			} catch(err) {}
 			if(value && this.isFirefox) {
 				value = this.firefoxVer >= 40;

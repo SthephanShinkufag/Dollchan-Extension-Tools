@@ -124,7 +124,7 @@ const HotKeys = {
 				if(AttachedImage.viewer) {
 					AttachedImage.viewer.navigate(false);
 				} else if(isThr || aib.page !== aib.firstPage) {
-					deWindow.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
+					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
 				break;
 			case 5: // Send post (txt)
@@ -191,7 +191,7 @@ const HotKeys = {
 				} else if(!isThr) {
 					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
-						deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
+						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 					}
 				}
 				break;
@@ -216,7 +216,7 @@ const HotKeys = {
 						if(typeof GM_openInTab === 'function') {
 							GM_openInTab(aib.getThrUrl(aib.b, post.tNum), false, true);
 						} else {
-							deWindow.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
+							window.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
 						}
 					}
 					break;
@@ -231,7 +231,7 @@ const HotKeys = {
 							post.thr.loadPosts('all');
 							post = post.thr.op;
 						}
-						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + post.top);
+						scrollTo(window.pageXOffset, window.pageYOffset + post.top);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -319,7 +319,7 @@ const HotKeys = {
 			Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_getFirstVisPost(getThread, getFull) {
-		if(this.lastPageOffset !== deWindow.pageYOffset) {
+		if(this.lastPageOffset !== window.pageYOffset) {
 			let post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
 				const tPost = post.next;
@@ -332,7 +332,7 @@ const HotKeys = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this.lastPageOffset = deWindow.pageYOffset;
+			this.lastPageOffset = window.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -342,7 +342,7 @@ const HotKeys = {
 			if(!aib.t) {
 				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
 				if(toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
-					deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
+					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
 			}
 			return;
@@ -353,10 +353,10 @@ const HotKeys = {
 		if(toThread) {
 			next.el.scrollIntoView();
 		} else {
-			scrollTo(0, deWindow.pageYOffset + next.el.getBoundingClientRect().top -
+			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this.lastPageOffset = deWindow.pageYOffset;
+		this.lastPageOffset = window.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}

@@ -84,7 +84,7 @@ const Panel = Object.create({
 				toggleWindow('vid', false);
 				this.isVidEnabled = !this.isVidEnabled;
 				break;
-			case 'de-panel-refresh': deWindow.location.reload(); break;
+			case 'de-panel-refresh': window.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
@@ -124,7 +124,7 @@ const Panel = Object.create({
 			case 'de-panel-savethr': break;
 			case 'de-panel-enable':
 				toggleCfg('disabled');
-				deWindow.location.reload();
+				window.location.reload();
 				break;
 			default: return;
 			}

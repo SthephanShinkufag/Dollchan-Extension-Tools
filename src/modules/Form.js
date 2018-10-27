@@ -178,7 +178,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotetxt = deWindow.getSelection().toString();
+				quotetxt = window.getSelection().toString();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -375,7 +375,7 @@ class PostForm {
 		}
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
-		deWindow.addEventListener('load',
+		window.addEventListener('load',
 			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
 	}
 	_initSubmit() {
@@ -427,7 +427,7 @@ class PostForm {
 			const code = e.charCode || e.keyCode;
 			if((code === 33 /* PgUp */ || code === 34 /* PgDn */) && e.which === 0) {
 				e.target.blur();
-				deWindow.focus();
+				window.focus();
 			}
 		});
 		// Add image from clipboard to file inputs on Ctrl+V

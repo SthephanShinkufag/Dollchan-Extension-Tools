@@ -128,10 +128,10 @@ async function readCfg() {
 	if(aib.dobr && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
-	if(!('FormData' in deWindow)) {
+	if(!('FormData' in window)) {
 		Cfg.ajaxPosting = 0;
 	}
-	if(!('Notification' in deWindow)) {
+	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.isPresto) {

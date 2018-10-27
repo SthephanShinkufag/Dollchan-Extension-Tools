@@ -462,7 +462,7 @@ class WorkerPool {
 			this.runWorker = (data, transferObjs, fn) => fn(wrkFn(data));
 			return;
 		}
-		const url = deWindow.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
+		const url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
 			var info = (${ String(wrkFn) })(e.data);
 			if(info.data) {
 				self.postMessage(info, [info.data]);
@@ -479,7 +479,7 @@ class WorkerPool {
 		}
 	}
 	clearWorkers() {
-		deWindow.URL.revokeObjectURL(this._url);
+		window.URL.revokeObjectURL(this._url);
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
 	}
@@ -805,11 +805,11 @@ function getFileType(url) {
 }
 
 function downloadBlob(blob, name) {
-	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
+	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
 	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
-		deWindow.URL.revokeObjectURL(url);
+		window.URL.revokeObjectURL(url);
 		$del(link);
 	}, 2e5);
 }

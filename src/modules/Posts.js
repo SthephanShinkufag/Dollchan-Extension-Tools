@@ -94,7 +94,7 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotetxt = deWindow.getSelection().toString();
+							quotetxt = window.getSelection().toString();
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
@@ -104,7 +104,7 @@ class AbstractPost {
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
-							deWindow.location.assign(el.href.replace(/#i/, '#'));
+							window.location.assign(el.href.replace(/#i/, '#'));
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
@@ -203,7 +203,7 @@ class AbstractPost {
 		case 'de-btn-rep':
 			this.btns.title = Lng.replyToPost[lang];
 			if(!isOutEvent) {
-				quotetxt = deWindow.getSelection().toString();
+				quotetxt = window.getSelection().toString();
 			}
 			return;
 		case 'de-btn-hide':
@@ -594,14 +594,14 @@ class Post extends AbstractPost {
 		}
 	}
 	selectAndScrollTo(scrollNode = this.el) {
-		scrollTo(0, deWindow.pageYOffset + scrollNode.getBoundingClientRect().top -
+		scrollTo(0, window.pageYOffset + scrollNode.getBoundingClientRect().top -
 			Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
 		if(HotKeys.enabled) {
 			if(HotKeys.cPost) {
 				HotKeys.cPost.unselect();
 			}
 			HotKeys.cPost = this;
-			HotKeys.lastPageOffset = deWindow.pageYOffset;
+			HotKeys.lastPageOffset = window.pageYOffset;
 		} else {
 			const el = $q('.de-selected');
 			if(el) {
@@ -654,9 +654,9 @@ class Post extends AbstractPost {
 				this.wrap.classList.toggle('de-hidden', isHide);
 			} else {
 				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
-					const yOffset = deWindow.pageYOffset;
+					const yOffset = window.pageYOffset;
 					this.hideContent(e.type === 'mouseout');
-					scrollTo(deWindow.pageXOffset, yOffset);
+					scrollTo(window.pageXOffset, yOffset);
 				};
 			}
 		}
@@ -779,7 +779,7 @@ class Post extends AbstractPost {
 	_getMenuHide() {
 		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
 			Lng.selHiderMenu[name][lang] }</span>`;
-		const sel = deWindow.getSelection();
+		const sel = window.getSelection();
 		const ssel = sel.toString().trim();
 		if(ssel) {
 			this._selText = ssel;
@@ -924,7 +924,7 @@ Post.Note = class PostNote {
 };
 Post.sizing = {
 	get dPxRatio() {
-		const value = deWindow.devicePixelRatio || 1;
+		const value = window.devicePixelRatio || 1;
 		Object.defineProperty(this, 'dPxRatio', { value });
 		return value;
 	},

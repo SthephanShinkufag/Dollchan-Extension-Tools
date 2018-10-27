@@ -672,8 +672,8 @@ class ExpandableImage {
 	sendCloseEvent(e, inPost) {
 		let { post } = this;
 		let cr = post.el.getBoundingClientRect();
-		const x = e.pageX - deWindow.pageXOffset;
-		const y = e.pageY - deWindow.pageYOffset;
+		const x = e.pageX - window.pageXOffset;
+		const y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				post = post.parent;
@@ -708,7 +708,7 @@ class ExpandableImage {
 					formData.append('file', blob, name);
 					const ajaxParams = { data: formData, method: 'POST' };
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
-						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
+						window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
 					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];

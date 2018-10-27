@@ -3295,10 +3295,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (aib.dobr && !Cfg.useDobrAPI) {
 								aib.JsonBuilder = null;
 							}
-							if (!('FormData' in deWindow)) {
+							if (!('FormData' in window)) {
 								Cfg.ajaxPosting = 0;
 							}
-							if (!('Notification' in deWindow)) {
+							if (!('Notification' in window)) {
 								Cfg.desktNotif = 0;
 							}
 							if (nav.isPresto) {
@@ -3628,6 +3628,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 	}();
 
+
+
 	var runMain = function () {
 		var _ref79 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(checkDomains, dataPromise) {
 			var formEl, favObj, oldMain, _ref80, _ref81, storageName, firstThr;
@@ -3640,56 +3642,55 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							formEl = void 0;
 
 							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)) || !(formEl = $q(aib.qDForm + ', form[de-form]')) || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-								_context27.next = 5;
+								_context27.next = 4;
 								break;
 							}
 
-							initFrames();
 							return _context27.abrupt('return');
 
-						case 5:
+						case 4:
 							Logger.log('Imageboard check');
 
 							if (locStorage) {
-								_context27.next = 10;
-								break;
-							}
-
-							if (checkStorage()) {
 								_context27.next = 9;
 								break;
 							}
 
+							if (checkStorage()) {
+								_context27.next = 8;
+								break;
+							}
+
 							return _context27.abrupt('return');
 
-						case 9:
+						case 8:
 							initNavFuncs();
 
-						case 10:
+						case 9:
 							favObj = void 0, oldMain = void 0;
-							_context27.next = 13;
+							_context27.next = 12;
 							return dataPromise || readData();
 
-						case 13:
+						case 12:
 							_ref80 = _context27.sent;
 							_ref81 = _slicedToArray(_ref80, 2);
 							excludeList = _ref81[0];
 							favObj = _ref81[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
-								_context27.next = 19;
+								_context27.next = 18;
 								break;
 							}
 
 							return _context27.abrupt('return');
 
-						case 19:
+						case 18:
 							Logger.log('Storage loading');
 							$del(oldMain);
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context27.next = 26;
+								_context27.next = 25;
 								break;
 							}
 
@@ -3697,7 +3698,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scriptCSS();
 							return _context27.abrupt('return');
 
-						case 26:
+						case 25:
 							if ('toJSON' in aProto) {
 								delete aProto.toJSON;
 							}
@@ -3714,7 +3715,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							if (aib.t || !Cfg.scrollToTop) {
 								doc.defaultView.addEventListener('beforeunload', function () {
-									sesStorage['de-scroll-' + aib.b + (aib.t || '')] = deWindow.pageYOffset;
+									sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
 								});
 							}
 							Logger.log('Init');
@@ -3732,30 +3733,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context27.prev = 41;
+							_context27.prev = 40;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context27.next = 51;
+							_context27.next = 50;
 							break;
 
-						case 46:
-							_context27.prev = 46;
-							_context27.t0 = _context27['catch'](41);
+						case 45:
+							_context27.prev = 45;
+							_context27.t0 = _context27['catch'](40);
 
 							console.error('Delform parsing error:', getErrorMessage(_context27.t0));
 							$show(docBody);
 							return _context27.abrupt('return');
 
-						case 51:
+						case 50:
 							Logger.log('Parse delform');
 							storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
 							if (aib.t && !!sesStorage[storageName] && sesStorage[storageName] > Thread.first.pcount) {
 								sesStorage.removeItem(storageName);
-								deWindow.location.reload();
+								window.location.reload();
 							}
 							pr = new PostForm($q(aib.qForm));
 							Logger.log('Parse postform');
@@ -3796,12 +3797,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							Logger.finish();
 
-						case 78:
+						case 77:
 						case 'end':
 							return _context27.stop();
 					}
 				}
-			}, _callee22, this, [[41, 46]]);
+			}, _callee22, this, [[40, 45]]);
 		}));
 
 		return function runMain(_x84, _x85) {
@@ -3814,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '454333f';
+	var commit = '2b30fdc';
 
 
 	var defaultCfg = {
@@ -4379,6 +4380,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		latestPost: ['Последний пост', 'Latest post', 'Останній пост']
 	};
 
+
+	var doc = window.document;
 	var emptyFn = Function.prototype;
 	var aProto = Array.prototype;
 	var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
@@ -4402,12 +4405,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    pr = void 0,
 	    sesStorage = void 0,
 	    updater = void 0;
-	var deWindow = window;
-	var doc = window.document;
-	var nativeXHRworks = true;
-	var topWinZ = 10;
 	var quotetxt = '';
+	var nativeXHRworks = true;
 	var visPosts = 2;
+	var topWinZ = 10;
 
 
 
@@ -4988,7 +4989,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 				return;
 			}
-			var url = deWindow.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\n\t\t\tvar info = (' + String(wrkFn) + ')(e.data);\n\t\t\tif(info.data) {\n\t\t\t\tself.postMessage(info, [info.data]);\n\t\t\t} else {\n\t\t\t\tself.postMessage(info);\n\t\t\t}\n\t\t}'], { type: 'text/javascript' }));
+			var url = window.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\n\t\t\tvar info = (' + String(wrkFn) + ')(e.data);\n\t\t\tif(info.data) {\n\t\t\t\tself.postMessage(info, [info.data]);\n\t\t\t} else {\n\t\t\t\tself.postMessage(info);\n\t\t\t}\n\t\t}'], { type: 'text/javascript' }));
 			this._pool = new TasksPool(mReqs, function (num, data) {
 				return _this4._createWorker(num, data);
 			}, null);
@@ -5003,7 +5004,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(WorkerPool, [{
 			key: 'clearWorkers',
 			value: function clearWorkers() {
-				deWindow.URL.revokeObjectURL(this._url);
+				window.URL.revokeObjectURL(this._url);
 				this._freeWorkers.forEach(function (w) {
 					return w.terminate();
 				});
@@ -5480,11 +5481,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function downloadBlob(blob, name) {
-		var url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
+		var url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
 		var link = $bEnd(docBody, '<a href="' + url + '" download="' + name + '"></a>');
 		link.click();
 		setTimeout(function () {
-			deWindow.URL.revokeObjectURL(url);
+			window.URL.revokeObjectURL(url);
 			$del(link);
 		}, 2e5);
 	}function setStored(id, value) {
@@ -6057,7 +6058,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							this.isVidEnabled = !this.isVidEnabled;
 							break;
 						case 'de-panel-refresh':
-							deWindow.location.reload();break;
+							window.location.reload();break;
 						case 'de-panel-goup':
 							scrollTo(0, 0);break;
 						case 'de-panel-godown':
@@ -6122,7 +6123,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 						case 'de-panel-enable':
 							toggleCfg('disabled');
-							deWindow.location.reload();
+							window.location.reload();
 							break;
 						default:
 							return;
@@ -7338,7 +7339,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			div.appendChild(getEditButton('cfg', function (fn) {
 				return fn(Cfg, true, function (data) {
 					saveCfgObj(aib.dm, data);
-					deWindow.location.reload();
+					window.location.reload();
 				});
 			}));
 
@@ -7348,7 +7349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return getStoredObj('DESU_Config').then(function (data) {
 						if (data && 'global' in data && !$isEmpty(data.global)) {
 							saveCfgObj(aib.dm, data.global);
-							deWindow.location.reload();
+							window.location.reload();
 						} else {
 							$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 						}
@@ -7419,7 +7420,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						if (cfgObj || dmObj || isOldCfg) {
 							$popup('cfg-file', Lng.updating[lang], true);
-							deWindow.location.reload();
+							window.location.reload();
 							return;
 						}
 						closePopup('cfg-file');
@@ -7557,12 +7558,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							delete data[aib.dm];
 							setStored('DESU_Config', JSON.stringify(data));
 							$popup('cfg-reset', Lng.updating[lang], true);
-							deWindow.location.reload();
+							window.location.reload();
 						});
 						return;
 					}
 					$popup('cfg-reset', Lng.updating[lang], true);
-					deWindow.location.reload();
+					window.location.reload();
 				}));
 			}));
 		},
@@ -7857,7 +7858,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
 								version: version + '.' + commit,
-								location: String(deWindow.location),
+								location: String(window.location),
 								nav: nav,
 								Cfg: Cfg,
 								sSpells: Spells.list.split('\n'),
@@ -8016,7 +8017,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgPosts: function _getCfgPosts() {
-			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + (!localData ? this._getBox('hideReplies') + '<br>\n\t\t\t\t' + this._getBox('expandTrunc') + '<br>' : '') + '\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + (!localData ? this._getBox('showRepBtn') : '') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + (!localData ? this._getSel('thrBtns') : '') + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset', true, 1) + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
+			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-cfg-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in window ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobr ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + (!localData ? this._getBox('hideReplies') + '<br>\n\t\t\t\t' + this._getBox('expandTrunc') + '<br>' : '') + '\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + (!localData ? this._getBox('showRepBtn') : '') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + (!localData ? this._getSel('thrBtns') : '') + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset', true, 1) + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
 		},
 
 
@@ -8201,8 +8202,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    w = el.offsetWidth,
 			    h = el.offsetHeight;
 
-			style.left = (isFixed ? 0 : deWindow.pageXOffset) + (cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
-			style.top = (isFixed ? 0 : deWindow.pageYOffset) + (cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
+			style.left = (isFixed ? 0 : window.pageXOffset) + (cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
+			style.top = (isFixed ? 0 : window.pageYOffset) + (cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 			style.removeProperty('visibility');
 			this._clickFn = clickFn;
 			this._el = el;
@@ -8452,7 +8453,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						if (AttachedImage.viewer) {
 							AttachedImage.viewer.navigate(false);
 						} else if (isThr || aib.page !== aib.firstPage) {
-							deWindow.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
+							window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 						}
 						break;
 					case 5:
@@ -8519,7 +8520,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						} else if (!isThr) {
 							var pageNum = DelForm.last.pageNum + 1;
 							if (pageNum <= aib.lastPage) {
-								deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
+								window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 							}
 						}
 						break;
@@ -8544,7 +8545,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								if (typeof GM_openInTab === 'function') {
 									GM_openInTab(aib.getThrUrl(aib.b, post.tNum), false, true);
 								} else {
-									deWindow.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
+									window.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
 								}
 							}
 							break;
@@ -8559,7 +8560,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									post.thr.loadPosts('all');
 									post = post.thr.op;
 								}
-								scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + post.top);
+								scrollTo(window.pageXOffset, window.pageYOffset + post.top);
 								if (this.cPost && this.cPost !== post) {
 									this.cPost.unselect();
 									this.cPost = post;
@@ -8689,7 +8690,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return cPost ? cPost.getAdjacentVisPost(toUp) : Thread.first.isHidden || Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 		},
 		_getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
-			if (this.lastPageOffset !== deWindow.pageYOffset) {
+			if (this.lastPageOffset !== window.pageYOffset) {
 				var post = getThread ? Thread.first : Thread.first.op;
 				while (post.top < 1) {
 					var tPost = post.next;
@@ -8702,7 +8703,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.cPost.unselect();
 				}
 				this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-				this.lastPageOffset = deWindow.pageYOffset;
+				this.lastPageOffset = window.pageYOffset;
 			}
 			return this.cPost;
 		},
@@ -8712,7 +8713,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!aib.t) {
 					var pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
 					if (toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
-						deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
+						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
 					}
 				}
 				return;
@@ -8723,9 +8724,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (toThread) {
 				next.el.scrollIntoView();
 			} else {
-				scrollTo(0, deWindow.pageYOffset + next.el.getBoundingClientRect().top - Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
+				scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top - Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 			}
-			this.lastPageOffset = deWindow.pageYOffset;
+			this.lastPageOffset = window.pageYOffset;
 			next.select();
 			this.cPost = next;
 		}
@@ -9162,7 +9163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								nameLink.setAttribute('download', fName);
 								nameLink.setAttribute('de-href', nameLink.href);
 							}
-							imgLink.href = nameLink.href = deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
+							imgLink.href = nameLink.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 							if (isVideo) {
 								el.setAttribute('de-video', '');
 							}
@@ -9233,7 +9234,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return;
 			}
 			var ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-			nameLink.insertAdjacentHTML('afterend', '<a href="' + deWindow.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
+			nameLink.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
 				type: ['application/x-7z-compressed', 'application/zip', 'application/x-rar-compressed', 'audio/ogg', 'audio/mpeg'][type]
 			})) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
 		},
@@ -10390,7 +10391,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 	toggleInfinityScroll.onwheel = function (e) {
 		if ((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
-			deWindow.requestAnimationFrame(function () {
+			window.requestAnimationFrame(function () {
 				if (Thread.last.bottom - 150 < Post.sizing.wHeight) {
 					Pages.addPage();
 				}
@@ -12357,7 +12358,7 @@ true, true];
 				}
 				if (e.type === 'mouseover') {
 					if (id === 'de-btn-quote') {
-						quotetxt = deWindow.getSelection().toString();
+						quotetxt = window.getSelection().toString();
 					}
 					var key = -1;
 					if (HotKeys.enabled) {
@@ -12560,7 +12561,7 @@ true, true];
 					aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
 				}
 				this.files = new Files(this, $q(aib.qFormFile, this.form));
-				deWindow.addEventListener('load', function () {
+				window.addEventListener('load', function () {
 					return setTimeout(function () {
 						return !_this28.files.filesCount && _this28.files.clearInputs();
 					}, 0);
@@ -12620,7 +12621,7 @@ true, true];
 					var code = e.charCode || e.keyCode;
 					if ((code === 33  || code === 34 ) && e.which === 0) {
 						e.target.blur();
-						deWindow.focus();
+						window.focus();
 					}
 				});
 				el.addEventListener('paste', function (e) {
@@ -13053,11 +13054,11 @@ true, true];
 		saveCfgObj(aib.dm, Cfg);
 		if (!tNum) {
 			if (postNum) {
-				deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
+				window.location.assign(aib.getThrUrl(aib.b, postNum));
 			} else if (isDocument) {
 				var dForm = $q(aib.qDForm, data);
 				if (dForm) {
-					deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
+					window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 				}
 			}
 			return;
@@ -13071,7 +13072,7 @@ true, true];
 			}).then(function (err) {
 				infoLoadErrors(err);
 				if (Cfg.scrAfterRep) {
-					scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
+					scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 				}
 				updater.continueUpdater(true);
 				closePopup('upload');
@@ -13402,7 +13403,7 @@ true, true];
 				$show(this._parent.fileTr);
 				$show(this._txtWrap);
 				if (this._mediaEl) {
-					deWindow.URL.revokeObjectURL(this._mediaEl.src);
+					window.URL.revokeObjectURL(this._mediaEl.src);
 				}
 				this._toggleDragEvents(this._thumb, false);
 				$del(this._thumb);
@@ -13414,7 +13415,7 @@ true, true];
 				if (FileInput._isThumb) {
 					this._thumb.classList.add('de-file-off');
 					if (this._mediaEl) {
-						deWindow.URL.revokeObjectURL(this._mediaEl.src);
+						window.URL.revokeObjectURL(this._mediaEl.src);
 						this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
 						$del(this._mediaEl);
 						this._mediaEl = null;
@@ -13571,9 +13572,9 @@ true, true];
 				el = el.firstChild.firstChild;
 				el.title = fileName + ', ' + (fileSize / 1024).toFixed(2) + 'KB';
 				this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ? '<video class="de-file-img" loop autoplay muted src=""></video>' : '<img class="de-file-img" src="">');
-				el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
+				el.src = window.URL.createObjectURL(new Blob([fileData]));
 				if (el = el.nextSibling) {
-					deWindow.URL.revokeObjectURL(el.src);
+					window.URL.revokeObjectURL(el.src);
 					$del(el);
 				}
 			}
@@ -13614,7 +13615,7 @@ true, true];
 				$popup('file-loading', Lng.loading[lang], true);
 				return ContentLoader.loadImgData(url, false).then(function (data) {
 					if (file) {
-						deWindow.URL.revokeObjectURL(url);
+						window.URL.revokeObjectURL(url);
 					}
 					if (!data) {
 						$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
@@ -14121,7 +14122,7 @@ true, true];
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
-										quotetxt = deWindow.getSelection().toString();
+										quotetxt = window.getSelection().toString();
 										pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 										quotetxt = '';
 									} else if (pr.isQuick || aib.t && pr.isHidden) {
@@ -14131,7 +14132,7 @@ true, true];
 										var isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 										$txtInsert(pr.txta, '>>' + this.num + (isOnNewLine ? '\n' : ''));
 									} else {
-										deWindow.location.assign(el.href.replace(/#i/, '#'));
+										window.location.assign(el.href.replace(/#i/, '#'));
 									}
 								} else if ((temp = el.textContent)[0] === '>' && temp[1] === '>' && !temp[2].includes('/')) {
 									var post = pByNum.get(+temp.match(/\d+/));
@@ -14225,7 +14226,7 @@ true, true];
 					case 'de-btn-rep':
 						this.btns.title = Lng.replyToPost[lang];
 						if (!isOutEvent) {
-							quotetxt = deWindow.getSelection().toString();
+							quotetxt = window.getSelection().toString();
 						}
 						return;
 					case 'de-btn-hide':
@@ -14577,13 +14578,13 @@ true, true];
 			value: function selectAndScrollTo() {
 				var scrollNode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.el;
 
-				scrollTo(0, deWindow.pageYOffset + scrollNode.getBoundingClientRect().top - Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
+				scrollTo(0, window.pageYOffset + scrollNode.getBoundingClientRect().top - Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
 				if (HotKeys.enabled) {
 					if (HotKeys.cPost) {
 						HotKeys.cPost.unselect();
 					}
 					HotKeys.cPost = this;
-					HotKeys.lastPageOffset = deWindow.pageYOffset;
+					HotKeys.lastPageOffset = window.pageYOffset;
 				} else {
 					var el = $q('.de-selected');
 					if (el) {
@@ -14648,9 +14649,9 @@ true, true];
 						this.wrap.classList.toggle('de-hidden', isHide);
 					} else {
 						this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
-							var yOffset = deWindow.pageYOffset;
+							var yOffset = window.pageYOffset;
 							_this47.hideContent(e.type === 'mouseout');
-							scrollTo(deWindow.pageXOffset, yOffset);
+							scrollTo(window.pageXOffset, yOffset);
 						};
 					}
 				}
@@ -14824,7 +14825,7 @@ true, true];
 				var item = function item(name) {
 					return '<span info="hide-' + name + '" class="de-menu-item">' + Lng.selHiderMenu[name][lang] + '</span>';
 				};
-				var sel = deWindow.getSelection();
+				var sel = window.getSelection();
 				var ssel = sel.toString().trim();
 				if (ssel) {
 					this._selText = ssel;
@@ -15181,7 +15182,7 @@ true, true];
 	}();
 	Post.sizing = {
 		get dPxRatio() {
-			var value = deWindow.devicePixelRatio || 1;
+			var value = window.devicePixelRatio || 1;
 			Object.defineProperty(this, 'dPxRatio', { value: value });
 			return value;
 		},
@@ -15564,7 +15565,7 @@ true, true];
 			value: function _setPosition(link, isAnim) {
 				var oldCSS = void 0;
 				var cr = link.getBoundingClientRect();
-				var offX = cr.left + deWindow.pageXOffset + cr.width / 2;
+				var offX = cr.left + window.pageXOffset + cr.width / 2;
 				var offY = cr.top;
 				var bWidth = nav.viewportWidth();
 				var isLeft = offX < bWidth / 2;
@@ -15579,7 +15580,7 @@ true, true];
 				style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 				var top = pv.offsetHeight;
 				var isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
-				top = deWindow.pageYOffset + (isTop ? offY + cr.height : offY - top);
+				top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
 				this._offsetTop = top;
 				this._isLeft = isLeft;
 				this._isTop = isTop;
@@ -15698,10 +15699,10 @@ true, true];
 					pv._link = el;
 				}
 				var cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
-				var diff = pv._isTop ? pv._offsetTop - deWindow.pageYOffset - cr.bottom : pv._offsetTop + pv.el.offsetHeight - deWindow.pageYOffset - cr.top;
+				var diff = pv._isTop ? pv._offsetTop - window.pageYOffset - cr.bottom : pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
 				if (Math.abs(diff) > 1) {
 					if (scroll) {
-						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - diff);
+						scrollTo(window.pageXOffset, window.pageYOffset - diff);
 					}
 					do {
 						pv._offsetTop -= diff;
@@ -16557,8 +16558,8 @@ true, true];
 				var post = this.post;
 
 				var cr = post.el.getBoundingClientRect();
-				var x = e.pageX - deWindow.pageXOffset;
-				var y = e.pageY - deWindow.pageYOffset;
+				var x = e.pageX - window.pageXOffset;
+				var y = e.pageY - window.pageYOffset;
 				if (!inPost) {
 					while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 						post = post.parent;
@@ -16598,7 +16599,7 @@ true, true];
 								var name = _this58.name.substring(0, _this58.name.lastIndexOf('.')) + '.png';
 								formData.append('file', blob, name);
 								var ajaxParams = { data: formData, method: 'POST' };
-								var frameLinkHtml = '<a class="de-menu-item de-list" href="' + deWindow.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
+								var frameLinkHtml = '<a class="de-menu-item de-list" href="' + window.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
 								$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(function (xhr) {
 									var hostUrl = void 0,
 									    errMsg = Lng.errSaucenao[lang];
@@ -17251,7 +17252,7 @@ true, true];
 				var num = data.no;
 				var brd = this._brd;
 				var _icon = function _icon(id) {
-					return '//s.4cdn.org/image/' + id + (deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif');
+					return '//s.4cdn.org/image/' + id + (window.devicePixelRatio < 2 ? '.gif' : '@2x.gif');
 				};
 
 				var fileHTML = '';
@@ -17598,7 +17599,7 @@ true, true];
 				if (this._brd === 'po' || this._brd === 'news' || isNew) {
 					var likes = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>';
 					var dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-					rate = '' + likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
+					rate = likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
 				}
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
@@ -18193,13 +18194,13 @@ true, true];
 							}
 					}
 					if (oldCoord) {
-						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + nextThr.top - oldCoord);
+						scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
 					}
 				} else if (e.type === 'mouseover') {
 					switch (el.classList[0]) {
 						case 'de-btn-rep':
 							this.btns.title = Lng.replyToThr[lang];
-							quotetxt = deWindow.getSelection().toString();
+							quotetxt = window.getSelection().toString();
 							return;
 						case 'de-btn-hide':
 						case 'de-btn-hide-user':
@@ -18522,7 +18523,7 @@ true, true];
 					op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + needToOmit + '</div>');
 				}
 				if (smartScroll) {
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this.next.top - nextCoord);
+					scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
 				}
 				Pview.updatePosition(false);
 				if (Cfg.hideReplies) {
@@ -18544,7 +18545,7 @@ true, true];
 				    newVisPosts = _parsePosts3[1];
 
 				if (lastOffset !== null) {
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
+					scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
 				}
 				if (newPosts !== 0 || Panel.isNew) {
 					Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0), $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
@@ -18738,7 +18739,7 @@ true, true];
 
 			switch (e.type) {
 				case 'scroll':
-					deWindow.requestAnimationFrame(function () {
+					window.requestAnimationFrame(function () {
 						return _this65._checkThreads();
 					});break;
 				case 'mouseover':
@@ -18819,10 +18820,10 @@ true, true];
 			var el = fixEventEl(e.target);
 			switch ((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 				case 'de-thr-navup':
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._currentThr.getBoundingClientRect().top - 50);
+					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.getBoundingClientRect().top - 50);
 					break;
 				case 'de-thr-navdown':
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
+					scrollTo(window.pageXOffset, window.pageYOffset + this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 					break;
 			}
 		},
@@ -18971,7 +18972,7 @@ true, true];
 				};
 				if (aib.fch) {
 					$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(function (xhr) {
-						icon.src = 'response' in xhr ? deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
+						icon.src = 'response' in xhr ? window.URL.createObjectURL(xhr.response) : '/favicon.ico';
 					}, emptyFn);
 					return;
 				}
@@ -19042,7 +19043,7 @@ true, true];
 			_initIconsHelper: function _initIconsHelper(icon) {
 				var canvas = doc.createElement('canvas');
 				var ctx = canvas.getContext('2d');
-				var wh = Math.max(icon.naturalHeight, 16 * (deWindow.devicePixelRatio || 1));
+				var wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
 				var scale = wh / 16;
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(icon, 0, 0, wh, wh);
@@ -19106,10 +19107,10 @@ true, true];
 					}, 12e3);
 				};
 				notif.onclick = function () {
-					return deWindow.focus();
+					return window.focus();
 				};
 				notif.onerror = function () {
-					deWindow.focus();
+					window.focus();
 					_this72._requestPermission();
 				};
 				this._notifEl = notif;
@@ -19608,7 +19609,7 @@ true, true];
 		var isWebkit = ua.includes('WebKit/');
 		var isChrome = isWebkit && ua.includes('Chrome/');
 		var isSafari = isWebkit && !isChrome;
-		var isChromeStorage = 'chrome' in deWindow && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
+		var isChromeStorage = 'chrome' in window && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		var scriptHandler = void 0,
@@ -19623,8 +19624,8 @@ true, true];
 		} else {
 			scriptHandler = GM.info ? GM.info.scriptHandler + ' ' + GM.info.version : 'Greasemonkey';
 		}
-		if (!('requestAnimationFrame' in deWindow)) {
-			deWindow.requestAnimationFrame = function (fn) {
+		if (!('requestAnimationFrame' in window)) {
+			window.requestAnimationFrame = function (fn) {
 				return setTimeout(fn, 0);
 			};
 		}
@@ -19666,7 +19667,7 @@ true, true];
 				};
 				return rv;
 			};
-			deWindow.File = function File(arr, name) {
+			window.File = function File(arr, name) {
 				var rv = new Blob(arr);
 				rv.name = name;
 				return rv;
@@ -19681,7 +19682,7 @@ true, true];
 			isWebkit: isWebkit,
 			isChrome: isChrome,
 			isSafari: isSafari,
-			isPresto: !!deWindow.opera,
+			isPresto: !!window.opera,
 			isMsEdge: ua.includes('Edge/'),
 			isGM: isGM,
 			isNewGM: isNewGM,
@@ -19702,7 +19703,7 @@ true, true];
 			get hasWorker() {
 				var value = false;
 				try {
-					value = 'Worker' in deWindow && 'URL' in deWindow;
+					value = 'Worker' in window && 'URL' in window;
 				} catch (err) {}
 				if (value && this.isFirefox) {
 					value = this.firefoxVer >= 40;
@@ -19823,7 +19824,7 @@ true, true];
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasTextLinks = false;
-			this.host = deWindow.location.hostname;
+			this.host = window.location.hostname;
 			this.JsonBuilder = null;
 			this.jsonSubmit = false;
 			this.markupBB = false;
@@ -19897,7 +19898,7 @@ true, true];
 				if (isForm) {
 					var newForm = $bBegin(data, str);
 					$hide(data);
-					deWindow.addEventListener('load', function () {
+					window.addEventListener('load', function () {
 						return $del($id('de-dform-old'));
 					});
 					return newForm;
@@ -20064,7 +20065,7 @@ true, true];
 		}, {
 			key: 'parseURL',
 			value: function parseURL() {
-				var url = (deWindow.location.pathname || '').replace(/^\//, '');
+				var url = (window.location.pathname || '').replace(/^\//, '');
 				if (url.match(this.res)) {
 					var temp = url.split(this.res);
 					this.b = temp[0].replace(/\/$/, '');
@@ -20741,7 +20742,7 @@ true, true];
 					_get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'init', this).call(this);
 					if (locStorage.file_dragdrop !== 'false') {
 						locStorage.file_dragdrop = false;
-						deWindow.location.reload();
+						window.location.reload();
 						return true;
 					}
 					$script('highlightReply = Function.prototype');
@@ -21893,7 +21894,7 @@ true, true];
 				value: function init() {
 					var _this95 = this;
 
-					var path = deWindow.location.pathname;
+					var path = window.location.pathname;
 					if (path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 						return true;
 					}
@@ -22171,7 +22172,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					if (deWindow.location.pathname === '/settings') {
+					if (window.location.pathname === '/settings') {
 						$q('input[type="button"]').addEventListener('click', function () {
 							return readCfg().then(function () {
 								return saveCfg('__hanarating', $id('rating').value);
@@ -22685,7 +22686,7 @@ true, true];
 					var val = '{ "simpleNavbar": true }';
 					if (locStorage.settings !== val) {
 						locStorage.settings = val;
-						deWindow.location.reload();
+						window.location.reload();
 						return true;
 					}
 					_get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'init', this).call(this);
@@ -22728,13 +22729,13 @@ true, true];
 		ibDomains['syn-ch.com'] = Synch;
 		ibDomains['syn-ch.org'] = Synch;
 
-		var prot = deWindow.location.protocol;
+		var prot = window.location.protocol;
 		var dm = localData && localData.dm;
 		if (checkDomains) {
 			if (!dm) {
 				var ibKeys = Object.keys(ibDomains);
 				var i = ibKeys.length;
-				var host = deWindow.location.hostname.toLowerCase();
+				var host = window.location.hostname.toLowerCase();
 				while (i--) {
 					dm = ibKeys[i];
 					if (host === dm || host.endsWith('.' + dm)) {
@@ -22746,7 +22747,7 @@ true, true];
 			}
 		}
 		if (!dm) {
-			dm = deWindow.location.hostname;
+			dm = window.location.hostname;
 		}
 		if (!dm || !checkEngines) {
 			return null;
@@ -22770,7 +22771,7 @@ true, true];
 			var _this112 = this;
 
 			this.hasListeners = false;
-			if (!('MessageChannel' in deWindow)) {
+			if (!('MessageChannel' in window)) {
 				return;
 			}
 			var channel = new MessageChannel();
@@ -22925,7 +22926,7 @@ true, true];
 			}
 			var post = void 0,
 			    num = void 0;
-			var hash = deWindow.location.hash;
+			var hash = window.location.hash;
 
 			if (hash && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
 				post.selectAndScrollTo();
@@ -22988,44 +22989,7 @@ true, true];
 		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'max-width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : '') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
 		$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
-	}
-
-
-
-	function initFrames() {
-		var runInFrame = function runInFrame(frameEl) {
-			doc = frameEl.contentDocument;
-			deWindow = frameEl.contentDocument.defaultView;
-			if (updater) {
-				updater.disableUpdater();
-			}
-			DelForm.tNums = new Set();
-			runMain(true, null);
-		};
-		var els = $Q('frame, iframe', doc);
-
-		var _loop2 = function _loop2(i, _len19) {
-			var frameEl = els[i];
-			var fDoc = frameEl.contentDocument;
-			if (String(fDoc.defaultView.location) === 'about:blank') {
-				frameEl.onload = function () {
-					return runInFrame(frameEl);
-				};
-			} else if (fDoc.readyState === 'loading') {
-				fDoc.addEventListener('DOMContentLoaded', function () {
-					return runInFrame(frameEl);
-				});
-			} else {
-				runInFrame(frameEl);
-			}
-		};
-
-		for (var i = 0, _len19 = els.length; i < _len19; ++i) {
-			_loop2(i, _len19);
-		}
-	}
-
-	if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
+	}if (/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
 		return;
 	}
 	if (doc.readyState !== 'loading') {

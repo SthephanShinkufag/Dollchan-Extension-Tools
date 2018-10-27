@@ -115,11 +115,11 @@ function checkUpload(data) {
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
 		if(postNum) {
-			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
+			window.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
 			const dForm = $q(aib.qDForm, data);
 			if(dForm) {
-				deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
+				window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
 		}
 		return;
@@ -129,7 +129,7 @@ function checkUpload(data) {
 		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
-				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
+				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
 			updater.continueUpdater(true);
 			closePopup('upload');

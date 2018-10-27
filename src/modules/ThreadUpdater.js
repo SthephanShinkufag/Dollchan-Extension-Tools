@@ -130,8 +130,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(aib.fch) {
 				// Due to CORS we cannot apply href to icon.src directly
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
-					icon.src = 'response' in xhr ?
-						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
+					icon.src = 'response' in xhr ? window.URL.createObjectURL(xhr.response) : '/favicon.ico';
 				}, emptyFn);
 				return;
 			}
@@ -201,7 +200,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_initIconsHelper(icon) {
 			const canvas = doc.createElement('canvas');
 			const ctx = canvas.getContext('2d');
-			const wh = Math.max(icon.naturalHeight, 16 * (deWindow.devicePixelRatio || 1));
+			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
 			const scale = wh / 16;
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
@@ -261,9 +260,9 @@ function initThreadUpdater(title, enableUpdate) {
 				tag  : aib.dm + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
-			notif.onclick = () => deWindow.focus();
+			notif.onclick = () => window.focus();
 			notif.onerror = () => {
-				deWindow.focus();
+				window.focus();
 				this._requestPermission();
 			};
 			this._notifEl = notif;
