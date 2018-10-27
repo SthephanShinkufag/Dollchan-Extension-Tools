@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'ca1f897';
+	var commit = '240a6dc';
 
 
 	var defaultCfg = {
@@ -17596,9 +17596,10 @@ true, true];
 				}) + '</span>';
 				var refHref = '/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num;
 				var rate = '';
-				if (this._brd === 'po' || isNew) {
-					rate = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>\n\t\t\t\t' + (data.likes || '') + '</span></div>';
-					rate += rate.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+				if (this._brd === 'po' || this._brd === 'news' || isNew) {
+					var likes = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>';
+					var dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+					rate = likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
 				}
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
