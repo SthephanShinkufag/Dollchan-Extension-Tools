@@ -35,7 +35,7 @@ gulp.task('updatecommit', cb => {
 });
 
 // Makes es6-script from module files
-gulp.task('make:es6', ['updatecommit'], () => {
+gulp.task('make:es6', gulp.series('updatecommit', () =>
 	gulp.src('src/modules/Wrap.js').pipe(tap(wrapFile => {
 		let count = 0;
 		let str = wrapFile.contents.toString();
@@ -51,11 +51,12 @@ gulp.task('make:es6', ['updatecommit'], () => {
 					}
 				}));
 		}
-	}));
-});
+	}))
+));
 
 // Makes es5-script from es6-script
-gulp.task('make:es5', ['make:es6'],
+gulp.task('make:es5', gulp.series(
+	'make:es6',
 	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform('babelify', { presets: ['env'] })
 		.bundle()
@@ -65,14 +66,14 @@ gulp.task('make:es5', ['make:es6'],
 			'/* eslint-disable */\n(function deMainFuncOuter(localData) {\n',
 			'})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-		.pipe(gulp.dest(''))
-);
+		.pipe(gulp.dest('.'))
+));
 
-gulp.task('make', ['make:es5']);
+gulp.task('make', gulp.series('make:es5'));
 
 // Split es6-script into separate module files
 gulp.task('make:modules', () => {
-	gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(file => {
+	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js').pipe(tap(file => {
 		const arr = file.contents.toString().split('// ==/UserScript==\r\n\r\n')[1].split('/* ==[ ');
 		let wrapStr = `${ arr[0].slice(0, -2) }\r\n`;
 		for(let i = 1, len = arr.length; i < len; ++i) {
@@ -85,12 +86,12 @@ gulp.task('make:modules', () => {
 				break;
 			}
 			const fileName = str.slice(0, str.indexOf(' ]'));
-			newfile(`src/modules/${ fileName }`, `/* ==[ ${ str }`).pipe(gulp.dest(''));
+			newfile(`src/modules/${ fileName }`, `/* ==[ ${ str }`).pipe(gulp.dest('.'));
 		}
-		newfile('src/modules/Wrap.js', wrapStr).pipe(gulp.dest(''));
+		newfile('src/modules/Wrap.js', wrapStr).pipe(gulp.dest('.'));
 	}));
 });
 
 // Waits for changes in watchedPaths files, then makes es5 and es6-scripts
-gulp.task('watch', () => gulp.watch(watchedPaths, ['make']));
-gulp.task('default', ['make', 'watch']);
+gulp.task('watch', () => gulp.watch(watchedPaths, gulp.series('make')));
+gulp.task('default', gulp.parallel('make', 'watch'));

@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '2b30fdc';
+	var commit = '6316ad4';
 
 
 	var defaultCfg = {
@@ -16059,7 +16059,7 @@ true, true];
 				var img = $q('img, video', this._fullEl);
 				img.style.transform = 'rotate(' + angle + 'deg)' + (angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '');
 				img.classList.toggle('de-fullimg-rotated', isVert);
-				img.style.height = isVert ? this._height / this._width * 100 + '%' : '100%';
+				img.style.height = (isVert ? this._height / this._width : 1) * 100 + '%';
 				if (this.data.isVideo && nav.firefoxVer >= 59) {
 					img.previousElementSibling.style = (isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') + (angle === 90 ? 'right: 0; ' : '') + (angle === 180 ? 'bottom: 0;' : '');
 				}
@@ -17599,7 +17599,7 @@ true, true];
 				if (this._brd === 'po' || this._brd === 'news' || isNew) {
 					var likes = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>';
 					var dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-					rate = likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
+					rate = '' + likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
 				}
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';

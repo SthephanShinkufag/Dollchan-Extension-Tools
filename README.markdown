@@ -24,7 +24,11 @@
 ### Userscript compilation
 
 * Install [Node.js](https://nodejs.org/) if not yet.
-* Install [Gulp](http://gulpjs.com/) globally: `npm install -g gulp`
+* Install [Gulp](http://gulpjs.com/) globally:
+```
+npm rm -g gulp
+npm install -g gulp-cli
+```
 * Go to Dollchan repo and run `npm install` to update dependencies.
 
 You can make both ES5 and ESNext userscript versions from [/src/modules](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/tree/master/src/modules) by running:
@@ -38,6 +42,3 @@ Or you can make ESNext version only:
 Also you can make separate source modules from your ESNext version:
 
 `gulp make:modules`
-
-
-

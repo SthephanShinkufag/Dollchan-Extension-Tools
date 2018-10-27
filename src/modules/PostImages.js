@@ -197,7 +197,7 @@ class ImagesViewer {
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
 		img.classList.toggle('de-fullimg-rotated', isVert);
-		img.style.height = isVert ? (this._height / this._width * 100) + '%' : '100%';
+		img.style.height = `${ (isVert ? this._height / this._width : 1) * 100 }%`;
 		if(this.data.isVideo && nav.firefoxVer >= 59) {
 			img.previousElementSibling.style =
 				(isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') +

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '2b30fdc';
+const commit = '6316ad4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11571,7 +11571,7 @@ class ImagesViewer {
 		img.style.transform = `rotate(${ angle }deg)${
 			angle === 90 ? ' translateY(-100%)' : angle === 270 ? ' translateX(-100%)' : '' }`;
 		img.classList.toggle('de-fullimg-rotated', isVert);
-		img.style.height = isVert ? (this._height / this._width * 100) + '%' : '100%';
+		img.style.height = `${ (isVert ? this._height / this._width : 1) * 100 }%`;
 		if(this.data.isVideo && nav.firefoxVer >= 59) {
 			img.previousElementSibling.style =
 				(isVert ? 'width: calc(100% - 40px); height: 100%; ' : '') +
@@ -12818,16 +12818,16 @@ class MakabaPostsBuilder {
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._brd === 'po' || this._brd === 'news' || isNew) {
-			let likes = `<div id="like-div${ num }" class="${ isNew ?
+			const likes = `<div id="like-div${ num }" class="${ isNew ?
 				`post__rate post__rate_type_like">
 					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
 				`like-div">
 					<span class="like-icon"><i class="fa fa-bolt"></i></span>
 					<span class="like-caption">Двачую</span>` }
 				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			let dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-			rate = likes + (data.likes || '') + '</span></div>' +
-			       dislikes + (data.dislikes || '') + '</span></div>';
+			const dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+			rate = `${ likes }${ data.likes || '' }</span></div>${
+				dislikes }${ data.dislikes || '' }</span></div>`;
 		}
 		const isOp =  i === -1;
 		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
@@ -16276,7 +16276,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['lisach.pw'] = Lolifox;
 	ibDomains['lolifox.org'] = Lolifox;
 	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
