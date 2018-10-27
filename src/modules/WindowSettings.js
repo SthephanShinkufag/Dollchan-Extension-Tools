@@ -29,7 +29,7 @@ const CfgWindow = {
 		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
 			saveCfgObj(aib.dm, data);
-			window.location.reload();
+			deWindow.location.reload();
 		})));
 
 		// "Global" button. Allows to save/load global settings.
@@ -41,7 +41,7 @@ const CfgWindow = {
 			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				if(data && ('global' in data) && !$isEmpty(data.global)) {
 					saveCfgObj(aib.dm, data.global);
-					window.location.reload();
+					deWindow.location.reload();
 				} else {
 					$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 				}
@@ -124,7 +124,7 @@ const CfgWindow = {
 					}
 					if(cfgObj || dmObj || isOldCfg) {
 						$popup('cfg-file', Lng.updating[lang], true);
-						window.location.reload();
+						deWindow.location.reload();
 						return;
 					}
 					closePopup('cfg-file');
@@ -213,12 +213,12 @@ const CfgWindow = {
 					delete data[aib.dm];
 					setStored('DESU_Config', JSON.stringify(data));
 					$popup('cfg-reset', Lng.updating[lang], true);
-					window.location.reload();
+					deWindow.location.reload();
 				});
 				return;
 			}
 			$popup('cfg-reset', Lng.updating[lang], true);
-			window.location.reload();
+			deWindow.location.reload();
 		}))));
 	},
 
@@ -444,7 +444,7 @@ const CfgWindow = {
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version  : version + '.' + commit,
-					location : String(window.location),
+					location : String(deWindow.location),
 					nav,
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
@@ -619,7 +619,7 @@ const CfgWindow = {
 				<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
-					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
+					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
 					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }

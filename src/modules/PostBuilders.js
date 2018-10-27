@@ -79,7 +79,8 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
+		const _icon = id => `//s.4cdn.org/image/${ id }${
+			deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -402,16 +403,16 @@ class MakabaPostsBuilder {
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._brd === 'po' || this._brd === 'news' || isNew) {
-			let likes = `<div id="like-div${ num }" class="${ isNew ?
+			const likes = `<div id="like-div${ num }" class="${ isNew ?
 				`post__rate post__rate_type_like">
 					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
 				`like-div">
 					<span class="like-icon"><i class="fa fa-bolt"></i></span>
 					<span class="like-caption">Двачую</span>` }
 				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			let dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-			rate = likes + (data.likes || '') + '</span></div>' +
-			       dislikes + (data.dislikes || '') + '</span></div>';
+			const dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
+			rate = `${ likes }${ data.likes || '' }</span></div>${
+				dislikes }${ data.dislikes || '' }</span></div>`;
 		}
 		const isOp =  i === -1;
 		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';

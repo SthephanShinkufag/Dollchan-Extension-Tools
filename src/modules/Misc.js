@@ -7,7 +7,7 @@
 const DollchanAPI = {
 	initAPI() {
 		this.hasListeners = false;
-		if(!('MessageChannel' in window)) {
+		if(!('MessageChannel' in deWindow)) {
 			return;
 		}
 		const channel = new MessageChannel();
@@ -137,7 +137,7 @@ function scrollPage() {
 			return;
 		}
 		let post, num;
-		const { hash } = window.location;
+		const { hash } = deWindow.location;
 		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
 			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
 		) {

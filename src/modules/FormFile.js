@@ -127,7 +127,7 @@ class FileInput {
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
-			window.URL.revokeObjectURL(this._mediaEl.src);
+			deWindow.URL.revokeObjectURL(this._mediaEl.src);
 		}
 		this._toggleDragEvents(this._thumb, false);
 		$del(this._thumb);
@@ -137,7 +137,7 @@ class FileInput {
 		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
-				window.URL.revokeObjectURL(this._mediaEl.src);
+				deWindow.URL.revokeObjectURL(this._mediaEl.src);
 				this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
 				$del(this._mediaEl);
 				this._mediaEl = null;
@@ -292,9 +292,9 @@ class FileInput {
 		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
 			'<video class="de-file-img" loop autoplay muted src=""></video>' :
 			'<img class="de-file-img" src="">');
-		el.src = window.URL.createObjectURL(new Blob([fileData]));
+		el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
 		if((el = el.nextSibling)) {
-			window.URL.revokeObjectURL(el.src);
+			deWindow.URL.revokeObjectURL(el.src);
 			$del(el);
 		}
 	}
@@ -324,7 +324,7 @@ class FileInput {
 		$popup('file-loading', Lng.loading[lang], true);
 		return ContentLoader.loadImgData(url, false).then(data => {
 			if(file) {
-				window.URL.revokeObjectURL(url);
+				deWindow.URL.revokeObjectURL(url);
 			}
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);

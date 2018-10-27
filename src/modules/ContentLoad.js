@@ -181,7 +181,7 @@ const ContentLoader = {
 						nameLink.setAttribute('de-href', nameLink.href);
 					}
 					imgLink.href = nameLink.href =
-						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
@@ -248,7 +248,7 @@ const ContentLoader = {
 			return;
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-		nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
+		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
 			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',

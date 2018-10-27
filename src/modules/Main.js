@@ -2,6 +2,30 @@
                                                      MAIN
 =========================================================================================================== */
 
+function initFrames() {
+	const runInFrame = frameEl => {
+		doc = frameEl.contentDocument;
+		deWindow = frameEl.contentDocument.defaultView;
+		if(updater) {
+			updater.disableUpdater();
+		}
+		DelForm.tNums = new Set();
+		runMain(true, null);
+	};
+	const els = $Q('frame, iframe', doc);
+	for(let i = 0, len = els.length; i < len; ++i) {
+		const frameEl = els[i];
+		const fDoc = frameEl.contentDocument;
+		if(String(fDoc.defaultView.location) === 'about:blank') {
+			frameEl.onload = () => runInFrame(frameEl);
+		} else if(fDoc.readyState === 'loading') {
+			fDoc.addEventListener('DOMContentLoaded', () => runInFrame(frameEl));
+		} else {
+			runInFrame(frameEl);
+		}
+	}
+}
+
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
 	let formEl;
@@ -10,6 +34,7 @@ async function runMain(checkDomains, dataPromise) {
 		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
+		initFrames();
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -52,7 +77,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', () => {
-			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = deWindow.pageYOffset;
 		});
 	}
 	Logger.log('Init');
@@ -83,7 +108,7 @@ async function runMain(checkDomains, dataPromise) {
 	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
 	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
 		sesStorage.removeItem(storageName);
-		window.location.reload();
+		deWindow.location.reload();
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');

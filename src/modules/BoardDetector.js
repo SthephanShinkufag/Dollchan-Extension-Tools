@@ -438,7 +438,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			if(locStorage.file_dragdrop !== 'false') {
 				locStorage.file_dragdrop = false;
-				window.location.reload();
+				deWindow.location.reload();
 				return true;
 			}
 			$script('highlightReply = Function.prototype');
@@ -1213,7 +1213,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(el));
 		}
 		init() {
-			const path = window.location.pathname;
+			const path = deWindow.location.pathname;
 			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 				return true;
 			}
@@ -1287,7 +1287,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['lisach.pw'] = Lolifox;
 	ibDomains['lolifox.org'] = Lolifox;
 	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
@@ -1391,7 +1391,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('a[name]', op).name.match(/\d+/);
 		}
 		init() {
-			if(window.location.pathname === '/settings') {
+			if(deWindow.location.pathname === '/settings') {
 				$q('input[type="button"]').addEventListener('click',
 					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
@@ -1722,7 +1722,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
-				window.location.reload();
+				deWindow.location.reload();
 				return true;
 			}
 			super.init();
@@ -1744,13 +1744,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
 
-	const prot = window.location.protocol;
+	const prot = deWindow.location.protocol;
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = window.location.hostname.toLowerCase();
+			const host = deWindow.location.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {
@@ -1762,7 +1762,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	if(!dm) {
-		dm = window.location.hostname;
+		dm = deWindow.location.hostname;
 	}
 	if(!dm || !checkEngines) {
 		return null;
