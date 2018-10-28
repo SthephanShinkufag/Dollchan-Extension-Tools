@@ -46,7 +46,7 @@ class BaseBoard {
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
-		this.host = window.location.hostname;
+		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
@@ -202,7 +202,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			window.addEventListener('load', () => $del($id('de-dform-old')));
+			deWindow.addEventListener('load', () => $del($id('de-dform-old')));
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -321,7 +321,7 @@ class BaseBoard {
 		return status === 200 || status === 206;
 	}
 	parseURL() { // Sets here only
-		const url = (window.location.pathname || '').replace(/^\//, '');
+		const url = (deWindow.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);
 			this.b = temp[0].replace(/\/$/, '');

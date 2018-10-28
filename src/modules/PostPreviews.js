@@ -108,11 +108,11 @@ class Pview extends AbstractPost {
 		}
 		const cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
-			pv._offsetTop - window.pageYOffset - cr.bottom :
-			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+			pv._offsetTop - deWindow.pageYOffset - cr.bottom :
+			pv._offsetTop + pv.el.offsetHeight - deWindow.pageYOffset - cr.top;
 		if(Math.abs(diff) > 1) {
 			if(scroll) {
-				scrollTo(window.pageXOffset, window.pageYOffset - diff);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - diff);
 			}
 			do {
 				pv._offsetTop -= diff;
@@ -339,7 +339,7 @@ class Pview extends AbstractPost {
 	_setPosition(link, isAnim) {
 		let oldCSS;
 		const cr = link.getBoundingClientRect();
-		const offX = cr.left + window.pageXOffset + cr.width / 2;
+		const offX = cr.left + deWindow.pageXOffset + cr.width / 2;
 		const offY = cr.top;
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
@@ -353,7 +353,7 @@ class Pview extends AbstractPost {
 		style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 		let top = pv.offsetHeight;
 		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
-		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
+		top = deWindow.pageYOffset + (isTop ? offY + cr.height : offY - top);
 		this._offsetTop = top;
 		this._isLeft = isLeft;
 		this._isTop = isTop;

@@ -2,11 +2,11 @@
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '6316ad4';
+const commit = '9932a25';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
@@ -47,6 +47,7 @@ const commit = '6316ad4';
 /* ==[ Main.js ]== */
 /* ==[ Tail ]== */
 }(
+	window,
 	window.opera && window.opera.scriptStorage,
 	window.FormData,
 	(x, y) => window.scrollTo(x, y),

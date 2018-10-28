@@ -26,11 +26,11 @@
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(scriptStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '6316ad4';
+const commit = '9932a25';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1599,7 +1599,7 @@ const Lng = {
 
 /* ==[ GlobalVars.js ]== */
 
-const doc = window.document;
+const doc = deWindow.document;
 const emptyFn = Function.prototype;
 const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
@@ -2076,7 +2076,7 @@ class WorkerPool {
 			this.runWorker = (data, transferObjs, fn) => fn(wrkFn(data));
 			return;
 		}
-		const url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
+		const url = deWindow.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
 			var info = (${ String(wrkFn) })(e.data);
 			if(info.data) {
 				self.postMessage(info, [info.data]);
@@ -2093,7 +2093,7 @@ class WorkerPool {
 		}
 	}
 	clearWorkers() {
-		window.URL.revokeObjectURL(this._url);
+		deWindow.URL.revokeObjectURL(this._url);
 		this._freeWorkers.forEach(w => w.terminate());
 		this._freeWorkers = [];
 	}
@@ -2419,11 +2419,11 @@ function getFileType(url) {
 }
 
 function downloadBlob(blob, name) {
-	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : window.URL.createObjectURL(blob);
+	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
 	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
 	link.click();
 	setTimeout(() => {
-		window.URL.revokeObjectURL(url);
+		deWindow.URL.revokeObjectURL(url);
 		$del(link);
 	}, 2e5);
 }
@@ -2558,10 +2558,10 @@ async function readCfg() {
 	if(aib.dobr && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
-	if(!('FormData' in window)) {
+	if(!('FormData' in deWindow)) {
 		Cfg.ajaxPosting = 0;
 	}
-	if(!('Notification' in window)) {
+	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.isPresto) {
@@ -3069,7 +3069,7 @@ const Panel = Object.create({
 				toggleWindow('vid', false);
 				this.isVidEnabled = !this.isVidEnabled;
 				break;
-			case 'de-panel-refresh': window.location.reload(); break;
+			case 'de-panel-refresh': deWindow.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
@@ -3109,7 +3109,7 @@ const Panel = Object.create({
 			case 'de-panel-savethr': break;
 			case 'de-panel-enable':
 				toggleCfg('disabled');
-				window.location.reload();
+				deWindow.location.reload();
 				break;
 			default: return;
 			}
@@ -4198,7 +4198,7 @@ const CfgWindow = {
 		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
 			saveCfgObj(aib.dm, data);
-			window.location.reload();
+			deWindow.location.reload();
 		})));
 
 		// "Global" button. Allows to save/load global settings.
@@ -4210,7 +4210,7 @@ const CfgWindow = {
 			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 				if(data && ('global' in data) && !$isEmpty(data.global)) {
 					saveCfgObj(aib.dm, data.global);
-					window.location.reload();
+					deWindow.location.reload();
 				} else {
 					$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 				}
@@ -4293,7 +4293,7 @@ const CfgWindow = {
 					}
 					if(cfgObj || dmObj || isOldCfg) {
 						$popup('cfg-file', Lng.updating[lang], true);
-						window.location.reload();
+						deWindow.location.reload();
 						return;
 					}
 					closePopup('cfg-file');
@@ -4382,12 +4382,12 @@ const CfgWindow = {
 					delete data[aib.dm];
 					setStored('DESU_Config', JSON.stringify(data));
 					$popup('cfg-reset', Lng.updating[lang], true);
-					window.location.reload();
+					deWindow.location.reload();
 				});
 				return;
 			}
 			$popup('cfg-reset', Lng.updating[lang], true);
-			window.location.reload();
+			deWindow.location.reload();
 		}))));
 	},
 
@@ -4613,7 +4613,7 @@ const CfgWindow = {
 				$popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>'
 				).firstElementChild.value = JSON.stringify({
 					version  : version + '.' + commit,
-					location : String(window.location),
+					location : String(deWindow.location),
 					nav,
 					Cfg,
 					sSpells  : Spells.list.split('\n'),
@@ -4788,7 +4788,7 @@ const CfgWindow = {
 				<div class="de-cfg-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
-					${ 'Notification' in window ? this._getBox('desktNotif') + '<br>' : '' }
+					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
 					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
@@ -5126,9 +5126,9 @@ class Menu {
 			isFixed ? 'fixed' : 'absolute' }; left: 0px; top: 0px; visibility: hidden;">${ html }</div>`);
 		const cr = parentEl.getBoundingClientRect();
 		const { style, offsetWidth: w, offsetHeight: h } = el;
-		style.left = (isFixed ? 0 : window.pageXOffset) +
+		style.left = (isFixed ? 0 : deWindow.pageXOffset) +
 			(cr.left + w < Post.sizing.wWidth ? cr.left : cr.right - w) + 'px';
-		style.top = (isFixed ? 0 : window.pageYOffset) +
+		style.top = (isFixed ? 0 : deWindow.pageYOffset) +
 			(cr.bottom + h < Post.sizing.wHeight ? cr.bottom - 0.5 : cr.top - h + 0.5) + 'px';
 		style.removeProperty('visibility');
 		this._clickFn = clickFn;
@@ -5371,7 +5371,7 @@ const HotKeys = {
 				if(AttachedImage.viewer) {
 					AttachedImage.viewer.navigate(false);
 				} else if(isThr || aib.page !== aib.firstPage) {
-					window.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
+					deWindow.location.pathname = aib.getPageUrl(aib.b, isThr ? 0 : aib.page - 1);
 				}
 				break;
 			case 5: // Send post (txt)
@@ -5438,7 +5438,7 @@ const HotKeys = {
 				} else if(!isThr) {
 					const pageNum = DelForm.last.pageNum + 1;
 					if(pageNum <= aib.lastPage) {
-						window.location.pathname = aib.getPageUrl(aib.b, pageNum);
+						deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
 					}
 				}
 				break;
@@ -5463,7 +5463,7 @@ const HotKeys = {
 						if(typeof GM_openInTab === 'function') {
 							GM_openInTab(aib.getThrUrl(aib.b, post.tNum), false, true);
 						} else {
-							window.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
+							deWindow.open(aib.getThrUrl(aib.b, post.tNum), '_blank');
 						}
 					}
 					break;
@@ -5478,7 +5478,7 @@ const HotKeys = {
 							post.thr.loadPosts('all');
 							post = post.thr.op;
 						}
-						scrollTo(window.pageXOffset, window.pageYOffset + post.top);
+						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + post.top);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -5566,7 +5566,7 @@ const HotKeys = {
 			Thread.first.op.isHidden ? Thread.first.op.getAdjacentVisPost(toUp) : Thread.first.op;
 	},
 	_getFirstVisPost(getThread, getFull) {
-		if(this.lastPageOffset !== window.pageYOffset) {
+		if(this.lastPageOffset !== deWindow.pageYOffset) {
 			let post = getThread ? Thread.first : Thread.first.op;
 			while(post.top < 1) {
 				const tPost = post.next;
@@ -5579,7 +5579,7 @@ const HotKeys = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this.lastPageOffset = window.pageYOffset;
+			this.lastPageOffset = deWindow.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -5589,7 +5589,7 @@ const HotKeys = {
 			if(!aib.t) {
 				const pageNum = toUp ? DelForm.first.pageNum - 1 : DelForm.last.pageNum + 1;
 				if(toUp ? pageNum >= aib.firstPage : pageNum <= aib.lastPage) {
-					window.location.pathname = aib.getPageUrl(aib.b, pageNum);
+					deWindow.location.pathname = aib.getPageUrl(aib.b, pageNum);
 				}
 			}
 			return;
@@ -5600,10 +5600,10 @@ const HotKeys = {
 		if(toThread) {
 			next.el.scrollIntoView();
 		} else {
-			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
+			scrollTo(0, deWindow.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this.lastPageOffset = window.pageYOffset;
+		this.lastPageOffset = deWindow.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -6011,7 +6011,7 @@ const ContentLoader = {
 						nameLink.setAttribute('de-href', nameLink.href);
 					}
 					imgLink.href = nameLink.href =
-						window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
@@ -6078,7 +6078,7 @@ const ContentLoader = {
 			return;
 		}
 		const ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
-		nameLink.insertAdjacentHTML('afterend', `<a href="${ window.URL.createObjectURL(
+		nameLink.insertAdjacentHTML('afterend', `<a href="${ deWindow.URL.createObjectURL(
 			new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
 				type: [
 					'application/x-7z-compressed',
@@ -6983,7 +6983,7 @@ function toggleInfinityScroll() {
 }
 toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
-		window.requestAnimationFrame(() => {
+		deWindow.requestAnimationFrame(() => {
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				Pages.addPage();
 			}
@@ -8468,7 +8468,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotetxt = window.getSelection().toString();
+				quotetxt = deWindow.getSelection().toString();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -8665,7 +8665,7 @@ class PostForm {
 		}
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
-		window.addEventListener('load',
+		deWindow.addEventListener('load',
 			() => setTimeout(() => !this.files.filesCount && this.files.clearInputs(), 0));
 	}
 	_initSubmit() {
@@ -8717,7 +8717,7 @@ class PostForm {
 			const code = e.charCode || e.keyCode;
 			if((code === 33 /* PgUp */ || code === 34 /* PgDn */) && e.which === 0) {
 				e.target.blur();
-				window.focus();
+				deWindow.focus();
 			}
 		});
 		// Add image from clipboard to file inputs on Ctrl+V
@@ -9006,11 +9006,11 @@ function checkUpload(data) {
 	saveCfgObj(aib.dm, Cfg);
 	if(!tNum) {
 		if(postNum) {
-			window.location.assign(aib.getThrUrl(aib.b, postNum));
+			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
 			const dForm = $q(aib.qDForm, data);
 			if(dForm) {
-				window.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
+				deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
 		}
 		return;
@@ -9020,7 +9020,7 @@ function checkUpload(data) {
 		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
-				scrollTo(0, window.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
+				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
 			}
 			updater.continueUpdater(true);
 			closePopup('upload');
@@ -9393,7 +9393,7 @@ class FileInput {
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
-			window.URL.revokeObjectURL(this._mediaEl.src);
+			deWindow.URL.revokeObjectURL(this._mediaEl.src);
 		}
 		this._toggleDragEvents(this._thumb, false);
 		$del(this._thumb);
@@ -9403,7 +9403,7 @@ class FileInput {
 		if(FileInput._isThumb) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
-				window.URL.revokeObjectURL(this._mediaEl.src);
+				deWindow.URL.revokeObjectURL(this._mediaEl.src);
 				this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
 				$del(this._mediaEl);
 				this._mediaEl = null;
@@ -9558,9 +9558,9 @@ class FileInput {
 		this._mediaEl = el = $aBegin(el, fileType.startsWith('video/') ?
 			'<video class="de-file-img" loop autoplay muted src=""></video>' :
 			'<img class="de-file-img" src="">');
-		el.src = window.URL.createObjectURL(new Blob([fileData]));
+		el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
 		if((el = el.nextSibling)) {
-			window.URL.revokeObjectURL(el.src);
+			deWindow.URL.revokeObjectURL(el.src);
 			$del(el);
 		}
 	}
@@ -9590,7 +9590,7 @@ class FileInput {
 		$popup('file-loading', Lng.loading[lang], true);
 		return ContentLoader.loadImgData(url, false).then(data => {
 			if(file) {
-				window.URL.revokeObjectURL(url);
+				deWindow.URL.revokeObjectURL(url);
 			}
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
@@ -10032,7 +10032,7 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotetxt = window.getSelection().toString();
+							quotetxt = deWindow.getSelection().toString();
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
@@ -10042,7 +10042,7 @@ class AbstractPost {
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
 							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
-							window.location.assign(el.href.replace(/#i/, '#'));
+							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
@@ -10141,7 +10141,7 @@ class AbstractPost {
 		case 'de-btn-rep':
 			this.btns.title = Lng.replyToPost[lang];
 			if(!isOutEvent) {
-				quotetxt = window.getSelection().toString();
+				quotetxt = deWindow.getSelection().toString();
 			}
 			return;
 		case 'de-btn-hide':
@@ -10532,14 +10532,14 @@ class Post extends AbstractPost {
 		}
 	}
 	selectAndScrollTo(scrollNode = this.el) {
-		scrollTo(0, window.pageYOffset + scrollNode.getBoundingClientRect().top -
+		scrollTo(0, deWindow.pageYOffset + scrollNode.getBoundingClientRect().top -
 			Post.sizing.wHeight / 2 + scrollNode.clientHeight / 2);
 		if(HotKeys.enabled) {
 			if(HotKeys.cPost) {
 				HotKeys.cPost.unselect();
 			}
 			HotKeys.cPost = this;
-			HotKeys.lastPageOffset = window.pageYOffset;
+			HotKeys.lastPageOffset = deWindow.pageYOffset;
 		} else {
 			const el = $q('.de-selected');
 			if(el) {
@@ -10592,9 +10592,9 @@ class Post extends AbstractPost {
 				this.wrap.classList.toggle('de-hidden', isHide);
 			} else {
 				this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : e => {
-					const yOffset = window.pageYOffset;
+					const yOffset = deWindow.pageYOffset;
 					this.hideContent(e.type === 'mouseout');
-					scrollTo(window.pageXOffset, yOffset);
+					scrollTo(deWindow.pageXOffset, yOffset);
 				};
 			}
 		}
@@ -10717,7 +10717,7 @@ class Post extends AbstractPost {
 	_getMenuHide() {
 		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
 			Lng.selHiderMenu[name][lang] }</span>`;
-		const sel = window.getSelection();
+		const sel = deWindow.getSelection();
 		const ssel = sel.toString().trim();
 		if(ssel) {
 			this._selText = ssel;
@@ -10862,7 +10862,7 @@ Post.Note = class PostNote {
 };
 Post.sizing = {
 	get dPxRatio() {
-		const value = window.devicePixelRatio || 1;
+		const value = deWindow.devicePixelRatio || 1;
 		Object.defineProperty(this, 'dPxRatio', { value });
 		return value;
 	},
@@ -11008,11 +11008,11 @@ class Pview extends AbstractPost {
 		}
 		const cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 		const diff = pv._isTop ?
-			pv._offsetTop - window.pageYOffset - cr.bottom :
-			pv._offsetTop + pv.el.offsetHeight - window.pageYOffset - cr.top;
+			pv._offsetTop - deWindow.pageYOffset - cr.bottom :
+			pv._offsetTop + pv.el.offsetHeight - deWindow.pageYOffset - cr.top;
 		if(Math.abs(diff) > 1) {
 			if(scroll) {
-				scrollTo(window.pageXOffset, window.pageYOffset - diff);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - diff);
 			}
 			do {
 				pv._offsetTop -= diff;
@@ -11239,7 +11239,7 @@ class Pview extends AbstractPost {
 	_setPosition(link, isAnim) {
 		let oldCSS;
 		const cr = link.getBoundingClientRect();
-		const offX = cr.left + window.pageXOffset + cr.width / 2;
+		const offX = cr.left + deWindow.pageXOffset + cr.width / 2;
 		const offY = cr.top;
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
@@ -11253,7 +11253,7 @@ class Pview extends AbstractPost {
 		style.cssText = (isAnim ? 'opacity: 0; ' : '') + lmw;
 		let top = pv.offsetHeight;
 		const isTop = offY + top + cr.height < nav.viewportHeight() || offY - top < 5;
-		top = window.pageYOffset + (isTop ? offY + cr.height : offY - top);
+		top = deWindow.pageYOffset + (isTop ? offY + cr.height : offY - top);
 		this._offsetTop = top;
 		this._isLeft = isLeft;
 		this._isTop = isTop;
@@ -12046,8 +12046,8 @@ class ExpandableImage {
 	sendCloseEvent(e, inPost) {
 		let { post } = this;
 		let cr = post.el.getBoundingClientRect();
-		const x = e.pageX - window.pageXOffset;
-		const y = e.pageY - window.pageYOffset;
+		const x = e.pageX - deWindow.pageXOffset;
+		const y = e.pageY - deWindow.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				post = post.parent;
@@ -12082,7 +12082,7 @@ class ExpandableImage {
 					formData.append('file', blob, name);
 					const ajaxParams = { data: formData, method: 'POST' };
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
-						window.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
+						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
 					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
@@ -12495,7 +12495,8 @@ class _4chanPostsBuilder {
 		const data = this._posts[i + 1];
 		const num = data.no;
 		const brd = this._brd;
-		const _icon = id => `//s.4cdn.org/image/${ id }${ window.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
+		const _icon = id => `//s.4cdn.org/image/${ id }${
+			deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
 		// --- FILE ---
 		let fileHTML = '';
@@ -13255,13 +13256,13 @@ class Thread {
 				}
 			}
 			if(oldCoord) {
-				scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + nextThr.top - oldCoord);
 			}
 		} else if(e.type === 'mouseover') {
 			switch(el.classList[0]) {
 			case 'de-btn-rep':
 				this.btns.title = Lng.replyToThr[lang];
-				quotetxt = window.getSelection().toString();
+				quotetxt = deWindow.getSelection().toString();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
@@ -13528,7 +13529,7 @@ class Thread {
 			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
 		}
 		if(smartScroll) {
-			scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this.next.top - nextCoord);
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
@@ -13543,7 +13544,7 @@ class Thread {
 		const lastOffset = pr.isVisible ? pr.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		if(lastOffset !== null) {
-			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
@@ -13669,7 +13670,7 @@ const thrNavPanel = {
 	},
 	handleEvent(e) {
 		switch(e.type) {
-		case 'scroll': window.requestAnimationFrame(() => this._checkThreads()); break;
+		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
 		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
 		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
@@ -13747,11 +13748,11 @@ const thrNavPanel = {
 		const el = fixEventEl(e.target);
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
-			scrollTo(window.pageXOffset, window.pageYOffset +
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
 				this._currentThr.getBoundingClientRect().top - 50);
 			break;
 		case 'de-thr-navdown':
-			scrollTo(window.pageXOffset, window.pageYOffset +
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
 				this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 			break;
 		}
@@ -13894,7 +13895,8 @@ function initThreadUpdater(title, enableUpdate) {
 			if(aib.fch) {
 				// Due to CORS we cannot apply href to icon.src directly
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
-					icon.src = 'response' in xhr ? window.URL.createObjectURL(xhr.response) : '/favicon.ico';
+					icon.src = 'response' in xhr ?
+						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
 				}, emptyFn);
 				return;
 			}
@@ -13964,7 +13966,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_initIconsHelper(icon) {
 			const canvas = doc.createElement('canvas');
 			const ctx = canvas.getContext('2d');
-			const wh = Math.max(icon.naturalHeight, 16 * (window.devicePixelRatio || 1));
+			const wh = Math.max(icon.naturalHeight, 16 * (deWindow.devicePixelRatio || 1));
 			const scale = wh / 16;
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
@@ -14024,9 +14026,9 @@ function initThreadUpdater(title, enableUpdate) {
 				tag  : aib.dm + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
-			notif.onclick = () => window.focus();
+			notif.onclick = () => deWindow.focus();
 			notif.onerror = () => {
-				window.focus();
+				deWindow.focus();
 				this._requestPermission();
 			};
 			this._notifEl = notif;
@@ -14469,8 +14471,8 @@ DelForm.tNums = new Set();
 
 function checkStorage() {
 	try {
-		locStorage = window.localStorage;
-		sesStorage = window.sessionStorage;
+		locStorage = deWindow.localStorage;
+		sesStorage = deWindow.sessionStorage;
 		sesStorage['de-test'] = 1;
 	} catch(err) {
 		if(typeof unsafeWindow !== 'undefined') {
@@ -14492,7 +14494,7 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = ('chrome' in window) &&
+	const isChromeStorage = ('chrome' in deWindow) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
@@ -14511,8 +14513,8 @@ function initNavFuncs() {
 	} else {
 		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
-	if(!('requestAnimationFrame' in window)) { // XXX: nav.isPresto
-		window.requestAnimationFrame = fn => setTimeout(fn, 0);
+	if(!('requestAnimationFrame' in deWindow)) { // XXX: nav.isPresto
+		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
 	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
 		Element.prototype.remove = function() {
@@ -14548,7 +14550,7 @@ function initNavFuncs() {
 			};
 			return rv;
 		};
-		window.File = function File(arr, name) {
+		deWindow.File = function File(arr, name) {
 			const rv = new Blob(arr);
 			rv.name = name;
 			return rv;
@@ -14563,7 +14565,7 @@ function initNavFuncs() {
 		isWebkit,
 		isChrome,
 		isSafari,
-		isPresto   : !!window.opera,
+		isPresto   : !!deWindow.opera,
 		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
@@ -14585,7 +14587,7 @@ function initNavFuncs() {
 		get hasWorker() {
 			let value = false;
 			try {
-				value = 'Worker' in window && 'URL' in window;
+				value = 'Worker' in deWindow && 'URL' in deWindow;
 			} catch(err) {}
 			if(value && this.isFirefox) {
 				value = this.firefoxVer >= 40;
@@ -14692,7 +14694,7 @@ class BaseBoard {
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasTextLinks = false;
-		this.host = window.location.hostname;
+		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
 		this.jsonSubmit = false;
 		this.markupBB = false;
@@ -14848,7 +14850,7 @@ class BaseBoard {
 		if(isForm) {
 			const newForm = $bBegin(data, str);
 			$hide(data);
-			window.addEventListener('load', () => $del($id('de-dform-old')));
+			deWindow.addEventListener('load', () => $del($id('de-dform-old')));
 			return newForm;
 		}
 		data.innerHTML = str;
@@ -14967,7 +14969,7 @@ class BaseBoard {
 		return status === 200 || status === 206;
 	}
 	parseURL() { // Sets here only
-		const url = (window.location.pathname || '').replace(/^\//, '');
+		const url = (deWindow.location.pathname || '').replace(/^\//, '');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);
 			this.b = temp[0].replace(/\/$/, '');
@@ -15202,7 +15204,10 @@ function getImageBoard(checkDomains, checkEngines) {
 					runMain(checkDomains, dataPromise);
 				}
 			});
-			initObserver.observe($id('posts-form'), { childList: true });
+			const el = $id('posts-form');
+			if(el) {
+				initObserver.observe(el, { childList: true });
+			}
 			return false;
 		}
 		updateCaptcha(cap) {
@@ -15427,7 +15432,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super.init();
 			if(locStorage.file_dragdrop !== 'false') {
 				locStorage.file_dragdrop = false;
-				window.location.reload();
+				deWindow.location.reload();
 				return true;
 			}
 			$script('highlightReply = Function.prototype');
@@ -16202,7 +16207,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(el));
 		}
 		init() {
-			const path = window.location.pathname;
+			const path = deWindow.location.pathname;
 			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
 				return true;
 			}
@@ -16380,7 +16385,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('a[name]', op).name.match(/\d+/);
 		}
 		init() {
-			if(window.location.pathname === '/settings') {
+			if(deWindow.location.pathname === '/settings') {
 				$q('input[type="button"]').addEventListener('click',
 					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
@@ -16711,7 +16716,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const val = '{ "simpleNavbar": true }';
 			if(locStorage.settings !== val) {
 				locStorage.settings = val;
-				window.location.reload();
+				deWindow.location.reload();
 				return true;
 			}
 			super.init();
@@ -16733,13 +16738,13 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
 
-	const prot = window.location.protocol;
+	const prot = deWindow.location.protocol;
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = window.location.hostname.toLowerCase();
+			const host = deWindow.location.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {
@@ -16751,7 +16756,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	if(!dm) {
-		dm = window.location.hostname;
+		dm = deWindow.location.hostname;
 	}
 	if(!dm || !checkEngines) {
 		return null;
@@ -16775,7 +16780,7 @@ function getImageBoard(checkDomains, checkEngines) {
 const DollchanAPI = {
 	initAPI() {
 		this.hasListeners = false;
-		if(!('MessageChannel' in window)) {
+		if(!('MessageChannel' in deWindow)) {
 			return;
 		}
 		const channel = new MessageChannel();
@@ -16905,7 +16910,7 @@ function scrollPage() {
 			return;
 		}
 		let post, num;
-		const { hash } = window.location;
+		const { hash } = deWindow.location;
 		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
 			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
 		) {
@@ -17580,6 +17585,35 @@ function updateCSS() {
                                                      MAIN
 =========================================================================================================== */
 
+function runFrames() {
+	if(!deWindow.frames[0]) {
+		return;
+	}
+	const deMainFuncFrame = frameEl => {
+		const deWindow = frameEl.contentDocument.defaultView;
+		deMainFuncInner(
+			deWindow,
+			deWindow.opera && deWindow.opera.scriptStorage,
+			deWindow.FormData,
+			(x, y) => deWindow.scrollTo(x, y),
+			typeof localData === 'object' ? localData : null
+		);
+	};
+	for(let i = 0, len = deWindow.length; i < len; ++i) {
+		const frameEl = deWindow.frames[i].frameElement;
+		const fDoc = frameEl.contentDocument;
+		if(fDoc) {
+			if(String(fDoc.defaultView.location) === 'about:blank') {
+				frameEl.onload = () => deMainFuncFrame(frameEl);
+			} else if(fDoc.readyState === 'loading') {
+				fDoc.addEventListener('DOMContentLoaded', () => deMainFuncFrame(frameEl));
+			} else {
+				deMainFuncFrame(frameEl);
+			}
+		}
+	}
+}
+
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
 	let formEl;
@@ -17588,6 +17622,7 @@ async function runMain(checkDomains, dataPromise) {
 		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
+		runFrames();
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -17630,7 +17665,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', () => {
-			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = deWindow.pageYOffset;
 		});
 	}
 	Logger.log('Init');
@@ -17661,7 +17696,7 @@ async function runMain(checkDomains, dataPromise) {
 	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
 	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
 		sesStorage.removeItem(storageName);
-		window.location.reload();
+		deWindow.location.reload();
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
@@ -17703,7 +17738,7 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
+if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
 	return;
 }
 if(doc.readyState !== 'loading') {
@@ -17728,6 +17763,7 @@ doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 
 /* ==[ Tail ]== */
 }(
+	window,
 	window.opera && window.opera.scriptStorage,
 	window.FormData,
 	(x, y) => window.scrollTo(x, y),

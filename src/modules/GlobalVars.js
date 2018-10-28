@@ -1,6 +1,6 @@
 /* ==[ GlobalVars.js ]== */
 
-const doc = window.document;
+const doc = deWindow.document;
 const emptyFn = Function.prototype;
 const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';

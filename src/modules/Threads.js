@@ -140,13 +140,13 @@ class Thread {
 				}
 			}
 			if(oldCoord) {
-				scrollTo(window.pageXOffset, window.pageYOffset + nextThr.top - oldCoord);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + nextThr.top - oldCoord);
 			}
 		} else if(e.type === 'mouseover') {
 			switch(el.classList[0]) {
 			case 'de-btn-rep':
 				this.btns.title = Lng.replyToThr[lang];
-				quotetxt = window.getSelection().toString();
+				quotetxt = deWindow.getSelection().toString();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
@@ -413,7 +413,7 @@ class Thread {
 			op.el.insertAdjacentHTML('afterend', `<div class="de-omitted">${ needToOmit }</div>`);
 		}
 		if(smartScroll) {
-			scrollTo(window.pageXOffset, window.pageYOffset + this.next.top - nextCoord);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this.next.top - nextCoord);
 		}
 		Pview.updatePosition(false);
 		if(Cfg.hideReplies) {
@@ -428,7 +428,7 @@ class Thread {
 		const lastOffset = pr.isVisible ? pr.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		if(lastOffset !== null) {
-			scrollTo(window.pageXOffset, window.pageYOffset + pr.top - lastOffset);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
@@ -554,7 +554,7 @@ const thrNavPanel = {
 	},
 	handleEvent(e) {
 		switch(e.type) {
-		case 'scroll': window.requestAnimationFrame(() => this._checkThreads()); break;
+		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
 		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
 		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
@@ -632,11 +632,11 @@ const thrNavPanel = {
 		const el = fixEventEl(e.target);
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
-			scrollTo(window.pageXOffset, window.pageYOffset +
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
 				this._currentThr.getBoundingClientRect().top - 50);
 			break;
 		case 'de-thr-navdown':
-			scrollTo(window.pageXOffset, window.pageYOffset +
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
 				this._currentThr.getBoundingClientRect().bottom - Post.sizing.wHeight + 50);
 			break;
 		}

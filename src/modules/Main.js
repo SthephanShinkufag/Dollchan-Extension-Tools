@@ -2,6 +2,35 @@
                                                      MAIN
 =========================================================================================================== */
 
+function runFrames() {
+	if(!deWindow.frames[0]) {
+		return;
+	}
+	const deMainFuncFrame = frameEl => {
+		const deWindow = frameEl.contentDocument.defaultView;
+		deMainFuncInner(
+			deWindow,
+			deWindow.opera && deWindow.opera.scriptStorage,
+			deWindow.FormData,
+			(x, y) => deWindow.scrollTo(x, y),
+			typeof localData === 'object' ? localData : null
+		);
+	};
+	for(let i = 0, len = deWindow.length; i < len; ++i) {
+		const frameEl = deWindow.frames[i].frameElement;
+		const fDoc = frameEl.contentDocument;
+		if(fDoc) {
+			if(String(fDoc.defaultView.location) === 'about:blank') {
+				frameEl.onload = () => deMainFuncFrame(frameEl);
+			} else if(fDoc.readyState === 'loading') {
+				fDoc.addEventListener('DOMContentLoaded', () => deMainFuncFrame(frameEl));
+			} else {
+				deMainFuncFrame(frameEl);
+			}
+		}
+	}
+}
+
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
 	let formEl;
@@ -10,6 +39,7 @@ async function runMain(checkDomains, dataPromise) {
 		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
+		runFrames();
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -52,7 +82,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	if(aib.t || !Cfg.scrollToTop) {
 		doc.defaultView.addEventListener('beforeunload', () => {
-			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = window.pageYOffset;
+			sesStorage['de-scroll-' + aib.b + (aib.t || '')] = deWindow.pageYOffset;
 		});
 	}
 	Logger.log('Init');
@@ -83,7 +113,7 @@ async function runMain(checkDomains, dataPromise) {
 	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
 	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
 		sesStorage.removeItem(storageName);
-		window.location.reload();
+		deWindow.location.reload();
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
@@ -125,7 +155,7 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(window.location.protocol)) {
+if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
 	return;
 }
 if(doc.readyState !== 'loading') {
