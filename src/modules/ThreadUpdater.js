@@ -140,7 +140,7 @@ function initThreadUpdater(title, enableUpdate) {
 		startBlink(isError) {
 			const iconUrl = !this._hasIcons ? this._emptyIcon :
 				isError ? this._iconError :
-				repliesToYou.size ? this._iconYou : this._iconNew;
+				repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts);
 			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
@@ -165,7 +165,8 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!isError && !newPosts) {
 				this._setIcon(this.originalIcon);
 			} else if(this._hasIcons) {
-				this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew);
+				this._setIcon(isError ? this._iconError :
+					repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts));
 			}
 		},
 
@@ -175,8 +176,8 @@ function initThreadUpdater(title, enableUpdate) {
 		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
 		_hasIcons    : false,
 		_iconError   : null,
-		_iconNew     : null,
-		_iconYou     : null,
+		_iconNew     : newPosts => null,
+		_iconYou     : newPosts => null,
 		_isInited    : false,
 		_isOrigIcon  : true,
 		get _iconEl() {
@@ -188,15 +189,35 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_drawLines(ctx, line1, line2, color, width, scaleFactor) {
+		_drawCircle(ctx, strokeColor, fillColor, scale) {
+			ctx.beginPath();
+			ctx.arc(11 * scale, 11 * scale, 5 * scale, 0, 2 * Math.PI);
+			ctx.fillStyle = fillColor;
+			ctx.fill();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = strokeColor;
+			ctx.stroke();
+		},
+		_drawLines(ctx, line1, line2, color, width, scale) {
 			ctx.beginPath();
 			ctx.strokeStyle = color;
-			ctx.lineWidth = width * scaleFactor;
-			ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-			ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-			ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-			ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+			ctx.lineWidth = width * scale;
+			ctx.moveTo(line1[0] * scale, line1[1] * scale);
+			ctx.lineTo(line1[2] * scale, line1[3] * scale);
+			ctx.moveTo(line2[0] * scale, line2[1] * scale);
+			ctx.lineTo(line2[2] * scale, line2[3] * scale);
 			ctx.stroke();
+		},
+		_iconNewPosts(ctx, canvas, newPosts, iconPlus, iconCircle, scale) {
+			if(newPosts > 9) {
+				ctx.putImageData(iconPlus, 0, 0);
+			} else {
+				ctx.putImageData(iconCircle, 0, 0);
+				ctx.fillStyle = '#fff';
+				ctx.font = `bold ${ 12 * scale }px Arial`;
+				ctx.fillText(newPosts, 8 * scale, 15 * scale);
+			}
+			return canvas.toDataURL('image/png');
 		},
 		_initIconsHelper(icon) {
 			const canvas = doc.createElement('canvas');
@@ -206,17 +227,32 @@ function initThreadUpdater(title, enableUpdate) {
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
+			// Error (red cross)
 			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
 			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
+			// New posts (green plus)
 			ctx.putImageData(original, 0, 0);
 			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
 			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
-			this._iconNew = canvas.toDataURL('image/png');
+			const iconNewPlus = ctx.getImageData(0, 0, wh, wh);
+			// New posts (green circle)
+			ctx.putImageData(original, 0, 0);
+			this._drawCircle(ctx, '#1c5f23', '#00cc00', scale);
+			const iconNewCircle = ctx.getImageData(0, 0, wh, wh);
+			this._iconNew = newPosts =>
+				this._iconNewPosts(ctx, canvas, newPosts, iconNewPlus, iconNewCircle, scale);
+			// Replies to you (blue plus)
 			ctx.putImageData(original, 0, 0);
 			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
 			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
-			this._iconYou = canvas.toDataURL('image/png');
+			const iconYouPlus = ctx.getImageData(0, 0, wh, wh);
+			// Replies to you (blue circle)
+			ctx.putImageData(original, 0, 0);
+			this._drawCircle(ctx, '#122091', '#1b6df5', scale);
+			const iconYouCircle = ctx.getImageData(0, 0, wh, wh);
+			this._iconYou = newPosts =>
+				this._iconNewPosts(ctx, canvas, newPosts, iconYouPlus, iconYouCircle, scale);
 			this._hasIcons = true;
 		},
 		_setIcon(iconUrl) {
