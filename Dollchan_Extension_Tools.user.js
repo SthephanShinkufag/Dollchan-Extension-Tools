@@ -3676,7 +3676,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							excludeList = _ref81[0];
 							favObj = _ref81[1];
 
-							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local') || (oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1)) {
+							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context27.next = 19;
 								break;
 							}
@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '9932a25';
+	var commit = '97b074d';
 
 
 	var defaultCfg = {
@@ -23000,10 +23000,13 @@ true, true];
 			return;
 		}
 		var deMainFuncFrame = function deMainFuncFrame(frameEl) {
-			var deWindow = frameEl.contentDocument.defaultView;
-			deMainFuncInner(deWindow, deWindow.opera && deWindow.opera.scriptStorage, deWindow.FormData, function (x, y) {
-				return deWindow.scrollTo(x, y);
-			}, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
+			var fDoc = frameEl.contentDocument;
+			if (fDoc) {
+				var _deWindow = fDoc.defaultView;
+				deMainFuncInner(_deWindow, _deWindow.opera && _deWindow.opera.scriptStorage, _deWindow.FormData, function (x, y) {
+					return _deWindow.scrollTo(x, y);
+				}, (typeof localData === 'undefined' ? 'undefined' : _typeof(localData)) === 'object' ? localData : null);
+			}
 		};
 
 		var _loop2 = function _loop2(i, _len19) {
@@ -23029,9 +23032,10 @@ true, true];
 		}
 	}
 
-	if (/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
+	if (/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol) || deWindow.deRunned) {
 		return;
 	}
+	deWindow.deRunned = true;
 	if (doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '9932a25';
+const commit = '97b074d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17586,28 +17586,36 @@ function updateCSS() {
 =========================================================================================================== */
 
 function runFrames() {
+	console.log(5, String(deWindow.location));
 	if(!deWindow.frames[0]) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {
-		const deWindow = frameEl.contentDocument.defaultView;
-		deMainFuncInner(
-			deWindow,
-			deWindow.opera && deWindow.opera.scriptStorage,
-			deWindow.FormData,
-			(x, y) => deWindow.scrollTo(x, y),
-			typeof localData === 'object' ? localData : null
-		);
+		const fDoc = frameEl.contentDocument;
+		if(fDoc) {
+			const deWindow = fDoc.defaultView;
+			console.log(100, String(deWindow.location));
+			deMainFuncInner(
+				deWindow,
+				deWindow.opera && deWindow.opera.scriptStorage,
+				deWindow.FormData,
+				(x, y) => deWindow.scrollTo(x, y),
+				typeof localData === 'object' ? localData : null
+			);
+		}
 	};
 	for(let i = 0, len = deWindow.length; i < len; ++i) {
 		const frameEl = deWindow.frames[i].frameElement;
 		const fDoc = frameEl.contentDocument;
 		if(fDoc) {
 			if(String(fDoc.defaultView.location) === 'about:blank') {
+				console.log(10, String(deWindow.location));
 				frameEl.onload = () => deMainFuncFrame(frameEl);
 			} else if(fDoc.readyState === 'loading') {
+				console.log(20, String(deWindow.location));
 				fDoc.addEventListener('DOMContentLoaded', () => deMainFuncFrame(frameEl));
 			} else {
+				console.log(30, String(deWindow.location));
 				deMainFuncFrame(frameEl);
 			}
 		}
@@ -17738,9 +17746,10 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
+if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol) || deWindow.deRunned) {
 	return;
 }
+deWindow.deRunned = true;
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);

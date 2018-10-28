@@ -7,14 +7,17 @@ function runFrames() {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {
-		const deWindow = frameEl.contentDocument.defaultView;
-		deMainFuncInner(
-			deWindow,
-			deWindow.opera && deWindow.opera.scriptStorage,
-			deWindow.FormData,
-			(x, y) => deWindow.scrollTo(x, y),
-			typeof localData === 'object' ? localData : null
-		);
+		const fDoc = frameEl.contentDocument;
+		if(fDoc) {
+			const deWindow = fDoc.defaultView;
+			deMainFuncInner(
+				deWindow,
+				deWindow.opera && deWindow.opera.scriptStorage,
+				deWindow.FormData,
+				(x, y) => deWindow.scrollTo(x, y),
+				typeof localData === 'object' ? localData : null
+			);
+		}
 	};
 	for(let i = 0, len = deWindow.length; i < len; ++i) {
 		const frameEl = deWindow.frames[i].frameElement;
@@ -53,8 +56,7 @@ async function runMain(checkDomains, dataPromise) {
 	[excludeList, favObj] = await (dataPromise || readData());
 	if((excludeList = excludeList || '').includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
-		!localData && docBody.classList.contains('de-mode-local') ||
-		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
+		!localData && docBody.classList.contains('de-mode-local')
 	) {
 		return;
 	}
@@ -155,9 +157,10 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
+if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol) || deWindow.deRunned) {
 	return;
 }
+deWindow.deRunned = true;
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);
