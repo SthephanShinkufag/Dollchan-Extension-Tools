@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = 'b129092';
+	var commit = '6c258f2';
 
 
 	var defaultCfg = {
@@ -18980,7 +18980,7 @@ true, true];
 			startBlink: function startBlink(isError) {
 				var _this71 = this;
 
-				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts);
+				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 				if (this._blinkInterv) {
 					if (this._currentIcon === iconUrl) {
 						return;
@@ -19006,7 +19006,7 @@ true, true];
 				if (!isError && !newPosts) {
 					this._setIcon(this.originalIcon);
 				} else if (this._hasIcons) {
-					this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts));
+					this._setIcon(isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts));
 				}
 			},
 
@@ -19015,14 +19015,16 @@ true, true];
 			_blinkMS: 800,
 			_currentIcon: null,
 			_emptyIcon: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+			_getIconNew: function _getIconNew(newPosts) {
+				return null;
+			},
+			_getIconYou: function _getIconYou(newPosts) {
+				return null;
+			},
 			_hasIcons: false,
 			_iconError: null,
-			_iconNew: function _iconNew(newPosts) {
-				return null;
-			},
-			_iconYou: function _iconYou(newPosts) {
-				return null;
-			},
+			_iconsNew: [],
+			_iconsYou: [],
 			_isInited: false,
 			_isOrigIcon: true,
 			get _iconEl() {
@@ -19033,16 +19035,16 @@ true, true];
 				});
 				return el;
 			},
-			_drawCircle: function _drawCircle(ctx, strokeColor, fillColor, scale) {
+			_drawCanvCircle: function _drawCanvCircle(ctx, strokeColor, fillColor, scale) {
 				ctx.beginPath();
-				ctx.arc(11 * scale, 11 * scale, 5 * scale, 0, 2 * Math.PI);
+				ctx.arc(10.5 * scale, 10.5 * scale, 5 * scale, 0, 2 * Math.PI);
 				ctx.fillStyle = fillColor;
 				ctx.fill();
 				ctx.lineWidth = 1;
 				ctx.strokeStyle = strokeColor;
 				ctx.stroke();
 			},
-			_drawLines: function _drawLines(ctx, line1, line2, color, width, scale) {
+			_drawCanvLines: function _drawCanvLines(ctx, line1, line2, color, width, scale) {
 				ctx.beginPath();
 				ctx.strokeStyle = color;
 				ctx.lineWidth = width * scale;
@@ -19052,14 +19054,16 @@ true, true];
 				ctx.lineTo(line2[2] * scale, line2[3] * scale);
 				ctx.stroke();
 			},
-			_iconNewPosts: function _iconNewPosts(ctx, canvas, newPosts, iconPlus, iconCircle, scale) {
-				if (newPosts > 9) {
-					ctx.putImageData(iconPlus, 0, 0);
-				} else {
-					ctx.putImageData(iconCircle, 0, 0);
-					ctx.fillStyle = '#fff';
+			_drawIconsNewYou: function _drawIconsNewYou(ctx, canvas, id, iconCircle, scale) {
+				ctx.putImageData(iconCircle, 0, 0);
+				ctx.fillStyle = '#fff';
+				if (id) {
 					ctx.font = 'bold ' + 12 * scale + 'px Arial';
-					ctx.fillText(newPosts, 8 * scale, 15 * scale);
+					ctx.fillText(id, 7 * scale, 15 * scale);
+				} else {
+					ctx.fillRect(6 * scale, 9 * scale, 2 * scale, 3 * scale);
+					ctx.fillRect(9.5 * scale, 9 * scale, 2 * scale, 3 * scale);
+					ctx.fillRect(13 * scale, 9 * scale, 2 * scale, 3 * scale);
 				}
 				return canvas.toDataURL('image/png');
 			},
@@ -19073,28 +19077,22 @@ true, true];
 				canvas.width = canvas.height = wh;
 				ctx.drawImage(icon, 0, 0, wh, wh);
 				var original = ctx.getImageData(0, 0, wh, wh);
-				this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-				this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+				this._drawCanvLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+				this._drawCanvLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-				this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
-				var iconNewPlus = ctx.getImageData(0, 0, wh, wh);
-				ctx.putImageData(original, 0, 0);
-				this._drawCircle(ctx, '#1c5f23', '#00cc00', scale);
+				this._drawCanvCircle(ctx, '#1c5f23', '#00bb00', scale);
 				var iconNewCircle = ctx.getImageData(0, 0, wh, wh);
-				this._iconNew = function (newPosts) {
-					return _this72._iconNewPosts(ctx, canvas, newPosts, iconNewPlus, iconNewCircle, scale);
-				};
 				ctx.putImageData(original, 0, 0);
-				this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-				this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
-				var iconYouPlus = ctx.getImageData(0, 0, wh, wh);
-				ctx.putImageData(original, 0, 0);
-				this._drawCircle(ctx, '#122091', '#1b6df5', scale);
+				this._drawCanvCircle(ctx, '#122091', '#1b6df5', scale);
 				var iconYouCircle = ctx.getImageData(0, 0, wh, wh);
-				this._iconYou = function (newPosts) {
-					return _this72._iconNewPosts(ctx, canvas, newPosts, iconYouPlus, iconYouCircle, scale);
+				this._getIconNew = function (newPosts) {
+					var id = newPosts < 10 ? newPosts : 0;
+					return _this72._iconsNew[id] || (_this72._iconsNew[id] = _this72._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+				};
+				this._getIconYou = function (newPosts) {
+					var id = newPosts < 10 ? newPosts : 0;
+					return _this72._iconsYou[id] || (_this72._iconsYou[id] = _this72._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
 				};
 				this._hasIcons = true;
 			},
@@ -19357,7 +19355,7 @@ true, true];
 		function updateTitle() {
 			var eCode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : lastECode;
 
-			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts < 10 ? '' : '[' + newPosts + '] ') + title;
 			favicon.updateIcon(eCode !== 200 && eCode !== 304);
 		}
 

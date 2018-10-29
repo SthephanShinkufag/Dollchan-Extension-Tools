@@ -140,7 +140,7 @@ function initThreadUpdater(title, enableUpdate) {
 		startBlink(isError) {
 			const iconUrl = !this._hasIcons ? this._emptyIcon :
 				isError ? this._iconError :
-				repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts);
+				repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
@@ -166,7 +166,7 @@ function initThreadUpdater(title, enableUpdate) {
 				this._setIcon(this.originalIcon);
 			} else if(this._hasIcons) {
 				this._setIcon(isError ? this._iconError :
-					repliesToYou.size ? this._iconYou(newPosts) : this._iconNew(newPosts));
+					repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts));
 			}
 		},
 
@@ -174,10 +174,12 @@ function initThreadUpdater(title, enableUpdate) {
 		_blinkMS     : 800,
 		_currentIcon : null,
 		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_getIconNew  : newPosts => null,
+		_getIconYou  : newPosts => null,
 		_hasIcons    : false,
 		_iconError   : null,
-		_iconNew     : newPosts => null,
-		_iconYou     : newPosts => null,
+		_iconsNew    : [],
+		_iconsYou    : [],
 		_isInited    : false,
 		_isOrigIcon  : true,
 		get _iconEl() {
@@ -189,16 +191,16 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_drawCircle(ctx, strokeColor, fillColor, scale) {
+		_drawCanvCircle(ctx, strokeColor, fillColor, scale) {
 			ctx.beginPath();
-			ctx.arc(11 * scale, 11 * scale, 5 * scale, 0, 2 * Math.PI);
+			ctx.arc(10.5 * scale, 10.5 * scale, 5 * scale, 0, 2 * Math.PI);
 			ctx.fillStyle = fillColor;
 			ctx.fill();
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = strokeColor;
 			ctx.stroke();
 		},
-		_drawLines(ctx, line1, line2, color, width, scale) {
+		_drawCanvLines(ctx, line1, line2, color, width, scale) {
 			ctx.beginPath();
 			ctx.strokeStyle = color;
 			ctx.lineWidth = width * scale;
@@ -208,14 +210,16 @@ function initThreadUpdater(title, enableUpdate) {
 			ctx.lineTo(line2[2] * scale, line2[3] * scale);
 			ctx.stroke();
 		},
-		_iconNewPosts(ctx, canvas, newPosts, iconPlus, iconCircle, scale) {
-			if(newPosts > 9) {
-				ctx.putImageData(iconPlus, 0, 0);
-			} else {
-				ctx.putImageData(iconCircle, 0, 0);
-				ctx.fillStyle = '#fff';
+		_drawIconsNewYou(ctx, canvas, id, iconCircle, scale) {
+			ctx.putImageData(iconCircle, 0, 0);
+			ctx.fillStyle = '#fff';
+			if(id) {
 				ctx.font = `bold ${ 12 * scale }px Arial`;
-				ctx.fillText(newPosts, 8 * scale, 15 * scale);
+				ctx.fillText(id, 7 * scale, 15 * scale);
+			} else {
+				ctx.fillRect(6 * scale, 9 * scale, 2 * scale, 3 * scale);
+				ctx.fillRect(9.5 * scale, 9 * scale, 2 * scale, 3 * scale);
+				ctx.fillRect(13 * scale, 9 * scale, 2 * scale, 3 * scale);
 			}
 			return canvas.toDataURL('image/png');
 		},
@@ -228,31 +232,27 @@ function initThreadUpdater(title, enableUpdate) {
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
 			// Error (red cross)
-			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+			this._drawCanvLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+			this._drawCanvLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
-			// New posts (green plus)
-			ctx.putImageData(original, 0, 0);
-			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
-			const iconNewPlus = ctx.getImageData(0, 0, wh, wh);
 			// New posts (green circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawCircle(ctx, '#1c5f23', '#00cc00', scale);
+			this._drawCanvCircle(ctx, '#1c5f23', '#00bb00', scale);
 			const iconNewCircle = ctx.getImageData(0, 0, wh, wh);
-			this._iconNew = newPosts =>
-				this._iconNewPosts(ctx, canvas, newPosts, iconNewPlus, iconNewCircle, scale);
-			// Replies to you (blue plus)
-			ctx.putImageData(original, 0, 0);
-			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
-			const iconYouPlus = ctx.getImageData(0, 0, wh, wh);
 			// Replies to you (blue circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawCircle(ctx, '#122091', '#1b6df5', scale);
+			this._drawCanvCircle(ctx, '#122091', '#1b6df5', scale);
 			const iconYouCircle = ctx.getImageData(0, 0, wh, wh);
-			this._iconYou = newPosts =>
-				this._iconNewPosts(ctx, canvas, newPosts, iconYouPlus, iconYouCircle, scale);
+			this._getIconNew = newPosts => {
+				const id = newPosts < 10 ? newPosts : 0;
+				return this._iconsNew[id] || (this._iconsNew[id] =
+					this._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+			};
+			this._getIconYou = newPosts => {
+				const id = newPosts < 10 ? newPosts : 0;
+				return this._iconsYou[id] || (this._iconsYou[id] =
+					this._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+			};
 			this._hasIcons = true;
 		},
 		_setIcon(iconUrl) {
@@ -493,7 +493,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
 			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
-			(newPosts === 0 ? '' : `[${ newPosts }] `) + title;
+			(newPosts < 10 ? '' : `[${ newPosts }] `) + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
