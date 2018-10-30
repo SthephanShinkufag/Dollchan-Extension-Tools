@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '6c258f2';
+	var commit = '8f07f0f';
 
 
 	var defaultCfg = {
@@ -13341,7 +13341,7 @@ true, true];
 			this._mediaEl = null;
 			this._parent = parent;
 			this._rarMsg = null;
-			this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
+			this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 			this._thumb = null;
 			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
 
@@ -19830,6 +19830,7 @@ true, true];
 			this.qFormPassw = 'tr input[type="password"]';
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
 			this.qFormRules = '.rules, #rules';
+			this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; 
 			this.qFormSubm = 'tr input[type="submit"]';
 			this.qFormTd = 'td';
 			this.qFormTr = 'tr';
@@ -19854,7 +19855,7 @@ true, true];
 			this.docExt = null;
 			this.firstPage = 0;
 			this.formParent = 'parent';
-			this.hasAltCaptcha = false; 
+			this.hasAltCaptcha = false;
 			this.hasCatalog = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
@@ -22326,6 +22327,7 @@ true, true];
 				_this103.cReply = 'post';
 				_this103.qError = '.error';
 				_this103.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this103.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 				_this103.qOPost = '.thread_OP';
 				_this103.qPages = '.pagelist > li:nth-last-child(2)';
 				_this103.qPostHeader = '.post_head';
@@ -22345,7 +22347,7 @@ true, true];
 			_createClass(Ernstchan, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					var str = '><input name="file" type="file"></div>';
+					var str = '><input name="file" type="file">' + '<input type="checkbox" name="spoilered" value="1"></div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 				}
 			}, {

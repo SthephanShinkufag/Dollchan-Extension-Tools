@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '6c258f2';
+const commit = '8f07f0f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9337,7 +9337,7 @@ class FileInput {
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
-		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
+		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
@@ -14701,6 +14701,7 @@ class BaseBoard {
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Differs Ernstchan
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
@@ -14725,7 +14726,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false; // Differs _4chanOrg
+		this.hasAltCaptcha = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -14744,11 +14745,11 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() { // Differs Iichan
+	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() { // Differs Iichan
+	get qFormName() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -14819,7 +14820,7 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs Makaba only
+	get observeContent() { // Differs Makaba
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
@@ -16504,6 +16505,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'post';
 			this.qError = '.error';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
 			this.qPostHeader = '.post_head';
@@ -16527,7 +16529,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
+			const str = '><input name="file" type="file">' +
+				'<input type="checkbox" name="spoilered" value="1"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgWrap(img) {

@@ -1477,6 +1477,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'post';
 			this.qError = '.error';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
 			this.qPostHeader = '.post_head';
@@ -1500,7 +1501,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
+			const str = '><input name="file" type="file">' +
+				'<input type="checkbox" name="spoilered" value="1"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgWrap(img) {

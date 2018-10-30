@@ -17,6 +17,7 @@ class BaseBoard {
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Differs Ernstchan
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
@@ -41,7 +42,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false; // Differs _4chanOrg
+		this.hasAltCaptcha = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -60,11 +61,11 @@ class BaseBoard {
 
 		this._qTable = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() { // Differs Iichan
+	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() { // Differs Iichan
+	get qFormName() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -135,7 +136,7 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs Makaba only
+	get observeContent() { // Differs Makaba
 		return null;
 	}
 	get reCrossLinks() { // Sets here only

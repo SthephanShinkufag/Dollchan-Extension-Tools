@@ -71,7 +71,7 @@ class FileInput {
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
-		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
+		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
