@@ -399,6 +399,7 @@ class PostForm {
 				}
 			}
 			this.txta.value = val;
+			this._setSage();
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}

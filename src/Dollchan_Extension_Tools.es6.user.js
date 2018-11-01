@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '23abea7';
+const commit = '863e411';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8689,6 +8689,7 @@ class PostForm {
 				}
 			}
 			this.txta.value = val;
+			this._setSage();
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}

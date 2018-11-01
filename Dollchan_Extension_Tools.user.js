@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '23abea7';
+	var commit = '863e411';
 
 
 	var defaultCfg = {
@@ -12588,6 +12588,7 @@ true, true];
 						}
 					}
 					_this29.txta.value = val;
+					_this29._setSage();
 					if (Cfg.ajaxPosting) {
 						$popup('upload', Lng.checking[lang], true);
 					}
