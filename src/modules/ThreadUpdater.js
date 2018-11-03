@@ -237,7 +237,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._iconError = canvas.toDataURL('image/png');
 			// New posts (green circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawCanvCircle(ctx, '#1c5f23', '#00bb00', scale);
+			this._drawCanvCircle(ctx, '#174f1d', '#00a000', scale);
 			const iconNewCircle = ctx.getImageData(0, 0, wh, wh);
 			// Replies to you (blue circle)
 			ctx.putImageData(original, 0, 0);

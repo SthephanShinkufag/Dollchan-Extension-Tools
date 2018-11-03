@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '863e411';
+	var commit = '4d1e74d';
 
 
 	var defaultCfg = {
@@ -19082,7 +19082,7 @@ true, true];
 				this._drawCanvLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 				this._iconError = canvas.toDataURL('image/png');
 				ctx.putImageData(original, 0, 0);
-				this._drawCanvCircle(ctx, '#1c5f23', '#00bb00', scale);
+				this._drawCanvCircle(ctx, '#174f1d', '#00a000', scale);
 				var iconNewCircle = ctx.getImageData(0, 0, wh, wh);
 				ctx.putImageData(original, 0, 0);
 				this._drawCanvCircle(ctx, '#122091', '#1b6df5', scale);

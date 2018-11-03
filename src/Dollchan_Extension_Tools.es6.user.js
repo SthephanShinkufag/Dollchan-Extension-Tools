@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '863e411';
+const commit = '4d1e74d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14004,7 +14004,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._iconError = canvas.toDataURL('image/png');
 			// New posts (green circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawCanvCircle(ctx, '#1c5f23', '#00bb00', scale);
+			this._drawCanvCircle(ctx, '#174f1d', '#00a000', scale);
 			const iconNewCircle = ctx.getImageData(0, 0, wh, wh);
 			// Replies to you (blue circle)
 			ctx.putImageData(original, 0, 0);
