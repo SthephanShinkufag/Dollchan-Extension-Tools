@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '4d1e74d';
+const commit = '85825ae';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11727,6 +11727,7 @@ class ImagesViewer {
 		if(this.data.rotate) {
 			this.rotateView(false);
 		}
+		data.checkForRedirect(this._fullEl);
 	}
 }
 
@@ -11738,6 +11739,7 @@ class ExpandableImage {
 		this.next = null;
 		this.post = post;
 		this.prev = prev;
+		this.redirected = false;
 		this.rotate = 0;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
@@ -11770,7 +11772,7 @@ class ExpandableImage {
 	}
 	get src() {
 		const value = this._getImageSrc();
-		Object.defineProperty(this, 'src', { value });
+		Object.defineProperty(this, 'src', { value, configurable: true });
 		return value;
 	}
 	get width() {
@@ -11787,6 +11789,20 @@ class ExpandableImage {
 			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
+	}
+	checkForRedirect(fullEl) {
+		if(!aib.getImgRedirectSrc || this.redirected) {
+			return;
+		}
+		aib.getImgRedirectSrc(this.src).then(newSrc => {
+			this.redirected = true;
+			Object.defineProperty(this, 'src', { value: newSrc });
+			$q('img, video', fullEl).src = this.el.src =
+				this.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(this.el)).href = newSrc;
+			if(!this.isVideo) {
+				$q('a', fullEl).href = newSrc;
+			}
+		});
 	}
 	collapseImg(e) {
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
@@ -11875,6 +11891,7 @@ class ExpandableImage {
 		this.srcBtnEvents(this);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
+		this.checkForRedirect(this._fullEl);
 	}
 	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;
@@ -11918,7 +11935,7 @@ class ExpandableImage {
 			this.isVideo ? ' de-fullimg-video' : '' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			const waitEl = inPost || this._size ? '' :
+			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
@@ -14745,7 +14762,7 @@ class BaseBoard {
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 
-		this._qTable = 'form > table, div > table, div[id^="repl"]';
+		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -14799,6 +14816,9 @@ class BaseBoard {
 		return null;
 	}
 	get fixFileInputs() {
+		return null;
+	}
+	get getImgRedirectSrc() {
 		return null;
 	}
 	get getSubmitData() {
@@ -14953,7 +14973,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
 		let el;
-		const opEnd = $q(this._qTable, thr);
+		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
@@ -15331,7 +15351,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
 			this._origInputs = null;
-			this._qTable = '.post.reply';
+			this._qOPostEnd = '.post.reply';
 		}
 		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
@@ -15592,7 +15612,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.multiFile = true;
 
-			this._qTable = '.divPosts';
+			this._qOPostEnd = '.divPosts';
 		}
 		get qImgNameLink() {
 			return '.originalNameLink';
@@ -15735,6 +15755,64 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
+	class FoolFuuka extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post_wrapper';
+			this.qDForm = '#main';
+			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+			this.qOmitted = '.omitted_text';
+			this.qPages = '.paginate > ul > li:nth-last-child(3)';
+			this.qPostHeader = 'header';
+			this.qPostImg = '.post_image, .thread_image';
+			this.qPostMsg = '.text';
+			this.qPostRef = '.post_data > a[data-function="quote"]';
+			this.qPostSubj = '.post_title';
+			this.qRPost = '.post[id]';
+
+			this.docExt = '';
+			this.firstPage = 1;
+			this.res = 'thread/';
+
+			this._qOPostEnd = '.posts';
+		}
+		get qImgNameLink() {
+			return '.post_file_filename';
+		}
+		get qThread() {
+			return '.thread[id]';
+		}
+		get css() {
+			return '.backlink_list { display: none !important; }';
+		}
+		get isArchived() {
+			return true;
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/#(\d+)"/g, '#$1"').replace(/\/post\/(\d+)\/"/g, '/#$1"');
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
+		}
+		getTNum(el) {
+			return +el.getAttribute('data-thread-num');
+		}
+		init() {
+			defaultCfg.ajaxUpdThr = 0;
+			return false;
+		}
+		parseURL() {
+			super.parseURL();
+			this.page = +(this.b.match(/\/page\/(\d+)/) || [1, 1])[1];
+			this.b = this.b.replace(/\/page\/\d+/, '');
+		}
+	}
+	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
+
 	// DOMAINS
 	class _2__chRu extends BaseBoard {
 		constructor(prot, dm) {
@@ -15750,7 +15828,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.ru = true;
 
-			this._qTable = 'table:not(.postfiles)';
+			this._qOPostEnd = 'table:not(.postfiles)';
 		}
 		get qThread() {
 			return '.threadz';
@@ -16029,7 +16107,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-			this._qTable = '.replyContainer';
+			this._qOPostEnd = '.replyContainer';
 		}
 		get qFormSubj() {
 			return 'input[name="sub"]';
@@ -16178,6 +16256,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['55chan.org'] = _55chan;
+
+	class ArchMoe extends FoolFuuka {
+		getImgRedirectSrc(url) {
+			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
+		}
+	}
+	ibDomains['archived.moe'] = ArchMoe;
 
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {

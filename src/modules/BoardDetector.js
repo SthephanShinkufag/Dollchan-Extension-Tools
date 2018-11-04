@@ -301,7 +301,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
 			this._origInputs = null;
-			this._qTable = '.post.reply';
+			this._qOPostEnd = '.post.reply';
 		}
 		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
@@ -562,7 +562,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.multiFile = true;
 
-			this._qTable = '.divPosts';
+			this._qOPostEnd = '.divPosts';
 		}
 		get qImgNameLink() {
 			return '.originalNameLink';
@@ -705,6 +705,64 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
+	class FoolFuuka extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post_wrapper';
+			this.qDForm = '#main';
+			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+			this.qOmitted = '.omitted_text';
+			this.qPages = '.paginate > ul > li:nth-last-child(3)';
+			this.qPostHeader = 'header';
+			this.qPostImg = '.post_image, .thread_image';
+			this.qPostMsg = '.text';
+			this.qPostRef = '.post_data > a[data-function="quote"]';
+			this.qPostSubj = '.post_title';
+			this.qRPost = '.post[id]';
+
+			this.docExt = '';
+			this.firstPage = 1;
+			this.res = 'thread/';
+
+			this._qOPostEnd = '.posts';
+		}
+		get qImgNameLink() {
+			return '.post_file_filename';
+		}
+		get qThread() {
+			return '.thread[id]';
+		}
+		get css() {
+			return '.backlink_list { display: none !important; }';
+		}
+		get isArchived() {
+			return true;
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/#(\d+)"/g, '#$1"').replace(/\/post\/(\d+)\/"/g, '/#$1"');
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
+		}
+		getTNum(el) {
+			return +el.getAttribute('data-thread-num');
+		}
+		init() {
+			defaultCfg.ajaxUpdThr = 0;
+			return false;
+		}
+		parseURL() {
+			super.parseURL();
+			this.page = +(this.b.match(/\/page\/(\d+)/) || [1, 1])[1];
+			this.b = this.b.replace(/\/page\/\d+/, '');
+		}
+	}
+	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
+
 	// DOMAINS
 	class _2__chRu extends BaseBoard {
 		constructor(prot, dm) {
@@ -720,7 +778,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.ru = true;
 
-			this._qTable = 'table:not(.postfiles)';
+			this._qOPostEnd = 'table:not(.postfiles)';
 		}
 		get qThread() {
 			return '.threadz';
@@ -999,7 +1057,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-			this._qTable = '.replyContainer';
+			this._qOPostEnd = '.replyContainer';
 		}
 		get qFormSubj() {
 			return 'input[name="sub"]';
@@ -1148,6 +1206,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['55chan.org'] = _55chan;
+
+	class ArchMoe extends FoolFuuka {
+		getImgRedirectSrc(url) {
+			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
+		}
+	}
+	ibDomains['archived.moe'] = ArchMoe;
 
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {

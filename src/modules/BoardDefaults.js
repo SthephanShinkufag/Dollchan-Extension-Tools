@@ -59,7 +59,7 @@ class BaseBoard {
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 
-		this._qTable = 'form > table, div > table, div[id^="repl"]';
+		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -113,6 +113,9 @@ class BaseBoard {
 		return null;
 	}
 	get fixFileInputs() {
+		return null;
+	}
+	get getImgRedirectSrc() {
 		return null;
 	}
 	get getSubmitData() {
@@ -267,7 +270,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
 		let el;
-		const opEnd = $q(this._qTable, thr);
+		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
