@@ -106,9 +106,9 @@ class FileInput {
 			this._initThumbs();
 		} else {
 			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
-				$before(el, this._txtWrap);
+				$before(this._input, this._txtWrap);
 			}
-			$after(el, this._utils);
+			$after(this._input, this._utils);
 		}
 	}
 	changeMode(showThumbs) {
@@ -425,7 +425,9 @@ class FileInput {
 	_removeFile() {
 		this._removeFileHelper();
 		this.hasFile = false;
-		delete this._parent._files[this._parent._inputs.indexOf(this)];
+		if(this._parent._files) {
+			delete this._parent._files[this._parent._inputs.indexOf(this)];
+		}
 	}
 	_removeFileHelper() {
 		const oldEl = this._input;
