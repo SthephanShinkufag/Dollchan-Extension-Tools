@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.8.9.0';
-const commit = '222665a';
+const commit = '53c7f35';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9372,9 +9372,7 @@ class FileInput {
 		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
-			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
-				$before(this._input, this._txtWrap);
-			}
+			$before(this._input, this._txtWrap);
 			$after(this._input, this._utils);
 		}
 	}
@@ -15593,7 +15591,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'innerPost';
 			this.qDForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
-			this.qForm = '.form-post';
+			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
 			this.qFormRules = '.form-post > .small';
 			this.qFormSubm = '#formButton';
@@ -15641,7 +15639,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			const str = '><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+				('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
 		}
 		getCapParent(el) {
 			return $id('captchaDiv');
@@ -15676,7 +15674,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-			if(!$q(this.qForm + ' td')) {
+			const el = $q(this.qForm);
+			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
 					' #fieldPostingPassword, #fieldSubject');
@@ -16586,6 +16585,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['endchan.net'] = EndChan;
 	ibDomains['endchan.net'] = EndChan;
 
 	class Ernstchan extends BaseBoard {

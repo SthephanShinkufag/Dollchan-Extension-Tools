@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '222665a';
+	var commit = '53c7f35';
 
 
 	var defaultCfg = {
@@ -13378,9 +13378,7 @@ true, true];
 			if (FileInput._isThumb) {
 				this._initThumbs();
 			} else {
-				if (Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
-					$before(this._input, this._txtWrap);
-				}
+				$before(this._input, this._txtWrap);
 				$after(this._input, this._utils);
 			}
 		}
@@ -20964,7 +20962,7 @@ true, true];
 				_this85.cReply = 'innerPost';
 				_this85.qDForm = 'form[action$="contentActions.js"]';
 				_this85.qError = '#errorLabel, #labelMessage';
-				_this85.qForm = '.form-post';
+				_this85.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 				_this85.qFormPassw = 'input[name="password"]';
 				_this85.qFormRules = '.form-post > .small';
 				_this85.qFormSubm = '#formButton';
@@ -20999,7 +20997,7 @@ true, true];
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '><input name="files" type="file"></div>';
-					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
 				}
 			}, {
 				key: 'getCapParent',
@@ -21057,7 +21055,8 @@ true, true];
 				key: 'init',
 				value: function init() {
 					$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-					if (!$q(this.qForm + ' td')) {
+					var el = $q(this.qForm);
+					if (el && !$q('td', el)) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 						var _els4 = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' + ' #fieldPostingPassword, #fieldSubject');
 						for (var i = 0, _len12 = _els4.length; i < _len12; ++i) {
@@ -22453,6 +22452,7 @@ true, true];
 			return EndChan;
 		}(LynxChan);
 
+		ibDomains['endchan.net'] = EndChan;
 		ibDomains['endchan.net'] = EndChan;
 
 		var Ernstchan = function (_BaseBoard12) {

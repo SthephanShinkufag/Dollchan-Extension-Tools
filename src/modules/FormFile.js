@@ -105,9 +105,7 @@ class FileInput {
 		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
-			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
-				$before(this._input, this._txtWrap);
-			}
+			$before(this._input, this._txtWrap);
 			$after(this._input, this._utils);
 		}
 	}
