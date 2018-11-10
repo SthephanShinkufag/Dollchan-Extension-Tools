@@ -735,7 +735,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.thread[id]';
 		}
 		get css() {
-			return '.backlink_list { display: none !important; }';
+			return `.backlink_list { display: none !important; }
+				.de-oppost > .thread_image_box { float: left; margin: 0 20px 10px 15px; text-align: center;
+					color: #bfbfbf; font-size: .8em; line-height: 150%; }`;
 		}
 		get isArchived() {
 			return true;
@@ -754,7 +756,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			return false;
+			return deWindow.location.pathname === '/';
 		}
 		parseURL() {
 			super.parseURL();

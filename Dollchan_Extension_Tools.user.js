@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '473998b';
+	var commit = 'f1ac78b';
 
 
 	var defaultCfg = {
@@ -21321,7 +21321,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					defaultCfg.ajaxUpdThr = 0;
-					return false;
+					return deWindow.location.pathname === '/';
 				}
 			}, {
 				key: 'parseURL',
@@ -21343,7 +21343,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.backlink_list { display: none !important; }';
+					return '.backlink_list { display: none !important; }\n\t\t\t\t.de-oppost > .thread_image_box { float: left; margin: 0 20px 10px 15px; text-align: center;\n\t\t\t\t\tcolor: #bfbfbf; font-size: .8em; line-height: 150%; }';
 				}
 			}, {
 				key: 'isArchived',
