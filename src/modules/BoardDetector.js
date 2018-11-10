@@ -1588,7 +1588,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 	}
-	ibDomains['ernstchan.com'] = Ernstchan;
 	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
@@ -1784,6 +1783,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qImgInfo = '.unimportant';
+			this.qPages = '.pagination';
 
 			this.markupBB = true;
 		}

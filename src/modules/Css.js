@@ -85,7 +85,7 @@ function scriptCSS() {
 	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
-	#de-cfg-button-debug { padding: 0 2px; }
+	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
