@@ -3814,7 +3814,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.8.9.0';
-	var commit = '53c7f35';
+	var commit = '2253049';
 
 
 	var defaultCfg = {
@@ -21860,7 +21860,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,\n\t\t\t\t\t#togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
+					return '.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,\n\t\t\t\t\t.postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
 				}
 			}, {
 				key: 'markupTags',
@@ -22229,7 +22229,7 @@ true, true];
 			_createClass(Diochan, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
-					var str = '><input type="file" name="imagefile[]"></div>';
+					var str = '><input type="file" name="imagefile[]">' + ($q('#spoiler') ? '<input type="checkbox" name="spoiler" style="display: none;">' : '') + '</div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 				}
@@ -22464,7 +22464,7 @@ true, true];
 				var _this106 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
 				_this106.cReply = 'post';
-				_this106.qError = '.error';
+				_this106.qError = '.error > .info';
 				_this106.qFormRedir = 'input[name="gb2"][value="thread"]';
 				_this106.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 				_this106.qOPost = '.thread_OP';
@@ -22549,6 +22549,11 @@ true, true];
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
 					$script('highlight = Function.prototype');
+					var el = $q(this.qFormSpoiler);
+					if (el) {
+						$hide(el = el.parentNode);
+						$del(el.previousSibling);
+					}
 					return false;
 				}
 			}, {

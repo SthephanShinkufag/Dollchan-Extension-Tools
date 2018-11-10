@@ -1067,8 +1067,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.fileText > a';
 		}
 		get css() {
-			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,
-					#togglePostFormLink { display: none !important; }
+			return `.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,
+					.postMenuBtn, #togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				#g-recaptcha { height: initial; }
 				.postForm { display: table !important; width: auto !important; }
@@ -1374,7 +1374,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.resize, .backlink, .postblock, .sage { display: none; }`;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="imagefile[]"></div>';
+			const str = `><input type="file" name="imagefile[]">${ $q('#spoiler') ?
+				'<input type="checkbox" name="spoiler" style="display: none;">' : '' }</div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 		}
@@ -1542,7 +1543,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this.cReply = 'post';
-			this.qError = '.error';
+			this.qError = '.error > .info';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
 			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
@@ -1621,6 +1622,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.addSageBtn = 0;
 			$script('highlight = Function.prototype');
+			let el = $q(this.qFormSpoiler);
+			if(el) {
+				$hide(el = el.parentNode);
+				$del(el.previousSibling);
+			}
 			return false;
 		}
 	}
