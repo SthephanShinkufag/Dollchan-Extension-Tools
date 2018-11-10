@@ -1539,7 +1539,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.net'] = EndChan;
+	ibDomains['endchan.xyz'] = EndChan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {

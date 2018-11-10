@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.11.10.0
+// @version         18.11.10.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -3813,8 +3813,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
-	var version = '18.11.10.0';
-	var commit = 'dd686e2';
+	var version = '18.11.10.1';
+	var commit = '15887a7';
 
 
 	var defaultCfg = {
@@ -22453,7 +22453,7 @@ true, true];
 		}(LynxChan);
 
 		ibDomains['endchan.net'] = EndChan;
-		ibDomains['endchan.net'] = EndChan;
+		ibDomains['endchan.xyz'] = EndChan;
 
 		var Ernstchan = function (_BaseBoard12) {
 			_inherits(Ernstchan, _BaseBoard12);

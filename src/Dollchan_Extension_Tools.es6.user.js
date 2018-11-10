@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.11.10.0
+// @version         18.11.10.1
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.11.10.0';
-const commit = 'dd686e2';
+const version = '18.11.10.1';
+const commit = '15887a7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16589,7 +16589,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.net'] = EndChan;
+	ibDomains['endchan.xyz'] = EndChan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
