@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.8.9.0
+// @version         18.11.10.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.8.9.0';
-const commit = '97b074d';
+const version = '18.11.10.0';
+const commit = 'dd686e2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8689,6 +8689,7 @@ class PostForm {
 				}
 			}
 			this.txta.value = val;
+			this._setSage();
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}
@@ -9337,7 +9338,7 @@ class FileInput {
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
-		this._spoilEl = $q('input[type="checkbox"][name="spoiler"]', el.parentNode);
+		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
@@ -9371,10 +9372,8 @@ class FileInput {
 		if(FileInput._isThumb) {
 			this._initThumbs();
 		} else {
-			if(Cfg.fileInputs === 1 && Cfg.ajaxPosting) {
-				$before(el, this._txtWrap);
-			}
-			$after(el, this._utils);
+			$before(this._input, this._txtWrap);
+			$after(this._input, this._utils);
 		}
 	}
 	changeMode(showThumbs) {
@@ -9691,7 +9690,9 @@ class FileInput {
 	_removeFile() {
 		this._removeFileHelper();
 		this.hasFile = false;
-		delete this._parent._files[this._parent._inputs.indexOf(this)];
+		if(this._parent._files) {
+			delete this._parent._files[this._parent._inputs.indexOf(this)];
+		}
 	}
 	_removeFileHelper() {
 		const oldEl = this._input;
@@ -11695,7 +11696,8 @@ class ImagesViewer {
 		this._minSize = minSize ? minSize / this._zoomFactor : Cfg.minImgSize;
 		this._oldL = (Post.sizing.wWidth - width) / 2 - 1;
 		this._oldT = (Post.sizing.wHeight - height) / 2 - 1;
-		const el = $add(`<div class="de-fullimg-center" style="top:${ this._oldT -
+		const el = $add(`<div class="de-fullimg-center${
+			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.appendChild(this._fullEl);
@@ -11725,6 +11727,7 @@ class ImagesViewer {
 		if(this.data.rotate) {
 			this.rotateView(false);
 		}
+		data.checkForRedirect(this._fullEl);
 	}
 }
 
@@ -11736,6 +11739,7 @@ class ExpandableImage {
 		this.next = null;
 		this.post = post;
 		this.prev = prev;
+		this.redirected = false;
 		this.rotate = 0;
 		this._fullEl = null;
 		this._webmTitleLoad = null;
@@ -11768,7 +11772,7 @@ class ExpandableImage {
 	}
 	get src() {
 		const value = this._getImageSrc();
-		Object.defineProperty(this, 'src', { value });
+		Object.defineProperty(this, 'src', { value, configurable: true });
 		return value;
 	}
 	get width() {
@@ -11785,6 +11789,20 @@ class ExpandableImage {
 			this._webmTitleLoad.cancelPromise();
 			this._webmTitleLoad = null;
 		}
+	}
+	checkForRedirect(fullEl) {
+		if(!aib.getImgRedirectSrc || this.redirected) {
+			return;
+		}
+		aib.getImgRedirectSrc(this.src).then(newSrc => {
+			this.redirected = true;
+			Object.defineProperty(this, 'src', { value: newSrc });
+			$q('img, video', fullEl).src = this.el.src =
+				this.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(this.el)).href = newSrc;
+			if(!this.isVideo) {
+				$q('a', fullEl).href = newSrc;
+			}
+		});
 	}
 	collapseImg(e) {
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
@@ -11873,6 +11891,7 @@ class ExpandableImage {
 		this.srcBtnEvents(this);
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
+		this.checkForRedirect(this._fullEl);
 	}
 	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;
@@ -11916,7 +11935,7 @@ class ExpandableImage {
 			this.isVideo ? ' de-fullimg-video' : '' }`;
 		// Expand images: JPG, PNG, GIF
 		if(!this.isVideo) {
-			const waitEl = inPost || this._size ? '' :
+			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
@@ -13905,7 +13924,7 @@ function initThreadUpdater(title, enableUpdate) {
 		startBlink(isError) {
 			const iconUrl = !this._hasIcons ? this._emptyIcon :
 				isError ? this._iconError :
-				repliesToYou.size ? this._iconYou : this._iconNew;
+				repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 			if(this._blinkInterv) {
 				if(this._currentIcon === iconUrl) {
 					return;
@@ -13930,7 +13949,8 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!isError && !newPosts) {
 				this._setIcon(this.originalIcon);
 			} else if(this._hasIcons) {
-				this._setIcon(isError ? this._iconError : repliesToYou.size ? this._iconYou : this._iconNew);
+				this._setIcon(isError ? this._iconError :
+					repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts));
 			}
 		},
 
@@ -13938,10 +13958,12 @@ function initThreadUpdater(title, enableUpdate) {
 		_blinkMS     : 800,
 		_currentIcon : null,
 		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+		_getIconNew  : newPosts => null,
+		_getIconYou  : newPosts => null,
 		_hasIcons    : false,
 		_iconError   : null,
-		_iconNew     : null,
-		_iconYou     : null,
+		_iconsNew    : [],
+		_iconsYou    : [],
 		_isInited    : false,
 		_isOrigIcon  : true,
 		get _iconEl() {
@@ -13953,15 +13975,37 @@ function initThreadUpdater(title, enableUpdate) {
 			});
 			return el;
 		},
-		_drawLines(ctx, line1, line2, color, width, scaleFactor) {
+		_drawCanvCircle(ctx, strokeColor, fillColor, scale) {
+			ctx.beginPath();
+			ctx.arc(10.5 * scale, 10.5 * scale, 5 * scale, 0, 2 * Math.PI);
+			ctx.fillStyle = fillColor;
+			ctx.fill();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = strokeColor;
+			ctx.stroke();
+		},
+		_drawCanvLines(ctx, line1, line2, color, width, scale) {
 			ctx.beginPath();
 			ctx.strokeStyle = color;
-			ctx.lineWidth = width * scaleFactor;
-			ctx.moveTo(line1[0] * scaleFactor, line1[1] * scaleFactor);
-			ctx.lineTo(line1[2] * scaleFactor, line1[3] * scaleFactor);
-			ctx.moveTo(line2[0] * scaleFactor, line2[1] * scaleFactor);
-			ctx.lineTo(line2[2] * scaleFactor, line2[3] * scaleFactor);
+			ctx.lineWidth = width * scale;
+			ctx.moveTo(line1[0] * scale, line1[1] * scale);
+			ctx.lineTo(line1[2] * scale, line1[3] * scale);
+			ctx.moveTo(line2[0] * scale, line2[1] * scale);
+			ctx.lineTo(line2[2] * scale, line2[3] * scale);
 			ctx.stroke();
+		},
+		_drawIconsNewYou(ctx, canvas, id, iconCircle, scale) {
+			ctx.putImageData(iconCircle, 0, 0);
+			ctx.fillStyle = '#fff';
+			if(id) {
+				ctx.font = `bold ${ 12 * scale }px Arial`;
+				ctx.fillText(id, 7 * scale, 15 * scale);
+			} else {
+				ctx.fillRect(6 * scale, 9 * scale, 2 * scale, 3 * scale);
+				ctx.fillRect(9.5 * scale, 9 * scale, 2 * scale, 3 * scale);
+				ctx.fillRect(13 * scale, 9 * scale, 2 * scale, 3 * scale);
+			}
+			return canvas.toDataURL('image/png');
 		},
 		_initIconsHelper(icon) {
 			const canvas = doc.createElement('canvas');
@@ -13971,17 +14015,28 @@ function initThreadUpdater(title, enableUpdate) {
 			canvas.width = canvas.height = wh;
 			ctx.drawImage(icon, 0, 0, wh, wh);
 			const original = ctx.getImageData(0, 0, wh, wh);
-			this._drawLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
-			this._drawLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
+			// Error (red cross)
+			this._drawCanvLines(ctx, [15, 15, 7, 7], [7, 15, 15, 7], '#780000', 3, scale);
+			this._drawCanvLines(ctx, [14.5, 14.5, 7.5, 7.5], [7.5, 14.5, 14.5, 7.5], '#fa2020', 1.5, scale);
 			this._iconError = canvas.toDataURL('image/png');
+			// New posts (green circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#1c5f23', 4, scale);
-			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#00f51b', 2, scale);
-			this._iconNew = canvas.toDataURL('image/png');
+			this._drawCanvCircle(ctx, '#174f1d', '#00a000', scale);
+			const iconNewCircle = ctx.getImageData(0, 0, wh, wh);
+			// Replies to you (blue circle)
 			ctx.putImageData(original, 0, 0);
-			this._drawLines(ctx, [6, 11, 16, 11], [11, 6, 11, 16], '#122091', 4, scale);
-			this._drawLines(ctx, [7, 11, 15, 11], [11, 7, 11, 15], '#1b6df5', 2, scale);
-			this._iconYou = canvas.toDataURL('image/png');
+			this._drawCanvCircle(ctx, '#122091', '#1b6df5', scale);
+			const iconYouCircle = ctx.getImageData(0, 0, wh, wh);
+			this._getIconNew = newPosts => {
+				const id = newPosts < 10 ? newPosts : 0;
+				return this._iconsNew[id] || (this._iconsNew[id] =
+					this._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+			};
+			this._getIconYou = newPosts => {
+				const id = newPosts < 10 ? newPosts : 0;
+				return this._iconsYou[id] || (this._iconsYou[id] =
+					this._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+			};
 			this._hasIcons = true;
 		},
 		_setIcon(iconUrl) {
@@ -14222,7 +14277,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
 			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
-			(newPosts === 0 ? '' : `[${ newPosts }] `) + title;
+			(newPosts < 10 ? '' : `[${ newPosts }] `) + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
@@ -14665,6 +14720,7 @@ class BaseBoard {
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Differs Ernstchan
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
@@ -14689,7 +14745,7 @@ class BaseBoard {
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formParent = 'parent';
-		this.hasAltCaptcha = false; // Differs _4chanOrg
+		this.hasAltCaptcha = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -14706,13 +14762,13 @@ class BaseBoard {
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 
-		this._qTable = 'form > table, div > table, div[id^="repl"]';
+		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 	}
-	get qFormMail() { // Differs Iichan
+	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
-	get qFormName() { // Differs Iichan
+	get qFormName() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
@@ -14762,6 +14818,9 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
+	get getImgRedirectSrc() {
+		return null;
+	}
 	get getSubmitData() {
 		return null;
 	}
@@ -14783,7 +14842,7 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs Makaba only
+	get observeContent() { // Differs Makaba
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
@@ -14914,7 +14973,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.setAttribute('de-oppost', '');
 		let el;
-		const opEnd = $q(this._qTable, thr);
+		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.appendChild(el);
 		}
@@ -15292,7 +15351,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 
 			this._origInputs = null;
-			this._qTable = '.post.reply';
+			this._qOPostEnd = '.post.reply';
 		}
 		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
@@ -15532,7 +15591,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'innerPost';
 			this.qDForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
-			this.qForm = '.form-post';
+			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
 			this.qFormRules = '.form-post > .small';
 			this.qFormSubm = '#formButton';
@@ -15553,7 +15612,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.jsonSubmit = true;
 			this.multiFile = true;
 
-			this._qTable = '.divPosts';
+			this._qOPostEnd = '.divPosts';
 		}
 		get qImgNameLink() {
 			return '.originalNameLink';
@@ -15580,7 +15639,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixFileInputs(el) {
 			const str = '><input name="files" type="file"></div>';
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat(+$id('labelMaxFiles').textContent - 1);
+				('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
 		}
 		getCapParent(el) {
 			return $id('captchaDiv');
@@ -15615,7 +15674,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
-			if(!$q(this.qForm + ' td')) {
+			const el = $q(this.qForm);
+			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
 					' #fieldPostingPassword, #fieldSubject');
@@ -15696,6 +15756,66 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
 
+	class FoolFuuka extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post_wrapper';
+			this.qDForm = '#main';
+			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+			this.qOmitted = '.omitted_text';
+			this.qPages = '.paginate > ul > li:nth-last-child(3)';
+			this.qPostHeader = 'header';
+			this.qPostImg = '.post_image, .thread_image';
+			this.qPostMsg = '.text';
+			this.qPostRef = '.post_data > a[data-function="quote"]';
+			this.qPostSubj = '.post_title';
+			this.qRPost = '.post[id]';
+
+			this.docExt = '';
+			this.firstPage = 1;
+			this.res = 'thread/';
+
+			this._qOPostEnd = '.posts';
+		}
+		get qImgNameLink() {
+			return '.post_file_filename';
+		}
+		get qThread() {
+			return '.thread[id]';
+		}
+		get css() {
+			return `.backlink_list { display: none !important; }
+				.de-oppost > .thread_image_box { float: left; margin: 0 20px 10px 15px; text-align: center;
+					color: #bfbfbf; font-size: .8em; line-height: 150%; }`;
+		}
+		get isArchived() {
+			return true;
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/#(\d+)"/g, '#$1"').replace(/\/post\/(\d+)\/"/g, '/#$1"');
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
+		}
+		getTNum(el) {
+			return +el.getAttribute('data-thread-num');
+		}
+		init() {
+			defaultCfg.ajaxUpdThr = 0;
+			return deWindow.location.pathname === '/';
+		}
+		parseURL() {
+			super.parseURL();
+			this.page = +(this.b.match(/\/page\/(\d+)/) || [1, 1])[1];
+			this.b = this.b.replace(/\/page\/\d+/, '');
+		}
+	}
+	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
+
 	// DOMAINS
 	class _2__chRu extends BaseBoard {
 		constructor(prot, dm) {
@@ -15711,7 +15831,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.ru = true;
 
-			this._qTable = 'table:not(.postfiles)';
+			this._qOPostEnd = 'table:not(.postfiles)';
 		}
 		get qThread() {
 			return '.threadz';
@@ -15990,7 +16110,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.res = 'thread/';
 			this.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
 
-			this._qTable = '.replyContainer';
+			this._qOPostEnd = '.replyContainer';
 		}
 		get qFormSubj() {
 			return 'input[name="sub"]';
@@ -15999,8 +16119,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.fileText > a';
 		}
 		get css() {
-			return `.backlink, #blotter, .extButton, hr.desktop, .navLinks, .postMenuBtn,
-					#togglePostFormLink { display: none !important; }
+			return `.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,
+					.postMenuBtn, #togglePostFormLink { display: none !important; }
 				#bottomReportBtn { display: initial !important; }
 				#g-recaptcha { height: initial; }
 				.postForm { display: table !important; width: auto !important; }
@@ -16139,6 +16259,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['55chan.org'] = _55chan;
+
+	class ArchMoe extends FoolFuuka {
+		getImgRedirectSrc(url) {
+			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
+		}
+	}
+	ibDomains['archived.moe'] = ArchMoe;
 
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {
@@ -16299,7 +16426,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.resize, .backlink, .postblock, .sage { display: none; }`;
 		}
 		fixFileInputs(el) {
-			const str = '><input type="file" name="imagefile[]"></div>';
+			const str = `><input type="file" name="imagefile[]">${ $q('#spoiler') ?
+				'<input type="checkbox" name="spoiler" style="display: none;">' : '' }</div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
 			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
 		}
@@ -16461,13 +16589,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = EndChan;
+	ibDomains['endchan.net'] = EndChan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this.cReply = 'post';
-			this.qError = '.error';
+			this.qError = '.error > .info';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
 			this.qPostHeader = '.post_head';
@@ -16491,7 +16621,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				#de-win-reply { float:left; margin-left:2em }`;
 		}
 		fixFileInputs(el) {
-			const str = '><input name="file" type="file"></div>';
+			const str = '><input name="file" type="file">' +
+				'<input type="checkbox" name="spoilered" value="1"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgWrap(img) {
@@ -16543,6 +16674,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			defaultCfg.addSageBtn = 0;
 			$script('highlight = Function.prototype');
+			let el = $q(this.qFormSpoiler);
+			if(el) {
+				$hide(el = el.parentNode);
+				$del(el.previousSibling);
+			}
 			return false;
 		}
 	}
@@ -17586,7 +17722,6 @@ function updateCSS() {
 =========================================================================================================== */
 
 function runFrames() {
-	console.log(5, String(deWindow.location));
 	if(!deWindow.frames[0]) {
 		return;
 	}
@@ -17594,7 +17729,6 @@ function runFrames() {
 		const fDoc = frameEl.contentDocument;
 		if(fDoc) {
 			const deWindow = fDoc.defaultView;
-			console.log(100, String(deWindow.location));
 			deMainFuncInner(
 				deWindow,
 				deWindow.opera && deWindow.opera.scriptStorage,
@@ -17609,13 +17743,10 @@ function runFrames() {
 		const fDoc = frameEl.contentDocument;
 		if(fDoc) {
 			if(String(fDoc.defaultView.location) === 'about:blank') {
-				console.log(10, String(deWindow.location));
 				frameEl.onload = () => deMainFuncFrame(frameEl);
 			} else if(fDoc.readyState === 'loading') {
-				console.log(20, String(deWindow.location));
 				fDoc.addEventListener('DOMContentLoaded', () => deMainFuncFrame(frameEl));
 			} else {
-				console.log(30, String(deWindow.location));
 				deMainFuncFrame(frameEl);
 			}
 		}
@@ -17644,8 +17775,7 @@ async function runMain(checkDomains, dataPromise) {
 	[excludeList, favObj] = await (dataPromise || readData());
 	if((excludeList = excludeList || '').includes(aib.dm) ||
 		!Cfg.disabled && aib.init && aib.init() ||
-		!localData && docBody.classList.contains('de-mode-local') ||
-		(oldMain = $id('de-main')) && $id('de-panel-buttons').children.length > 1
+		!localData && docBody.classList.contains('de-mode-local')
 	) {
 		return;
 	}
