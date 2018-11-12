@@ -37,7 +37,7 @@ function runFrames() {
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
 	let formEl;
-	if(!(docBody = doc.body) ||
+	if(!(docBody = doc.body) || docBody.classList.contains('de-runned') ||
 		!aib && !(aib = getImageBoard(checkDomains, true)) ||
 		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
@@ -60,6 +60,7 @@ async function runMain(checkDomains, dataPromise) {
 	) {
 		return;
 	}
+	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
 	$del(oldMain);
 	addSVGIcons();

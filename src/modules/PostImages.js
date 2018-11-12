@@ -1011,6 +1011,9 @@ function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.img
 }
 
 function processPostImgInfoLinks(post, addSrc, imgNames) {
+	if(!post) {
+		return;
+	}
 	for(const image of post.images) {
 		const link = image.nameLink;
 		if(!link) {

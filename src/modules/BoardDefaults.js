@@ -8,20 +8,20 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan
+		this.qDelBut = 'input[type="submit"]'; // _4chan
+		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Vichan
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
-		this.qFormFile = 'tr input[type="file"]'; // Differs Makaba
+		this.qFormFile = 'tr input[type="file"]';
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Differs Ernstchan
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Ernstchan
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
-		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
+		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -91,10 +91,10 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // Differs _410chanOrg
+	get capLang() { // _410chan
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() { // Differs Iichan
+	get catalogUrl() { // Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -106,7 +106,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() { // Differs _4chanOrg
+	get fixDeadLinks() { // _4chan
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -115,7 +115,7 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
-	get getImgRedirectSrc() {
+	get getImgRedirectSrc() { // Archived
 		return null;
 	}
 	get getSubmitData() {
@@ -127,7 +127,7 @@ class BaseBoard {
 	get isArchived() {
 		return false;
 	}
-	get lastPage() { // Differs Makaba
+	get lastPage() { // Makaba
 		const el = $q(this.qPages);
 		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
@@ -139,7 +139,7 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs Makaba
+	get observeContent() { // Makaba
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
@@ -148,13 +148,13 @@ class BaseBoard {
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
-	get sendHTML5Post() { // Differs LynxChan
+	get sendHTML5Post() { // Lynxchan
 		return null;
 	}
 	get updateCaptcha() {
 		return null;
 	}
-	disableRedirection(el) { // Differs Dobrochan
+	disableRedirection(el) { // Dobrochan
 		$hide($qParent(el, aib.qFormTr));
 		el.checked = true;
 	}
@@ -233,10 +233,10 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getBanId(postEl) { // Differs Makaba
+	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) { // Differs LynxChan
+	getCapParent(el) { // Lynxchan
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
@@ -262,7 +262,7 @@ class BaseBoard {
 	getOmitted(el) {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
-	getOp(thr) { // Differs Arhivach
+	getOp(thr) { // Arhivach
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
@@ -312,13 +312,13 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Differs Arhivach
+	getThrUrl(b, tNum) { // Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
 	getTNum(op) {
 		return +$q('input[type="checkbox"]', op).value;
 	}
-	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan
+	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {

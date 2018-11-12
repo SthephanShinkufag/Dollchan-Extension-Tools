@@ -3639,7 +3639,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.initLogger();
 							formEl = void 0;
 
-							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)) || !(formEl = $q(aib.qDForm + ', form[de-form]')) || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
+							if (!(!(docBody = doc.body) || docBody.classList.contains('de-runned') || !aib && !(aib = getImageBoard(checkDomains, true)) || !(formEl = $q(aib.qDForm + ', form[de-form]')) || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
 								_context27.next = 5;
 								break;
 							}
@@ -3684,12 +3684,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context27.abrupt('return');
 
 						case 19:
+							docBody.classList.add('de-runned');
 							Logger.log('Storage loading');
 							$del(oldMain);
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context27.next = 26;
+								_context27.next = 27;
 								break;
 							}
 
@@ -3697,7 +3698,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							scriptCSS();
 							return _context27.abrupt('return');
 
-						case 26:
+						case 27:
 							if ('toJSON' in aProto) {
 								delete aProto.toJSON;
 							}
@@ -3732,24 +3733,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context27.prev = 41;
+							_context27.prev = 42;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context27.next = 51;
+							_context27.next = 52;
 							break;
 
-						case 46:
-							_context27.prev = 46;
-							_context27.t0 = _context27['catch'](41);
+						case 47:
+							_context27.prev = 47;
+							_context27.t0 = _context27['catch'](42);
 
 							console.error('Delform parsing error:', getErrorMessage(_context27.t0));
 							$show(docBody);
 							return _context27.abrupt('return');
 
-						case 51:
+						case 52:
 							Logger.log('Parse delform');
 							storageName = 'de-lastpcount-' + aib.b + '-' + aib.t;
 
@@ -3796,12 +3797,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							Logger.finish();
 
-						case 78:
+						case 79:
 						case 'end':
 							return _context27.stop();
 					}
 				}
-			}, _callee22, this, [[41, 46]]);
+			}, _callee22, this, [[42, 47]]);
 		}));
 
 		return function runMain(_x84, _x85) {
@@ -3814,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '96fd4c9';
+	var commit = 'a7dfc86';
 
 
 	var defaultCfg = {
@@ -17094,6 +17095,9 @@ true, true];
 	}
 
 	function processPostImgInfoLinks(post, addSrc, imgNames) {
+		if (!post) {
+			return;
+		}
 		var _iteratorNormalCompletion27 = true;
 		var _didIteratorError27 = false;
 		var _iteratorError27 = undefined;
@@ -19847,7 +19851,7 @@ true, true];
 			this.qDForm = '#delform, form[name="delform"]';
 			this.qError = 'h1, h2, font[size="5"]';
 			this.qForm = '#postform';
-			this.qFormFile = 'tr input[type="file"]'; 
+			this.qFormFile = 'tr input[type="file"]';
 			this.qFormPassw = 'tr input[type="password"]';
 			this.qFormRedir = 'input[name="postredir"][value="1"]';
 			this.qFormRules = '.rules, #rules';
@@ -20951,13 +20955,13 @@ true, true];
 
 		ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
-		var LynxChan = function (_BaseBoard5) {
-			_inherits(LynxChan, _BaseBoard5);
+		var Lynxchan = function (_BaseBoard5) {
+			_inherits(Lynxchan, _BaseBoard5);
 
-			function LynxChan(prot, dm) {
-				_classCallCheck(this, LynxChan);
+			function Lynxchan(prot, dm) {
+				_classCallCheck(this, Lynxchan);
 
-				var _this85 = _possibleConstructorReturn(this, (LynxChan.__proto__ || Object.getPrototypeOf(LynxChan)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (Lynxchan.__proto__ || Object.getPrototypeOf(Lynxchan)).call(this, prot, dm));
 
 				_this85.cReply = 'innerPost';
 				_this85.qDForm = 'form[action$="contentActions.js"]';
@@ -20987,7 +20991,7 @@ true, true];
 				return _this85;
 			}
 
-			_createClass(LynxChan, [{
+			_createClass(Lynxchan, [{
 				key: 'changeReplyMode',
 				value: function changeReplyMode(form, tNum) {
 					var action = form.getAttribute('action');
@@ -21264,10 +21268,10 @@ true, true];
 				}
 			}]);
 
-			return LynxChan;
+			return Lynxchan;
 		}(BaseBoard);
 
-		ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
+		ibEngines.push(['form[action$="contentActions.js"]', Lynxchan]);
 
 		var FoolFuuka = function (_BaseBoard6) {
 			_inherits(FoolFuuka, _BaseBoard6);
@@ -21358,13 +21362,13 @@ true, true];
 		ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 
-		var _2__chRu = function (_BaseBoard7) {
-			_inherits(_2__chRu, _BaseBoard7);
+		var _2__ch = function (_BaseBoard7) {
+			_inherits(_2__ch, _BaseBoard7);
 
-			function _2__chRu(prot, dm) {
-				_classCallCheck(this, _2__chRu);
+			function _2__ch(prot, dm) {
+				_classCallCheck(this, _2__ch);
 
-				var _this88 = _possibleConstructorReturn(this, (_2__chRu.__proto__ || Object.getPrototypeOf(_2__chRu)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (_2__ch.__proto__ || Object.getPrototypeOf(_2__ch)).call(this, prot, dm));
 
 				_this88.qPages = 'table[border="1"] td > a:last-of-type';
 				_this88.qPostImg = 'img.thumb';
@@ -21380,7 +21384,7 @@ true, true];
 				return _this88;
 			}
 
-			_createClass(_2__chRu, [{
+			_createClass(_2__ch, [{
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '><input type="file" name="file"></div>';
@@ -21457,19 +21461,19 @@ true, true];
 				}
 			}]);
 
-			return _2__chRu;
+			return _2__ch;
 		}(BaseBoard);
 
-		ibDomains['2--ch.ru'] = _2__chRu;
-		ibDomains['2-ch.su'] = _2__chRu;
+		ibDomains['2--ch.ru'] = _2__ch;
+		ibDomains['2-ch.su'] = _2__ch;
 
-		var _02chSu = function (_Kusaba) {
-			_inherits(_02chSu, _Kusaba);
+		var _02ch = function (_Kusaba) {
+			_inherits(_02ch, _Kusaba);
 
-			function _02chSu(prot, dm) {
-				_classCallCheck(this, _02chSu);
+			function _02ch(prot, dm) {
+				_classCallCheck(this, _02ch);
 
-				var _this89 = _possibleConstructorReturn(this, (_02chSu.__proto__ || Object.getPrototypeOf(_02chSu)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
 
 				_this89.hasCatalog = true;
 
@@ -21477,7 +21481,7 @@ true, true];
 				return _this89;
 			}
 
-			_createClass(_02chSu, [{
+			_createClass(_02ch, [{
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
 					return cap.updateHelper('/captcha_update.php', function (xhr) {
@@ -21489,10 +21493,10 @@ true, true];
 				}
 			}]);
 
-			return _02chSu;
+			return _02ch;
 		}(Kusaba);
 
-		ibDomains['02ch.su'] = _02chSu;
+		ibDomains['02ch.su'] = _02ch;
 
 		var _2chan = function (_BaseBoard8) {
 			_inherits(_2chan, _BaseBoard8);
@@ -21567,13 +21571,13 @@ true, true];
 
 		ibDomains['2chan.net'] = _2chan;
 
-		var _2channelMoe = function (_Makaba) {
-			_inherits(_2channelMoe, _Makaba);
+		var _2channel = function (_Makaba) {
+			_inherits(_2channel, _Makaba);
 
-			function _2channelMoe(prot, dm) {
-				_classCallCheck(this, _2channelMoe);
+			function _2channel(prot, dm) {
+				_classCallCheck(this, _2channel);
 
-				var _this91 = _possibleConstructorReturn(this, (_2channelMoe.__proto__ || Object.getPrototypeOf(_2channelMoe)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
 
 				_this91._2chMoe = true;
 
@@ -21586,10 +21590,10 @@ true, true];
 				return _this91;
 			}
 
-			_createClass(_2channelMoe, [{
+			_createClass(_2channel, [{
 				key: 'init',
 				value: function init() {
-					_get(_2channelMoe.prototype.__proto__ || Object.getPrototypeOf(_2channelMoe.prototype), 'init', this).call(this);
+					_get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'init', this).call(this);
 					var el = $id('postform');
 					if (el) {
 						el.setAttribute('action', el.getAttribute('action') + '?json=1');
@@ -21636,24 +21640,24 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_2channelMoe.prototype.__proto__ || Object.getPrototypeOf(_2channelMoe.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }\n\t\t\t\t#postform { display: inline-table !important; }';
+					return _get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }\n\t\t\t\t#postform { display: inline-table !important; }';
 				}
 			}]);
 
-			return _2channelMoe;
+			return _2channel;
 		}(Makaba);
 
-		ibDomains['2channel.ga'] = _2channelMoe;
-		ibDomains['2channel.moe'] = _2channelMoe;
-		ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
+		ibDomains['2channel.ga'] = _2channel;
+		ibDomains['2channel.moe'] = _2channel;
+		ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
-		var _410chanOrg = function (_Kusaba2) {
-			_inherits(_410chanOrg, _Kusaba2);
+		var _410chan = function (_Kusaba2) {
+			_inherits(_410chan, _Kusaba2);
 
-			function _410chanOrg(prot, dm) {
-				_classCallCheck(this, _410chanOrg);
+			function _410chan(prot, dm) {
+				_classCallCheck(this, _410chan);
 
-				var _this92 = _possibleConstructorReturn(this, (_410chanOrg.__proto__ || Object.getPrototypeOf(_410chanOrg)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
 
 				_this92.qFormRedir = 'input#noko';
 				_this92.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
@@ -21667,7 +21671,7 @@ true, true];
 				return _this92;
 			}
 
-			_createClass(_410chanOrg, [{
+			_createClass(_410chan, [{
 				key: 'getCaptchaSrc',
 				value: function getCaptchaSrc(src) {
 					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
@@ -21681,7 +21685,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					_get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'init', this).call(this);
+					_get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'init', this).call(this);
 					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
 					return false;
 				}
@@ -21714,7 +21718,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chanOrg.prototype.__proto__ || Object.getPrototypeOf(_410chanOrg.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
+					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -21723,18 +21727,18 @@ true, true];
 				}
 			}]);
 
-			return _410chanOrg;
+			return _410chan;
 		}(Kusaba);
 
-		ibDomains['410chan.org'] = _410chanOrg;
+		ibDomains['410chan.org'] = _410chan;
 
-		var _4chanOrg = function (_BaseBoard9) {
-			_inherits(_4chanOrg, _BaseBoard9);
+		var _4chan = function (_BaseBoard9) {
+			_inherits(_4chan, _BaseBoard9);
 
-			function _4chanOrg(prot, dm) {
-				_classCallCheck(this, _4chanOrg);
+			function _4chan(prot, dm) {
+				_classCallCheck(this, _4chan);
 
-				var _this94 = _possibleConstructorReturn(this, (_4chanOrg.__proto__ || Object.getPrototypeOf(_4chanOrg)).call(this, prot, dm));
+				var _this94 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
 
 				_this94.fch = true;
 
@@ -21770,7 +21774,7 @@ true, true];
 				return _this94;
 			}
 
-			_createClass(_4chanOrg, [{
+			_createClass(_4chan, [{
 				key: 'fixDeadLinks',
 				value: function fixDeadLinks(str) {
 					return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
@@ -21890,18 +21894,18 @@ true, true];
 				}
 			}]);
 
-			return _4chanOrg;
+			return _4chan;
 		}(BaseBoard);
 
-		ibDomains['4chan.org'] = _4chanOrg;
+		ibDomains['4chan.org'] = _4chan;
 
-		var _8chNet = function (_Vichan) {
-			_inherits(_8chNet, _Vichan);
+		var _8ch = function (_Vichan) {
+			_inherits(_8ch, _Vichan);
 
-			function _8chNet(prot, dm) {
-				_classCallCheck(this, _8chNet);
+			function _8ch(prot, dm) {
+				_classCallCheck(this, _8ch);
 
-				var _this95 = _possibleConstructorReturn(this, (_8chNet.__proto__ || Object.getPrototypeOf(_8chNet)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (_8ch.__proto__ || Object.getPrototypeOf(_8ch)).call(this, prot, dm));
 
 				_this95._8ch = true;
 
@@ -21909,7 +21913,7 @@ true, true];
 				return _this95;
 			}
 
-			_createClass(_8chNet, [{
+			_createClass(_8ch, [{
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
 					$q('td', cap.parentEl).innerHTML = '<input placeholder="' + Lng.cap[lang] + '" class="captcha_text' + '" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">\n\t\t\t\t<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">\n\t\t\t\t<div class="captcha_html"></div>';
@@ -21932,18 +21936,18 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_8chNet.prototype.__proto__ || Object.getPrototypeOf(_8chNet.prototype), 'css', this) + '\n\t\t\t\tinput.delete, #post-moderation-fields { display: initial !important; }';
+					return _get(_8ch.prototype.__proto__ || Object.getPrototypeOf(_8ch.prototype), 'css', this) + '\n\t\t\t\tinput.delete, #post-moderation-fields { display: initial !important; }';
 				}
 			}]);
 
-			return _8chNet;
+			return _8ch;
 		}(Vichan);
 
-		ibDomains['8ch.net'] = _8chNet;
-		ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
+		ibDomains['8ch.net'] = _8ch;
+		ibDomains['oxwugzccvk3dk6tj.onion'] = _8ch;
 
-		var _55chan = function (_chNet) {
-			_inherits(_55chan, _chNet);
+		var _55chan = function (_ch) {
+			_inherits(_55chan, _ch);
 
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
@@ -21969,20 +21973,20 @@ true, true];
 			}]);
 
 			return _55chan;
-		}(_8chNet);
+		}(_8ch);
 
 		ibDomains['55chan.org'] = _55chan;
 
-		var ArchMoe = function (_FoolFuuka) {
-			_inherits(ArchMoe, _FoolFuuka);
+		var Archived = function (_FoolFuuka) {
+			_inherits(Archived, _FoolFuuka);
 
-			function ArchMoe() {
-				_classCallCheck(this, ArchMoe);
+			function Archived() {
+				_classCallCheck(this, Archived);
 
-				return _possibleConstructorReturn(this, (ArchMoe.__proto__ || Object.getPrototypeOf(ArchMoe)).apply(this, arguments));
+				return _possibleConstructorReturn(this, (Archived.__proto__ || Object.getPrototypeOf(Archived)).apply(this, arguments));
 			}
 
-			_createClass(ArchMoe, [{
+			_createClass(Archived, [{
 				key: 'getImgRedirectSrc',
 				value: function getImgRedirectSrc(url) {
 					return $ajax(url).then(function (xhr) {
@@ -21991,10 +21995,10 @@ true, true];
 				}
 			}]);
 
-			return ArchMoe;
+			return Archived;
 		}(FoolFuuka);
 
-		ibDomains['archived.moe'] = ArchMoe;
+		ibDomains['archived.moe'] = Archived;
 
 		var Arhivach = function (_BaseBoard10) {
 			_inherits(Arhivach, _BaseBoard10);
@@ -22417,22 +22421,22 @@ true, true];
 		ibDomains['dobrochan.org'] = Dobrochan;
 		ibDomains['dobrochan.ru'] = Dobrochan;
 
-		var EndChan = function (_LynxChan) {
-			_inherits(EndChan, _LynxChan);
+		var Endchan = function (_Lynxchan) {
+			_inherits(Endchan, _Lynxchan);
 
-			function EndChan(prot, dm) {
-				_classCallCheck(this, EndChan);
+			function Endchan(prot, dm) {
+				_classCallCheck(this, Endchan);
 
-				var _this105 = _possibleConstructorReturn(this, (EndChan.__proto__ || Object.getPrototypeOf(EndChan)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
 
 				_this105.qTrunc = '.contentOmissionIndicator > p';
 				return _this105;
 			}
 
-			_createClass(EndChan, [{
+			_createClass(Endchan, [{
 				key: 'init',
 				value: function init() {
-					_get(EndChan.prototype.__proto__ || Object.getPrototypeOf(EndChan.prototype), 'init', this).call(this);
+					_get(Endchan.prototype.__proto__ || Object.getPrototypeOf(Endchan.prototype), 'init', this).call(this);
 					$each($Q('.imgLink > img[src^="/.youtube/"]'), function (el) {
 						return $del($parent(el, 'FIGURE'));
 					});
@@ -22445,15 +22449,15 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(EndChan.prototype.__proto__ || Object.getPrototypeOf(EndChan.prototype), 'css', this) + '\n\t\t\t\t.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,\n\t\t\t\t\t.linkPreview, #modeBanner, .watchButton { display: none !important; }\n\t\t\t\t.de-cfg-label { display: initial !important; }\n\t\t\t\t#de-main, .de-pview { font-size: 75%; }';
+					return _get(Endchan.prototype.__proto__ || Object.getPrototypeOf(Endchan.prototype), 'css', this) + '\n\t\t\t\t.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,\n\t\t\t\t\t.linkPreview, #modeBanner, .watchButton { display: none !important; }\n\t\t\t\t.de-cfg-label { display: initial !important; }\n\t\t\t\t#de-main, .de-pview { font-size: 75%; }';
 				}
 			}]);
 
-			return EndChan;
-		}(LynxChan);
+			return Endchan;
+		}(Lynxchan);
 
-		ibDomains['endchan.net'] = EndChan;
-		ibDomains['endchan.xyz'] = EndChan;
+		ibDomains['endchan.net'] = Endchan;
+		ibDomains['endchan.xyz'] = Endchan;
 
 		var Ernstchan = function (_BaseBoard12) {
 			_inherits(Ernstchan, _BaseBoard12);

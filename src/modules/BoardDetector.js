@@ -534,7 +534,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
-	class LynxChan extends BaseBoard {
+	class Lynxchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -704,7 +704,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.textContent = Lng.reply[lang];
 		}
 	}
-	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
+	ibEngines.push(['form[action$="contentActions.js"]', Lynxchan]);
 
 	class FoolFuuka extends BaseBoard {
 		constructor(prot, dm) {
@@ -767,7 +767,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _2__chRu extends BaseBoard {
+	class _2__ch extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -838,10 +838,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2--ch.ru'] = _2__chRu;
-	ibDomains['2-ch.su'] = _2__chRu;
+	ibDomains['2--ch.ru'] = _2__ch;
+	ibDomains['2-ch.su'] = _2__ch;
 
-	class _02chSu extends Kusaba {
+	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -858,7 +858,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['02ch.su'] = _02chSu;
+	ibDomains['02ch.su'] = _02ch;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -909,7 +909,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['2chan.net'] = _2chan;
 
-	class _2channelMoe extends Makaba {
+	class _2channel extends Makaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._2chMoe = true;
@@ -964,11 +964,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['2channel.ga'] = _2channelMoe;
-	ibDomains['2channel.moe'] = _2channelMoe;
-	ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
+	ibDomains['2channel.ga'] = _2channel;
+	ibDomains['2channel.moe'] = _2channel;
+	ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
-	class _410chanOrg extends Kusaba {
+	class _410chan extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -1025,9 +1025,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['410chan.org'] = _410chanOrg;
+	ibDomains['410chan.org'] = _410chan;
 
-	class _4chanOrg extends BaseBoard {
+	class _4chan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this.fch = true;
@@ -1156,9 +1156,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['4chan.org'] = _4chanOrg;
+	ibDomains['4chan.org'] = _4chan;
 
-	class _8chNet extends Vichan {
+	class _8ch extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._8ch = true;
@@ -1191,10 +1191,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				});
 		}
 	}
-	ibDomains['8ch.net'] = _8chNet;
-	ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
+	ibDomains['8ch.net'] = _8ch;
+	ibDomains['oxwugzccvk3dk6tj.onion'] = _8ch;
 
-	class _55chan extends _8chNet {
+	class _55chan extends _8ch {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._8ch = null;
@@ -1210,12 +1210,12 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['55chan.org'] = _55chan;
 
-	class ArchMoe extends FoolFuuka {
+	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
 			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
 		}
 	}
-	ibDomains['archived.moe'] = ArchMoe;
+	ibDomains['archived.moe'] = Archived;
 
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {
@@ -1515,7 +1515,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
-	class EndChan extends LynxChan {
+	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -1538,8 +1538,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.xyz'] = EndChan;
+	ibDomains['endchan.net'] = Endchan;
+	ibDomains['endchan.xyz'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
