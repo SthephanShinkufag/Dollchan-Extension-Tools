@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = 'a7dfc86';
+const commit = '1de6656';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15021,8 +15021,8 @@ class BaseBoard {
 	getThrUrl(b, tNum) { // Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
-	getTNum(op) {
-		return +$q('input[type="checkbox"]', op).value;
+	getTNum(thr) {
+		return +$q('input[type="checkbox"]', thr).value;
 	}
 	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);
@@ -15444,8 +15444,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			$script('window.FormData = void 0');
@@ -15672,8 +15672,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				postNum : status === 'ok' ? +data : null
 			};
 		}
-		getTNum(op) {
-			return +$q('.deletionCheckBox', op).name.split('-')[1];
+		getTNum(thr) {
+			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
@@ -15804,8 +15804,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
 		}
-		getTNum(el) {
-			return +el.getAttribute('data-thread-num');
+		getTNum(thr) {
+			return +thr.getAttribute('data-thread-num');
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
@@ -15952,8 +15952,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el;
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
@@ -16196,8 +16196,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return { error, postNum };
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -16333,8 +16333,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getThrUrl() {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
-		getTNum(el) {
-			return this.getPNum(this.getOp(el));
+		getTNum(thr) {
+			return this.getPNum(this.getOp(thr));
 		}
 		init() {
 			const path = deWindow.location.pathname;
@@ -16512,8 +16512,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 		}
-		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('a[name]', thr).name.match(/\d+/);
 		}
 		init() {
 			if(deWindow.location.pathname === '/settings') {
@@ -16876,6 +16876,30 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
+
+	class Warosu extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qDForm = '.content';
+			this.qForm = '.subreply';
+			this.qPostRef = '.js';
+			this.qImgInfo = 'span';
+			this.qOPost = 'div[itemscope]';
+
+			this.res = 'thread/';
+		}
+		get css() {
+			return '.quoted-by { display: none !important; }';
+		}
+		getTNum(thr) {
+			return +$q('div[itemscope]', thr).id.match(/\d+/);
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/post\/(\d+)"/g, '/#$1"');
+		}
+	}
+	ibDomains['warosu.org'] = Warosu;
 
 	const prot = deWindow.location.protocol;
 	let dm = localData && localData.dm;

@@ -315,8 +315,8 @@ class BaseBoard {
 	getThrUrl(b, tNum) { // Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
-	getTNum(op) {
-		return +$q('input[type="checkbox"]', op).value;
+	getTNum(thr) {
+		return +$q('input[type="checkbox"]', thr).value;
 	}
 	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);

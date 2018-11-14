@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = 'a7dfc86';
+	var commit = '1de6656';
 
 
 	var defaultCfg = {
@@ -20110,8 +20110,8 @@ true, true];
 			}
 		}, {
 			key: 'getTNum',
-			value: function getTNum(op) {
-				return +$q('input[type="checkbox"]', op).value;
+			value: function getTNum(thr) {
+				return +$q('input[type="checkbox"]', thr).value;
 			}
 		}, {
 			key: 'insertYtPlayer',
@@ -20735,8 +20735,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+				value: function getTNum(thr) {
+					return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -21052,8 +21052,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('.deletionCheckBox', op).name.split('-')[1];
+				value: function getTNum(thr) {
+					return +$q('.deletionCheckBox', thr).name.split('-')[1];
 				}
 			}, {
 				key: 'init',
@@ -21318,8 +21318,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(el) {
-					return +el.getAttribute('data-thread-num');
+				value: function getTNum(thr) {
+					return +thr.getAttribute('data-thread-num');
 				}
 			}, {
 				key: 'init',
@@ -21540,8 +21540,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+				value: function getTNum(thr) {
+					return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -21837,8 +21837,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+				value: function getTNum(thr) {
+					return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -22067,8 +22067,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(el) {
-					return this.getPNum(this.getOp(el));
+				value: function getTNum(thr) {
+					return this.getPNum(this.getOp(thr));
 				}
 			}, {
 				key: 'init',
@@ -22347,8 +22347,8 @@ true, true];
 				}
 			}, {
 				key: 'getTNum',
-				value: function getTNum(op) {
-					return +$q('a[name]', op).name.match(/\d+/);
+				value: function getTNum(thr) {
+					return +$q('a[name]', thr).name.match(/\d+/);
 				}
 			}, {
 				key: 'init',
@@ -22917,6 +22917,46 @@ true, true];
 		ibDomains['syn-ch.com'] = Synch;
 		ibDomains['syn-ch.org'] = Synch;
 
+		var Warosu = function (_BaseBoard16) {
+			_inherits(Warosu, _BaseBoard16);
+
+			function Warosu(prot, dm) {
+				_classCallCheck(this, Warosu);
+
+				var _this116 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+
+				_this116.qDForm = '.content';
+				_this116.qForm = '.subreply';
+				_this116.qPostRef = '.js';
+				_this116.qImgInfo = 'span';
+				_this116.qOPost = 'div[itemscope]';
+
+				_this116.res = 'thread/';
+				return _this116;
+			}
+
+			_createClass(Warosu, [{
+				key: 'getTNum',
+				value: function getTNum(thr) {
+					return +$q('div[itemscope]', thr).id.match(/\d+/);
+				}
+			}, {
+				key: 'fixHTMLHelper',
+				value: function fixHTMLHelper(str) {
+					return str.replace(/\/post\/(\d+)"/g, '/#$1"');
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.quoted-by { display: none !important; }';
+				}
+			}]);
+
+			return Warosu;
+		}(BaseBoard);
+
+		ibDomains['warosu.org'] = Warosu;
+
 		var prot = deWindow.location.protocol;
 		var dm = localData && localData.dm;
 		if (checkDomains) {
@@ -22956,7 +22996,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this116 = this;
+			var _this117 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -22969,7 +23009,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this116.hasListeners = true;
+					_this117.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
