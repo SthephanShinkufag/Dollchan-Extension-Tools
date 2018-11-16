@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = '1de6656';
+const commit = '77d042c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16565,6 +16565,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
+	ibDomains['dobrochan.net'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 

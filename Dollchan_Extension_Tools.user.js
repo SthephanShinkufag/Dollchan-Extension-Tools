@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '1de6656';
+	var commit = '77d042c';
 
 
 	var defaultCfg = {
@@ -22418,6 +22418,7 @@ true, true];
 		}(BaseBoard);
 
 		ibDomains['dobrochan.com'] = Dobrochan;
+		ibDomains['dobrochan.net'] = Dobrochan;
 		ibDomains['dobrochan.org'] = Dobrochan;
 		ibDomains['dobrochan.ru'] = Dobrochan;
 

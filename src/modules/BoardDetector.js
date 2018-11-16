@@ -1512,6 +1512,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
+	ibDomains['dobrochan.net'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
