@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '77d042c';
+	var commit = '0fec7a6';
 
 
 	var defaultCfg = {
@@ -21325,7 +21325,11 @@ true, true];
 				key: 'init',
 				value: function init() {
 					defaultCfg.ajaxUpdThr = 0;
-					return deWindow.location.pathname === '/';
+					var el = $q('.search_box');
+					if (el) {
+						docBody.appendChild(el);
+					}
+					return false;
 				}
 			}, {
 				key: 'parseURL',

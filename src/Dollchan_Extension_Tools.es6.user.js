@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = '77d042c';
+const commit = '0fec7a6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15809,7 +15809,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			return deWindow.location.pathname === '/';
+			const el = $q('.search_box');
+			if(el) {
+				docBody.appendChild(el);
+			}
+			return false;
 		}
 		parseURL() {
 			super.parseURL();

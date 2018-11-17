@@ -756,7 +756,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			return deWindow.location.pathname === '/';
+			const el = $q('.search_box');
+			if(el) {
+				docBody.appendChild(el);
+			}
+			return false;
 		}
 		parseURL() {
 			super.parseURL();
