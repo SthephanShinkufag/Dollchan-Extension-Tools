@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = 'fb6f329';
+	var commit = '916821f';
 
 
 	var defaultCfg = {
@@ -19380,7 +19380,7 @@ true, true];
 		function updateTitle() {
 			var eCode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : lastECode;
 
-			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + ('[' + newPosts + '] ') + title;
+			doc.title = (sendError === true ? '{' + Lng.error[lang] + '} ' : '') + (eCode <= 0 || eCode === 200 ? '' : '{' + eCode + '} ') + (newPosts ? '[' + newPosts + '] ' : '') + title;
 			favicon.updateIcon(eCode !== 200 && eCode !== 304);
 		}
 

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = 'fb6f329';
+const commit = '916821f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14279,7 +14279,8 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
-			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) + `[${ newPosts }] ` + title;
+			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
+			(newPosts ? `[${ newPosts }] ` : '') + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
