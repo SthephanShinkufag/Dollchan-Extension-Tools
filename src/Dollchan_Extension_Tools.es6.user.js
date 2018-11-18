@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = '0fec7a6';
+const commit = 'fb6f329';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14279,8 +14279,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
-			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
-			(newPosts < 10 ? '' : `[${ newPosts }] `) + title;
+			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) + `[${ newPosts }] ` + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
@@ -15114,11 +15113,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
-					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
+					.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
-						display: none !important; }
+					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr
+						{ display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-block; }
@@ -15137,8 +15136,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }
 				/* Test */
-				.cntnt__header > hr, #CommentToolbar, .newpost, .post__number, .post__panel, .post__refmap,
-					.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }
+				.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
+					.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,
+					.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,
+					.post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
 		}

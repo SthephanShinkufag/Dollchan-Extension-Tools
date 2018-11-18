@@ -492,8 +492,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
-			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
-			(newPosts < 10 ? '' : `[${ newPosts }] `) + title;
+			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) + `[${ newPosts }] ` + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
