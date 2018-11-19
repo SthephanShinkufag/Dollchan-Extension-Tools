@@ -89,7 +89,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,
 					.post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
-				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
+				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
