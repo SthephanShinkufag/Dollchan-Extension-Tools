@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = '528985f';
+const commit = 'ea15246';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12811,13 +12811,13 @@ class MakabaPostsBuilder {
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
 							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
-						<span class="${ p }filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
-							`${ isVideo ? ', ' + file.duration : '' })</span>
+						<span class="${ isNew ? 'post__filezise' : 'filesize' }">(${ file.size }Кб, ` +
+							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }"${ isNew ? '' : 'class="image-link"' }>
 						<a ${ isNew ? 'class="post__image-link" ' : '' }href="${ file.path }">
-							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.size }"` +
-								` width="${ file.tn_width }" height="${ file.tn_height }">
+							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.width }x` +
+								`${ file.height }" width="${ file.tn_width }" height="${ file.tn_height }">
 						</a>
 					</div>
 				</figure>`;
@@ -12840,24 +12840,29 @@ class MakabaPostsBuilder {
 		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
-		if(this._brd === 'po' || this._brd === 'news' || isNew) {
+		if(this._hasLikes) {
 			const likes = `<div id="like-div${ num }" class="${ isNew ?
-				`post__rate post__rate_type_like">
-					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
-				`like-div">
-					<span class="like-icon"><i class="fa fa-bolt"></i></span>
-					<span class="like-caption">Двачую</span>` }
-				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			const dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-			rate = `${ likes }${ data.likes || '' }</span></div>${
-				dislikes }${ data.dislikes || '' }</span></div>`;
+				`post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
+					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
+						<use xlink:href="#icon__thunder"></use></svg>` :
+				'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>'
+			} <span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
+			const dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+			rate = `${ likes }${ data.likes || 0 }</span></div>
+				${ dislikes }${ data.dislikes || 0 }</span></div>`;
 		}
 		const isOp =  i === -1;
 		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
+		const timeReflink = `<span class="${ isNew ? 'post__time' : 'posttime' }">${ data.date }</span>
+			<span class="${ isNew ? 'post__detailpart' : 'reflink' }">` +
+				`<a id="${ num }" ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
+				`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href" href="${ refHref }"` +
+					` name="${ num }">${ num }</a>
+			</span>`;
 		return `<div id="post-${ num }" class="${ wrapClass }">
-			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }"` +
-				` id="post-body-${ num }" data-num="${ num }">
-				<div id="post-details-${ num }" class="post-details">
+			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }` +
+				`${ filesHTML ? ' withimg' : '' }" id="post-body-${ num }" data-num="${ num }">
+				<div id="post-details-${ num }" class="${ isNew ? 'post__details' : 'post-details' }">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="${ isNew ? 'post__' : 'post-' }title">` +
 						`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>` }
@@ -12866,12 +12871,9 @@ class MakabaPostsBuilder {
 						`${ data.icon }</span>` : '' }
 					${ tripEl }
 					${ data.op === 1 ? `<span class="${ p }ophui"># OP</span>&nbsp;` : '' }
-					<span class="${ isNew ? 'post__time' : 'posttime-reflink' }">${ data.date }&nbsp;</span>
-					<span${ isNew ? '' : ' class="reflink"' }>
-						<a ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
-						`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href"` +
-							` href="${ refHref }" name="${ num }">${ num }</a>
-					</span>
+					${ isNew ? timeReflink : `<span class="posttime-reflink">
+						${ timeReflink }
+					</span>` }
 					${ rate }
 				</div>
 				${ filesHTML }
@@ -12894,6 +12896,11 @@ class MakabaPostsBuilder {
 		}
 	}
 
+	get _hasLikes() {
+		const value = !!$q('.like-div, .post__rate');
+		Object.defineProperty(this, '_hasLikes', { value });
+		return value;
+	}
 	get _isNew() {
 		const value = !!$q('.post_type_oppost');
 		Object.defineProperty(this, '_isNew', { value });
@@ -15132,7 +15139,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
+				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }

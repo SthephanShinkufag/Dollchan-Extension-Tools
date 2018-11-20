@@ -3815,7 +3815,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '528985f';
+	var commit = 'ea15246';
 
 
 	var defaultCfg = {
@@ -17589,7 +17589,7 @@ true, true];
 
 							var isVideo = file.type === 6 || file.type === 10;
 							var imgClass = isNew ? 'post__file-preview preview' + (isVideo ? ' post__file-webm' : '') + (data.nsfw ? ' post__file-nsfw' : '') : 'img preview' + (isVideo ? ' webm-file' : '');
-							filesHTML += '<figure class="' + p + 'image">\n\t\t\t\t\t<figcaption class="' + p + 'file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + ((file.type === 100  ? file.install : file.path) + '"') + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="' + p + 'filesize">(' + file.size + '\u041A\u0431, ' + file.width + 'x' + file.height) + ((isVideo ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '"' + (isNew ? '' : 'class="image-link"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__image-link" ' : '') + 'href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="' + imgClass + '" src="' + file.thumbnail + '" alt="' + file.size + '"') + (' width="' + file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
+							filesHTML += '<figure class="' + p + 'image">\n\t\t\t\t\t<figcaption class="' + p + 'file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + ((file.type === 100  ? file.install : file.path) + '"') + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="' + (isNew ? 'post__filezise' : 'filesize') + '">(' + file.size + '\u041A\u0431, ') + (file.width + 'x' + file.height + (isVideo ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '"' + (isNew ? '' : 'class="image-link"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__image-link" ' : '') + 'href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="' + imgClass + '" src="' + file.thumbnail + '" alt="' + file.width + 'x') + (file.height + '" width="' + file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
 						}
 					} catch (err) {
 						_didIteratorError29 = true;
@@ -17620,14 +17620,15 @@ true, true];
 				}) + '</span>';
 				var refHref = '/' + brd + '/res/' + (parseInt(data.parent) || num) + '.html#' + num;
 				var rate = '';
-				if (this._brd === 'po' || this._brd === 'news' || isNew) {
-					var likes = '<div id="like-div' + num + '" class="' + (isNew ? 'post__rate post__rate_type_like">\n\t\t\t\t\t<i class="fa fa-bolt post__rate-icon"></i> \u0414\u0432\u0430\u0447\u0443\u044E' : 'like-div">\n\t\t\t\t\t<span class="like-icon"><i class="fa fa-bolt"></i></span>\n\t\t\t\t\t<span class="like-caption">\u0414\u0432\u0430\u0447\u0443\u044E</span>') + '\n\t\t\t\t<span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>';
-					var dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-					rate = '' + likes + (data.likes || '') + '</span></div>' + dislikes + (data.dislikes || '') + '</span></div>';
+				if (this._hasLikes) {
+					var likes = '<div id="like-div' + num + '" class="' + (isNew ? 'post__detailpart post__rate post__rate_type_like" title="\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F">\n\t\t\t\t\t<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">\n\t\t\t\t\t\t<use xlink:href="#icon__thunder"></use></svg>' : 'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>') + ' <span id="like-count' + num + '"' + (isNew ? '' : 'class="like-count"') + '>';
+					var dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+					rate = '' + likes + (data.likes || 0) + '</span></div>\n\t\t\t\t' + dislikes + (data.dislikes || 0) + '</span></div>';
 				}
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
-				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + '"' + (' id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="post-details">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t<span class="' + (isNew ? 'post__time' : 'posttime-reflink') + '">' + data.date + '&nbsp;</span>\n\t\t\t\t\t<span' + (isNew ? '' : ' class="reflink"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">\u2116</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href"') + (' href="' + refHref + '" name="' + num + '">' + num + '</a>\n\t\t\t\t\t</span>\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
+				var timeReflink = '<span class="' + (isNew ? 'post__time' : 'posttime') + '">' + data.date + '</span>\n\t\t\t<span class="' + (isNew ? 'post__detailpart' : 'reflink') + '">' + ('<a id="' + num + '" ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">\u2116</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href" href="' + refHref + '"') + (' name="' + num + '">' + num + '</a>\n\t\t\t</span>');
+				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {
 			key: 'bannedPostsData',
@@ -17736,6 +17737,13 @@ true, true];
 			key: 'isClosed',
 			get: function get() {
 				return this._json.is_closed;
+			}
+		}, {
+			key: '_hasLikes',
+			get: function get() {
+				var value = !!$q('.like-div, .post__rate');
+				Object.defineProperty(this, '_hasLikes', { value: value });
+				return value;
 			}
 		}, {
 			key: '_isNew',
@@ -20536,7 +20544,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,\n\t\t\t\t\t.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-btn-src + a { display: inline-block; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.pager { display: inline-block !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: 98vw; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '') + '\n\t\t\t\t/* Test */\n\t\t\t\t.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,\n\t\t\t\t\t.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,\n\t\t\t\t\t.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,\n\t\t\t\t\t.post__refmap, .postform__len { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+					return '#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,\n\t\t\t\t\t.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,\n\t\t\t\t\t.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),\n\t\t\t\t\t.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-btn-src + a { display: inline-block; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.pager { display: inline-block !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: 98vw; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize, .post__filezise { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.txtBtnsLoc ? '.message-sticker-btn, .message-sticker-preview {\n\t\t\t\t\tbottom: 25px !important; }' : '') + '\n\t\t\t\t/* Test */\n\t\t\t\t.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,\n\t\t\t\t\t.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,\n\t\t\t\t\t.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,\n\t\t\t\t\t.post__refmap, .postform__len { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
 				}
 			}, {
 				key: 'isArchived',

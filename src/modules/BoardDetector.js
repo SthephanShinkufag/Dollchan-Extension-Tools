@@ -79,7 +79,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
+				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }
