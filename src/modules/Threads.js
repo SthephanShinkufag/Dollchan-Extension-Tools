@@ -358,7 +358,7 @@ class Thread {
 			}
 		} else {
 			const nonExisted = pBuilder.length - existed;
-			const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+			const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 			const [,, fragm, last, nums] = this._importPosts(
 				op, pBuilder,
 				Math.max(0, nonExisted + existed - needToShow),
@@ -449,7 +449,7 @@ class Thread {
 		let post = this.lastNotDeleted;
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
-		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+		const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 		const { count } = post;
 		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;

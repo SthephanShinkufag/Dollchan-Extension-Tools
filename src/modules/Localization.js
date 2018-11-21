@@ -329,11 +329,11 @@ const Lng = {
 			'Добавлять плеер к Vimeo ссылкам*',
 			'Add player for Vimeo links*',
 			'Додавати плеєр до Vimeo посилань*'],
-		addYouTube: {
+		embedYTube: {
 			sel: [
-				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
-				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'],
-				['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
+				['Ничего', 'Превью+плеер', 'Плеер по клику'],
+				['Nothing', 'Preview+player', 'On click player'],
+				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 			txt: [
 				'к YouTube ссылкам* ',
 				'for YouTube links* ',

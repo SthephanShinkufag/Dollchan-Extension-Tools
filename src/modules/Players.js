@@ -26,12 +26,12 @@ class Videos {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
 				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
-				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				(enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') +
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
 			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
-				Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+				Cfg.embedYTube === 1 ? '?autoplay=1' : ''
 			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
 		el.innerHTML = txt + (enableJsapi ? '' :
@@ -67,9 +67,7 @@ class Videos {
 		this.hasLinks = true;
 		this.linksCount++;
 		if(this.playerInfo === null) {
-			if(Cfg.addYouTube === 2) {
-				this.setPlayer(m, isYtube);
-			} else if(Cfg.addYouTube > 2) {
+			if(Cfg.embedYTube === 1) {
 				this._addThumb(m, isYtube);
 			}
 		} else if(!link && $q(`.de-video-link[href*="${ m[1] }"]`, this.post.msg)) {
@@ -114,7 +112,7 @@ class Videos {
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
-			if(mode > 2) {
+			if(mode === 1) {
 				this._addThumb(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.add('de-current');
@@ -122,7 +120,7 @@ class Videos {
 			}
 			return;
 		}
-		if(mode === 3) {
+		if(mode === 1) {
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
 				this.setPlayer(m, el.classList.contains('de-ytube'));
@@ -139,6 +137,21 @@ class Videos {
 	}
 	setPlayer(m, isYtube) {
 		Videos.addPlayer(this, m, isYtube);
+	}
+	toggleFloatedThumb(linkEl, isOutEvent) {
+		let el = $id('de-video-thumb-floated');
+		if(isOutEvent) {
+			$del(el);
+			return;
+		}
+		if(!el) {
+			el = $bEnd(docBody, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
+				linkEl.videoInfo[1] }/0.jpg">`);
+		}
+		const cr = linkEl.getBoundingClientRect();
+		el.style.cssText = `position: absolute; left: ${ deWindow.pageXOffset + cr.left }px; top: ${
+			deWindow.pageYOffset + cr.top + linkEl.offsetHeight }px; width: ${ Cfg.YTubeWidth }px; height: ${
+			Cfg.YTubeHeight }px;`;
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();

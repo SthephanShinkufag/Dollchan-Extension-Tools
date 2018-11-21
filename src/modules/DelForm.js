@@ -128,7 +128,7 @@ class DelForm {
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}

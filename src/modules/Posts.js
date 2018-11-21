@@ -49,7 +49,7 @@ class AbstractPost {
 		return value;
 	}
 	get videos() {
-		const value = Cfg.addYouTube ? new Videos(this) : null;
+		const value = Cfg.embedYTube ? new Videos(this) : null;
 		Object.defineProperty(this, 'videos', { value });
 		return value;
 	}
@@ -76,7 +76,7 @@ class AbstractPost {
 			switch(el.tagName) {
 			case 'A':
 				if(el.classList.contains('de-video-link')) {
-					this.videos.clickLink(el, Cfg.addYouTube);
+					this.videos.clickLink(el, Cfg.embedYTube);
 					$pd(e);
 					return;
 				}
@@ -119,7 +119,7 @@ class AbstractPost {
 				/* falls through */
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
-					if(Cfg.addYouTube === 3) {
+					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
 						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
@@ -185,6 +185,14 @@ class AbstractPost {
 			}
 			return;
 		}
+		if(!this._hasEvents) {
+			this._hasEvents = true;
+			this.el.addEventListener('click', this, true);
+			this.el.addEventListener('mouseout', this, true);
+		}
+		if(el.classList.contains('de-video-link') && Cfg.embedYTube === 2) {
+			this.videos.toggleFloatedThumb(el, isOutEvent);
+		}
 		if(!isOutEvent && Cfg.expandImgs &&
 			el.tagName === 'IMG' &&
 			!el.classList.contains('de-fullimg') &&
@@ -193,11 +201,7 @@ class AbstractPost {
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
-		if(!this._hasEvents) {
-			this._hasEvents = true;
-			this.el.addEventListener('click', this, true);
-			this.el.addEventListener('mouseout', this, true);
-		}
+
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-rep':
@@ -271,7 +275,7 @@ class AbstractPost {
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
 		const origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		}
@@ -281,7 +285,7 @@ class AbstractPost {
 			trunc : { configurable: true, value: null }
 		});
 		Post.Сontent.removeTempData(this);
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
 				newMsg.appendChild(videoExt);

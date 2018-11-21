@@ -3324,6 +3324,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (!Cfg.stats) {
 								Cfg.stats = { view: 0, op: 0, reply: 0 };
 							}
+							if (Cfg.addYouTube !== undefined) {
+								Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
+								delete Cfg.addYouTube;
+							}
 							setStored('DESU_Config', JSON.stringify(val));
 							lang = Cfg.language;
 							if (Cfg.updDollchan && !localData) {
@@ -3338,7 +3342,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}, emptyFn);
 							}
 
-						case 23:
+						case 24:
 						case 'end':
 							return _context4.stop();
 					}
@@ -3815,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = 'ea15246';
+	var commit = '2eabdcc';
 
 
 	var defaultCfg = {
@@ -3883,7 +3887,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		addImgs: 0, 
 		addMP3: 1, 
 		addVocaroo: 1, 
-		addYouTube: 3, 
+		embedYTube: 1, 
 		YTubeWidth: 360, 
 		YTubeHeigh: 270, 
 		YTubeTitles: 0, 
@@ -4058,8 +4062,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			addMP3: ['Плеер к mp3 ссылкам* ', 'Player for mp3 links* ', 'Плеєр до mp3 посилань* '],
 			addVocaroo: ['к Vocaroo ссылкам*', 'for Vocaroo links*', 'до Vocaroo посилань*'],
 			addVimeo: ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*', 'Додавати плеєр до Vimeo посилань*'],
-			addYouTube: {
-				sel: [['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'], ['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
+			embedYTube: {
+				sel: [['Ничего', 'Превью+плеер', 'Плеер по клику'], ['Nothing', 'Preview+player', 'On click player'], ['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 				txt: ['к YouTube ссылкам* ', 'for YouTube links* ', 'до YouTube посилань* ']
 			},
 			YTubeTitles: ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*', 'Отримувати назви до YouTube посилань*'],
@@ -6013,7 +6017,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		initPanel: function initPanel(formEl) {
 			var imgLen = $Q(aib.qPostImg, formEl).length;
 			var isThr = aib.t;
-			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (!Cfg.expandPanel ? ' style="display: none;"' : '') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.addYouTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr ? '<span id="de-panel-info">\n\t\t\t\t\t\t<span id="de-panel-info-pcount" title="' + (Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">') + (Thread.first.pcount + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>\n\t\t\t\t\t</span>') : '')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
+			(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', '<div id="de-main">\n\t\t\t<div id="de-panel">\n\t\t\t\t<div id="de-panel-logo" title="' + Lng.panelBtn.attach[lang] + '">\n\t\t\t\t\t<svg class="de-panel-logo-svg">\n\t\t\t\t\t\t<use xlink:href="#de-symbol-panel-logo"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id="de-panel-buttons"' + (!Cfg.expandPanel ? ' style="display: none;"' : '') + '>\n\t\t\t\t' + (Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr ? '<span id="de-panel-info">\n\t\t\t\t\t\t<span id="de-panel-info-pcount" title="' + (Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] + '">') + (Thread.first.pcount + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-icount" title="' + Lng.panelBtn.imglen[lang] + '">' + imgLen + '</span>\n\t\t\t\t\t\t<span id="de-panel-info-acount" title="' + Lng.panelBtn.posters[lang] + '"></span>\n\t\t\t\t\t</span>') : '')) + '\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t' + (Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">') + '\n\t\t</div>');
 			this._el = $id('de-panel');
 			this._el.addEventListener('click', this, true);
 			this._el.addEventListener('mouseover', this);
@@ -8027,7 +8031,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + (!localData ? this._getBox('addOPLink') + '<br>\n\t\t\t\t' + this._getBox('addImgs') + '<br>' : '') + '\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('addYouTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-cfg-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + (!localData ? this._getBox('addOPLink') + '<br>\n\t\t\t\t' + this._getBox('addImgs') + '<br>' : '') + '\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('embedYTube') + '\n\t\t\t<div class="de-cfg-depend">\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -8093,7 +8097,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 			fn(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
 			fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-			fn(Cfg.addYouTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]', 'input[info="addVimeo"]']);
+			fn(Cfg.embedYTube, ['input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]', 'input[info="ytApiKey"]', 'input[info="addVimeo"]']);
 			fn(Cfg.YTubeTitles, ['input[info="ytApiKey"]']);
 			fn(Cfg.ajaxPosting, ['input[info="postSameImg"]', 'input[info="removeEXIF"]', 'select[info="removeFName"]', 'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]']);
 			fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
@@ -9459,9 +9463,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.hasLinks = true;
 				this.linksCount++;
 				if (this.playerInfo === null) {
-					if (Cfg.addYouTube === 2) {
-						this.setPlayer(m, isYtube);
-					} else if (Cfg.addYouTube > 2) {
+					if (Cfg.embedYTube === 1) {
 						this._addThumb(m, isYtube);
 					}
 				} else if (!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
@@ -9513,7 +9515,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.playerInfo !== m) {
 					this.currentLink.classList.remove('de-current');
 					this.currentLink = el;
-					if (mode > 2) {
+					if (mode === 1) {
 						this._addThumb(m, el.classList.contains('de-ytube'));
 					} else {
 						el.classList.add('de-current');
@@ -9521,7 +9523,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					return;
 				}
-				if (mode === 3) {
+				if (mode === 1) {
 					if ($q('.de-video-thumb', this.player)) {
 						el.classList.add('de-current');
 						this.setPlayer(m, el.classList.contains('de-ytube'));
@@ -9540,6 +9542,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'setPlayer',
 			value: function setPlayer(m, isYtube) {
 				Videos.addPlayer(this, m, isYtube);
+			}
+		}, {
+			key: 'toggleFloatedThumb',
+			value: function toggleFloatedThumb(linkEl, isOutEvent) {
+				var el = $id('de-video-thumb-floated');
+				if (isOutEvent) {
+					$del(el);
+					return;
+				}
+				if (!el) {
+					el = $bEnd(docBody, '<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/' + linkEl.videoInfo[1] + '/0.jpg">');
+				}
+				var cr = linkEl.getBoundingClientRect();
+				el.style.cssText = 'position: absolute; left: ' + (deWindow.pageXOffset + cr.left) + 'px; top: ' + (deWindow.pageYOffset + cr.top + linkEl.offsetHeight) + 'px; width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeight + 'px;';
 			}
 		}, {
 			key: 'updatePost',
@@ -9606,10 +9622,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var txt = void 0;
 				if (isYtube) {
 					var list = m[0].match(/list=[^&#]+/);
-					txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
+					txt = '<iframe class="de-video-player" src="https://www.youtube.com/embed/' + m[1] + '?start=' + (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) + (enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') + (list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 				} else {
 					var id = m[1] + (m[2] ? m[2] : '');
-					txt = '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.addYouTube === 3 ? '?autoplay=1' : '') + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+					txt = '<iframe class="de-video-player" src="' + aib.prot + '//player.vimeo.com/video/' + id + (Cfg.embedYTube === 1 ? '?autoplay=1' : '') + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 				}
 				el.innerHTML = txt + (enableJsapi ? '' : '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>');
 				$show(el);
@@ -14107,7 +14123,7 @@ true, true];
 					switch (el.tagName) {
 						case 'A':
 							if (el.classList.contains('de-video-link')) {
-								this.videos.clickLink(el, Cfg.addYouTube);
+								this.videos.clickLink(el, Cfg.embedYTube);
 								$pd(e);
 								return;
 							}
@@ -14145,7 +14161,7 @@ true, true];
 							}
 						case 'IMG':
 							if (el.classList.contains('de-video-thumb')) {
-								if (Cfg.addYouTube === 3) {
+								if (Cfg.embedYTube === 1) {
 									var videos = this.videos;
 
 									videos.currentLink.classList.add('de-current');
@@ -14213,14 +14229,18 @@ true, true];
 					}
 					return;
 				}
-				if (!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
-					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
-				}
 				if (!this._hasEvents) {
 					this._hasEvents = true;
 					this.el.addEventListener('click', this, true);
 					this.el.addEventListener('mouseout', this, true);
 				}
+				if (el.classList.contains('de-video-link') && Cfg.embedYTube === 2) {
+					this.videos.toggleFloatedThumb(el, isOutEvent);
+				}
+				if (!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
+				}
+
 				switch (el.classList[0]) {
 					case 'de-post-btns':
 						el.removeAttribute('title');return;
@@ -14303,7 +14323,7 @@ true, true];
 				var videoExt = void 0,
 				    videoLinks = void 0;
 				var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
-				if (Cfg.addYouTube) {
+				if (Cfg.embedYTube) {
 					videoExt = $q('.de-video-ext', origMsg);
 					videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 				}
@@ -14313,7 +14333,7 @@ true, true];
 					trunc: { configurable: true, value: null }
 				});
 				Post.Сontent.removeTempData(this);
-				if (Cfg.addYouTube) {
+				if (Cfg.embedYTube) {
 					this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 					if (videoExt) {
 						newMsg.appendChild(videoExt);
@@ -14450,7 +14470,7 @@ true, true];
 		}, {
 			key: 'videos',
 			get: function get() {
-				var value = Cfg.addYouTube ? new Videos(this) : null;
+				var value = Cfg.embedYTube ? new Videos(this) : null;
 				Object.defineProperty(this, 'videos', { value: value });
 				return value;
 			}
@@ -15478,7 +15498,7 @@ true, true];
 										}
 										this.btns = $aEnd(this._pref, '<span class="de-post-btns">' + pText + '</span>');
 										embedAudioLinks(this);
-										if (Cfg.addYouTube) {
+										if (Cfg.embedYTube) {
 											new VideosParser().parse(this).endParser();
 										}
 										embedPostMsgImages(pv);
@@ -15500,7 +15520,7 @@ true, true];
 										if (link) {
 											link.classList.remove('de-link-parent');
 										}
-										if (Cfg.addYouTube && post.videos.hasLinks) {
+										if (Cfg.embedYTube && post.videos.hasLinks) {
 											if (post.videos.playerInfo !== null) {
 												Object.defineProperty(this, 'videos', { value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
 											}
@@ -18499,7 +18519,7 @@ true, true];
 					}
 				} else {
 					var nonExisted = pBuilder.length - existed;
-					var maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+					var maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 
 					var _importPosts2 = this._importPosts(op, pBuilder, Math.max(0, nonExisted + existed - needToShow), nonExisted, maybeVParser, maybeSpells),
 					    _importPosts3 = _slicedToArray(_importPosts2, 5),
@@ -18597,7 +18617,7 @@ true, true];
 				var post = this.lastNotDeleted;
 				var len = pBuilder.length;
 				var maybeSpells = new Maybe(SpellsRunner);
-				var maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+				var maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 				var _post4 = post,
 				    count = _post4.count;
 
@@ -19566,7 +19586,7 @@ true, true];
 				Logger.log('Preload images');
 				embedAudioLinks(el);
 				Logger.log('Audio links');
-				if (Cfg.addYouTube) {
+				if (Cfg.embedYTube) {
 					new VideosParser().parse(el).endParser();
 					Logger.log('Video links');
 				}

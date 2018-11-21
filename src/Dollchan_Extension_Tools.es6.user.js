@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = 'ea15246';
+const commit = '2eabdcc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -102,7 +102,7 @@ const defaultCfg = {
 	addImgs      : 0,    // load images to jpg/png/gif links*
 	addMP3       : 1,    // embed mp3 links
 	addVocaroo   : 1,    // embed Vocaroo links
-	addYouTube   : 3,    // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
+	embedYTube   : 1,    // embed YouTube links [0=off, 1=preview+player, 2=onclick]
 	YTubeWidth   : 360,  //    player width (px)
 	YTubeHeigh   : 270,  //    player height (px)
 	YTubeTitles  : 0,    //    load titles for YouTube links
@@ -500,11 +500,11 @@ const Lng = {
 			'Добавлять плеер к Vimeo ссылкам*',
 			'Add player for Vimeo links*',
 			'Додавати плеєр до Vimeo посилань*'],
-		addYouTube: {
+		embedYTube: {
 			sel: [
-				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
-				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'],
-				['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
+				['Ничего', 'Превью+плеер', 'Плеер по клику'],
+				['Nothing', 'Preview+player', 'On click player'],
+				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 			txt: [
 				'к YouTube ссылкам* ',
 				'for YouTube links* ',
@@ -2587,6 +2587,10 @@ async function readCfg() {
 	if(!Cfg.stats) {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
+	if(Cfg.addYouTube !== undefined) {
+		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
+		delete Cfg.addYouTube;
+	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updDollchan && !localData) {
@@ -3003,7 +3007,7 @@ const Panel = Object.create({
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(Cfg.embedYTube ? this._getButton('vid') : '') +
 					(!localData ?
 						this._getButton('refresh') +
 						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +
@@ -4864,7 +4868,7 @@ const CfgWindow = {
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
-			${ this._getSel('addYouTube') }
+			${ this._getSel('embedYTube') }
 			<div class="de-cfg-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
@@ -5013,7 +5017,7 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		fn(Cfg.addYouTube, [
+		fn(Cfg.embedYTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
@@ -6282,12 +6286,12 @@ class Videos {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
 				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
-				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				(enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') +
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
 			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
-				Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+				Cfg.embedYTube === 1 ? '?autoplay=1' : ''
 			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
 		el.innerHTML = txt + (enableJsapi ? '' :
@@ -6323,9 +6327,7 @@ class Videos {
 		this.hasLinks = true;
 		this.linksCount++;
 		if(this.playerInfo === null) {
-			if(Cfg.addYouTube === 2) {
-				this.setPlayer(m, isYtube);
-			} else if(Cfg.addYouTube > 2) {
+			if(Cfg.embedYTube === 1) {
 				this._addThumb(m, isYtube);
 			}
 		} else if(!link && $q(`.de-video-link[href*="${ m[1] }"]`, this.post.msg)) {
@@ -6370,7 +6372,7 @@ class Videos {
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
-			if(mode > 2) {
+			if(mode === 1) {
 				this._addThumb(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.add('de-current');
@@ -6378,7 +6380,7 @@ class Videos {
 			}
 			return;
 		}
-		if(mode === 3) {
+		if(mode === 1) {
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
 				this.setPlayer(m, el.classList.contains('de-ytube'));
@@ -6395,6 +6397,21 @@ class Videos {
 	}
 	setPlayer(m, isYtube) {
 		Videos.addPlayer(this, m, isYtube);
+	}
+	toggleFloatedThumb(linkEl, isOutEvent) {
+		let el = $id('de-video-thumb-floated');
+		if(isOutEvent) {
+			$del(el);
+			return;
+		}
+		if(!el) {
+			el = $bEnd(docBody, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
+				linkEl.videoInfo[1] }/0.jpg">`);
+		}
+		const cr = linkEl.getBoundingClientRect();
+		el.style.cssText = `position: absolute; left: ${ deWindow.pageXOffset + cr.left }px; top: ${
+			deWindow.pageYOffset + cr.top + linkEl.offsetHeight }px; width: ${ Cfg.YTubeWidth }px; height: ${
+			Cfg.YTubeHeight }px;`;
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();
@@ -9988,7 +10005,7 @@ class AbstractPost {
 		return value;
 	}
 	get videos() {
-		const value = Cfg.addYouTube ? new Videos(this) : null;
+		const value = Cfg.embedYTube ? new Videos(this) : null;
 		Object.defineProperty(this, 'videos', { value });
 		return value;
 	}
@@ -10015,7 +10032,7 @@ class AbstractPost {
 			switch(el.tagName) {
 			case 'A':
 				if(el.classList.contains('de-video-link')) {
-					this.videos.clickLink(el, Cfg.addYouTube);
+					this.videos.clickLink(el, Cfg.embedYTube);
 					$pd(e);
 					return;
 				}
@@ -10058,7 +10075,7 @@ class AbstractPost {
 				/* falls through */
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
-					if(Cfg.addYouTube === 3) {
+					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
 						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
@@ -10124,6 +10141,14 @@ class AbstractPost {
 			}
 			return;
 		}
+		if(!this._hasEvents) {
+			this._hasEvents = true;
+			this.el.addEventListener('click', this, true);
+			this.el.addEventListener('mouseout', this, true);
+		}
+		if(el.classList.contains('de-video-link') && Cfg.embedYTube === 2) {
+			this.videos.toggleFloatedThumb(el, isOutEvent);
+		}
 		if(!isOutEvent && Cfg.expandImgs &&
 			el.tagName === 'IMG' &&
 			!el.classList.contains('de-fullimg') &&
@@ -10132,11 +10157,7 @@ class AbstractPost {
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
-		if(!this._hasEvents) {
-			this._hasEvents = true;
-			this.el.addEventListener('click', this, true);
-			this.el.addEventListener('mouseout', this, true);
-		}
+
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-rep':
@@ -10210,7 +10231,7 @@ class AbstractPost {
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
 		const origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		}
@@ -10220,7 +10241,7 @@ class AbstractPost {
 			trunc : { configurable: true, value: null }
 		});
 		Post.Сontent.removeTempData(this);
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
 				newMsg.appendChild(videoExt);
@@ -11168,7 +11189,7 @@ class Pview extends AbstractPost {
 			}
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
+			if(Cfg.embedYTube) {
 				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pv);
@@ -11190,7 +11211,7 @@ class Pview extends AbstractPost {
 			if(link) {
 				link.classList.remove('de-link-parent');
 			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
+			if(Cfg.embedYTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
 					Object.defineProperty(this, 'videos',
 						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
@@ -13503,7 +13524,7 @@ class Thread {
 			}
 		} else {
 			const nonExisted = pBuilder.length - existed;
-			const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+			const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 			const [,, fragm, last, nums] = this._importPosts(
 				op, pBuilder,
 				Math.max(0, nonExisted + existed - needToShow),
@@ -13594,7 +13615,7 @@ class Thread {
 		let post = this.lastNotDeleted;
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
-		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+		const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 		const { count } = post;
 		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
@@ -14518,7 +14539,7 @@ class DelForm {
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}

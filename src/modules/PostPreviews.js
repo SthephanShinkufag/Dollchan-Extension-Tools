@@ -267,7 +267,7 @@ class Pview extends AbstractPost {
 			}
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
+			if(Cfg.embedYTube) {
 				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pv);
@@ -289,7 +289,7 @@ class Pview extends AbstractPost {
 			if(link) {
 				link.classList.remove('de-link-parent');
 			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
+			if(Cfg.embedYTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
 					Object.defineProperty(this, 'videos',
 						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });

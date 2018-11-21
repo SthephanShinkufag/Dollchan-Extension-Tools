@@ -18,7 +18,7 @@ const Panel = Object.create({
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(Cfg.embedYTube ? this._getButton('vid') : '') +
 					(!localData ?
 						this._getButton('refresh') +
 						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +

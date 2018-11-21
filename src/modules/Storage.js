@@ -157,6 +157,10 @@ async function readCfg() {
 	if(!Cfg.stats) {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
+	if(Cfg.addYouTube !== undefined) {
+		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
+		delete Cfg.addYouTube;
+	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updDollchan && !localData) {

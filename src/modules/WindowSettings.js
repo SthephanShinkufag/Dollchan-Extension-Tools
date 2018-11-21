@@ -695,7 +695,7 @@ const CfgWindow = {
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
-			${ this._getSel('addYouTube') }
+			${ this._getSel('embedYTube') }
 			<div class="de-cfg-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
@@ -844,7 +844,7 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		fn(Cfg.addYouTube, [
+		fn(Cfg.embedYTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
