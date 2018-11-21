@@ -186,7 +186,7 @@ class Pview extends AbstractPost {
 			}
 			const el = fixEventEl(e.relatedTarget);
 			if(!el ||
-				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
+				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
 			) {
 				if(isOverEvent) {
@@ -344,8 +344,8 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
-		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const temp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
+		const lmw = `max-width:${ bWidth - temp - 10 }px; left:${ temp }px;`;
 		const { style } = pv;
 		if(isAnim) {
 			oldCSS = style.cssText;

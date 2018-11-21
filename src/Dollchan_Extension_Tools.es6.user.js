@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = '2eabdcc';
+const commit = 'f39636b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10021,32 +10021,31 @@ class AbstractPost {
 		if(type === 'click') {
 			switch(e.button) {
 			case 0: break;
-			case 1: e.stopPropagation();
+			case 1: e.stopPropagation(); // Skip the click on wheel button
 				/* falls through */
 			default: return;
 			}
-			if(this._menu) {
+			if(this._menu) { // Hide the dropdown menu after the click on its option
 				this._menu.removeMenu();
 				this._menu = null;
 			}
 			switch(el.tagName) {
 			case 'A':
+				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
 					$pd(e);
 					return;
 				}
-				if((temp = el.firstElementChild) && temp.tagName === 'IMG') {
-					el = temp;
-				} else {
-					temp = el.parentNode;
-					if(temp === this.trunc) {
-						this._getFullMsg(temp, false);
+				// Check if the link is not an image container
+				if(!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
+					if(el === this.trunc) { // Click on "truncated message" link
+						this._getFullMsg(el, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
+					} else if(Cfg.insertNum && pr.form && this._pref === el &&
 						!/Reply|Ответ/.test(el.textContent)
-					) {
+					) { // Click on post number link - show quick reply or redirect with an #anchor
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
@@ -10064,7 +10063,7 @@ class AbstractPost {
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
-					) {
+					) { // Click on >>link - scroll to the referenced post
 						const post = pByNum.get(+temp.match(/\d+/));
 						if(post) {
 							post.selectAndScrollTo();
@@ -10072,8 +10071,9 @@ class AbstractPost {
 					}
 					return;
 				}
+				el = temp; // The link is an image container
 				/* falls through */
-			case 'IMG':
+			case 'IMG': // Click on attached image - expand/collapse
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
@@ -10086,14 +10086,14 @@ class AbstractPost {
 				}
 				return;
 			case 'OBJECT':
-			case 'VIDEO':
+			case 'VIDEO': // Click on attached video - expand/collapse
 				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
 			}
 			if(aib.mak) {
-				let temp = el;
+				// Makaba: Click on like/dislike elements
 				let c = el.classList;
 				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
 					(temp = el.parentNode) && (
@@ -10117,12 +10117,14 @@ class AbstractPost {
 						countEl.textContent = +countEl.textContent + 1;
 					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 				}
+				// Makaba: Click on "truncated message" link
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);
 					$pd(e);
 					e.stopPropagation();
 				}
 			}
+			// Click on post buttons
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
 			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
@@ -10146,18 +10148,24 @@ class AbstractPost {
 			this.el.addEventListener('click', this, true);
 			this.el.addEventListener('mouseout', this, true);
 		}
-		if(el.classList.contains('de-video-link') && Cfg.embedYTube === 2) {
-			this.videos.toggleFloatedThumb(el, isOutEvent);
+		// Mouseover/mouseout on YouTube links
+		if(el.classList.contains('de-video-link')) {
+			if(aib.mak && !el.videoInfo) {
+				const origMsg = this.msg.firstChild;
+				this.videos.updatePost($Q('.de-video-link', origMsg),
+					$Q('.de-video-link', origMsg.nextSibling), true);
+			}
+			if(Cfg.embedYTube === 2) {
+				this.videos.toggleFloatedThumb(el, isOutEvent);
+			}
 		}
-		if(!isOutEvent && Cfg.expandImgs &&
-			el.tagName === 'IMG' &&
-			!el.classList.contains('de-fullimg') &&
-			(temp = this.images.getImageByEl(el)) &&
-			(temp.isImage || temp.isVideo)
+		// Mouseover/mouseout on attached images/videos - update title
+		if(!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
+			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
-
+		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-rep':
@@ -10189,12 +10197,13 @@ class AbstractPost {
 				this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el));
 			}
 			return;
+		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
-				el.lchecked = true;
+				el.isNotRefLink = true;
 				return;
 			}
 			// Don't use classList here, 'de-link-pref ' should be first
@@ -10205,14 +10214,14 @@ class AbstractPost {
 			if(!Cfg.linksNavig) {
 				return;
 			}
-			if(isOutEvent) { // We need to delete previews
+			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkDelay);
 				if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
-			} else { // We need to show a preview for this link
+			} else { // Mouseover - we need to show a preview for this link
 				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			$pd(e);
@@ -11108,7 +11117,7 @@ class Pview extends AbstractPost {
 			}
 			const el = fixEventEl(e.relatedTarget);
 			if(!el ||
-				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
+				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
 			) {
 				if(isOverEvent) {
@@ -11266,8 +11275,8 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
-		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const temp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
+		const lmw = `max-width:${ bWidth - temp - 10 }px; left:${ temp }px;`;
 		const { style } = pv;
 		if(isAnim) {
 			oldCSS = style.cssText;
@@ -12331,12 +12340,12 @@ const ImagesHashStorage = Object.create({
 		let hash = 0;
 		for(let i = 0; i < newh; ++i) {
 			for(let j = 0; j < neww; ++j) {
-				let tmp = i / (newh - 1) * (oldh - 1);
-				const l = Math.min(tmp | 0, oldh - 2);
-				const u = tmp - l;
-				tmp = j / (neww - 1) * (oldw - 1);
-				const c = Math.min(tmp | 0, oldw - 2);
-				const t = tmp - c;
+				let temp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(temp | 0, oldh - 2);
+				const u = temp - l;
+				temp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(temp | 0, oldw - 2);
+				const t = temp - c;
 				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
 					buf[l * oldw + c + 1] * (t * (1 - u)) +
 					buf[(l + 1) * oldw + c + 1] * (t * u) +
@@ -14974,9 +14983,9 @@ class BaseBoard {
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
-		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
-		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
+		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
 		const el = $q(this.qImgInfo, wrap);

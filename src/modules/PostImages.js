@@ -935,12 +935,12 @@ const ImagesHashStorage = Object.create({
 		let hash = 0;
 		for(let i = 0; i < newh; ++i) {
 			for(let j = 0; j < neww; ++j) {
-				let tmp = i / (newh - 1) * (oldh - 1);
-				const l = Math.min(tmp | 0, oldh - 2);
-				const u = tmp - l;
-				tmp = j / (neww - 1) * (oldw - 1);
-				const c = Math.min(tmp | 0, oldw - 2);
-				const t = tmp - c;
+				let temp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(temp | 0, oldh - 2);
+				const u = temp - l;
+				temp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(temp | 0, oldw - 2);
+				const t = temp - c;
 				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
 					buf[l * oldw + c + 1] * (t * (1 - u)) +
 					buf[(l + 1) * oldw + c + 1] * (t * u) +

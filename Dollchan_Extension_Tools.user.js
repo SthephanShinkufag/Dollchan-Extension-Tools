@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '2eabdcc';
+	var commit = 'f39636b';
 
 
 	var defaultCfg = {
@@ -14112,7 +14112,7 @@ true, true];
 						case 0:
 							break;
 						case 1:
-							e.stopPropagation();
+							e.stopPropagation(); 
 						default:
 							return;
 					}
@@ -14127,15 +14127,12 @@ true, true];
 								$pd(e);
 								return;
 							}
-							if ((temp = el.firstElementChild) && temp.tagName === 'IMG') {
-								el = temp;
-							} else {
-								temp = el.parentNode;
-								if (temp === this.trunc) {
-									this._getFullMsg(temp, false);
+							if (!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
+								if (el === this.trunc) {
+									this._getFullMsg(el, false);
 									$pd(e);
 									e.stopPropagation();
-								} else if (Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
+								} else if (Cfg.insertNum && pr.form && this._pref === el && !/Reply|Ответ/.test(el.textContent)) {
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
@@ -14159,6 +14156,7 @@ true, true];
 								}
 								return;
 							}
+							el = temp; 
 						case 'IMG':
 							if (el.classList.contains('de-video-thumb')) {
 								if (Cfg.embedYTube === 1) {
@@ -14180,19 +14178,18 @@ true, true];
 							return;
 					}
 					if (aib.mak) {
-						var _temp = el;
 						var c = el.classList;
-						if (c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' || (_temp = el.parentNode) && ((c = _temp.classList).contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div') || (_temp = _temp.parentNode) && ((c = _temp.className) === 'like-div' || c === 'dislike-div')) {
-							var task = _temp.id.split('-')[0];
-							var num = +_temp.id.match(/\d+/);
+						if (c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' || (temp = el.parentNode) && ((c = temp.classList).contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div') || (temp = temp.parentNode) && ((c = temp.className) === 'like-div' || c === 'dislike-div')) {
+							var task = temp.id.split('-')[0];
+							var num = +temp.id.match(/\d+/);
 							$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
 								var data = JSON.parse(xhr.responseText);
 								if (data.Status !== 'OK') {
 									$popup('err-2chlike', data.Reason);
 									return;
 								}
-								_temp.classList.add(task + '-div-checked', 'post__rate_' + task + 'd');
-								var countEl = $q('.' + task + '-count, #' + task + '-count' + num, _temp);
+								temp.classList.add(task + '-div-checked', 'post__rate_' + task + 'd');
+								var countEl = $q('.' + task + '-count, #' + task + '-count' + num, temp);
 								countEl.textContent = +countEl.textContent + 1;
 							}, function () {
 								return $popup('err-2chlike', Lng.noConnect[lang]);
@@ -14234,13 +14231,18 @@ true, true];
 					this.el.addEventListener('click', this, true);
 					this.el.addEventListener('mouseout', this, true);
 				}
-				if (el.classList.contains('de-video-link') && Cfg.embedYTube === 2) {
-					this.videos.toggleFloatedThumb(el, isOutEvent);
+				if (el.classList.contains('de-video-link')) {
+					if (aib.mak && !el.videoInfo) {
+						var origMsg = this.msg.firstChild;
+						this.videos.updatePost($Q('.de-video-link', origMsg), $Q('.de-video-link', origMsg.nextSibling), true);
+					}
+					if (Cfg.embedYTube === 2) {
+						this.videos.toggleFloatedThumb(el, isOutEvent);
+					}
 				}
 				if (!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
 					el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 				}
-
 				switch (el.classList[0]) {
 					case 'de-post-btns':
 						el.removeAttribute('title');return;
@@ -14277,11 +14279,11 @@ true, true];
 						}
 						return;
 					default:
-						if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+						if (!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
 							return;
 						}
 						if (!el.textContent.startsWith('>>')) {
-							el.lchecked = true;
+							el.isNotRefLink = true;
 							return;
 						}
 						el.className = 'de-link-pref ' + el.className;
@@ -15365,7 +15367,7 @@ true, true];
 							break checkMouse;
 					}
 					var el = fixEventEl(e.relatedTarget);
-					if (!el || isOverEvent && (el.tagName !== 'A' || el.lchecked) || el !== this.el && !this.el.contains(el)) {
+					if (!el || isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) || el !== this.el && !this.el.contains(el)) {
 						if (isOverEvent) {
 							this.mouseEnter();
 						} else if (Pview.top) {
@@ -15591,8 +15593,8 @@ true, true];
 				var bWidth = nav.viewportWidth();
 				var isLeft = offX < bWidth / 2;
 				var pv = this.el;
-				var tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
-				var lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+				var temp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
+				var lmw = 'max-width:' + (bWidth - temp - 10) + 'px; left:' + temp + 'px;';
 				var style = pv.style;
 
 				if (isAnim) {
@@ -16968,12 +16970,12 @@ true, true];
 			var hash = 0;
 			for (var _i11 = 0; _i11 < newh; ++_i11) {
 				for (var _j3 = 0; _j3 < neww; ++_j3) {
-					var tmp = _i11 / (newh - 1) * (oldh - 1);
-					var l = Math.min(tmp | 0, oldh - 2);
-					var u = tmp - l;
-					tmp = _j3 / (neww - 1) * (oldw - 1);
-					var c = Math.min(tmp | 0, oldw - 2);
-					var t = tmp - c;
+					var temp = _i11 / (newh - 1) * (oldh - 1);
+					var l = Math.min(temp | 0, oldh - 2);
+					var u = temp - l;
+					temp = _j3 / (neww - 1) * (oldw - 1);
+					var c = Math.min(temp | 0, oldw - 2);
+					var t = temp - c;
 					hash = (hash << 4) + Math.min(values * ((buf[l * oldw + c] * ((1 - t) * (1 - u)) + buf[l * oldw + c + 1] * (t * (1 - u)) + buf[(l + 1) * oldw + c + 1] * (t * u) + buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas | 0), 255);
 					var g = hash & 0xF0000000;
 					if (g) {
@@ -20031,8 +20033,8 @@ true, true];
 		}, {
 			key: 'getCaptchaSrc',
 			value: function getCaptchaSrc(src, tNum) {
-				var tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
-				return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
+				var temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=').replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
+				return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 			}
 		}, {
 			key: 'getImgInfo',
@@ -20161,9 +20163,9 @@ true, true];
 					this.t = +temp[1].match(/^\d+/)[0];
 					this.page = this.firstPage;
 				} else {
-					var _temp2 = url.match(/\/?(\d+)[^/]*?$/);
-					this.page = _temp2 && +_temp2[1] || this.firstPage;
-					this.b = url.replace(_temp2 && this.page ? _temp2[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
+					var _temp = url.match(/\/?(\d+)[^/]*?$/);
+					this.page = _temp && +_temp[1] || this.firstPage;
+					this.b = url.replace(_temp && this.page ? _temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
 				}
 				if (this.docExt === null) {
 					this.docExt = (url.match(/\.[a-z]+$/) || ['.html'])[0];

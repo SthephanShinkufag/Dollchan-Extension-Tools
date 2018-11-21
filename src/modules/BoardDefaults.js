@@ -240,9 +240,9 @@ class BaseBoard {
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
-		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
-		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
+		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
 		const el = $q(this.qImgInfo, wrap);
