@@ -1165,6 +1165,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['4chan.org'] = _4chan;
+	ibDomains['4channel.org'] = _4chan;
 
 	class _8ch extends Vichan {
 		constructor(prot, dm) {

@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = '3dcc251';
+	var commit = 'e677a27';
 
 
 	var defaultCfg = {
@@ -14128,11 +14128,12 @@ true, true];
 								return;
 							}
 							if (!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
-								if (el === this.trunc) {
-									this._getFullMsg(el, false);
+								temp = el.parentNode;
+								if (temp === this.trunc) {
+									this._getFullMsg(temp, false);
 									$pd(e);
 									e.stopPropagation();
-								} else if (Cfg.insertNum && pr.form && this._pref === el && !/Reply|Ответ/.test(el.textContent)) {
+								} else if (Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
 									$pd(e);
 									e.stopPropagation();
 									if (!Cfg.showRepBtn) {
@@ -21932,6 +21933,7 @@ true, true];
 		}(BaseBoard);
 
 		ibDomains['4chan.org'] = _4chan;
+		ibDomains['4channel.org'] = _4chan;
 
 		var _8ch = function (_Vichan) {
 			_inherits(_8ch, _Vichan);

@@ -83,11 +83,12 @@ class AbstractPost {
 				}
 				// Check if the link is not an image container
 				if(!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
-					if(el === this.trunc) { // Click on "truncated message" link
-						this._getFullMsg(el, false);
+					temp = el.parentNode;
+					if(temp === this.trunc) { // Click on "truncated message" link
+						this._getFullMsg(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && this._pref === el &&
+					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
 						$pd(e);
