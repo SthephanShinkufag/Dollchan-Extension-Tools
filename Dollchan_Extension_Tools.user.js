@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.10.1';
-	var commit = 'e677a27';
+	var commit = '5c662f0';
 
 
 	var defaultCfg = {
@@ -20435,7 +20435,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('(function() {\n\t\t\t\tvar emptyFn = Function.prototype;\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: emptyFn, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
+					$script('(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start");\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("scrollTo");\n\t\t\t\tfixGlobalFunc("Media");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), function (el) {
 						var inpEl = $q('input', el);
 						if (inpEl.checked) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.10.1';
-const commit = 'e677a27';
+const commit = '5c662f0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15242,15 +15242,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`(function() {
-				var emptyFn = Function.prototype;
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
-						{ value: emptyFn, writable: false, configurable: false });
+						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
 				fixGlobalFunc("autorefresh_start");
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("scrollTo");
+				fixGlobalFunc("Media");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
