@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.11.10.1
+// @version         18.11.25.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -3818,8 +3818,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
-	var version = '18.11.10.1';
-	var commit = '5c662f0';
+	var version = '18.11.25.0';
+	var commit = 'b50a986';
 
 
 	var defaultCfg = {
