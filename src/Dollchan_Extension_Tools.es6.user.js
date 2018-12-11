@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '55ce59b';
+const commit = '8fd2cd0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15101,7 +15101,7 @@ class BaseBoard {
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);
 			this.b = temp[0].replace(/\/$/, '');
-			this.t = +temp[1].match(/^\d+/)[0];
+			this.t = +temp[1].match(/^[^\d]?\d+/)[0];
 			this.page = this.firstPage;
 		} else { // We are on board
 			const temp = url.match(/\/?(\d+)[^/]*?$/);

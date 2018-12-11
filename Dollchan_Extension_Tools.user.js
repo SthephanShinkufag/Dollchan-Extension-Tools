@@ -3831,7 +3831,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = '55ce59b';
+	var commit = '8fd2cd0';
 
 
 	var defaultCfg = {
@@ -20179,7 +20179,7 @@ true, true];
 				if (url.match(this.res)) {
 					var temp = url.split(this.res);
 					this.b = temp[0].replace(/\/$/, '');
-					this.t = +temp[1].match(/^\d+/)[0];
+					this.t = +temp[1].match(/^[^\d]?\d+/)[0];
 					this.page = this.firstPage;
 				} else {
 					var _temp = url.match(/\/?(\d+)[^/]*?$/);
