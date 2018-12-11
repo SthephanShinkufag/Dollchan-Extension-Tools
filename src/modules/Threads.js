@@ -34,7 +34,7 @@ class Thread {
 		if(localData) {
 			return;
 		}
-		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
+		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
 				(aib.mak && !aib._2chMoe ?
@@ -394,10 +394,7 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		const { btns } = this;
-		if(btns !== thrEl.lastChild) {
-			thrEl.appendChild(btns);
-		}
+		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
 			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
 				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
@@ -427,6 +424,7 @@ class Thread {
 	_loadNewFromBuilder(pBuilder) {
 		const lastOffset = pr.isVisible ? pr.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
+		this._moveBtnsToEnd();
 		if(lastOffset !== null) {
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
 		}
@@ -441,6 +439,13 @@ class Thread {
 			AjaxCache.clearCache();
 		}
 		return { newCount: newVisPosts, locked: pBuilder.isClosed };
+	}
+	_moveBtnsToEnd() {
+		const { btns, el } = this;
+		if(btns !== el.lastChild) {
+			el.appendChild(btns);
+		}
+		return btns;
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);

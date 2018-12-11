@@ -83,9 +83,6 @@ class DelForm {
 			const el = fNodes[i];
 			if(el.tagName === 'HR') {
 				formEl.insertBefore(cThr, el);
-				if(!aib.tinyib) {
-					formEl.insertBefore(cThr.lastElementChild, el);
-				}
 				const lastEl = cThr.lastElementChild;
 				if(lastEl.tagName === 'BR') {
 					formEl.insertBefore(lastEl, el);

@@ -85,11 +85,15 @@ function getImageBoard(checkDomains, checkEngines) {
 					bottom: 25px !important; }` : '' }
 				/* Test */
 				.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,
-					.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,
-					.post__refmap, .postform__len { display: none !important; }
+					.options__box[onclick="ToggleSage()"], .post__btn:not(.icon_type_active), .post__number,
+					.post__panel, .post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
+				.de-thr-hid + .thread + .thread::before,
+				.de-thr-hid[style="display: none;"] + .thread::before {
+					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
+					display: block; margin: 8px 0; }
 				.postform { width: auto; }
 				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
 		}
@@ -501,7 +505,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class TinyIB extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.tinyib = true;
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';

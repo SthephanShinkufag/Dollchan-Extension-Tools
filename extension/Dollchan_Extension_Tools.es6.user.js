@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '15887a7';
+const commit = 'b50a986';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -102,7 +102,7 @@ const defaultCfg = {
 	addImgs      : 0,    // load images to jpg/png/gif links*
 	addMP3       : 1,    // embed mp3 links
 	addVocaroo   : 1,    // embed Vocaroo links
-	addYouTube   : 3,    // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=preview]
+	embedYTube   : 1,    // embed YouTube links [0=off, 1=preview+player, 2=onclick]
 	YTubeWidth   : 360,  //    player width (px)
 	YTubeHeigh   : 270,  //    player height (px)
 	YTubeTitles  : 0,    //    load titles for YouTube links
@@ -500,11 +500,11 @@ const Lng = {
 			'Добавлять плеер к Vimeo ссылкам*',
 			'Add player for Vimeo links*',
 			'Додавати плеєр до Vimeo посилань*'],
-		addYouTube: {
+		embedYTube: {
 			sel: [
-				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
-				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview'],
-				['Нічого', 'Плеєр по кліку', 'Авто плеєр', 'Превʼю+плеєр', 'Тільки превʼю']],
+				['Ничего', 'Превью+плеер', 'Плеер по клику'],
+				['Nothing', 'Preview+player', 'On click player'],
+				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 			txt: [
 				'к YouTube ссылкам* ',
 				'for YouTube links* ',
@@ -2587,6 +2587,10 @@ async function readCfg() {
 	if(!Cfg.stats) {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
+	if(Cfg.addYouTube !== undefined) {
+		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
+		delete Cfg.addYouTube;
+	}
 	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.updDollchan && !localData) {
@@ -3003,7 +3007,7 @@ const Panel = Object.create({
 				${ Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') +
 					this._getButton('hid') +
 					this._getButton('fav') +
-					(Cfg.addYouTube ? this._getButton('vid') : '') +
+					(Cfg.embedYTube ? this._getButton('vid') : '') +
 					(!localData ?
 						this._getButton('refresh') +
 						(isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') +
@@ -4864,7 +4868,7 @@ const CfgWindow = {
 				${ this._getBox('addMP3') }
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
-			${ this._getSel('addYouTube') }
+			${ this._getSel('embedYTube') }
 			<div class="de-cfg-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
@@ -5013,7 +5017,7 @@ const CfgWindow = {
 			'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 		]);
 		fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
-		fn(Cfg.addYouTube, [
+		fn(Cfg.embedYTube, [
 			'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]',
 			'input[info="ytApiKey"]', 'input[info="addVimeo"]'
 		]);
@@ -6282,12 +6286,12 @@ class Videos {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
 				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
-				(enableJsapi ? '&enablejsapi=1' : Cfg.addYouTube === 3 ? '&autoplay=1' : '') +
+				(enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') +
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
 			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
-				Cfg.addYouTube === 3 ? '?autoplay=1' : ''
+				Cfg.embedYTube === 1 ? '?autoplay=1' : ''
 			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
 		el.innerHTML = txt + (enableJsapi ? '' :
@@ -6323,9 +6327,7 @@ class Videos {
 		this.hasLinks = true;
 		this.linksCount++;
 		if(this.playerInfo === null) {
-			if(Cfg.addYouTube === 2) {
-				this.setPlayer(m, isYtube);
-			} else if(Cfg.addYouTube > 2) {
+			if(Cfg.embedYTube === 1) {
 				this._addThumb(m, isYtube);
 			}
 		} else if(!link && $q(`.de-video-link[href*="${ m[1] }"]`, this.post.msg)) {
@@ -6370,7 +6372,7 @@ class Videos {
 		if(this.playerInfo !== m) {
 			this.currentLink.classList.remove('de-current');
 			this.currentLink = el;
-			if(mode > 2) {
+			if(mode === 1) {
 				this._addThumb(m, el.classList.contains('de-ytube'));
 			} else {
 				el.classList.add('de-current');
@@ -6378,7 +6380,7 @@ class Videos {
 			}
 			return;
 		}
-		if(mode === 3) {
+		if(mode === 1) {
 			if($q('.de-video-thumb', this.player)) {
 				el.classList.add('de-current');
 				this.setPlayer(m, el.classList.contains('de-ytube'));
@@ -6395,6 +6397,21 @@ class Videos {
 	}
 	setPlayer(m, isYtube) {
 		Videos.addPlayer(this, m, isYtube);
+	}
+	toggleFloatedThumb(linkEl, isOutEvent) {
+		let el = $id('de-video-thumb-floated');
+		if(isOutEvent) {
+			$del(el);
+			return;
+		}
+		if(!el) {
+			el = $bEnd(docBody, `<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/${
+				linkEl.videoInfo[1] }/0.jpg">`);
+		}
+		const cr = linkEl.getBoundingClientRect();
+		el.style.cssText = `position: absolute; left: ${ deWindow.pageXOffset + cr.left }px; top: ${
+			deWindow.pageYOffset + cr.top + linkEl.offsetHeight }px; width: ${ Cfg.YTubeWidth }px; height: ${
+			Cfg.YTubeHeight }px;`;
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();
@@ -9988,7 +10005,7 @@ class AbstractPost {
 		return value;
 	}
 	get videos() {
-		const value = Cfg.addYouTube ? new Videos(this) : null;
+		const value = Cfg.embedYTube ? new Videos(this) : null;
 		Object.defineProperty(this, 'videos', { value });
 		return value;
 	}
@@ -10004,32 +10021,32 @@ class AbstractPost {
 		if(type === 'click') {
 			switch(e.button) {
 			case 0: break;
-			case 1: e.stopPropagation();
+			case 1: e.stopPropagation(); // Skip the click on wheel button
 				/* falls through */
 			default: return;
 			}
-			if(this._menu) {
+			if(this._menu) { // Hide the dropdown menu after the click on its option
 				this._menu.removeMenu();
 				this._menu = null;
 			}
 			switch(el.tagName) {
 			case 'A':
+				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
-					this.videos.clickLink(el, Cfg.addYouTube);
+					this.videos.clickLink(el, Cfg.embedYTube);
 					$pd(e);
 					return;
 				}
-				if((temp = el.firstElementChild) && temp.tagName === 'IMG') {
-					el = temp;
-				} else {
+				// Check if the link is not an image container
+				if(!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
 					temp = el.parentNode;
-					if(temp === this.trunc) {
+					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
 						$pd(e);
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
-					) {
+					) { // Click on post number link - show quick reply or redirect with an #anchor
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
@@ -10047,7 +10064,7 @@ class AbstractPost {
 						}
 					} else if((temp = el.textContent)[0] === '>' &&
 						temp[1] === '>' && !temp[2].includes('/')
-					) {
+					) { // Click on >>link - scroll to the referenced post
 						const post = pByNum.get(+temp.match(/\d+/));
 						if(post) {
 							post.selectAndScrollTo();
@@ -10055,10 +10072,11 @@ class AbstractPost {
 					}
 					return;
 				}
+				el = temp; // The link is an image container
 				/* falls through */
-			case 'IMG':
+			case 'IMG': // Click on attached image - expand/collapse
 				if(el.classList.contains('de-video-thumb')) {
-					if(Cfg.addYouTube === 3) {
+					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
 						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
@@ -10069,14 +10087,14 @@ class AbstractPost {
 				}
 				return;
 			case 'OBJECT':
-			case 'VIDEO':
+			case 'VIDEO': // Click on attached video - expand/collapse
 				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
 				return;
 			}
 			if(aib.mak) {
-				let temp = el;
+				// Makaba: Click on like/dislike elements
 				let c = el.classList;
 				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
 					(temp = el.parentNode) && (
@@ -10100,12 +10118,14 @@ class AbstractPost {
 						countEl.textContent = +countEl.textContent + 1;
 					}, () => $popup('err-2chlike', Lng.noConnect[lang]));
 				}
+				// Makaba: Click on "truncated message" link
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);
 					$pd(e);
 					e.stopPropagation();
 				}
 			}
+			// Click on post buttons
 			switch(el.classList[0]) {
 			case 'de-btn-expthr': this.thr.loadPosts('all'); return;
 			case 'de-btn-fav': this.thr.toggleFavState(true, isPview ? this : null); return;
@@ -10124,19 +10144,29 @@ class AbstractPost {
 			}
 			return;
 		}
-		if(!isOutEvent && Cfg.expandImgs &&
-			el.tagName === 'IMG' &&
-			!el.classList.contains('de-fullimg') &&
-			(temp = this.images.getImageByEl(el)) &&
-			(temp.isImage || temp.isVideo)
-		) {
-			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
-		}
 		if(!this._hasEvents) {
 			this._hasEvents = true;
 			this.el.addEventListener('click', this, true);
 			this.el.addEventListener('mouseout', this, true);
 		}
+		// Mouseover/mouseout on YouTube links
+		if(el.classList.contains('de-video-link')) {
+			if(aib.mak && !el.videoInfo) {
+				const origMsg = this.msg.firstChild;
+				this.videos.updatePost($Q('.de-video-link', origMsg),
+					$Q('.de-video-link', origMsg.nextSibling), true);
+			}
+			if(Cfg.embedYTube === 2) {
+				this.videos.toggleFloatedThumb(el, isOutEvent);
+			}
+		}
+		// Mouseover/mouseout on attached images/videos - update title
+		if(!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
+			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
+		) {
+			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
+		}
+		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-rep':
@@ -10168,12 +10198,13 @@ class AbstractPost {
 				this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el));
 			}
 			return;
+		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
-				el.lchecked = true;
+				el.isNotRefLink = true;
 				return;
 			}
 			// Don't use classList here, 'de-link-pref ' should be first
@@ -10184,14 +10215,14 @@ class AbstractPost {
 			if(!Cfg.linksNavig) {
 				return;
 			}
-			if(isOutEvent) { // We need to delete previews
+			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkDelay);
 				if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
 				}
-			} else { // We need to show a preview for this link
+			} else { // Mouseover - we need to show a preview for this link
 				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
 			$pd(e);
@@ -10210,7 +10241,7 @@ class AbstractPost {
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
 		const origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		}
@@ -10220,7 +10251,7 @@ class AbstractPost {
 			trunc : { configurable: true, value: null }
 		});
 		Post.Сontent.removeTempData(this);
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
 				newMsg.appendChild(videoExt);
@@ -11087,7 +11118,7 @@ class Pview extends AbstractPost {
 			}
 			const el = fixEventEl(e.relatedTarget);
 			if(!el ||
-				isOverEvent && (el.tagName !== 'A' || el.lchecked) ||
+				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
 			) {
 				if(isOverEvent) {
@@ -11168,7 +11199,7 @@ class Pview extends AbstractPost {
 			}
 			this.btns = $aEnd(this._pref, `<span class="de-post-btns">${ pText }</span>`);
 			embedAudioLinks(this);
-			if(Cfg.addYouTube) {
+			if(Cfg.embedYTube) {
 				new VideosParser().parse(this).endParser();
 			}
 			embedPostMsgImages(pv);
@@ -11190,7 +11221,7 @@ class Pview extends AbstractPost {
 			if(link) {
 				link.classList.remove('de-link-parent');
 			}
-			if(Cfg.addYouTube && post.videos.hasLinks) {
+			if(Cfg.embedYTube && post.videos.hasLinks) {
 				if(post.videos.playerInfo !== null) {
 					Object.defineProperty(this, 'videos',
 						{ value: new Videos(this, $q('.de-video-obj', pv), post.videos.playerInfo) });
@@ -11245,8 +11276,8 @@ class Pview extends AbstractPost {
 		const bWidth = nav.viewportWidth();
 		const isLeft = offX < bWidth / 2;
 		const pv = this.el;
-		const tmp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
-		const lmw = `max-width:${ bWidth - tmp - 10 }px; left:${ tmp }px;`;
+		const temp = isLeft ? offX : offX - Math.min(parseInt(pv.offsetWidth, 10), offX - 10);
+		const lmw = `max-width:${ bWidth - temp - 10 }px; left:${ temp }px;`;
 		const { style } = pv;
 		if(isAnim) {
 			oldCSS = style.cssText;
@@ -12310,12 +12341,12 @@ const ImagesHashStorage = Object.create({
 		let hash = 0;
 		for(let i = 0; i < newh; ++i) {
 			for(let j = 0; j < neww; ++j) {
-				let tmp = i / (newh - 1) * (oldh - 1);
-				const l = Math.min(tmp | 0, oldh - 2);
-				const u = tmp - l;
-				tmp = j / (neww - 1) * (oldw - 1);
-				const c = Math.min(tmp | 0, oldw - 2);
-				const t = tmp - c;
+				let temp = i / (newh - 1) * (oldh - 1);
+				const l = Math.min(temp | 0, oldh - 2);
+				const u = temp - l;
+				temp = j / (neww - 1) * (oldw - 1);
+				const c = Math.min(temp | 0, oldw - 2);
+				const t = temp - c;
 				hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
 					buf[l * oldw + c + 1] * (t * (1 - u)) +
 					buf[(l + 1) * oldw + c + 1] * (t * u) +
@@ -12386,6 +12417,9 @@ function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.img
 }
 
 function processPostImgInfoLinks(post, addSrc, imgNames) {
+	if(!post) {
+		return;
+	}
 	for(const image of post.images) {
 		const link = image.nameLink;
 		if(!link) {
@@ -12808,13 +12842,13 @@ class MakabaPostsBuilder {
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
 							`${ file.type === 100 /* is sticker */ ? file.install : file.path }"` +
 							`${ dispName === fullname ? '' : ` title="${ fullname }"` }>${ dispName }</a>
-						<span class="${ p }filesize">(${ file.size }Кб, ${ file.width }x${ file.height }` +
-							`${ isVideo ? ', ' + file.duration : '' })</span>
+						<span class="${ isNew ? 'post__filezise' : 'filesize' }">(${ file.size }Кб, ` +
+							`${ file.width }x${ file.height }${ isVideo ? ', ' + file.duration : '' })</span>
 					</figcaption>
 					<div id="exlink-${ imgId }"${ isNew ? '' : 'class="image-link"' }>
 						<a ${ isNew ? 'class="post__image-link" ' : '' }href="${ file.path }">
-							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.size }"` +
-								` width="${ file.tn_width }" height="${ file.tn_height }">
+							<img class="${ imgClass }" src="${ file.thumbnail }" alt="${ file.width }x` +
+								`${ file.height }" width="${ file.tn_width }" height="${ file.tn_height }">
 						</a>
 					</div>
 				</figure>`;
@@ -12837,24 +12871,29 @@ class MakabaPostsBuilder {
 		}) }</span>`;
 		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
-		if(this._brd === 'po' || this._brd === 'news' || isNew) {
+		if(this._hasLikes) {
 			const likes = `<div id="like-div${ num }" class="${ isNew ?
-				`post__rate post__rate_type_like">
-					<i class="fa fa-bolt post__rate-icon"></i> Двачую` :
-				`like-div">
-					<span class="like-icon"><i class="fa fa-bolt"></i></span>
-					<span class="like-caption">Двачую</span>` }
-				<span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			const dislikes = likes.replace(/like/g, 'dislike').replace('Двачую', 'RRRAGE!');
-			rate = `${ likes }${ data.likes || '' }</span></div>${
-				dislikes }${ data.dislikes || '' }</span></div>`;
+				`post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
+					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
+						<use xlink:href="#icon__thunder"></use></svg>` :
+				'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>'
+			} <span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
+			const dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+			rate = `${ likes }${ data.likes || 0 }</span></div>
+				${ dislikes }${ data.dislikes || 0 }</span></div>`;
 		}
 		const isOp =  i === -1;
 		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
+		const timeReflink = `<span class="${ isNew ? 'post__time' : 'posttime' }">${ data.date }</span>
+			<span class="${ isNew ? 'post__detailpart' : 'reflink' }">` +
+				`<a id="${ num }" ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
+				`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href" href="${ refHref }"` +
+					` name="${ num }">${ num }</a>
+			</span>`;
 		return `<div id="post-${ num }" class="${ wrapClass }">
-			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }"` +
-				` id="post-body-${ num }" data-num="${ num }">
-				<div id="post-details-${ num }" class="post-details">
+			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }` +
+				`${ filesHTML ? ' withimg' : '' }" id="post-body-${ num }" data-num="${ num }">
+				<div id="post-details-${ num }" class="${ isNew ? 'post__details' : 'post-details' }">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="${ isNew ? 'post__' : 'post-' }title">` +
 						`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>` }
@@ -12863,12 +12902,9 @@ class MakabaPostsBuilder {
 						`${ data.icon }</span>` : '' }
 					${ tripEl }
 					${ data.op === 1 ? `<span class="${ p }ophui"># OP</span>&nbsp;` : '' }
-					<span class="${ isNew ? 'post__time' : 'posttime-reflink' }">${ data.date }&nbsp;</span>
-					<span${ isNew ? '' : ' class="reflink"' }>
-						<a ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
-						`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href"` +
-							` href="${ refHref }" name="${ num }">${ num }</a>
-					</span>
+					${ isNew ? timeReflink : `<span class="posttime-reflink">
+						${ timeReflink }
+					</span>` }
 					${ rate }
 				</div>
 				${ filesHTML }
@@ -12891,6 +12927,11 @@ class MakabaPostsBuilder {
 		}
 	}
 
+	get _hasLikes() {
+		const value = !!$q('.like-div, .post__rate');
+		Object.defineProperty(this, '_hasLikes', { value });
+		return value;
+	}
 	get _isNew() {
 		const value = !!$q('.post_type_oppost');
 		Object.defineProperty(this, '_isNew', { value });
@@ -13493,7 +13534,7 @@ class Thread {
 			}
 		} else {
 			const nonExisted = pBuilder.length - existed;
-			const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+			const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 			const [,, fragm, last, nums] = this._importPosts(
 				op, pBuilder,
 				Math.max(0, nonExisted + existed - needToShow),
@@ -13584,7 +13625,7 @@ class Thread {
 		let post = this.lastNotDeleted;
 		const len = pBuilder.length;
 		const maybeSpells = new Maybe(SpellsRunner);
-		const maybeVParser = new Maybe(Cfg.addYouTube ? VideosParser : null);
+		const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 		const { count } = post;
 		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
@@ -14277,7 +14318,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function updateTitle(eCode = lastECode) {
 		doc.title = (sendError === true ? `{${ Lng.error[lang] }} ` : '') +
 			(eCode <= 0 || eCode === 200 ? '' : `{${ eCode }} `) +
-			(newPosts < 10 ? '' : `[${ newPosts }] `) + title;
+			(newPosts ? `[${ newPosts }] ` : '') + title;
 		favicon.updateIcon(eCode !== 200 && eCode !== 304);
 	}
 
@@ -14508,7 +14549,7 @@ class DelForm {
 		Logger.log('Preload images');
 		embedAudioLinks(el);
 		Logger.log('Audio links');
-		if(Cfg.addYouTube) {
+		if(Cfg.embedYTube) {
 			new VideosParser().parse(el).endParser();
 			Logger.log('Video links');
 		}
@@ -14711,20 +14752,20 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // Differs _4chanOrg
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Differs Vichan
+		this.qDelBut = 'input[type="submit"]'; // _4chan
+		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Vichan
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
-		this.qFormFile = 'tr input[type="file"]'; // Differs Makaba
+		this.qFormFile = 'tr input[type="file"]';
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Differs Ernstchan
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Ernstchan
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
-		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Differs Makaba
+		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Makaba
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
@@ -14794,10 +14835,10 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // Differs _410chanOrg
+	get capLang() { // _410chan
 		return this.ru ? 2 : 1;
 	}
-	get catalogUrl() { // Differs Iichan
+	get catalogUrl() { // Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -14809,7 +14850,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() { // Differs _4chanOrg
+	get fixDeadLinks() { // _4chan
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -14818,7 +14859,7 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
-	get getImgRedirectSrc() {
+	get getImgRedirectSrc() { // Archived
 		return null;
 	}
 	get getSubmitData() {
@@ -14830,7 +14871,7 @@ class BaseBoard {
 	get isArchived() {
 		return false;
 	}
-	get lastPage() { // Differs Makaba
+	get lastPage() { // Makaba
 		const el = $q(this.qPages);
 		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
@@ -14842,7 +14883,7 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Differs Makaba
+	get observeContent() { // Makaba
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
@@ -14851,13 +14892,13 @@ class BaseBoard {
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
-	get sendHTML5Post() { // Differs LynxChan
+	get sendHTML5Post() { // Lynxchan
 		return null;
 	}
 	get updateCaptcha() {
 		return null;
 	}
-	disableRedirection(el) { // Differs Dobrochan
+	disableRedirection(el) { // Dobrochan
 		$hide($qParent(el, aib.qFormTr));
 		el.checked = true;
 	}
@@ -14936,16 +14977,16 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getBanId(postEl) { // Differs Makaba
+	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) { // Differs LynxChan
+	getCapParent(el) { // Lynxchan
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
-		const tmp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
 			.replace(/dummy=[\d.]*/, 'dummy=' + Math.random());
-		return tNum ? tmp.replace(/mainpage|res\d+/, 'res' + tNum) : tmp.replace(/res\d+/, 'mainpage');
+		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
 		const el = $q(this.qImgInfo, wrap);
@@ -14965,7 +15006,7 @@ class BaseBoard {
 	getOmitted(el) {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
-	getOp(thr) { // Differs Arhivach
+	getOp(thr) { // Arhivach
 		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
@@ -15015,13 +15056,13 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Differs Arhivach
+	getThrUrl(b, tNum) { // Arhivach
 		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 	}
-	getTNum(op) {
-		return +$q('input[type="checkbox"]', op).value;
+	getTNum(thr) {
+		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertYtPlayer(msg, playerHtml) { // Differs Dobrochan
+	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
 	isAjaxStatusOK(status) {
@@ -15111,11 +15152,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .cntnt__right > hr,
-					.fa-media-icon, .kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
+			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
+					.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
 					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr {
-						display: none !important; }
+					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr
+						{ display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-block; }
@@ -15129,15 +15170,19 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
+				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.txtBtnsLoc ? `.message-sticker-btn, .message-sticker-preview {
 					bottom: 25px !important; }` : '' }
 				/* Test */
-				.cntnt__header > hr, #CommentToolbar, .newpost, .post__number, .post__panel, .post__refmap,
-					.options__box[onclick="ToggleSage()"], .postform__len { display: none !important; }
+				.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
+					.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,
+					.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,
+					.post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
-				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }`;
+				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.postform { width: auto; }
+				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
@@ -15197,15 +15242,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script(`(function() {
-				var emptyFn = Function.prototype;
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
-						{ value: emptyFn, writable: false, configurable: false });
+						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
 				fixGlobalFunc("autorefresh_start");
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("scrollTo");
+				fixGlobalFunc("Media");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
@@ -15441,8 +15486,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			$script('window.FormData = void 0');
@@ -15584,7 +15629,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
-	class LynxChan extends BaseBoard {
+	class Lynxchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -15669,8 +15714,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				postNum : status === 'ok' ? +data : null
 			};
 		}
-		getTNum(op) {
-			return +$q('.deletionCheckBox', op).name.split('-')[1];
+		getTNum(thr) {
+			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
 			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
@@ -15754,7 +15799,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.textContent = Lng.reply[lang];
 		}
 	}
-	ibEngines.push(['form[action$="contentActions.js"]', LynxChan]);
+	ibEngines.push(['form[action$="contentActions.js"]', Lynxchan]);
 
 	class FoolFuuka extends BaseBoard {
 		constructor(prot, dm) {
@@ -15801,12 +15846,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
 		}
-		getTNum(el) {
-			return +el.getAttribute('data-thread-num');
+		getTNum(thr) {
+			return +thr.getAttribute('data-thread-num');
 		}
 		init() {
 			defaultCfg.ajaxUpdThr = 0;
-			return deWindow.location.pathname === '/';
+			const el = $q('.search_box');
+			if(el) {
+				docBody.appendChild(el);
+			}
+			return false;
 		}
 		parseURL() {
 			super.parseURL();
@@ -15817,7 +15866,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _2__chRu extends BaseBoard {
+	class _2__ch extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -15888,10 +15937,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2--ch.ru'] = _2__chRu;
-	ibDomains['2-ch.su'] = _2__chRu;
+	ibDomains['2--ch.ru'] = _2__ch;
+	ibDomains['2-ch.su'] = _2__ch;
 
-	class _02chSu extends Kusaba {
+	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -15908,7 +15957,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['02ch.su'] = _02chSu;
+	ibDomains['02ch.su'] = _02ch;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -15949,8 +15998,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return el;
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			$del($q('base', doc.head)); // <base> is not compartible with SVG
@@ -15959,7 +16008,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['2chan.net'] = _2chan;
 
-	class _2channelMoe extends Makaba {
+	class _2channel extends Makaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._2chMoe = true;
@@ -16014,11 +16063,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['2channel.ga'] = _2channelMoe;
-	ibDomains['2channel.moe'] = _2channelMoe;
-	ibDomains['2channel5xx5xchx.onion'] = _2channelMoe;
+	ibDomains['2channel.ga'] = _2channel;
+	ibDomains['2channel.moe'] = _2channel;
+	ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
-	class _410chanOrg extends Kusaba {
+	class _410chan extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -16075,9 +16124,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['410chan.org'] = _410chanOrg;
+	ibDomains['410chan.org'] = _410chan;
 
-	class _4chanOrg extends BaseBoard {
+	class _4chan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this.fch = true;
@@ -16193,8 +16242,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return { error, postNum };
 		}
-		getTNum(op) {
-			return +$q('input[type="checkbox"]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
 			Cfg.findImgFile = 0;
@@ -16206,9 +16255,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['4chan.org'] = _4chanOrg;
+	ibDomains['4chan.org'] = _4chan;
+	ibDomains['4channel.org'] = _4chan;
 
-	class _8chNet extends Vichan {
+	class _8ch extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._8ch = true;
@@ -16241,10 +16291,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				});
 		}
 	}
-	ibDomains['8ch.net'] = _8chNet;
-	ibDomains['oxwugzccvk3dk6tj.onion'] = _8chNet;
+	ibDomains['8ch.net'] = _8ch;
+	ibDomains['oxwugzccvk3dk6tj.onion'] = _8ch;
 
-	class _55chan extends _8chNet {
+	class _55chan extends _8ch {
 		constructor(prot, dm) {
 			super(prot, dm);
 			this._8ch = null;
@@ -16260,12 +16310,12 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['55chan.org'] = _55chan;
 
-	class ArchMoe extends FoolFuuka {
+	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
 			return $ajax(url).then(xhr => xhr.responseText.match(/<meta[^>]+url=([^"]+)">/)[1]);
 		}
 	}
-	ibDomains['archived.moe'] = ArchMoe;
+	ibDomains['archived.moe'] = Archived;
 
 	class Arhivach extends BaseBoard {
 		constructor(prot, dm) {
@@ -16330,8 +16380,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getThrUrl() {
 			return $q('link[rel="canonical"]', doc.head).href;
 		}
-		getTNum(el) {
-			return this.getPNum(this.getOp(el));
+		getTNum(thr) {
+			return this.getPNum(this.getOp(thr));
 		}
 		init() {
 			const path = deWindow.location.pathname;
@@ -16509,8 +16559,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPageUrl(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 		}
-		getTNum(op) {
-			return +$q('a[name]', op).name.match(/\d+/);
+		getTNum(thr) {
+			return +$q('a[name]', thr).name.match(/\d+/);
 		}
 		init() {
 			if(deWindow.location.pathname === '/settings') {
@@ -16562,10 +16612,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
+	ibDomains['dobrochan.net'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
 
-	class EndChan extends LynxChan {
+	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
 
@@ -16588,8 +16639,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['endchan.net'] = EndChan;
-	ibDomains['endchan.xyz'] = EndChan;
+	ibDomains['endchan.net'] = Endchan;
+	ibDomains['endchan.xyz'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16638,7 +16689,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.parentNode;
 		}
 	}
-	ibDomains['ernstchan.com'] = Ernstchan;
 	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Iichan extends BaseBoard {
@@ -16834,6 +16884,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qImgInfo = '.unimportant';
+			this.qPages = '.pagination';
 
 			this.markupBB = true;
 		}
@@ -16873,6 +16924,30 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['syn-ch.ru'] = Synch;
 	ibDomains['syn-ch.com'] = Synch;
 	ibDomains['syn-ch.org'] = Synch;
+
+	class Warosu extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qDForm = '.content';
+			this.qForm = '.subreply';
+			this.qPostRef = '.js';
+			this.qImgInfo = 'span';
+			this.qOPost = 'div[itemscope]';
+
+			this.res = 'thread/';
+		}
+		get css() {
+			return '.quoted-by { display: none !important; }';
+		}
+		getTNum(thr) {
+			return +$q('div[itemscope]', thr).id.match(/\d+/);
+		}
+		fixHTMLHelper(str) {
+			return str.replace(/\/post\/(\d+)"/g, '/#$1"');
+		}
+	}
+	ibDomains['warosu.org'] = Warosu;
 
 	const prot = deWindow.location.protocol;
 	let dm = localData && localData.dm;
@@ -17367,7 +17442,7 @@ function scriptCSS() {
 	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
-	#de-cfg-button-debug { padding: 0 2px; }
+	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
@@ -17756,7 +17831,7 @@ function runFrames() {
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
 	let formEl;
-	if(!(docBody = doc.body) ||
+	if(!(docBody = doc.body) || docBody.classList.contains('de-runned') ||
 		!aib && !(aib = getImageBoard(checkDomains, true)) ||
 		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
@@ -17779,6 +17854,7 @@ async function runMain(checkDomains, dataPromise) {
 	) {
 		return;
 	}
+	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
 	$del(oldMain);
 	addSVGIcons();

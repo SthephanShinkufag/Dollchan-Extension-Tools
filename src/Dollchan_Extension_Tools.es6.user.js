@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'b50a986';
+const commit = 'd195212';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13210,7 +13210,7 @@ class Thread {
 		if(localData) {
 			return;
 		}
-		this.btns = $aEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
+		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
 				(aib.mak && !aib._2chMoe ?
@@ -13570,10 +13570,7 @@ class Thread {
 		if(maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		const { btns } = this;
-		if(btns !== thrEl.lastChild) {
-			thrEl.appendChild(btns);
-		}
+		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
 			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
 				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
@@ -13603,6 +13600,7 @@ class Thread {
 	_loadNewFromBuilder(pBuilder) {
 		const lastOffset = pr.isVisible ? pr.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
+		this._moveBtnsToEnd();
 		if(lastOffset !== null) {
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
 		}
@@ -13617,6 +13615,13 @@ class Thread {
 			AjaxCache.clearCache();
 		}
 		return { newCount: newVisPosts, locked: pBuilder.isClosed };
+	}
+	_moveBtnsToEnd() {
+		const { btns, el } = this;
+		if(btns !== el.lastChild) {
+			el.appendChild(btns);
+		}
+		return btns;
 	}
 	_parsePosts(pBuilder) {
 		this._checkBans(pBuilder);
@@ -14504,9 +14509,6 @@ class DelForm {
 			const el = fNodes[i];
 			if(el.tagName === 'HR') {
 				formEl.insertBefore(cThr, el);
-				if(!aib.tinyib) {
-					formEl.insertBefore(cThr.lastElementChild, el);
-				}
 				const lastEl = cThr.lastElementChild;
 				if(lastEl.tagName === 'BR') {
 					formEl.insertBefore(lastEl, el);
@@ -15176,11 +15178,15 @@ function getImageBoard(checkDomains, checkEngines) {
 					bottom: 25px !important; }` : '' }
 				/* Test */
 				.cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.options__box[onclick="ToggleSage()"], .post__btn_type_favorite, .post__btn_type_hide,
-					.post__btn_type_report, .post__btn_type_options, .post__number, .post__panel,
-					.post__refmap, .postform__len { display: none !important; }
+					.options__box[onclick="ToggleSage()"], .post__btn:not(.icon_type_active), .post__number,
+					.post__panel, .post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
+				.de-thr-hid + .thread + .thread::before,
+				.de-thr-hid[style="display: none;"] + .thread::before {
+					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
+					display: block; margin: 8px 0; }
 				.postform { width: auto; }
 				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
 		}
@@ -15592,7 +15598,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class TinyIB extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.tinyib = true;
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
@@ -17712,6 +17717,7 @@ function scriptCSS() {
 	.de-thr-buttons { clear: left; margin-top: 5px; }
 	${ aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '' }
 	.de-thr-collapse-link::after { content: "${ Lng.collapseThr[lang] }"; }
+	.de-thr-hid { display: block; padding: 2px; }
 	.de-thr-updater-link::after { content: "${ Lng.getNewPosts[lang] }"; }
 	#de-updater-count::before { content: ": "; }
 	.de-viewed { color: #747488 !important; }
@@ -17772,7 +17778,7 @@ function updateCSS() {
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
 	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
-	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + div + hr, .de-thr-hid + div + div + br, .de-thr-hid + div + div + br + hr, .de-thr-hid + div + div + div + hr, ' : ''	}
+	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ' }
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
 	${ Cfg.imgInfoLink ? '' : '.de-fullimg-info, ' }
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
