@@ -134,7 +134,7 @@ function updateVideoList(parent, link, num) {
 	const el = link.cloneNode(true);
 	el.videoInfo = link.videoInfo;
 	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
-		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
+		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;&gt;</a>
 	</div>`).appendChild(el).classList.remove('de-current');
 	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 }
@@ -162,17 +162,18 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, hasThreads ? '<hr>' : `<center><b>${ Lng.noHidThr[lang] }</b></center><hr>`);
+	const btns = $bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+		'<div id="de-hid-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
-	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+	btns.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
 		HiddenThreads.saveRawData(data);
 		Thread.first.updateHidden(data[aib.b]);
 		toggleWindow('hid', true);
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
+	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -190,7 +191,7 @@ function showHiddenWindow(body) {
 	}));
 
 	// "Delete" button. Allows to delete selected threads
-	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
+	btns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry[info]', body), el => {
 			if(!$q('input', el).checked) {
 				return;

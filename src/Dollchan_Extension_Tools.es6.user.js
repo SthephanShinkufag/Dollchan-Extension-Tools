@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '2696b92';
+const commit = '55ce59b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3662,7 +3662,7 @@ function updateVideoList(parent, link, num) {
 	const el = link.cloneNode(true);
 	el.videoInfo = link.videoInfo;
 	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
-		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;</a>
+		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;&gt;</a>
 	</div>`).appendChild(el).classList.remove('de-current');
 	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 }
@@ -3690,17 +3690,18 @@ function showHiddenWindow(body) {
 			}
 		}
 	}
-	$bEnd(body, hasThreads ? '<hr>' : `<center><b>${ Lng.noHidThr[lang] }</b></center><hr>`);
+	const btns = $bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+		'<div id="de-hid-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
-	body.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+	btns.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
 		HiddenThreads.saveRawData(data);
 		Thread.first.updateHidden(data[aib.b]);
 		toggleWindow('hid', true);
 	})));
 
 	// "Clear" button. Allows to clear 404'd threads.
-	body.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
+	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -3718,7 +3719,7 @@ function showHiddenWindow(body) {
 	}));
 
 	// "Delete" button. Allows to delete selected threads
-	body.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
+	btns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
 		$each($Q('.de-entry[info]', body), el => {
 			if(!$q('input', el).checked) {
 				return;
@@ -3955,7 +3956,7 @@ function showFavoritesWindow(body, favObj) {
 	} else {
 		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
-	const btns = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
+	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 	btns.appendChild(getEditButton('favor',
@@ -17459,7 +17460,7 @@ function scriptCSS() {
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }
 	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }
-	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 9px; border: 1px solid gray; }
+	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }
 	#de-win-hid { max-width: 60%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }
 	#de-win-vid .de-entry { white-space: normal; }
@@ -17517,16 +17518,17 @@ function scriptCSS() {
 	][Cfg.scriptStyle] }
 
 	/* Favorites window */
-	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 2px 0 !important; min-width: 0 !important; border: none !important; font-size: 14px; overflow: hidden !important; white-space: nowrap; }
+	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	#de-fav-buttons, #de-hid-buttons { padding-top:6px; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
 	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
-	.de-fav-del-btn { flex: 0 0 auto; align-self: center; margin-left: 2px; cursor: pointer; }
-	.de-fav-del-btn > svg { width: 13px; height: 13px; opacity: 0.65; }
+	.de-fav-del-btn { margin-left: 2px; cursor: pointer; }
+	.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }
 	.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }
-	.de-fav-header { display: flex; margin-top: 0; margin-bottom: 0; padding: 1px 0; cursor: pointer; }
-	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 85%; color: inherit; text-align: right; opacity: 0.65; }
-	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; font-size: 14px; text-decoration: none; outline: none; }
+	.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }
+	.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }
+	.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }
 	.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }
 	.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }
 	.de-fav-inf-icon { margin-bottom: -3px; }

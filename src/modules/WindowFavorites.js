@@ -216,7 +216,7 @@ function showFavoritesWindow(body, favObj) {
 	} else {
 		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
-	const btns = $bEnd(body, '<hr><div id="de-fav-buttons"></div>');
+	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
 
 	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
 	btns.appendChild(getEditButton('favor',
