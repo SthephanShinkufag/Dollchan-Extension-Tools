@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'd195212';
+const commit = '2696b92';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1594,7 +1594,11 @@ const Lng = {
 	latestPost: [
 		'Последний пост',
 		'Latest post',
-		'Останній пост']
+		'Останній пост'],
+	donateMsg: [
+		'<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием',
+		'<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating',
+		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою']
 };
 
 /* ==[ GlobalVars.js ]== */
@@ -2591,8 +2595,29 @@ async function readCfg() {
 		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
 		delete Cfg.addYouTube;
 	}
-	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
+	if(val.commit !== commit && !localData) {
+		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
+			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
+			'<span class="de-list de-depend">WMZ &ndash; ' +
+			'<i style="font-family: monospace;">Z100197626370</i></span><br>' +
+			'<span class="de-list de-depend">WMR &ndash; ' +
+			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
+			'<span class="de-list de-depend">WMU &ndash; ' +
+			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
+			'<b><i>Yandex.Money</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
+			'<i>410012122418236</i></span><br>' +
+			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
+			'<i>sthephan.shi@gmail.com</i></span></div>';
+		if(doc.readyState === 'loading') {
+			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
+		} else {
+			$popup('donate', donateMsg);
+		}
+		val.commit = commit;
+	}
+	setStored('DESU_Config', JSON.stringify(val));
 	if(Cfg.updDollchan && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
@@ -4249,10 +4274,10 @@ const CfgWindow = {
 			]);
 			// Create popup with controls
 			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
-				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend"><!--
+				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
 					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
 				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
-				--><div class="de-cfg-depend">${ list }</div></div>`);
+				--><div class="de-depend">${ list }</div></div>`);
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
@@ -4789,7 +4814,7 @@ const CfgWindow = {
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
 			${ localData ? '' : `${ this._getBox('ajaxUpdThr') }
 				${ this._getInp('updThrDelay') }
-				<div class="de-cfg-depend">
+				<div class="de-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
@@ -4812,7 +4837,7 @@ const CfgWindow = {
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
 				`${ lang ? 'en' : 'ru' }">[?]</a>
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('timePattern', true, 24) }<br>
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
@@ -4823,7 +4848,7 @@ const CfgWindow = {
 	_getCfgImages() {
 		return `<div id="de-cfg-images" class="de-cfg-unvis">
 			${ this._getSel('expandImgs') }<br>
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getBox('imgNavBtns') }<br>
 				${ this._getBox('imgInfoLink') }<br>
 				${ this._getSel('resizeImgs') }<br>
@@ -4836,7 +4861,7 @@ const CfgWindow = {
 				${ this._getInp('minWebmWidth') }
 			</div>
 			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
-			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
+			${ nav.isPresto || aib.fch ? '' : `<div class="de-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
 			${ this._getSel('openImgs') }<br>
@@ -4850,12 +4875,12 @@ const CfgWindow = {
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
 			${ this._getBox('linksNavig') }
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
 				${ this._getBox('markViewed') }<br>
 				${ this._getBox('strikeHidd') }
-				<div class="de-cfg-depend">${ this._getBox('removeHidd') }</div>
+				<div class="de-depend">${ this._getBox('removeHidd') }</div>
 				${ this._getBox('noNavigHidd') }
 			</div>
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '' }
@@ -4869,7 +4894,7 @@ const CfgWindow = {
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
 			${ this._getSel('embedYTube') }
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
 				${ this._getBox('YTubeTitles') }<br>
@@ -4883,7 +4908,7 @@ const CfgWindow = {
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
 			${ this._getBox('ajaxPosting') }<br>
-			${ pr.form ? `<div class="de-cfg-depend">
+			${ pr.form ? `<div class="de-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }<br>
 				${ this._getSel('removeFName') }<br>
@@ -4928,7 +4953,7 @@ const CfgWindow = {
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
-			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
+			<div class="de-depend">${ this._getInp('loadPages') }</div>
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
 				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
@@ -17394,7 +17419,7 @@ function scriptCSS() {
 
 	/* Panel theme */
 	${ [/* Gradient darkblue */
-		'.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
+		'.de-img-btn, .de-logo, #de-panel, .de-win-head { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
 		/* Gradient blue */
 		`.de-img-btn, #de-panel, .de-win-head { background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
 		#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`,
@@ -17451,7 +17476,6 @@ function scriptCSS() {
 	#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
-	.de-cfg-depend { padding-left: 17px; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
@@ -17461,6 +17485,7 @@ function scriptCSS() {
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
 	.de-cfg-tab::${ nav.isFirefox ? '-moz-' : '' }selection { background: transparent; }
 	.de-cfg-unvis { display: none !important; }
+	.de-depend { padding-left: 17px; }
 	#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }
 	#de-info-log { overflow-y: auto; border-left: 1px solid grey; }
 	.de-info-name { flex: 1 0 auto; }
@@ -17696,6 +17721,8 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
+	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 75px 0 0px 0px; }
+	.de-logo > svg { width: 132px; height: 132px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

@@ -76,10 +76,10 @@ const CfgWindow = {
 			]);
 			// Create popup with controls
 			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
-				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-cfg-depend"><!--
+				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
 					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
 				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
-				--><div class="de-cfg-depend">${ list }</div></div>`);
+				--><div class="de-depend">${ list }</div></div>`);
 			// Import data from a file to the storage
 			$id('de-import-file').onchange = e => {
 				const file = e.target.files[0];
@@ -616,7 +616,7 @@ const CfgWindow = {
 		return `<div id="de-cfg-posts" class="de-cfg-unvis">
 			${ localData ? '' : `${ this._getBox('ajaxUpdThr') }
 				${ this._getInp('updThrDelay') }
-				<div class="de-cfg-depend">
+				<div class="de-depend">
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
@@ -639,7 +639,7 @@ const CfgWindow = {
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
 				`${ lang ? 'en' : 'ru' }">[?]</a>
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('timePattern', true, 24) }<br>
 				${ this._getInp('timeRPattern', true, 24) }
 			</div>
@@ -650,7 +650,7 @@ const CfgWindow = {
 	_getCfgImages() {
 		return `<div id="de-cfg-images" class="de-cfg-unvis">
 			${ this._getSel('expandImgs') }<br>
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getBox('imgNavBtns') }<br>
 				${ this._getBox('imgInfoLink') }<br>
 				${ this._getSel('resizeImgs') }<br>
@@ -663,7 +663,7 @@ const CfgWindow = {
 				${ this._getInp('minWebmWidth') }
 			</div>
 			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
-			${ nav.isPresto || aib.fch ? '' : `<div class="de-cfg-depend">
+			${ nav.isPresto || aib.fch ? '' : `<div class="de-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
 			${ this._getSel('openImgs') }<br>
@@ -677,12 +677,12 @@ const CfgWindow = {
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
 			${ this._getBox('linksNavig') }
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
 				${ this._getBox('markViewed') }<br>
 				${ this._getBox('strikeHidd') }
-				<div class="de-cfg-depend">${ this._getBox('removeHidd') }</div>
+				<div class="de-depend">${ this._getBox('removeHidd') }</div>
 				${ this._getBox('noNavigHidd') }
 			</div>
 			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '' }
@@ -696,7 +696,7 @@ const CfgWindow = {
 				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
 			${ this._getSel('embedYTube') }
-			<div class="de-cfg-depend">
+			<div class="de-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
 				${ this._getBox('YTubeTitles') }<br>
@@ -710,7 +710,7 @@ const CfgWindow = {
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
 			${ this._getBox('ajaxPosting') }<br>
-			${ pr.form ? `<div class="de-cfg-depend">
+			${ pr.form ? `<div class="de-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }<br>
 				${ this._getSel('removeFName') }<br>
@@ -755,7 +755,7 @@ const CfgWindow = {
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
-			<div class="de-cfg-depend">${ this._getInp('loadPages') }</div>
+			<div class="de-depend">${ this._getInp('loadPages') }</div>
 			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
 				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
 				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }

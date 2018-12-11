@@ -161,8 +161,29 @@ async function readCfg() {
 		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
 		delete Cfg.addYouTube;
 	}
-	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
+	if(val.commit !== commit && !localData) {
+		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
+			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
+			'<span class="de-list de-depend">WMZ &ndash; ' +
+			'<i style="font-family: monospace;">Z100197626370</i></span><br>' +
+			'<span class="de-list de-depend">WMR &ndash; ' +
+			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
+			'<span class="de-list de-depend">WMU &ndash; ' +
+			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
+			'<b><i>Yandex.Money</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
+			'<i>410012122418236</i></span><br>' +
+			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
+			'<i>sthephan.shi@gmail.com</i></span></div>';
+		if(doc.readyState === 'loading') {
+			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
+		} else {
+			$popup('donate', donateMsg);
+		}
+		val.commit = commit;
+	}
+	setStored('DESU_Config', JSON.stringify(val));
 	if(Cfg.updDollchan && !localData) {
 		checkForUpdates(false, val.lastUpd).then(html => {
 			if(doc.readyState === 'loading') {
