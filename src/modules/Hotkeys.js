@@ -247,8 +247,8 @@ const HotKeys = {
 			}
 			}
 		}
-		e.stopPropagation();
 		$pd(e);
+		e.stopPropagation();
 	},
 	pauseHotKeys() {
 		this._paused = true;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'fa76e2f';
+const commit = 'e8a38de';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5524,8 +5524,8 @@ const HotKeys = {
 			}
 			}
 		}
-		e.stopPropagation();
 		$pd(e);
+		e.stopPropagation();
 	},
 	pauseHotKeys() {
 		this._paused = true;
@@ -8713,6 +8713,16 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
+			if(aib.mak && !Cfg.altCaptcha) {
+				if(!this.subm.hasAttribute('de-captcha-wait')) {
+					$pd(e);
+					$popup('upload', 'reCaptcha...', true);
+					this.subm.setAttribute('de-captcha-wait', true);
+					this.refreshCap();
+					return;
+				}
+				this.subm.removeAttribute('de-captcha-wait');
+			}
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$popup('upload', Lng.subjHasTrip[lang]);
@@ -8845,9 +8855,7 @@ class PostForm {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
-		).onclick = e => {
-			e.stopPropagation();
-			$pd(e);
+		).onclick = () => {
 			toggleCfg('sageReply');
 			this._setSage();
 		};
@@ -9528,8 +9536,8 @@ class FileInput {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 			return;
 		case 'dragenter':
 			if(isThumb) {
@@ -9559,8 +9567,8 @@ class FileInput {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
 			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 		}
 		}
 	}
@@ -15356,32 +15364,30 @@ function getImageBoard(checkDomains, checkEngines) {
 					data = JSON.parse(data);
 				} catch(err) {}
 				switch(data.result) {
-				case 0:
-					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
-					break;
-				case 2:
-					box.textContent = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
-					break;
+				case 0: box.innerHTML = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
-						$q('.captcha-key, .captcha__key').value = data.id;
-						if(!$id('captcha-widget').hasChildNodes()) {
-							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
-									sitekey : '${ data.id }',
-									theme   : 'light',
-									size    : 'invisible',
-									callback: function() {
-										var el = document.getElementById('captcha-widget-main');
-										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-										el.firstChild.value = grecaptcha.getResponse();
-									}
-								});
-								grecaptcha.execute(deCapWidget);`);
-						} else {
-							$script(`grecaptcha.reset(deCapWidget);
-								grecaptcha.execute(deCapWidget);`);
+						if(!pr.subm.hasAttribute('de-captcha-wait')) {
+							break;
 						}
+						$q('.captcha-key, .captcha__key').value = data.id;
+						$script($id('captcha-widget').hasChildNodes() ?
+							`grecaptcha.reset(deCapWidget);
+							grecaptcha.execute(deCapWidget);` :
+							`deCapWidget = grecaptcha.render('captcha-widget', {
+								sitekey : '${ data.id }',
+								theme   : 'light',
+								size    : 'invisible',
+								callback: function() {
+									var el = document.getElementById('captcha-widget-main');
+									el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
+									el.firstChild.value = grecaptcha.getResponse();
+									document.getElementById('submit').click();
+								}
+							});
+							grecaptcha.execute(deCapWidget);`);
 						break;
 					} else if(data.type === '2chaptcha') {
 						const img = box.firstChild;

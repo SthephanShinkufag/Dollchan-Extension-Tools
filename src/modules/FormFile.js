@@ -218,8 +218,8 @@ class FileInput {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 			return;
 		case 'dragenter':
 			if(isThumb) {
@@ -249,8 +249,8 @@ class FileInput {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
 			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 		}
 		}
 	}

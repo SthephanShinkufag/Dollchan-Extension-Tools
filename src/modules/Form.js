@@ -380,6 +380,16 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
+			if(aib.mak && !Cfg.altCaptcha) {
+				if(!this.subm.hasAttribute('de-captcha-wait')) {
+					$pd(e);
+					$popup('upload', 'reCaptcha...', true);
+					this.subm.setAttribute('de-captcha-wait', true);
+					this.refreshCap();
+					return;
+				}
+				this.subm.removeAttribute('de-captcha-wait');
+			}
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$popup('upload', Lng.subjHasTrip[lang]);
@@ -512,9 +522,7 @@ class PostForm {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
-		).onclick = e => {
-			e.stopPropagation();
-			$pd(e);
+		).onclick = () => {
 			toggleCfg('sageReply');
 			this._setSage();
 		};

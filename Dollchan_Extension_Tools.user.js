@@ -3831,7 +3831,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = 'fa76e2f';
+	var commit = 'e8a38de';
 
 
 	var defaultCfg = {
@@ -8592,8 +8592,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 				}
 			}
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 		},
 		pauseHotKeys: function pauseHotKeys() {
 			this._paused = true;
@@ -12602,6 +12602,16 @@ true, true];
 				var _this29 = this;
 
 				this.subm.addEventListener('click', function (e) {
+					if (aib.mak && !Cfg.altCaptcha) {
+						if (!_this29.subm.hasAttribute('de-captcha-wait')) {
+							$pd(e);
+							$popup('upload', 'reCaptcha...', true);
+							_this29.subm.setAttribute('de-captcha-wait', true);
+							_this29.refreshCap();
+							return;
+						}
+						_this29.subm.removeAttribute('de-captcha-wait');
+					}
 					if (Cfg.warnSubjTrip && _this29.subj && /#.|##./.test(_this29.subj.value)) {
 						$pd(e);
 						$popup('upload', Lng.subjHasTrip[lang]);
@@ -12764,9 +12774,7 @@ true, true];
 				var _this32 = this;
 
 				PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-				$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg></span>').onclick = function (e) {
-					e.stopPropagation();
-					$pd(e);
+				$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg></span>').onclick = function () {
 					toggleCfg('sageReply');
 					_this32._setSage();
 				};
@@ -13535,8 +13543,8 @@ true, true];
 							this._input.click();
 							this._txtInput.blur();
 						}
-						e.stopPropagation();
 						$pd(e);
+						e.stopPropagation();
 						return;
 					case 'dragenter':
 						if (isThumb) {
@@ -13569,8 +13577,8 @@ true, true];
 							setTimeout(function () {
 								return thumb.classList.remove('de-file-drag');
 							}, 10);
-							e.stopPropagation();
 							$pd(e);
+							e.stopPropagation();
 						}
 				}
 			}
@@ -20534,21 +20542,18 @@ true, true];
 						} catch (err) {}
 						switch (data.result) {
 							case 0:
-								box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
-								break;
+								box.innerHTML = 'Пасскод недействителен. Перелогиньтесь.';break;
 							case 2:
-								box.textContent = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
-								break;
+								box.textContent = 'Вы - пасскодобоярин.';break;
 							case 3:
 								return CancelablePromise.reject(); 
 							case 1:
 								if (data.type === 'invisible_recaptcha') {
-									$q('.captcha-key, .captcha__key').value = data.id;
-									if (!$id('captcha-widget').hasChildNodes()) {
-										$script('deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
-									} else {
-										$script('grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
+									if (!pr.subm.hasAttribute('de-captcha-wait')) {
+										break;
 									}
+									$q('.captcha-key, .captcha__key').value = data.id;
+									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									break;
 								} else if (data.type === '2chaptcha') {
 									var img = box.firstChild;
