@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'fa76e2f';
+const commit = '6b3a685';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2597,19 +2597,15 @@ async function readCfg() {
 	}
 	lang = Cfg.language;
 	if(val.commit !== commit && !localData) {
+		const font = ' style="font: 13px monospace; color: green;"';
 		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
 			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
-			'<span class="de-list de-depend">WMZ &ndash; ' +
-			'<i style="font-family: monospace;">Z100197626370</i></span><br>' +
-			'<span class="de-list de-depend">WMR &ndash; ' +
-			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
-			'<span class="de-list de-depend">WMU &ndash; ' +
-			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
-			'<b><i>Yandex.Money</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
-			'<i>410012122418236</i></span><br>' +
-			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
-			'<i>sthephan.shi@gmail.com</i></span></div>';
+			'<div style="display: inline-block;"><b><i>PayPal</i></b><br>' +
+			`<span class="de-list de-depend"><i${ font }>sthephan.shi@gmail.com</i></span><br>` +
+			'<b><i>WebMoney</i></b><br>' +
+			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
+			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
+			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
 		} else {
@@ -5524,8 +5520,8 @@ const HotKeys = {
 			}
 			}
 		}
-		e.stopPropagation();
 		$pd(e);
+		e.stopPropagation();
 	},
 	pauseHotKeys() {
 		this._paused = true;
@@ -8713,6 +8709,16 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
+			if(aib.mak && !Cfg.altCaptcha) {
+				if(!this.subm.hasAttribute('de-captcha-wait')) {
+					$pd(e);
+					$popup('upload', 'reCaptcha...', true);
+					this.subm.setAttribute('de-captcha-wait', true);
+					this.refreshCap();
+					return;
+				}
+				this.subm.removeAttribute('de-captcha-wait');
+			}
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$popup('upload', Lng.subjHasTrip[lang]);
@@ -8845,9 +8851,7 @@ class PostForm {
 		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
 		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
-		).onclick = e => {
-			e.stopPropagation();
-			$pd(e);
+		).onclick = () => {
 			toggleCfg('sageReply');
 			this._setSage();
 		};
@@ -9528,8 +9532,8 @@ class FileInput {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 			return;
 		case 'dragenter':
 			if(isThumb) {
@@ -9559,8 +9563,8 @@ class FileInput {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
 			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
-			e.stopPropagation();
 			$pd(e);
+			e.stopPropagation();
 		}
 		}
 	}
@@ -15356,32 +15360,30 @@ function getImageBoard(checkDomains, checkEngines) {
 					data = JSON.parse(data);
 				} catch(err) {}
 				switch(data.result) {
-				case 0:
-					box.innerHTML = 'Пасс-код не действителен. <a href="#" id="renew-pass-btn">Обновить</a>';
-					break;
-				case 2:
-					box.textContent = 'Вам не нужно вводить капчу, у вас введен пасс-код.';
-					break;
+				case 0: box.innerHTML = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
-						$q('.captcha-key, .captcha__key').value = data.id;
-						if(!$id('captcha-widget').hasChildNodes()) {
-							$script(`deCapWidget = grecaptcha.render('captcha-widget', {
-									sitekey : '${ data.id }',
-									theme   : 'light',
-									size    : 'invisible',
-									callback: function() {
-										var el = document.getElementById('captcha-widget-main');
-										el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-										el.firstChild.value = grecaptcha.getResponse();
-									}
-								});
-								grecaptcha.execute(deCapWidget);`);
-						} else {
-							$script(`grecaptcha.reset(deCapWidget);
-								grecaptcha.execute(deCapWidget);`);
+						if(!pr.subm.hasAttribute('de-captcha-wait')) {
+							break;
 						}
+						$q('.captcha-key, .captcha__key').value = data.id;
+						$script($id('captcha-widget').hasChildNodes() ?
+							`grecaptcha.reset(deCapWidget);
+							grecaptcha.execute(deCapWidget);` :
+							`deCapWidget = grecaptcha.render('captcha-widget', {
+								sitekey : '${ data.id }',
+								theme   : 'light',
+								size    : 'invisible',
+								callback: function() {
+									var el = document.getElementById('captcha-widget-main');
+									el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
+									el.firstChild.value = grecaptcha.getResponse();
+									document.getElementById('submit').click();
+								}
+							});
+							grecaptcha.execute(deCapWidget);`);
 						break;
 					} else if(data.type === '2chaptcha') {
 						const img = box.firstChild;
@@ -17725,8 +17727,8 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 75px 0 0px 0px; }
-	.de-logo > svg { width: 132px; height: 132px; }
+	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 60px 0 0px 0px; }
+	.de-logo > svg { width: 96px; height: 96px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'd5bffad';
+const commit = '6b3a685';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2597,17 +2597,15 @@ async function readCfg() {
 	}
 	lang = Cfg.language;
 	if(val.commit !== commit && !localData) {
+		const font = ' style="font: 13px monospace; color: green;"';
 		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
 			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
-			'<span class="de-list de-depend">WMZ &ndash; ' +
-			'<i style="font-family: monospace;">Z100197626370</i></span><br>' +
-			'<span class="de-list de-depend">WMR &ndash; ' +
-			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
-			'<span class="de-list de-depend">WMU &ndash; ' +
-			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
-			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
-			'<i>sthephan.shi@gmail.com</i></span></div>';
+			'<div style="display: inline-block;"><b><i>PayPal</i></b><br>' +
+			`<span class="de-list de-depend"><i${ font }>sthephan.shi@gmail.com</i></span><br>` +
+			'<b><i>WebMoney</i></b><br>' +
+			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
+			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
+			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
 		} else {

@@ -3259,7 +3259,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var readCfg = function () {
 		var _ref3 = _asyncToGenerator( regeneratorRuntime.mark(function _callee3() {
-			var obj, val, hasGlobal, donateMsg;
+			var obj, val, hasGlobal, font, donateMsg;
 			return regeneratorRuntime.wrap(function _callee3$(_context4) {
 				while (1) {
 					switch (_context4.prev = _context4.next) {
@@ -3330,7 +3330,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							lang = Cfg.language;
 							if (val.commit !== commit && !localData) {
-								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + '<span class="de-list de-depend">WMZ &ndash; ' + '<i style="font-family: monospace;">Z100197626370</i></span><br>' + '<span class="de-list de-depend">WMR &ndash; ' + '<i style="font-family: monospace;">R266614957054</i></span><br>' + '<span class="de-list de-depend">WMU &ndash; ' + '<i style="font-family: monospace;">U142375546253</i></span><br>' + '<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' + '<i>sthephan.shi@gmail.com</i></span></div>';
+								font = ' style="font: 13px monospace; color: green;"';
+								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>PayPal</i></b><br>' + ('<span class="de-list de-depend"><i' + font + '>sthephan.shi@gmail.com</i></span><br>') + '<b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span></div>');
 
 								if (doc.readyState === 'loading') {
 									doc.addEventListener('DOMContentLoaded', function () {
@@ -3831,7 +3832,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = 'd5bffad';
+	var commit = '6b3a685';
 
 
 	var defaultCfg = {
