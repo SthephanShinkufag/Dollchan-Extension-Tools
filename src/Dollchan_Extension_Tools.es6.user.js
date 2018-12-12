@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = 'e8a38de';
+const commit = 'd5bffad';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2606,8 +2606,6 @@ async function readCfg() {
 			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
 			'<span class="de-list de-depend">WMU &ndash; ' +
 			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
-			'<b><i>Yandex.Money</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
-			'<i>410012122418236</i></span><br>' +
 			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
 			'<i>sthephan.shi@gmail.com</i></span></div>';
 		if(doc.readyState === 'loading') {
@@ -17731,8 +17729,8 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 75px 0 0px 0px; }
-	.de-logo > svg { width: 132px; height: 132px; }
+	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 60px 0 0px 0px; }
+	.de-logo > svg { width: 96px; height: 96px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

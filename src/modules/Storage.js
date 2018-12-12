@@ -172,8 +172,6 @@ async function readCfg() {
 			'<i style="font-family: monospace;">R266614957054</i></span><br>' +
 			'<span class="de-list de-depend">WMU &ndash; ' +
 			'<i style="font-family: monospace;">U142375546253</i></span><br>' +
-			'<b><i>Yandex.Money</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
-			'<i>410012122418236</i></span><br>' +
 			'<b><i>PayPal</i></b><br><span class="de-list de-depend" style="font-family: monospace;">' +
 			'<i>sthephan.shi@gmail.com</i></span></div>';
 		if(doc.readyState === 'loading') {
