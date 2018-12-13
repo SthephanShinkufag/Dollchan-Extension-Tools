@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '447224b';
+const commit = '5a9e292';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6429,9 +6429,11 @@ class Videos {
 				linkEl.videoInfo[1] }/0.jpg">`);
 		}
 		const cr = linkEl.getBoundingClientRect();
+		const pvHeight = Cfg.YTubeHeigh;
+		const isTop = cr.top + cr.height + pvHeight < nav.viewportHeight();
 		el.style.cssText = `position: absolute; left: ${ deWindow.pageXOffset + cr.left }px; top: ${
-			deWindow.pageYOffset + cr.top + linkEl.offsetHeight }px; width: ${ Cfg.YTubeWidth }px; height: ${
-			Cfg.YTubeHeight }px;`;
+			deWindow.pageYOffset + (isTop ? cr.top + cr.height : cr.top - pvHeight) }px; width: ${
+			Cfg.YTubeWidth }px; height: ${ pvHeight }px;`;
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();

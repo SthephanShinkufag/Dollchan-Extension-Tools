@@ -9571,7 +9571,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					el = $bEnd(docBody, '<img id="de-video-thumb-floated" src="https://i.ytimg.com/vi/' + linkEl.videoInfo[1] + '/0.jpg">');
 				}
 				var cr = linkEl.getBoundingClientRect();
-				el.style.cssText = 'position: absolute; left: ' + (deWindow.pageXOffset + cr.left) + 'px; top: ' + (deWindow.pageYOffset + cr.top + linkEl.offsetHeight) + 'px; width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeight + 'px;';
+				var pvHeight = Cfg.YTubeHeigh;
+				var isTop = cr.top + cr.height + pvHeight < nav.viewportHeight();
+				el.style.cssText = 'position: absolute; left: ' + (deWindow.pageXOffset + cr.left) + 'px; top: ' + (deWindow.pageYOffset + (isTop ? cr.top + cr.height : cr.top - pvHeight)) + 'px; width: ' + Cfg.YTubeWidth + 'px; height: ' + pvHeight + 'px;';
 			}
 		}, {
 			key: 'updatePost',
