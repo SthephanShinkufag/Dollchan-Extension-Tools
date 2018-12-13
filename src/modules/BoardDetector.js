@@ -853,6 +853,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this._02ch = true;
 
 			this.hasCatalog = true;
 

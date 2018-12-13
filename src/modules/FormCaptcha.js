@@ -9,7 +9,7 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
-		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+		this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);

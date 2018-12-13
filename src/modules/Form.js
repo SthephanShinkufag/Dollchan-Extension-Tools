@@ -350,7 +350,7 @@ class PostForm {
 	_initCaptcha() {
 		const capEl =
 			$q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
-		if(!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
+		if(!capEl) {
 			this.cap = null;
 			return;
 		}

@@ -173,7 +173,7 @@ async function readCfg() {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
 		} else {
-			$popup('donate', donateMsg);
+			setTimeout(() => $popup('donate', donateMsg), 200);
 		}
 		val.commit = commit;
 	}

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '6b3a685';
+const commit = '17bc323';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2600,16 +2600,14 @@ async function readCfg() {
 		const font = ' style="font: 13px monospace; color: green;"';
 		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
 			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>PayPal</i></b><br>' +
-			`<span class="de-list de-depend"><i${ font }>sthephan.shi@gmail.com</i></span><br>` +
-			'<b><i>WebMoney</i></b><br>' +
+			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
 			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
 		} else {
-			$popup('donate', donateMsg);
+			setTimeout(() => $popup('donate', donateMsg), 200);
 		}
 		val.commit = commit;
 	}
@@ -8679,7 +8677,7 @@ class PostForm {
 	_initCaptcha() {
 		const capEl =
 			$q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
-		if(!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
+		if(!capEl) {
 			this.cap = null;
 			return;
 		}
@@ -9789,7 +9787,7 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
-		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+		this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);
@@ -15976,6 +15974,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this._02ch = true;
 
 			this.hasCatalog = true;
 
@@ -17727,8 +17726,8 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 60px 0 0px 0px; }
-	.de-logo > svg { width: 96px; height: 96px; }
+	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 40px 0 0 0; }
+	.de-logo > svg { width: 64px; height: 64px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

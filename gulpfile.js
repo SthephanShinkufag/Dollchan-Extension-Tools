@@ -54,9 +54,14 @@ gulp.task('make:es6', gulp.series('updatecommit', () =>
 	}))
 ));
 
+// Copy es6 script from src/ to extension/ folder
+gulp.task('copyext', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
+	.pipe(gulp.dest('extension/')));
+
 // Makes es5-script from es6-script
 gulp.task('make:es5', gulp.series(
 	'make:es6',
+	'copyext',
 	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform('babelify', { presets: ['env'] })
 		.bundle()

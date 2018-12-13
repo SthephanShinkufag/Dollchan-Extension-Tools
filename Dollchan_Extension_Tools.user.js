@@ -3338,7 +3338,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										return $popup('donate', donateMsg);
 									});
 								} else {
-									$popup('donate', donateMsg);
+									setTimeout(function () {
+										return $popup('donate', donateMsg);
+									}, 200);
 								}
 								val.commit = commit;
 							}
@@ -3832,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = '17bc323';
+	var commit = '8d37f03';
 
 
 	var defaultCfg = {
@@ -12561,7 +12563,7 @@ true, true];
 				var _this27 = this;
 
 				var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
-				if (!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
+				if (!capEl) {
 					this.cap = null;
 					return;
 				}
@@ -13849,7 +13851,7 @@ true, true];
 			this.tNum = initNum;
 			this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 			this.isAdded = false;
-			this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+			this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 			this._lastUpdate = null;
 			this.originHTML = this.parentEl.innerHTML;
 			$hide(this.parentEl);
@@ -21531,6 +21533,8 @@ true, true];
 				_classCallCheck(this, _02ch);
 
 				var _this89 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
+
+				_this89._02ch = true;
 
 				_this89.hasCatalog = true;
 

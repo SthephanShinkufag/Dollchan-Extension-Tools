@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '17bc323';
+const commit = '8d37f03';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2607,7 +2607,7 @@ async function readCfg() {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
 		} else {
-			$popup('donate', donateMsg);
+			setTimeout(() => $popup('donate', donateMsg), 200);
 		}
 		val.commit = commit;
 	}
@@ -8677,7 +8677,7 @@ class PostForm {
 	_initCaptcha() {
 		const capEl =
 			$q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
-		if(!capEl || aib.fch && doc.cookie.includes('pass_enabled')) {
+		if(!capEl) {
 			this.cap = null;
 			return;
 		}
@@ -9787,7 +9787,7 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
-		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+		this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);
@@ -15974,6 +15974,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this._02ch = true;
 
 			this.hasCatalog = true;
 
