@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = '447224b';
+	var commit = '21f8888';
 
 
 	var defaultCfg = {
@@ -20886,7 +20886,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],\n\t\t\t\t\t.post-btn, small { display: none !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.boardlist { position: static !important; }\n\t\t\t\t.fileinfo { width: 240px; }\n\t\t\t\t.multifile { width: auto !important; }';
+					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],\n\t\t\t\t\t.post-btn, small { display: none !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.boardlist { z-index: 1 !important; }\n\t\t\t\t.fileinfo { width: 240px; }\n\t\t\t\t.multifile { width: auto !important; }';
 				}
 			}]);
 
@@ -21782,7 +21782,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { position: static; }';
+					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { z-index: 1; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -22751,7 +22751,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '\n\t\t\t\t.sidearrows { display: none !important; }\n\t\t\t\t.bar { position: static; }\n\t\t\t\t' + (Cfg.imgNames === 1 ? '.details > a { display: none; }' : '');
+					return _get(Lainchan.prototype.__proto__ || Object.getPrototypeOf(Lainchan.prototype), 'css', this) + '\n\t\t\t\t.sidearrows { display: none !important; }\n\t\t\t\t.bar { z-index: 1; }\n\t\t\t\t' + (Cfg.imgNames === 1 ? '.details > a { display: none; }' : '');
 				}
 			}]);
 

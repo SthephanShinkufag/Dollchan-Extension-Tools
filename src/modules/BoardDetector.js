@@ -430,7 +430,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
 					.post-btn, small { display: none !important; }
 				body { padding: 0 5px !important; }
-				.boardlist { position: static !important; }
+				.boardlist { z-index: 1 !important; }
 				.fileinfo { width: 240px; }
 				.multifile { width: auto !important; }`;
 		}
@@ -1002,7 +1002,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				body { margin: 0 }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
-				.topmenu { position: static; }`;
+				.topmenu { z-index: 1; }`;
 		}
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
@@ -1690,7 +1690,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				.sidearrows { display: none !important; }
-				.bar { position: static; }
+				.bar { z-index: 1; }
 				${ Cfg.imgNames === 1 ? '.details > a { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
