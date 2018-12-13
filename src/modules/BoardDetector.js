@@ -593,8 +593,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			const str = '><input name="files" type="file"></div>';
+			const maxEl = $id('labelMaxFiles');
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
+				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
 		}
 		getCapParent(el) {
 			return $id('captchaDiv');
@@ -1556,6 +1557,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+
 			this.cReply = 'post';
 			this.qError = '.error > .info';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
@@ -1701,6 +1703,74 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
+
+	class Mewch extends Lynxchan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post';
+			this.qDForm = '.board-container';
+			this.qFormFile = 'tr input[type="file"], .dropzone-container';
+			this.qFormRules = '.message-info';
+			this.qFormSubm = '.submit-button';
+			this.qImgInfo = '.post-attachment-info';
+			this.qOmitted = '.omitted-info';
+			this.qOPost = '.op';
+			this.qPages = '.page-links > a:nth-last-of-type(2)';
+			this.qPostHeader = '.post-info';
+			this.qPostMsg = '.post-content';
+			this.qPostRef = '.post-link-reply';
+			this.qRPost = '.post:not(.op)';
+		}
+		get qImgNameLink() {
+			return '.post-attachment-info > li > a';
+		}
+		get qThread() {
+			return '.thread-container';
+		}
+		get css() {
+			return `${ super.css }
+				.auto-refresh, .board-header > a, .hovering, .post-form-container, .post-form-header,
+					.post-info > .quoteLink { display: none !important; }
+				#extra-options { display: none; }
+				#extra-options:checked + .form-extra-options { max-height: 21rem; }
+				.form-extra-options th { padding: 0 5px; font-size: 12px; }
+				header { z-index: 1; }
+				.oekaki-width, .oekaki-height { width: 50px; }
+				.post-attachment-info li:first-child a:hover { max-width: 80%; }
+				.post-form { width: auto; }
+				.start-oekaki { padding: 3px; }
+				.submit-button { display: inline-block; }`;
+		}
+		getCapParent(el) {
+			return $qParent(el, this.qFormTr);
+		}
+		getImgRealName(wrap) {
+			return $q(this.qImgNameLink, wrap).textContent;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPNum(post) {
+			return +$q('.multiaction-checkbox', post).name.split('-')[2];
+		}
+		getTNum(op) {
+			return +$q('.multiaction-checkbox', op).name.split('-')[1];
+		}
+		init() {
+			setTimeout(() => {
+				const inpEl = $q('.auto-refresh-checkbox');
+				if(inpEl && inpEl.checked) {
+					inpEl.click();
+				}
+			}, 200);
+			const el = $q('.post-form-fields');
+			$after(el.parentNode, el);
+			$before($q('.form-extra-options'), $id('extra-options'));
+			return false;
+		}
+	}
+	ibDomains['mewch.net'] = Mewch;
 
 	class Niuchan extends Kusaba {
 		get css() {

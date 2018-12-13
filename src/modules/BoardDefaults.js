@@ -236,7 +236,7 @@ class BaseBoard {
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) { // Lynxchan
+	getCapParent(el) {
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {

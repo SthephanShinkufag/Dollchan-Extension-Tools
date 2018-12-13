@@ -61,7 +61,6 @@ gulp.task('copyext', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
 // Makes es5-script from es6-script
 gulp.task('make:es5', gulp.series(
 	'make:es6',
-	'copyext',
 	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
 		.transform('babelify', { presets: ['env'] })
 		.bundle()
@@ -71,7 +70,8 @@ gulp.task('make:es5', gulp.series(
 			'/* eslint-disable */\n(function deMainFuncOuter(localData) {\n',
 			'})(null);')))
 		.pipe(streamify(headerfooter.header('Dollchan_Extension_Tools.meta.js')))
-		.pipe(gulp.dest('.'))
+		.pipe(gulp.dest('.')),
+	'copyext'
 ));
 
 gulp.task('make', gulp.series('make:es5'));

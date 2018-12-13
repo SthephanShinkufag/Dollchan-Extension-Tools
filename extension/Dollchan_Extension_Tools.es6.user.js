@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.11.25.0';
-const commit = '17bc323';
+const commit = '447224b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12244,7 +12244,7 @@ class AttachedImage extends ExpandableImage {
 	}
 	_getImageSize() {
 		if(this.info) {
-			const size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+			const size = this.info.match(/(?:[\s(]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 			return size ? [size[1], size[2]] : null;
 		}
 		return null;
@@ -15010,7 +15010,7 @@ class BaseBoard {
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
-	getCapParent(el) { // Lynxchan
+	getCapParent(el) {
 		return $qParent(el, this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
@@ -15714,8 +15714,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			const str = '><input name="files" type="file"></div>';
+			const maxEl = $id('labelMaxFiles');
 			el.innerHTML = '<div' + str +
-				('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
+				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
 		}
 		getCapParent(el) {
 			return $id('captchaDiv');
@@ -16677,6 +16678,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+
 			this.cReply = 'post';
 			this.qError = '.error > .info';
 			this.qFormRedir = 'input[name="gb2"][value="thread"]';
@@ -16822,6 +16824,74 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
+
+	class Mewch extends Lynxchan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post';
+			this.qDForm = '.board-container';
+			this.qFormFile = 'tr input[type="file"], .dropzone-container';
+			this.qFormRules = '.message-info';
+			this.qFormSubm = '.submit-button';
+			this.qImgInfo = '.post-attachment-info';
+			this.qOmitted = '.omitted-info';
+			this.qOPost = '.op';
+			this.qPages = '.page-links > a:nth-last-of-type(2)';
+			this.qPostHeader = '.post-info';
+			this.qPostMsg = '.post-content';
+			this.qPostRef = '.post-link-reply';
+			this.qRPost = '.post:not(.op)';
+		}
+		get qImgNameLink() {
+			return '.post-attachment-info > li > a';
+		}
+		get qThread() {
+			return '.thread-container';
+		}
+		get css() {
+			return `${ super.css }
+				.auto-refresh, .board-header > a, .hovering, .post-form-container, .post-form-header,
+					.post-info > .quoteLink { display: none !important; }
+				#extra-options { display: none; }
+				#extra-options:checked + .form-extra-options { max-height: 21rem; }
+				.form-extra-options th { padding: 0 5px; font-size: 12px; }
+				header { z-index: 1; }
+				.oekaki-width, .oekaki-height { width: 50px; }
+				.post-attachment-info li:first-child a:hover { max-width: 80%; }
+				.post-form { width: auto; }
+				.start-oekaki { padding: 3px; }
+				.submit-button { display: inline-block; }`;
+		}
+		getCapParent(el) {
+			return $qParent(el, this.qFormTr);
+		}
+		getImgRealName(wrap) {
+			return $q(this.qImgNameLink, wrap).textContent;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPNum(post) {
+			return +$q('.multiaction-checkbox', post).name.split('-')[2];
+		}
+		getTNum(op) {
+			return +$q('.multiaction-checkbox', op).name.split('-')[1];
+		}
+		init() {
+			setTimeout(() => {
+				const inpEl = $q('.auto-refresh-checkbox');
+				if(inpEl && inpEl.checked) {
+					inpEl.click();
+				}
+			}, 200);
+			const el = $q('.post-form-fields');
+			$after(el.parentNode, el);
+			$before($q('.form-extra-options'), $id('extra-options'));
+			return false;
+		}
+	}
+	ibDomains['mewch.net'] = Mewch;
 
 	class Niuchan extends Kusaba {
 		get css() {
@@ -17481,7 +17551,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
-	input[type="text"].de-cfg-inptxt { width: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }

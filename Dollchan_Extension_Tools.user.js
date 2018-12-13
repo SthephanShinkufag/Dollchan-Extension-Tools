@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.11.25.0';
-	var commit = '8d37f03';
+	var commit = '447224b';
 
 
 	var defaultCfg = {
@@ -16794,7 +16794,7 @@ true, true];
 			key: '_getImageSize',
 			value: function _getImageSize() {
 				if (this.info) {
-					var size = this.info.match(/(?:[\s]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
+					var size = this.info.match(/(?:[\s(]|^)(\d+)\s?[x\u00D7]\s?(\d+)(?:[)\s,]|$)/);
 					return size ? [size[1], size[2]] : null;
 				}
 				return null;
@@ -21056,7 +21056,8 @@ true, true];
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					var str = '><input name="files" type="file"></div>';
-					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(+($id('labelMaxFiles') || 3).textContent - 1);
+					var maxEl = $id('labelMaxFiles');
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
 				}
 			}, {
 				key: 'getCapParent',
@@ -22757,6 +22758,91 @@ true, true];
 
 		ibDomains['lainchan.org'] = Lainchan;
 
+		var Mewch = function (_Lynxchan2) {
+			_inherits(Mewch, _Lynxchan2);
+
+			function Mewch(prot, dm) {
+				_classCallCheck(this, Mewch);
+
+				var _this111 = _possibleConstructorReturn(this, (Mewch.__proto__ || Object.getPrototypeOf(Mewch)).call(this, prot, dm));
+
+				_this111.cReply = 'post';
+				_this111.qDForm = '.board-container';
+				_this111.qFormFile = 'tr input[type="file"], .dropzone-container';
+				_this111.qFormRules = '.message-info';
+				_this111.qFormSubm = '.submit-button';
+				_this111.qImgInfo = '.post-attachment-info';
+				_this111.qOmitted = '.omitted-info';
+				_this111.qOPost = '.op';
+				_this111.qPages = '.page-links > a:nth-last-of-type(2)';
+				_this111.qPostHeader = '.post-info';
+				_this111.qPostMsg = '.post-content';
+				_this111.qPostRef = '.post-link-reply';
+				_this111.qRPost = '.post:not(.op)';
+				return _this111;
+			}
+
+			_createClass(Mewch, [{
+				key: 'getCapParent',
+				value: function getCapParent(el) {
+					return $qParent(el, this.qFormTr);
+				}
+			}, {
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					return $q(this.qImgNameLink, wrap).textContent;
+				}
+			}, {
+				key: 'getImgWrap',
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode.parentNode;
+				}
+			}, {
+				key: 'getPNum',
+				value: function getPNum(post) {
+					return +$q('.multiaction-checkbox', post).name.split('-')[2];
+				}
+			}, {
+				key: 'getTNum',
+				value: function getTNum(op) {
+					return +$q('.multiaction-checkbox', op).name.split('-')[1];
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					setTimeout(function () {
+						var inpEl = $q('.auto-refresh-checkbox');
+						if (inpEl && inpEl.checked) {
+							inpEl.click();
+						}
+					}, 200);
+					var el = $q('.post-form-fields');
+					$after(el.parentNode, el);
+					$before($q('.form-extra-options'), $id('extra-options'));
+					return false;
+				}
+			}, {
+				key: 'qImgNameLink',
+				get: function get() {
+					return '.post-attachment-info > li > a';
+				}
+			}, {
+				key: 'qThread',
+				get: function get() {
+					return '.thread-container';
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return _get(Mewch.prototype.__proto__ || Object.getPrototypeOf(Mewch.prototype), 'css', this) + '\n\t\t\t\t.auto-refresh, .board-header > a, .hovering, .post-form-container, .post-form-header,\n\t\t\t\t\t.post-info > .quoteLink { display: none !important; }\n\t\t\t\t#extra-options { display: none; }\n\t\t\t\t#extra-options:checked + .form-extra-options { max-height: 21rem; }\n\t\t\t\t.form-extra-options th { padding: 0 5px; font-size: 12px; }\n\t\t\t\theader { z-index: 1; }\n\t\t\t\t.oekaki-width, .oekaki-height { width: 50px; }\n\t\t\t\t.post-attachment-info li:first-child a:hover { max-width: 80%; }\n\t\t\t\t.post-form { width: auto; }\n\t\t\t\t.start-oekaki { padding: 3px; }\n\t\t\t\t.submit-button { display: inline-block; }';
+				}
+			}]);
+
+			return Mewch;
+		}(Lynxchan);
+
+		ibDomains['mewch.net'] = Mewch;
+
 		var Niuchan = function (_Kusaba4) {
 			_inherits(Niuchan, _Kusaba4);
 
@@ -22811,15 +22897,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this113 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this114 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this113.qBan = 'font[color="#FF0000"]';
-				_this113.qImgInfo = '.filesize[style="display: inline;"]';
+				_this114.qBan = 'font[color="#FF0000"]';
+				_this114.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this113.formParent = 'replythread';
-				_this113.jsonSubmit = true;
-				_this113.multiFile = true;
-				return _this113;
+				_this114.formParent = 'replythread';
+				_this114.jsonSubmit = true;
+				_this114.multiFile = true;
+				return _this114;
 			}
 
 			_createClass(Ponyach, [{
@@ -22882,12 +22968,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this114 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this115 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this114.qOPost = '.opContainer';
+				_this115.qOPost = '.opContainer';
 
-				_this114.jsonSubmit = false;
-				return _this114;
+				_this115.jsonSubmit = false;
+				return _this115;
 			}
 
 			_createClass(Ponychan, [{
@@ -22922,13 +23008,13 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this115 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this116 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this115.qImgInfo = '.unimportant';
-				_this115.qPages = '.pagination';
+				_this116.qImgInfo = '.unimportant';
+				_this116.qPages = '.pagination';
 
-				_this115.markupBB = true;
-				return _this115;
+				_this116.markupBB = true;
+				return _this116;
 			}
 
 			_createClass(Synch, [{
@@ -22986,16 +23072,16 @@ true, true];
 			function Warosu(prot, dm) {
 				_classCallCheck(this, Warosu);
 
-				var _this116 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+				var _this117 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
 
-				_this116.qDForm = '.content';
-				_this116.qForm = '.subreply';
-				_this116.qPostRef = '.js';
-				_this116.qImgInfo = 'span';
-				_this116.qOPost = 'div[itemscope]';
+				_this117.qDForm = '.content';
+				_this117.qForm = '.subreply';
+				_this117.qPostRef = '.js';
+				_this117.qImgInfo = 'span';
+				_this117.qOPost = 'div[itemscope]';
 
-				_this116.res = 'thread/';
-				return _this116;
+				_this117.res = 'thread/';
+				return _this117;
 			}
 
 			_createClass(Warosu, [{
@@ -23059,7 +23145,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this117 = this;
+			var _this118 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -23072,7 +23158,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this117.hasListeners = true;
+					_this118.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -23254,7 +23340,7 @@ true, true];
 			return;
 		}
 
-		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
+		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
 		'#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }',
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',
