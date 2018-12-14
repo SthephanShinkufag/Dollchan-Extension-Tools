@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = 'bfbeb04';
+const commit = '2d5b742';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15197,7 +15197,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.mess-post { display: block; }
 				.message-sticker-btn, .message-sticker-preview, .postform__sticker-btn,
 					.postform__sticker-prev { bottom: ` +
-					`${ !Cfg.txtBtnsLoc || Cfg.txtBtnsLoc && !Cfg.addTextBtns ? 3 :
+					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.pager { display: inline-block !important; }
