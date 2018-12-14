@@ -304,7 +304,8 @@ const CfgWindow = {
 				pr.isBottom = Cfg.addPostForm === 1;
 				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
-			case 'addTextBtns': pr.addMarkupPanel(); break;
+			case 'addTextBtns': pr.addMarkupPanel();
+				/* falls through */
 			case 'scriptStyle':
 			case 'panelCounter': this._updateCSS();
 			}
