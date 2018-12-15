@@ -387,6 +387,7 @@ const CfgWindow = {
 				break;
 			case 'addSageBtn':
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
+				setTimeout(() => pr.toggleSage(), 0);
 				updateCSS();
 				break;
 			case 'altCaptcha': pr.cap.initCapPromise(); break;
@@ -854,6 +855,7 @@ const CfgWindow = {
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'select[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
+		fn(Cfg.addSageBtn, ['input[info="saveSage"]']);
 		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		fn(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},

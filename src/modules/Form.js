@@ -61,7 +61,8 @@ class PostForm {
 			this._initAjaxPosting();
 		}
 		if(Cfg.addSageBtn && this.mail) {
-			this._makeSageBtn();
+			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
+			setTimeout(() => this.toggleSage(), 0);
 		}
 		if(Cfg.noPassword && this.passw) {
 			$hide($qParent(this.passw, aib.qFormTr));
@@ -109,6 +110,16 @@ class PostForm {
 			return cr.bottom > 0 && cr.top < nav.viewportHeight();
 		}
 		return false;
+	}
+	get sageBtn() {
+		const value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg></span>');
+		value.onclick = () => {
+			toggleCfg('sageReply');
+			this.toggleSage();
+		};
+		Object.defineProperty(this, 'sageBtn', { value });
+		return value;
 	}
 	get top() {
 		return this.pForm.getBoundingClientRect().top;
@@ -299,6 +310,19 @@ class PostForm {
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
+	toggleSage() {
+		if(!Cfg.addSageBtn || !this.mail) {
+			return;
+		}
+		const isSage = Cfg.sageReply;
+		this.sageBtn.style.opacity = isSage ? '1' : '.3';
+		this.sageBtn.title = isSage ? 'SAGE!' : Lng.noSage[lang];
+		if(this.mail.type === 'text') {
+			this.mail.value = isSage ? 'sage' : aib.fch ? 'noko' : '';
+		} else {
+			this.mail.checked = isSage;
+		}
+	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
 		aib.updateSubmitBtn(this.subm);
@@ -409,7 +433,7 @@ class PostForm {
 				}
 			}
 			this.txta.value = val;
-			this._setSage();
+			this.toggleSage();
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}
@@ -518,16 +542,6 @@ class PostForm {
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	}
-	_makeSageBtn() {
-		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
-		).onclick = () => {
-			toggleCfg('sageReply');
-			this._setSage();
-		};
-		setTimeout(() => this._setSage(), 0);
-	}
 	_makeWindow() {
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 			<span class="de-win-title"></span>
@@ -553,7 +567,7 @@ class PostForm {
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
-			this._setSage();
+			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
@@ -574,17 +588,6 @@ class PostForm {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
 			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
-		}
-	}
-	_setSage() {
-		const el = $id('de-sagebtn');
-		const c = Cfg.sageReply;
-		el.style.opacity = c ? '1' : '.3';
-		el.title = c ? 'SAGE!' : Lng.noSage[lang];
-		if(this.mail.type === 'text') {
-			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
-		} else {
-			this.mail.checked = c;
 		}
 	}
 	_toggleQuickReply(tNum) {

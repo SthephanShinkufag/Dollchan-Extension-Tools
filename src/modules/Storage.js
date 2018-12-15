@@ -148,7 +148,7 @@ async function readCfg() {
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
 	}
-	if(!Cfg.saveSage) {
+	if(!Cfg.addSageBtn || !Cfg.saveSage) {
 		Cfg.sageReply = 0;
 	}
 	if(!Cfg.passwValue) {

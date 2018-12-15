@@ -86,7 +86,7 @@ const defaultCfg = {
 	favOnReply   : 1,    // add thread to favorites after reply
 	warnSubjTrip : 0,    // warn about a tripcode in "Subject" field
 	addSageBtn   : 1,    // replace "Email" with Sage button
-	saveSage     : 1,    // remember sage
+	saveSage     : 1,    //    remember sage
 	sageReply    : 0,    //    reply with sage
 	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)

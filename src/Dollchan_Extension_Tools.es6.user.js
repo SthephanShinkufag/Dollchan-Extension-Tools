@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = '86a24f1';
+const commit = '10ed4a3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -120,7 +120,7 @@ const defaultCfg = {
 	favOnReply   : 1,    // add thread to favorites after reply
 	warnSubjTrip : 0,    // warn about a tripcode in "Subject" field
 	addSageBtn   : 1,    // replace "Email" with Sage button
-	saveSage     : 1,    // remember sage
+	saveSage     : 1,    //    remember sage
 	sageReply    : 0,    //    reply with sage
 	altCaptcha   : 0,    // use alternative captcha (if available)
 	capUpdTime   : 300,  // captcha update interval (sec)
@@ -2582,7 +2582,7 @@ async function readCfg() {
 	if(Cfg.updThrDelay < 10) {
 		Cfg.updThrDelay = 10;
 	}
-	if(!Cfg.saveSage) {
+	if(!Cfg.addSageBtn || !Cfg.saveSage) {
 		Cfg.sageReply = 0;
 	}
 	if(!Cfg.passwValue) {
@@ -4580,6 +4580,7 @@ const CfgWindow = {
 				break;
 			case 'addSageBtn':
 				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
+				setTimeout(() => pr.toggleSage(), 0);
 				updateCSS();
 				break;
 			case 'altCaptcha': pr.cap.initCapPromise(); break;
@@ -5047,6 +5048,7 @@ const CfgWindow = {
 			'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'select[info="removeFName"]',
 			'input[info="sendErrNotif"]', 'input[info="scrAfterRep"]', 'select[info="fileInputs"]'
 		]);
+		fn(Cfg.addSageBtn, ['input[info="saveSage"]']);
 		fn(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
 		fn(Cfg.hotKeys, ['input[info="loadPages"]']);
 	},
@@ -8391,7 +8393,8 @@ class PostForm {
 			this._initAjaxPosting();
 		}
 		if(Cfg.addSageBtn && this.mail) {
-			this._makeSageBtn();
+			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
+			setTimeout(() => this.toggleSage(), 0);
 		}
 		if(Cfg.noPassword && this.passw) {
 			$hide($qParent(this.passw, aib.qFormTr));
@@ -8439,6 +8442,16 @@ class PostForm {
 			return cr.bottom > 0 && cr.top < nav.viewportHeight();
 		}
 		return false;
+	}
+	get sageBtn() {
+		const value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
+			'<use xlink:href="#de-symbol-post-sage"/></svg></span>');
+		value.onclick = () => {
+			toggleCfg('sageReply');
+			this.toggleSage();
+		};
+		Object.defineProperty(this, 'sageBtn', { value });
+		return value;
 	}
 	get top() {
 		return this.pForm.getBoundingClientRect().top;
@@ -8629,6 +8642,19 @@ class PostForm {
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
 		this.lastQuickPNum = pNum;
 	}
+	toggleSage() {
+		if(!Cfg.addSageBtn || !this.mail) {
+			return;
+		}
+		const isSage = Cfg.sageReply;
+		this.sageBtn.style.opacity = isSage ? '1' : '.3';
+		this.sageBtn.title = isSage ? 'SAGE!' : Lng.noSage[lang];
+		if(this.mail.type === 'text') {
+			this.mail.value = isSage ? 'sage' : aib.fch ? 'noko' : '';
+		} else {
+			this.mail.checked = isSage;
+		}
+	}
 	updateLanguage() {
 		this.txta.title = Lng.pasteImage[lang];
 		aib.updateSubmitBtn(this.subm);
@@ -8739,7 +8765,7 @@ class PostForm {
 				}
 			}
 			this.txta.value = val;
-			this._setSage();
+			this.toggleSage();
 			if(Cfg.ajaxPosting) {
 				$popup('upload', Lng.checking[lang], true);
 			}
@@ -8848,16 +8874,6 @@ class PostForm {
 		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 	}
-	_makeSageBtn() {
-		PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
-		$aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
-			'<use xlink:href="#de-symbol-post-sage"/></svg></span>'
-		).onclick = () => {
-			toggleCfg('sageReply');
-			this._setSage();
-		};
-		setTimeout(() => this._setSage(), 0);
-	}
 	_makeWindow() {
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 			<span class="de-win-title"></span>
@@ -8883,7 +8899,7 @@ class PostForm {
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = () => {
 			saveCfg('sageReply', 0);
-			this._setSage();
+			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
@@ -8904,17 +8920,6 @@ class PostForm {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
 			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
-		}
-	}
-	_setSage() {
-		const el = $id('de-sagebtn');
-		const c = Cfg.sageReply;
-		el.style.opacity = c ? '1' : '.3';
-		el.title = c ? 'SAGE!' : Lng.noSage[lang];
-		if(this.mail.type === 'text') {
-			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
-		} else {
-			this.mail.checked = c;
 		}
 	}
 	_toggleQuickReply(tNum) {
@@ -15188,11 +15193,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
-					.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
-					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr
-						{ display: none !important; }
+			return `#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
+					.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
+					.postform-hr, .postpanel > :not(img), .reflink::before, .thread-nav, .toolbar-area,
+					.top-user-boards + hr { display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-block; }
@@ -15207,6 +15211,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.post.reply .post-message { max-height: initial !important; }
 				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
+				${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"],
+					.options__box[onclick="ToggleSage()"] { display: none; }` : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -15214,8 +15220,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
 				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.options__box[onclick="ToggleSage()"], .post__btn:not(.icon_type_active), .post__number,
-					.post__panel, .post__refmap, .postform__len { display: none !important; }
+					.post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
+					.postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }

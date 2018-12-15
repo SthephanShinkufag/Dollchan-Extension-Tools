@@ -61,11 +61,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .box[onclick="ToggleSage()"], .fa-media-icon,
-					.kupi-passcode-suka, .logo + hr, .media-expand-button, #media-thumbnail,
-					.message-byte-len, .nav-arrows, .norm-reply, .postform-hr, .postpanel > :not(img),
-					.reflink::before, .thread-nav, .toolbar-area, .top-user-boards + hr
-						{ display: none !important; }
+			return `#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
+					.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
+					.postform-hr, .postpanel > :not(img), .reflink::before, .thread-nav, .toolbar-area,
+					.top-user-boards + hr { display: none !important; }
 				.captcha-box { overflow: hidden; max-width: 300px; }
 				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-block; }
@@ -80,6 +79,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.post.reply .post-message { max-height: initial !important; }
 				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
+				${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"],
+					.options__box[onclick="ToggleSage()"] { display: none; }` : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -87,8 +88,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
 				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.options__box[onclick="ToggleSage()"], .post__btn:not(.icon_type_active), .post__number,
-					.post__panel, .post__refmap, .postform__len { display: none !important; }
+					.post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
+					.postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
