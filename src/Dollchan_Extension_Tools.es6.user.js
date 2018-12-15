@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = '2d5b742';
+const commit = '23c5908';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8711,14 +8711,14 @@ class PostForm {
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
 			if(aib.mak && !Cfg.altCaptcha) {
-				if(!this.subm.hasAttribute('de-captcha-wait')) {
+				if(!this.cap.isSubmitWait) {
 					$pd(e);
 					$popup('upload', 'reCaptcha...', true);
-					this.subm.setAttribute('de-captcha-wait', true);
+					this.cap.isSubmitWait = true;
 					this.refreshCap();
 					return;
 				}
-				this.subm.removeAttribute('de-captcha-wait');
+				this.cap.isSubmitWait = false;
 			}
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
@@ -9790,6 +9790,7 @@ class Captcha {
 		this.tNum = initNum;
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
+		this.isSubmitWait = false;
 		this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
@@ -15362,13 +15363,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				try {
 					data = JSON.parse(data);
 				} catch(err) {}
+				if(cap.isSubmitWait && data.result !== 1) {
+					pr.subm.click();
+				}
 				switch(data.result) {
-				case 0: box.innerHTML = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
 				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
 				case 3: return CancelablePromise.reject(); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
-						if(!pr.subm.hasAttribute('de-captcha-wait')) {
+						if(!cap.isSubmitWait) {
 							break;
 						}
 						$q('.captcha-key, .captcha__key').value = data.id;

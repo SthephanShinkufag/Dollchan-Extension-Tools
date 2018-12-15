@@ -381,14 +381,14 @@ class PostForm {
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
 			if(aib.mak && !Cfg.altCaptcha) {
-				if(!this.subm.hasAttribute('de-captcha-wait')) {
+				if(!this.cap.isSubmitWait) {
 					$pd(e);
 					$popup('upload', 'reCaptcha...', true);
-					this.subm.setAttribute('de-captcha-wait', true);
+					this.cap.isSubmitWait = true;
 					this.refreshCap();
 					return;
 				}
-				this.subm.removeAttribute('de-captcha-wait');
+				this.cap.isSubmitWait = false;
 			}
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);

@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = '2d5b742';
+	var commit = '23c5908';
 
 
 	var defaultCfg = {
@@ -12608,14 +12608,14 @@ true, true];
 
 				this.subm.addEventListener('click', function (e) {
 					if (aib.mak && !Cfg.altCaptcha) {
-						if (!_this29.subm.hasAttribute('de-captcha-wait')) {
+						if (!_this29.cap.isSubmitWait) {
 							$pd(e);
 							$popup('upload', 'reCaptcha...', true);
-							_this29.subm.setAttribute('de-captcha-wait', true);
+							_this29.cap.isSubmitWait = true;
 							_this29.refreshCap();
 							return;
 						}
-						_this29.subm.removeAttribute('de-captcha-wait');
+						_this29.cap.isSubmitWait = false;
 					}
 					if (Cfg.warnSubjTrip && _this29.subj && /#.|##./.test(_this29.subj.value)) {
 						$pd(e);
@@ -13853,6 +13853,7 @@ true, true];
 			this.tNum = initNum;
 			this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 			this.isAdded = false;
+			this.isSubmitWait = false;
 			this._isRecap = !aib._02ch && !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 			this._lastUpdate = null;
 			this.originHTML = this.parentEl.innerHTML;
@@ -20545,16 +20546,19 @@ true, true];
 						try {
 							data = JSON.parse(data);
 						} catch (err) {}
+						if (cap.isSubmitWait && data.result !== 1) {
+							pr.subm.click();
+						}
 						switch (data.result) {
 							case 0:
-								box.innerHTML = 'Пасскод недействителен. Перелогиньтесь.';break;
+								box.textContent = 'Пасскод недействителен. Перелогиньтесь.';break;
 							case 2:
 								box.textContent = 'Вы - пасскодобоярин.';break;
 							case 3:
 								return CancelablePromise.reject(); 
 							case 1:
 								if (data.type === 'invisible_recaptcha') {
-									if (!pr.subm.hasAttribute('de-captcha-wait')) {
+									if (!cap.isSubmitWait) {
 										break;
 									}
 									$q('.captcha-key, .captcha__key').value = data.id;
