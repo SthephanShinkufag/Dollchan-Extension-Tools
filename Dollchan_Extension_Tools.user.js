@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = '23c5908';
+	var commit = '86a24f1';
 
 
 	var defaultCfg = {
@@ -14285,8 +14285,8 @@ true, true];
 					case 'de-btn-unhide':
 					case 'de-btn-unhide-user':
 						this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-						if (Cfg.menuHiddBtn && !(this instanceof Pview)) {
-							this._addMenu(el, isOutEvent, this._getMenuHide(el));
+						if (Cfg.menuHiddBtn) {
+							this._addMenu(el, isOutEvent, (this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
 						}
 						return;
 					case 'de-btn-expthr':
@@ -14445,7 +14445,7 @@ true, true];
 					this._menu.removeMenu();
 				}
 				this._menu = new Menu(el, html, function (el) {
-					return _this45._clickMenu(el);
+					return (_this45 instanceof Pview ? pByNum.get(_this45.num) : _this45)._clickMenu(el);
 				}, false);
 				this._menu.onremove = function () {
 					return _this45._menu = null;
@@ -15662,7 +15662,7 @@ true, true];
 					return _this52.mouseEnter();
 				};
 				this._menu.onout = function () {
-					return _this52.markToDel();
+					return Pview.top.markToDel();
 				};
 			}
 		}, {

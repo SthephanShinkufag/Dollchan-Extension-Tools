@@ -429,7 +429,7 @@ class ExpandableImage {
 			}
 		});
 	}
-	collapseImg(e) {
+	collapseImg(e) { // Collapse an image that expanded in post
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = '23c5908';
+const commit = '86a24f1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10212,8 +10212,9 @@ class AbstractPost {
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.menuHiddBtn && !(this instanceof Pview)) {
-				this._addMenu(el, isOutEvent, this._getMenuHide(el));
+			if(Cfg.menuHiddBtn) {
+				this._addMenu(el, isOutEvent,
+					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
 			return;
 		case 'de-btn-expthr':
@@ -10349,7 +10350,8 @@ class AbstractPost {
 		if(this._menu) {
 			this._menu.removeMenu();
 		}
-		this._menu = new Menu(el, html, el => this._clickMenu(el), false);
+		this._menu = new Menu(el, html,
+			el => (this instanceof Pview ? pByNum.get(this.num) : this)._clickMenu(el), false);
 		this._menu.onremove = () => (this._menu = null);
 	}
 }
@@ -11341,7 +11343,7 @@ class Pview extends AbstractPost {
 	_showMenu(el, html) {
 		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
-		this._menu.onout = () => this.markToDel();
+		this._menu.onout = () => Pview.top.markToDel();
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
@@ -11867,7 +11869,7 @@ class ExpandableImage {
 			}
 		});
 	}
-	collapseImg(e) {
+	collapseImg(e) { // Collapse an image that expanded in post
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}

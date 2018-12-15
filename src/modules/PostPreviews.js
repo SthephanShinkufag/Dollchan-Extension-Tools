@@ -377,7 +377,7 @@ class Pview extends AbstractPost {
 	_showMenu(el, html) {
 		super._showMenu(el, html);
 		this._menu.onover = () => this.mouseEnter();
-		this._menu.onout = () => this.markToDel();
+		this._menu.onout = () => Pview.top.markToDel();
 	}
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
