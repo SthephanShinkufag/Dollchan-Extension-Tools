@@ -36,10 +36,8 @@ class Thread {
 		}
 		this.btns = $bEnd(el, `<div class="de-thr-buttons">${ Post.getPostBtns(true, true) }
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
-			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' +
-				(aib.mak && !aib._2chMoe ?
-					' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')
-			) + '</div>');
+			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
+			'</div>');
 		this.btns.addEventListener('click', this);
 		this.btns.addEventListener('mouseover', this);
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];

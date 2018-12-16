@@ -125,45 +125,25 @@ class _4chanPostsBuilder {
 		}
 
 		// --- CAPCODE ---
-		let highlight = '', capcodeText = '', capcodeClass = '', capcodeImg = '';
-		switch(data.capcode) {
-		case 'admin_highlight':
-			highlight = ' highlightPost';
+		let highlight = '', ccBy = '', ccName = '';
+		const cc = data.capcode;
+		switch(cc) {
+		case 'admin_highlight': highlight = ' highlightPost';
 			/* falls through */
-		case 'admin':
-			capcodeText = '<strong class="capcode hand id_admin" ' +
-				'title="Highlight posts by Administrators">## Admin</strong>';
-			capcodeClass = 'capcodeAdmin';
-			capcodeImg = `<img src="${ _icon('adminicon') }" alt="This user is a 4chan Administrator." ` +
-				'title="This user is a 4chan Administrator." class="identityIcon">';
-			break;
-		case 'mod':
-			capcodeText = '<strong class="capcode hand id_mod" ' +
-				'title="Highlight posts by Moderators">## Mod</strong>';
-			capcodeClass = 'capcodeMod';
-			capcodeImg = `<img src="${ _icon('modicon') }" alt="This user is a 4chan Moderator." ` +
-				'title="This user is a 4chan Moderator." class="identityIcon">';
-			break;
-		case 'developer':
-			capcodeText = '<strong class="capcode hand id_developer" ' +
-				'title="Highlight posts by Developers">## Developer</strong>';
-			capcodeClass = 'capcodeDeveloper';
-			capcodeImg = `<img src="${ _icon('developericon') }" alt="This user is a 4chan Developer." ` +
-				'title="This user is a 4chan Developer." class="identityIcon">';
-			break;
-		case 'manager':
-			capcodeText = '<strong class="capcode hand id_manager" ' +
-				'title="Highlight posts by Managers">## Manager</strong>';
-			capcodeClass = 'capcodeManager';
-			capcodeImg = `<img src="${ _icon('managericon') }" alt="This user is a 4chan Manager." ` +
-				'title="This user is a 4chan Manager." class="identityIcon">';
-			break;
-		case 'founder':
-			capcodeText = '<strong class="capcode hand id_admin" ' +
-				'title="Highlight posts by the Founder">## Founder</strong>';
-			capcodeClass = ' capcodeAdmin';
-			capcodeImg = `<img src="${ _icon('foundericon') }" alt="This user is 4chan's Founder." ` +
-				'title="This user is 4chan\'s Founder." class="identityIcon">';
+		case 'admin': ccBy = 'Administrators'; break;
+		case 'mod': ccBy = 'Moderators'; break;
+		case 'developer': ccBy = 'Developers'; break;
+		case 'manager': ccBy = 'Managers'; break;
+		case 'founder': ccBy = 'Founder';
+		}
+		let ccText = '', ccImg = '', ccClass = '';
+		if(cc) {
+			ccName = cc[0].toUpperCase() + cc.slice(1);
+			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +
+				`" title="Highlight posts by ${ ccBy }">## ${ ccName }</strong>`;
+			ccImg = `<img src="${ _icon(cc + 'icon') }" alt="${
+				ccName } Icon." title="This user is 4chan ${ ccName }." class="identityIcon">`;
+			ccClass = 'capcode' + (cc === 'founder' ? 'Admin' : ccName);
 		}
 
 		// --- POST ---
@@ -185,11 +165,11 @@ class _4chanPostsBuilder {
 			<div class="sideArrows" id="sa${ num }">&gt;&gt;</div>
 			<div id="p${ num }" class="post ${ i === -1 ? 'op' : 'reply' } ${ highlight }">
 				<div class="postInfoM mobile" id="pim${ num }">
-					<span class="nameBlock ${ capcodeClass }">
+					<span class="nameBlock ${ ccClass }">
 						${ mobNameEl }
 						${ tripEl }
-						${ capcodeText }
-						${ capcodeImg }
+						${ ccText }
+						${ ccImg }
 						${ posteruidEl }
 						${ flagEl }<br>
 						${ subjEl }
@@ -199,13 +179,13 @@ class _4chanPostsBuilder {
 				<div class="postInfo desktop" id="pi${ num }">
 					<input name="${ num }" value="delete" type="checkbox">
 					${ subjEl }
-					<span class="nameBlock ${ capcodeClass }">
+					<span class="nameBlock ${ ccClass }">
 						${ emailEl }
 							${ nameEl }
 							${ tripEl }
-							${ capcodeText }
+							${ ccText }
 						${ data.email ? '</a>' : '' }
-						${ capcodeImg }
+						${ ccImg }
 						${ posteruidEl }
 						${ flagEl }
 					</span>

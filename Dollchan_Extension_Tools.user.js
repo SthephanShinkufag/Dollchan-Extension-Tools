@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = '10ed4a3';
+	var commit = 'edf497a';
 
 
 	var defaultCfg = {
@@ -17366,36 +17366,31 @@ true, true];
 				}
 
 				var highlight = '',
-				    capcodeText = '',
-				    capcodeClass = '',
-				    capcodeImg = '';
-				switch (data.capcode) {
+				    ccBy = '',
+				    ccName = '';
+				var cc = data.capcode;
+				switch (cc) {
 					case 'admin_highlight':
 						highlight = ' highlightPost';
 					case 'admin':
-						capcodeText = '<strong class="capcode hand id_admin" ' + 'title="Highlight posts by Administrators">## Admin</strong>';
-						capcodeClass = 'capcodeAdmin';
-						capcodeImg = '<img src="' + _icon('adminicon') + '" alt="This user is a 4chan Administrator." ' + 'title="This user is a 4chan Administrator." class="identityIcon">';
-						break;
+						ccBy = 'Administrators';break;
 					case 'mod':
-						capcodeText = '<strong class="capcode hand id_mod" ' + 'title="Highlight posts by Moderators">## Mod</strong>';
-						capcodeClass = 'capcodeMod';
-						capcodeImg = '<img src="' + _icon('modicon') + '" alt="This user is a 4chan Moderator." ' + 'title="This user is a 4chan Moderator." class="identityIcon">';
-						break;
+						ccBy = 'Moderators';break;
 					case 'developer':
-						capcodeText = '<strong class="capcode hand id_developer" ' + 'title="Highlight posts by Developers">## Developer</strong>';
-						capcodeClass = 'capcodeDeveloper';
-						capcodeImg = '<img src="' + _icon('developericon') + '" alt="This user is a 4chan Developer." ' + 'title="This user is a 4chan Developer." class="identityIcon">';
-						break;
+						ccBy = 'Developers';break;
 					case 'manager':
-						capcodeText = '<strong class="capcode hand id_manager" ' + 'title="Highlight posts by Managers">## Manager</strong>';
-						capcodeClass = 'capcodeManager';
-						capcodeImg = '<img src="' + _icon('managericon') + '" alt="This user is a 4chan Manager." ' + 'title="This user is a 4chan Manager." class="identityIcon">';
-						break;
+						ccBy = 'Managers';break;
 					case 'founder':
-						capcodeText = '<strong class="capcode hand id_admin" ' + 'title="Highlight posts by the Founder">## Founder</strong>';
-						capcodeClass = ' capcodeAdmin';
-						capcodeImg = '<img src="' + _icon('foundericon') + '" alt="This user is 4chan\'s Founder." ' + 'title="This user is 4chan\'s Founder." class="identityIcon">';
+						ccBy = 'Founder';
+				}
+				var ccText = '',
+				    ccImg = '',
+				    ccClass = '';
+				if (cc) {
+					ccName = cc[0].toUpperCase() + cc.slice(1);
+					ccText = '<strong class="capcode hand id_' + (cc === 'founder' ? 'admin' : cc) + ('" title="Highlight posts by ' + ccBy + '">## ' + ccName + '</strong>');
+					ccImg = '<img src="' + _icon(cc + 'icon') + '" alt="' + ccName + ' Icon." title="This user is 4chan ' + ccName + '." class="identityIcon">';
+					ccClass = 'capcode' + (cc === 'founder' ? 'Admin' : ccName);
 				}
 
 				var _data$name = data.name,
@@ -17409,7 +17404,7 @@ true, true];
 				var emailEl = data.email ? '<a href="mailto:' + data.email.replace(/ /g, '%20') + '" class="useremail">' : '';
 				var replyEl = '<a href="#p' + num + '" title="Link to this post">No.</a><a href="javascript:quote(\'' + num + '\');" title="Reply to this post">' + num + '</a>';
 				var subjEl = '<span class="subject">' + (data.sub || '') + '</span>';
-				return '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post ' + (i === -1 ? 'op' : 'reply') + ' ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + mobNameEl + '\n\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '<br>\n\t\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' ' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi' + num + '">\n\t\t\t\t\t<input name="' + num + '" value="delete" type="checkbox">\n\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t<span class="nameBlock ' + capcodeClass + '">\n\t\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t\t\t' + nameEl + '\n\t\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t\t' + capcodeText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + capcodeImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop">' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + (data.com || '') + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
+				return '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post ' + (i === -1 ? 'op' : 'reply') + ' ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + mobNameEl + '\n\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '<br>\n\t\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' ' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi' + num + '">\n\t\t\t\t\t<input name="' + num + '" value="delete" type="checkbox">\n\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t\t\t' + nameEl + '\n\t\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop">' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + (data.com || '') + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
 			}
 		}, {
 			key: 'bannedPostsData',
@@ -18208,7 +18203,7 @@ true, true];
 			if (localData) {
 				return;
 			}
-			this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>' + (aib.mak && !aib._2chMoe ? ' [<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '')) + '</div>');
+			this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
