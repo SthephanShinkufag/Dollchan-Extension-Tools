@@ -125,10 +125,12 @@ class _4chanPostsBuilder {
 		}
 
 		// --- CAPCODE ---
-		let highlight = '', ccBy = '', ccName = '';
-		const cc = data.capcode;
+		let highlight = '', ccBy = '';
+		let cc = data.capcode;
 		switch(cc) {
-		case 'admin_highlight': highlight = ' highlightPost';
+		case 'admin_highlight':
+			highlight = ' highlightPost';
+			cc = 'admin';
 			/* falls through */
 		case 'admin': ccBy = 'Administrators'; break;
 		case 'mod': ccBy = 'Moderators'; break;
@@ -136,7 +138,7 @@ class _4chanPostsBuilder {
 		case 'manager': ccBy = 'Managers'; break;
 		case 'founder': ccBy = 'Founder';
 		}
-		let ccText = '', ccImg = '', ccClass = '';
+		let ccName = '', ccText = '', ccImg = '', ccClass = '';
 		if(cc) {
 			ccName = cc[0].toUpperCase() + cc.slice(1);
 			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +

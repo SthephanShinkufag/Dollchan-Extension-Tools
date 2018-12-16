@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = 'edf497a';
+	var commit = 'cb42233';
 
 
 	var defaultCfg = {
@@ -17366,12 +17366,12 @@ true, true];
 				}
 
 				var highlight = '',
-				    ccBy = '',
-				    ccName = '';
+				    ccBy = '';
 				var cc = data.capcode;
 				switch (cc) {
 					case 'admin_highlight':
 						highlight = ' highlightPost';
+						cc = 'admin';
 					case 'admin':
 						ccBy = 'Administrators';break;
 					case 'mod':
@@ -17383,7 +17383,8 @@ true, true];
 					case 'founder':
 						ccBy = 'Founder';
 				}
-				var ccText = '',
+				var ccName = '',
+				    ccText = '',
 				    ccImg = '',
 				    ccClass = '';
 				if (cc) {
