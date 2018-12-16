@@ -80,7 +80,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.reply { max-width: 98vw; }
 				.tmp_postform { width: auto; }
 				${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"],
-					.options__box[onclick="ToggleSage()"] { display: none; }` : '' }
+					.options__box[onclick="ToggleSage()"] { display: none !important; }` : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
