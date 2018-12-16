@@ -182,7 +182,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName = !Cfg.removeFName ? fileName :
+			const newFileName =
+				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName :
 				(Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (

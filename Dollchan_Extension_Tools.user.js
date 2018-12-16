@@ -3496,7 +3496,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							hasFiles = true;
 							fileName = value.name;
-							newFileName = !Cfg.removeFName ? fileName : (Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
+							newFileName = !Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
 							mime = value.type;
 
 							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.mak))) {
@@ -3648,8 +3648,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref79 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(checkDomains, dataPromise) {
-			var formEl, favObj, oldMain, _ref80, _ref81, storageName, firstThr;
+		var _ref80 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(checkDomains, dataPromise) {
+			var formEl, favObj, oldMain, _ref81, _ref82, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee22$(_context27) {
 				while (1) {
@@ -3690,10 +3690,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 13:
-							_ref80 = _context27.sent;
-							_ref81 = _slicedToArray(_ref80, 2);
-							excludeList = _ref81[0];
-							favObj = _ref81[1];
+							_ref81 = _context27.sent;
+							_ref82 = _slicedToArray(_ref81, 2);
+							excludeList = _ref82[0];
+							favObj = _ref82[1];
 
 							if (!((excludeList = excludeList || '').includes(aib.dm) || !Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context27.next = 19;
@@ -3825,7 +3825,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x84, _x85) {
-			return _ref79.apply(this, arguments);
+			return _ref80.apply(this, arguments);
 		};
 	}();
 
@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = 'cb42233';
+	var commit = '3730f90';
 
 
 	var defaultCfg = {
@@ -4308,6 +4308,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		dropFileHere: ['Бросьте сюда файл(ы) или ссылку', 'Drop file(s) or link here', 'Киньте сюди файл(и) чи посилання'],
 		youCanDrag: ['Можно перетаскивать картинки и ссылки на файлы\r\nпрямо со страницы или других сайтов', 'You can drag images and file links\r\ndirectly from the page or other sites', 'Можна перетягувати зображення чи посилання на файли\r\nбезпосередньо зі сторінки чи інших сайтів'],
 		removeFile: ['Удалить файл', 'Remove file', 'Видалити файл'],
+		renameFile: ['Переименовать файл', 'Rename file', 'Перейменувати файл'],
 		spoilFile: ['Спойлер', 'Spoiler', 'Спойлер'],
 		addManually: ['Ввести ссылку на файл вручную', 'Enter a link to the file manually', 'Ввести посилання на файл вручну'],
 		enterTheLink: ["Введите ссылку и нажмите '+'", "Enter the link and click '+'", "Введіть посилання та натисніть '+'"],
@@ -5393,7 +5394,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							name: name,
 							type: type,
 							el: field,
-							value: new File([img[0]], img[1], { type: img[2] })
+							value: new File([img.data], img.name, { type: img.type })
 						};
 
 					case 46:
@@ -13392,19 +13393,21 @@ true, true];
 			this.imgFile = null;
 			this._input = el;
 			this._isTxtEditable = false;
+			this._isTxtEditName = false;
 			this._mediaEl = null;
 			this._parent = parent;
 			this._rarMsg = null;
 			this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 			this._thumb = null;
-			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
+			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-ren" title="' + Lng.renameFile[lang] + '" style="display: none;"></div>\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
 
 			var _ref45 = [].concat(_toConsumableArray(this._utils.children));
 
-			this._btnRarJpg = _ref45[0];
-			this._btnSpoil = _ref45[1];
-			this._btnTxt = _ref45[2];
-			this._btnDel = _ref45[3];
+			this._btnRename = _ref45[0];
+			this._btnRarJpg = _ref45[1];
+			this._btnSpoil = _ref45[2];
+			this._btnTxt = _ref45[3];
+			this._btnDel = _ref45[4];
 
 			this._utils.addEventListener('click', this);
 			this._txtWrap = $add('<span class="de-file-txt-wrap">\n\t\t\t<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="' + (Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-txt-add" value="+" title="') + (Lng.add[lang] + '" style="display: none;"></span>'));
@@ -13447,10 +13450,9 @@ true, true];
 					this._initThumbs();
 					return;
 				}
-				var el = this._txtWrap.parentNode.parentNode;
 				$before(this._input, this._txtWrap);
 				$after(this._input, this._utils);
-				$del(el);
+				$del($q('de-file-txt-area'));
 				$show(this._parent.fileTr);
 				$show(this._txtWrap);
 				if (this._mediaEl) {
@@ -13473,7 +13475,7 @@ true, true];
 					}
 				}
 				if (this._btnDel) {
-					this._showDelBtn(false);
+					this._toggleDelBtn(false);
 					$hide(this._btnSpoil);
 					$hide(this._btnRarJpg);
 					$hide(this._txtAddBtn);
@@ -13486,7 +13488,7 @@ true, true];
 					this._txtInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this.extraFile = this.imgFile = null;
-				this._isTxtEditable = false;
+				this._isTxtEditable = this._isTxtEditName = false;
 				this._changeFilesCount(-1);
 				this._removeFile();
 			}
@@ -13543,8 +13545,19 @@ true, true];
 							return;
 						} else if (el === this._btnRarJpg) {
 							this._addRarJpeg();
+						} else if (el === this._btnRename) {
+							var isShow = this._isTxtEditName = !this._isTxtEditName;
+							this._isTxtEditable = !this._isTxtEditable;
+							if (FileInput._isThumb) {
+								$toggle(this._txtWrap, isShow);
+							}
+							$toggle(this._txtAddBtn, isShow);
+							this._txtInput.classList.toggle('de-file-txt-noedit', !isShow);
+							if (isShow) {
+								this._txtInput.focus();
+							}
 						} else if (el === this._btnTxt) {
-							this._showDelBtn(this._isTxtEditable = true);
+							this._toggleDelBtn(this._isTxtEditable = true);
 							$show(this._txtAddBtn);
 							if (FileInput._isThumb) {
 								$toggle(this._txtWrap);
@@ -13553,7 +13566,40 @@ true, true];
 							this._txtInput.placeholder = Lng.enterTheLink[lang];
 							this._txtInput.focus();
 						} else if (el === this._txtAddBtn) {
-							this._addUrlFile(this._txtInput.value);
+							if (this._isTxtEditName) {
+								if (FileInput._isThumb) {
+									$hide(this._txtWrap);
+								}
+								$hide(this._txtAddBtn);
+								this._txtInput.classList.add('de-file-txt-noedit');
+								this._isTxtEditable = this._isTxtEditName = false;
+								var newName = this._txtInput.value;
+								if (!newName) {
+									this._txtInput.value = this.imgFile ? this.imgFile.name : this._input.files[0].name;
+									return;
+								}
+								if (this.imgFile) {
+									this.imgFile.isConstName = true;
+									this.imgFile.name = newName;
+									if (FileInput._isThumb) {
+										this._addThumbTitle(newName, this.imgFile.data.byteLength);
+									}
+									return;
+								}
+								var file = this._input.files[0];
+								readFile(file).then(function (_ref47) {
+									var data = _ref47.data;
+
+									_this35.imgFile = { data: data, name: newName, type: file.type, isConstName: true };
+									_this35._removeFileHelper(); 
+									if (FileInput._isThumb) {
+										_this35._addThumbTitle(newName, data.byteLength);
+									}
+								});
+								return;
+							} else {
+								this._addUrlFile(this._txtInput.value);
+							}
 						} else if (el === this._txtInput && !this._isTxtEditable) {
 							this._input.click();
 							this._txtInput.blur();
@@ -13589,9 +13635,11 @@ true, true];
 							} else {
 								this._addUrlFile(dt.getData('text/plain'));
 							}
-							setTimeout(function () {
-								return thumb.classList.remove('de-file-drag');
-							}, 10);
+							if (FileInput._isThumb) {
+								setTimeout(function () {
+									return thumb.classList.remove('de-file-drag');
+								}, 10);
+							}
 							$pd(e);
 							e.stopPropagation();
 						}
@@ -13601,7 +13649,7 @@ true, true];
 			key: 'hideInp',
 			value: function hideInp() {
 				if (FileInput._isThumb) {
-					this._showDelBtn(false);
+					this._toggleDelBtn(false);
 					$hide(this._thumb);
 					$hide(this._txtWrap);
 				}
@@ -13639,12 +13687,12 @@ true, true];
 					$hide(_this36._btnRarJpg);
 					var myBtn = _this36._rarMsg = $aBegin(_this36._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref47) {
-						var data = _ref47.data;
+					readFile(file).then(function (_ref48) {
+						var data = _ref48.data;
 
 						if (_this36._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
-							var origFileName = _this36.imgFile ? _this36.imgFile[1] : _this36._input.files[0].name;
+							var origFileName = _this36.imgFile ? _this36.imgFile.name : _this36._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
 							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
 							_this36.extraFile = data;
@@ -13652,6 +13700,11 @@ true, true];
 					});
 				};
 				el.click();
+			}
+		}, {
+			key: '_addThumbTitle',
+			value: function _addThumbTitle(name, size) {
+				this._thumb.firstChild.firstChild.title = name + ', ' + (size / 1024).toFixed(2) + 'KB';
 			}
 		}, {
 			key: '_addUrlFile',
@@ -13673,7 +13726,7 @@ true, true];
 						return;
 					}
 					closePopup('file-loading');
-					_this37._isTxtEditable = false;
+					_this37._isTxtEditable = _this37._isTxtEditName = false;
 					var name = file ? file.name : url.split('/').pop();
 					var type = file && file.type || getFileType(name);
 					if (!type || name.includes('?')) {
@@ -13694,9 +13747,9 @@ true, true];
 							name = name.split('?').shift() + '.' + ext;
 						}
 					}
-					_this37.imgFile = [data.buffer, name, type || getFileType(name)];
+					_this37.imgFile = { data: data.buffer, name: name, type: type || getFileType(name) };
 					if (!file) {
-						file = new Blob([data], { type: _this37.imgFile[2] });
+						file = new Blob([data], { type: _this37.imgFile.type });
 						file.name = name;
 					}
 					_this37._parent._files[_this37._parent._inputs.indexOf(_this37)] = file;
@@ -13737,7 +13790,7 @@ true, true];
 		}, {
 			key: '_onFileChange',
 			value: function _onFileChange(hasImgFile) {
-				this._txtInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
+				this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
 				if (!hasImgFile) {
 					this.imgFile = null;
 				}
@@ -13752,7 +13805,7 @@ true, true];
 				} else {
 					this.hasFile = true;
 					this._changeFilesCount(+1);
-					this._showDelBtn(true);
+					this._toggleDelBtn(true);
 					$hide(this._txtAddBtn);
 					if (FileInput._isThumb) {
 						$hide(this._txtWrap);
@@ -13765,7 +13818,7 @@ true, true];
 					this._txtInput.placeholder = Lng.dropFileHere[lang];
 				}
 				this._parent.hideEmpty();
-				if (!nav.isPresto && !aib.fch && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)) {
+				if (!nav.isPresto && !aib.fch && /^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)) {
 					$del(this._rarMsg);
 					$show(this._btnRarJpg);
 				}
@@ -13791,12 +13844,6 @@ true, true];
 				$del(oldEl);
 			}
 		}, {
-			key: '_showDelBtn',
-			value: function _showDelBtn(isShow) {
-				$toggle(this._btnDel, isShow);
-				$toggle(this._btnTxt, !isShow);
-			}
-		}, {
 			key: '_showFileThumb',
 			value: function _showFileThumb() {
 				var _this38 = this;
@@ -13804,19 +13851,26 @@ true, true];
 				var imgFile = this.imgFile;
 
 				if (imgFile) {
-					this._addNewThumb.apply(this, _toConsumableArray(imgFile).concat([imgFile[0].byteLength]));
+					this._addNewThumb(imgFile.data, imgFile.name, imgFile.type, imgFile.data.byteLength);
 					return;
 				}
 				var file = this._input.files[0];
 				if (file) {
-					readFile(file).then(function (_ref48) {
-						var data = _ref48.data;
+					readFile(file).then(function (_ref49) {
+						var data = _ref49.data;
 
 						if (_this38._input.files[0] === file) {
 							_this38._addNewThumb(data, file.name, file.type, file.size);
 						}
 					});
 				}
+			}
+		}, {
+			key: '_toggleDelBtn',
+			value: function _toggleDelBtn(isShow) {
+				$toggle(this._btnDel, isShow);
+				$toggle(this._btnRename, isShow && this.hasFile);
+				$toggle(this._btnTxt, !isShow);
 			}
 		}, {
 			key: '_toggleDragEvents',
@@ -13834,13 +13888,13 @@ true, true];
 			}
 		}], [{
 			key: '_readDroppedFile',
-			value: function _readDroppedFile(input, file) {
-				return readFile(file).then(function (_ref49) {
-					var data = _ref49.data;
+			value: function _readDroppedFile(inputObj, file) {
+				return readFile(file).then(function (_ref50) {
+					var data = _ref50.data;
 
-					input.imgFile = [data, file.name, file.type];
-					input.showInp();
-					input._onFileChange(true);
+					inputObj.imgFile = { data: data, name: file.name, type: file.type };
+					inputObj.showInp();
+					inputObj._onFileChange(true);
 				});
 			}
 		}, {
@@ -15457,7 +15511,7 @@ true, true];
 		}, {
 			key: '_buildPview',
 			value: function () {
-				var _ref50 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(post) {
+				var _ref51 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(post) {
 					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
 					return regeneratorRuntime.wrap(function _callee16$(_context17) {
 						while (1) {
@@ -15593,7 +15647,7 @@ true, true];
 				}));
 
 				function _buildPview(_x55) {
-					return _ref50.apply(this, arguments);
+					return _ref51.apply(this, arguments);
 				}
 
 				return _buildPview;
@@ -15900,11 +15954,11 @@ true, true];
 
 			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>\n\t\t\t<div id="de-img-btn-rotate" class="de-img-btn" title="' + Lng.rotateImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>');
 
-			var _ref51 = [].concat(_toConsumableArray(btns.children));
+			var _ref52 = [].concat(_toConsumableArray(btns.children));
 
-			this.prevBtn = _ref51[0];
-			this.nextBtn = _ref51[1];
-			this.autoBtn = _ref51[2];
+			this.prevBtn = _ref52[0];
+			this.nextBtn = _ref52[1];
+			this.autoBtn = _ref52[2];
 
 			this._btns = btns;
 			this._btnsStyle = btns.style;
@@ -16516,8 +16570,8 @@ true, true];
 					var waitEl = !aib.getImgRedirectSrc && this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</a></div>\n\t\t\t</div>');
 					var imgEl = $q('.de-fullimg', wrapEl);
-					imgEl.onload = imgEl.onerror = function (_ref52) {
-						var img = _ref52.target;
+					imgEl.onload = imgEl.onerror = function (_ref53) {
+						var img = _ref53.target;
 
 						if (!(img.naturalHeight + img.naturalWidth)) {
 							if (!img.onceLoaded) {
@@ -16569,8 +16623,8 @@ true, true];
 				videoEl.addEventListener('ended', function () {
 					return AttachedImage.viewer.navigate(true, true);
 				});
-				videoEl.addEventListener('error', function (_ref53) {
-					var el = _ref53.target;
+				videoEl.addEventListener('error', function (_ref54) {
+					var el = _ref54.target;
 
 					if (!el.onceLoaded) {
 						el.load();
@@ -16578,8 +16632,8 @@ true, true];
 					}
 				});
 				if (!this._size) {
-					videoEl.addEventListener('loadedmetadata', function (_ref54) {
-						var el = _ref54.target;
+					videoEl.addEventListener('loadedmetadata', function (_ref55) {
+						var el = _ref55.target;
 
 						_this59._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
@@ -16588,9 +16642,9 @@ true, true];
 				setTimeout(function () {
 					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
-				videoEl.addEventListener('volumechange', function (_ref55) {
-					var el = _ref55.target,
-					    isTrusted = _ref55.isTrusted;
+				videoEl.addEventListener('volumechange', function (_ref56) {
+					var el = _ref56.target,
+					    isTrusted = _ref56.isTrusted;
 
 					var val = el.muted ? 0 : Math.round(el.volume * 100);
 					if (isTrusted && val !== Cfg.webmVolume) {
@@ -16660,10 +16714,10 @@ true, true];
 			}
 		}, {
 			key: 'srcBtnEvents',
-			value: function srcBtnEvents(_ref56) {
+			value: function srcBtnEvents(_ref57) {
 				var _this60 = this;
 
-				var _fullEl = _ref56._fullEl;
+				var _fullEl = _ref57._fullEl;
 
 				if (!Cfg.imgSrcBtns) {
 					return;
@@ -16989,11 +17043,11 @@ true, true];
 			Object.defineProperty(this, '_workers', { value: value, configurable: true });
 			return value;
 		},
-		_genImgHash: function _genImgHash(_ref57) {
-			var _ref58 = _slicedToArray(_ref57, 3),
-			    arrBuf = _ref58[0],
-			    oldw = _ref58[1],
-			    oldh = _ref58[2];
+		_genImgHash: function _genImgHash(_ref58) {
+			var _ref59 = _slicedToArray(_ref58, 3),
+			    arrBuf = _ref59[0],
+			    oldw = _ref59[1],
+			    oldh = _ref59[2];
 
 			var buf = new Uint8Array(arrBuf);
 			var size = oldw * oldh;
@@ -17025,11 +17079,11 @@ true, true];
 			return { hash: hash };
 		},
 		_getHashHelper: function () {
-			var _ref60 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref59) {
+			var _ref61 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(_ref60) {
 				var _this63 = this;
 
-				var el = _ref59.el,
-				    src = _ref59.src;
+				var el = _ref60.el,
+				    src = _ref60.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee17$(_context18) {
 					while (1) {
@@ -17127,7 +17181,7 @@ true, true];
 			}));
 
 			function _getHashHelper(_x57) {
-				return _ref60.apply(this, arguments);
+				return _ref61.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -17498,15 +17552,15 @@ true, true];
 
 				try {
 					for (var _iterator28 = data.files[Symbol.iterator](), _step28; !(_iteratorNormalCompletion28 = (_step28 = _iterator28.next()).done); _iteratorNormalCompletion28 = true) {
-						var _ref61 = _step28.value;
-						var file_id = _ref61.file_id;
-						var metadata = _ref61.metadata;
-						var rating = _ref61.rating;
-						var size = _ref61.size;
-						var src = _ref61.src;
-						var thumb = _ref61.thumb;
-						var thumb_height = _ref61.thumb_height;
-						var thumb_width = _ref61.thumb_width;
+						var _ref62 = _step28.value;
+						var file_id = _ref62.file_id;
+						var metadata = _ref62.metadata;
+						var rating = _ref62.rating;
+						var size = _ref62.size;
+						var src = _ref62.src;
+						var thumb = _ref62.thumb;
+						var thumb_height = _ref62.thumb_height;
+						var thumb_width = _ref62.thumb_width;
 
 						var fileName = void 0,
 						    fullFileName = void 0,
@@ -17689,7 +17743,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var p, _iteratorNormalCompletion30, _didIteratorError30, _iteratorError30, _iterator30, _step30, _ref62, banned, num;
+				var p, _iteratorNormalCompletion30, _didIteratorError30, _iteratorError30, _iterator30, _step30, _ref63, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
 					while (1) {
@@ -17708,9 +17762,9 @@ true, true];
 									break;
 								}
 
-								_ref62 = _step30.value;
-								banned = _ref62.banned;
-								num = _ref62.num;
+								_ref63 = _step30.value;
+								banned = _ref63.banned;
+								num = _ref63.num;
 								_context22.t0 = banned;
 								_context22.next = _context22.t0 === 1 ? 13 : _context22.t0 === 2 ? 16 : 19;
 								break;
@@ -18048,12 +18102,12 @@ true, true];
 
 				try {
 					for (var _iterator34 = posts[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref63 = _step34.value;
+						var _ref64 = _step34.value;
 
-						var _ref64 = _slicedToArray(_ref63, 2);
+						var _ref65 = _slicedToArray(_ref64, 2);
 
-						var pNum = _ref64[0];
-						var post = _ref64[1];
+						var pNum = _ref65[0];
+						var post = _ref65[1];
 
 						var links = $Q('a', post.msg);
 						for (var lNum, i = 0, len = links.length; i < len; ++i) {
@@ -18208,11 +18262,11 @@ true, true];
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
-			var _ref65 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref66 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref65[0];
-			this.btnFav = _ref65[2];
-			this.btnUpd = _ref65[3];
+			this.btnHide = _ref66[0];
+			this.btnFav = _ref66[2];
+			this.btnUpd = _ref66[3];
 
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -18432,13 +18486,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref66 = _step35.value;
+						var _ref67 = _step35.value;
 
-						var _ref67 = _slicedToArray(_ref66, 3);
+						var _ref68 = _slicedToArray(_ref67, 3);
 
-						var banId = _ref67[0];
-						var bNum = _ref67[1];
-						var bEl = _ref67[2];
+						var banId = _ref68[0];
+						var bNum = _ref68[1];
+						var bEl = _ref68[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -19384,9 +19438,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref68) {
-								var newCount = _ref68.newCount,
-								    locked = _ref68.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref69) {
+								var newCount = _ref69.newCount,
+								    locked = _ref69.locked;
 								return _this77._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
 								return _this77._handleNewPosts(0, err);
@@ -20511,9 +20565,9 @@ true, true];
 					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref69 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref69[0],
-						    inp = _ref69[1];
+						var _ref70 = [].concat(_toConsumableArray(box.children)),
+						    _img2 = _ref70[0],
+						    inp = _ref70[1];
 
 						_img2.onclick = function () {
 							return _this79.updateCaptcha(cap);
@@ -20673,7 +20727,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref70 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
+					var _ref71 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(form, tNum) {
 						var _this81 = this;
 
 						var pageInp, query, errFn;
@@ -20754,7 +20808,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x75, _x76) {
-						return _ref70.apply(this, arguments);
+						return _ref71.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20796,9 +20850,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref71) {
-					var error = _ref71.error,
-					    id = _ref71.id;
+				value: function getSubmitData(_ref72) {
+					var error = _ref72.error,
+					    id = _ref72.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -21109,9 +21163,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref72) {
-					var status = _ref72.status,
-					    data = _ref72.data;
+				value: function getSubmitData(_ref73) {
+					var status = _ref73.status,
+					    data = _ref73.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21145,7 +21199,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
+					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(form, data, needProgress, hasFiles) {
 						var _this87 = this;
 
 						var getBase64, getCookies, dataObj, files, i, _len14, file, cookieObj, ajaxParams, xhr;
@@ -21155,7 +21209,7 @@ true, true];
 								switch (_context26.prev = _context26.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(file) {
+											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(file) {
 												return regeneratorRuntime.wrap(function _callee19$(_context24) {
 													while (1) {
 														switch (_context24.prev = _context24.next) {
@@ -21180,7 +21234,7 @@ true, true];
 											}));
 
 											return function getBase64(_x81) {
-												return _ref74.apply(this, arguments);
+												return _ref75.apply(this, arguments);
 											};
 										}();
 
@@ -21198,7 +21252,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(value, key) {
+											var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(value, key) {
 												return regeneratorRuntime.wrap(function _callee20$(_context25) {
 													while (1) {
 														switch (_context25.prev = _context25.next) {
@@ -21218,7 +21272,7 @@ true, true];
 											}));
 
 											return function (_x82, _x83) {
-												return _ref75.apply(this, arguments);
+												return _ref76.apply(this, arguments);
 											};
 										}());
 										i = 0, _len14 = files.length;
@@ -21298,7 +21352,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x77, _x78, _x79, _x80) {
-						return _ref73.apply(this, arguments);
+						return _ref74.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -22942,9 +22996,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref76) {
-					var error = _ref76.error,
-					    id = _ref76.id;
+				value: function getSubmitData(_ref77) {
+					var error = _ref77.error,
+					    id = _ref77.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23184,8 +23238,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref77) {
-			var arg = _ref77.data;
+		_handleMessage: function _handleMessage(_ref78) {
+			var arg = _ref78.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23248,8 +23302,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref78) {
-			var responseText = _ref78.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref79) {
+			var responseText = _ref79.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
@@ -23366,7 +23420,7 @@ true, true];
 		}
 
 		var p = Math.max(Cfg.minImgSize || 0, 50);
-		x += '\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-src { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-img-name { text-decoration: none !important; }\n\n\t/* Embedders */\n\t' + cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + '\n\t' + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + '\n\t' + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + '\n\t' + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '\n\t.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.dropFileHere[lang] + '"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }\n\t' + gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + '\n\t' + gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + '\n\t' + gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + '\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thr::after { content: "' + Lng.makeThr[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.isPresto ? '-2px -10px' : '0 0 -2px -10px') + '; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ' + (nav.isFirefox ? 2 : 4) + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-link-ref { text-decoration: none; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 40px 0 0 0; }\n\t.de-logo > svg { width: 64px; height: 64px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: " (Del)"; }\n\t.de-ref-op::after { content: " (OP)"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\n\t.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\n\t.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t' + (aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '') + '\n\t.de-thr-collapse-link::after { content: "' + Lng.collapseThr[lang] + '"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: "' + Lng.getNewPosts[lang] + '"; }\n\t#de-updater-count::before { content: ": "; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }';
+		x += '\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; box-sizing: content-box; -moz-box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-src { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: inherit; height: inherit; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ' + p + 'px; min-height: ' + p + 'px; float: left; ' + (aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ') + ' }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-img-name { text-decoration: none !important; }\n\n\t/* Embedders */\n\t' + cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') + '\n\t' + cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico') + '\n\t' + cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + '\n\t' + cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==') + '\n\t.de-current::after { content: " \u25CF"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: "\u2795"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ' + (p = aib.multiFile ? 90 : 130) + 'px; width: ' + p + 'px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }\n\t.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }\n\t.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; margin: -13px 0 0 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: "' + Lng.dropFileHere[lang] + '"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }\n\n\t/* TODO: Redraw as SVG */\n\t' + gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') + '\n\t' + gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') + '\n\t' + gif('.de-file-btn-ren', 'R0lGODlhEAAQAJEAAP/QEwAAAP///wAAACH5BAEAAAIALAAAAAAQABAAAAIxlI+pF7EaAHDPRDnrxRlySSUbFiIjuJydOHGlCaLP1gj17TTkxYPNb4u1VqacsfIoAAA7') + '\n\t' + gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') + '\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: "' + Lng.hideForm[lang] + '"; }\n\t.de-parea-btn-thr::after { content: "' + Lng.makeThr[lang] + '"; }\n\t.de-parea-btn-reply::after { content: "' + Lng.makeReply[lang] + '"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.isPresto ? '-2px -10px' : '0 0 -2px -10px') + '; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ' + (nav.isFirefox ? 2 : 4) + 'px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-link-ref { text-decoration: none; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: "\u25CF"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 40px 0 0 0; }\n\t.de-logo > svg { width: 64px; height: 64px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: "' + Lng.postsOmitted[lang] + '"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: " (Del)"; }\n\t.de-ref-op::after { content: " (OP)"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: "' + Lng.replies[lang] + ' "; }\n\t.de-replies-hide::after { content: "' + Lng.hidePosts[lang] + '"; }\n\t.de-replies-show::after { content: "' + Lng.showPosts[lang] + '"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t' + (aib.t ? '.de-thr-buttons > .de-btn-rep { display: none; }' : '') + '\n\t.de-thr-collapse-link::after { content: "' + Lng.collapseThr[lang] + '"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: "' + Lng.getNewPosts[lang] + '"; }\n\t#de-updater-count::before { content: ": "; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }';
 
 		$css(x).id = 'de-css';
 		$css('').id = 'de-css-dynamic';

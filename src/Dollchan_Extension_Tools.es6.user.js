@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = 'cb42233';
+const commit = '3730f90';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1355,6 +1355,10 @@ const Lng = {
 		'Удалить файл',
 		'Remove file',
 		'Видалити файл'],
+	renameFile: [
+		'Переименовать файл',
+		'Rename file',
+		'Перейменувати файл'],
 	spoilFile: [
 		'Спойлер',
 		'Spoiler',
@@ -2352,7 +2356,7 @@ function * getFormElements(form, submitter) {
 						name,
 						type,
 						el    : field,
-						value : new File([img[0]], img[1], { type: img[2] })
+						value : new File([img.data], img.name, { type: img.type })
 					};
 				} else {
 					yield {
@@ -9127,7 +9131,8 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName = !Cfg.removeFName ? fileName :
+			const newFileName =
+				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName :
 				(Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
@@ -9388,19 +9393,22 @@ class FileInput {
 		this.imgFile = null;
 		this._input = el;
 		this._isTxtEditable = false;
+		this._isTxtEditName = false;
 		this._mediaEl = null;
 		this._parent = parent;
 		this._rarMsg = null;
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
+			<div class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;"></div>
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
 			<input class="de-file-spoil" type="checkbox" title="` +
 				`${ Lng.spoilFile[lang] }" style="display: none;">
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] = [...this._utils.children];
+		[this._btnRename, this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] =
+			[...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
@@ -9438,10 +9446,9 @@ class FileInput {
 			this._initThumbs();
 			return;
 		}
-		const el = this._txtWrap.parentNode.parentNode;
 		$before(this._input, this._txtWrap);
 		$after(this._input, this._utils);
-		$del(el);
+		$del($q('de-file-txt-area'));
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
 		if(this._mediaEl) {
@@ -9462,7 +9469,7 @@ class FileInput {
 			}
 		}
 		if(this._btnDel) {
-			this._showDelBtn(false);
+			this._toggleDelBtn(false);
 			$hide(this._btnSpoil);
 			$hide(this._btnRarJpg);
 			$hide(this._txtAddBtn);
@@ -9475,7 +9482,7 @@ class FileInput {
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this.extraFile = this.imgFile = null;
-		this._isTxtEditable = false;
+		this._isTxtEditable = this._isTxtEditName = false;
 		this._changeFilesCount(-1);
 		this._removeFile();
 	}
@@ -9523,8 +9530,19 @@ class FileInput {
 				return;
 			} else if(el === this._btnRarJpg) {
 				this._addRarJpeg();
+			} else if(el === this._btnRename) {
+				const isShow = this._isTxtEditName = !this._isTxtEditName;
+				this._isTxtEditable = !this._isTxtEditable;
+				if(FileInput._isThumb) {
+					$toggle(this._txtWrap, isShow);
+				}
+				$toggle(this._txtAddBtn, isShow);
+				this._txtInput.classList.toggle('de-file-txt-noedit', !isShow);
+				if(isShow) {
+					this._txtInput.focus();
+				}
 			} else if(el === this._btnTxt) {
-				this._showDelBtn(this._isTxtEditable = true);
+				this._toggleDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
 					$toggle(this._txtWrap);
@@ -9533,7 +9551,38 @@ class FileInput {
 				this._txtInput.placeholder = Lng.enterTheLink[lang];
 				this._txtInput.focus();
 			} else if(el === this._txtAddBtn) {
-				this._addUrlFile(this._txtInput.value);
+				if(this._isTxtEditName) {
+					if(FileInput._isThumb) {
+						$hide(this._txtWrap);
+					}
+					$hide(this._txtAddBtn);
+					this._txtInput.classList.add('de-file-txt-noedit');
+					this._isTxtEditable = this._isTxtEditName = false;
+					const newName = this._txtInput.value;
+					if(!newName) {
+						this._txtInput.value = this.imgFile ? this.imgFile.name : this._input.files[0].name;
+						return;
+					}
+					if(this.imgFile) {
+						this.imgFile.isConstName = true;
+						this.imgFile.name = newName;
+						if(FileInput._isThumb) {
+							this._addThumbTitle(newName, this.imgFile.data.byteLength);
+						}
+						return;
+					}
+					const file = this._input.files[0];
+					readFile(file).then(({ data }) => {
+						this.imgFile = { data, name: newName, type: file.type, isConstName: true };
+						this._removeFileHelper(); // Clear the original file
+						if(FileInput._isThumb) {
+							this._addThumbTitle(newName, data.byteLength);
+						}
+					});
+					return;
+				} else {
+					this._addUrlFile(this._txtInput.value);
+				}
 			} else if(el === this._txtInput && !this._isTxtEditable) {
 				this._input.click();
 				this._txtInput.blur();
@@ -9568,7 +9617,9 @@ class FileInput {
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
-			setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
+			if(FileInput._isThumb) {
+				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
+			}
 			$pd(e);
 			e.stopPropagation();
 		}
@@ -9576,7 +9627,7 @@ class FileInput {
 	}
 	hideInp() {
 		if(FileInput._isThumb) {
-			this._showDelBtn(false);
+			this._toggleDelBtn(false);
 			$hide(this._thumb);
 			$hide(this._txtWrap);
 		}
@@ -9592,11 +9643,11 @@ class FileInput {
 	static get _isThumb() {
 		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
 	}
-	static _readDroppedFile(input, file) {
+	static _readDroppedFile(inputObj, file) {
 		return readFile(file).then(({ data }) => {
-			input.imgFile = [data, file.name, file.type];
-			input.showInp();
-			input._onFileChange(true);
+			inputObj.imgFile = { data, name: file.name, type: file.type };
+			inputObj.showInp();
+			inputObj._onFileChange(true);
 		});
 	}
 	get _wrap() {
@@ -9626,7 +9677,7 @@ class FileInput {
 			readFile(file).then(({ data }) => {
 				if(this._rarMsg === myBtn) {
 					myBtn.className = 'de-file-rarmsg';
-					const origFileName = this.imgFile ? this.imgFile[1] : this._input.files[0].name;
+					const origFileName = this.imgFile ? this.imgFile.name : this._input.files[0].name;
 					myBtn.title = origFileName + ' + ' + file.name;
 					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
 					this.extraFile = data;
@@ -9634,6 +9685,9 @@ class FileInput {
 			});
 		};
 		el.click();
+	}
+	_addThumbTitle(name, size) {
+		this._thumb.firstChild.firstChild.title = `${ name }, ${ (size / 1024).toFixed(2) }KB`;
 	}
 	_addUrlFile(url, file = null) {
 		if(!url) {
@@ -9649,7 +9703,7 @@ class FileInput {
 				return;
 			}
 			closePopup('file-loading');
-			this._isTxtEditable = false;
+			this._isTxtEditable = this._isTxtEditName = false;
 			let name = file ? file.name : url.split('/').pop();
 			const type = file && file.type || getFileType(name);
 			if(!type || name.includes('?')) {
@@ -9665,9 +9719,9 @@ class FileInput {
 					name = name.split('?').shift() + '.' + ext;
 				}
 			}
-			this.imgFile = [data.buffer, name, type || getFileType(name)];
+			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
 			if(!file) {
-				file = new Blob([data], { type: this.imgFile[2] });
+				file = new Blob([data], { type: this.imgFile.type });
 				file.name = name;
 			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
@@ -9705,7 +9759,7 @@ class FileInput {
 		}
 	}
 	_onFileChange(hasImgFile) {
-		this._txtInput.value = hasImgFile ? this.imgFile[1] : this._input.files[0].name;
+		this._txtInput.value = hasImgFile ? this.imgFile.name : this._input.files[0].name;
 		if(!hasImgFile) {
 			this.imgFile = null;
 		}
@@ -9720,7 +9774,7 @@ class FileInput {
 		} else {
 			this.hasFile = true;
 			this._changeFilesCount(+1);
-			this._showDelBtn(true);
+			this._toggleDelBtn(true);
 			$hide(this._txtAddBtn);
 			if(FileInput._isThumb) {
 				$hide(this._txtWrap);
@@ -9734,7 +9788,7 @@ class FileInput {
 		}
 		this._parent.hideEmpty();
 		if(!nav.isPresto && !aib.fch &&
-			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile[2] : this._input.files[0].type)
+			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			$del(this._rarMsg);
 			$show(this._btnRarJpg);
@@ -9756,14 +9810,10 @@ class FileInput {
 		this._input = newEl;
 		$del(oldEl);
 	}
-	_showDelBtn(isShow) {
-		$toggle(this._btnDel, isShow);
-		$toggle(this._btnTxt, !isShow);
-	}
 	_showFileThumb() {
 		const { imgFile } = this;
 		if(imgFile) {
-			this._addNewThumb(...imgFile, imgFile[0].byteLength);
+			this._addNewThumb(imgFile.data, imgFile.name, imgFile.type, imgFile.data.byteLength);
 			return;
 		}
 		const file = this._input.files[0];
@@ -9774,6 +9824,11 @@ class FileInput {
 				}
 			});
 		}
+	}
+	_toggleDelBtn(isShow) {
+		$toggle(this._btnDel, isShow);
+		$toggle(this._btnRename, isShow && this.hasFile);
+		$toggle(this._btnTxt, !isShow);
 	}
 	_toggleDragEvents(el, isAdd) {
 		const name = isAdd ? 'addEventListener' : 'removeEventListener';
@@ -17733,7 +17788,7 @@ function scriptCSS() {
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
 	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
-	.de-file > .de-file-utils > .de-file-rarmsg { color: #fff; }
+	.de-file > .de-file-utils > .de-file-rarmsg { display: block; margin: -13px 0 0 0; background: rgba(64,64,64,.6); color: #fff; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
 	.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }
 	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
@@ -17742,14 +17797,17 @@ function scriptCSS() {
 	.de-file-input + .de-file-utils { margin-left: 4px; }
 	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
-	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
+	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
 	.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }
 	.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
 	.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }
+
+	/* TODO: Redraw as SVG */
 	${ gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') }
 	${ gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') }
+	${ gif('.de-file-btn-ren', 'R0lGODlhEAAQAJEAAP/QEwAAAP///wAAACH5BAEAAAIALAAAAAAQABAAAAIxlI+pF7EaAHDPRDnrxRlySSUbFiIjuJydOHGlCaLP1gj17TTkxYPNb4u1VqacsfIoAAA7') }
 	${ gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') }
 
 	/* Reply form */

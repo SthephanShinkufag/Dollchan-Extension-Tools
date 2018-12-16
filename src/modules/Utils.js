@@ -734,7 +734,7 @@ function * getFormElements(form, submitter) {
 						name,
 						type,
 						el    : field,
-						value : new File([img[0]], img[1], { type: img[2] })
+						value : new File([img.data], img.name, { type: img.type })
 					};
 				} else {
 					yield {

@@ -1184,6 +1184,10 @@ const Lng = {
 		'Удалить файл',
 		'Remove file',
 		'Видалити файл'],
+	renameFile: [
+		'Переименовать файл',
+		'Rename file',
+		'Перейменувати файл'],
 	spoilFile: [
 		'Спойлер',
 		'Spoiler',
