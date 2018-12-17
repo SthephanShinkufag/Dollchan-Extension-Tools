@@ -184,7 +184,9 @@ async function html5Submit(form, submitter, needProgress = false) {
 			const fileName = value.name;
 			const newFileName =
 				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName :
-				(Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
+				Cfg.removeFName === 1 ? ' ' : (Date.now() - (Cfg.removeFName === 2 ? 0 :
+				Math.round(Math.random() * 15768e7 /* 5 years = 5*365*24*60*60*1e3 */))) +
+					fileName.substring(fileName.lastIndexOf('.'));
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||

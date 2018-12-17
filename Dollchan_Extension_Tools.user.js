@@ -3496,7 +3496,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 							hasFiles = true;
 							fileName = value.name;
-							newFileName = !Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? ' ' : Date.now()) + fileName.substring(fileName.lastIndexOf('.'));
+							newFileName = !Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : Cfg.removeFName === 1 ? ' ' : Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7 )) + fileName.substring(fileName.lastIndexOf('.'));
 							mime = value.type;
 
 							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.mak))) {
@@ -3834,7 +3834,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = '3f9f337';
+	var commit = 'da8fa43';
 
 
 	var defaultCfg = {
@@ -4088,7 +4088,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			postSameImg: ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
 			removeEXIF: ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
 			removeFName: {
-				sel: [['Не изменять', 'Удалять', 'Unixtime'], ['Don`t change', 'Clear', 'Unixtime'], ['Не змінювати', 'Видаляти', 'Unixtime']],
+				sel: [['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'], ['Don`t change', 'Clear', 'Unixtime', 'Unixtime-random'], ['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 				txt: ['имена файлов', 'file names', 'імена файлів']
 			},
 			sendErrNotif: ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error', 'Сповіщати в заголовку про помилку надсилання'],
@@ -13399,14 +13399,14 @@ true, true];
 			this._rarMsg = null;
 			this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 			this._thumb = null;
-			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-ren" title="' + Lng.renameFile[lang] + '" style="display: none;"></div>\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
+			this._utils = $add('<div class="de-file-utils">\n\t\t\t<div class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;"></div>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<div class="de-file-btn-txt" title="' + Lng.addManually[lang] + '"></div>\n\t\t\t<div class="de-file-btn-ren" title="' + Lng.renameFile[lang] + '" style="display: none;"></div>\n\t\t\t<div class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;"></div>\n\t\t</div>'));
 
 			var _ref45 = [].concat(_toConsumableArray(this._utils.children));
 
-			this._btnRename = _ref45[0];
-			this._btnRarJpg = _ref45[1];
-			this._btnSpoil = _ref45[2];
-			this._btnTxt = _ref45[3];
+			this._btnRarJpg = _ref45[0];
+			this._btnSpoil = _ref45[1];
+			this._btnTxt = _ref45[2];
+			this._btnRename = _ref45[3];
 			this._btnDel = _ref45[4];
 
 			this._utils.addEventListener('click', this);
@@ -13442,10 +13442,11 @@ true, true];
 		_createClass(FileInput, [{
 			key: 'changeMode',
 			value: function changeMode(showThumbs) {
+				toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
+				$toggle(this._btnRename, Cfg.fileInputs && this.hasFile);
 				if (!(showThumbs ^ !!this._thumb)) {
 					return;
 				}
-				toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
 				if (showThumbs) {
 					this._initThumbs();
 					return;
@@ -13540,11 +13541,6 @@ true, true];
 							this._parent.hideEmpty();
 							delete this._parent._files[this._parent._inputs.indexOf(this)];
 							DollchanAPI.notify('filechange', this._parent._files);
-						} else if (el === this._btnSpoil) {
-							this._spoilEl.checked = this._btnSpoil.checked;
-							return;
-						} else if (el === this._btnRarJpg) {
-							this._addRarJpeg();
 						} else if (el === this._btnRename) {
 							var isShow = this._isTxtEditName = !this._isTxtEditName;
 							this._isTxtEditable = !this._isTxtEditable;
@@ -13565,6 +13561,11 @@ true, true];
 							this._txtInput.classList.remove('de-file-txt-noedit');
 							this._txtInput.placeholder = Lng.enterTheLink[lang];
 							this._txtInput.focus();
+						} else if (el === this._btnSpoil) {
+							this._spoilEl.checked = this._btnSpoil.checked;
+							return;
+						} else if (el === this._btnRarJpg) {
+							this._addRarJpeg();
 						} else if (el === this._txtAddBtn) {
 							if (this._isTxtEditName) {
 								if (FileInput._isThumb) {
@@ -13869,7 +13870,7 @@ true, true];
 			key: '_toggleDelBtn',
 			value: function _toggleDelBtn(isShow) {
 				$toggle(this._btnDel, isShow);
-				$toggle(this._btnRename, isShow && this.hasFile);
+				$toggle(this._btnRename, Cfg.fileInputs && isShow && this.hasFile);
 				$toggle(this._btnTxt, !isShow);
 			}
 		}, {

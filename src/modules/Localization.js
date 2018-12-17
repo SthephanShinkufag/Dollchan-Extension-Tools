@@ -363,9 +363,9 @@ const Lng = {
 			'Видаляти EXIF з JPEG '],
 		removeFName: {
 			sel: [
-				['Не изменять', 'Удалять', 'Unixtime'],
-				['Don`t change', 'Clear', 'Unixtime'],
-				['Не змінювати', 'Видаляти', 'Unixtime']],
+				['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'],
+				['Don`t change', 'Clear', 'Unixtime', 'Unixtime-random'],
+				['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 			txt: [
 				'имена файлов',
 				'file names',

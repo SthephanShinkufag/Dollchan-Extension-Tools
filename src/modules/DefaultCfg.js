@@ -77,7 +77,7 @@ const defaultCfg = {
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
 	removeEXIF   : 1,    //    remove EXIF from JPEG
-	removeFName  : 0,    //    clear file names [0=off, 1=empty, 2=unixtime]
+	removeFName  : 0,    //    clear file names [0=off, 1=empty, 2=unixtime, 3=unixtime-random]
 	sendErrNotif : 1,    //    inform in title about post send error
 	scrAfterRep  : 0,    //    scroll to bottom after reply
 	fileInputs   : 2,    //    enhanced file attachment field  [0=off, 1=simple, 2=preview]

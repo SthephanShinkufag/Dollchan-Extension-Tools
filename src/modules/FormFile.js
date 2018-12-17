@@ -75,14 +75,14 @@ class FileInput {
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
-			<div class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;"></div>
 			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
 			<input class="de-file-spoil" type="checkbox" title="` +
 				`${ Lng.spoilFile[lang] }" style="display: none;">
 			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
+			<div class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;"></div>
 			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
 		</div>`);
-		[this._btnRename, this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnDel] =
+		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnRename, this._btnDel] =
 			[...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
@@ -113,10 +113,11 @@ class FileInput {
 		}
 	}
 	changeMode(showThumbs) {
+		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
+		$toggle(this._btnRename, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
 		}
-		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
 		if(showThumbs) {
 			this._initThumbs();
 			return;
@@ -200,11 +201,6 @@ class FileInput {
 				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
-			} else if(el === this._btnSpoil) {
-				this._spoilEl.checked = this._btnSpoil.checked;
-				return;
-			} else if(el === this._btnRarJpg) {
-				this._addRarJpeg();
 			} else if(el === this._btnRename) {
 				const isShow = this._isTxtEditName = !this._isTxtEditName;
 				this._isTxtEditable = !this._isTxtEditable;
@@ -225,6 +221,11 @@ class FileInput {
 				this._txtInput.classList.remove('de-file-txt-noedit');
 				this._txtInput.placeholder = Lng.enterTheLink[lang];
 				this._txtInput.focus();
+			} else if(el === this._btnSpoil) {
+				this._spoilEl.checked = this._btnSpoil.checked;
+				return;
+			} else if(el === this._btnRarJpg) {
+				this._addRarJpeg();
 			} else if(el === this._txtAddBtn) {
 				if(this._isTxtEditName) {
 					if(FileInput._isThumb) {
@@ -502,7 +503,7 @@ class FileInput {
 	}
 	_toggleDelBtn(isShow) {
 		$toggle(this._btnDel, isShow);
-		$toggle(this._btnRename, isShow && this.hasFile);
+		$toggle(this._btnRename, Cfg.fileInputs && isShow && this.hasFile);
 		$toggle(this._btnTxt, !isShow);
 	}
 	_toggleDragEvents(el, isAdd) {
