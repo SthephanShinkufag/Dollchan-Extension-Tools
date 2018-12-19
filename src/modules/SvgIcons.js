@@ -69,20 +69,20 @@ function addSVGIcons() {
 		<path stroke="#03043f" stroke-width="4" d="M3 10h13"/>
 		<path stroke="#cc5dc1" stroke-width="2" d="M3 7h13"/>
 		<path fill="#ccd0db" d="M3 14l-3-3V3l3 3v8z"/>
-		<path fill="#636665" d="M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z"/>
+		<path fill="#666" d="M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z"/>
 		<path stroke="#103cef" stroke-width="2" d="M3 10h13"/>
 		<path stroke="#294f1d" d="M3 14.5h13"/>
-		<path fill="#5f364a" d="M13 2H0l3 3h13l-3-3z"/>
-		<path stroke="#5f364a" d="M3 5.5h13"/>
-		<path stroke="#723211" stroke-width="2" d="M9.5 15V5"/>
-		<path fill="#723211" d="M10.5 5l-3-3h-2l3 3h2z"/>
-		<path stroke="#878787" stroke-width="4" d="M7 10h5"/>
-		<path fill="none" stroke="#191919" d="M8.5 9v1.5h2V9"/>
+		<path fill="#994a95" d="M13 2H0l3 3h13l-3-3z"/>
+		<path stroke="#7C467a" d="M3 5.5h13"/>
+		<path stroke="#513400" stroke-width="2" d="M9.5 15V5"/>
+		<path fill="#513400" d="M10.5 5l-3-3h-2l3 3h2z"/>
+		<path stroke="#ceab00" stroke-width="4" d="M7 10h5"/>
+		<path fill="none" stroke="#222" d="M8.5 9v1.5h2V9"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-file-ren">
-		<circle fill="#fcb45e" stroke="#333" stroke-width=".75" cx="6" cy="14" r="1.5"/>
-		<circle fill="#fcb45e" stroke="#333" stroke-width=".75" cx="10" cy="14" r="1.5"/>
-		<circle fill="#fcb45e" stroke="#333" stroke-width=".75" cx="14" cy="14" r="1.5"/>
+		<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="6" cy="14" r="1.5"/>
+		<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="10" cy="14" r="1.5"/>
+		<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="14" cy="14" r="1.5"/>
 		<path fill="#fcb45e" stroke="#3a2200" stroke-width=".75" d="M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z"/>
 		<path fill="#ff8a33" stroke="#3a2200" stroke-width=".75" d="M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z"/>
 		<path fill="#ffe888" stroke="#333" stroke-width=".75" d="M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z"/>

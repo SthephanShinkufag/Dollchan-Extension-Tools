@@ -319,7 +319,6 @@ class FileInput {
 		if(FileInput._isThumbMode) {
 			$show(this._thumb);
 		}
-		console.log(3)
 		$show(this._wrap);
 	}
 

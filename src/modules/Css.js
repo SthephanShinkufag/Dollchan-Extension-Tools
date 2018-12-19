@@ -275,8 +275,8 @@ function scriptCSS() {
 	.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
-	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -16px; padding: 0; background: rgba(80,80,80,.6); position: relative; }
-	.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 16px; width: 100%; margin: 0; background: rgba(80,80,80,.6); color: #fff; }
+	.de-file > .de-file-utils { display: none; height: 18px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
+	.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 16px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
 	.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }
 	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
