@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+	<linearGradient id="de-file-del-gradient" x1="50%" y1="10%" x2="50%" y2="90%">
+		<stop offset="0" stop-color="#fbd"/>
+		<stop offset="50%" stop-color="#f30"/>
+	</linearGradient>
+	<path fill="url(#de-file-del-gradient)" stroke="#ca2900" d="M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z"/>
+</svg>

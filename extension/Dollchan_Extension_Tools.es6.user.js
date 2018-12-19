@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = 'da8fa43';
+const commit = '50ab7e9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9402,15 +9402,18 @@ class FileInput {
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
-			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
+			<span class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-rar"/></svg></span>
 			<input class="de-file-spoil" type="checkbox" title="` +
 				`${ Lng.spoilFile[lang] }" style="display: none;">
-			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
-			<div class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;"></div>
-			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
+			<span class="de-file-btn-txt" title="${ Lng.addManually[lang] }">
+				<svg><use xlink:href="#de-symbol-file-txt"/></svg></span>
+			<span class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-ren"/></svg></span>
+			<span class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-del"/></svg></span>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnRename, this._btnDel] =
-			[...this._utils.children];
+		[this._btnRar, this._btnSpoil, this._btnTxt, this._btnRen, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
@@ -9441,7 +9444,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
-		$toggle(this._btnRename, Cfg.fileInputs && this.hasFile);
+		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
 		}
@@ -9474,7 +9477,7 @@ class FileInput {
 		if(this._btnDel) {
 			this._toggleDelBtn(false);
 			$hide(this._btnSpoil);
-			$hide(this._btnRarJpg);
+			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
 			if(FileInput._isThumb) {
@@ -9520,15 +9523,18 @@ class FileInput {
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
 		}
-		case 'click':
+		case 'click': {
+			const parent = el.parentNode;
 			if(isThumb) {
 				this._input.click();
-			} else if(el === this._btnDel) {
+			} else if(parent === this._btnDel) {
 				this.clearInp();
 				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
-			} else if(el === this._btnRename) {
+			} else if(parent === this._btnRar) {
+				this._addRarJpeg();
+			} else if(parent === this._btnRen) {
 				const isShow = this._isTxtEditName = !this._isTxtEditName;
 				this._isTxtEditable = !this._isTxtEditable;
 				if(FileInput._isThumb) {
@@ -9539,7 +9545,7 @@ class FileInput {
 				if(isShow) {
 					this._txtInput.focus();
 				}
-			} else if(el === this._btnTxt) {
+			} else if(parent === this._btnTxt) {
 				this._toggleDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
@@ -9551,8 +9557,6 @@ class FileInput {
 			} else if(el === this._btnSpoil) {
 				this._spoilEl.checked = this._btnSpoil.checked;
 				return;
-			} else if(el === this._btnRarJpg) {
-				this._addRarJpeg();
 			} else if(el === this._txtAddBtn) {
 				if(this._isTxtEditName) {
 					if(FileInput._isThumb) {
@@ -9593,6 +9597,7 @@ class FileInput {
 			$pd(e);
 			e.stopPropagation();
 			return;
+		}
 		case 'dragenter':
 			if(isThumb) {
 				thumb.classList.add('de-file-drag');
@@ -9673,7 +9678,7 @@ class FileInput {
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
 		el.onchange = e => {
-			$hide(this._btnRarJpg);
+			$hide(this._btnRar);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 			const file = e.target.files[0];
@@ -9794,7 +9799,7 @@ class FileInput {
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			$del(this._rarMsg);
-			$show(this._btnRarJpg);
+			$show(this._btnRar);
 		}
 	}
 	_removeFile() {
@@ -9830,7 +9835,7 @@ class FileInput {
 	}
 	_toggleDelBtn(isShow) {
 		$toggle(this._btnDel, isShow);
-		$toggle(this._btnRename, Cfg.fileInputs && isShow && this.hasFile);
+		$toggle(this._btnRen, Cfg.fileInputs && isShow && this.hasFile);
 		$toggle(this._btnTxt, !isShow);
 	}
 	_toggleDragEvents(el, isAdd) {
@@ -17303,6 +17308,10 @@ function addSVGIcons() {
 			<stop offset="50%" stop-color="#505050"/>
 			<stop offset="100%" stop-color="#A0A0A0"/>
 		</linearGradient>
+		<linearGradient id="de-file-del-gradient" x1="50%" y1="10%" x2="50%" y2="90%">
+			<stop offset="0" stop-color="#fbd"/>
+			<stop offset="50%" stop-color="#f30"/>
+		</linearGradient>
 	</defs>
 
 	<!-- POST ICONS -->
@@ -17344,6 +17353,40 @@ function addSVGIcons() {
 		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
 		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
 	</symbol>
+
+	<!-- FILE ICONS -->
+	<symbol viewBox="0 0 16 16" id="de-symbol-file-del">
+		<path fill="url(#de-file-del-gradient)" stroke="#ca2900" d="M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z"/>
+	</symbol>
+	<symbol viewBox="0 0 16 16" width="16" height="16" id="de-symbol-file-rar">
+		<path stroke="#07ac07" stroke-width="2" d="M3 13h13"/>
+		<path stroke="#03043f" stroke-width="4" d="M3 10h13"/>
+		<path stroke="#cc5dc1" stroke-width="2" d="M3 7h13"/>
+		<path fill="#ccd0db" d="M3 14l-3-3V3l3 3v8z"/>
+		<path fill="#636665" d="M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z"/>
+		<path stroke="#103cef" stroke-width="2" d="M3 10h13"/>
+		<path stroke="#294f1d" d="M3 14.5h13"/>
+		<path fill="#5f364a" d="M13 2H0l3 3h13l-3-3z"/>
+		<path stroke="#5f364a" d="M3 5.5h13"/>
+		<path stroke="#723211" stroke-width="2" d="M9.5 15V5"/>
+		<path fill="#723211" d="M10.5 5l-3-3h-2l3 3h2z"/>
+		<path stroke="#878787" stroke-width="4" d="M7 10h5"/>
+		<path fill="none" stroke="#191919" d="M8.5 9v1.5h2V9"/>
+	</symbol>
+	<symbol viewBox="0 0 16 16" id="de-symbol-file-ren">
+		<circle fill="#ffe888" stroke="#3a2200" cx="6" cy="14" r="1.5"/>
+		<circle fill="#ffe888" stroke="#3a2200" cx="10" cy="14" r="1.5"/>
+		<circle fill="#ffe888" stroke="#3a2200" cx="14" cy="14" r="1.5"/>
+		<path fill="#fcb45e" stroke="#3a2200" stroke-width=".75" d="M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z"/>
+		<path fill="#ff8a33" stroke="#3a2200" stroke-width=".75" d="M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z"/>
+		<path fill="#ffe888" stroke="#3a2200" stroke-width=".75" d="M2 8l-.5.5L1 9v3.6h3.6L5 12l.5-.5-1.7-1.7L2 8z"/>
+		<path stroke="#3a2200" d="M1 12.5L2.5 11"/>
+	</symbol>
+	<svg viewBox="0 0 16 16" id="de-symbol-file-txt">
+		<circle fill="#2cabe1" cx="8" cy="8" r="7.5"/>
+		<line stroke="#fff" stroke-width="2" x1="8" y1="3" x2="8" y2="13"/>
+		<line stroke="#fff" stroke-width="2" x1="3" y1="8" x2="13" y2="8"/>
+	</svg>
 
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
@@ -17520,7 +17563,6 @@ function addSVGIcons() {
 
 function scriptCSS() {
 	const cont = (id, src) => `${ id }::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(${ src }) no-repeat center; background-size: contain; }`;
-	const gif = (id, src) => `${ id } { background-image: url(data:image/gif;base64,${ src }); background-repeat: no-repeat; background-position: center; }`;
 
 	let x = `
 	/* Main panel */
@@ -17790,8 +17832,8 @@ function scriptCSS() {
 	.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ${ p = aib.multiFile ? 90 : 130 }px; width: ${ p }px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }
 	.de-file > .de-file-img { display: table; width: 100%; height: 100%; cursor: pointer; }
 	.de-file > .de-file-img > div { display: table-cell; vertical-align: middle; }
-	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -18px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; }
-	.de-file > .de-file-utils > .de-file-rarmsg { display: block; margin: -13px 0 0 0; background: rgba(64,64,64,.6); color: #fff; }
+	.de-file > .de-file-utils { display: none; height: 16px; margin-top: -16px; padding: 0; background: rgba(80,80,80,.6); position: relative; }
+	.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 16px; width: 100%; margin: 0; background: rgba(80,80,80,.6); color: #fff; }
 	#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
 	.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }
 	.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }
@@ -17800,18 +17842,13 @@ function scriptCSS() {
 	.de-file-input + .de-file-utils { margin-left: 4px; }
 	.de-file-off > .de-file-img > div::after { content: "${ Lng.dropFileHere[lang] }"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }
 	.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }
-	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { display: inline-block; margin: 0 1px; padding: 0 16px 16px 0; cursor: pointer; }
+	.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { display: inline-block; width: 16px; height: 16px; margin: 0 1px; cursor: pointer; }
+	.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }
 	.de-file-spoil { margin: 0 3px; vertical-align: 1px; }
 	.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }
 	.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }
 	.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }
-	.de-file-utils { display: inline-block; float: none; vertical-align: -2px; }
-
-	/* TODO: Redraw as SVG */
-	${ gif('.de-file-btn-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=') }
-	${ gif('.de-file-btn-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==') }
-	${ gif('.de-file-btn-ren', 'R0lGODlhEAAQAJEAAP/QEwAAAP///wAAACH5BAEAAAIALAAAAAAQABAAAAIxlI+pF7EaAHDPRDnrxRlySSUbFiIjuJydOHGlCaLP1gj17TTkxYPNb4u1VqacsfIoAAA7') }
-	${ gif('.de-file-btn-txt', 'R0lGODlhEAAQAJEAACyr4e/19////wAAACH5BAEAAAIALAAAAAAQABAAAAIrlI+pwK3WokMyBEmjxbBeLgEbKFrmyXTn+nXaF7nNGMslZ9NpFu4L/ggeCgA7') }
+	.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }
 
 	/* Reply form */
 	.de-parea { text-align: center; }

@@ -75,15 +75,18 @@ class FileInput {
 		this._spoilEl = $q(aib.qFormSpoiler, el.parentNode);
 		this._thumb = null;
 		this._utils = $add(`<div class="de-file-utils">
-			<div class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;"></div>
+			<span class="de-file-btn-rar" title="${ Lng.helpAddFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-rar"/></svg></span>
 			<input class="de-file-spoil" type="checkbox" title="` +
 				`${ Lng.spoilFile[lang] }" style="display: none;">
-			<div class="de-file-btn-txt" title="${ Lng.addManually[lang] }"></div>
-			<div class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;"></div>
-			<div class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;"></div>
+			<span class="de-file-btn-txt" title="${ Lng.addManually[lang] }">
+				<svg><use xlink:href="#de-symbol-file-txt"/></svg></span>
+			<span class="de-file-btn-ren" title="${ Lng.renameFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-ren"/></svg></span>
+			<span class="de-file-btn-del" title="${ Lng.removeFile[lang] }" style="display: none;">
+				<svg><use xlink:href="#de-symbol-file-del"/></svg></span>
 		</div>`);
-		[this._btnRarJpg, this._btnSpoil, this._btnTxt, this._btnRename, this._btnDel] =
-			[...this._utils.children];
+		[this._btnRar, this._btnSpoil, this._btnTxt, this._btnRen, this._btnDel] = [...this._utils.children];
 		this._utils.addEventListener('click', this);
 		this._txtWrap = $add(`<span class="de-file-txt-wrap">
 			<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="` +
@@ -114,7 +117,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
-		$toggle(this._btnRename, Cfg.fileInputs && this.hasFile);
+		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
 		}
@@ -147,7 +150,7 @@ class FileInput {
 		if(this._btnDel) {
 			this._toggleDelBtn(false);
 			$hide(this._btnSpoil);
-			$hide(this._btnRarJpg);
+			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
 			if(FileInput._isThumb) {
@@ -193,15 +196,18 @@ class FileInput {
 			DollchanAPI.notify('filechange', this._parent._files);
 			return;
 		}
-		case 'click':
+		case 'click': {
+			const parent = el.parentNode;
 			if(isThumb) {
 				this._input.click();
-			} else if(el === this._btnDel) {
+			} else if(parent === this._btnDel) {
 				this.clearInp();
 				this._parent.hideEmpty();
 				delete this._parent._files[this._parent._inputs.indexOf(this)];
 				DollchanAPI.notify('filechange', this._parent._files);
-			} else if(el === this._btnRename) {
+			} else if(parent === this._btnRar) {
+				this._addRarJpeg();
+			} else if(parent === this._btnRen) {
 				const isShow = this._isTxtEditName = !this._isTxtEditName;
 				this._isTxtEditable = !this._isTxtEditable;
 				if(FileInput._isThumb) {
@@ -212,7 +218,7 @@ class FileInput {
 				if(isShow) {
 					this._txtInput.focus();
 				}
-			} else if(el === this._btnTxt) {
+			} else if(parent === this._btnTxt) {
 				this._toggleDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
 				if(FileInput._isThumb) {
@@ -224,8 +230,6 @@ class FileInput {
 			} else if(el === this._btnSpoil) {
 				this._spoilEl.checked = this._btnSpoil.checked;
 				return;
-			} else if(el === this._btnRarJpg) {
-				this._addRarJpeg();
 			} else if(el === this._txtAddBtn) {
 				if(this._isTxtEditName) {
 					if(FileInput._isThumb) {
@@ -266,6 +270,7 @@ class FileInput {
 			$pd(e);
 			e.stopPropagation();
 			return;
+		}
 		case 'dragenter':
 			if(isThumb) {
 				thumb.classList.add('de-file-drag');
@@ -346,7 +351,7 @@ class FileInput {
 	_addRarJpeg() {
 		const el = this._parent.rarInput;
 		el.onchange = e => {
-			$hide(this._btnRarJpg);
+			$hide(this._btnRar);
 			const myBtn = this._rarMsg = $aBegin(this._utils,
 				'<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 			const file = e.target.files[0];
@@ -467,7 +472,7 @@ class FileInput {
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			$del(this._rarMsg);
-			$show(this._btnRarJpg);
+			$show(this._btnRar);
 		}
 	}
 	_removeFile() {
@@ -503,7 +508,7 @@ class FileInput {
 	}
 	_toggleDelBtn(isShow) {
 		$toggle(this._btnDel, isShow);
-		$toggle(this._btnRename, Cfg.fileInputs && isShow && this.hasFile);
+		$toggle(this._btnRen, Cfg.fileInputs && isShow && this.hasFile);
 		$toggle(this._btnTxt, !isShow);
 	}
 	_toggleDragEvents(el, isAdd) {
