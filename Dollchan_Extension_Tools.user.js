@@ -3298,6 +3298,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (!('FormData' in deWindow)) {
 								Cfg.ajaxPosting = 0;
 							}
+							if (!Cfg.ajaxPosting) {
+								Cfg.fileInputs = 0;
+							}
 							if (!('Notification' in deWindow)) {
 								Cfg.desktNotif = 0;
 							}
@@ -3357,7 +3360,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}, emptyFn);
 							}
 
-						case 25:
+						case 26:
 						case 'end':
 							return _context4.stop();
 					}
@@ -3834,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.13.0';
-	var commit = '50ab7e9';
+	var commit = '84639db';
 
 
 	var defaultCfg = {
@@ -13286,7 +13289,7 @@ true, true];
 		_createClass(Files, [{
 			key: 'changeMode',
 			value: function changeMode() {
-				var cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+				var isThumbMode = Cfg.fileInputs === 2;
 				var _iteratorNormalCompletion24 = true;
 				var _didIteratorError24 = false;
 				var _iteratorError24 = undefined;
@@ -13295,7 +13298,7 @@ true, true];
 					for (var _iterator24 = this._inputs[Symbol.iterator](), _step24; !(_iteratorNormalCompletion24 = (_step24 = _iterator24.next()).done); _iteratorNormalCompletion24 = true) {
 						var inp = _step24.value;
 
-						inp.changeMode(cfg);
+						inp.changeMode(isThumbMode);
 					}
 				} catch (err) {
 					_didIteratorError24 = true;
@@ -13419,19 +13422,19 @@ true, true];
 
 			this._txtWrap.addEventListener('click', this);
 			this._toggleDragEvents(this._txtWrap, true);
-			if (Cfg.ajaxPosting) {
-				$hide(el);
-			}
 			el.obj = this;
 			el.classList.add('de-file-input');
 			el.addEventListener('change', this);
 			if (el.files && el.files[0]) {
 				this._removeFile();
 			}
-			if (aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
-				this._input.setAttribute('multiple', true);
+			if (Cfg.fileInputs) {
+				$hide(el);
+				if (aib.multiFile) {
+					this._input.setAttribute('multiple', true);
+				}
 			}
-			if (FileInput._isThumb) {
+			if (FileInput._isThumbMode) {
 				this._initThumbs();
 			} else {
 				$before(this._input, this._txtWrap);
@@ -13442,7 +13445,8 @@ true, true];
 		_createClass(FileInput, [{
 			key: 'changeMode',
 			value: function changeMode(showThumbs) {
-				toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
+				$toggle(this._input, !Cfg.fileInputs);
+				toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
 				$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 				if (!(showThumbs ^ !!this._thumb)) {
 					return;
@@ -13466,7 +13470,7 @@ true, true];
 		}, {
 			key: 'clearInp',
 			value: function clearInp() {
-				if (FileInput._isThumb) {
+				if (FileInput._isThumbMode) {
 					this._thumb.classList.add('de-file-off');
 					if (this._mediaEl) {
 						deWindow.URL.revokeObjectURL(this._mediaEl.src);
@@ -13481,7 +13485,7 @@ true, true];
 					$hide(this._btnRar);
 					$hide(this._txtAddBtn);
 					$del(this._rarMsg);
-					if (FileInput._isThumb) {
+					if (FileInput._isThumbMode) {
 						$hide(this._txtWrap);
 					}
 					this._txtInput.value = '';
@@ -13548,7 +13552,7 @@ true, true];
 							} else if (parent === this._btnRen) {
 								var isShow = this._isTxtEditName = !this._isTxtEditName;
 								this._isTxtEditable = !this._isTxtEditable;
-								if (FileInput._isThumb) {
+								if (FileInput._isThumbMode) {
 									$toggle(this._txtWrap, isShow);
 								}
 								$toggle(this._txtAddBtn, isShow);
@@ -13559,7 +13563,7 @@ true, true];
 							} else if (parent === this._btnTxt) {
 								this._toggleDelBtn(this._isTxtEditable = true);
 								$show(this._txtAddBtn);
-								if (FileInput._isThumb) {
+								if (FileInput._isThumbMode) {
 									$toggle(this._txtWrap);
 								}
 								this._txtInput.classList.remove('de-file-txt-noedit');
@@ -13570,7 +13574,7 @@ true, true];
 								return;
 							} else if (el === this._txtAddBtn) {
 								if (this._isTxtEditName) {
-									if (FileInput._isThumb) {
+									if (FileInput._isThumbMode) {
 										$hide(this._txtWrap);
 									}
 									$hide(this._txtAddBtn);
@@ -13584,7 +13588,7 @@ true, true];
 									if (this.imgFile) {
 										this.imgFile.isConstName = true;
 										this.imgFile.name = newName;
-										if (FileInput._isThumb) {
+										if (FileInput._isThumbMode) {
 											this._addThumbTitle(newName, this.imgFile.data.byteLength);
 										}
 										return;
@@ -13595,7 +13599,7 @@ true, true];
 
 										_this35.imgFile = { data: data, name: newName, type: file.type, isConstName: true };
 										_this35._removeFileHelper(); 
-										if (FileInput._isThumb) {
+										if (FileInput._isThumbMode) {
 											_this35._addThumbTitle(newName, data.byteLength);
 										}
 									});
@@ -13639,7 +13643,7 @@ true, true];
 							} else {
 								this._addUrlFile(dt.getData('text/plain'));
 							}
-							if (FileInput._isThumb) {
+							if (FileInput._isThumbMode) {
 								setTimeout(function () {
 									return thumb.classList.remove('de-file-drag');
 								}, 10);
@@ -13652,7 +13656,7 @@ true, true];
 		}, {
 			key: 'hideInp',
 			value: function hideInp() {
-				if (FileInput._isThumb) {
+				if (FileInput._isThumbMode) {
 					this._toggleDelBtn(false);
 					$hide(this._thumb);
 					$hide(this._txtWrap);
@@ -13662,9 +13666,10 @@ true, true];
 		}, {
 			key: 'showInp',
 			value: function showInp() {
-				if (FileInput._isThumb) {
+				if (FileInput._isThumbMode) {
 					$show(this._thumb);
 				}
+				console.log(3);
 				$show(this._wrap);
 			}
 		}, {
@@ -13758,7 +13763,7 @@ true, true];
 					}
 					_this37._parent._files[_this37._parent._inputs.indexOf(_this37)] = file;
 					DollchanAPI.notify('filechange', _this37._parent._files);
-					if (FileInput._isThumb) {
+					if (FileInput._isThumbMode) {
 						$hide(_this37._txtWrap);
 					}
 					_this37._onFileChange(true);
@@ -13801,7 +13806,7 @@ true, true];
 				if (this._parent.onchange) {
 					this._parent.onchange();
 				}
-				if (FileInput._isThumb) {
+				if (FileInput._isThumbMode) {
 					this._showFileThumb();
 				}
 				if (this.hasFile) {
@@ -13811,7 +13816,7 @@ true, true];
 					this._changeFilesCount(+1);
 					this._toggleDelBtn(true);
 					$hide(this._txtAddBtn);
-					if (FileInput._isThumb) {
+					if (FileInput._isThumbMode) {
 						$hide(this._txtWrap);
 					}
 					if (this._spoilEl) {
@@ -13902,9 +13907,9 @@ true, true];
 				});
 			}
 		}, {
-			key: '_isThumb',
+			key: '_isThumbMode',
 			get: function get() {
-				return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+				return Cfg.fileInputs === 2;
 			}
 		}]);
 
@@ -23430,7 +23435,7 @@ true, true];
 	}
 
 	function updateCSS() {
-		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'max-width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
+		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep, .de-btn-hide, .de-btn-unhide, .de-btn-src { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t.de-btn-fav-sel, .de-btn-stick-on, .de-btn-sage, .de-btn-hide-user, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-hide, .de-btn-unhide, .de-btn-src, .de-btn-sage, .de-btn-fav, .de-btn-stick, .de-btn-expthr, .de-btn-rep { color: #F5F5F5; }\n\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t.de-btn-unhide-user { color: #FFBFBF; }\n\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user,\n\t\t.de-btn-unhide, .de-btn-unhide-user, .de-btn-rep, .de-btn-src, .de-btn-stick,\n\t\t.de-btn-stick-on { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'max-width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-rep, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (aib.kus || !aib.multiFile && Cfg.fileInputs === 2 ? '' : '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
 		$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

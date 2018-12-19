@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.13.0';
-const commit = '50ab7e9';
+const commit = '84639db';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2568,6 +2568,9 @@ async function readCfg() {
 	}
 	if(!('FormData' in deWindow)) {
 		Cfg.ajaxPosting = 0;
+	}
+	if(!Cfg.ajaxPosting) {
+		Cfg.fileInputs = 0;
 	}
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
@@ -9362,9 +9365,9 @@ class Files {
 		return value;
 	}
 	changeMode() {
-		const cfg = Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+		const isThumbMode = Cfg.fileInputs === 2;
 		for(const inp of this._inputs) {
-			inp.changeMode(cfg);
+			inp.changeMode(isThumbMode);
 		}
 		this.hideEmpty();
 	}
@@ -9423,19 +9426,19 @@ class FileInput {
 		[this._txtInput, this._txtAddBtn] = [...this._txtWrap.children];
 		this._txtWrap.addEventListener('click', this);
 		this._toggleDragEvents(this._txtWrap, true);
-		if(Cfg.ajaxPosting) {
-			$hide(el);
-		}
 		el.obj = this;
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
 		if(el.files && el.files[0]) {
 			this._removeFile();
 		}
-		if(aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting) {
-			this._input.setAttribute('multiple', true);
+		if(Cfg.fileInputs) {
+			$hide(el);
+			if(aib.multiFile) {
+				this._input.setAttribute('multiple', true);
+			}
 		}
-		if(FileInput._isThumb) {
+		if(FileInput._isThumbMode) {
 			this._initThumbs();
 		} else {
 			$before(this._input, this._txtWrap);
@@ -9443,7 +9446,8 @@ class FileInput {
 		}
 	}
 	changeMode(showThumbs) {
-		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs && Cfg.ajaxPosting);
+		$toggle(this._input, !Cfg.fileInputs);
+		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
 		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
@@ -9465,7 +9469,7 @@ class FileInput {
 		this._thumb = this._mediaEl = null;
 	}
 	clearInp() {
-		if(FileInput._isThumb) {
+		if(FileInput._isThumbMode) {
 			this._thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				deWindow.URL.revokeObjectURL(this._mediaEl.src);
@@ -9480,7 +9484,7 @@ class FileInput {
 			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
-			if(FileInput._isThumb) {
+			if(FileInput._isThumbMode) {
 				$hide(this._txtWrap);
 			}
 			this._txtInput.value = '';
@@ -9537,7 +9541,7 @@ class FileInput {
 			} else if(parent === this._btnRen) {
 				const isShow = this._isTxtEditName = !this._isTxtEditName;
 				this._isTxtEditable = !this._isTxtEditable;
-				if(FileInput._isThumb) {
+				if(FileInput._isThumbMode) {
 					$toggle(this._txtWrap, isShow);
 				}
 				$toggle(this._txtAddBtn, isShow);
@@ -9548,7 +9552,7 @@ class FileInput {
 			} else if(parent === this._btnTxt) {
 				this._toggleDelBtn(this._isTxtEditable = true);
 				$show(this._txtAddBtn);
-				if(FileInput._isThumb) {
+				if(FileInput._isThumbMode) {
 					$toggle(this._txtWrap);
 				}
 				this._txtInput.classList.remove('de-file-txt-noedit');
@@ -9559,7 +9563,7 @@ class FileInput {
 				return;
 			} else if(el === this._txtAddBtn) {
 				if(this._isTxtEditName) {
-					if(FileInput._isThumb) {
+					if(FileInput._isThumbMode) {
 						$hide(this._txtWrap);
 					}
 					$hide(this._txtAddBtn);
@@ -9573,7 +9577,7 @@ class FileInput {
 					if(this.imgFile) {
 						this.imgFile.isConstName = true;
 						this.imgFile.name = newName;
-						if(FileInput._isThumb) {
+						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, this.imgFile.data.byteLength);
 						}
 						return;
@@ -9582,7 +9586,7 @@ class FileInput {
 					readFile(file).then(({ data }) => {
 						this.imgFile = { data, name: newName, type: file.type, isConstName: true };
 						this._removeFileHelper(); // Clear the original file
-						if(FileInput._isThumb) {
+						if(FileInput._isThumbMode) {
 							this._addThumbTitle(newName, data.byteLength);
 						}
 					});
@@ -9625,7 +9629,7 @@ class FileInput {
 			} else {
 				this._addUrlFile(dt.getData('text/plain'));
 			}
-			if(FileInput._isThumb) {
+			if(FileInput._isThumbMode) {
 				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			}
 			$pd(e);
@@ -9634,7 +9638,7 @@ class FileInput {
 		}
 	}
 	hideInp() {
-		if(FileInput._isThumb) {
+		if(FileInput._isThumbMode) {
 			this._toggleDelBtn(false);
 			$hide(this._thumb);
 			$hide(this._txtWrap);
@@ -9642,14 +9646,15 @@ class FileInput {
 		$hide(this._wrap);
 	}
 	showInp() {
-		if(FileInput._isThumb) {
+		if(FileInput._isThumbMode) {
 			$show(this._thumb);
 		}
+		console.log(3)
 		$show(this._wrap);
 	}
 
-	static get _isThumb() {
-		return Cfg.fileInputs === 2 && Cfg.ajaxPosting;
+	static get _isThumbMode() {
+		return Cfg.fileInputs === 2;
 	}
 	static _readDroppedFile(inputObj, file) {
 		return readFile(file).then(({ data }) => {
@@ -9734,7 +9739,7 @@ class FileInput {
 			}
 			this._parent._files[this._parent._inputs.indexOf(this)] = file;
 			DollchanAPI.notify('filechange', this._parent._files);
-			if(FileInput._isThumb) {
+			if(FileInput._isThumbMode) {
 				$hide(this._txtWrap);
 			}
 			this._onFileChange(true);
@@ -9774,7 +9779,7 @@ class FileInput {
 		if(this._parent.onchange) {
 			this._parent.onchange();
 		}
-		if(FileInput._isThumb) {
+		if(FileInput._isThumbMode) {
 			this._showFileThumb();
 		}
 		if(this.hasFile) {
@@ -9784,7 +9789,7 @@ class FileInput {
 			this._changeFilesCount(+1);
 			this._toggleDelBtn(true);
 			$hide(this._txtAddBtn);
-			if(FileInput._isThumb) {
+			if(FileInput._isThumbMode) {
 				$hide(this._txtWrap);
 			}
 			if(this._spoilEl) {
@@ -17973,7 +17978,6 @@ function updateCSS() {
 		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` : '' }
 	${ Cfg.noSpoilers === 2 ? `.spoiler, s { color: inherit !important; }
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
-	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ' }
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }

@@ -131,6 +131,9 @@ async function readCfg() {
 	if(!('FormData' in deWindow)) {
 		Cfg.ajaxPosting = 0;
 	}
+	if(!Cfg.ajaxPosting) {
+		Cfg.fileInputs = 0;
+	}
 	if(!('Notification' in deWindow)) {
 		Cfg.desktNotif = 0;
 	}

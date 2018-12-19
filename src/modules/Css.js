@@ -416,7 +416,6 @@ function updateCSS() {
 		.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }` : '' }
 	${ Cfg.noSpoilers === 2 ? `.spoiler, s { color: inherit !important; }
 		.spoiler > a, s > a:not(:hover) { color: inherit !important; }` : '' }
-	${ Cfg.fileInputs ? '' : '.de-file-input { display: inline !important; }' }
 	${ Cfg.addSageBtn ? '' : '#de-sagebtn, ' }
 	${ Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ' }
 	${ Cfg.imgNavBtns ? '' : '.de-img-btn, ' }
