@@ -6,7 +6,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '4d3dadb';
+const commit = '1067c83';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
