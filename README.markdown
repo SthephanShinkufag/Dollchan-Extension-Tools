@@ -1,21 +1,20 @@
-## ![dE](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/Icon.png) Dollchan Extension Tools
+![Last commit](https://img.shields.io/github/last-commit/SthephanShinkufag/Dollchan-Extension-Tools.svg)
+![Commit activity](https://img.shields.io/github/commit-activity/y/SthephanShinkufag/Dollchan-Extension-Tools.svg)
+![Open bugs](https://img.shields.io/github/issues/SthephanShinkufag/Dollchan-Extension-Tools/bug.svg)
+![Open enhancements](https://img.shields.io/github/issues/SthephanShinkufag/Dollchan-Extension-Tools/enhancement.svg)
 
->
-**Get as userscript: [ES5 version](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) or [ESNext version](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)** (Firefox 52+, Chrome 55+, Opera 42+)
->
-**Get as Chrome [Extension](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad)**
+# ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/icons/logo-48.png) Dollchan Extension Tools
 
-### Wiki
+Combines many options and features, making you hang out on imageboards in an easier and more convenient way.
 
->
-**[Russian](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
-~
-**[English](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
+- **Userscript: [ [ES5 version](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ] ~ [ [ESNext version](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** `Firefox 52+, Chrome 55+, Opera 42+`
 
-### Home page
+- **Extension: [ [ Chrome store ](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>
+![Webstore users](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg) ![Webstore rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
 
->
-**[https://dscript.me/](https://dscript.me/)**
+### Wiki: **[Russian](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)** ~ **[English](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
+
+### Home: [https://dscript.me/](https://dscript.me/)
 
 ### License
 
