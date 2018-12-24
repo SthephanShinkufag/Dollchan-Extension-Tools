@@ -38,9 +38,9 @@ const Lng = {
 			'Hide replies to hidden posts',
 			'Ховати відповіді на сховані пости'],
 		nextPageThr: [
-			'Загружать треды со 2 страницы вместо скрытых',
-			'Load threads from 2 page instead of hidden',
-			'Завантажувати треди з 2 сторінки замість схованих'],
+			'Скрытые треды - загружать со следующих страниц',
+			'Load threads from next pages instead of hidden',
+			'Сховані треди - брати з наступних сторінок'],
 		delHiddPost: {
 			sel: [
 				['Откл.', 'Всё', 'Только посты', 'Только треды'],

@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = '524fcc0';
+	var commit = 'a85c13c';
 
 
 	var defaultCfg = {
@@ -3993,7 +3993,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			sortSpells: ['Сортировать спеллы и удалять дубликаты', 'Sort spells and remove duplicates', 'Сортувати спелли та видаляти дублікати'],
 			menuHiddBtn: ['Дополнительное меню для кнопок "Скрыть"', 'Extra options for "Hide" buttons', 'Додаткове меню для кнопок "Сховати"'],
 			hideRefPsts: ['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts', 'Ховати відповіді на сховані пости'],
-			nextPageThr: ['Загружать треды со 2 страницы вместо скрытых', 'Load threads from 2 page instead of hidden', 'Завантажувати треди з 2 сторінки замість схованих'],
+			nextPageThr: ['Скрытые треды - загружать со следующих страниц', 'Load threads from next pages instead of hidden', 'Сховані треди - брати з наступних сторінок'],
 			delHiddPost: {
 				sel: [['Откл.', 'Всё', 'Только посты', 'Только треды'], ['Disable', 'All', 'Posts only', 'Threads only'], ['Вимк.', 'Все', 'Лише пости', 'Лише треди']],
 				txt: ['Удалять скрытое', 'Remove placeholders', 'Видаляти сховане']

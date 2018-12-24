@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '524fcc0';
+const commit = 'a85c13c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -44,7 +44,7 @@ const defaultCfg = {
 	sortSpells   : 0,    // sort spells and remove duplicates
 	menuHiddBtn  : 1,    // extra options for "Hide" buttons
 	hideRefPsts  : 0,    // hide replies to hidden posts
-	nextPageThr  : 0,    // load threads from 2 page instead of hidden
+	nextPageThr  : 0,    // load threads from next pages instead of hidden
 	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	ajaxUpdThr   : 1,    // threads updater
 	updThrDelay  : 20,   //    update interval (sec)
@@ -210,9 +210,9 @@ const Lng = {
 			'Hide replies to hidden posts',
 			'Ховати відповіді на сховані пости'],
 		nextPageThr: [
-			'Загружать треды со 2 страницы вместо скрытых',
-			'Load threads from 2 page instead of hidden',
-			'Завантажувати треди з 2 сторінки замість схованих'],
+			'Скрытые треды - загружать со следующих страниц',
+			'Load threads from next pages instead of hidden',
+			'Сховані треди - брати з наступних сторінок'],
 		delHiddPost: {
 			sel: [
 				['Откл.', 'Всё', 'Только посты', 'Только треды'],
