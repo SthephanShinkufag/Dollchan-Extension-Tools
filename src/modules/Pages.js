@@ -3,18 +3,46 @@
 =========================================================================================================== */
 
 const Pages = {
-	addPage() {
-		const pageNum = DelForm.last.pageNum + 1;
-		if(this._isAdding || pageNum > aib.lastPage) {
+	addPage(needThreads = 0, pageNum = DelForm.last.pageNum + 1) {
+		if(this._isAdding || pageNum > aib.lastPage || needThreads && pageNum > 4) {
 			return;
 		}
 		this._isAdding = true;
-		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
-			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
+		DelForm.last.el.insertAdjacentHTML('beforeend',
+			`<div class="de-addpage-wait"><hr><center style="font-size: 1.5em"><svg class="de-wait">
+				<use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</center></div>`);
 		MyPosts.purge();
-		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			if(this._addForm(formEl, pageNum).firstThr) {
-				return this._updateForms(DelForm.last);
+		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(async formEl => {
+			const newForm = this._addForm(formEl, pageNum);
+			if(newForm.firstThr) {
+				if(!needThreads) {
+					return this._updateForms(DelForm.last);
+				}
+				$hide(newForm.el);
+				await this._updateForms(DelForm.last);
+				const firstForm = DelForm.first;
+				let thr = newForm.firstThr;
+				do {
+					if(thr.isHidden) {
+						DelForm.tNums.delete(thr.num);
+					} else {
+						const oldLastThr = firstForm.lastThr;
+						$after(oldLastThr.el, thr.el);
+						newForm.firstThr = thr.next;
+						thr.prev = oldLastThr;
+						firstForm.lastThr = oldLastThr.next = thr;
+						needThreads--;
+					}
+					thr = thr.next;
+				} while(needThreads && thr);
+				DelForm.last = firstForm;
+				firstForm.next = firstForm.lastThr.next = null;
+				$del(newForm.el);
+				this._endAdding();
+				if(needThreads) {
+					this.addPage(needThreads, pageNum + 1);
+				}
+				return CancelablePromise.reject(new CancelError());
 			}
 			this._endAdding();
 			this.addPage();
@@ -78,9 +106,7 @@ const Pages = {
 		form.addStuff();
 		if(pageNum !== aib.page && form.firstThr) {
 			formEl.insertAdjacentHTML('afterbegin', `<div class="de-page-num">
-				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
-				<hr>
-			</div>`);
+				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center><hr></div>`);
 		}
 		$show(formEl);
 		return form;

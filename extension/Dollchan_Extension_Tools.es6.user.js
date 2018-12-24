@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'e04c503';
+const commit = '524fcc0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -44,6 +44,7 @@ const defaultCfg = {
 	sortSpells   : 0,    // sort spells and remove duplicates
 	menuHiddBtn  : 1,    // extra options for "Hide" buttons
 	hideRefPsts  : 0,    // hide replies to hidden posts
+	nextPageThr  : 0,    // load threads from 2 page instead of hidden
 	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	ajaxUpdThr   : 1,    // threads updater
 	updThrDelay  : 20,   //    update interval (sec)
@@ -208,6 +209,10 @@ const Lng = {
 			'Скрывать ответы на скрытые посты',
 			'Hide replies to hidden posts',
 			'Ховати відповіді на сховані пости'],
+		nextPageThr: [
+			'Загружать треды со 2 страницы вместо скрытых',
+			'Load threads from 2 page instead of hidden',
+			'Завантажувати треди з 2 сторінки замість схованих'],
 		delHiddPost: {
 			sel: [
 				['Откл.', 'Всё', 'Только посты', 'Только треды'],
@@ -400,7 +405,7 @@ const Lng = {
 			txt: [
 				'Предварительно загружать картинки*',
 				'Preload images*',
-				'Наперед завантажувати зображення *']
+				'Наперед завантажувати зображення*']
 		},
 		findImgFile: [
 			'Распознавать файлы, встроенные в картинках*',
@@ -2739,6 +2744,13 @@ function readPostsData(firstPost, favObj) {
 			sesStorage.removeItem('de-fav-newthr');
 		}
 	}
+	if(Cfg.nextPageThr && DelForm.first === DelForm.last) {
+		const hidThrEls = $Q('.de-thr-hid', firstPost.thr.form.el);
+		const hidThrLen = hidThrEls.length;
+		if(hidThrLen) {
+			Pages.addPage(hidThrLen);
+		}
+	}
 }
 
 function readFavorites() {
@@ -4809,6 +4821,7 @@ const CfgWindow = {
 			${ this._getBox('sortSpells') }<br>
 			${ this._getBox('menuHiddBtn') }<br>
 			${ this._getBox('hideRefPsts') }<br>
+			${ this._getBox('nextPageThr') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
 	},
@@ -6921,18 +6934,46 @@ function infoLoadErrors(err, showError = true) {
 =========================================================================================================== */
 
 const Pages = {
-	addPage() {
-		const pageNum = DelForm.last.pageNum + 1;
-		if(this._isAdding || pageNum > aib.lastPage) {
+	addPage(needThreads = 0, pageNum = DelForm.last.pageNum + 1) {
+		if(this._isAdding || pageNum > aib.lastPage || needThreads && pageNum > 4) {
 			return;
 		}
 		this._isAdding = true;
-		DelForm.last.el.insertAdjacentHTML('beforeend', '<div class="de-addpage-wait"><hr>' +
-			`<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`);
+		DelForm.last.el.insertAdjacentHTML('beforeend',
+			`<div class="de-addpage-wait"><hr><center style="font-size: 1.5em"><svg class="de-wait">
+				<use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</center></div>`);
 		MyPosts.purge();
-		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(formEl => {
-			if(this._addForm(formEl, pageNum).firstThr) {
-				return this._updateForms(DelForm.last);
+		this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then(async formEl => {
+			const newForm = this._addForm(formEl, pageNum);
+			if(newForm.firstThr) {
+				if(!needThreads) {
+					return this._updateForms(DelForm.last);
+				}
+				$hide(newForm.el);
+				await this._updateForms(DelForm.last);
+				const firstForm = DelForm.first;
+				let thr = newForm.firstThr;
+				do {
+					if(thr.isHidden) {
+						DelForm.tNums.delete(thr.num);
+					} else {
+						const oldLastThr = firstForm.lastThr;
+						$after(oldLastThr.el, thr.el);
+						newForm.firstThr = thr.next;
+						thr.prev = oldLastThr;
+						firstForm.lastThr = oldLastThr.next = thr;
+						needThreads--;
+					}
+					thr = thr.next;
+				} while(needThreads && thr);
+				DelForm.last = firstForm;
+				firstForm.next = firstForm.lastThr.next = null;
+				$del(newForm.el);
+				this._endAdding();
+				if(needThreads) {
+					this.addPage(needThreads, pageNum + 1);
+				}
+				return CancelablePromise.reject(new CancelError());
 			}
 			this._endAdding();
 			this.addPage();
@@ -6996,9 +7037,7 @@ const Pages = {
 		form.addStuff();
 		if(pageNum !== aib.page && form.firstThr) {
 			formEl.insertAdjacentHTML('afterbegin', `<div class="de-page-num">
-				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center>
-				<hr>
-			</div>`);
+				<center style="font-size: 2em">${ Lng.page[lang] } ${ pageNum }</center><hr></div>`);
 		}
 		$show(formEl);
 		return form;
@@ -14515,7 +14554,7 @@ function initThreadUpdater(title, enableUpdate) {
 =========================================================================================================== */
 
 class DelForm {
-	constructor(formEl, pageNum, prev = null) {
+	constructor(formEl, pageNum, prev) {
 		let thr = null;
 		this.el = formEl;
 		this.firstThr = null;
@@ -14533,23 +14572,23 @@ class DelForm {
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);
-			if(DelForm.tNums.has(num)) {
-				const el = threads[i];
-				const thrNext = threads[i + 1];
-				let elNext = el.nextSibling;
-				while(elNext && elNext !== thrNext) {
-					$del(elNext);
-					elNext = el.nextSibling;
-				}
-				$del(el);
-				console.log('Repeated thread: ' + num);
-			} else {
+			if(!DelForm.tNums.has(num)) {
 				DelForm.tNums.add(num);
 				thr = new Thread(threads[i], num, thr, this);
 				if(this.firstThr === null) {
 					this.firstThr = thr;
 				}
+				continue;
 			}
+			const el = threads[i];
+			const thrNext = threads[i + 1];
+			let elNext = el.nextSibling;
+			while(elNext && elNext !== thrNext) {
+				$del(elNext);
+				elNext = el.nextSibling;
+			}
+			$del(el);
+			console.log('Repeated thread: ' + num);
 		}
 		if(this.firstThr === null) {
 			if(prev) {
@@ -15266,8 +15305,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
-				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
+				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
+					.newpost, .post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
 					.postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
@@ -15424,7 +15463,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				switch(data.result) {
 				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
 				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: return CancelablePromise.reject(); // Captcha is disabled
+				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
 						if(!cap.isSubmitWait) {
@@ -16150,7 +16189,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					$q('input[name="captcha_id"]').value = data.id;
 					break;
 				}
-				case 2: return CancelablePromise.reject(); // Captcha is disabled
+				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
 				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
 				default: box.innerHTML = data;
 				}
@@ -16441,9 +16480,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }
-				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
-					height: auto !important; font: 13px/15px arial !important; }
-				.de-cfg-label.de-block { display: block; }
 				.navbar-fixed-top, .thread_header_fixed { z-index: 5 !important; }
 				.post { overflow-x: auto !important; }
 				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
@@ -16721,7 +16757,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				.de-cfg-label { display: initial !important; }
 				#de-main, .de-pview { font-size: 75%; }`;
 		}
 		init() {
@@ -17651,8 +17686,9 @@ function scriptCSS() {
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
-	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }
+	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }
@@ -17665,7 +17701,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 235px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 222px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
@@ -18100,7 +18136,7 @@ async function runMain(checkDomains, dataPromise) {
 	pByEl = new Map();
 	pByNum = new Map();
 	try {
-		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
+		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 		if(!Thread.first) {
 			console.error('No threads detected!');
 		}

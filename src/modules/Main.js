@@ -103,7 +103,7 @@ async function runMain(checkDomains, dataPromise) {
 	pByEl = new Map();
 	pByNum = new Map();
 	try {
-		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, false);
+		DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 		if(!Thread.first) {
 			console.error('No threads detected!');
 		}

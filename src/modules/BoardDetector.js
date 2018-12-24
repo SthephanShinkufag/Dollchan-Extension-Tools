@@ -87,8 +87,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
-				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, .newpost,
-					.post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
+				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
+					.newpost, .post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
 					.postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
@@ -245,7 +245,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				switch(data.result) {
 				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
 				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: return CancelablePromise.reject(); // Captcha is disabled
+				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
 				case 1: // Captcha is enabled
 					if(data.type === 'invisible_recaptcha') {
 						if(!cap.isSubmitWait) {
@@ -971,7 +971,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					$q('input[name="captcha_id"]').value = data.id;
 					break;
 				}
-				case 2: return CancelablePromise.reject(); // Captcha is disabled
+				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
 				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
 				default: box.innerHTML = data;
 				}
@@ -1262,9 +1262,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `.media-expand-button, .post_replies, .post_num, .poster_sage { display: none !important; }
-				.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto;
-					height: auto !important; font: 13px/15px arial !important; }
-				.de-cfg-label.de-block { display: block; }
 				.navbar-fixed-top, .thread_header_fixed { z-index: 5 !important; }
 				.post { overflow-x: auto !important; }
 				.thread_inner img.de-fullimg { max-width: 100% !important; max-height: 100% !important; }`;
@@ -1542,7 +1539,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.bottomNav, .delLink, #expandAll, .hidePost, .hideThread, .linkLast50,
 					.linkPreview, #modeBanner, .watchButton { display: none !important; }
-				.de-cfg-label { display: initial !important; }
 				#de-main, .de-pview { font-size: 75%; }`;
 		}
 		init() {

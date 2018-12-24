@@ -609,6 +609,7 @@ const CfgWindow = {
 			${ this._getBox('sortSpells') }<br>
 			${ this._getBox('menuHiddBtn') }<br>
 			${ this._getBox('hideRefPsts') }<br>
+			${ this._getBox('nextPageThr') }<br>
 			${ this._getSel('delHiddPost') }
 		</div>`;
 	},

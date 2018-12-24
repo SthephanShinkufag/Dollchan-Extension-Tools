@@ -10,6 +10,7 @@ const defaultCfg = {
 	sortSpells   : 0,    // sort spells and remove duplicates
 	menuHiddBtn  : 1,    // extra options for "Hide" buttons
 	hideRefPsts  : 0,    // hide replies to hidden posts
+	nextPageThr  : 0,    // load threads from 2 page instead of hidden
 	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
 	ajaxUpdThr   : 1,    // threads updater
 	updThrDelay  : 20,   //    update interval (sec)

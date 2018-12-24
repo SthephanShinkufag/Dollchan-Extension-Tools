@@ -301,6 +301,13 @@ function readPostsData(firstPost, favObj) {
 			sesStorage.removeItem('de-fav-newthr');
 		}
 	}
+	if(Cfg.nextPageThr && DelForm.first === DelForm.last) {
+		const hidThrEls = $Q('.de-thr-hid', firstPost.thr.form.el);
+		const hidThrLen = hidThrEls.length;
+		if(hidThrLen) {
+			Pages.addPage(hidThrLen);
+		}
+	}
 }
 
 function readFavorites() {

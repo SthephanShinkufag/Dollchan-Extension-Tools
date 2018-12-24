@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 class DelForm {
-	constructor(formEl, pageNum, prev = null) {
+	constructor(formEl, pageNum, prev) {
 		let thr = null;
 		this.el = formEl;
 		this.firstThr = null;
@@ -21,23 +21,23 @@ class DelForm {
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);
-			if(DelForm.tNums.has(num)) {
-				const el = threads[i];
-				const thrNext = threads[i + 1];
-				let elNext = el.nextSibling;
-				while(elNext && elNext !== thrNext) {
-					$del(elNext);
-					elNext = el.nextSibling;
-				}
-				$del(el);
-				console.log('Repeated thread: ' + num);
-			} else {
+			if(!DelForm.tNums.has(num)) {
 				DelForm.tNums.add(num);
 				thr = new Thread(threads[i], num, thr, this);
 				if(this.firstThr === null) {
 					this.firstThr = thr;
 				}
+				continue;
 			}
+			const el = threads[i];
+			const thrNext = threads[i + 1];
+			let elNext = el.nextSibling;
+			while(elNext && elNext !== thrNext) {
+				$del(elNext);
+				elNext = el.nextSibling;
+			}
+			$del(el);
+			console.log('Repeated thread: ' + num);
 		}
 		if(this.firstThr === null) {
 			if(prev) {
