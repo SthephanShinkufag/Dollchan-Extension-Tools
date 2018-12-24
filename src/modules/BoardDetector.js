@@ -1240,6 +1240,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post';
+			this.qDelBut = null;
+			this.qDelPassw = null;
 			this.qDForm = 'body > .container-fluid';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
@@ -1302,10 +1304,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(thr));
 		}
 		init() {
-			const path = deWindow.location.pathname;
-			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
-				return true;
-			}
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(() => {
 				const delPosts = $Q('.post_deleted');

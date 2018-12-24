@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '1067c83';
+const commit = 'e04c503';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14613,16 +14613,16 @@ class DelForm {
 		return threads;
 	}
 	get passEl() {
-		const value = $q(aib.qDelPassw, this.el);
+		const value = aib.qDelPassw ? $q(aib.qDelPassw, this.el) : null;
 		Object.defineProperty(this, 'passEl', { value });
 		return value;
 	}
 	addStuff() {
 		const { el } = this;
 		if(Cfg.ajaxPosting && !localData) {
-			el.onsubmit = $pd;
-			const delBtn = $q(aib.qDelBut, el);
+			const delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 			if(delBtn) {
+				el.onsubmit = $pd;
 				delBtn.onclick = e => {
 					$pd(e);
 					pr.closeReply();
@@ -14840,8 +14840,8 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // _4chan
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Vichan
+		this.qDelBut = 'input[type="submit"]';
+		this.qDelPassw = 'input[type="password"], input[name="password"]';
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
@@ -16419,6 +16419,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post';
+			this.qDelBut = null;
+			this.qDelPassw = null;
 			this.qDForm = 'body > .container-fluid';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
@@ -16481,10 +16483,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getPNum(this.getOp(thr));
 		}
 		init() {
-			const path = deWindow.location.pathname;
-			if(path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
-				return true;
-			}
 			defaultCfg.ajaxUpdThr = 0;
 			setTimeout(() => {
 				const delPosts = $Q('.post_deleted');

@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = '1067c83';
+	var commit = 'e04c503';
 
 
 	var defaultCfg = {
@@ -19674,9 +19674,9 @@ true, true];
 				var el = this.el;
 
 				if (Cfg.ajaxPosting && !localData) {
-					el.onsubmit = $pd;
-					var delBtn = $q(aib.qDelBut, el);
+					var delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 					if (delBtn) {
+						el.onsubmit = $pd;
 						delBtn.onclick = function (e) {
 							$pd(e);
 							pr.closeReply();
@@ -19704,7 +19704,7 @@ true, true];
 		}, {
 			key: 'passEl',
 			get: function get() {
-				var value = $q(aib.qDelPassw, this.el);
+				var value = aib.qDelPassw ? $q(aib.qDelPassw, this.el) : null;
 				Object.defineProperty(this, 'passEl', { value: value });
 				return value;
 			}
@@ -19977,8 +19977,8 @@ true, true];
 			this.cReply = 'reply';
 			this.qBan = null;
 			this.qClosed = null;
-			this.qDelBut = 'input[type="submit"]'; 
-			this.qDelPassw = 'input[type="password"], input[name="password"]'; 
+			this.qDelBut = 'input[type="submit"]';
+			this.qDelPassw = 'input[type="password"], input[name="password"]';
 			this.qDForm = '#delform, form[name="delform"]';
 			this.qError = 'h1, h2, font[size="5"]';
 			this.qForm = '#postform';
@@ -22146,6 +22146,8 @@ true, true];
 				var _this99 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
 				_this99.cReply = 'post';
+				_this99.qDelBut = null;
+				_this99.qDelPassw = null;
 				_this99.qDForm = 'body > .container-fluid';
 				_this99.qPostHeader = '.post_head';
 				_this99.qPostImg = '.post_image > img';
@@ -22212,10 +22214,6 @@ true, true];
 				value: function init() {
 					var _this100 = this;
 
-					var path = deWindow.location.pathname;
-					if (path.startsWith('/favs') || path.startsWith('/auth') || path.startsWith('/add')) {
-						return true;
-					}
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');

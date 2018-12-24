@@ -101,16 +101,16 @@ class DelForm {
 		return threads;
 	}
 	get passEl() {
-		const value = $q(aib.qDelPassw, this.el);
+		const value = aib.qDelPassw ? $q(aib.qDelPassw, this.el) : null;
 		Object.defineProperty(this, 'passEl', { value });
 		return value;
 	}
 	addStuff() {
 		const { el } = this;
 		if(Cfg.ajaxPosting && !localData) {
-			el.onsubmit = $pd;
-			const delBtn = $q(aib.qDelBut, el);
+			const delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 			if(delBtn) {
+				el.onsubmit = $pd;
 				delBtn.onclick = e => {
 					$pd(e);
 					pr.closeReply();

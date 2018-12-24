@@ -8,8 +8,8 @@ class BaseBoard {
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]'; // _4chan
-		this.qDelPassw = 'input[type="password"], input[name="password"]'; // Vichan
+		this.qDelBut = 'input[type="submit"]';
+		this.qDelPassw = 'input[type="password"], input[name="password"]';
 		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
