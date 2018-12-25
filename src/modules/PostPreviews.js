@@ -255,7 +255,7 @@ class Pview extends AbstractPost {
 		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
 			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
-		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-reply"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +

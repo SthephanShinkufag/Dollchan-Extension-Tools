@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'a85c13c';
+const commit = '1a20dd5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10525,7 +10525,7 @@ class Post extends AbstractPost {
 	static getPostBtns(isOp, noExpThr) {
 		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ?
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ?
 			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}
@@ -11332,7 +11332,7 @@ class Pview extends AbstractPost {
 		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
 			(isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
-		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' +
+		const pText = '<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-reply"/></svg>' +
 			(isOp ? `<svg class="${ isFav ? 'de-btn-fav-sel' : 'de-btn-fav' }">` +
 				'<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') +
 			(post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') +
@@ -17353,25 +17353,23 @@ function addSVGIcons() {
 
 	<!-- POST ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-back">
-		<path class="de-post-btns-back" d="M4 1q-3 0,-3 3v8q0 3,3 3h8q3 0,3 -3v-8q0 -3,-3-3z"/>
+		<path class="de-post-btns-back" d="M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2.5" x1="4.5" y1="11.5" x2="11.5" y2="4.5"/>
-		<line class="de-svg-stroke" stroke-width="2.5" x1="11.5" y1="11.5" x2="4.5" y2="4.5"/>
+		<path class="de-svg-stroke" stroke-width="2.5" d="M4.5 11.5l7-7M11.5 11.5l-7-7"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="8" y1="4" x2="8" y2="12"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="4" y1="8" x2="12" y2="8"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M8 4v8M4 8h8"/>
 	</symbol>
-	<symbol viewBox="0 0 16 16" id="de-symbol-post-rep">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-reply">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13 4.5 10h2.25V6z"/>
+		<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13l-3.5-3h2.25V6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
@@ -17383,12 +17381,12 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
-		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
+		<path class="de-svg-fill" d="M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z"/>
 	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
-		<circle class="de-svg-stroke" cx="7" cy="7" r="2.5" stroke-width="2"/>
-		<line class="de-svg-stroke" stroke-width="2" x1="9" y1="9" x2="12" y2="12"/>
+		<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>
+		<path class="de-svg-stroke" stroke-width="2" d="M9 9l3 3"/>
 	</symbol>
 
 	<!-- FILE ICONS -->

@@ -426,7 +426,7 @@ class Post extends AbstractPost {
 	static getPostBtns(isOp, noExpThr) {
 		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-rep"/></svg>' + (isOp ?
+			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ?
 			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}
