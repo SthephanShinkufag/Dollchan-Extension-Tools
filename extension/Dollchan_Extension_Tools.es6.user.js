@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'dc5ebe2';
+const commit = '1b84290';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15422,8 +15422,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				fixGlobalFunc("$alert");
 				fixGlobalFunc("autorefresh_start");
 				fixGlobalFunc("linkremover");
-				fixGlobalFunc("scrollTo");
 				fixGlobalFunc("Media");
+				fixGlobalFunc("MExpandMedia");
+				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);

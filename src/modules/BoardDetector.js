@@ -192,8 +192,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				fixGlobalFunc("$alert");
 				fixGlobalFunc("autorefresh_start");
 				fixGlobalFunc("linkremover");
-				fixGlobalFunc("scrollTo");
 				fixGlobalFunc("Media");
+				fixGlobalFunc("MExpandMedia");
+				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
