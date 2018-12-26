@@ -120,7 +120,7 @@ class Thread {
 				oldCoord = nextThr && nextThr.top;
 				this.op.setUserVisib(!this.isHidden);
 				break;
-			case 'de-btn-rep': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;
 			case 'de-btn-replies':
 			case 'de-replies-show':
 			case 'de-replies-hide':
@@ -142,7 +142,7 @@ class Thread {
 			}
 		} else if(e.type === 'mouseover') {
 			switch(el.classList[0]) {
-			case 'de-btn-rep':
+			case 'de-btn-reply':
 				this.btns.title = Lng.replyToThr[lang];
 				quotetxt = deWindow.getSelection().toString();
 				return;

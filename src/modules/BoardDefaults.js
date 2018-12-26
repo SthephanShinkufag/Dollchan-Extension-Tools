@@ -46,6 +46,7 @@ class BaseBoard {
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
+		this.hasReportBtn = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
@@ -152,6 +153,9 @@ class BaseBoard {
 		return null;
 	}
 	get updateCaptcha() {
+		return null;
+	}
+	callReportForm() { // Makaba
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan

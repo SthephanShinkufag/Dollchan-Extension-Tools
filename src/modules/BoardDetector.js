@@ -40,6 +40,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
+			this.hasReportBtn = true;
 			this.JsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
@@ -111,6 +112,32 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
+		}
+		callReportForm(pNum, tNum) {
+			$q('input[type="button"]', $popup('report', `<input name="comment" value="" placeholder="${
+				Lng.report[lang] }" type="text"> <input value="OK" type="button">`)
+			).onclick = e => {
+				const inpEl = e.target.previousElementSibling;
+				if(!inpEl.value) {
+					inpEl.classList.add('de-input-error');
+					return;
+				}
+				const formData = new FormData();
+				formData.append('task', 'report');
+				formData.append('board', this.b);
+				formData.append('thread', tNum);
+				formData.append('posts', pNum);
+				formData.append('comment', inpEl.value);
+				$popup('report', Lng.sending[lang], true);
+				$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(xhr => {
+					let obj;
+					try {
+						obj = JSON.parse(xhr.responseText);
+					} catch(e) {}
+					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
+						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+				});
+			};
 		}
 		deleteTruncMsg(post, el) {
 			$del(el.previousSibling);
@@ -1673,7 +1700,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 		}
 		get css() {
-			return super.css + (this.t ? '' : '\r\n.de-btn-rep { display: none !important; }');
+			return super.css + (this.t ? '' : '\r\n.de-btn-reply { display: none !important; }');
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];

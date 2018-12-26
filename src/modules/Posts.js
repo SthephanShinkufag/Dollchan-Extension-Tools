@@ -178,10 +178,11 @@ class AbstractPost {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
-			case 'de-btn-rep':
+			case 'de-btn-reply':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
+			case 'de-btn-report': aib.callReportForm(this.num, this.thr.num); return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
@@ -213,7 +214,7 @@ class AbstractPost {
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
-		case 'de-btn-rep':
+		case 'de-btn-reply':
 			this.btns.title = Lng.replyToPost[lang];
 			if(!isOutEvent) {
 				quotetxt = deWindow.getSelection().toString();
@@ -426,7 +427,9 @@ class Post extends AbstractPost {
 	static getPostBtns(isOp, noExpThr) {
 		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			'<svg class="de-btn-rep"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ?
+			(aib.hasReportBtn ?
+				'<svg class="de-btn-report"><use xlink:href="#de-symbol-post-report"/></svg>' : '') +
+			'<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ?
 			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 	}

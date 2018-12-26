@@ -1274,6 +1274,10 @@ const Lng = {
 		'Успешно удалено!',
 		'Succesfully deleted!',
 		'Успішно видалено!'],
+	succReported: [
+		'Жалоба успешно отправлена',
+		'Succesfully reported',
+		'Скарга успішно відправлена'],
 	errDelete: [
 		'Не могу удалить',
 		'Canʼt delete',
@@ -1382,6 +1386,7 @@ const Lng = {
 	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
 	deleted   : ['удалён', 'deleted', 'видалено'],
 	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
+	report    : ['Жалоба', 'Report', 'Скарга'],
 
 	// Miscellaneous
 	hidePosts: [
