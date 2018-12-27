@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'de2d680';
+const commit = 'be5f02b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9112,7 +9112,7 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success).catch(err => {
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);

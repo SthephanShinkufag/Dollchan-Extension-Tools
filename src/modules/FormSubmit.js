@@ -125,7 +125,7 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success).catch(err => {
+		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);

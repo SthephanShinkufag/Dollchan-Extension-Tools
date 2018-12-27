@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'de2d680';
+	var commit = 'be5f02b';
 
 
 	var defaultCfg = {
@@ -13181,7 +13181,9 @@ true, true];
 			Post.clearMarks();
 			Thread.first.loadNewPosts().then(function () {
 				return AjaxError.Success;
-			}).catch(function (err) {
+			}, function (err) {
+				return err;
+			}).then(function (err) {
 				infoLoadErrors(err);
 				if (Cfg.scrAfterRep) {
 					scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
