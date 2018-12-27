@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'a00291d';
+	var commit = 'a2facaa';
 
 
 	var defaultCfg = {
@@ -20319,7 +20319,7 @@ true, true];
 		}, {
 			key: 'parseURL',
 			value: function parseURL() {
-				var url = (deWindow.location.pathname || '').replace(/^\//, '');
+				var url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 				if (url.match(this.res)) {
 					var temp = url.split(this.res);
 					this.b = temp[0].replace(/\/$/, '');

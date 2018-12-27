@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'a00291d';
+const commit = 'a2facaa';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15187,7 +15187,7 @@ class BaseBoard {
 		return status === 200 || status === 206;
 	}
 	parseURL() { // Sets here only
-		const url = (deWindow.location.pathname || '').replace(/^\//, '');
+		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);
 			this.b = temp[0].replace(/\/$/, '');
