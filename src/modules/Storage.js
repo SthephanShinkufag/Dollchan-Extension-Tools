@@ -279,7 +279,7 @@ function readPostsData(firstPost, favObj) {
 	if(maybeSpells.hasValue) {
 		maybeSpells.value.endSpells();
 	}
-	if(Cfg.panelCounter === 2) {
+	if(aib.t && Cfg.panelCounter === 2) {
 		$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 	}
 	if(updateFav) {

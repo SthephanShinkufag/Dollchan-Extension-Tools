@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'f16b45d';
+	var commit = 'de2d680';
 
 
 	var defaultCfg = {
@@ -5640,7 +5640,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (maybeSpells.hasValue) {
 			maybeSpells.value.endSpells();
 		}
-		if (Cfg.panelCounter === 2) {
+		if (aib.t && Cfg.panelCounter === 2) {
 			$id('de-panel-info-pcount').textContent = Thread.first.pcount - Thread.first.hidCounter;
 		}
 		if (updateFav) {
