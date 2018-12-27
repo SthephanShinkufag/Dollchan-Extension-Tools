@@ -1124,13 +1124,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			const tr = $id('captchaFormPart');
 			if(tr) {
-				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
 				value = () => {
 					if(Cfg.altCaptcha) {
 						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 					} else {
 						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-						capClick.click();
+						$script('initRecaptcha();');
 					}
 					tr.removeAttribute('onclick');
 					return null;

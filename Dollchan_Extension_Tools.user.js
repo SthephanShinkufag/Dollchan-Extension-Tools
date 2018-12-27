@@ -3819,7 +3819,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'a2facaa';
+	var commit = 'f16b45d';
 
 
 	var defaultCfg = {
@@ -22096,13 +22096,12 @@ true, true];
 					var value = null;
 					var tr = $id('captchaFormPart');
 					if (tr) {
-						var capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
 						value = function value() {
 							if (Cfg.altCaptcha) {
 								$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 							} else {
 								$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-								capClick.click();
+								$script('initRecaptcha();');
 							}
 							tr.removeAttribute('onclick');
 							return null;

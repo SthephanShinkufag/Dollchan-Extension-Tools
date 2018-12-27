@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'a2facaa';
+const commit = 'f16b45d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16333,13 +16333,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			const tr = $id('captchaFormPart');
 			if(tr) {
-				const capClick = $bEnd(docBody, '<div onclick="initRecaptcha();"></div>');
 				value = () => {
 					if(Cfg.altCaptcha) {
 						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
 					} else {
 						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-						capClick.click();
+						$script('initRecaptcha();');
 					}
 					tr.removeAttribute('onclick');
 					return null;
