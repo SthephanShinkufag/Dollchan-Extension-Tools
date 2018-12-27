@@ -184,8 +184,8 @@ class Thread {
 	*  @returns {Promise} - resolves with Object, { newCount: Number, locked: Boolean }
 	*/
 	loadNewPosts() {
-		return ajaxPostsLoad(aib.b, this.num, true).then(
-			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
+		return ajaxPostsLoad(aib.b, this.num, true)
+			.then(pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
 		let h, b, num, cnt, txt, last;

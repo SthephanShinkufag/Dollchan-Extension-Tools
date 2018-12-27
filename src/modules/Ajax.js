@@ -142,9 +142,8 @@ const AjaxCache = {
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
-		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
-			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params)
-		);
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true })
+			.then(xhr => this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params));
 	},
 	saveData(url, xhr) {
 		let ETag = null;

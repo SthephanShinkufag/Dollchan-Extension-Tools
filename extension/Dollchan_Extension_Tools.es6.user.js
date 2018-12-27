@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '1b84290';
+const commit = 'a00291d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3721,17 +3721,15 @@ function showHiddenWindow(body) {
 	// "Clear" button. Allows to clear 404'd threads.
 	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
 		// Sequentially load threads, and remove inaccessible
-		const els = $Q('.de-entry[info]', e.target.parentNode);
+		const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const [b, tNum] = els[i].getAttribute('info').split(';');
-			try {
-				await $ajax(aib.getThrUrl(b, tNum));
-			} catch(err) {
+			await $ajax(aib.getThrUrl(b, tNum)).catch(err => {
 				if(err.code === 404) {
 					HiddenThreads.removeStorage(tNum, b);
 					HiddenPosts.removeStorage(tNum, b);
 				}
-			}
+			});
 		}
 		toggleWindow('hid', true);
 	}));
@@ -4174,26 +4172,25 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			try {
-				await $ajax(el.getAttribute('de-url'), null, false);
+			await $ajax(el.getAttribute('de-url'), null, false).then(() => {
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(err) {
+				last404 = false;
+			}).catch(err => {
 				if(err.code === 404) { // Check for 404 error twice
-					if(last404) {
-						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
-							+el.getAttribute('de-num'));
-						el.setAttribute('de-removed', ''); // Mark an entry as deleted
-					} else {
+					if(!last404) {
 						last404 = true;
 						--i; // Repeat this cycle again
-						continue;
+						return;
 					}
+					Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
+						+el.getAttribute('de-num'));
+					el.setAttribute('de-removed', ''); // Mark an entry as deleted
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				titleEl.title = getErrorMessage(err);
-			}
-			last404 = false;
+				last404 = false;
+			});
 		}
 		cleanFavorites(); // Delete marked entries
 		parent.classList.remove('de-fav-table-unfold');
@@ -6509,11 +6506,8 @@ class Videos {
 		return Cfg.YTubeTitles && new TasksPool(4, (num, info) => {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
-				if(Cfg.ytApiKey) {
-					return Videos._getYTInfoAPI(info, num, id);
-				} else {
-					return Videos._getYTInfoOembed(info, num, id);
-				}
+				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
+					Videos._getYTInfoOembed(info, num, id);
 			}
 			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
@@ -6545,9 +6539,9 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (nav.hasGMXHR ?
-			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
-				null, false) :
+		return (
+			nav.hasGMXHR ? $ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
+				id }&format=json`, null, false) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
 			const res = xhr.responseText;
@@ -6585,10 +6579,8 @@ class Videos {
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
 		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
-			try {
-				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-			} catch(err) {}
-		});
+			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
+		}).catch(emptyFn);
 	}
 }
 Videos.ytReg =
@@ -6838,9 +6830,8 @@ const AjaxCache = {
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
-		return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(xhr =>
-			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params)
-		);
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true })
+			.then(xhr => this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params));
 	},
 	saveData(url, xhr) {
 		let ETag = null;
@@ -9040,8 +9031,7 @@ function checkUpload(data) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup('upload', xhr.responseText).style.cssText =
-						'width: 350px; text-align: center;';
+					$popup('upload', xhr.responseText).style.cssText = 'width: 350px; text-align: center;';
 					$id('captcha_pop_submit').onclick = () => {
 						$id('captcha_message_box').innerHTML =
 							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
@@ -9122,7 +9112,7 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
+		Thread.first.loadNewPosts().then(() => AjaxError.Success).catch(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -9156,11 +9146,7 @@ async function checkDelete(data) {
 	}
 	if(isThr) {
 		Post.clearMarks();
-		try {
-			await Thread.first.loadNewPosts();
-		} catch(err) {
-			infoLoadErrors(err);
-		}
+		await Thread.first.loadNewPosts().catch(err => infoLoadErrors(err));
 	} else {
 		await Promise.all([...threads].map(thr => thr.loadPosts(visPosts, false, false)));
 	}
@@ -9204,21 +9190,14 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	const ajaxParams = {
-		data,
-		// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
-		// headers: { Referer: aib.prot + '//' + aib.host },
-		method: 'POST'
-	};
+	// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
+	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	try {
-		const xhr = await $ajax(form.action, ajaxParams);
-		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
-	} catch(err) {
-		return Promise.reject(err);
-	}
+	return $ajax(form.action, ajaxParams)
+		.then(xhr => aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText))
+		.catch(err => Promise.reject(err));
 }
 
 async function readFile(file, asText = false) {
@@ -13495,8 +13474,8 @@ class Thread {
 	*  @returns {Promise} - resolves with Object, { newCount: Number, locked: Boolean }
 	*/
 	loadNewPosts() {
-		return ajaxPostsLoad(aib.b, this.num, true).then(
-			pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
+		return ajaxPostsLoad(aib.b, this.num, true)
+			.then(pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
 		let h, b, num, cnt, txt, last;
@@ -14095,7 +14074,7 @@ function initThreadUpdater(title, enableUpdate) {
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
 					icon.src = 'response' in xhr ?
 						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
-				}, emptyFn);
+				});
 				return;
 			}
 			icon.src = this._iconEl.href;
@@ -14674,8 +14653,8 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					html5Submit(el, e.target).then(checkDelete).catch(
-						err => $popup('delete', getErrorMessage(err)));
+					html5Submit(el, e.target).then(checkDelete)
+						.catch(err => $popup('delete', getErrorMessage(err)));
 				};
 			}
 			Logger.log('Init AJAX');
@@ -15958,13 +15937,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			try {
-				const xhr = await $ajax(
-					'/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams);
-				return xhr.responseText;
-			} catch(err) {
-				return Promise.reject(err);
-			}
+			return $ajax('/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams)
+				.then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
 		updateCaptcha() {
 			$script('reloadCaptcha();');
@@ -17295,28 +17269,29 @@ function checkForUpdates(isManual, lastUpdateTime) {
 	).then(({ responseText }) => {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;
-		if(remoteVer) {
-			const currentVer = version.split('.');
-			const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
-				nav.isESNext ? 'es6.' : '' }user.js`;
-			saveCfgObj('lastUpd', Date.now());
-			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
-			const chLogLink = `<a target="_blank" href="${ gitWiki }${
-				lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
-			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
-				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
-				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
-					break;
-				}
+		if(!remoteVer) {
+			return Promise.reject();
+		}
+		const currentVer = version.split('.');
+		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+			nav.isESNext ? 'es6.' : '' }user.js`;
+		saveCfgObj('lastUpd', Date.now());
+		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+		const chLogLink = `<a target="_blank" href="${ gitWiki }${
+			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
+		for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
+			if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
+				return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
+			} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
+				break;
 			}
-			if(isManual) {
-				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
-				const vc = version + '.' + c;
-				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-					`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
-						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
-			}
+		}
+		if(isManual) {
+			const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+			const vc = version + '.' + c;
+			return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 		}
 		return Promise.reject();
 	}, () => !isManual ?

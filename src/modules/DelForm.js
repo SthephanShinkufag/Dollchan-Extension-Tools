@@ -115,8 +115,8 @@ class DelForm {
 					$pd(e);
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
-					html5Submit(el, e.target).then(checkDelete).catch(
-						err => $popup('delete', getErrorMessage(err)));
+					html5Submit(el, e.target).then(checkDelete)
+						.catch(err => $popup('delete', getErrorMessage(err)));
 				};
 			}
 			Logger.log('Init AJAX');

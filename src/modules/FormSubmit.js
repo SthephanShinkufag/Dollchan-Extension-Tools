@@ -44,8 +44,7 @@ function checkUpload(data) {
 		if(aib.jsonSubmit) {
 			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
 				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup('upload', xhr.responseText).style.cssText =
-						'width: 350px; text-align: center;';
+					$popup('upload', xhr.responseText).style.cssText = 'width: 350px; text-align: center;';
 					$id('captcha_pop_submit').onclick = () => {
 						$id('captcha_message_box').innerHTML =
 							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
@@ -126,7 +125,7 @@ function checkUpload(data) {
 	}
 	if(aib.t) {
 		Post.clearMarks();
-		Thread.first.loadNewPosts().then(() => AjaxError.Success, err => err).then(err => {
+		Thread.first.loadNewPosts().then(() => AjaxError.Success).catch(err => {
 			infoLoadErrors(err);
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, deWindow.pageYOffset + Thread.first.last.el.getBoundingClientRect().top);
@@ -160,11 +159,7 @@ async function checkDelete(data) {
 	}
 	if(isThr) {
 		Post.clearMarks();
-		try {
-			await Thread.first.loadNewPosts();
-		} catch(err) {
-			infoLoadErrors(err);
-		}
+		await Thread.first.loadNewPosts().catch(err => infoLoadErrors(err));
 	} else {
 		await Promise.all([...threads].map(thr => thr.loadPosts(visPosts, false, false)));
 	}
@@ -208,21 +203,14 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	const ajaxParams = {
-		data,
-		// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
-		// headers: { Referer: aib.prot + '//' + aib.host },
-		method: 'POST'
-	};
+	// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
+	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	try {
-		const xhr = await $ajax(form.action, ajaxParams);
-		return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
-	} catch(err) {
-		return Promise.reject(err);
-	}
+	return $ajax(form.action, ajaxParams)
+		.then(xhr => aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText))
+		.catch(err => Promise.reject(err));
 }
 
 async function readFile(file, asText = false) {

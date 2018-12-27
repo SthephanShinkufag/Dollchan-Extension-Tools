@@ -132,7 +132,7 @@ function initThreadUpdater(title, enableUpdate) {
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
 					icon.src = 'response' in xhr ?
 						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
-				}, emptyFn);
+				});
 				return;
 			}
 			icon.src = this._iconEl.href;

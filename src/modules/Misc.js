@@ -72,28 +72,29 @@ function checkForUpdates(isManual, lastUpdateTime) {
 	).then(({ responseText }) => {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;
-		if(remoteVer) {
-			const currentVer = version.split('.');
-			const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
-				nav.isESNext ? 'es6.' : '' }user.js`;
-			saveCfgObj('lastUpd', Date.now());
-			const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
-			const chLogLink = `<a target="_blank" href="${ gitWiki }${
-				lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
-			for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
-				if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-					return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
-				} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
-					break;
-				}
+		if(!remoteVer) {
+			return Promise.reject();
+		}
+		const currentVer = version.split('.');
+		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+			nav.isESNext ? 'es6.' : '' }user.js`;
+		saveCfgObj('lastUpd', Date.now());
+		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+		const chLogLink = `<a target="_blank" href="${ gitWiki }${
+			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
+		for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
+			if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
+				return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
+			} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
+				break;
 			}
-			if(isManual) {
-				const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
-				const vc = version + '.' + c;
-				return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-					`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
-						Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
-			}
+		}
+		if(isManual) {
+			const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+			const vc = version + '.' + c;
+			return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 		}
 		return Promise.reject();
 	}, () => !isManual ?

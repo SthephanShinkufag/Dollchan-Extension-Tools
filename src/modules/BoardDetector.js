@@ -728,13 +728,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			try {
-				const xhr = await $ajax(
-					'/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams);
-				return xhr.responseText;
-			} catch(err) {
-				return Promise.reject(err);
-			}
+			return $ajax('/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams)
+				.then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
 		updateCaptcha() {
 			$script('reloadCaptcha();');

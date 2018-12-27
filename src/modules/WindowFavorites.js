@@ -416,26 +416,25 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			try {
-				await $ajax(el.getAttribute('de-url'), null, false);
+			await $ajax(el.getAttribute('de-url'), null, false).then(() => {
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-			} catch(err) {
+				last404 = false;
+			}).catch(err => {
 				if(err.code === 404) { // Check for 404 error twice
-					if(last404) {
-						Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
-							+el.getAttribute('de-num'));
-						el.setAttribute('de-removed', ''); // Mark an entry as deleted
-					} else {
+					if(!last404) {
 						last404 = true;
 						--i; // Repeat this cycle again
-						continue;
+						return;
 					}
+					Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
+						+el.getAttribute('de-num'));
+					el.setAttribute('de-removed', ''); // Mark an entry as deleted
 				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
 				titleEl.title = getErrorMessage(err);
-			}
-			last404 = false;
+				last404 = false;
+			});
 		}
 		cleanFavorites(); // Delete marked entries
 		parent.classList.remove('de-fav-table-unfold');

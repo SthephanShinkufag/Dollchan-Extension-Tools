@@ -201,11 +201,8 @@ class Videos {
 		return Cfg.YTubeTitles && new TasksPool(4, (num, info) => {
 			const [, isYtube,, id] = info;
 			if(isYtube) {
-				if(Cfg.ytApiKey) {
-					return Videos._getYTInfoAPI(info, num, id);
-				} else {
-					return Videos._getYTInfoOembed(info, num, id);
-				}
+				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
+					Videos._getYTInfoOembed(info, num, id);
 			}
 			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
@@ -237,9 +234,9 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (nav.hasGMXHR ?
-			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&format=json`,
-				null, false) :
+		return (
+			nav.hasGMXHR ? $ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
+				id }&format=json`, null, false) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
 			const res = xhr.responseText;
@@ -277,10 +274,8 @@ class Videos {
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
 		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
-			try {
-				el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-			} catch(err) {}
-		});
+			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
+		}).catch(emptyFn);
 	}
 }
 Videos.ytReg =
