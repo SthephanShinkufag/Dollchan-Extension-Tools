@@ -3259,7 +3259,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var readCfg = function () {
 		var _ref3 = _asyncToGenerator( regeneratorRuntime.mark(function _callee3() {
-			var obj, val, hasGlobal, font, donateMsg;
+			var obj, val, hasGlobal, font, donateMsg, popupFn;
 			return regeneratorRuntime.wrap(function _callee3$(_context4) {
 				while (1) {
 					switch (_context4.prev = _context4.next) {
@@ -3336,14 +3336,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								font = ' style="font: 13px monospace; color: green;"';
 								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span></div>');
 
+								popupFn = function popupFn() {
+									return $popup('donate', donateMsg);
+								};
+
 								if (doc.readyState === 'loading') {
 									doc.addEventListener('DOMContentLoaded', function () {
-										return $popup('donate', donateMsg);
+										return setTimeout(popupFn, 1e3);
 									});
 								} else {
-									setTimeout(function () {
-										return $popup('donate', donateMsg);
-									}, 200);
+									setTimeout(popupFn, 1e3);
 								}
 								val.commit = commit;
 							}
@@ -3821,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = '8e4ff9f';
+	var commit = '84c447b';
 
 
 	var defaultCfg = {

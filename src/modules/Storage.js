@@ -173,10 +173,11 @@ async function readCfg() {
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
 			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
+		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
-			doc.addEventListener('DOMContentLoaded', () => $popup('donate', donateMsg));
+			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));
 		} else {
-			setTimeout(() => $popup('donate', donateMsg), 200);
+			setTimeout(popupFn, 1e3);
 		}
 		val.commit = commit;
 	}
