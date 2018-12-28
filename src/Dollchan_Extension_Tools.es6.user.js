@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '84c447b';
+const commit = 'ec9c17c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2620,7 +2620,11 @@ async function readCfg() {
 			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
+			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
+			`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
+				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
+			`<span class="de-list de-depend">P2SH &ndash; <i${
+				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>`;
 		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));
@@ -17948,8 +17952,8 @@ function scriptCSS() {
 	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
-	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 40px 0 0 0; }
-	.de-logo > svg { width: 64px; height: 64px; }
+	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
+	.de-logo > svg { width: 122px; height: 122px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

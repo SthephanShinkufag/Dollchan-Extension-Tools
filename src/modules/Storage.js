@@ -172,7 +172,11 @@ async function readCfg() {
 			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span></div>`;
+			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
+			`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
+				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
+			`<span class="de-list de-depend">P2SH &ndash; <i${
+				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>`;
 		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));
