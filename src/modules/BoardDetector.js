@@ -242,7 +242,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		observeContent(checkDomains, dataPromise) {
-			if($q('#posts-form > .thread')) {
+			if($q('#posts-form > .thread, form[de-form] > .thread')) {
 				return true;
 			}
 			const initObserver = new MutationObserver(mutations => {
@@ -252,7 +252,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					runMain(checkDomains, dataPromise);
 				}
 			});
-			const el = $id('posts-form');
+			const el = $q('#posts-form, form[de-form]');
 			if(el) {
 				initObserver.observe(el, { childList: true });
 			}

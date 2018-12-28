@@ -51,10 +51,12 @@ const ContentLoader = {
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-				$q('body', dc).classList.add('de-mode-local');
+				const dcBody = $q('body', dc);
+				dcBody.classList.remove('de-runned');
+				dcBody.classList.add('de-mode-local');
 				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
-					`(${ String(deMainFuncInner) })(null, null, (x, y) => window.scrollTo(x, y), ` :
+					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
 				}${ JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;

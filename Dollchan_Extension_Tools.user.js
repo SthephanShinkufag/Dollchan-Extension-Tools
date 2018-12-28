@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'ec9c17c';
+	var commit = '973c79f';
 
 
 	var defaultCfg = {
@@ -9054,9 +9054,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var docName = aib.dm + '-' + aib.b.replace(/[\\/:*?"<>|]/g, '') + '-' + aib.t;
 				if (!imgOnly) {
 					$q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
-					$q('body', dc).classList.add('de-mode-local');
+					var dcBody = $q('body', dc);
+					dcBody.classList.remove('de-runned');
+					dcBody.classList.add('de-mode-local');
 					$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
-					tar.addString('data/dollscript.js', '' + (nav.isESNext ? '(' + String(deMainFuncInner) + ')(null, null, (x, y) => window.scrollTo(x, y), ' : '(' + String( deMainFuncOuter) + ')(') + JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) + ');');
+					tar.addString('data/dollscript.js', '' + (nav.isESNext ? '(' + String(deMainFuncInner) + ')(window, null, null, (x, y) => window.scrollTo(x, y), ' : '(' + String( deMainFuncOuter) + ')(') + JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) + ');');
 					var dt = doc.doctype;
 					tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 				}
@@ -20684,7 +20686,7 @@ true, true];
 			}, {
 				key: 'observeContent',
 				value: function observeContent(checkDomains, dataPromise) {
-					if ($q('#posts-form > .thread')) {
+					if ($q('#posts-form > .thread, form[de-form] > .thread')) {
 						return true;
 					}
 					var initObserver = new MutationObserver(function (mutations) {
@@ -20694,7 +20696,7 @@ true, true];
 							runMain(checkDomains, dataPromise);
 						}
 					});
-					var el = $id('posts-form');
+					var el = $q('#posts-form, form[de-form]');
 					if (el) {
 						initObserver.observe(el, { childList: true });
 					}
