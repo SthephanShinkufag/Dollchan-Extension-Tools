@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'be5f02b';
+const commit = '8e4ff9f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9164,11 +9164,13 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
+			const fileExt = fileName.substring(fileName.lastIndexOf('.'));
 			const newFileName =
-				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName :
-				Cfg.removeFName === 1 ? ' ' : (Date.now() - (Cfg.removeFName === 2 ? 0 :
-				Math.round(Math.random() * 15768e7 /* 5 years = 5*365*24*60*60*1e3 */))) +
-					fileName.substring(fileName.lastIndexOf('.'));
+				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (
+					Cfg.removeFName === 1 ? '' :
+					// 5 years = 5*365*24*60*60*1e3 = 15768e7
+					Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))
+				) + fileExt;
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||

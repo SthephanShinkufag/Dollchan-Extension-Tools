@@ -3449,7 +3449,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref43 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref44, name, value, type, _el13, val, fileName, newFileName, mime, cleanData, ajaxParams;
+			var data, hasFiles, _iteratorNormalCompletion23, _didIteratorError23, _iteratorError23, _iterator23, _step23, _ref44, name, value, type, _el13, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams;
 
 			return regeneratorRuntime.wrap(function _callee15$(_context18) {
 				while (1) {
@@ -3465,7 +3465,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 7:
 							if (_iteratorNormalCompletion23 = (_step23 = _iterator23.next()).done) {
-								_context18.next = 38;
+								_context18.next = 39;
 								break;
 							}
 
@@ -3481,101 +3481,103 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context18.abrupt('continue', 35);
+							return _context18.abrupt('continue', 36);
 
 						case 16:
 							if (!(type === 'file')) {
-								_context18.next = 34;
+								_context18.next = 35;
 								break;
 							}
 
 							hasFiles = true;
 							fileName = value.name;
-							newFileName = !Cfg.removeFName || _el13.obj && _el13.obj.imgFile && _el13.obj.imgFile.isConstName ? fileName : Cfg.removeFName === 1 ? ' ' : Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7 )) + fileName.substring(fileName.lastIndexOf('.'));
+							fileExt = fileName.substring(fileName.lastIndexOf('.'));
+							newFileName = !Cfg.removeFName || _el13.obj && _el13.obj.imgFile && _el13.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
+							Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + fileExt;
 							mime = value.type;
 
 							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.mak))) {
-								_context18.next = 33;
+								_context18.next = 34;
 								break;
 							}
 
 							_context18.t0 = cleanFile;
-							_context18.next = 25;
+							_context18.next = 26;
 							return readFile(value);
 
-						case 25:
+						case 26:
 							_context18.t1 = _context18.sent.data;
 							_context18.t2 = _el13.obj ? _el13.obj.extraFile : null;
 							cleanData = (0, _context18.t0)(_context18.t1, _context18.t2);
 
 							if (cleanData) {
-								_context18.next = 30;
+								_context18.next = 31;
 								break;
 							}
 
 							return _context18.abrupt('return', Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
-						case 30:
+						case 31:
 							val = new File(cleanData, newFileName, { type: mime });
-							_context18.next = 34;
+							_context18.next = 35;
 							break;
 
-						case 33:
+						case 34:
 							if (Cfg.removeFName) {
 								val = new File([value], newFileName, { type: mime });
 							}
 
-						case 34:
+						case 35:
 							data.append(name, val);
 
-						case 35:
+						case 36:
 							_iteratorNormalCompletion23 = true;
 							_context18.next = 7;
 							break;
 
-						case 38:
-							_context18.next = 44;
+						case 39:
+							_context18.next = 45;
 							break;
 
-						case 40:
-							_context18.prev = 40;
+						case 41:
+							_context18.prev = 41;
 							_context18.t3 = _context18['catch'](5);
 							_didIteratorError23 = true;
 							_iteratorError23 = _context18.t3;
 
-						case 44:
-							_context18.prev = 44;
+						case 45:
 							_context18.prev = 45;
+							_context18.prev = 46;
 
 							if (!_iteratorNormalCompletion23 && _iterator23.return) {
 								_iterator23.return();
 							}
 
-						case 47:
-							_context18.prev = 47;
+						case 48:
+							_context18.prev = 48;
 
 							if (!_didIteratorError23) {
-								_context18.next = 50;
+								_context18.next = 51;
 								break;
 							}
 
 							throw _iteratorError23;
 
-						case 50:
-							return _context18.finish(47);
-
 						case 51:
-							return _context18.finish(44);
+							return _context18.finish(48);
 
 						case 52:
+							return _context18.finish(45);
+
+						case 53:
 							if (!aib.sendHTML5Post) {
-								_context18.next = 54;
+								_context18.next = 55;
 								break;
 							}
 
 							return _context18.abrupt('return', aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
-						case 54:
+						case 55:
 							ajaxParams = { data: data, method: 'POST' };
 
 							if (needProgress && hasFiles) {
@@ -3587,12 +3589,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return Promise.reject(err);
 							}));
 
-						case 57:
+						case 58:
 						case 'end':
 							return _context18.stop();
 					}
 				}
-			}, _callee15, this, [[5, 40, 44, 52], [45,, 47, 51]]);
+			}, _callee15, this, [[5, 41, 45, 53], [46,, 48, 52]]);
 		}));
 
 		return function html5Submit(_x44, _x45) {
@@ -3819,7 +3821,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'be5f02b';
+	var commit = '8e4ff9f';
 
 
 	var defaultCfg = {
