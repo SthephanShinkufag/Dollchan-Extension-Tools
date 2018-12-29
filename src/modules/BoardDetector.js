@@ -697,7 +697,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
 		callReportForm(pNum, tNum) {
-			$q('input[type="button"]', $popup('report', `<input name="comment" value="" placeholder="${
+			$q('input[type="button"]', $popup('edit-report', `<input name="comment" value="" placeholder="${
 				Lng.report[lang] }" type="text"> <input value="OK" type="button">`)
 			).onclick = e => {
 				const inpEl = e.target.previousElementSibling;
@@ -711,6 +711,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				formData.append('thread', tNum);
 				formData.append('posts', pNum);
 				formData.append('comment', inpEl.value);
+				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
 				$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(xhr => {
 					let obj;

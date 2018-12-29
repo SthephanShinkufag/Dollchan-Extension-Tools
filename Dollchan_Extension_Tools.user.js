@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'e5bd2ff';
+	var commit = 'b62e4b4';
 
 
 	var defaultCfg = {
@@ -21480,7 +21480,7 @@ true, true];
 				value: function callReportForm(pNum, tNum) {
 					var _this90 = this;
 
-					$q('input[type="button"]', $popup('report', '<input name="comment" value="" placeholder="' + Lng.report[lang] + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
+					$q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + Lng.report[lang] + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
 						var inpEl = e.target.previousElementSibling;
 						if (!inpEl.value) {
 							inpEl.classList.add('de-input-error');
@@ -21492,6 +21492,7 @@ true, true];
 						formData.append('thread', tNum);
 						formData.append('posts', pNum);
 						formData.append('comment', inpEl.value);
+						closePopup('edit-report');
 						$popup('report', Lng.sending[lang], true);
 						$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(function (xhr) {
 							var obj = void 0;
