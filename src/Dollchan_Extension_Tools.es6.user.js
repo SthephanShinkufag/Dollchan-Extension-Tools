@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = '4fcd376';
+const commit = '225c260';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15382,7 +15382,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],
-					.post-btn, small { display: none !important; }
+					.post-btn, small, .watchThread { display: none !important; }
 				body { padding: 0 5px !important; }
 				.boardlist { z-index: 1 !important; }
 				.fileinfo { width: 240px; }

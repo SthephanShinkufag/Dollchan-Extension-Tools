@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = '4fcd376';
+	var commit = '225c260';
 
 
 	var defaultCfg = {
@@ -20760,7 +20760,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],\n\t\t\t\t\t.post-btn, small { display: none !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.boardlist { z-index: 1 !important; }\n\t\t\t\t.fileinfo { width: 240px; }\n\t\t\t\t.multifile { width: auto !important; }';
+					return _get(Vichan.prototype.__proto__ || Object.getPrototypeOf(Vichan.prototype), 'css', this) + '\n\t\t\t\t#expand-all-images, #expand-all-images + .unimportant, .fileinfo > span[style*="nowrap;"],\n\t\t\t\t\t.post-btn, small, .watchThread { display: none !important; }\n\t\t\t\tbody { padding: 0 5px !important; }\n\t\t\t\t.boardlist { z-index: 1 !important; }\n\t\t\t\t.fileinfo { width: 240px; }\n\t\t\t\t.multifile { width: auto !important; }';
 				}
 			}]);
 
