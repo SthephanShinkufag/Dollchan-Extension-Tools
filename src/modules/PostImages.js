@@ -966,7 +966,7 @@ const ImagesHashStorage = Object.create({
 		}
 		let data, buffer, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib.fch) {
+		if(aib._4chan) {
 			const imgData = await ContentLoader.loadImgData(el.src);
 			if(imgData) {
 				({ buffer } = imgData);

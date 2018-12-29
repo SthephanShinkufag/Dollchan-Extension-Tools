@@ -454,7 +454,7 @@ class Thread {
 		const maybeSpells = new Maybe(SpellsRunner);
 		const maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
 		const { count } = post;
-		if(count !== 0 && (aib.dobr || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
+		if(count !== 0 && (aib.dobrochan || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
 			post = this.op.nextNotDeleted;
 			let i = post.count - 1;
 			let firstChangedPost = null;

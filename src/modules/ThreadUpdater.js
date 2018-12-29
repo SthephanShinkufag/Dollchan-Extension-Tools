@@ -127,7 +127,7 @@ function initThreadUpdater(title, enableUpdate) {
 					console.warn('Icon error:', err);
 				}
 			};
-			if(aib.fch) {
+			if(aib._4chan) {
 				// Due to CORS we cannot apply href to icon.src directly
 				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
 					icon.src = 'response' in xhr ?

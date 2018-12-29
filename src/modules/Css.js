@@ -344,6 +344,7 @@ function scriptCSS() {
 	.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }
 	.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
+	.de-popup-msg > hr { margin: 0 !important; }
 	.de-post-hiddencontent { display: none !important; }
 	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
 	.de-pview-info { padding: 3px 6px !important; }
@@ -440,7 +441,7 @@ function updateCSS() {
 	${ Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
-	${ !aib.kus && (aib.multiFile || Cfg.fileInputs !== 2) ?
+	${ !aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2) ?
 		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : ''
 	}body > hr, .postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');

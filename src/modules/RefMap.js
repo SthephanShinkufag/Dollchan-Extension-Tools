@@ -85,7 +85,7 @@ class RefMap {
 			}
 			const lPost = pByNum.get(lNum);
 			if(!aib.t) {
-				link.href = `#${ aib.fch ? 'p' : '' }${ lNum }`;
+				link.href = `#${ aib._4chan ? 'p' : '' }${ lNum }`;
 			}
 			if(!isAdd) {
 				lPost.ref.removeLink(pNum);
@@ -208,7 +208,7 @@ class RefMap {
 		const { msg } = this._post;
 		const html = `<div class="de-refmap${
 			isHidden ? ' de-post-hiddencontent' : '' }">${ innerHTML }</div>`;
-		if(aib.dobr && (el = msg.nextElementSibling)) {
+		if(aib.dobrochan && (el = msg.nextElementSibling)) {
 			el.insertAdjacentHTML('beforeend', html);
 		} else {
 			msg.insertAdjacentHTML('afterend', html);

@@ -416,7 +416,7 @@ class FileInput {
 	}
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
-		if(aib.dobr) {
+		if(aib.dobrochan) {
 			$id('post_files_count').value = this._parent.filesCount + 1;
 		}
 	}
@@ -469,7 +469,7 @@ class FileInput {
 			this._txtInput.placeholder = Lng.dropFileHere[lang];
 		}
 		this._parent.hideEmpty();
-		if(!nav.isPresto && !aib.fch &&
+		if(!nav.isPresto && !aib._4chan &&
 			/^image\/(?:png|jpeg)$/.test(hasImgFile ? this.imgFile.type : this._input.files[0].type)
 		) {
 			$del(this._rarMsg);

@@ -137,7 +137,7 @@ class AbstractPost {
 				}
 				return;
 			}
-			if(aib.mak) {
+			if(aib.makaba) {
 				// Makaba: Click on like/dislike elements
 				let c = el.classList;
 				if(c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' ||
@@ -196,7 +196,7 @@ class AbstractPost {
 		}
 		// Mouseover/mouseout on YouTube links
 		if(el.classList.contains('de-video-link')) {
-			if(aib.mak && !el.videoInfo) {
+			if(aib.makaba && !el.videoInfo) {
 				const origMsg = this.msg.firstChild;
 				this.videos.updatePost($Q('.de-video-link', origMsg),
 					$Q('.de-video-link', origMsg.nextSibling), true);
@@ -286,7 +286,7 @@ class AbstractPost {
 	}
 	updateMsg(newMsg, sRunner) {
 		let videoExt, videoLinks;
-		const origMsg = aib.dobr ? this.msg.firstElementChild : this.msg;
+		const origMsg = aib.dobrochan ? this.msg.firstElementChild : this.msg;
 		if(Cfg.embedYTube) {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);

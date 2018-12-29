@@ -95,7 +95,7 @@ const ContentLoader = {
 			$each($Q(aib.qRPost, dc), (el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				quoteReg(aib.fch ? '4cdn.org' : aib.dm) }\\/`, 'i');
+				quoteReg(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
 			$each($Q('link, *[src]', dc), el => {
 				if(els.indexOf(el) !== -1) {
 					return;

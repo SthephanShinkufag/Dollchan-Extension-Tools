@@ -35,7 +35,9 @@ class BaseBoard {
 		this.qPostRef = '.reflink';
 		this.qRPost = '.reply';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
+		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 
+		// Other propertioes
 		this.anchor = '#';
 		this.b = '';
 		this.dm = dm;
@@ -60,7 +62,14 @@ class BaseBoard {
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 
-		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
+		// Imageboard-specific booleans
+		this._02ch = false;
+		this._2channel = false;
+		this._4chan = false;
+		this._8ch = false;
+		this.dobrochan = false;
+		this.iichan = false;
+		this.makaba = false;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',

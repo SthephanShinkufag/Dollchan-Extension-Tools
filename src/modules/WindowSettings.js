@@ -625,9 +625,9 @@ const CfgWindow = {
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
 					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
-					${ aib.dobr ? this._getBox('useDobrAPI') : '' }
+					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
-			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyPosts') + '<br>' : '' }
+			${ aib.jsonSubmit || aib._4chan ? this._getBox('markMyPosts') + '<br>' : '' }
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
 				${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
@@ -666,7 +666,7 @@ const CfgWindow = {
 				${ this._getInp('minWebmWidth') }
 			</div>
 			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
-			${ nav.isPresto || aib.fch ? '' : `<div class="de-depend">
+			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
 				${ this._getBox('findImgFile') }
 			</div>` }
 			${ this._getSel('openImgs') }<br>
@@ -688,7 +688,7 @@ const CfgWindow = {
 				<div class="de-depend">${ this._getBox('removeHidd') }</div>
 				${ this._getBox('noNavigHidd') }
 			</div>
-			${ aib.jsonSubmit || aib.fch ? this._getBox('markMyLinks') + '<br>' : '' }
+			${ aib.jsonSubmit || aib._4chan ? this._getBox('markMyLinks') + '<br>' : '' }
 			${ this._getBox('crossLinks') }<br>
 			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>
@@ -731,7 +731,7 @@ const CfgWindow = {
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
-				${ !aib.fch ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
+				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
 			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }

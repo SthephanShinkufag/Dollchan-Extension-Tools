@@ -125,7 +125,7 @@ async function readCfg() {
 	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
 		Cfg.addVocaroo = 0;
 	}
-	if(aib.dobr && !Cfg.useDobrAPI) {
+	if(aib.dobrochan && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
 	if(!('FormData' in deWindow)) {

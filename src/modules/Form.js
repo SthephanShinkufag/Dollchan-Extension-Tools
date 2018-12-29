@@ -229,7 +229,7 @@ class PostForm {
 		}
 	}
 	setPlaceholders() {
-		if(aib.kus || !aib.multiFile && Cfg.fileInputs === 2) {
+		if(aib.kusaba || !aib.multiFile && Cfg.fileInputs === 2) {
 			return;
 		}
 		this._setPlaceholder('name');
@@ -318,7 +318,7 @@ class PostForm {
 		this.sageBtn.style.opacity = isSage ? '1' : '.3';
 		this.sageBtn.title = isSage ? 'SAGE!' : Lng.noSage[lang];
 		if(this.mail.type === 'text') {
-			this.mail.value = isSage ? 'sage' : aib.fch ? 'noko' : '';
+			this.mail.value = isSage ? 'sage' : aib._4chan ? 'noko' : '';
 		} else {
 			this.mail.checked = isSage;
 		}
@@ -404,7 +404,7 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
-			if(aib.mak && !Cfg.altCaptcha) {
+			if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
 				if(!this.cap.isSubmitWait) {
 					$pd(e);
 					$popup('upload', 'reCaptcha...', true);
@@ -450,7 +450,7 @@ class PostForm {
 	}
 	_initTextarea() {
 		const el = this.txta;
-		if(aib.dobr) {
+		if(aib.dobrochan) {
 			el.removeAttribute('id');
 		}
 		el.classList.add('de-textarea');
@@ -531,7 +531,7 @@ class PostForm {
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 		this.pArea = [
 			$bBegin(DelForm.first.el, html),
-			$aEnd(aib.fch ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
+			$aEnd(aib._4chan ? $q('.board', DelForm.first.el) : DelForm.first.el, html)
 		];
 		this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 		this._pBtn[0].firstElementChild.onclick = e => this.showMainReply(false, e);
