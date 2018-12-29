@@ -737,7 +737,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
+			return $parent(img, 'FIGURE');
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `/${ brd }/res/${ tNum }.json`;
