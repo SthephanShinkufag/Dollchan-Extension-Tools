@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.19.0';
-const commit = 'b62e4b4';
+const commit = '4fcd376';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6465,7 +6465,7 @@ class Videos {
 		const isTop = cr.top + cr.height + pvHeight < nav.viewportHeight();
 		el.style.cssText = `position: absolute; left: ${ deWindow.pageXOffset + cr.left }px; top: ${
 			deWindow.pageYOffset + (isTop ? cr.top + cr.height : cr.top - pvHeight) }px; width: ${
-			Cfg.YTubeWidth }px; height: ${ pvHeight }px;`;
+			Cfg.YTubeWidth }px; height: ${ pvHeight }px; z-index: 9999;`;
 	}
 	updatePost(oldLinks, newLinks, cloned) {
 		const loader = !cloned && Videos._getTitlesLoader();

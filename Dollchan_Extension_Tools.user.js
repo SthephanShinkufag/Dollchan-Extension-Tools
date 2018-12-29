@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.19.0';
-	var commit = 'b62e4b4';
+	var commit = '4fcd376';
 
 
 	var defaultCfg = {
@@ -9586,7 +9586,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var cr = linkEl.getBoundingClientRect();
 				var pvHeight = Cfg.YTubeHeigh;
 				var isTop = cr.top + cr.height + pvHeight < nav.viewportHeight();
-				el.style.cssText = 'position: absolute; left: ' + (deWindow.pageXOffset + cr.left) + 'px; top: ' + (deWindow.pageYOffset + (isTop ? cr.top + cr.height : cr.top - pvHeight)) + 'px; width: ' + Cfg.YTubeWidth + 'px; height: ' + pvHeight + 'px;';
+				el.style.cssText = 'position: absolute; left: ' + (deWindow.pageXOffset + cr.left) + 'px; top: ' + (deWindow.pageYOffset + (isTop ? cr.top + cr.height : cr.top - pvHeight)) + 'px; width: ' + Cfg.YTubeWidth + 'px; height: ' + pvHeight + 'px; z-index: 9999;';
 			}
 		}, {
 			key: 'updatePost',
