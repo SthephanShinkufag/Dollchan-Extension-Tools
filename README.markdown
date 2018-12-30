@@ -2,18 +2,38 @@
 
 # ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/icons/logo-32.png) Dollchan Extension Tools
 
-Options & features that making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way.
-
----
 - **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; `for old browsers`
 - **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 52+ / Chrome 55+ / Opera 42+`
-- **[ [CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>![Webstore users](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)&nbsp;![Webstore rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
+- **[ [CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>![Web Store rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)&nbsp;![Chrome Web Store](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
+- **[ [FIREFOX ADD-ON](https://addons.mozilla.org/ru/firefox/addon/dollchan-extension/) ]**<br>![Mozilla Add-on rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
 
 ---
 - **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
 - **[Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
 - **Home: [https://dscript.me/](https://dscript.me/)**
 - **License:** © 2017 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
+
+---
+**Dollchan Extension** is the userscript and extension that combines various options & features, making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way. If you have visited sites like [4chan.org](http://4chan.org/) or [2ch.hk](https://2ch.hk/), then you probably already heard about it.
+
+It provides such functions:
+- Sending posts without rebooting.
+- Thread updater with different types of alerts (for example, blinking favicon or desktop notification when new posts appear).
+- Hiding posts and threads by a wide choice of expressions and rules.
+- Saving threads entirely with the originals of pictures.
+- Expanding threads directly on the index page.
+- Adding interesting threads to your Favorites to track new posts or responses to your posts.
+- "Endless scrolling" of index pages with threads.
+- Easy navigation through >>links as a posts tree.
+- Adding player to YouTube and Vimeo links.
+- Easy navigation through attached pictures and videos in posts.
+- Adding pictures to the reply form with convenient preview thumbnails.
+- Adding preview thumbnails to jpg / png / gif links.
+- Applying your custom CSS rules.
+- Hotkeys for many functions.
+... and many other features!
+
+Dollchan has both cross-browser and cross-board working scope. A list of supported sites includes all imageboards based on [Wakaba](https://wakaba.c3.cx/s/web/wakaba_kareha), [Kusaba](http://kusabax.cultnet.net/), [Tinyboard](https://github.com/savetheinternet/Tinyboard), [Vichan](https://github.com/vichan-devel/vichan), [TinyIB](https://github.com/tslocum/TinyIB), [LynxChan](https://gitgud.io/LynxChan/LynxChan), [FoolFuuka](https://github.com/FoolCode/FoolFuuka), their derivatives, or any other board engine that generates a html source parsable by the Dollchan, implying no critical changes were made by board maintainers.
 
 ---
 ### Userscript compilation:
