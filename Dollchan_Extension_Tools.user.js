@@ -3160,7 +3160,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context2.abrupt('return', GM_getValue(id));
 
 						case 11:
-							if (!nav.isChromeStorage) {
+							if (!nav.isWebStorage) {
 								_context2.next = 18;
 								break;
 							}
@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.29.0';
-	var commit = '5662205';
+	var commit = 'e138b67';
 
 
 	var defaultCfg = {
@@ -5507,7 +5507,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return GM.setValue(id, value);
 		} else if (nav.isGM) {
 			GM_setValue(id, value);
-		} else if (nav.isChromeStorage) {
+		} else if (nav.isWebStorage) {
 			var obj = {};
 			obj[id] = value;
 			chrome.storage.sync.set(obj, function () {
@@ -5530,7 +5530,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return GM.deleteValue(id);
 		} else if (nav.isGM) {
 			GM_deleteValue(id);
-		} else if (nav.isChromeStorage) {
+		} else if (nav.isWebStorage) {
 			chrome.storage.sync.remove(id, emptyFn);
 		} else if (nav.isScriptStorage) {
 			scriptStorage.removeItem(id);
@@ -8073,7 +8073,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dscript.me/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dscript.me/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.isWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div><br>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
 		},
 
 
@@ -19864,7 +19864,7 @@ true, true];
 		var isWebkit = ua.includes('WebKit/');
 		var isChrome = isWebkit && ua.includes('Chrome/');
 		var isSafari = isWebkit && !isChrome;
-		var isChromeStorage = 'chrome' in deWindow && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
+		var isWebStorage = (isFirefox || 'chrome' in deWindow) && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
 		var isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 		var isNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 		var scriptHandler = void 0,
@@ -19875,7 +19875,7 @@ true, true];
 			} catch (err) {
 				isGM = err.message === 'Permission denied to access property "toString"';
 			}
-			scriptHandler = isChromeStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? GM_info.scriptHandler + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
+			scriptHandler = isWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? GM_info.scriptHandler + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
 		} else {
 			scriptHandler = GM.info ? GM.info.scriptHandler + ' ' + GM.info.version : 'Greasemonkey';
 		}
@@ -19941,9 +19941,9 @@ true, true];
 			isMsEdge: ua.includes('Edge/'),
 			isGM: isGM,
 			isNewGM: isNewGM,
-			isChromeStorage: isChromeStorage,
+			isWebStorage: isWebStorage,
 			isScriptStorage: isScriptStorage,
-			isGlobal: isGM || isNewGM || isChromeStorage || isScriptStorage,
+			isGlobal: isGM || isNewGM || isWebStorage || isScriptStorage,
 			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || isNewGM && typeof GM.xmlHttpRequest === 'function',
 			get canPlayMP3() {
 				var value = !!new Audio().canPlayType('audio/mpeg;');

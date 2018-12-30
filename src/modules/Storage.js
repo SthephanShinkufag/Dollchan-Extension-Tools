@@ -9,7 +9,7 @@ async function getStored(id) {
 		return value;
 	} else if(nav.isGM) {
 		return GM_getValue(id);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
 		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
@@ -32,7 +32,7 @@ function setStored(id, value) {
 		return GM.setValue(id, value);
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		const obj = {};
 		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
@@ -58,7 +58,7 @@ function delStored(id) {
 		return GM.deleteValue(id);
 	} else if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
 	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);

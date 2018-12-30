@@ -27,7 +27,7 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = ('chrome' in deWindow) &&
+	const isWebStorage = (isFirefox || ('chrome' in deWindow)) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
@@ -39,7 +39,7 @@ function initNavFuncs() {
 		} catch(err) {
 			isGM = err.message === 'Permission denied to access property "toString"';
 		}
-		scriptHandler = isChromeStorage ? 'WebExtension' :
+		scriptHandler = isWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
@@ -102,9 +102,9 @@ function initNavFuncs() {
 		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
-		isChromeStorage,
+		isWebStorage,
 		isScriptStorage,
-		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		isGlobal   : isGM || isNewGM || isWebStorage || isScriptStorage,
 		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get canPlayMP3() {

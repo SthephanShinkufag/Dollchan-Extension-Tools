@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.29.0';
-const commit = '5662205';
+const commit = 'e138b67';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2457,7 +2457,7 @@ async function getStored(id) {
 		return value;
 	} else if(nav.isGM) {
 		return GM_getValue(id);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
 		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
@@ -2480,7 +2480,7 @@ function setStored(id, value) {
 		return GM.setValue(id, value);
 	} else if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		const obj = {};
 		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
@@ -2506,7 +2506,7 @@ function delStored(id) {
 		return GM.deleteValue(id);
 	} else if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(nav.isChromeStorage) {
+	} else if(nav.isWebStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
 	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
@@ -5005,7 +5005,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.isWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>
@@ -14713,7 +14713,7 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isChromeStorage = ('chrome' in deWindow) &&
+	const isWebStorage = (isFirefox || ('chrome' in deWindow)) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
 	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
@@ -14725,7 +14725,7 @@ function initNavFuncs() {
 		} catch(err) {
 			isGM = err.message === 'Permission denied to access property "toString"';
 		}
-		scriptHandler = isChromeStorage ? 'WebExtension' :
+		scriptHandler = isWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
@@ -14788,9 +14788,9 @@ function initNavFuncs() {
 		isMsEdge   : ua.includes('Edge/'),
 		isGM,
 		isNewGM,
-		isChromeStorage,
+		isWebStorage,
 		isScriptStorage,
-		isGlobal   : isGM || isNewGM || isChromeStorage || isScriptStorage,
+		isGlobal   : isGM || isNewGM || isWebStorage || isScriptStorage,
 		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
 			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		get canPlayMP3() {

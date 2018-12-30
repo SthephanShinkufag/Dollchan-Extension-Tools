@@ -786,7 +786,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.isChromeStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.isWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>
