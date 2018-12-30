@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.29.0';
-	var commit = 'e138b67';
+	var commit = 'aff4003';
 
 
 	var defaultCfg = {
@@ -20007,7 +20007,7 @@ true, true];
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var Ctor = Uint8Array;
-				if (!nav.isNewGM && nav.isFirefox) {
+				if (!nav.isNewGM && !nav.isWebStorage && nav.isFirefox) {
 					try {
 						if (!(new Uint8Array(data) instanceof Uint8Array)) {
 							Ctor = unsafeWindow.Uint8Array;
@@ -20028,7 +20028,7 @@ true, true];
 			},
 			getUnsafeDataView: function getUnsafeDataView(data, offset) {
 				var rv = new DataView(data, offset || 0);
-				return nav.isNewGM || !nav.isFirefox || rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
+				return nav.isNewGM || nav.isWebStorage || !nav.isFirefox || rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 			}
 		};
 	}

@@ -155,7 +155,7 @@ function initNavFuncs() {
 		// Workaround for old greasemonkeys
 		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
-			if(!nav.isNewGM && nav.isFirefox) {
+			if(!nav.isNewGM && !nav.isWebStorage && nav.isFirefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -173,7 +173,7 @@ function initNavFuncs() {
 		},
 		getUnsafeDataView(data, offset) {
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || !nav.isFirefox || (rv instanceof DataView) ?
+			return nav.isNewGM || nav.isWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
 				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
