@@ -25,12 +25,13 @@ It provides such functions:
 - Adding interesting threads to your Favorites to track new posts or responses to your posts.
 - "Endless scrolling" of index pages with threads.
 - Easy navigation through >>links as a posts tree.
-- Adding player to YouTube and Vimeo links.
-- Easy navigation through attached pictures and videos in posts.
+- Embedding player to YouTube and Vimeo links.
+- Easy navigation through attached pictures / videos in posts.
 - Adding pictures to the reply form with convenient preview thumbnails.
-- Adding preview thumbnails to jpg / png / gif links.
-- Applying your custom CSS rules.
+- Embedding preview thumbnails to .jpg / .png / .gif links.
+- Adding your CSS rules.
 - Hotkeys for many functions.
+
 ... and many other features!
 
 Dollchan has both cross-browser and cross-board working scope. A list of supported sites includes all imageboards based on [Wakaba](https://wakaba.c3.cx/s/web/wakaba_kareha), [Kusaba](http://kusabax.cultnet.net/), [Tinyboard](https://github.com/savetheinternet/Tinyboard), [Vichan](https://github.com/vichan-devel/vichan), [TinyIB](https://github.com/tslocum/TinyIB), [LynxChan](https://gitgud.io/LynxChan/LynxChan), [FoolFuuka](https://github.com/FoolCode/FoolFuuka), their derivatives, or any other board engine that generates a html source parsable by the Dollchan, implying no critical changes were made by board maintainers.
