@@ -39,13 +39,17 @@ function runFrames() {
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	let formEl;
-	if(!(docBody = doc.body) || docBody.classList.contains('de-runned') ||
-		!aib && !(aib = getImageBoard(checkDomains, true)) ||
-		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
+	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
+		return;
+	}
+	let formEl = $q(aib.qDForm + ', form[de-form]');
+	if(!formEl) {
+		runFrames();
+		return;
+	}
+	if(docBody.classList.contains('de-runned') ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
-		runFrames();
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -55,17 +59,12 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let favObj, oldMain;
-	[excludeList, favObj] = await (dataPromise || readData());
-	if((excludeList = excludeList || '').includes(aib.dm) ||
-		!Cfg.disabled && aib.init && aib.init() ||
-		!localData && docBody.classList.contains('de-mode-local')
-	) {
+	const [favObj] = await (dataPromise || readData());
+	if(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
 	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
-	$del(oldMain);
 	addSVGIcons();
 	if(Cfg.disabled) {
 		Panel.initPanel(formEl);
@@ -161,9 +160,6 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
-	return;
-}
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);

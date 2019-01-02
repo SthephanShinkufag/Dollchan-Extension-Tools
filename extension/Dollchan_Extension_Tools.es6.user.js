@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.29.0';
-const commit = '196b841';
+const commit = '07401eb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -706,11 +706,7 @@ const Lng = {
 				'Проверять обновления Dollchan',
 				'Check for Dollchan updates',
 				'Перевіряти оновлення Dollchan']
-		},
-		excludeList: [
-			'Не запускать Dollchan на:',
-			'Prevent Dollchan launch on:',
-			'Не запускати Dollchan на:']
+		}
 	},
 
 	// Main panel buttons: tooltips
@@ -1623,8 +1619,8 @@ const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let $each, aib, Cfg, docBody, dTime, dummy, excludeList, isExpImg, isPreImg, lang, locStorage, nav,
-	needScroll, pByEl, pByNum, pr, sesStorage, updater;
+let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
+	pByNum, pr, sesStorage, updater;
 let quotetxt = '';
 let nativeXHRworks = true;
 let visPosts = 2;
@@ -2546,7 +2542,7 @@ function toggleCfg(id) {
 }
 
 function readData() {
-	return Promise.all([getStored('DESU_Exclude'), readFavorites(), readCfg()]);
+	return Promise.all([readFavorites(), readCfg()]);
 }
 
 // Config initialization, checking for Dollchan update.
@@ -4324,7 +4320,6 @@ const CfgWindow = {
 						try {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-							setStored('DESU_Exclude', obj.exclude);
 						} catch(err) {}
 					}
 					if(favObj) {
@@ -4364,14 +4359,8 @@ const CfgWindow = {
 					}
 					switch(i) {
 					case 0: name.push('Cfg'); {
-						const cfgData = await Promise.all([
-							getStored('DESU_Config'),
-							getStored('DESU_keys'),
-							getStored('DESU_Exclude')
-						]);
-						val.push(`"settings":${ cfgData[0] }`,
-							`"hotkeys":${ cfgData[1] || '""' }`,
-							`"exclude":"${ cfgData[2] || '' }"`);
+						const cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
+						val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
 						break;
 					}
 					case 1: name.push('Fav');
@@ -4426,7 +4415,6 @@ const CfgWindow = {
 			if(els[3].checked) {
 				delStored('DESU_Config');
 				delStored('DESU_keys');
-				delStored('DESU_Exclude');
 			} else if(els[0].checked) {
 				getStoredObj('DESU_Config').then(data => {
 					delete data[aib.dm];
@@ -4713,7 +4701,6 @@ const CfgWindow = {
 			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			case 'excludeList': setStored('DESU_Exclude', excludeList = el.value); break;
 			default: saveCfg(info, el.value);
 			}
 			return;
@@ -4802,7 +4789,7 @@ const CfgWindow = {
 				if(el.type === 'checkbox') {
 					el.checked = !!Cfg[info];
 				} else {
-					el.value = info !== 'excludeList' ? Cfg[info] : excludeList;
+					el.value = Cfg[info];
 				}
 			} else {
 				el.selectedIndex = Cfg[info];
@@ -4978,9 +4965,6 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
-			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
-				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
-				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
 		</div>`;
 	},
 
@@ -15234,6 +15218,49 @@ function getImageBoard(checkDomains, checkEngines) {
 	const ibEngines = [];
 
 	// ENGINES
+	class Wakaba extends BaseBoard {}
+	ibEngines.push(['form[action$="wakaba.pl"]', Wakaba]);
+
+	class Kusaba extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this.kusaba = true;
+
+			this.qError = 'h1, h2, div[style*="1.25em"]';
+			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+
+			this.formParent = 'replythread';
+			this.markupBB = true;
+		}
+		get css() {
+			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
+					.ui-resizable-handle, blockquote + a { display: none !important; }
+				.ui-wrapper { display: inline-block; width: auto !important;
+					height: auto !important; padding: 0 !important; }`;
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
+		}
+		init() {
+			const el = $id('posttypeindicator');
+			if(el) {
+				[el.previousSibling, el.nextSibling, el].forEach($del);
+			}
+			return false;
+		}
+	}
+	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
+
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -15414,45 +15441,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines.push(['tr#upload', Vichan]);
-
-	class Kusaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.kusaba = true;
-
-			this.qError = 'h1, h2, div[style*="1.25em"]';
-			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-
-			this.formParent = 'replythread';
-			this.markupBB = true;
-		}
-		get css() {
-			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
-					.ui-resizable-handle, blockquote + a { display: none !important; }
-				.ui-wrapper { display: inline-block; width: auto !important;
-					height: auto !important; padding: 0 !important; }`;
-		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
-		getImgRealName(wrap) {
-			const el = $q('.filesize', wrap);
-			if(el) {
-				const info = el.textContent.split(',');
-				if(info.length > 2) {
-					return info.pop().replace(')', '');
-				}
-			}
-			return super.getImgRealName(wrap);
-		}
-		init() {
-			const el = $id('posttypeindicator');
-			if(el) {
-				[el.previousSibling, el.nextSibling, el].forEach($del);
-			}
-		}
-	}
-	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 	class TinyIB extends BaseBoard {
 		constructor(prot, dm) {
@@ -17112,13 +17100,14 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['warosu.org'] = Warosu;
 
-	const prot = deWindow.location.protocol;
+	const wLoc = deWindow.location;
+	const prot = wLoc.protocol;
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = deWindow.location.hostname.toLowerCase();
+			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {
@@ -17130,7 +17119,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	if(!dm) {
-		dm = deWindow.location.hostname;
+		dm = wLoc.hostname;
 	}
 	if(!dm || !checkEngines) {
 		return null;
@@ -17142,7 +17131,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new Ctor(prot, dm);
 		}
 	}
-	return new BaseBoard(prot, dm);
+	return null;
 }
 
 /* ==[ Misc.js ]==============================================================================================
@@ -18053,13 +18042,17 @@ function runFrames() {
 
 async function runMain(checkDomains, dataPromise) {
 	Logger.initLogger();
-	let formEl;
-	if(!(docBody = doc.body) || docBody.classList.contains('de-runned') ||
-		!aib && !(aib = getImageBoard(checkDomains, true)) ||
-		!(formEl = $q(aib.qDForm + ', form[de-form]')) ||
+	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
+		return;
+	}
+	let formEl = $q(aib.qDForm + ', form[de-form]');
+	if(!formEl) {
+		runFrames();
+		return;
+	}
+	if(docBody.classList.contains('de-runned') ||
 		aib.observeContent && !aib.observeContent(checkDomains, dataPromise)
 	) {
-		runFrames();
 		return;
 	}
 	Logger.log('Imageboard check');
@@ -18069,17 +18062,12 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	let favObj, oldMain;
-	[excludeList, favObj] = await (dataPromise || readData());
-	if((excludeList = excludeList || '').includes(aib.dm) ||
-		!Cfg.disabled && aib.init && aib.init() ||
-		!localData && docBody.classList.contains('de-mode-local')
-	) {
+	const [favObj] = await (dataPromise || readData());
+	if(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
 	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
-	$del(oldMain);
 	addSVGIcons();
 	if(Cfg.disabled) {
 		Panel.initPanel(formEl);
@@ -18175,9 +18163,6 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
-	return;
-}
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);

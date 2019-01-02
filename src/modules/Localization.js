@@ -534,11 +534,7 @@ const Lng = {
 				'Проверять обновления Dollchan',
 				'Check for Dollchan updates',
 				'Перевіряти оновлення Dollchan']
-		},
-		excludeList: [
-			'Не запускать Dollchan на:',
-			'Prevent Dollchan launch on:',
-			'Не запускати Dollchan на:']
+		}
 	},
 
 	// Main panel buttons: tooltips

@@ -7,6 +7,49 @@ function getImageBoard(checkDomains, checkEngines) {
 	const ibEngines = [];
 
 	// ENGINES
+	class Wakaba extends BaseBoard {}
+	ibEngines.push(['form[action$="wakaba.pl"]', Wakaba]);
+
+	class Kusaba extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+			this.kusaba = true;
+
+			this.qError = 'h1, h2, div[style*="1.25em"]';
+			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+
+			this.formParent = 'replythread';
+			this.markupBB = true;
+		}
+		get css() {
+			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
+					.ui-resizable-handle, blockquote + a { display: none !important; }
+				.ui-wrapper { display: inline-block; width: auto !important;
+					height: auto !important; padding: 0 !important; }`;
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
+		}
+		getImgRealName(wrap) {
+			const el = $q('.filesize', wrap);
+			if(el) {
+				const info = el.textContent.split(',');
+				if(info.length > 2) {
+					return info.pop().replace(')', '');
+				}
+			}
+			return super.getImgRealName(wrap);
+		}
+		init() {
+			const el = $id('posttypeindicator');
+			if(el) {
+				[el.previousSibling, el.nextSibling, el].forEach($del);
+			}
+			return false;
+		}
+	}
+	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
+
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -187,45 +230,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibEngines.push(['tr#upload', Vichan]);
-
-	class Kusaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this.kusaba = true;
-
-			this.qError = 'h1, h2, div[style*="1.25em"]';
-			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-
-			this.formParent = 'replythread';
-			this.markupBB = true;
-		}
-		get css() {
-			return `.extrabtns > a, .extrabtns > span, #newposts_get, .replymode,
-					.ui-resizable-handle, blockquote + a { display: none !important; }
-				.ui-wrapper { display: inline-block; width: auto !important;
-					height: auto !important; padding: 0 !important; }`;
-		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
-		}
-		getImgRealName(wrap) {
-			const el = $q('.filesize', wrap);
-			if(el) {
-				const info = el.textContent.split(',');
-				if(info.length > 2) {
-					return info.pop().replace(')', '');
-				}
-			}
-			return super.getImgRealName(wrap);
-		}
-		init() {
-			const el = $id('posttypeindicator');
-			if(el) {
-				[el.previousSibling, el.nextSibling, el].forEach($del);
-			}
-		}
-	}
-	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 	class TinyIB extends BaseBoard {
 		constructor(prot, dm) {
@@ -1885,13 +1889,14 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['warosu.org'] = Warosu;
 
-	const prot = deWindow.location.protocol;
+	const wLoc = deWindow.location;
+	const prot = wLoc.protocol;
 	let dm = localData && localData.dm;
 	if(checkDomains) {
 		if(!dm) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
-			const host = deWindow.location.hostname.toLowerCase();
+			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
 				dm = ibKeys[i];
 				if(host === dm || host.endsWith('.' + dm)) {
@@ -1903,7 +1908,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	if(!dm) {
-		dm = deWindow.location.hostname;
+		dm = wLoc.hostname;
 	}
 	if(!dm || !checkEngines) {
 		return null;
@@ -1915,5 +1920,5 @@ function getImageBoard(checkDomains, checkEngines) {
 			return new Ctor(prot, dm);
 		}
 	}
-	return new BaseBoard(prot, dm);
+	return null;
 }

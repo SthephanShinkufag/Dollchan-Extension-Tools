@@ -98,7 +98,7 @@ function toggleCfg(id) {
 }
 
 function readData() {
-	return Promise.all([getStored('DESU_Exclude'), readFavorites(), readCfg()]);
+	return Promise.all([readFavorites(), readCfg()]);
 }
 
 // Config initialization, checking for Dollchan update.

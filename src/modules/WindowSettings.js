@@ -105,7 +105,6 @@ const CfgWindow = {
 						try {
 							setStored('DESU_Config', JSON.stringify(cfgObj));
 							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-							setStored('DESU_Exclude', obj.exclude);
 						} catch(err) {}
 					}
 					if(favObj) {
@@ -145,14 +144,8 @@ const CfgWindow = {
 					}
 					switch(i) {
 					case 0: name.push('Cfg'); {
-						const cfgData = await Promise.all([
-							getStored('DESU_Config'),
-							getStored('DESU_keys'),
-							getStored('DESU_Exclude')
-						]);
-						val.push(`"settings":${ cfgData[0] }`,
-							`"hotkeys":${ cfgData[1] || '""' }`,
-							`"exclude":"${ cfgData[2] || '' }"`);
+						const cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
+						val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
 						break;
 					}
 					case 1: name.push('Fav');
@@ -207,7 +200,6 @@ const CfgWindow = {
 			if(els[3].checked) {
 				delStored('DESU_Config');
 				delStored('DESU_keys');
-				delStored('DESU_Exclude');
 			} else if(els[0].checked) {
 				getStoredObj('DESU_Config').then(data => {
 					delete data[aib.dm];
@@ -494,7 +486,6 @@ const CfgWindow = {
 			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			case 'excludeList': setStored('DESU_Exclude', excludeList = el.value); break;
 			default: saveCfg(info, el.value);
 			}
 			return;
@@ -583,7 +574,7 @@ const CfgWindow = {
 				if(el.type === 'checkbox') {
 					el.checked = !!Cfg[info];
 				} else {
-					el.value = info !== 'excludeList' ? Cfg[info] : excludeList;
+					el.value = Cfg[info];
 				}
 			} else {
 				el.selectedIndex = Cfg[info];
@@ -759,9 +750,6 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
-			${ nav.isGlobal ? `${ Lng.cfg.excludeList[lang] }
-				<input type="text" info="excludeList" class="de-cfg-inptxt" style="display: block;` +
-				' width: 80%;" placeholder="4chan.org, 8ch.net, …">' : '' }
 		</div>`;
 	},
 
