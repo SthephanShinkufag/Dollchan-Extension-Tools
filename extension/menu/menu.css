@@ -1,0 +1,45 @@
+body {
+	margin: 0;
+}
+
+#header {
+	color: #fff;
+	background-color: #3a414f;
+	text-align: center;
+	font: 12px/14px arial;
+	cursor: default;
+}
+
+#menu {
+	font: 15px/18px arial;
+	cursor: pointer;
+}
+
+.option {
+	padding: 4px 17px;
+	min-width: 58px;
+	border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+
+.option:hover {
+	background-color: rgba(220, 220, 220, .4);
+}
+
+#option-toggle {
+	position: relative;
+}
+
+#option-toggle::before {
+	content: "";
+	position: absolute;
+	top: 9px;
+	left: 5px;
+	width: 8px;
+	height: 8px;
+	border-radius: 4px;
+	background-color: #0f0;
+}
+
+.option-toggle-disabled::before {
+	background-color: #f00 !important;
+}
