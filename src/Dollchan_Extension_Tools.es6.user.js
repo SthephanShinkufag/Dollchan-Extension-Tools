@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.29.0';
-const commit = 'aff4003';
+const commit = '196b841';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18016,8 +18016,11 @@ function updateCSS() {
                                                      MAIN
 =========================================================================================================== */
 
+// XXX: Workaround for Greasemonkey bug to load Dollchan in all frames
 function runFrames() {
-	if(!deWindow.frames[0]) {
+	if((typeof GM === 'undefined') || !GM.info || GM.info.scriptHandler !== 'Greasemonkey' ||
+		!deWindow.frames[0]
+	) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {
@@ -18172,10 +18175,9 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 // START OF DOLLCHAN EXECUTION
-if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol) || deWindow.deRunned) {
+if(/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
 	return;
 }
-deWindow.deRunned = true;
 if(doc.readyState !== 'loading') {
 	needScroll = false;
 	runMain(true, null);

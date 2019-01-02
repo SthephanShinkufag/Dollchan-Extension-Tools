@@ -3823,7 +3823,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.29.0';
-	var commit = 'aff4003';
+	var commit = '196b841';
 
 
 	var defaultCfg = {
@@ -23454,7 +23454,7 @@ true, true];
 
 
 	function runFrames() {
-		if (!deWindow.frames[0]) {
+		if (typeof GM === 'undefined' || !GM.info || GM.info.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
 			return;
 		}
 		var deMainFuncFrame = function deMainFuncFrame(frameEl) {
@@ -23490,10 +23490,9 @@ true, true];
 		}
 	}
 
-	if (/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol) || deWindow.deRunned) {
+	if (/^(?:about|chrome|opera|res):$/i.test(deWindow.location.protocol)) {
 		return;
 	}
-	deWindow.deRunned = true;
 	if (doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);
