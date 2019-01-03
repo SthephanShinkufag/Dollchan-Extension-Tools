@@ -337,7 +337,7 @@ class BaseBoard {
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
-	parseURL() { // Sets here only
+	parseURL() {
 		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);

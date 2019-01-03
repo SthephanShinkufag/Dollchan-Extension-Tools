@@ -30,6 +30,7 @@ const Pages = {
 						$after(oldLastThr.el, thr.el);
 						newForm.firstThr = thr.next;
 						thr.prev = oldLastThr;
+						thr.form = firstForm;
 						firstForm.lastThr = oldLastThr.next = thr;
 						needThreads--;
 					}

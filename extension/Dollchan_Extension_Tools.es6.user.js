@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.29.0';
-const commit = '07401eb';
+const commit = 'c075ef2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6948,6 +6948,7 @@ const Pages = {
 						$after(oldLastThr.el, thr.el);
 						newForm.firstThr = thr.next;
 						thr.prev = oldLastThr;
+						thr.form = firstForm;
 						firstForm.lastThr = oldLastThr.next = thr;
 						needThreads--;
 					}
@@ -15188,7 +15189,7 @@ class BaseBoard {
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
-	parseURL() { // Sets here only
+	parseURL() {
 		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 		if(url.match(this.res)) { // We are in thread
 			const temp = url.split(this.res);

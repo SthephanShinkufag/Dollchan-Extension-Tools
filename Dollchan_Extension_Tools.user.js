@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.29.0';
-	var commit = '07401eb';
+	var commit = 'c075ef2';
 
 
 	var defaultCfg = {
@@ -10236,6 +10236,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 											$after(oldLastThr.el, thr.el);
 											newForm.firstThr = thr.next;
 											thr.prev = oldLastThr;
+											thr.form = firstForm;
 											firstForm.lastThr = oldLastThr.next = thr;
 											needThreads--;
 										}
