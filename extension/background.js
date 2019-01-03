@@ -86,13 +86,6 @@ chrome.webNavigation.onCommitted.addListener(details => {
 	runScriptInFrame(details); // Regular loading at document_start
 });
 
-// Remove settings.html from browser`s history if it will opened.
-chrome.history.onVisited.addListener(details => {
-	if(details.url === chrome.extension.getURL('settings/settings.html')) {
-		chrome.history.deleteUrl({ url: details.url });
-	}
-});
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch(request['de-messsage']) {
 	case 'toggleDollchan': // Conversation with menu.js
