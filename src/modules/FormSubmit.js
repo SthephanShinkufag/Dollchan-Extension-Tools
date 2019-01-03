@@ -12,30 +12,6 @@ function getSubmitError(dc) {
 	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
 }
 
-function getUploadFunc() {
-	$popup('upload', Lng.sending[lang] +
-		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
-		'</progress><div style="display: none; font: bold 12px arial;">' +
-		'<span></span> / <span></span> (<span></span>)</div>', true);
-	let isInited = false;
-	const beginTime = Date.now();
-	const progress = $id('de-uploadprogress');
-	const counterWrap = progress.nextElementSibling;
-	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
-	return ({ total, loaded: i }) => {
-		if(!isInited) {
-			progress.setAttribute('max', total);
-			$show(progress);
-			totalEl.textContent = prettifySize(total);
-			$show(counterWrap);
-			isInited = true;
-		}
-		progress.value = i;
-		counterEl.textContent = prettifySize(i);
-		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;
-	};
-}
-
 function checkUpload(data) {
 	let error = null;
 	let postNum = null;
@@ -166,6 +142,131 @@ async function checkDelete(data) {
 	$popup('delete', Lng.succDeleted[lang]);
 }
 
+// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
+function isFormElDisabled(el) {
+	switch(el.tagName.toLowerCase()) {
+	case 'button':
+	case 'input':
+	case 'select':
+	case 'textarea':
+		if(el.hasAttribute('disabled')) {
+			return true;
+		}
+		/* falls through */
+	default:
+		if(nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
+			return true;
+		}
+	}
+	return false;
+}
+// https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
+function * getFormElements(form, submitter) {
+	const controls = $Q('button, input, keygen, object, select, textarea', form);
+	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
+
+	constructSet:
+	for(let i = 0, len = controls.length; i < len; ++i) {
+		const field = controls[i];
+		const tagName = field.tagName.toLowerCase();
+		const type = field.getAttribute('type');
+		const name = field.getAttribute('name');
+		if($parent(field, 'DATALIST', form) || isFormElDisabled(field) ||
+			field !== submitter && (
+				tagName === 'button' ||
+				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
+			) ||
+			tagName === 'input' && (
+				type === 'checkbox' && !field.checked ||
+				type === 'radio' && !field.checked ||
+				type === 'image' && !name
+			) ||
+			tagName === 'object'
+		) {
+			continue;
+		}
+		if(tagName === 'select') {
+			const options = $Q('select > option, select > optgrout > option', field);
+			for(let j = 0, jlen = options.length; j < jlen; ++j) {
+				const option = options[j];
+				if(option.selected && !isFormElDisabled(option)) {
+					yield { type, el: field, name: fixName(name), value: option.value };
+				}
+			}
+		} else if(tagName === 'input') {
+			switch(type) {
+			case 'image': throw new Error('input[type="image"] is not supported');
+			case 'checkbox':
+			case 'radio':
+				yield { type, el: field, name: fixName(name), value: field.value || 'on' };
+				continue constructSet;
+			case 'file': {
+				let img;
+				if(field.files.length > 0) {
+					const { files } = field;
+					for(let j = 0, jlen = files.length; j < jlen; ++j) {
+						yield { name, type, el: field, value: files[j] };
+					}
+				} else if(field.obj && (img = field.obj.imgFile)) {
+					yield {
+						name,
+						type,
+						el    : field,
+						value : new File([img.data], img.name, { type: img.type })
+					};
+				} else {
+					yield {
+						el    : field,
+						name  : fixName(name),
+						type  : 'application/octet-stream',
+						value : new File([''], '')
+					};
+				}
+				continue constructSet;
+			}
+			}
+		}
+		if(type === 'textarea') {
+			yield { type, el: field, name: name || '', value: field.value };
+		} else {
+			yield { type, el: field, name: fixName(name), value: field.value };
+		}
+		const dirname = field.getAttribute('dirname');
+		if(dirname) {
+			yield {
+				el    : field,
+				name  : fixName(dirname),
+				type  : 'direction',
+				value : nav.matchesSelector(field, ':dir(rtl)') ? 'rtl' : 'ltr'
+			};
+		}
+	}
+}
+
+function getUploadFunc() {
+	$popup('upload', Lng.sending[lang] +
+		'<br><progress id="de-uploadprogress" value="0" max="1" style="display: none; width: 200px;">' +
+		'</progress><div style="display: none; font: bold 12px arial;">' +
+		'<span></span> / <span></span> (<span></span>)</div>', true);
+	let isInited = false;
+	const beginTime = Date.now();
+	const progress = $id('de-uploadprogress');
+	const counterWrap = progress.nextElementSibling;
+	const [counterEl, totalEl, speedEl] = [...counterWrap.children];
+	return ({ total, loaded: i }) => {
+		if(!isInited) {
+			progress.setAttribute('max', total);
+			$show(progress);
+			totalEl.textContent = prettifySize(total);
+			$show(counterWrap);
+			isInited = true;
+		}
+		progress.value = i;
+		counterEl.textContent = prettifySize(i);
+		speedEl.textContent = `${ prettifySize(1e3 * i / (Date.now() - beginTime)) }/${ Lng.second[lang] }`;
+	};
+}
+
 async function html5Submit(form, submitter, needProgress = false) {
 	const data = new FormData();
 	let hasFiles = false;
@@ -213,19 +314,6 @@ async function html5Submit(form, submitter, needProgress = false) {
 	return $ajax(form.action, ajaxParams)
 		.then(xhr => aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText))
 		.catch(err => Promise.reject(err));
-}
-
-async function readFile(file, asText = false) {
-	return new Promise(resolve => {
-		const fr = new FileReader();
-		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
-		fr.onload = e => resolve({ data: e.target.result });
-		if(asText) {
-			fr.readAsText(file);
-		} else {
-			fr.readAsArrayBuffer(file);
-		}
-	});
 }
 
 function cleanFile(data, extraData) {

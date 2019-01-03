@@ -159,23 +159,26 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.finish();
 }
 
-// START OF DOLLCHAN EXECUTION
-if(doc.readyState !== 'loading') {
-	needScroll = false;
-	runMain(true, null);
-	return;
-}
-let dataPromise = null;
-if((aib = getImageBoard(true, false))) {
-	if(!checkStorage()) {
+function initMain() {
+	if(doc.readyState !== 'loading') {
+		needScroll = false;
+		runMain(true, null);
 		return;
 	}
-	initNavFuncs();
-	dataPromise = readData();
+	let dataPromise = null;
+	if((aib = getImageBoard(true, false))) {
+		if(!checkStorage()) {
+			return;
+		}
+		initNavFuncs();
+		dataPromise = readData();
+	}
+	needScroll = true;
+	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
+		needScroll = false;
+		doc.removeEventListener(e.type, wFunc);
+	});
+	doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
 }
-needScroll = true;
-doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {
-	needScroll = false;
-	doc.removeEventListener(e.type, wFunc);
-});
-doc.addEventListener('DOMContentLoaded', () => runMain(false, dataPromise));
+
+initMain();
