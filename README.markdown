@@ -51,3 +51,22 @@ Dollchan has both cross-browser and cross-board working scope. A list of support
 `gulp make:es6`
 6. Also you can make separate source modules from your ESNext version:<br>
 `gulp make:modules`
+
+---
+### How to test an extension:
+
+**Chrome**
+1. Go to the extensions page by typing `chrome://extensions/` in your browser's address bar,<br>
+disable your existing Dollchan extension if available.
+2. Set the `"Developer's mode"` checkbox, press the `"Load unpacked extension"` button.
+3. Select the path to `/extension` directory in your Dollchan repo.<br>
+If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.
+4. Done.
+
+**Firefox**
+1. Go to the add-ons page by typing `about:addons` in your browser's address bar,<br>
+disable your existing Dollchan add-on if available.
+2. Go to `about:debugging#addons` page, press the `"Download temporary add-on…"` button.
+3. Open the `/extension` directory in your Dollchan repo and select the path to `manifest.json` file.<br>
+If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.
+4. Done.
