@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.12.29.0
+// @version         19.1.3.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '18.12.29.0';
-const commit = '90d5482';
+const version = '19.1.3.0';
+const commit = '490e5f4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2536,7 +2536,7 @@ async function readCfg() {
 				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
 			`<span class="de-list de-depend">P2SH &ndash; <i${
 				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
-			(nav.firefoxVer > 56 && nav.scriptHandler !== 'WebExtension' ?
+			(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
 				`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
 				'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 		const popupFn = () => $popup('donate', donateMsg);

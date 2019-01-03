@@ -177,7 +177,7 @@ async function readCfg() {
 				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
 			`<span class="de-list de-depend">P2SH &ndash; <i${
 				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
-			(nav.firefoxVer > 56 && nav.scriptHandler !== 'WebExtension' ?
+			(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
 				`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
 				'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 		const popupFn = () => $popup('donate', donateMsg);

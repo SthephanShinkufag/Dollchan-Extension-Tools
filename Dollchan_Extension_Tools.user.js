@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         18.12.29.0
+// @version         19.1.3.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -3366,7 +3366,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							lang = Cfg.language;
 							if (val.commit !== commit && !localData) {
 								font = ' style="font: 13px monospace; color: green;"';
-								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>') + (nav.firefoxVer > 56 && nav.scriptHandler !== 'WebExtension' ? '<br><br>New: <a href="https://addons.mozilla.org/' + (lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
+								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>') + (nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ? '<br><br>New: <a href="https://addons.mozilla.org/' + (lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 
 								popupFn = function popupFn() {
 									return $popup('donate', donateMsg);
@@ -3836,8 +3836,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
-	var version = '18.12.29.0';
-	var commit = '90d5482';
+	var version = '19.1.3.0';
+	var commit = '490e5f4';
 
 
 	var defaultCfg = {
