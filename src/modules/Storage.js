@@ -176,7 +176,10 @@ async function readCfg() {
 			`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
 				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
 			`<span class="de-list de-depend">P2SH &ndash; <i${
-				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>`;
+				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+			(nav.isFirefox && nav.scriptHandler !== 'WebExtension' ?
+				`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+				'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));

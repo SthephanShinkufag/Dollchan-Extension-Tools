@@ -1436,5 +1436,9 @@ const Lng = {
 	donateMsg: [
 		'<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием',
 		'<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating',
-		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою']
+		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою'],
+	firefoxAddon: [
+		'Firefox аддон</a> доступен!',
+		'Firefox add-on</a> is available!',
+		'Firefox аддон</a> доступний!']
 };

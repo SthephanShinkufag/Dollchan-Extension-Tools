@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '18.12.29.0';
-const commit = 'b79ffd1';
+const commit = '4f18bbe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1608,7 +1608,11 @@ const Lng = {
 	donateMsg: [
 		'<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием',
 		'<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating',
-		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою']
+		'<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою'],
+	firefoxAddon: [
+		'Firefox аддон</a> доступен!',
+		'Firefox add-on</a> is available!',
+		'Firefox аддон</a> доступний!']
 };
 
 /* ==[ GlobalVars.js ]== */
@@ -2531,7 +2535,10 @@ async function readCfg() {
 			`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
 				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
 			`<span class="de-list de-depend">P2SH &ndash; <i${
-				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>`;
+				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+			(nav.isFirefox && nav.scriptHandler !== 'WebExtension' ?
+				`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+				'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));

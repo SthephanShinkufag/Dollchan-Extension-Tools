@@ -3366,7 +3366,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							lang = Cfg.language;
 							if (val.commit !== commit && !localData) {
 								font = ' style="font: 13px monospace; color: green;"';
-								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>');
+								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>') + (nav.isFirefox && nav.scriptHandler !== 'WebExtension' ? '<br><br>New: <a href="https://addons.mozilla.org/' + (lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
 
 								popupFn = function popupFn() {
 									return $popup('donate', donateMsg);
@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '18.12.29.0';
-	var commit = 'b79ffd1';
+	var commit = '4f18bbe';
 
 
 	var defaultCfg = {
@@ -4404,7 +4404,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		newPost: [['новый пост', 'новых поста', 'новых постов'], ['new post', 'new posts', 'new posts'], ['новий пост', 'нових пости', 'нових постів']],
 		youReplies: [['ответ Вам', 'ответа Вам', 'ответов Вам'], ['reply to You', 'replies to You', 'replies to You'], ['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
 		latestPost: ['Последний пост', 'Latest post', 'Останній пост'],
-		donateMsg: ['<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием', '<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating', '<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою']
+		donateMsg: ['<b>Спасибо за использование Dollchan Extension!</b><br>Вы можете поддержать проект пожертвованием', '<b>Thank You for using Dollchan Extension!</b><br>You can support the project by donating', '<b>Дякуємо за використання Dollchan Extension!</b><br>Ви можете підтримати проект пожертвою'],
+		firefoxAddon: ['Firefox аддон</a> доступен!', 'Firefox add-on</a> is available!', 'Firefox аддон</a> доступний!']
 	};
 
 
