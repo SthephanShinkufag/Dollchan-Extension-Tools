@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '76c636b';
+const commit = 'cad20de';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
