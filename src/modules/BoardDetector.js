@@ -675,8 +675,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
 				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
-					.newpost, .post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
-					.postform__len { display: none !important; }
+					.newpost, .post__btn:not(.icon_type_active), .post__message > .icon, .post__number,
+					.post__panel, .post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
@@ -777,11 +777,10 @@ function getImageBoard(checkDomains, checkEngines) {
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
-				fixGlobalFunc("autorefresh_start");
+				fixGlobalFunc("autorefresh_start"); // Old makaba only
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				fixGlobalFunc("MExpandMedia");
-				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);

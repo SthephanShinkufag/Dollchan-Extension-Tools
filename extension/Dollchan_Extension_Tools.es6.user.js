@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         19.1.3.0
+// @version         19.1.5.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '19.1.3.0';
-const commit = '4b86111';
+const version = '19.1.5.0';
+const commit = '76c636b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6239,7 +6239,7 @@ class Videos {
 		if(isYtube) {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
-				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
+				((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) +
 				(enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') +
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
@@ -15893,8 +15893,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
 				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
-					.newpost, .post__btn:not(.icon_type_active), .post__number, .post__panel, .post__refmap,
-					.postform__len { display: none !important; }
+					.newpost, .post__btn:not(.icon_type_active), .post__message > .icon, .post__number,
+					.post__panel, .post__refmap, .postform__len { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
@@ -15995,11 +15995,10 @@ function getImageBoard(checkDomains, checkEngines) {
 						{ value: Function.prototype, writable: false, configurable: false });
 				}
 				fixGlobalFunc("$alert");
-				fixGlobalFunc("autorefresh_start");
+				fixGlobalFunc("autorefresh_start"); // Old makaba only
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				fixGlobalFunc("MExpandMedia");
-				fixGlobalFunc("scrollTo");
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);

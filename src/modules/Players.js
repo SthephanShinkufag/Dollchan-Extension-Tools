@@ -25,7 +25,7 @@ class Videos {
 		if(isYtube) {
 			const list = m[0].match(/list=[^&#]+/);
 			txt = `<iframe class="de-video-player" src="https://www.youtube.com/embed/${ m[1] }?start=` +
-				(m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0) +
+				((m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0)) +
 				(enableJsapi ? '&enablejsapi=1' : Cfg.embedYTube === 1 ? '&autoplay=1' : '') +
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
