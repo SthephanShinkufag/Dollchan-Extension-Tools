@@ -4,8 +4,8 @@
 
 - **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; `for old browsers`
 - **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 52+ / Chrome 55+ / Opera 42+`
-- **[ [CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>![Web Store rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)&nbsp;![Chrome Web Store](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
-- **[ [FIREFOX ADD-ON](https://addons.mozilla.org/ru/firefox/addon/dollchan-extension/) ]**<br>![Mozilla Add-on rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
+- **[ [CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>![Web Store rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)&nbsp;![Chrome rating](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
+- **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan-extension/) ]**<br>![Mozilla rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
 
 ---
 - **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
@@ -64,8 +64,8 @@ If you don't have a Dollchan repo, download and unpack the [repository archive](
 4. Done.
 
 **Firefox**
-1. Go to the add-ons page by typing `about:addons` in your browser's address bar,<br>
-disable your existing Dollchan add-on if available.
+1. Go to the extensions page by typing `about:addons` in your browser's address bar,<br>
+disable your existing Dollchan extension if available.
 2. Go to `about:debugging#addons` page, press the `"Download temporary add-on…"` button.
 3. Open the `/extension` directory in your Dollchan repo and select the path to `manifest.json` file.<br>
 If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.

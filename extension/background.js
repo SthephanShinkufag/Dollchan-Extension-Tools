@@ -76,7 +76,7 @@ function runScriptInFrame(details) {
 chrome.webNavigation.onCommitted.addListener(details => {
 	if(details.transitionType === 'manual_subframe') {
 		// Clicking on <a target="board"> on board's list of iichan.hk, when target iframe UPDATES its content
-		// onCommitted gives an old statement of iframe content, so we need to use onDOMContentLoaded
+		// onCommitted gives an old statement of frame content, so we need to use onDOMContentLoaded
 		const callback = details => {
 			runScriptInFrame(details);
 			chrome.webNavigation.onDOMContentLoaded.removeListener(callback);

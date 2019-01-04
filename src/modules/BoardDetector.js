@@ -7,8 +7,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	const ibEngines = [];
 
 	// ENGINES
-	class Wakaba extends BaseBoard {}
-	ibEngines.push(['form[action$="wakaba.pl"]', Wakaba]);
+	ibEngines.push(['form[action$="wakaba.pl"]', BaseBoard]);
 
 	class Kusaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -1357,48 +1356,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 
-	class Dscript extends TinyIB {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.markupBB = true;
-			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-		}
-		get fixHTMLHelper() {
-			return null;
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		init() {
-			return false;
-		}
-	}
-	ibDomains['dscript.me'] = Dscript;
-
-	class Lolifox extends Brchan {
-		get css() {
-			return `${ super.css }\r\n\t${
-				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-					'color: inherit !important' }; transition: none !important; }` : '' }
-				#thread-interactions { display: none; }
-				.reflink::after { content: "" !important; }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			return false;
-		}
-	}
-	ibDomains['lisach.pw'] = Lolifox;
-	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
+	ibDomains['desuchan.moe'] = BaseBoard;
+	ibDomains['desuchan.net'] = BaseBoard;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
@@ -1555,6 +1514,25 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.net'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
+
+	class Dscript extends TinyIB {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = true;
+			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+		}
+		get fixHTMLHelper() {
+			return null;
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
+		init() {
+			return false;
+		}
+	}
+	ibDomains['dscript.me'] = Dscript;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
@@ -1730,6 +1708,30 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
+
+	class Lolifox extends Brchan {
+		get css() {
+			return `${ super.css }\r\n\t${
+				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+					'color: inherit !important' }; transition: none !important; }` : '' }
+				#thread-interactions { display: none; }
+				.reflink::after { content: "" !important; }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
+		}
+		init() {
+			super.init();
+			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
+			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+			return false;
+		}
+	}
+	ibDomains['lisach.pw'] = Lolifox;
+	ibDomains['lolifox.org'] = Lolifox;
+	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
+	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 	class Niuchan extends Kusaba {
 		get css() {
