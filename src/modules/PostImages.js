@@ -541,7 +541,7 @@ class ExpandableImage {
 	}
 	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
-		const { src } = this;
+		const src = this._getImageSrc();
 		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
 			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
@@ -601,7 +601,7 @@ class ExpandableImage {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		const isWebm = src.split('.').pop() === 'webm';
+		const isWebm = origSrc.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
 		if(inPost) {
@@ -728,7 +728,7 @@ class ExpandableImage {
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
-					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
+					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
 							const res = JSON.parse(xhr.responseText);

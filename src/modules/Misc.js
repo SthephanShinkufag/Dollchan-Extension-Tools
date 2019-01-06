@@ -68,7 +68,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
+		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true
 	).then(({ responseText }) => {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;

@@ -3,21 +3,24 @@
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
+function $ajax(url, params = null, needCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(nav.canUseFetch) {
+	if(!needCORS && nav.canUseFetch || needCORS && nav.canUseFetchCORS) {
 		if(!params) {
 			params = {};
 		}
-		const controller = new AbortController();
-		params.signal = controller.signal;
 		params.referrer = aib.prot + '//' + aib.host;
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
 		}
+		if(needCORS) {
+			params.mode = 'cors';
+		}
+		const controller = new AbortController();
+		params.signal = controller.signal;
 		const loadTO = needTO && setTimeout(() => {
 			reject(AjaxError.Timeout);
 			try {
@@ -42,7 +45,7 @@ function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 			}
 			resolve(res);
 		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
-	} else if(!useNativeXHR && nav.hasGMXHR) {
+	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -139,8 +142,8 @@ function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			canUseNativeXhr = false;
-			return $ajax(url, params, false);
+			canUseNativeXHR = false;
+			return $ajax(url, params);
 		}
 	}
 	return new CancelablePromise((res, rej) => {

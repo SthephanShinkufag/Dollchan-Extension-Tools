@@ -31,6 +31,7 @@ function initNavFuncs() {
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const canUseFetch = 'AbortController' in window; // Firefox 57+, Chrome 66+, Safari 11.1+
 	let scriptHandler, hasOldGM = false;
 	if(hasNewGM) {
 		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
@@ -39,7 +40,7 @@ function initNavFuncs() {
 			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
-			hasOldGM = err.message === 'Permission denied to access property "toString"';
+			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
 		scriptHandler = hasWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
@@ -93,10 +94,11 @@ function initNavFuncs() {
 		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
 			val => val + rules.join(', ' + val)
 		).join(', '),
-		canUseFetch : 'AbortController' in window, // Firefox 57+, Chrome 66+, Safari 11.1+
-		firefoxVer  : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		fixLink     : isSafari ? getAbsLink : url => url,
-		hasGMXHR    : (typeof GM_xmlhttpRequest === 'function') ||
+		canUseFetch,
+		canUseFetchCORS : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		firefoxVer      : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		fixLink         : isSafari ? getAbsLink : url => url,
+		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
 			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		hasNewGM,
 		hasOldGM,
@@ -156,7 +158,7 @@ function initNavFuncs() {
 		},
 		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
 			let Ctor = Uint8Array;
-			if(!nav.hasNewGM && !nav.hasWebStorage && nav.isFirefox) {
+			if(nav.isFirefox && nav.hasOldGM) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -173,9 +175,9 @@ function initNavFuncs() {
 			throw new Error();
 		},
 		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
-			const rv = new DataView(data, offset || 0);
-			return nav.hasNewGM || nav.hasWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
-				rv : new unsafeWindow.DataView(data, offset || 0);
+			const value = new DataView(data, offset || 0);
+			return !nav.isFirefox || !nav.hasOldGM || (value instanceof DataView) ? value :
+				new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }

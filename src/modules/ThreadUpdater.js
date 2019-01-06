@@ -129,7 +129,7 @@ function initThreadUpdater(title, enableUpdate) {
 			};
 			if(aib._4chan) {
 				// Due to CORS we cannot apply href to icon.src directly
-				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
+				$ajax(this._iconEl.href, { responseType: 'blob' }, true).then(xhr => {
 					icon.src = 'response' in xhr ?
 						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
 				});

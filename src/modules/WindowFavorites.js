@@ -416,7 +416,7 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, false).then(() => {
+			await $ajax(el.getAttribute('de-url'), null, true).then(() => {
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 				last404 = false;

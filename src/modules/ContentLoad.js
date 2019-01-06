@@ -145,7 +145,7 @@ const ContentLoader = {
 		}
 	},
 	loadImgData: (url, repeatOnError = true) => $ajax(
-		url, { responseType: 'arraybuffer' }, url.startsWith('blob')
+		url, { responseType: 'arraybuffer' }, !url.startsWith('blob')
 	).then(xhr => {
 		if('response' in xhr) {
 			try {

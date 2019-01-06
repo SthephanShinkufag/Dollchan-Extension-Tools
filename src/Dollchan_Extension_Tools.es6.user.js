@@ -7,6 +7,8 @@
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @inject-into     content
+// @nocompat        Chrome
 // @run-at          document-start
 // @grant           GM_getValue
 // @grant           GM_setValue
@@ -19,7 +21,6 @@
 // @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
-// @nocompat        Chrome
 // ==/UserScript==
 
 /* eslint indent: ["error", "tab", {
@@ -30,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '1902d55';
+const commit = '7d648b8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1626,7 +1627,7 @@ const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Ext
 let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
 	pByNum, pr, sesStorage, updater;
 let quotetxt = '';
-let canUseNativeXhr = true;
+let canUseNativeXHR = true;
 let visPosts = 2;
 let topWinZ = 10;
 
@@ -4091,7 +4092,7 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, false).then(() => {
+			await $ajax(el.getAttribute('de-url'), null, true).then(() => {
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 				last404 = false;
@@ -5931,7 +5932,7 @@ const ContentLoader = {
 		}
 	},
 	loadImgData: (url, repeatOnError = true) => $ajax(
-		url, { responseType: 'arraybuffer' }, url.startsWith('blob')
+		url, { responseType: 'arraybuffer' }, !url.startsWith('blob')
 	).then(xhr => {
 		if('response' in xhr) {
 			try {
@@ -6414,7 +6415,7 @@ class Videos {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
 					Videos._getYTInfoOembed(info, num, id);
 			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
+			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
 				return Videos._titlesLoaderHelper(
 					info, num,
@@ -6431,7 +6432,7 @@ class Videos {
 			`https://www.googleapis.com/youtube/v3/videos?key=${ Cfg.ytApiKey }&id=${ id }` +
 			'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
 			'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
-			null, false
+			null, true
 		).then(xhr => {
 			const items = JSON.parse(xhr.responseText).items[0];
 			return Videos._titlesLoaderHelper(
@@ -6444,13 +6445,14 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (
-			nav.hasGMXHR ? $ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
-				id }&format=json`, null, false) :
+		const canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+		return (canSendCORS ?
+			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
+				id }&format=json`, null, true) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
 			const res = xhr.responseText;
-			const json = JSON.parse(nav.hasGMXHR ? res : res.replace(/^[^{]+|\)$/g, ''));
+			const json = JSON.parse(canSendCORS ? res : res.replace(/^[^{]+|\)$/g, ''));
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}
@@ -6483,7 +6485,7 @@ class Videos {
 		}
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
-		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
+		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 		}).catch(emptyFn);
 	}
@@ -6596,21 +6598,24 @@ function embedAudioLinks(data) {
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
+function $ajax(url, params = null, needCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(nav.canUseFetch) {
+	if(!needCORS && nav.canUseFetch || needCORS && nav.canUseFetchCORS) {
 		if(!params) {
 			params = {};
 		}
-		const controller = new AbortController();
-		params.signal = controller.signal;
 		params.referrer = aib.prot + '//' + aib.host;
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
 		}
+		if(needCORS) {
+			params.mode = 'cors';
+		}
+		const controller = new AbortController();
+		params.signal = controller.signal;
 		const loadTO = needTO && setTimeout(() => {
 			reject(AjaxError.Timeout);
 			try {
@@ -6635,7 +6640,7 @@ function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 			}
 			resolve(res);
 		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
-	} else if(!useNativeXHR && nav.hasGMXHR) {
+	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -6732,8 +6737,8 @@ function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			canUseNativeXhr = false;
-			return $ajax(url, params, false);
+			canUseNativeXHR = false;
+			return $ajax(url, params);
 		}
 	}
 	return new CancelablePromise((res, rej) => {
@@ -9230,7 +9235,6 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(aib.sendHTML5Post) {
 		return aib.sendHTML5Post(form, data, needProgress, hasFiles);
 	}
-	// TODO: [Greasemonkey] To fix the "No referrer" bug in Tinyboard/Vichan
 	const ajaxParams = { data, method: 'POST' };
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
@@ -12106,7 +12110,7 @@ class ExpandableImage {
 	}
 	getFullImg(inPost, onsizechange, onrotate) {
 		let wrapEl, name, origSrc;
-		const { src } = this;
+		const src = this._getImageSrc();
 		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
 			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
@@ -12166,7 +12170,7 @@ class ExpandableImage {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		const isWebm = src.split('.').pop() === 'webm';
+		const isWebm = origSrc.split('.').pop() === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
 		if(inPost) {
@@ -12293,7 +12297,7 @@ class ExpandableImage {
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
-					$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(xhr => {
+					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
 							const res = JSON.parse(xhr.responseText);
@@ -14098,7 +14102,7 @@ function initThreadUpdater(title, enableUpdate) {
 			};
 			if(aib._4chan) {
 				// Due to CORS we cannot apply href to icon.src directly
-				$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(xhr => {
+				$ajax(this._iconEl.href, { responseType: 'blob' }, true).then(xhr => {
 					icon.src = 'response' in xhr ?
 						deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
 				});
@@ -14735,6 +14739,7 @@ function initNavFuncs() {
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const canUseFetch = 'AbortController' in window; // Firefox 57+, Chrome 66+, Safari 11.1+
 	let scriptHandler, hasOldGM = false;
 	if(hasNewGM) {
 		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
@@ -14743,7 +14748,7 @@ function initNavFuncs() {
 			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
-			hasOldGM = err.message === 'Permission denied to access property "toString"';
+			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
 		scriptHandler = hasWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
@@ -14797,10 +14802,11 @@ function initNavFuncs() {
 		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
 			val => val + rules.join(', ' + val)
 		).join(', '),
-		canUseFetch : 'AbortController' in window, // Firefox 57+, Chrome 66+, Safari 11.1+
-		firefoxVer  : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		fixLink     : isSafari ? getAbsLink : url => url,
-		hasGMXHR    : (typeof GM_xmlhttpRequest === 'function') ||
+		canUseFetch,
+		canUseFetchCORS : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		firefoxVer      : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		fixLink         : isSafari ? getAbsLink : url => url,
+		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
 			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		hasNewGM,
 		hasOldGM,
@@ -14860,7 +14866,7 @@ function initNavFuncs() {
 		},
 		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
 			let Ctor = Uint8Array;
-			if(!nav.hasNewGM && !nav.hasWebStorage && nav.isFirefox) {
+			if(nav.isFirefox && nav.hasOldGM) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -14877,9 +14883,9 @@ function initNavFuncs() {
 			throw new Error();
 		},
 		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
-			const rv = new DataView(data, offset || 0);
-			return nav.hasNewGM || nav.hasWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
-				rv : new unsafeWindow.DataView(data, offset || 0);
+			const value = new DataView(data, offset || 0);
+			return !nav.isFirefox || !nav.hasOldGM || (value instanceof DataView) ? value :
+				new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
@@ -17240,7 +17246,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		}
 	}
 	return $ajax(
-		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false
+		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true
 	).then(({ responseText }) => {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v && v[1] ? v[1].split('.') : null;

@@ -7,6 +7,8 @@
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @inject-into     content
+// @nocompat        Chrome
 // @run-at          document-start
 // @grant           GM_getValue
 // @grant           GM_setValue
@@ -19,5 +21,4 @@
 // @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
-// @nocompat        Chrome
 // ==/UserScript==

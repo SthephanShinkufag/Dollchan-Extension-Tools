@@ -7,6 +7,8 @@
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @inject-into     content
+// @nocompat        Chrome
 // @run-at          document-start
 // @grant           GM_getValue
 // @grant           GM_setValue
@@ -19,7 +21,6 @@
 // @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @include         *
-// @nocompat        Chrome
 // ==/UserScript==
 /* eslint-disable */
 (function deMainFuncOuter(localData) {
@@ -3837,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '1902d55';
+	var commit = '7d648b8';
 
 
 	var defaultCfg = {
@@ -4433,7 +4434,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    sesStorage = void 0,
 	    updater = void 0;
 	var quotetxt = '';
-	var canUseNativeXhr = true;
+	var canUseNativeXHR = true;
 	var visPosts = 2;
 	var topWinZ = 10;
 
@@ -7074,7 +7075,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 												iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 												titleEl.title = Lng.updating[lang];
 												_context9.next = 7;
-												return $ajax(el.getAttribute('de-url'), null, false).then(function () {
+												return $ajax(el.getAttribute('de-url'), null, true).then(function () {
 													iconEl.setAttribute('class', 'de-fav-inf-icon');
 													titleEl.removeAttribute('title');
 													last404 = false;
@@ -8942,7 +8943,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		loadImgData: function loadImgData(url) {
 			var repeatOnError = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-			return $ajax(url, { responseType: 'arraybuffer' }, url.startsWith('blob')).then(function (xhr) {
+			return $ajax(url, { responseType: 'arraybuffer' }, !url.startsWith('blob')).then(function (xhr) {
 				if ('response' in xhr) {
 					try {
 						return nav.getUnsafeUint8Array(xhr.response);
@@ -9422,7 +9423,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return;
 				}
 				el.innerHTML = str + '//vimeo.com/' + m[1] + '" target="_blank">' + '<img class="de-video-thumb de-vimeo" src=""></a>';
-				$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(function (xhr) {
+				$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, true).then(function (xhr) {
 					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 				}).catch(emptyFn);
 			}
@@ -9509,7 +9510,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (isYtube) {
 						return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) : Videos._getYTInfoOembed(info, num, id);
 					}
-					return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, false).then(function (xhr) {
+					return $ajax(aib.prot + '//vimeo.com/api/v2/video/' + id + '.json', null, true).then(function (xhr) {
 						var entry = JSON.parse(xhr.responseText)[0];
 						return Videos._titlesLoaderHelper(info, num, entry.title, entry.user_name, entry.stats_number_of_plays, /(.*)\s(.*)?/.exec(entry.upload_date)[1], Videos._fixTime(entry.duration)[0]);
 					}).catch(function () {
@@ -9522,7 +9523,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_getYTInfoAPI',
 			value: function _getYTInfoAPI(info, num, id) {
-				return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' + 'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration', null, false).then(function (xhr) {
+				return $ajax('https://www.googleapis.com/youtube/v3/videos?key=' + Cfg.ytApiKey + '&id=' + id + '&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' + 'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration', null, true).then(function (xhr) {
 					var items = JSON.parse(xhr.responseText).items[0];
 					return Videos._titlesLoaderHelper(info, num, items.snippet.title, items.snippet.channelTitle, items.statistics.viewCount, items.snippet.publishedAt.substr(0, 10), items.contentDetails.duration.substr(2).toLowerCase());
 				}).catch(function () {
@@ -9532,9 +9533,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_getYTInfoOembed',
 			value: function _getYTInfoOembed(info, num, id) {
-				return (nav.hasGMXHR ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, false) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
+				var canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+				return (canSendCORS ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, true) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
 					var res = xhr.responseText;
-					var json = JSON.parse(nav.hasGMXHR ? res : res.replace(/^[^{]+|\)$/g, ''));
+					var json = JSON.parse(canSendCORS ? res : res.replace(/^[^{]+|\)$/g, ''));
 					return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 				}).catch(function () {
 					return Videos._titlesLoaderHelper(info, num);
@@ -9685,24 +9687,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _this21 = this;
 
 		var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-		var useNativeXHR = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : canUseNativeXhr;
+		var needCORS = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		var resolve = void 0,
 		    reject = void 0,
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if (nav.canUseFetch) {
+		if (!needCORS && nav.canUseFetch || needCORS && nav.canUseFetchCORS) {
 			if (!params) {
 				params = {};
 			}
-			var controller = new AbortController();
-			params.signal = controller.signal;
 			params.referrer = aib.prot + '//' + aib.host;
 			if (params.data) {
 				params.body = params.data;
 				delete params.data;
 			}
+			if (needCORS) {
+				params.mode = 'cors';
+			}
+			var controller = new AbortController();
+			params.signal = controller.signal;
 			var loadTO = needTO && setTimeout(function () {
 				reject(AjaxError.Timeout);
 				try {
@@ -9774,7 +9779,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}()).catch(function (err) {
 				return reject(new AjaxError(err.status, err.statusText));
 			});
-		} else if (!useNativeXHR && nav.hasGMXHR) {
+		} else if ((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
 			var gmxhr = void 0;
 			var timeoutFn = function timeoutFn() {
 				reject(AjaxError.Timeout);
@@ -9875,8 +9880,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			} catch (err) {
 				clearTimeout(_loadTO2);
-				canUseNativeXhr = false;
-				return $ajax(url, params, false);
+				canUseNativeXHR = false;
+				return $ajax(url, params);
 			}
 		}
 		return new CancelablePromise(function (res, rej) {
@@ -16720,8 +16725,7 @@ true, true];
 				var wrapEl = void 0,
 				    name = void 0,
 				    origSrc = void 0;
-				var src = this.src;
-
+				var src = this._getImageSrc();
 				var parent = this._getImageParent;
 				if (this.el.className !== 'de-img-embed') {
 					var nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
@@ -16771,7 +16775,7 @@ true, true];
 					return wrapEl;
 				}
 
-				var isWebm = src.split('.').pop() === 'webm';
+				var isWebm = origSrc.split('.').pop() === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
 				var inPostSize = '';
 				if (inPost) {
@@ -16902,7 +16906,7 @@ true, true];
 								formData.append('file', blob, name);
 								var ajaxParams = { data: formData, method: 'POST' };
 								var frameLinkHtml = '<a class="de-menu-item de-list" href="' + deWindow.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
-								$ajax('https://tmp.saucenao.com/', ajaxParams, false).then(function (xhr) {
+								$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(function (xhr) {
 									var hostUrl = void 0,
 									    errMsg = Lng.errSaucenao[lang];
 									try {
@@ -19289,7 +19293,7 @@ true, true];
 					}
 				};
 				if (aib._4chan) {
-					$ajax(this._iconEl.href, { responseType: 'blob' }, false).then(function (xhr) {
+					$ajax(this._iconEl.href, { responseType: 'blob' }, true).then(function (xhr) {
 						icon.src = 'response' in xhr ? deWindow.URL.createObjectURL(xhr.response) : '/favicon.ico';
 					});
 					return;
@@ -19961,6 +19965,7 @@ true, true];
 		var hasWebStorage = (isFirefox || 'chrome' in deWindow) && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
 		var hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 		var hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+		var canUseFetch = 'AbortController' in window; 
 		var scriptHandler = void 0,
 		    hasOldGM = false;
 		if (hasNewGM) {
@@ -19969,7 +19974,7 @@ true, true];
 			try {
 				hasOldGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
 			} catch (err) {
-				hasOldGM = err.message === 'Permission denied to access property "toString"';
+				hasOldGM = err.message === 'Permission denied to access property "toString"'; 
 			}
 			scriptHandler = hasWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? GM_info.scriptHandler + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
 		}
@@ -20032,7 +20037,8 @@ true, true];
 					return val + rules.join(', ' + val);
 				}).join(', ');
 			},
-			canUseFetch: 'AbortController' in window, 
+			canUseFetch: canUseFetch,
+			canUseFetchCORS: canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
 			firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 			fixLink: isSafari ? getAbsLink : function (url) {
 				return url;
@@ -20103,7 +20109,7 @@ true, true];
 			},
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var Ctor = Uint8Array;
-				if (!nav.hasNewGM && !nav.hasWebStorage && nav.isFirefox) {
+				if (nav.isFirefox && nav.hasOldGM) {
 					try {
 						if (!(new Uint8Array(data) instanceof Uint8Array)) {
 							Ctor = unsafeWindow.Uint8Array;
@@ -20123,8 +20129,8 @@ true, true];
 				throw new Error();
 			},
 			getUnsafeDataView: function getUnsafeDataView(data, offset) {
-				var rv = new DataView(data, offset || 0);
-				return nav.hasNewGM || nav.hasWebStorage || !nav.isFirefox || rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
+				var value = new DataView(data, offset || 0);
+				return !nav.isFirefox || !nav.hasOldGM || value instanceof DataView ? value : new unsafeWindow.DataView(data, offset || 0);
 			}
 		};
 	}
@@ -23423,7 +23429,7 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, false).then(function (_ref81) {
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref81) {
 			var responseText = _ref81.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);

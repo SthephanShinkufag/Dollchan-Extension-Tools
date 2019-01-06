@@ -204,7 +204,7 @@ class Videos {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
 					Videos._getYTInfoOembed(info, num, id);
 			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, false).then(xhr => {
+			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
 				return Videos._titlesLoaderHelper(
 					info, num,
@@ -221,7 +221,7 @@ class Videos {
 			`https://www.googleapis.com/youtube/v3/videos?key=${ Cfg.ytApiKey }&id=${ id }` +
 			'&part=snippet,statistics,contentDetails&fields=items/snippet/title,items/snippet/publishedAt,' +
 			'items/snippet/channelTitle,items/statistics/viewCount,items/contentDetails/duration',
-			null, false
+			null, true
 		).then(xhr => {
 			const items = JSON.parse(xhr.responseText).items[0];
 			return Videos._titlesLoaderHelper(
@@ -234,13 +234,14 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		return (
-			nav.hasGMXHR ? $ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
-				id }&format=json`, null, false) :
+		const canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+		return (canSendCORS ?
+			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
+				id }&format=json`, null, true) :
 			$ajax(`https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D${ id }&callback=?`)
 		).then(xhr => {
 			const res = xhr.responseText;
-			const json = JSON.parse(nav.hasGMXHR ? res : res.replace(/^[^{]+|\)$/g, ''));
+			const json = JSON.parse(canSendCORS ? res : res.replace(/^[^{]+|\)$/g, ''));
 			return Videos._titlesLoaderHelper(info, num, json.title, json.author_name, null, null, null);
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}
@@ -273,7 +274,7 @@ class Videos {
 		}
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
-		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, false).then(xhr => {
+		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 		}).catch(emptyFn);
 	}
