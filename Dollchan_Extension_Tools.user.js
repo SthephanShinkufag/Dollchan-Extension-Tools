@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '6f2c7c7';
+	var commit = '9f77cb7';
 
 
 	var defaultCfg = {
@@ -9694,11 +9694,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if (!needCORS && nav.canUseFetch || needCORS && nav.canUseFetchCORS) {
+		if (needCORS ? nav.canUseFetchCORS : nav.canUseFetch) {
 			if (!params) {
 				params = {};
 			}
-			params.referrer = aib.prot + '//' + aib.host;
+			params.referrer = doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+			console.log(params.referrer);
 			if (params.data) {
 				params.body = params.data;
 				delete params.data;

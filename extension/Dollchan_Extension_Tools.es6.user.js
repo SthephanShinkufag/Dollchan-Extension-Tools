@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '6f2c7c7';
+const commit = '9f77cb7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6602,11 +6602,13 @@ function $ajax(url, params = null, needCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(!needCORS && nav.canUseFetch || needCORS && nav.canUseFetchCORS) {
+	if(needCORS ? nav.canUseFetchCORS : nav.canUseFetch) {
 		if(!params) {
 			params = {};
 		}
-		params.referrer = aib.prot + '//' + aib.host;
+		params.referrer =
+			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+		console.log(params.referrer);
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
