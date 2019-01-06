@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '7d648b8';
+const commit = '8491a28';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15927,8 +15927,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					.file-attr { margin-bottom: 1px; }` : '' }
 				/* Test */
 				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
-					.newpost, .post__btn:not(.icon_type_active), .post__message > .icon, .post__number,
-					.post__panel, .post__refmap, .postform__len { display: none !important; }
+					.newpost, .post:not(.de-reply)::before, .post__btn:not(.icon_type_active),
+					.post__message > .icon, .post__number, .post__panel, .post__refmap, .postform__len
+					{ display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
