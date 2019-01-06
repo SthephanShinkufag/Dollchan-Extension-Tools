@@ -225,7 +225,7 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX nav.isPresto: keep in sync with updMachine._setUpdateStatus
+		// XXX Opera Presto: keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">

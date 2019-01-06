@@ -4,12 +4,12 @@
 
 // Gets data from the global storage
 async function getStored(id) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		const value = await GM.getValue(id);
 		return value;
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		return GM_getValue(id);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
 		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
@@ -19,8 +19,8 @@ async function getStored(id) {
 			}
 		}));
 		return value;
-	} else if(nav.isScriptStorage) { // Opera Presto only
-		return scriptStorage.getItem(id);
+	} else if(nav.hasPrestoStorage) {
+		return prestoStorage.getItem(id);
 	}
 	return locStorage[id];
 }
@@ -28,11 +28,11 @@ async function getStored(id) {
 // Saves data into the global storage
 // FIXME: make async?
 function setStored(id, value) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		const obj = {};
 		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
@@ -44,8 +44,8 @@ function setStored(id, value) {
 				chrome.storage.local.remove(id, emptyFn);
 			}
 		});
-	} else if(nav.isScriptStorage) { // Opera Presto only
-		scriptStorage.setItem(id, value);
+	} else if(nav.hasPrestoStorage) {
+		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
@@ -54,14 +54,14 @@ function setStored(id, value) {
 // Removes data from the global storage
 // FIXME: make async?
 function delStored(id) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		return GM.deleteValue(id);
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		GM_deleteValue(id);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
-	} else if(nav.isScriptStorage) {
-		scriptStorage.removeItem(id);
+	} else if(nav.hasPrestoStorage) {
+		prestoStorage.removeItem(id);
 	} else {
 		locStorage.removeItem(id);
 	}
@@ -106,9 +106,9 @@ async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-		const hasGlobal = nav.isGlobal && !!val.global;
-		obj = hasGlobal ? val.global : {};
-		if(hasGlobal) {
+		const isGlobal = nav.hasGlobalStorage && !!val.global;
+		obj = isGlobal ? val.global : {};
+		if(isGlobal) {
 			delete obj.correctTime;
 			delete obj.captchaLang;
 		}
@@ -140,7 +140,7 @@ async function readCfg() {
 	if(nav.isPresto) {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
-		if(!nav.isGM) {
+		if(!nav.hasOldGM) {
 			Cfg.updDollchan = 0;
 		}
 		Cfg.fileInputs = 0;

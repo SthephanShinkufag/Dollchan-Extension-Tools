@@ -26,11 +26,11 @@
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'cad20de';
+const commit = '1902d55';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1626,7 +1626,7 @@ const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Ext
 let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
 	pByNum, pr, sesStorage, updater;
 let quotetxt = '';
-let nativeXHRworks = true;
+let canUseNativeXhr = true;
 let visPosts = 2;
 let topWinZ = 10;
 
@@ -1802,9 +1802,9 @@ const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
-const getAbsLink = url =>
-	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+const getAbsLink = url => (
+	url[1] === '/' ? aib.prot :
+	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -2363,12 +2363,12 @@ function downloadBlob(blob, name) {
 
 // Gets data from the global storage
 async function getStored(id) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		const value = await GM.getValue(id);
 		return value;
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		return GM_getValue(id);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
 		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
@@ -2378,8 +2378,8 @@ async function getStored(id) {
 			}
 		}));
 		return value;
-	} else if(nav.isScriptStorage) { // Opera Presto only
-		return scriptStorage.getItem(id);
+	} else if(nav.hasPrestoStorage) {
+		return prestoStorage.getItem(id);
 	}
 	return locStorage[id];
 }
@@ -2387,11 +2387,11 @@ async function getStored(id) {
 // Saves data into the global storage
 // FIXME: make async?
 function setStored(id, value) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		return GM.setValue(id, value);
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		const obj = {};
 		obj[id] = value;
 		chrome.storage.sync.set(obj, () => {
@@ -2403,8 +2403,8 @@ function setStored(id, value) {
 				chrome.storage.local.remove(id, emptyFn);
 			}
 		});
-	} else if(nav.isScriptStorage) { // Opera Presto only
-		scriptStorage.setItem(id, value);
+	} else if(nav.hasPrestoStorage) {
+		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
@@ -2413,14 +2413,14 @@ function setStored(id, value) {
 // Removes data from the global storage
 // FIXME: make async?
 function delStored(id) {
-	if(nav.isNewGM) {
+	if(nav.hasNewGM) {
 		return GM.deleteValue(id);
-	} else if(nav.isGM) {
+	} else if(nav.hasOldGM) {
 		GM_deleteValue(id);
-	} else if(nav.isWebStorage) {
+	} else if(nav.hasWebStorage) {
 		chrome.storage.sync.remove(id, emptyFn);
-	} else if(nav.isScriptStorage) {
-		scriptStorage.removeItem(id);
+	} else if(nav.hasPrestoStorage) {
+		prestoStorage.removeItem(id);
 	} else {
 		locStorage.removeItem(id);
 	}
@@ -2465,9 +2465,9 @@ async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
 	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
-		const hasGlobal = nav.isGlobal && !!val.global;
-		obj = hasGlobal ? val.global : {};
-		if(hasGlobal) {
+		const isGlobal = nav.hasGlobalStorage && !!val.global;
+		obj = isGlobal ? val.global : {};
+		if(isGlobal) {
 			delete obj.correctTime;
 			delete obj.captchaLang;
 		}
@@ -2499,7 +2499,7 @@ async function readCfg() {
 	if(nav.isPresto) {
 		Cfg.preLoadImgs = 0;
 		Cfg.findImgFile = 0;
-		if(!nav.isGM) {
+		if(!nav.hasOldGM) {
 			Cfg.updDollchan = 0;
 		}
 		Cfg.fileInputs = 0;
@@ -3176,7 +3176,7 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX nav.isPresto: keep in sync with updMachine._setUpdateStatus
+		// XXX Opera Presto: keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">
@@ -4166,7 +4166,7 @@ const CfgWindow = {
 		})));
 
 		// "Global" button. Allows to save/load global settings.
-		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
+		nav.hasGlobalStorage && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
 			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
@@ -4907,7 +4907,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.isWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>
@@ -5930,13 +5930,9 @@ const ContentLoader = {
 			return this.loadImgData(el.src);
 		}
 	},
-	loadImgData: (url, repeatOnError = true) => $ajax(url, {
-		responseType     : 'arraybuffer',
-		overrideMimeType : 'text/plain; charset=x-user-defined'
-	}, url.startsWith('blob')).then(xhr => {
-		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
-			return new Uint8Array(xhr.response);
-		}
+	loadImgData: (url, repeatOnError = true) => $ajax(
+		url, { responseType: 'arraybuffer' }, url.startsWith('blob')
+	).then(xhr => {
 		if('response' in xhr) {
 			try {
 				return nav.getUnsafeUint8Array(xhr.response);
@@ -6600,18 +6596,54 @@ function embedAudioLinks(data) {
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, useNative = nativeXHRworks) {
+function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
-	if(!useNative && nav.hasGMXHR) {
+	const WAITING_TIME = 5e3;
+	if(nav.canUseFetch) {
+		if(!params) {
+			params = {};
+		}
+		const controller = new AbortController();
+		params.signal = controller.signal;
+		params.referrer = aib.prot + '//' + aib.host;
+		if(params.data) {
+			params.body = params.data;
+			delete params.data;
+		}
+		const loadTO = needTO && setTimeout(() => {
+			reject(AjaxError.Timeout);
+			try {
+				controller.abort();
+			} catch(err) {}
+		}, WAITING_TIME);
+		cancelFn = () => {
+			if(needTO) {
+				clearTimeout(loadTO);
+			}
+			controller.abort();
+		};
+		fetch(getAbsLink(url), params).then(async res => {
+			if(!aib.isAjaxStatusOK(res.status)) {
+				reject(new AjaxError(res.status, res.statusText));
+				return;
+			}
+			switch(params.responseType) {
+			case 'arraybuffer': res.response = await res.arrayBuffer(); break;
+			case 'blob': res.response = await res.blob(); break;
+			default: res.responseText = await res.text();
+			}
+			resolve(res);
+		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
+	} else if(!useNativeXHR && nav.hasGMXHR) {
 		let gmxhr;
-		const toFunc = () => {
+		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
 			} catch(err) {}
 		};
-		let loadTO = needTO && setTimeout(toFunc, 5e3);
+		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const obj = {
 			method : (params && params.method) || 'GET',
 			url    : nav.fixLink(url),
@@ -6626,7 +6658,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 						reject(new AjaxError(e.status, e.statusText));
 					}
 				} else if(needTO) {
-					loadTO = setTimeout(toFunc, 5e3);
+					loadTO = setTimeout(timeoutFn, WAITING_TIME);
 				}
 			}
 		};
@@ -6638,10 +6670,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		// TODO: GreaseMonkey 4.0alpha cannot cancel xhr's
-		if(nav.isNewGM) {
+		if(nav.hasNewGM) {
 			GM.xmlHttpRequest(obj);
-			cancelFn = emptyFn;
+			cancelFn = emptyFn; // GreaseMonkey 4 cannot cancel xhr's
 		} else {
 			gmxhr = GM_xmlhttpRequest(obj);
 			cancelFn = () => {
@@ -6655,11 +6686,11 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 	} else {
 		const xhr = new XMLHttpRequest();
-		const toFunc = () => {
+		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
 			xhr.abort();
 		};
-		let loadTO = needTO && setTimeout(toFunc, 5e3);
+		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
@@ -6668,22 +6699,17 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				if(aib.isAjaxStatusOK(target.status) ||
-					(target.status === 0 && target.responseType === 'arraybuffer')
-				) {
+				if(aib.isAjaxStatusOK(target.status)) {
 					resolve(target);
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
 				}
 			} else if(needTO) {
-				loadTO = setTimeout(toFunc, 5e3);
+				loadTO = setTimeout(timeoutFn, WAITING_TIME);
 			}
 		};
 		try {
-			xhr.open((params && params.method) || 'GET', (
-				url[1] === '/' ? aib.prot :
-				url[0] === '/' ? aib.prot + '//' + aib.host : ''
-			) + url, true);
+			xhr.open((params && params.method) || 'GET', getAbsLink(url), true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
@@ -6706,7 +6732,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			nativeXHRworks = false;
+			canUseNativeXhr = false;
 			return $ajax(url, params, false);
 		}
 	}
@@ -6748,19 +6774,20 @@ const AjaxCache = {
 		let i = 0;
 		let hasCacheControl = false;
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-		for(const header of headers.split('\r\n')) {
-			const lHeader = header.toLowerCase();
-			if(lHeader.startsWith('cache-control: ')) {
-				hasCacheControl = true;
-				i++;
-			} else if(lHeader.startsWith('last-modified: ')) {
-				LastModified = header.substr(15);
-				i++;
-			} else if(lHeader.startsWith('etag: ')) {
-				ETag = header.substr(6);
-				i++;
+		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
+		for(let header of headers) {
+			if(typeof header === 'string') { // usual xhr
+				header = header.split(' :');
 			}
-			if(i === 3) {
+			const hName = header[0].toLowerCase();
+			let matched = true;
+			switch(hName) {
+			case 'cache-control': hasCacheControl = true; break;
+			case 'last-modified': LastModified = header[1]; break;
+			case 'etag': ETag = header[1]; break;
+			default: matched = false;
+			}
+			if(matched && ++i === 3) {
 				break;
 			}
 		}
@@ -14704,29 +14731,29 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isWebStorage = (isFirefox || ('chrome' in deWindow)) &&
+	const hasWebStorage = (isFirefox || ('chrome' in deWindow)) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
-	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
-	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let scriptHandler, isGM = false;
-	if(!isNewGM) {
+	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
+	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let scriptHandler, hasOldGM = false;
+	if(hasNewGM) {
+		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
+	} else {
 		try {
-			isGM = (typeof GM_setValue === 'function') &&
+			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
-			isGM = err.message === 'Permission denied to access property "toString"';
+			hasOldGM = err.message === 'Permission denied to access property "toString"';
 		}
-		scriptHandler = isWebStorage ? 'WebExtension' :
+		scriptHandler = hasWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
-	} else {
-		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: nav.isPresto
+	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
 		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
+	if(!('remove' in Element.prototype)) { // XXX: Opera Presto
 		Element.prototype.remove = function() {
 			const el = this.parentNode;
 			if(el) {
@@ -14744,10 +14771,10 @@ function initNavFuncs() {
 		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
-	} catch(ett) {
+	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) {
+	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -14767,23 +14794,29 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		ua         : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
-		scriptHandler,
-		isESNext   : typeof deMainFuncOuter === 'undefined',
-		isFirefox,
-		firefoxVer : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		isWebkit,
+		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
+			val => val + rules.join(', ' + val)
+		).join(', '),
+		canUseFetch : 'AbortController' in window, // Firefox 57+, Chrome 66+, Safari 11.1+
+		firefoxVer  : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		fixLink     : isSafari ? getAbsLink : url => url,
+		hasGMXHR    : (typeof GM_xmlhttpRequest === 'function') ||
+			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		hasNewGM,
+		hasOldGM,
+		hasPrestoStorage,
+		hasWebStorage,
 		isChrome,
+		isESNext         : typeof deMainFuncOuter === 'undefined',
+		isFirefox,
+		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
+		isMsEdge         : ua.includes('Edge/'),
+		isPresto         : !!deWindow.opera,
 		isSafari,
-		isPresto   : !!deWindow.opera,
-		isMsEdge   : ua.includes('Edge/'),
-		isGM,
-		isNewGM,
-		isWebStorage,
-		isScriptStorage,
-		isGlobal   : isGM || isNewGM || isWebStorage || isScriptStorage,
-		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
-			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		isWebkit,
+		scriptHandler,
+		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -14825,14 +14858,9 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
-			val => val + rules.join(', ' + val)
-		).join(', '),
-		fixLink: isSafari ? getAbsLink : url => url,
-		// Workaround for old greasemonkeys
-		getUnsafeUint8Array(data, i, len) {
+		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
 			let Ctor = Uint8Array;
-			if(!nav.isNewGM && !nav.isWebStorage && nav.isFirefox) {
+			if(!nav.hasNewGM && !nav.hasWebStorage && nav.isFirefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -14848,9 +14876,9 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) {
+		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || nav.isWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
+			return nav.hasNewGM || nav.hasWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
 				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};

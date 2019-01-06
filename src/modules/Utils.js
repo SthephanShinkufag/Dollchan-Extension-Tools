@@ -170,9 +170,9 @@ const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
 const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 
-const getAbsLink = url =>
-	url[1] === '/' ? aib.prot + url :
-	url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
+const getAbsLink = url => (
+	url[1] === '/' ? aib.prot :
+	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');

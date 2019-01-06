@@ -2,11 +2,11 @@
 	"flatTernaryExpressions": true,
 	"outerIIFEBody": 0 }] */
 
-(function deMainFuncInner(deWindow, scriptStorage, FormData, scrollTo, localData) {
+(function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'cad20de';
+const commit = '1902d55';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */

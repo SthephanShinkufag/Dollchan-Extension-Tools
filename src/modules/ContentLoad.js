@@ -144,13 +144,9 @@ const ContentLoader = {
 			return this.loadImgData(el.src);
 		}
 	},
-	loadImgData: (url, repeatOnError = true) => $ajax(url, {
-		responseType     : 'arraybuffer',
-		overrideMimeType : 'text/plain; charset=x-user-defined'
-	}, url.startsWith('blob')).then(xhr => {
-		if(xhr.status === 0 && xhr.responseType === 'arraybuffer') {
-			return new Uint8Array(xhr.response);
-		}
+	loadImgData: (url, repeatOnError = true) => $ajax(
+		url, { responseType: 'arraybuffer' }, url.startsWith('blob')
+	).then(xhr => {
 		if('response' in xhr) {
 			try {
 				return nav.getUnsafeUint8Array(xhr.response);

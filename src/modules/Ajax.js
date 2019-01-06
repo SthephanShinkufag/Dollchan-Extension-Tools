@@ -3,18 +3,54 @@
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, useNative = nativeXHRworks) {
+function $ajax(url, params = null, useNativeXHR = canUseNativeXhr) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
-	if(!useNative && nav.hasGMXHR) {
+	const WAITING_TIME = 5e3;
+	if(nav.canUseFetch) {
+		if(!params) {
+			params = {};
+		}
+		const controller = new AbortController();
+		params.signal = controller.signal;
+		params.referrer = aib.prot + '//' + aib.host;
+		if(params.data) {
+			params.body = params.data;
+			delete params.data;
+		}
+		const loadTO = needTO && setTimeout(() => {
+			reject(AjaxError.Timeout);
+			try {
+				controller.abort();
+			} catch(err) {}
+		}, WAITING_TIME);
+		cancelFn = () => {
+			if(needTO) {
+				clearTimeout(loadTO);
+			}
+			controller.abort();
+		};
+		fetch(getAbsLink(url), params).then(async res => {
+			if(!aib.isAjaxStatusOK(res.status)) {
+				reject(new AjaxError(res.status, res.statusText));
+				return;
+			}
+			switch(params.responseType) {
+			case 'arraybuffer': res.response = await res.arrayBuffer(); break;
+			case 'blob': res.response = await res.blob(); break;
+			default: res.responseText = await res.text();
+			}
+			resolve(res);
+		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
+	} else if(!useNativeXHR && nav.hasGMXHR) {
 		let gmxhr;
-		const toFunc = () => {
+		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
 			try {
 				gmxhr.abort();
 			} catch(err) {}
 		};
-		let loadTO = needTO && setTimeout(toFunc, 5e3);
+		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const obj = {
 			method : (params && params.method) || 'GET',
 			url    : nav.fixLink(url),
@@ -29,7 +65,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 						reject(new AjaxError(e.status, e.statusText));
 					}
 				} else if(needTO) {
-					loadTO = setTimeout(toFunc, 5e3);
+					loadTO = setTimeout(timeoutFn, WAITING_TIME);
 				}
 			}
 		};
@@ -41,10 +77,9 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			delete params.method;
 			Object.assign(obj, params);
 		}
-		// TODO: GreaseMonkey 4.0alpha cannot cancel xhr's
-		if(nav.isNewGM) {
+		if(nav.hasNewGM) {
 			GM.xmlHttpRequest(obj);
-			cancelFn = emptyFn;
+			cancelFn = emptyFn; // GreaseMonkey 4 cannot cancel xhr's
 		} else {
 			gmxhr = GM_xmlhttpRequest(obj);
 			cancelFn = () => {
@@ -58,11 +93,11 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 		}
 	} else {
 		const xhr = new XMLHttpRequest();
-		const toFunc = () => {
+		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
 			xhr.abort();
 		};
-		let loadTO = needTO && setTimeout(toFunc, 5e3);
+		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
@@ -71,22 +106,17 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 				clearTimeout(loadTO);
 			}
 			if(target.readyState === 4) {
-				if(aib.isAjaxStatusOK(target.status) ||
-					(target.status === 0 && target.responseType === 'arraybuffer')
-				) {
+				if(aib.isAjaxStatusOK(target.status)) {
 					resolve(target);
 				} else {
 					reject(new AjaxError(target.status, target.statusText));
 				}
 			} else if(needTO) {
-				loadTO = setTimeout(toFunc, 5e3);
+				loadTO = setTimeout(timeoutFn, WAITING_TIME);
 			}
 		};
 		try {
-			xhr.open((params && params.method) || 'GET', (
-				url[1] === '/' ? aib.prot :
-				url[0] === '/' ? aib.prot + '//' + aib.host : ''
-			) + url, true);
+			xhr.open((params && params.method) || 'GET', getAbsLink(url), true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
@@ -109,7 +139,7 @@ function $ajax(url, params = null, useNative = nativeXHRworks) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			nativeXHRworks = false;
+			canUseNativeXhr = false;
 			return $ajax(url, params, false);
 		}
 	}
@@ -151,19 +181,20 @@ const AjaxCache = {
 		let i = 0;
 		let hasCacheControl = false;
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
-		for(const header of headers.split('\r\n')) {
-			const lHeader = header.toLowerCase();
-			if(lHeader.startsWith('cache-control: ')) {
-				hasCacheControl = true;
-				i++;
-			} else if(lHeader.startsWith('last-modified: ')) {
-				LastModified = header.substr(15);
-				i++;
-			} else if(lHeader.startsWith('etag: ')) {
-				ETag = header.substr(6);
-				i++;
+		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
+		for(let header of headers) {
+			if(typeof header === 'string') { // usual xhr
+				header = header.split(' :');
 			}
-			if(i === 3) {
+			const hName = header[0].toLowerCase();
+			let matched = true;
+			switch(hName) {
+			case 'cache-control': hasCacheControl = true; break;
+			case 'last-modified': LastModified = header[1]; break;
+			case 'etag': ETag = header[1]; break;
+			default: matched = false;
+			}
+			if(matched && ++i === 3) {
 				break;
 			}
 		}

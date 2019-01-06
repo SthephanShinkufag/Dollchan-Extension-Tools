@@ -33,7 +33,7 @@ const CfgWindow = {
 		})));
 
 		// "Global" button. Allows to save/load global settings.
-		nav.isGlobal && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
+		nav.hasGlobalStorage && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
 			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
 			// "Load" button. Applies global settings for current domain.
 			$bEnd(el, `<div id="de-list"><input type="button" value="${
@@ -774,7 +774,7 @@ const CfgWindow = {
 				<div id="de-info-stats">${ statsTable }</div>
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
-			${ !nav.isWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 				&lt;&lt;</div><br>

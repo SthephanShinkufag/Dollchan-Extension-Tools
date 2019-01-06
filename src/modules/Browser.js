@@ -27,29 +27,29 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const isWebStorage = (isFirefox || ('chrome' in deWindow)) &&
+	const hasWebStorage = (isFirefox || ('chrome' in deWindow)) &&
 		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
-	const isScriptStorage = !!scriptStorage && !ua.includes('Opera Mobi');
-	const isNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	let scriptHandler, isGM = false;
-	if(!isNewGM) {
+	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
+	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let scriptHandler, hasOldGM = false;
+	if(hasNewGM) {
+		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
+	} else {
 		try {
-			isGM = (typeof GM_setValue === 'function') &&
+			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
-			isGM = err.message === 'Permission denied to access property "toString"';
+			hasOldGM = err.message === 'Permission denied to access property "toString"';
 		}
-		scriptHandler = isWebStorage ? 'WebExtension' :
+		scriptHandler = hasWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
 			isFirefox ? 'Greasemonkey' : 'Unknown';
-	} else {
-		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	}
-	if(!('requestAnimationFrame' in deWindow)) { // XXX: nav.isPresto
+	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
 		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: nav.isPresto
+	if(!('remove' in Element.prototype)) { // XXX: Opera Presto
 		Element.prototype.remove = function() {
 			const el = this.parentNode;
 			if(el) {
@@ -67,10 +67,10 @@ function initNavFuncs() {
 		if(isFirefox || isSafari) {
 			needFileHack = !FormData.prototype.get;
 		}
-	} catch(ett) {
+	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) {
+	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -90,23 +90,29 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		ua         : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
-		scriptHandler,
-		isESNext   : typeof deMainFuncOuter === 'undefined',
-		isFirefox,
-		firefoxVer : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		isWebkit,
+		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
+			val => val + rules.join(', ' + val)
+		).join(', '),
+		canUseFetch : 'AbortController' in window, // Firefox 57+, Chrome 66+, Safari 11.1+
+		firefoxVer  : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		fixLink     : isSafari ? getAbsLink : url => url,
+		hasGMXHR    : (typeof GM_xmlhttpRequest === 'function') ||
+			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		hasNewGM,
+		hasOldGM,
+		hasPrestoStorage,
+		hasWebStorage,
 		isChrome,
+		isESNext         : typeof deMainFuncOuter === 'undefined',
+		isFirefox,
+		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
+		isMsEdge         : ua.includes('Edge/'),
+		isPresto         : !!deWindow.opera,
 		isSafari,
-		isPresto   : !!deWindow.opera,
-		isMsEdge   : ua.includes('Edge/'),
-		isGM,
-		isNewGM,
-		isWebStorage,
-		isScriptStorage,
-		isGlobal   : isGM || isNewGM || isWebStorage || isScriptStorage,
-		hasGMXHR   : (typeof GM_xmlhttpRequest === 'function') ||
-			isNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		isWebkit,
+		scriptHandler,
+		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value });
@@ -148,14 +154,9 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
-			val => val + rules.join(', ' + val)
-		).join(', '),
-		fixLink: isSafari ? getAbsLink : url => url,
-		// Workaround for old greasemonkeys
-		getUnsafeUint8Array(data, i, len) {
+		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
 			let Ctor = Uint8Array;
-			if(!nav.isNewGM && !nav.isWebStorage && nav.isFirefox) {
+			if(!nav.hasNewGM && !nav.hasWebStorage && nav.isFirefox) {
 				try {
 					if(!(new Uint8Array(data) instanceof Uint8Array)) {
 						Ctor = unsafeWindow.Uint8Array;
@@ -171,9 +172,9 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) {
+		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
 			const rv = new DataView(data, offset || 0);
-			return nav.isNewGM || nav.isWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
+			return nav.hasNewGM || nav.hasWebStorage || !nav.isFirefox || (rv instanceof DataView) ?
 				rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
