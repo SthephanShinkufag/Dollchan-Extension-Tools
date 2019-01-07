@@ -598,27 +598,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.makaba = true;
 
-			this.cReply = 'post reply post_type_reply';
-			this.qBan = '.pomyanem, .post__pomyanem';
+			this.cReply = 'post_type_reply';
+			this.qBan = '.post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
-			this.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
+			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
-			this.qFormRules = '.rules-area, .rules';
+			this.qFormRules = '.rules';
 			this.qFormSubm = '#submit';
-			this.qFormTd = 'td, .postform__raw';
-			this.qFormTr = 'tr, .postform__raw';
+			this.qFormTd = '.postform__raw';
+			this.qFormTr = '.postform__raw';
 			this.qFormTxta = '#shampoo';
-			this.qImgInfo = '.file-attr, .post__file-attr';
-			this.qOmitted = '.mess-post, .thread__missed';
-			this.qOPost = '.oppost, .post_type_oppost';
-			this.qPostHeader = '.post-details, .post__details';
+			this.qImgInfo = '.post__file-attr';
+			this.qOmitted = '.thread__missed';
+			this.qOPost = '.post_type_oppost';
+			this.qPostHeader = '.post__details';
 			this.qPostImg = '.preview';
-			this.qPostMsg = '.post-message, .post__message';
-			this.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
-			this.qPostRef = '.reflink, .post__reflink:nth-child(2)';
-			this.qPostSubj = '.post-title, .post__title';
-			this.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
+			this.qPostMsg = '.post__message';
+			this.qPostName = '.post__anon, .post__email';
+			this.qPostRef = '.post__reflink:nth-child(2)';
+			this.qPostSubj = '.post__title';
+			this.qRPost = '.post.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -648,35 +648,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
-					.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-					.postform-hr, .postpanel > :not(img), .reflink::before, .thread-nav, .toolbar-area,
-					.top-user-boards + hr { display: none !important; }
-				.captcha-box { overflow: hidden; max-width: 300px; }
-				.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
-				.de-btn-src + a { display: inline-block; }
-				.de-win-inpost { position: static !important; }
-				.mess-post { display: block; }
-				.message-sticker-btn, .message-sticker-preview, .postform__sticker-btn,
-					.postform__sticker-prev { bottom: ` +
-					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
-					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.oekaki-height, .oekaki-width { width: 36px !important; }
-				.pager { display: inline-block !important; }
-				.post.reply .post-message { max-height: initial !important; }
-				.reply { max-width: 98vw; }
-				.tmp_postform { width: auto; }
-				${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"],
-					.options__box[onclick="ToggleSage()"] { display: none !important; }` : '' }
-				${ Cfg.expandTrunc ? `.expand-large-comment,
-					div[id^="shrinked-post"] { display: none !important; }
-					div[id^="original-post"] { display: block !important; }` : '' }
-				${ Cfg.imgNames === 2 ? `.filesize, .post__filezise { display: inline !important; }
-					.file-attr { margin-bottom: 1px; }` : '' }
-				/* Test */
-				#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,
-					.newpost, .post:not(.de-reply)::before, .post__btn:not(.icon_type_active),
-					.post__message > .icon, .post__number, .post__panel, .post__refmap, .postform__len,
+			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
+					#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,
+					.post:not(.de-reply)::before, .post__btn:not(.icon_type_active), .post__message .icon,
+					.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr, .thread-nav,
 					#up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
@@ -686,6 +661,17 @@ function getImageBoard(checkDomains, checkEngines) {
 					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
 					display: block; margin: 8px 0; }
 				.postform { width: auto; }
+				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
+					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
+					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
+				.oekaki-height, .oekaki-width { width: 36px !important; }
+				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
+					{ display: none !important; }` : '' }
+				${ Cfg.expandTrunc ? `.expand-large-comment,
+					div[id^="shrinked-post"] { display: none !important; }
+					div[id^="original-post"] { display: block !important; }` : '' }
+				${ Cfg.imgNames === 2 ? `.post__filezise { display: inline !important; }
+					.post__file-attr { margin-bottom: 1px; }` : '' }
 				${ Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '' }`;
 		}
 		get isArchived() {
@@ -755,7 +741,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
-				return !$q('span[id^="id_tag_"], .ophui, .post__ophui', post);
+				return !$q('span[id^="id_tag_"], .post__ophui', post);
 			};
 			return this.getSage(post);
 		}
@@ -866,7 +852,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						if(!cap.isSubmitWait) {
 							break;
 						}
-						$q('.captcha-key, .captcha__key').value = data.id;
+						$q('.captcha__key').value = data.id;
 						$script($id('captcha-widget').hasChildNodes() ?
 							`grecaptcha.reset(deCapWidget);
 							grecaptcha.execute(deCapWidget);` :
@@ -958,18 +944,34 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2channel = true;
 
+			this.cReply = 'post reply';
+			this.qBan = '.pomyanem';
 			this.qFormFile = '.postform__field input[type="file"]';
 			this.qFormPassw = '#postpasswd';
+			this.qFormRules = '.rules-area';
 			this.qFormTd = '.postform__field';
 			this.qFormTr = '.postform__field';
+			this.qImgInfo = '.file-attr';
+			this.qOmitted = '.mess-post';
+			this.qOPost = '.oppost';
+			this.qPostHeader = '.post-details';
+			this.qPostMsg = '.post-message';
+			this.qPostName = '.ananimas, .post-email';
+			this.qPostRef = '.reflink';
+			this.qPostSubj = '.post-title';
+			this.qRPost = '.post.reply[data-num]';
 
 			this.hasAltCaptcha = false;
 			this.hasReportBtn = false;
 		}
 		get css() {
 			return `${ super.css }
-				#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }
-				#postform { display: inline-table !important; }`;
+				#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,
+					.refmap, #youtube-thumb-float { display: none !important; }
+				#postform { display: inline-table !important; }
+				${ Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '' }
+				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
+					.file-attr { margin-bottom: 1px; }` : '' }`;
 		}
 		init() {
 			super.init();

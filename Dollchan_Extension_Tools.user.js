@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '9fa1d0e';
+	var commit = 'a8f117c';
 
 
 	var defaultCfg = {
@@ -21557,27 +21557,27 @@ true, true];
 
 				_this90.makaba = true;
 
-				_this90.cReply = 'post reply post_type_reply';
-				_this90.qBan = '.pomyanem, .post__pomyanem';
+				_this90.cReply = 'post_type_reply';
+				_this90.qBan = '.post__pomyanem';
 				_this90.qClosed = '.sticky-img[src$="locked.png"]';
 				_this90.qDForm = '#posts-form';
-				_this90.qFormFile = 'tr input[type="file"], .postform__raw.filer input[type="file"]';
+				_this90.qFormFile = '.postform__raw.filer input[type="file"]';
 				_this90.qFormRedir = null;
-				_this90.qFormRules = '.rules-area, .rules';
+				_this90.qFormRules = '.rules';
 				_this90.qFormSubm = '#submit';
-				_this90.qFormTd = 'td, .postform__raw';
-				_this90.qFormTr = 'tr, .postform__raw';
+				_this90.qFormTd = '.postform__raw';
+				_this90.qFormTr = '.postform__raw';
 				_this90.qFormTxta = '#shampoo';
-				_this90.qImgInfo = '.file-attr, .post__file-attr';
-				_this90.qOmitted = '.mess-post, .thread__missed';
-				_this90.qOPost = '.oppost, .post_type_oppost';
-				_this90.qPostHeader = '.post-details, .post__details';
+				_this90.qImgInfo = '.post__file-attr';
+				_this90.qOmitted = '.thread__missed';
+				_this90.qOPost = '.post_type_oppost';
+				_this90.qPostHeader = '.post__details';
 				_this90.qPostImg = '.preview';
-				_this90.qPostMsg = '.post-message, .post__message';
-				_this90.qPostName = '.ananimas, .post-email, .post__anon, .post__email';
-				_this90.qPostRef = '.reflink, .post__reflink:nth-child(2)';
-				_this90.qPostSubj = '.post-title, .post__title';
-				_this90.qRPost = '.post.reply[data-num], .post.post_type_reply[data-num]';
+				_this90.qPostMsg = '.post__message';
+				_this90.qPostName = '.post__anon, .post__email';
+				_this90.qPostRef = '.post__reflink:nth-child(2)';
+				_this90.qPostSubj = '.post__title';
+				_this90.qRPost = '.post.post_type_reply[data-num]';
 				_this90.qTrunc = null;
 
 				_this90.formParent = 'thread';
@@ -21668,7 +21668,7 @@ true, true];
 				key: 'getSage',
 				value: function getSage(post) {
 					this.getSage = !$q('span[id^="id_tag_"]') ? _get(Makaba.prototype.__proto__ || Object.getPrototypeOf(Makaba.prototype), 'getSage', this) : function (post) {
-						return !$q('span[id^="id_tag_"], .ophui, .post__ophui', post);
+						return !$q('span[id^="id_tag_"], .post__ophui', post);
 					};
 					return this.getSage(post);
 				}
@@ -21783,7 +21783,7 @@ true, true];
 									if (!cap.isSubmitWait) {
 										break;
 									}
-									$q('.captcha-key, .captcha__key').value = data.id;
+									$q('.captcha__key').value = data.id;
 									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									break;
 								} else if (data.type === '2chaptcha') {
@@ -21821,7 +21821,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,\n\t\t\t\t\t.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,\n\t\t\t\t\t.postform-hr, .postpanel > :not(img), .reflink::before, .thread-nav, .toolbar-area,\n\t\t\t\t\t.top-user-boards + hr { display: none !important; }\n\t\t\t\t.captcha-box { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha-box > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-btn-src + a { display: inline-block; }\n\t\t\t\t.de-win-inpost { position: static !important; }\n\t\t\t\t.mess-post { display: block; }\n\t\t\t\t.message-sticker-btn, .message-sticker-preview, .postform__sticker-btn,\n\t\t\t\t\t.postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.pager { display: inline-block !important; }\n\t\t\t\t.post.reply .post-message { max-height: initial !important; }\n\t\t\t\t.reply { max-width: 98vw; }\n\t\t\t\t.tmp_postform { width: auto; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"],\n\t\t\t\t\t.options__box[onclick="ToggleSage()"] { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize, .post__filezise { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t/* Test */\n\t\t\t\t#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar, #down-nav-arrow,\n\t\t\t\t\t.newpost, .post:not(.de-reply)::before, .post__btn:not(.icon_type_active),\n\t\t\t\t\t.post__message > .icon, .post__number, .post__panel, .post__refmap, .postform__len,\n\t\t\t\t\t#up-nav-arrow { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }\n\t\t\t\t.de-thr-hid + .thread + .thread::before,\n\t\t\t\t.de-thr-hid[style="display: none;"] + .thread::before {\n\t\t\t\t\tcontent: ""; border-top: 1px solid var(--theme_default_border); width: 100%;\n\t\t\t\t\tdisplay: block; margin: 8px 0; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
+					return '#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,\n\t\t\t\t\t#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,\n\t\t\t\t\t.post:not(.de-reply)::before, .post__btn:not(.icon_type_active), .post__message .icon,\n\t\t\t\t\t.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr, .thread-nav,\n\t\t\t\t\t#up-nav-arrow { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }\n\t\t\t\t.de-thr-hid + .thread + .thread::before,\n\t\t\t\t.de-thr-hid[style="display: none;"] + .thread::before {\n\t\t\t\t\tcontent: ""; border-top: 1px solid var(--theme_default_border); width: 100%;\n\t\t\t\t\tdisplay: block; margin: 8px 0; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.options__box[onclick="ToggleSage()"]\n\t\t\t\t\t{ display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
 				}
 			}, {
 				key: 'isArchived',
@@ -21937,10 +21937,22 @@ true, true];
 
 				_this94._2channel = true;
 
+				_this94.cReply = 'post reply';
+				_this94.qBan = '.pomyanem';
 				_this94.qFormFile = '.postform__field input[type="file"]';
 				_this94.qFormPassw = '#postpasswd';
+				_this94.qFormRules = '.rules-area';
 				_this94.qFormTd = '.postform__field';
 				_this94.qFormTr = '.postform__field';
+				_this94.qImgInfo = '.file-attr';
+				_this94.qOmitted = '.mess-post';
+				_this94.qOPost = '.oppost';
+				_this94.qPostHeader = '.post-details';
+				_this94.qPostMsg = '.post-message';
+				_this94.qPostName = '.ananimas, .post-email';
+				_this94.qPostRef = '.reflink';
+				_this94.qPostSubj = '.post-title';
+				_this94.qRPost = '.post.reply[data-num]';
 
 				_this94.hasAltCaptcha = false;
 				_this94.hasReportBtn = false;
@@ -21997,7 +22009,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap { display: none !important; }\n\t\t\t\t#postform { display: inline-table !important; }';
+					return _get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,\n\t\t\t\t\t.refmap, #youtube-thumb-float { display: none !important; }\n\t\t\t\t#postform { display: inline-table !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '');
 				}
 			}]);
 
