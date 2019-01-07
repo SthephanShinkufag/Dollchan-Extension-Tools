@@ -45,7 +45,8 @@ function $ajax(url, params = null, needCORS = false) {
 			default: res.responseText = await res.text();
 			}
 			resolve(res);
-		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
+		}).catch(err => reject(err.statusText ?
+			new AjaxError(err.status, err.statusText) : getErrorMessage(err)));
 	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
@@ -263,9 +264,10 @@ function infoLoadErrors(err, showError = true) {
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup('newposts', err.message ? String(err.message) : Lng.noConnect[lang]);
+		$popup('newposts', err.message ? String(err.message) :
+			`${ Lng.noConnect[lang] }: \n${ getErrorMessage(err) }`);
 	} else {
-		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(err) }`);
+		$popup('newposts', `${ Lng.thrNotFound[lang] } (№${ aib.t }): \n${ getErrorMessage(err) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}

@@ -506,7 +506,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._02ch = true;
 
 			this.hasCatalog = true;
-
 			this._capUpdPromise = null;
 		}
 		updateCaptcha(cap) {
@@ -632,7 +631,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-
 			this._capUpdPromise = null;
 		}
 		get qFormMail() {
@@ -660,11 +658,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-thr-hid[style="display: none;"] + .thread::before {
 					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
 					display: block; margin: 8px 0; }
+				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
 					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.oekaki-height, .oekaki-width { width: 36px !important; }
 				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
 					{ display: none !important; }` : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
@@ -1026,7 +1024,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-
 			this._capUpdPromise = null;
 		}
 		get capLang() {

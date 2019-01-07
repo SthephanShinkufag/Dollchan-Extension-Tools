@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'a8f117c';
+const commit = '118d487';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6650,7 +6650,8 @@ function $ajax(url, params = null, needCORS = false) {
 			default: res.responseText = await res.text();
 			}
 			resolve(res);
-		}).catch(err => reject(new AjaxError(err.status, err.statusText)));
+		}).catch(err => reject(err.statusText ?
+			new AjaxError(err.status, err.statusText) : getErrorMessage(err)));
 	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
@@ -6868,9 +6869,10 @@ function infoLoadErrors(err, showError = true) {
 	if(eCode === 200) {
 		closePopup('newposts');
 	} else if(isAjax && eCode === 0) {
-		$popup('newposts', err.message ? String(err.message) : Lng.noConnect[lang]);
+		$popup('newposts', err.message ? String(err.message) :
+			`${ Lng.noConnect[lang] }: \n${ getErrorMessage(err) }`);
 	} else {
-		$popup('newposts', ` (${ Lng.thrNotFound[lang] }: №${ aib.t }): \n${ getErrorMessage(err) }`);
+		$popup('newposts', `${ Lng.thrNotFound[lang] } (№${ aib.t }): \n${ getErrorMessage(err) }`);
 		if(showError) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
@@ -15772,7 +15774,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._02ch = true;
 
 			this.hasCatalog = true;
-
 			this._capUpdPromise = null;
 		}
 		updateCaptcha(cap) {
@@ -15898,7 +15899,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-
 			this._capUpdPromise = null;
 		}
 		get qFormMail() {
@@ -15926,11 +15926,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-thr-hid[style="display: none;"] + .thread::before {
 					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
 					display: block; margin: 8px 0; }
+				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
 					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
-				.oekaki-height, .oekaki-width { width: 36px !important; }
 				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
 					{ display: none !important; }` : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
@@ -16292,7 +16292,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.markupBB = false;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-
 			this._capUpdPromise = null;
 		}
 		get capLang() {
