@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '0c936ba';
+	var commit = '9fa1d0e';
 
 
 	var defaultCfg = {
@@ -5625,12 +5625,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(HiddenPostsClass, [{
-			key: '_readStorage',
-			value: function _readStorage() {
-				PostsStorage._migrateOld(this.storageName, 'de-threads-new'); 
-				return _get(HiddenPostsClass.prototype.__proto__ || Object.getPrototypeOf(HiddenPostsClass.prototype), '_readStorage', this).call(this);
-			}
-		}], [{
 			key: 'hideHidden',
 			value: function hideHidden(post, num) {
 				var uHideData = HiddenPosts.get(num);
@@ -5639,6 +5633,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					post.setUserVisib(!!uHideData, false);
 				}
+			}
+		}, {
+			key: '_readStorage',
+			value: function _readStorage() {
+				PostsStorage._migrateOld(this.storageName, 'de-threads-new'); 
+				return _get(HiddenPostsClass.prototype.__proto__ || Object.getPrototypeOf(HiddenPostsClass.prototype), '_readStorage', this).call(this);
 			}
 		}]);
 

@@ -429,7 +429,7 @@ const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 		super();
 		this.storageName = 'de-posts';
 	}
-	static hideHidden(post, num) {
+	hideHidden(post, num) {
 		const uHideData = HiddenPosts.get(num);
 		if(!uHideData && post.isOp && HiddenThreads.has(num)) {
 			post.setUserVisib(true);

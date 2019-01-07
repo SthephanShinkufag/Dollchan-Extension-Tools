@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '0c936ba';
+const commit = '9fa1d0e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2785,7 +2785,7 @@ const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 		super();
 		this.storageName = 'de-posts';
 	}
-	static hideHidden(post, num) {
+	hideHidden(post, num) {
 		const uHideData = HiddenPosts.get(num);
 		if(!uHideData && post.isOp && HiddenThreads.has(num)) {
 			post.setUserVisib(true);
