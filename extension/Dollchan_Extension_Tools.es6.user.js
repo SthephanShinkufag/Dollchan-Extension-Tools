@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '9f77cb7';
+const commit = 'd8c8b02';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6608,7 +6608,6 @@ function $ajax(url, params = null, needCORS = false) {
 		}
 		params.referrer =
 			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
-		console.log(params.referrer);
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
@@ -14737,12 +14736,11 @@ function initNavFuncs() {
 	const isWebkit = ua.includes('WebKit/');
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
-	const hasWebStorage = (isFirefox || ('chrome' in deWindow)) &&
-		(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-	const canUseFetch = 'AbortController' in window; // Firefox 57+, Chrome 66+, Safari 11.1+
-	let scriptHandler, hasOldGM = false;
+	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
+	let scriptHandler, hasWebStorage = false;
+	let hasOldGM = false;
 	if(hasNewGM) {
 		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
 	} else {
@@ -14752,6 +14750,8 @@ function initNavFuncs() {
 		} catch(err) {
 			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
+		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
+			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 		scriptHandler = hasWebStorage ? 'WebExtension' :
 			typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' :
 			GM_info.scriptHandler ? `${ GM_info.scriptHandler } ${ GM_info.version }` :
@@ -14805,25 +14805,25 @@ function initNavFuncs() {
 			val => val + rules.join(', ' + val)
 		).join(', '),
 		canUseFetch,
-		canUseFetchCORS : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
-		firefoxVer      : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		fixLink         : isSafari ? getAbsLink : url => url,
-		hasGMXHR        : (typeof GM_xmlhttpRequest === 'function') ||
+		canUseFetchCORS  : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
+		fixLink          : isSafari ? getAbsLink : url => url,
+		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
+		hasGMXHR         : (typeof GM_xmlhttpRequest === 'function') ||
 			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
 		hasNewGM,
 		hasOldGM,
 		hasPrestoStorage,
 		hasWebStorage,
 		isChrome,
-		isESNext         : typeof deMainFuncOuter === 'undefined',
+		isESNext : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
-		isMsEdge         : ua.includes('Edge/'),
-		isPresto         : !!deWindow.opera,
+		isMsEdge : ua.includes('Edge/'),
+		isPresto : !!deWindow.opera,
 		isSafari,
 		isWebkit,
 		scriptHandler,
-		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		ua       : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');

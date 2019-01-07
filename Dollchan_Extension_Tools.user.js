@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '9f77cb7';
+	var commit = 'd8c8b02';
 
 
 	var defaultCfg = {
@@ -9699,7 +9699,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				params = {};
 			}
 			params.referrer = doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
-			console.log(params.referrer);
 			if (params.data) {
 				params.body = params.data;
 				delete params.data;
@@ -19963,12 +19962,12 @@ true, true];
 		var isWebkit = ua.includes('WebKit/');
 		var isChrome = isWebkit && ua.includes('Chrome/');
 		var isSafari = isWebkit && !isChrome;
-		var hasWebStorage = (isFirefox || 'chrome' in deWindow) && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
 		var hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 		var hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
-		var canUseFetch = 'AbortController' in window; 
+		var canUseFetch = 'AbortController' in deWindow; 
 		var scriptHandler = void 0,
-		    hasOldGM = false;
+		    hasWebStorage = false;
+		var hasOldGM = false;
 		if (hasNewGM) {
 			scriptHandler = GM.info ? GM.info.scriptHandler + ' ' + GM.info.version : 'Greasemonkey';
 		} else {
@@ -19977,6 +19976,7 @@ true, true];
 			} catch (err) {
 				hasOldGM = err.message === 'Permission denied to access property "toString"'; 
 			}
+			hasWebStorage = !hasOldGM && (isFirefox || 'chrome' in deWindow) && (typeof chrome === 'undefined' ? 'undefined' : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
 			scriptHandler = hasWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? GM_info.scriptHandler + ' ' + GM_info.version : isFirefox ? 'Greasemonkey' : 'Unknown';
 		}
 		if (!('requestAnimationFrame' in deWindow)) {
@@ -20044,6 +20044,7 @@ true, true];
 			fixLink: isSafari ? getAbsLink : function (url) {
 				return url;
 			},
+			hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
 			hasGMXHR: typeof GM_xmlhttpRequest === 'function' || hasNewGM && typeof GM.xmlHttpRequest === 'function',
 			hasNewGM: hasNewGM,
 			hasOldGM: hasOldGM,
@@ -20052,7 +20053,6 @@ true, true];
 			isChrome: isChrome,
 			isESNext: typeof deMainFuncOuter === 'undefined',
 			isFirefox: isFirefox,
-			hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
 			isMsEdge: ua.includes('Edge/'),
 			isPresto: !!deWindow.opera,
 			isSafari: isSafari,

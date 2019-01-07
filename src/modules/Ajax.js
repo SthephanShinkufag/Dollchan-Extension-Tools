@@ -13,7 +13,6 @@ function $ajax(url, params = null, needCORS = false) {
 		}
 		params.referrer =
 			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
-		console.log(params.referrer);
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
