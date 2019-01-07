@@ -30,21 +30,32 @@ function toggleThrFavBtn(h, b, num, isEnable) {
 
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
+		let isUpdate = false;
 		let f = favObj[aib.host];
 		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
 			return;
 		}
 		switch(mode) {
-		case 'error': f.err = value; break;
+		case 'error':
+			if(f.err !== value) {
+				isUpdate = true;
+			}
+			f.err = value;
+			break;
 		case 'update':
+			if(f.cnt !== value[0]) {
+				isUpdate = true;
+			}
 			f.cnt = value[0];
 			f.new = f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
 		const data = [aib.host, aib.b, num, value, mode];
-		updateFavWindow(...data);
-		saveFavorites(favObj);
-		sendStorageEvent('__de-favorites', data);
+		if(isUpdate) {
+			updateFavWindow(...data);
+			saveFavorites(favObj);
+			sendStorageEvent('__de-favorites', data);
+		}
 	});
 }
 

@@ -252,14 +252,8 @@ function readPostsData(firstPost, favObj) {
 			}
 			updateFav = true;
 		}
-		// Hide hidden posts and threads
 		if(HiddenPosts.has(num)) {
-			const uHideData = HiddenPosts.get(num);
-			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
-				post.setUserVisib(true);
-			} else {
-				post.setUserVisib(!!uHideData, false);
-			}
+			HiddenPosts.hideHidden(post, num);
 			continue;
 		}
 		let hideData;
@@ -435,6 +429,15 @@ const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 		super();
 		this.storageName = 'de-posts';
 	}
+	static hideHidden(post, num) {
+		const uHideData = HiddenPosts.get(num);
+		if(!uHideData && post.isOp && HiddenThreads.has(num)) {
+			post.setUserVisib(true);
+		} else {
+			post.setUserVisib(!!uHideData, false);
+		}
+	}
+
 	_readStorage() {
 		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();

@@ -139,10 +139,10 @@ class WinResizer {
 	}
 }
 
-function toggleWindow(name, isUpd, data, noAnim) {
+function toggleWindow(name, isUpdate, data, noAnim) {
 	let el, win = $id('de-win-' + name);
 	const isActive = win && win.classList.contains('de-win-active');
-	if(isUpd && !isActive) {
+	if(isUpdate && !isActive) {
 		return;
 	}
 	if(!win) {
@@ -206,13 +206,13 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	let isRemove = !isUpd && isActive;
+	let isRemove = !isUpdate && isActive;
 	if(!isRemove && !win.classList.contains('de-win') &&
 		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
-	const isAnim = !noAnim && !isUpd && Cfg.animation;
+	const isAnim = !noAnim && !isUpdate && Cfg.animation;
 	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent(e) {

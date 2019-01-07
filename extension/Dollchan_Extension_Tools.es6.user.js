@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'd8c8b02';
+const commit = '0c936ba';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1197,10 +1197,6 @@ const Lng = {
 		'Сохранить внесенные изменения',
 		'Save your changes',
 		'Зберегти внесені зміни'],
-	hiddenPosts: [
-		'Скрытые посты',
-		'Hidden posts',
-		'Сховані пости'],
 	hidPostThr: [
 		'Скрытые посты и треды',
 		'Hidden posts and threads',
@@ -2612,14 +2608,8 @@ function readPostsData(firstPost, favObj) {
 			}
 			updateFav = true;
 		}
-		// Hide hidden posts and threads
 		if(HiddenPosts.has(num)) {
-			const uHideData = HiddenPosts.get(num);
-			if(!uHideData && post.isOp && HiddenThreads.has(num)) {
-				post.setUserVisib(true);
-			} else {
-				post.setUserVisib(!!uHideData, false);
-			}
+			HiddenPosts.hideHidden(post, num);
 			continue;
 		}
 		let hideData;
@@ -2795,6 +2785,15 @@ const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 		super();
 		this.storageName = 'de-posts';
 	}
+	static hideHidden(post, num) {
+		const uHideData = HiddenPosts.get(num);
+		if(!uHideData && post.isOp && HiddenThreads.has(num)) {
+			post.setUserVisib(true);
+		} else {
+			post.setUserVisib(!!uHideData, false);
+		}
+	}
+
 	_readStorage() {
 		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
 		return super._readStorage();
@@ -3338,10 +3337,10 @@ class WinResizer {
 	}
 }
 
-function toggleWindow(name, isUpd, data, noAnim) {
+function toggleWindow(name, isUpdate, data, noAnim) {
 	let el, win = $id('de-win-' + name);
 	const isActive = win && win.classList.contains('de-win-active');
-	if(isUpd && !isActive) {
+	if(isUpdate && !isActive) {
 		return;
 	}
 	if(!win) {
@@ -3405,13 +3404,13 @@ function toggleWindow(name, isUpd, data, noAnim) {
 		makeDraggable(name, win, $q('.de-win-head', win));
 	}
 	updateWinZ(win.style);
-	let isRemove = !isUpd && isActive;
+	let isRemove = !isUpdate && isActive;
 	if(!isRemove && !win.classList.contains('de-win') &&
 		(el = $q(`.de-win-active.de-win-fixed:not(#de-win-${ name })`, win.parentNode))
 	) {
 		toggleWindow(el.id.substr(7), false);
 	}
-	const isAnim = !noAnim && !isUpd && Cfg.animation;
+	const isAnim = !noAnim && !isUpdate && Cfg.animation;
 	let body = $q('.de-win-body', win);
 	if(isAnim && body.hasChildNodes()) {
 		win.addEventListener('animationend', function aEvent(e) {
@@ -3706,21 +3705,32 @@ function toggleThrFavBtn(h, b, num, isEnable) {
 
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
+		let isUpdate = false;
 		let f = favObj[aib.host];
 		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
 			return;
 		}
 		switch(mode) {
-		case 'error': f.err = value; break;
+		case 'error':
+			if(f.err !== value) {
+				isUpdate = true;
+			}
+			f.err = value;
+			break;
 		case 'update':
+			if(f.cnt !== value[0]) {
+				isUpdate = true;
+			}
 			f.cnt = value[0];
 			f.new = f.you = 0;
 			f.last = aib.anchor + value[1];
 		}
 		const data = [aib.host, aib.b, num, value, mode];
-		updateFavWindow(...data);
-		saveFavorites(favObj);
-		sendStorageEvent('__de-favorites', data);
+		if(isUpdate) {
+			updateFavWindow(...data);
+			saveFavorites(favObj);
+			sendStorageEvent('__de-favorites', data);
+		}
 	});
 }
 
@@ -13568,6 +13578,8 @@ class Thread {
 		if(this.userTouched.has(num)) {
 			post.setUserVisib(this.userTouched.get(num), false);
 			this.userTouched.delete(num);
+		} else if(HiddenPosts.has(num)) {
+			HiddenPosts.hideHidden(post, num);
 		}
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);

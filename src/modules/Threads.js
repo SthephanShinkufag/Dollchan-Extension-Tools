@@ -246,6 +246,8 @@ class Thread {
 		if(this.userTouched.has(num)) {
 			post.setUserVisib(this.userTouched.get(num), false);
 			this.userTouched.delete(num);
+		} else if(HiddenPosts.has(num)) {
+			HiddenPosts.hideHidden(post, num);
 		}
 		if(maybeVParser.value) {
 			maybeVParser.value.parse(post);

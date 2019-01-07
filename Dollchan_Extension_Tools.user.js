@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'd8c8b02';
+	var commit = '0c936ba';
 
 
 	var defaultCfg = {
@@ -4271,7 +4271,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		allDomains: ['для всех доменов', 'for all domains', 'для всіх доменів'],
 		delEntries: ['Удалить выбранные записи', 'Delete selected entries', 'Видалити обрані записи'],
 		saveChanges: ['Сохранить внесенные изменения', 'Save your changes', 'Зберегти внесені зміни'],
-		hiddenPosts: ['Скрытые посты', 'Hidden posts', 'Сховані пости'],
 		hidPostThr: ['Скрытые посты и треды', 'Hidden posts and threads', 'Сховані пости та треди'],
 		myPosts: ['Мои посты', 'My posts', 'Мої пости'],
 
@@ -5416,12 +5415,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				updateFav = true;
 			}
 			if (HiddenPosts.has(num)) {
-				var uHideData = HiddenPosts.get(num);
-				if (!uHideData && post.isOp && HiddenThreads.has(num)) {
-					post.setUserVisib(true);
-				} else {
-					post.setUserVisib(!!uHideData, false);
-				}
+				HiddenPosts.hideHidden(post, num);
 				continue;
 			}
 			var hideData = void 0;
@@ -5635,6 +5629,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _readStorage() {
 				PostsStorage._migrateOld(this.storageName, 'de-threads-new'); 
 				return _get(HiddenPostsClass.prototype.__proto__ || Object.getPrototypeOf(HiddenPostsClass.prototype), '_readStorage', this).call(this);
+			}
+		}], [{
+			key: 'hideHidden',
+			value: function hideHidden(post, num) {
+				var uHideData = HiddenPosts.get(num);
+				if (!uHideData && post.isOp && HiddenThreads.has(num)) {
+					post.setUserVisib(true);
+				} else {
+					post.setUserVisib(!!uHideData, false);
+				}
 			}
 		}]);
 
@@ -6225,11 +6229,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return WinResizer;
 	}();
 
-	function toggleWindow(name, isUpd, data, noAnim) {
+	function toggleWindow(name, isUpdate, data, noAnim) {
 		var el = void 0,
 		    win = $id('de-win-' + name);
 		var isActive = win && win.classList.contains('de-win-active');
-		if (isUpd && !isActive) {
+		if (isUpdate && !isActive) {
 			return;
 		}
 		if (!win) {
@@ -6282,11 +6286,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			makeDraggable(name, win, $q('.de-win-head', win));
 		}
 		updateWinZ(win.style);
-		var isRemove = !isUpd && isActive;
+		var isRemove = !isUpdate && isActive;
 		if (!isRemove && !win.classList.contains('de-win') && (el = $q('.de-win-active.de-win-fixed:not(#de-win-' + name + ')', win.parentNode))) {
 			toggleWindow(el.id.substr(7), false);
 		}
-		var isAnim = !noAnim && !isUpd && Cfg.animation;
+		var isAnim = !noAnim && !isUpdate && Cfg.animation;
 		var body = $q('.de-win-body', win);
 		if (isAnim && body.hasChildNodes()) {
 			win.addEventListener('animationend', function aEvent(e) {
@@ -6585,22 +6589,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	function updateFavorites(num, value, mode) {
 		readFavorites().then(function (favObj) {
+			var isUpdate = false;
 			var f = favObj[aib.host];
 			if (!f || !f[aib.b] || !(f = f[aib.b][num])) {
 				return;
 			}
 			switch (mode) {
 				case 'error':
-					f.err = value;break;
+					if (f.err !== value) {
+						isUpdate = true;
+					}
+					f.err = value;
+					break;
 				case 'update':
+					if (f.cnt !== value[0]) {
+						isUpdate = true;
+					}
 					f.cnt = value[0];
 					f.new = f.you = 0;
 					f.last = aib.anchor + value[1];
 			}
 			var data = [aib.host, aib.b, num, value, mode];
-			updateFavWindow.apply(undefined, data);
-			saveFavorites(favObj);
-			sendStorageEvent('__de-favorites', data);
+			if (isUpdate) {
+				updateFavWindow.apply(undefined, data);
+				saveFavorites(favObj);
+				sendStorageEvent('__de-favorites', data);
+			}
 		});
 	}
 
@@ -18634,6 +18648,8 @@ true, true];
 				if (this.userTouched.has(num)) {
 					post.setUserVisib(this.userTouched.get(num), false);
 					this.userTouched.delete(num);
+				} else if (HiddenPosts.has(num)) {
+					HiddenPosts.hideHidden(post, num);
 				}
 				if (maybeVParser.value) {
 					maybeVParser.value.parse(post);

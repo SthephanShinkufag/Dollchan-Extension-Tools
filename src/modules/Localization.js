@@ -1024,10 +1024,6 @@ const Lng = {
 		'Сохранить внесенные изменения',
 		'Save your changes',
 		'Зберегти внесені зміни'],
-	hiddenPosts: [
-		'Скрытые посты',
-		'Hidden posts',
-		'Сховані пости'],
 	hidPostThr: [
 		'Скрытые посты и треды',
 		'Hidden posts and threads',
