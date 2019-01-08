@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '989e2a8';
+const commit = 'a45fd78';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3366,7 +3366,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		const winBody = $q('.de-win-body', win);
 		if(name === 'cfg') {
 			winBody.className = 'de-win-body ' + aib.cReply;
-		} else if(!aib.makaba) {
+		} else {
 			setTimeout(() => {
 				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
 				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';
@@ -15929,7 +15929,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-thr-hid[style="display: none;"] + .thread::before {
 					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
 					display: block; margin: 8px 0; }
-				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: var(--theme_default_bg); }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
@@ -16238,7 +16237,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,
 					.refmap, #youtube-thumb-float { display: none !important; }
-				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee; }
+				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 				#postform { display: inline-table !important; }
 				${ Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '' }
 				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
