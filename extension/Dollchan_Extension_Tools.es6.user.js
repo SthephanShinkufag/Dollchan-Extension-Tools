@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'a45fd78';
+const commit = 'c3121e5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9052,7 +9052,7 @@ function checkUpload(data) {
 			closePopup('upload');
 		});
 	} else {
-		pByNum.get(tNum).thr.loadPosts(visPosts, false, false).then(() => closePopup('upload'));
+		pByNum.get(tNum).thr.loadPosts('new', false, false).then(() => closePopup('upload'));
 	}
 	pr.closeReply();
 	pr.refreshCap();
@@ -9079,7 +9079,7 @@ async function checkDelete(data) {
 		Post.clearMarks();
 		await Thread.first.loadNewPosts().catch(err => infoLoadErrors(err));
 	} else {
-		await Promise.all([...threads].map(thr => thr.loadPosts(visPosts, false, false)));
+		await Promise.all([...threads].map(thr => thr.loadPosts('new', false, false)));
 	}
 	$popup('delete', Lng.succDeleted[lang]);
 }

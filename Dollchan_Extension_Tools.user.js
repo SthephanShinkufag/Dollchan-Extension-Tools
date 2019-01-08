@@ -3461,7 +3461,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 15:
 							_context18.next = 17;
 							return Promise.all([].concat(_toConsumableArray(threads)).map(function (thr) {
-								return thr.loadPosts(visPosts, false, false);
+								return thr.loadPosts('new', false, false);
 							}));
 
 						case 17:
@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'a45fd78';
+	var commit = 'c3121e5';
 
 
 	var defaultCfg = {
@@ -13074,7 +13074,7 @@ true, true];
 				closePopup('upload');
 			});
 		} else {
-			pByNum.get(tNum).thr.loadPosts(visPosts, false, false).then(function () {
+			pByNum.get(tNum).thr.loadPosts('new', false, false).then(function () {
 				return closePopup('upload');
 			});
 		}
