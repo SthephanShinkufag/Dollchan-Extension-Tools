@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'c3121e5';
+	var commit = 'cdca5ae';
 
 
 	var defaultCfg = {
@@ -14622,6 +14622,9 @@ true, true];
 				this.addFuncs();
 				sRunner.runSpells(this);
 				embedPostMsgImages(this.el);
+				if (this.isHidden) {
+					this.hideContent(this.isHidden);
+				}
 				closePopup('load-fullmsg');
 			}
 		}, {
@@ -14966,8 +14969,7 @@ true, true];
 				} else {
 					this.note.hideNote();
 				}
-				this.isHidden = isHide;
-				this.hideContent(isHide);
+				this.hideContent(this.isHidden = isHide);
 			}
 		}, {
 			key: 'spellHide',

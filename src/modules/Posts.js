@@ -306,6 +306,9 @@ class AbstractPost {
 		this.addFuncs();
 		sRunner.runSpells(this);
 		embedPostMsgImages(this.el);
+		if(this.isHidden){
+			this.hideContent(this.isHidden);
+		}
 		closePopup('load-fullmsg');
 	}
 
@@ -687,8 +690,7 @@ class Post extends AbstractPost {
 		} else {
 			this.note.hideNote();
 		}
-		this.isHidden = isHide;
-		this.hideContent(isHide);
+		this.hideContent(this.isHidden = isHide);
 	}
 	spellHide(note) {
 		this.spellHidden = true;
