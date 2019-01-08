@@ -301,7 +301,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qRPost + ', [de-thread]';
+		const sel = this.qRPost + ', [de-thread], .de-pview';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}

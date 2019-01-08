@@ -168,7 +168,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		const winBody = $q('.de-win-body', win);
 		if(name === 'cfg') {
 			winBody.className = 'de-win-body ' + aib.cReply;
-		} else {
+		} else if(!aib.makaba) {
 			setTimeout(() => {
 				const backColor = getComputedStyle(docBody).getPropertyValue('background-color');
 				winBody.style.backgroundColor = backColor !== 'transparent' ? backColor : '#EEE';

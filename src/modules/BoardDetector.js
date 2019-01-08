@@ -597,7 +597,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this.makaba = true;
 
-			this.cReply = 'post_type_reply';
+			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
 			this.qDForm = '#posts-form';
@@ -617,7 +617,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
-			this.qRPost = '.post.post_type_reply[data-num]';
+			this.qRPost = '.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -648,16 +648,20 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
 					#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,
-					.post:not(.de-reply)::before, .post__btn:not(.icon_type_active), .post__message .icon,
-					.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr, .thread-nav,
-					#up-nav-arrow { display: none !important; }
+					.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,
+					.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow
+					{ display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.de-pview > .post__details { margin-left: 4px; }
+				.de-reply-class { background: var(--theme_default_postbg);
+					border: 1px solid var(--theme_default_border); border-radius: 3px; }
 				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
 				.de-thr-hid + .thread + .thread::before,
 				.de-thr-hid[style="display: none;"] + .thread::before {
 					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
 					display: block; margin: 8px 0; }
+				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: var(--theme_default_bg); }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
@@ -966,6 +970,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,
 					.refmap, #youtube-thumb-float { display: none !important; }
+				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee; }
 				#postform { display: inline-table !important; }
 				${ Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '' }
 				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
