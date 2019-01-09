@@ -3,11 +3,11 @@
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, needCORS = false) {
+function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(needCORS ? nav.canUseFetchCORS : nav.canUseFetch) {
+	if((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 		if(!params) {
 			params = {};
 		}
@@ -17,7 +17,7 @@ function $ajax(url, params = null, needCORS = false) {
 			params.body = params.data;
 			delete params.data;
 		}
-		if(needCORS) {
+		if(isCORS) {
 			params.mode = 'cors';
 		}
 		const controller = new AbortController();
@@ -47,7 +47,7 @@ function $ajax(url, params = null, needCORS = false) {
 			resolve(res);
 		}).catch(err => reject(err.statusText ?
 			new AjaxError(err.status, err.statusText) : getErrorMessage(err)));
-	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
+	} else if((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -96,7 +96,7 @@ function $ajax(url, params = null, needCORS = false) {
 				} catch(err) {}
 			};
 		}
-	} else {
+	} else if(nav.canUseNativeXHR) {
 		const xhr = new XMLHttpRequest();
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -144,9 +144,11 @@ function $ajax(url, params = null, needCORS = false) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			canUseNativeXHR = false;
+			nav.canUseNativeXHR = false;
 			return $ajax(url, params);
 		}
+	} else {
+		reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;

@@ -96,7 +96,10 @@ function initNavFuncs() {
 			val => val + rules.join(', ' + val)
 		).join(', '),
 		canUseFetch,
+		canUseFetchBlob: canUseFetch &&
+			(!isChrome || scriptHandler !== 'WebExtension' && !scriptHandler.startsWith('Violentmonkey')),
 		canUseFetchCORS  : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		fixLink          : isSafari ? getAbsLink : url => url,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,

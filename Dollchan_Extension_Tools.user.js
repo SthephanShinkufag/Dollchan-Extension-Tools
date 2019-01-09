@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'cdca5ae';
+	var commit = 'ea8ab7a';
 
 
 	var defaultCfg = {
@@ -4433,7 +4433,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	    sesStorage = void 0,
 	    updater = void 0;
 	var quotetxt = '';
-	var canUseNativeXHR = true;
 	var visPosts = 2;
 	var topWinZ = 10;
 
@@ -9701,14 +9700,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _this21 = this;
 
 		var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-		var needCORS = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+		var isCORS = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		var resolve = void 0,
 		    reject = void 0,
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if (needCORS ? nav.canUseFetchCORS : nav.canUseFetch) {
+		if ((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 			if (!params) {
 				params = {};
 			}
@@ -9717,7 +9716,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				params.body = params.data;
 				delete params.data;
 			}
-			if (needCORS) {
+			if (isCORS) {
 				params.mode = 'cors';
 			}
 			var controller = new AbortController();
@@ -9793,7 +9792,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}()).catch(function (err) {
 				return reject(err.statusText ? new AjaxError(err.status, err.statusText) : getErrorMessage(err));
 			});
-		} else if ((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
+		} else if ((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 			var gmxhr = void 0;
 			var timeoutFn = function timeoutFn() {
 				reject(AjaxError.Timeout);
@@ -9842,7 +9841,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					} catch (err) {}
 				};
 			}
-		} else {
+		} else if (nav.canUseNativeXHR) {
 			var xhr = new XMLHttpRequest();
 			var _timeoutFn = function _timeoutFn() {
 				reject(AjaxError.Timeout);
@@ -9894,9 +9893,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				};
 			} catch (err) {
 				clearTimeout(_loadTO2);
-				canUseNativeXHR = false;
+				nav.canUseNativeXHR = false;
 				return $ajax(url, params);
 			}
+		} else {
+			reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
 		}
 		return new CancelablePromise(function (res, rej) {
 			resolve = res;
@@ -20057,7 +20058,9 @@ true, true];
 				}).join(', ');
 			},
 			canUseFetch: canUseFetch,
+			canUseFetchBlob: canUseFetch && (!isChrome || scriptHandler !== 'WebExtension' && !scriptHandler.startsWith('Violentmonkey')),
 			canUseFetchCORS: canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+			canUseNativeXHR: true,
 			firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 			fixLink: isSafari ? getAbsLink : function (url) {
 				return url;
@@ -23559,7 +23562,7 @@ true, true];
 			return;
 		}
 
-		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 222px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
+		x += '\n\t/* Windows */\n\t.de-win .de-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 221px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
 		'#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }',
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',

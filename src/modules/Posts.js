@@ -306,7 +306,7 @@ class AbstractPost {
 		this.addFuncs();
 		sRunner.runSpells(this);
 		embedPostMsgImages(this.el);
-		if(this.isHidden){
+		if(this.isHidden) {
 			this.hideContent(this.isHidden);
 		}
 		closePopup('load-fullmsg');

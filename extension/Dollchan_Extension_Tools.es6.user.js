@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'cdca5ae';
+const commit = 'ea8ab7a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1623,7 +1623,6 @@ const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Ext
 let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
 	pByNum, pr, sesStorage, updater;
 let quotetxt = '';
-let canUseNativeXHR = true;
 let visPosts = 2;
 let topWinZ = 10;
 
@@ -6608,11 +6607,11 @@ function embedAudioLinks(data) {
 =========================================================================================================== */
 
 // Main AJAX util
-function $ajax(url, params = null, needCORS = false) {
+function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(needCORS ? nav.canUseFetchCORS : nav.canUseFetch) {
+	if((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 		if(!params) {
 			params = {};
 		}
@@ -6622,7 +6621,7 @@ function $ajax(url, params = null, needCORS = false) {
 			params.body = params.data;
 			delete params.data;
 		}
-		if(needCORS) {
+		if(isCORS) {
 			params.mode = 'cors';
 		}
 		const controller = new AbortController();
@@ -6652,7 +6651,7 @@ function $ajax(url, params = null, needCORS = false) {
 			resolve(res);
 		}).catch(err => reject(err.statusText ?
 			new AjaxError(err.status, err.statusText) : getErrorMessage(err)));
-	} else if((needCORS || !canUseNativeXHR) && nav.hasGMXHR) {
+	} else if((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -6701,7 +6700,7 @@ function $ajax(url, params = null, needCORS = false) {
 				} catch(err) {}
 			};
 		}
-	} else {
+	} else if(nav.canUseNativeXHR) {
 		const xhr = new XMLHttpRequest();
 		const timeoutFn = () => {
 			reject(AjaxError.Timeout);
@@ -6749,9 +6748,11 @@ function $ajax(url, params = null, needCORS = false) {
 			};
 		} catch(err) {
 			clearTimeout(loadTO);
-			canUseNativeXHR = false;
+			nav.canUseNativeXHR = false;
 			return $ajax(url, params);
 		}
+	} else {
+		reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;
@@ -10433,7 +10434,7 @@ class AbstractPost {
 		this.addFuncs();
 		sRunner.runSpells(this);
 		embedPostMsgImages(this.el);
-		if(this.isHidden){
+		if(this.isHidden) {
 			this.hideContent(this.isHidden);
 		}
 		closePopup('load-fullmsg');
@@ -14821,7 +14822,10 @@ function initNavFuncs() {
 			val => val + rules.join(', ' + val)
 		).join(', '),
 		canUseFetch,
+		canUseFetchBlob: canUseFetch &&
+			(!isChrome || scriptHandler !== 'WebExtension' && !scriptHandler.startsWith('Violentmonkey')),
 		canUseFetchCORS  : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		fixLink          : isSafari ? getAbsLink : url => url,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
@@ -17722,7 +17726,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 222px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 221px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
