@@ -258,7 +258,7 @@ const CfgWindow = {
 			case 'postBtnsCSS':
 				updateCSS();
 				if(nav.isPresto) {
-					$del($q('.de-svg-icons'));
+					$q('.de-svg-icons').remove();
 					addSVGIcons();
 				}
 				break;
@@ -790,9 +790,13 @@ const CfgWindow = {
 		<span class="de-info-name">${ val[0] }</span>
 		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
-	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
+	_getInp(id, addText = true, size = 2) {
+		const el = doc.createElement('div');
+		el.appendChild($txt(Cfg[id])); // Escape HTML
+		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
-		escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
+		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
+	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values

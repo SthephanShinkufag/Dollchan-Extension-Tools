@@ -144,7 +144,7 @@ class FileInput {
 			if(this._mediaEl) {
 				deWindow.URL.revokeObjectURL(this._mediaEl.src);
 				this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
-				$del(this._mediaEl);
+				this._mediaEl.remove();
 				this._mediaEl = null;
 			}
 		}
@@ -346,7 +346,7 @@ class FileInput {
 		el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
 		if((el = el.nextSibling)) {
 			deWindow.URL.revokeObjectURL(el.src);
-			$del(el);
+			el.remove();
 		}
 	}
 	_addRarJpeg() {
@@ -490,7 +490,7 @@ class FileInput {
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
 		this._input = newEl;
-		$del(oldEl);
+		oldEl.remove();
 	}
 	_showFileThumb() {
 		const { imgFile } = this;

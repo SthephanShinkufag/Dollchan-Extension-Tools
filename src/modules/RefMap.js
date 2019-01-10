@@ -158,13 +158,13 @@ class RefMap {
 			const el = this.getElByNum(num);
 			if(el) {
 				$del(el.nextSibling);
-				$del(el);
+				el.remove();
 			}
 		}
 	}
 	removeMap() {
 		this._set = new Set();
-		$del(this._el);
+		this._el.remove();
 		delete this._el;
 		this.hasMap = false;
 	}

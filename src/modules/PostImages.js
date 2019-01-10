@@ -72,7 +72,7 @@ class ImagesNavigBtns {
 		this._oldX = this._oldY = -1;
 	}
 	removeBtns() {
-		$del(this._btns);
+		this._btns.remove();
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	}
@@ -259,7 +259,7 @@ class ImagesViewer {
 		if(data.inPview && data.post.isSticky) {
 			data.post.toggleSticky(false);
 		}
-		$del(this._parentEl);
+		this._parentEl.remove();
 		if(e && data.inPview) {
 			data.sendCloseEvent(e, false);
 		}
@@ -435,10 +435,10 @@ class ExpandableImage {
 		}
 		this.cancelWebmLoad(this._fullEl);
 		this.expanded = false;
-		$del(this._fullEl);
+		this._fullEl.remove();
 		this._fullEl = null;
 		$show(this.el.parentNode);
-		$del((aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling);
+		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 		if(e) {
 			$pd(e);
 			if(this.inPview) {

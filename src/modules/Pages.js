@@ -38,7 +38,7 @@ const Pages = {
 				} while(needThreads && thr);
 				DelForm.last = firstForm;
 				firstForm.next = firstForm.lastThr.next = null;
-				$del(newForm.el);
+				newForm.el.remove();
 				this._endAdding();
 				if(needThreads) {
 					this.addPage(needThreads, pageNum + 1);
@@ -77,7 +77,7 @@ const Pages = {
 			if(form === DelForm.last) {
 				break;
 			}
-			$del(form.el);
+			form.el.remove();
 		}
 		DelForm.first = DelForm.last;
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
@@ -90,7 +90,7 @@ const Pages = {
 		const { first } = DelForm;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
-			$del(first.el);
+			first.el.remove();
 			await this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
@@ -113,7 +113,7 @@ const Pages = {
 		return form;
 	},
 	_endAdding() {
-		$del($q('.de-addpage-wait'));
+		$q('.de-addpage-wait').remove();
 		this._isAdding = false;
 		this._addingPromise = null;
 	},

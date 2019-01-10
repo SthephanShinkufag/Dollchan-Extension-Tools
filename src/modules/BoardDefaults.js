@@ -276,12 +276,12 @@ class BaseBoard {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
 	getOp(thr) { // Arhivach
-		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+		let op = localData ? $q('.de-oppost', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
 		}
 		op = thr.ownerDocument.createElement('div');
-		op.setAttribute('de-oppost', '');
+		op.classList.add('de-oppost');
 		let el;
 		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {

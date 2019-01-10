@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'ea8ab7a';
+	var commit = '4a87d68';
 
 
 	var defaultCfg = {
@@ -4123,7 +4123,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Кнопки разметки текста ', 'Text markup buttons ', 'Кнопки розмітки тексту ']
 			},
 			txtBtnsLoc: ['Внизу', 'At bottom', 'Знизу'],
-			userPassw: ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
+			passwValue: ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
 			userName: ['Постоянное имя', 'Fixed name', 'Постійне імʼя'],
 			noBoardRule: ['Правила ', 'Rules ', 'Правила '],
 			noPassword: ['Пароль ', 'Password ', 'Пароль '],
@@ -4540,7 +4540,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var el = doc.createElement('script');
 		el.type = 'text/javascript';
 		el.textContent = text;
-		$del(doc.head.appendChild(el));
+		doc.head.appendChild(el).remove();
 	}
 
 	function $css(text) {
@@ -4634,12 +4634,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 	}
 
-	function escapeHTML(html) {
-		var el = doc.createElement('div');
-		el.appendChild($txt(html));
-		return el.innerHTML;
-	}
-
 	function toggleAttr(el, name, value, isAdd) {
 		if (isAdd) {
 			el.setAttribute(name, value);
@@ -4661,7 +4655,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return true;
 	}
 
-	function $txtInsert(el, txt) {
+	function insertText(el, txt) {
 		var scrtop = el.scrollTop;
 		var start = el.selectionStart;
 		el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
@@ -5303,7 +5297,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		link.click();
 		setTimeout(function () {
 			deWindow.URL.revokeObjectURL(url);
-			$del(link);
+			link.remove();
 		}, 2e5);
 	}function setStored(id, value) {
 		if (nav.hasNewGM) {
@@ -5857,7 +5851,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			delete this._pcountEl;
 			delete this._icountEl;
 			delete this._acountEl;
-			$del($id('de-main'));
+			$id('de-main').remove();
 		},
 		handleEvent: function handleEvent(e) {
 			var _this10 = this;
@@ -7459,7 +7453,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					case 'postBtnsCSS':
 						updateCSS();
 						if (nav.isPresto) {
-							$del($q('.de-svg-icons'));
+							$q('.de-svg-icons').remove();
 							addSVGIcons();
 						}
 						break;
@@ -7902,8 +7896,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_getInp: function _getInp(id) {
 			var addText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
-			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + escapeHTML(Cfg[id]) + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
+
+			var el = doc.createElement('div');
+			el.appendChild($txt(Cfg[id])); 
+			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + el.innerHTML + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
 		},
+
 		_getList: function _getList(arr) {
 			return arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>');
 		},
@@ -8112,7 +8110,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this._el.removeEventListener('mouseout', this, true);
 				this.parentEl.removeEventListener('mouseout', this);
 				this._el.removeEventListener('click', this);
-				$del(this._el);
+				this._el.remove();
 				this._el = null;
 			}
 		}], [{
@@ -8140,7 +8138,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			case 'de-btn-spell-add':
 				return new Menu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' + fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')) + '</div><div style="display: inline-block;">' + fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) + '</div>', function (_ref19) {
 					var s = _ref19.textContent;
-					return $txtInsert($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
+					return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : '[' + aib.b + ',' + aib.t + ']') + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
 				});
 			case 'de-panel-refresh':
 				return new Menu(el, fn(Lng.selAjaxPages[lang]), function (el) {
@@ -8877,7 +8875,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
 				}
 				downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-				$del($id('de-popup-load-files'));
+				closePopup('load-files');
 				_this17._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 			});
 			els.forEach(function (el) {
@@ -8912,7 +8910,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 					var url = el.tagName === 'LINK' ? el.href : el.src;
 					if (!urlRegex.test(url)) {
-						$del(el);
+						el.remove();
 						return;
 					}
 					var fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
@@ -10141,7 +10139,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									} while (needThreads && thr);
 									DelForm.last = firstForm;
 									firstForm.next = firstForm.lastThr.next = null;
-									$del(newForm.el);
+									newForm.el.remove();
 									_this23._endAdding();
 									if (needThreads) {
 										_this23.addPage(needThreads, pageNum + 1);
@@ -10223,7 +10221,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return _context15.abrupt('break', 25);
 
 							case 21:
-								$del(form.el);
+								form.el.remove();
 
 							case 22:
 								_iteratorNormalCompletion6 = true;
@@ -10308,7 +10306,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 
 								DelForm.first = first.next;
-								$del(first.el);
+								first.el.remove();
 								_context15.next = 63;
 								return this._updateForms(DelForm.first);
 
@@ -10347,7 +10345,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return form;
 		},
 		_endAdding: function _endAdding() {
-			$del($q('.de-addpage-wait'));
+			$q('.de-addpage-wait').remove();
 			this._isAdding = false;
 			this._addingPromise = null;
 		},
@@ -12400,7 +12398,7 @@ true, true];
 
 				var quote = Cfg.spacedQuote ? '> ' : '>';
 				if (id === 'de-btn-quote') {
-					$txtInsert(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end)).replace(/\n/gm, '\n' + quote));
+					insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end)).replace(/\n/gm, '\n' + quote));
 					quotetxt = '';
 				} else {
 					var scrtop = txtaEl.scrtop;
@@ -12505,7 +12503,7 @@ true, true];
 				var isOnNewLine = txt === '' || txt.slice(-1) === '\n';
 				var link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' : isNumClick ? '>>' + pNum + (isOnNewLine ? '\n' : '') : (isOnNewLine ? '' : '\n') + (this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : '>>' + pNum + '\n');
 				var quote = !quotetxt ? '' : quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1>' + (Cfg.spacedQuote ? ' ' : '') + '$2') + '\n';
-				$txtInsert(this.txta, link + quote);
+				insertText(this.txta, link + quote);
 				var winTitle = post.thr.op.title.trim();
 				$q('.de-win-title', this.qArea).textContent = (winTitle.length < 28 ? winTitle : winTitle.substr(0, 30) + '\u2026') || '#' + pNum;
 				this.lastQuickPNum = pNum;
@@ -13652,7 +13650,7 @@ true, true];
 					if (this._mediaEl) {
 						deWindow.URL.revokeObjectURL(this._mediaEl.src);
 						this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
-						$del(this._mediaEl);
+						this._mediaEl.remove();
 						this._mediaEl = null;
 					}
 				}
@@ -13859,7 +13857,7 @@ true, true];
 				el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
 				if (el = el.nextSibling) {
 					deWindow.URL.revokeObjectURL(el.src);
-					$del(el);
+					el.remove();
 				}
 			}
 		}, {
@@ -14026,7 +14024,7 @@ true, true];
 				newEl.addEventListener('change', this);
 				newEl.obj = this;
 				this._input = newEl;
-				$del(oldEl);
+				oldEl.remove();
 			}
 		}, {
 			key: '_showFileThumb',
@@ -14153,7 +14151,7 @@ true, true];
 								}
 								chr = ruUa[_i41];
 							}
-							$txtInsert(e.target, chr);
+							insertText(e.target, chr);
 							break;
 						}
 					case 'focus':
@@ -14332,7 +14330,7 @@ true, true];
 				script.src = aib.prot + '//www.google.com/recaptcha/api.js';
 				doc.head.appendChild(script);
 				setTimeout(function () {
-					return $del(script);
+					return script.remove();
 				}, 1e5);
 			}
 		}, {
@@ -14421,7 +14419,7 @@ true, true];
 									} else if (aib.t) {
 										var formText = pr.txta.value;
 										var isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-										$txtInsert(pr.txta, '>>' + this.num + (isOnNewLine ? '\n' : ''));
+										insertText(pr.txta, '>>' + this.num + (isOnNewLine ? '\n' : ''));
 									} else {
 										deWindow.location.assign(el.href.replace(/#i/, '#'));
 									}
@@ -14683,7 +14681,7 @@ true, true];
 					}
 					if (sourceEl) {
 						_this46.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
-						$del(truncEl);
+						truncEl.remove();
 					}
 					if (maybeSpells.hasValue) {
 						maybeSpells.value.endSpells();
@@ -14824,7 +14822,7 @@ true, true];
 			key: 'deletePost',
 			value: function deletePost(isRemovePost) {
 				if (isRemovePost) {
-					$del(this.wrap);
+					this.wrap.remove();
 					pByEl.delete(this.el);
 					pByNum.delete(this.num);
 					if (this.isHidden) {
@@ -16219,7 +16217,7 @@ true, true];
 		}, {
 			key: 'removeBtns',
 			value: function removeBtns() {
-				$del(this._btns);
+				this._btns.remove();
 				doc.defaultView.removeEventListener('mousemove', this);
 				clearTimeout(this._hideTmt);
 			}
@@ -16423,7 +16421,7 @@ true, true];
 				if (data.inPview && data.post.isSticky) {
 					data.post.toggleSticky(false);
 				}
-				$del(this._parentEl);
+				this._parentEl.remove();
 				if (e && data.inPview) {
 					data.sendCloseEvent(e, false);
 				}
@@ -16615,10 +16613,10 @@ true, true];
 				}
 				this.cancelWebmLoad(this._fullEl);
 				this.expanded = false;
-				$del(this._fullEl);
+				this._fullEl.remove();
 				this._fullEl = null;
 				$show(this.el.parentNode);
-				$del((aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling);
+				(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 				if (e) {
 					$pd(e);
 					if (this.inPview) {
@@ -18188,7 +18186,7 @@ true, true];
 					var _el25 = this.getElByNum(num);
 					if (_el25) {
 						$del(_el25.nextSibling);
-						$del(_el25);
+						_el25.remove();
 					}
 				}
 			}
@@ -18196,7 +18194,7 @@ true, true];
 			key: 'removeMap',
 			value: function removeMap() {
 				this._set = new Set();
-				$del(this._el);
+				this._el.remove();
 				delete this._el;
 				this.hasMap = false;
 			}
@@ -19439,7 +19437,7 @@ true, true];
 				this._hasIcons = true;
 			},
 			_setIcon: function _setIcon(iconUrl) {
-				$del(this._iconEl);
+				this._iconEl.remove();
 				this._iconEl = $aBegin(doc.head, '<link rel="shortcut icon" href="' + iconUrl + '">');
 			}
 		};
@@ -19834,10 +19832,10 @@ true, true];
 				var thrNext = threads[_i59 + 1];
 				var elNext = _el26.nextSibling;
 				while (elNext && elNext !== thrNext) {
-					$del(elNext);
+					elNext.remove();
 					elNext = _el26.nextSibling;
 				}
-				$del(_el26);
+				_el26.remove();
 				console.log('Repeated thread: ' + num);
 			}
 			if (this.firstThr === null) {
@@ -20371,12 +20369,12 @@ true, true];
 		}, {
 			key: 'getOp',
 			value: function getOp(thr) {
-				var op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+				var op = localData ? $q('.de-oppost', thr) : $q(this.qOPost, thr);
 				if (op) {
 					return op;
 				}
 				op = thr.ownerDocument.createElement('div');
-				op.setAttribute('de-oppost', '');
+				op.classList.add('de-oppost');
 				var el = void 0;
 				var opEnd = $q(this._qOPostEnd, thr);
 				while ((el = thr.firstChild) && el !== opEnd) {
@@ -20813,7 +20811,7 @@ true, true];
 						if (hr && hr.tagName === 'HR') {
 							$after(brEl.parentNode, hr);
 						}
-						$del(brEl);
+						brEl.remove();
 					});
 					return formEl;
 				}
@@ -20824,7 +20822,7 @@ true, true];
 
 					return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
 						var value = [isPost ? data : _this82.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
-						$del(el);
+						el.remove();
 						return value;
 					});
 				}
@@ -21630,9 +21628,9 @@ true, true];
 			}, {
 				key: 'deleteTruncMsg',
 				value: function deleteTruncMsg(post, el) {
-					$del(el.previousSibling);
+					el.previousSibling.remove();
 					$show(el.previousSibling);
-					$del(el);
+					el.remove();
 				}
 			}, {
 				key: 'fixFileInputs',
@@ -21698,7 +21696,7 @@ true, true];
 						if (inpEl.checked) {
 							inpEl.click();
 						}
-						$del(el);
+						el.remove();
 					});
 					var el = $q('.anoniconsselectlist');
 					if (el) {
@@ -21824,7 +21822,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,\n\t\t\t\t\t#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,\n\t\t\t\t\t.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow\n\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }\n\t\t\t\t.de-thr-hid + .thread + .thread::before,\n\t\t\t\t.de-thr-hid[style="display: none;"] + .thread::before {\n\t\t\t\t\tcontent: ""; border-top: 1px solid var(--theme_default_border); width: 100%;\n\t\t\t\t\tdisplay: block; margin: 8px 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.options__box[onclick="ToggleSage()"]\n\t\t\t\t\t{ display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
+					return '#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,\n\t\t\t\t\t#down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,\n\t\t\t\t\t.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow\n\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }\n\t\t\t\t.de-thr-hid + .thread + .thread::before,\n\t\t\t\t.de-thr-hid[style="display: none;"] + .thread::before {\n\t\t\t\t\tcontent: ""; border-top: 1px solid var(--theme_default_border); width: 100%;\n\t\t\t\t\tdisplay: block; margin: 8px 0; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.options__box[onclick="ToggleSage()"]\n\t\t\t\t\t{ display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
 				}
 			}, {
 				key: 'isArchived',

@@ -97,7 +97,7 @@ function $script(text) {
 	const el = doc.createElement('script');
 	el.type = 'text/javascript';
 	el.textContent = text;
-	$del(doc.head.appendChild(el));
+	doc.head.appendChild(el).remove();
 }
 
 function $css(text) {
@@ -184,12 +184,6 @@ function toRegExp(str, noG) {
 	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
 
-function escapeHTML(html) {
-	const el = doc.createElement('div');
-	el.appendChild($txt(html));
-	return el.innerHTML;
-}
-
 function toggleAttr(el, name, value, isAdd) {
 	if(isAdd) {
 		el.setAttribute(name, value);
@@ -211,7 +205,7 @@ function $isEmpty(obj) {
 	return true;
 }
 
-function $txtInsert(el, txt) {
+function insertText(el, txt) {
 	const scrtop = el.scrollTop;
 	const start = el.selectionStart;
 	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
@@ -721,6 +715,6 @@ function downloadBlob(blob, name) {
 	link.click();
 	setTimeout(() => {
 		deWindow.URL.revokeObjectURL(url);
-		$del(link);
+		link.remove();
 	}, 2e5);
 }

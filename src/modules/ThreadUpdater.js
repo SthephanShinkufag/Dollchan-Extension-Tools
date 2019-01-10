@@ -256,7 +256,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._hasIcons = true;
 		},
 		_setIcon(iconUrl) {
-			$del(this._iconEl);
+			this._iconEl.remove();
 			this._iconEl = $aBegin(doc.head, `<link rel="shortcut icon" href="${ iconUrl }">`);
 		}
 	};

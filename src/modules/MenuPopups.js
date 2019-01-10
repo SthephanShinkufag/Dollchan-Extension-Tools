@@ -156,7 +156,7 @@ class Menu {
 		this._el.removeEventListener('mouseout', this, true);
 		this.parentEl.removeEventListener('mouseout', this);
 		this._el.removeEventListener('click', this);
-		$del(this._el);
+		this._el.remove();
 		this._el = null;
 	}
 }
@@ -169,7 +169,7 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		({ textContent: s }) => $txtInsert($id('de-spell-txt'), s +
+		({ textContent: s }) => insertText($id('de-spell-txt'), s +
 			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
 			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':

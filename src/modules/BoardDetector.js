@@ -143,7 +143,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(hr && hr.tagName === 'HR') {
 					$after(brEl.parentNode, hr);
 				}
-				$del(brEl);
+				brEl.remove();
 			});
 			return formEl;
 		}
@@ -151,7 +151,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
 				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
 					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
-				$del(el);
+				el.remove();
 				return value;
 			});
 		}
@@ -647,7 +647,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
-					#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,
+					#down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,
 					.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow
 					{ display: none !important; }
@@ -715,9 +715,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		deleteTruncMsg(post, el) {
-			$del(el.previousSibling);
+			el.previousSibling.remove();
 			$show(el.previousSibling);
-			$del(el);
+			el.remove();
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
@@ -777,7 +777,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(inpEl.checked) {
 					inpEl.click();
 				}
-				$del(el);
+				el.remove();
 			});
 			let el = $q('.anoniconsselectlist');
 			if(el) {

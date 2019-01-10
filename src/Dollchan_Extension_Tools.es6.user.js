@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'ea8ab7a';
+const commit = '4a87d68';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -628,7 +628,7 @@ const Lng = {
 			'Внизу',
 			'At bottom',
 			'Знизу'],
-		userPassw: [
+		passwValue: [
 			'Постоянный пароль',
 			'Fixed password',
 			'Постійний пароль'],
@@ -1725,7 +1725,7 @@ function $script(text) {
 	const el = doc.createElement('script');
 	el.type = 'text/javascript';
 	el.textContent = text;
-	$del(doc.head.appendChild(el));
+	doc.head.appendChild(el).remove();
 }
 
 function $css(text) {
@@ -1812,12 +1812,6 @@ function toRegExp(str, noG) {
 	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
 
-function escapeHTML(html) {
-	const el = doc.createElement('div');
-	el.appendChild($txt(html));
-	return el.innerHTML;
-}
-
 function toggleAttr(el, name, value, isAdd) {
 	if(isAdd) {
 		el.setAttribute(name, value);
@@ -1839,7 +1833,7 @@ function $isEmpty(obj) {
 	return true;
 }
 
-function $txtInsert(el, txt) {
+function insertText(el, txt) {
 	const scrtop = el.scrollTop;
 	const start = el.selectionStart;
 	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
@@ -2349,7 +2343,7 @@ function downloadBlob(blob, name) {
 	link.click();
 	setTimeout(() => {
 		deWindow.URL.revokeObjectURL(url);
-		$del(link);
+		link.remove();
 	}, 2e5);
 }
 
@@ -3010,7 +3004,7 @@ const Panel = Object.create({
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
-		$del($id('de-main'));
+		$id('de-main').remove();
 	},
 	handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
@@ -4401,7 +4395,7 @@ const CfgWindow = {
 			case 'postBtnsCSS':
 				updateCSS();
 				if(nav.isPresto) {
-					$del($q('.de-svg-icons'));
+					$q('.de-svg-icons').remove();
 					addSVGIcons();
 				}
 				break;
@@ -4933,9 +4927,13 @@ const CfgWindow = {
 		<span class="de-info-name">${ val[0] }</span>
 		<span>${ val[1] + (needMs ? 'ms' : '') }</span></div>`).join(''),
 	// Creates a text input for text option values
-	_getInp: (id, addText = true, size = 2) => `<label class="de-cfg-label">
+	_getInp(id, addText = true, size = 2) {
+		const el = doc.createElement('div');
+		el.appendChild($txt(Cfg[id])); // Escape HTML
+		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
-		escapeHTML(Cfg[id]) }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`,
+		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
+	},
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
@@ -5167,7 +5165,7 @@ class Menu {
 		this._el.removeEventListener('mouseout', this, true);
 		this.parentEl.removeEventListener('mouseout', this);
 		this._el.removeEventListener('click', this);
-		$del(this._el);
+		this._el.remove();
 		this._el = null;
 	}
 }
@@ -5180,7 +5178,7 @@ function addMenu(el) {
 			fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(','))
 		}</div><div style="display: inline-block;">${
 			fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')) }</div>`,
-		({ textContent: s }) => $txtInsert($id('de-spell-txt'), s +
+		({ textContent: s }) => insertText($id('de-spell-txt'), s +
 			(!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : `[${ aib.b },${ aib.t }]`) +
 			(Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : '')));
 	case 'de-panel-refresh':
@@ -5861,7 +5859,7 @@ const ContentLoader = {
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
 			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-			$del($id('de-popup-load-files'));
+			closePopup('load-files');
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els.forEach(el => {
@@ -5898,7 +5896,7 @@ const ContentLoader = {
 				}
 				let url = el.tagName === 'LINK' ? el.href : el.src;
 				if(!urlRegex.test(url)) {
-					$del(el);
+					el.remove();
 					return;
 				}
 				let fName = url.substring(url.lastIndexOf('/') + 1)
@@ -6920,7 +6918,7 @@ const Pages = {
 				} while(needThreads && thr);
 				DelForm.last = firstForm;
 				firstForm.next = firstForm.lastThr.next = null;
-				$del(newForm.el);
+				newForm.el.remove();
 				this._endAdding();
 				if(needThreads) {
 					this.addPage(needThreads, pageNum + 1);
@@ -6959,7 +6957,7 @@ const Pages = {
 			if(form === DelForm.last) {
 				break;
 			}
-			$del(form.el);
+			form.el.remove();
 		}
 		DelForm.first = DelForm.last;
 		for(let i = aib.page, len = Math.min(aib.lastPage + 1, aib.page + count); i < len; ++i) {
@@ -6972,7 +6970,7 @@ const Pages = {
 		const { first } = DelForm;
 		if(first !== DelForm.last) {
 			DelForm.first = first.next;
-			$del(first.el);
+			first.el.remove();
 			await this._updateForms(DelForm.first);
 			closePopup('load-pages');
 		}
@@ -6995,7 +6993,7 @@ const Pages = {
 		return form;
 	},
 	_endAdding() {
-		$del($q('.de-addpage-wait'));
+		$q('.de-addpage-wait').remove();
 		this._isAdding = false;
 		this._addingPromise = null;
 	},
@@ -8538,7 +8536,7 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			$txtInsert(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
+			insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
 				.replace(/\n/gm, '\n' + quote));
 			quotetxt = '';
 		} else {
@@ -8634,7 +8632,7 @@ class PostForm {
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
 		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
-		$txtInsert(this.txta, link + quote);
+		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;
@@ -9542,7 +9540,7 @@ class FileInput {
 			if(this._mediaEl) {
 				deWindow.URL.revokeObjectURL(this._mediaEl.src);
 				this._mediaEl.parentNode.title = Lng.youCanDrag[lang];
-				$del(this._mediaEl);
+				this._mediaEl.remove();
 				this._mediaEl = null;
 			}
 		}
@@ -9744,7 +9742,7 @@ class FileInput {
 		el.src = deWindow.URL.createObjectURL(new Blob([fileData]));
 		if((el = el.nextSibling)) {
 			deWindow.URL.revokeObjectURL(el.src);
-			$del(el);
+			el.remove();
 		}
 	}
 	_addRarJpeg() {
@@ -9888,7 +9886,7 @@ class FileInput {
 		newEl.addEventListener('change', this);
 		newEl.obj = this;
 		this._input = newEl;
-		$del(oldEl);
+		oldEl.remove();
 	}
 	_showFileThumb() {
 		const { imgFile } = this;
@@ -9975,7 +9973,7 @@ class Captcha {
 				}
 				chr = ruUa[i];
 			}
-			$txtInsert(e.target, chr);
+			insertText(e.target, chr);
 			break;
 		}
 		case 'focus': this.updateOutdated();
@@ -10114,7 +10112,7 @@ class Captcha {
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
 		doc.head.appendChild(script);
-		setTimeout(() => $del(script), 1e5);
+		setTimeout(() => script.remove(), 1e5);
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
@@ -10230,7 +10228,7 @@ class AbstractPost {
 						} else if(aib.t) {
 							const formText = pr.txta.value;
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
+							insertText(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
@@ -10483,7 +10481,7 @@ class AbstractPost {
 			}
 			if(sourceEl) {
 				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
-				$del(truncEl);
+				truncEl.remove();
 			}
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
@@ -10695,7 +10693,7 @@ class Post extends AbstractPost {
 	}
 	deletePost(isRemovePost) {
 		if(isRemovePost) {
-			$del(this.wrap);
+			this.wrap.remove();
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
 			if(this.isHidden) {
@@ -11657,7 +11655,7 @@ class ImagesNavigBtns {
 		this._oldX = this._oldY = -1;
 	}
 	removeBtns() {
-		$del(this._btns);
+		this._btns.remove();
 		doc.defaultView.removeEventListener('mousemove', this);
 		clearTimeout(this._hideTmt);
 	}
@@ -11844,7 +11842,7 @@ class ImagesViewer {
 		if(data.inPview && data.post.isSticky) {
 			data.post.toggleSticky(false);
 		}
-		$del(this._parentEl);
+		this._parentEl.remove();
 		if(e && data.inPview) {
 			data.sendCloseEvent(e, false);
 		}
@@ -12020,10 +12018,10 @@ class ExpandableImage {
 		}
 		this.cancelWebmLoad(this._fullEl);
 		this.expanded = false;
-		$del(this._fullEl);
+		this._fullEl.remove();
 		this._fullEl = null;
 		$show(this.el.parentNode);
-		$del((aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling);
+		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 		if(e) {
 			$pd(e);
 			if(this.inPview) {
@@ -13272,13 +13270,13 @@ class RefMap {
 			const el = this.getElByNum(num);
 			if(el) {
 				$del(el.nextSibling);
-				$del(el);
+				el.remove();
 			}
 		}
 	}
 	removeMap() {
 		this._set = new Set();
-		$del(this._el);
+		this._el.remove();
 		delete this._el;
 		this.hasMap = false;
 	}
@@ -14247,7 +14245,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._hasIcons = true;
 		},
 		_setIcon(iconUrl) {
-			$del(this._iconEl);
+			this._iconEl.remove();
 			this._iconEl = $aBegin(doc.head, `<link rel="shortcut icon" href="${ iconUrl }">`);
 		}
 	};
@@ -14620,10 +14618,10 @@ class DelForm {
 			const thrNext = threads[i + 1];
 			let elNext = el.nextSibling;
 			while(elNext && elNext !== thrNext) {
-				$del(elNext);
+				elNext.remove();
 				elNext = el.nextSibling;
 			}
-			$del(el);
+			el.remove();
 			console.log('Repeated thread: ' + num);
 		}
 		if(this.firstThr === null) {
@@ -15190,12 +15188,12 @@ class BaseBoard {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
 	getOp(thr) { // Arhivach
-		let op = localData ? $q('div[de-oppost]', thr) : $q(this.qOPost, thr);
+		let op = localData ? $q('.de-oppost', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
 		}
 		op = thr.ownerDocument.createElement('div');
-		op.setAttribute('de-oppost', '');
+		op.classList.add('de-oppost');
 		let el;
 		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
@@ -15417,7 +15415,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(hr && hr.tagName === 'HR') {
 					$after(brEl.parentNode, hr);
 				}
-				$del(brEl);
+				brEl.remove();
 			});
 			return formEl;
 		}
@@ -15425,7 +15423,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), el => {
 				const value = [isPost ? data : this.getPostOfEl(el), el.id === 'ytplayer' ?
 					el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
-				$del(el);
+				el.remove();
 				return value;
 			});
 		}
@@ -15921,7 +15919,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
-					#down-nav-arrow, .media-expand-button, #media-thumbnail, .newpost,
+					#down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,
 					.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow
 					{ display: none !important; }
@@ -15989,9 +15987,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		deleteTruncMsg(post, el) {
-			$del(el.previousSibling);
+			el.previousSibling.remove();
 			$show(el.previousSibling);
-			$del(el);
+			el.remove();
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
@@ -16051,7 +16049,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				if(inpEl.checked) {
 					inpEl.click();
 				}
-				$del(el);
+				el.remove();
 			});
 			let el = $q('.anoniconsselectlist');
 			if(el) {

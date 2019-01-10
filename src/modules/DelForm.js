@@ -33,10 +33,10 @@ class DelForm {
 			const thrNext = threads[i + 1];
 			let elNext = el.nextSibling;
 			while(elNext && elNext !== thrNext) {
-				$del(elNext);
+				elNext.remove();
 				elNext = el.nextSibling;
 			}
-			$del(el);
+			el.remove();
 			console.log('Repeated thread: ' + num);
 		}
 		if(this.firstThr === null) {

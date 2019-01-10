@@ -65,7 +65,7 @@ const ContentLoader = {
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
 			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
-			$del($id('de-popup-load-files'));
+			closePopup('load-files');
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els.forEach(el => {
@@ -102,7 +102,7 @@ const ContentLoader = {
 				}
 				let url = el.tagName === 'LINK' ? el.href : el.src;
 				if(!urlRegex.test(url)) {
-					$del(el);
+					el.remove();
 					return;
 				}
 				let fName = url.substring(url.lastIndexOf('/') + 1)

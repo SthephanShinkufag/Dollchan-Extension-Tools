@@ -60,7 +60,7 @@ const Panel = Object.create({
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
-		$del($id('de-main'));
+		$id('de-main').remove();
 	},
 	handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {

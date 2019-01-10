@@ -54,7 +54,7 @@ class Captcha {
 				}
 				chr = ruUa[i];
 			}
-			$txtInsert(e.target, chr);
+			insertText(e.target, chr);
 			break;
 		}
 		case 'focus': this.updateOutdated();
@@ -193,7 +193,7 @@ class Captcha {
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
 		doc.head.appendChild(script);
-		setTimeout(() => $del(script), 1e5);
+		setTimeout(() => script.remove(), 1e5);
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {

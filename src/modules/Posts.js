@@ -102,7 +102,7 @@ class AbstractPost {
 						} else if(aib.t) {
 							const formText = pr.txta.value;
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-							$txtInsert(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
+							insertText(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
@@ -355,7 +355,7 @@ class AbstractPost {
 			}
 			if(sourceEl) {
 				this.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
-				$del(truncEl);
+				truncEl.remove();
 			}
 			if(maybeSpells.hasValue) {
 				maybeSpells.value.endSpells();
@@ -567,7 +567,7 @@ class Post extends AbstractPost {
 	}
 	deletePost(isRemovePost) {
 		if(isRemovePost) {
-			$del(this.wrap);
+			this.wrap.remove();
 			pByEl.delete(this.el);
 			pByNum.delete(this.num);
 			if(this.isHidden) {

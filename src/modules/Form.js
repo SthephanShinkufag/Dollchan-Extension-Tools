@@ -208,7 +208,7 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			$txtInsert(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
+			insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
 				.replace(/\n/gm, '\n' + quote));
 			quotetxt = '';
 		} else {
@@ -304,7 +304,7 @@ class PostForm {
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
 		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
-		$txtInsert(this.txta, link + quote);
+		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();
 		$q('.de-win-title', this.qArea).textContent =
 			(winTitle.length < 28 ? winTitle : `${ winTitle.substr(0, 30) }\u2026`) || `#${ pNum }`;

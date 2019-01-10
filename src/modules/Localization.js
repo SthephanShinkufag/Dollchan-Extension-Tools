@@ -455,7 +455,7 @@ const Lng = {
 			'Внизу',
 			'At bottom',
 			'Знизу'],
-		userPassw: [
+		passwValue: [
 			'Постоянный пароль',
 			'Fixed password',
 			'Постійний пароль'],
