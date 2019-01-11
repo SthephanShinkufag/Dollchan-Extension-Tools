@@ -237,6 +237,9 @@ class AbstractPost {
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+		case 'de-btn-report':
+			this.btns.title = this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang];
+			return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
 		case 'de-btn-src':

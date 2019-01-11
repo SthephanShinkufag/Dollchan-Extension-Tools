@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '353e2e9';
+const commit = 'aef6f40';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -823,6 +823,14 @@ const Lng = {
 		'Ответить в тред',
 		'Reply to thread',
 		'Відповісти в тред'],
+	reportPost: [
+		'Жалоба на пост',
+		'Report post',
+		'Скарга на пост'],
+	reportThr: [
+		'Жалоба на тред',
+		'Report thread',
+		'Скарга на тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',
@@ -1551,7 +1559,6 @@ const Lng = {
 	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
 	deleted   : ['удалён', 'deleted', 'видалено'],
 	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
-	report    : ['Жалоба', 'Report', 'Скарга'],
 
 	// Miscellaneous
 	hidePosts: [
@@ -10366,6 +10373,9 @@ class AbstractPost {
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+		case 'de-btn-report':
+			this.btns.title = this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang];
+			return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
 		case 'de-btn-src':
@@ -13377,7 +13387,11 @@ class Thread {
 			'</div>');
 		this.btns.addEventListener('click', this);
 		this.btns.addEventListener('mouseover', this);
-		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		if(aib.hasReportBtn) {
+			[this.btnHide,,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		} else {
+			[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		}
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
 				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -13458,6 +13472,7 @@ class Thread {
 				this.op.setUserVisib(!this.isHidden);
 				break;
 			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-report': aib.callReportForm(this.num, this.num); break;
 			case 'de-btn-replies':
 			case 'de-replies-show':
 			case 'de-replies-hide':
@@ -13487,6 +13502,7 @@ class Thread {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.btns.title = Lng.toggleThr[lang]; return;
+			case 'de-btn-report': this.btns.title = Lng.reportThr[lang]; return;
 			case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 			case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 			default: this.btns.removeAttribute('title');
@@ -15963,8 +15979,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		callReportForm(pNum, tNum) {
 			$q('input[type="button"]', $popup('edit-report', `<input name="comment" value="" placeholder="${
-				Lng.report[lang] }" type="text"> <input value="OK" type="button">`)
-			).onclick = e => {
+				pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
+			}" type="text"> <input value="OK" type="button">`)).onclick = e => {
 				const inpEl = e.target.previousElementSibling;
 				if(!inpEl.value) {
 					inpEl.classList.add('de-input-error');

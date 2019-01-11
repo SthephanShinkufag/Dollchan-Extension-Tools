@@ -40,7 +40,11 @@ class Thread {
 			'</div>');
 		this.btns.addEventListener('click', this);
 		this.btns.addEventListener('mouseover', this);
-		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		if(aib.hasReportBtn) {
+			[this.btnHide,,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		} else {
+			[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
+		}
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
 				' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -121,6 +125,7 @@ class Thread {
 				this.op.setUserVisib(!this.isHidden);
 				break;
 			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-report': aib.callReportForm(this.num, this.num); break;
 			case 'de-btn-replies':
 			case 'de-replies-show':
 			case 'de-replies-hide':
@@ -150,6 +155,7 @@ class Thread {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.btns.title = Lng.toggleThr[lang]; return;
+			case 'de-btn-report': this.btns.title = Lng.reportThr[lang]; return;
 			case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 			case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 			default: this.btns.removeAttribute('title');

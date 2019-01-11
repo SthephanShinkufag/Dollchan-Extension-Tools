@@ -650,6 +650,14 @@ const Lng = {
 		'Ответить в тред',
 		'Reply to thread',
 		'Відповісти в тред'],
+	reportPost: [
+		'Жалоба на пост',
+		'Report post',
+		'Скарга на пост'],
+	reportThr: [
+		'Жалоба на тред',
+		'Report thread',
+		'Скарга на тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',
@@ -1378,7 +1386,6 @@ const Lng = {
 	deleting  : ['Удаление…', 'Deleting…', 'Видалення…'],
 	deleted   : ['удалён', 'deleted', 'видалено'],
 	hide      : ['Скрыть: ', 'Hide: ', 'Сховати: '],
-	report    : ['Жалоба', 'Report', 'Скарга'],
 
 	// Miscellaneous
 	hidePosts: [

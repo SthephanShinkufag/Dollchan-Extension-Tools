@@ -3640,8 +3640,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref82 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref83, _ref84, favObj, storageName, firstThr;
+		var _ref83 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref84, _ref85, favObj, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee24$(_context31) {
 				while (1) {
@@ -3698,9 +3698,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 16:
-							_ref83 = _context31.sent;
-							_ref84 = _slicedToArray(_ref83, 1);
-							favObj = _ref84[0];
+							_ref84 = _context31.sent;
+							_ref85 = _slicedToArray(_ref84, 1);
+							favObj = _ref85[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context31.next = 21;
@@ -3831,14 +3831,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x88, _x89) {
-			return _ref82.apply(this, arguments);
+			return _ref83.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '353e2e9';
+	var commit = 'aef6f40';
 
 
 	var defaultCfg = {
@@ -4180,6 +4180,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		toggleThr: ['Скрыть/Раскрыть тред', 'Hide/Unhide thread', 'Сховати/показати тред'],
 		replyToPost: ['Ответить на пост', 'Reply to post', 'Відповісти на пост'],
 		replyToThr: ['Ответить в тред', 'Reply to thread', 'Відповісти в тред'],
+		reportPost: ['Жалоба на пост', 'Report post', 'Скарга на пост'],
+		reportThr: ['Жалоба на тред', 'Report thread', 'Скарга на тред'],
 		expandThr: ['Развернуть тред', 'Expand thread', 'Розгорнути тред'],
 		addFav: ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати тред в Вибране'],
 		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites', 'Прибрати тред з Вибраного'],
@@ -4390,7 +4392,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		deleting: ['Удаление…', 'Deleting…', 'Видалення…'],
 		deleted: ['удалён', 'deleted', 'видалено'],
 		hide: ['Скрыть: ', 'Hide: ', 'Сховати: '],
-		report: ['Жалоба', 'Report', 'Скарга'],
 
 		hidePosts: ['Скрыть посты', 'Hide posts', 'Сховати пости'],
 		showPosts: ['Показать посты', 'Show posts', 'Показати пости'],
@@ -14554,6 +14555,9 @@ true, true];
 						this.btns.title = Lng.addFav[lang];return;
 					case 'de-btn-fav-sel':
 						this.btns.title = Lng.delFav[lang];return;
+					case 'de-btn-report':
+						this.btns.title = this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang];
+						return;
 					case 'de-btn-sage':
 						this.btns.title = 'SAGE';return;
 					case 'de-btn-stick':
@@ -18456,13 +18460,19 @@ true, true];
 			this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
+			if (aib.hasReportBtn) {
+				var _ref68 = [].concat(_toConsumableArray(this.btns.children));
 
-			var _ref68 = [].concat(_toConsumableArray(this.btns.children));
+				this.btnHide = _ref68[0];
+				this.btnFav = _ref68[3];
+				this.btnUpd = _ref68[4];
+			} else {
+				var _ref69 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref68[0];
-			this.btnFav = _ref68[2];
-			this.btnUpd = _ref68[3];
-
+				this.btnHide = _ref69[0];
+				this.btnFav = _ref69[2];
+				this.btnUpd = _ref69[3];
+			}
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
 				this._toggleReplies();
@@ -18513,6 +18523,8 @@ true, true];
 							break;
 						case 'de-btn-reply':
 							pr.showQuickReply(this.last, this.num, false, false, true);break;
+						case 'de-btn-report':
+							aib.callReportForm(this.num, this.num);break;
 						case 'de-btn-replies':
 						case 'de-replies-show':
 						case 'de-replies-hide':
@@ -18544,6 +18556,8 @@ true, true];
 						case 'de-btn-unhide':
 						case 'de-btn-unhide-user':
 							this.btns.title = Lng.toggleThr[lang];return;
+						case 'de-btn-report':
+							this.btns.title = Lng.reportThr[lang];return;
 						case 'de-btn-fav':
 							this.btns.title = Lng.addFav[lang];return;
 						case 'de-btn-fav-sel':
@@ -18683,13 +18697,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref69 = _step35.value;
+						var _ref70 = _step35.value;
 
-						var _ref70 = _slicedToArray(_ref69, 3);
+						var _ref71 = _slicedToArray(_ref70, 3);
 
-						var banId = _ref70[0];
-						var bNum = _ref70[1];
-						var bEl = _ref70[2];
+						var banId = _ref71[0];
+						var bNum = _ref71[1];
+						var bEl = _ref71[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -19635,9 +19649,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref71) {
-								var newCount = _ref71.newCount,
-								    locked = _ref71.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref72) {
+								var newCount = _ref72.newCount,
+								    locked = _ref72.locked;
 								return _this78._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
 								return _this78._handleNewPosts(0, err);
@@ -20724,7 +20738,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
+					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
 						var _this81 = this;
 
 						var pageInp, query, errFn;
@@ -20805,7 +20819,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x79, _x80) {
-						return _ref72.apply(this, arguments);
+						return _ref73.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20847,9 +20861,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref73) {
-					var error = _ref73.error,
-					    id = _ref73.id;
+				value: function getSubmitData(_ref74) {
+					var error = _ref74.error,
+					    id = _ref74.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -21104,9 +21118,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref74) {
-					var status = _ref74.status,
-					    data = _ref74.data;
+				value: function getSubmitData(_ref75) {
+					var status = _ref75.status,
+					    data = _ref75.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21140,7 +21154,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
+					var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
 						var _this86 = this;
 
 						var getBase64, getCookies, dataObj, files, _i63, _len14, file, cookieObj, ajaxParams;
@@ -21150,7 +21164,7 @@ true, true];
 								switch (_context30.prev = _context30.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
+											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
 												return regeneratorRuntime.wrap(function _callee21$(_context28) {
 													while (1) {
 														switch (_context28.prev = _context28.next) {
@@ -21175,7 +21189,7 @@ true, true];
 											}));
 
 											return function getBase64(_x85) {
-												return _ref76.apply(this, arguments);
+												return _ref77.apply(this, arguments);
 											};
 										}();
 
@@ -21193,7 +21207,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
+											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
 												return regeneratorRuntime.wrap(function _callee22$(_context29) {
 													while (1) {
 														switch (_context29.prev = _context29.next) {
@@ -21213,7 +21227,7 @@ true, true];
 											}));
 
 											return function (_x86, _x87) {
-												return _ref77.apply(this, arguments);
+												return _ref78.apply(this, arguments);
 											};
 										}());
 										_i63 = 0, _len14 = files.length;
@@ -21286,7 +21300,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x81, _x82, _x83, _x84) {
-						return _ref75.apply(this, arguments);
+						return _ref76.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -21610,7 +21624,7 @@ true, true];
 				value: function callReportForm(pNum, tNum) {
 					var _this91 = this;
 
-					$q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + Lng.report[lang] + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
+					$q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
 						var inpEl = e.target.previousElementSibling;
 						if (!inpEl.value) {
 							inpEl.classList.add('de-input-error');
@@ -21736,9 +21750,9 @@ true, true];
 					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref78 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref78[0],
-						    inp = _ref78[1];
+						var _ref79 = [].concat(_toConsumableArray(box.children)),
+						    _img2 = _ref79[0],
+						    inp = _ref79[1];
 
 						_img2.onclick = function () {
 							return _this92.updateCaptcha(cap);
@@ -23159,9 +23173,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref79) {
-					var error = _ref79.error,
-					    id = _ref79.id;
+				value: function getSubmitData(_ref80) {
+					var error = _ref80.error,
+					    id = _ref80.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23402,8 +23416,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref80) {
-			var arg = _ref80.data;
+		_handleMessage: function _handleMessage(_ref81) {
+			var arg = _ref81.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23466,8 +23480,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref81) {
-			var responseText = _ref81.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref82) {
+			var responseText = _ref82.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;

@@ -689,8 +689,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		callReportForm(pNum, tNum) {
 			$q('input[type="button"]', $popup('edit-report', `<input name="comment" value="" placeholder="${
-				Lng.report[lang] }" type="text"> <input value="OK" type="button">`)
-			).onclick = e => {
+				pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
+			}" type="text"> <input value="OK" type="button">`)).onclick = e => {
 				const inpEl = e.target.previousElementSibling;
 				if(!inpEl.value) {
 					inpEl.classList.add('de-input-error');
