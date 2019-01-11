@@ -1344,6 +1344,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.cf'] = Arhivach;
+	ibDomains['arhivach.gq'] = Arhivach;
 	ibDomains['arhivach.tk'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
