@@ -374,7 +374,7 @@ const CfgWindow = {
 						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
-					$each($Q('.de-btn-src'), $del);
+					$delAll('.de-btn-src');
 				}
 				break;
 			case 'addSageBtn':
@@ -817,7 +817,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		$delAll('#de-css, #de-css-dynamic, #de-css-user', doc.head);
 		scriptCSS();
 	},
 	_updateDependant() {

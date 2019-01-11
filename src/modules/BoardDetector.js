@@ -113,7 +113,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
-				$each($Q(query, form), $del);
+				$delAll(query, form);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
@@ -131,7 +131,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
-				$each($Q(query, form), $del);
+				$delAll(query, form);
 				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
@@ -584,7 +584,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
 			const dFormEl = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', dFormEl), $del);
+			$delAll('input[type="hidden"]', dFormEl);
 			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
@@ -1381,7 +1381,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = `><input type="file" name="imagefile[]">${ $q('#spoiler') ?
 				'<input type="checkbox" name="spoiler" style="display: none;">' : '' }</div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+			$delAll('.file2, .file3, .fileurl1, .fileurl2, .fileurl3');
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;

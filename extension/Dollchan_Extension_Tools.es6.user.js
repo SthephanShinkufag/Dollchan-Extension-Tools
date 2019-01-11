@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '4a87d68';
+const commit = '353e2e9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1700,6 +1700,10 @@ function $del(el) {
 	if(el) {
 		el.remove();
 	}
+}
+
+function $delAll(path, root = docBody) {
+	$each(root.querySelectorAll(path, root), el => el.remove());
 }
 
 function $add(html) {
@@ -4511,7 +4515,7 @@ const CfgWindow = {
 						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
 					}
 				} else {
-					$each($Q('.de-btn-src'), $del);
+					$delAll('.de-btn-src');
 				}
 				break;
 			case 'addSageBtn':
@@ -4954,7 +4958,7 @@ const CfgWindow = {
 		}
 	},
 	_updateCSS() {
-		$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+		$delAll('#de-css, #de-css-dynamic, #de-css-user', doc.head);
 		scriptCSS();
 	},
 	_updateDependant() {
@@ -5848,7 +5852,7 @@ const ContentLoader = {
 				const dcBody = $q('body', dc);
 				dcBody.classList.remove('de-runned');
 				dcBody.classList.add('de-mode-local');
-				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
 					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
@@ -5871,9 +5875,8 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
-				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
-				aib.qForm, dc), $del);
+			$delAll('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
+				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
 			$each($Q('a', dc), el => {
 				let num;
 				const tc = el.textContent;
@@ -11282,7 +11285,7 @@ class Pview extends AbstractPost {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
 			this._newPos = null;
-			$each($Q('.de-css-move', doc.head), $del);
+			$delAll('.de-css-move', doc.head);
 			pv.removeEventListener('animationend', this);
 			return;
 		}
@@ -11391,8 +11394,7 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv),
-				$del);
+			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv);
 			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
 			const link = $q('.de-link-parent', pv);
 			if(link) {
@@ -14602,7 +14604,7 @@ class DelForm {
 		}
 		formEl.setAttribute('de-form', '');
 		formEl.removeAttribute('id');
-		$each($Q('script', this.el), $del);
+		$delAll('script', this.el);
 		const threads = DelForm.getThreads(this.el);
 		for(let i = 0, len = threads.length; i < len; ++i) {
 			const num = aib.getTNum(threads[i]);
@@ -15385,7 +15387,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
-				$each($Q(query, form), $del);
+				$delAll(query, form);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
 				return;
@@ -15403,7 +15405,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					return;
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
-				$each($Q(query, form), $del);
+				$delAll(query, form);
 				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
@@ -15856,7 +15858,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
 			const dFormEl = $q(this.qDForm);
-			$each($Q('input[type="hidden"]', dFormEl), $del);
+			$delAll('input[type="hidden"]', dFormEl);
 			dFormEl.appendChild($q('.userdelete'));
 			return false;
 		}
@@ -16653,7 +16655,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const str = `><input type="file" name="imagefile[]">${ $q('#spoiler') ?
 				'<input type="checkbox" name="spoiler" style="display: none;">' : '' }</div>`;
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+			$delAll('.file2, .file3, .fileurl1, .fileurl2, .fileurl3');
 		}
 	}
 	ibDomains['diochan.com'] = Diochan;

@@ -74,6 +74,10 @@ function $del(el) {
 	}
 }
 
+function $delAll(path, root = docBody) {
+	$each(root.querySelectorAll(path, root), el => el.remove());
+}
+
 function $add(html) {
 	dummy.innerHTML = html;
 	return dummy.firstElementChild;

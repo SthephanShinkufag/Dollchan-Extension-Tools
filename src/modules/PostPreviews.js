@@ -173,7 +173,7 @@ class Pview extends AbstractPost {
 			pv.classList.remove('de-pview-anim');
 			pv.style.cssText = this._newPos;
 			this._newPos = null;
-			$each($Q('.de-css-move', doc.head), $del);
+			$delAll('.de-css-move', doc.head);
 			pv.removeEventListener('animationend', this);
 			return;
 		}
@@ -282,8 +282,7 @@ class Pview extends AbstractPost {
 				post.userToggled ? '-user' : '' } de-btn-pview-hide" de-num="${ num }"><!--
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
-			$each($Q(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv),
-				$del);
+			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv);
 			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
 			const link = $q('.de-link-parent', pv);
 			if(link) {

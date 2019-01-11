@@ -54,7 +54,7 @@ const ContentLoader = {
 				const dcBody = $q('body', dc);
 				dcBody.classList.remove('de-runned');
 				dcBody.classList.add('de-mode-local');
-				$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+				$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
 					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
@@ -77,9 +77,8 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
-				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' +
-				aib.qForm, dc), $del);
+			$delAll('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
+				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
 			$each($Q('a', dc), el => {
 				let num;
 				const tc = el.textContent;

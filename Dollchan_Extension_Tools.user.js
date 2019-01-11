@@ -3158,7 +3158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee, this);
 		}));
 
-		return function readFile(_x7) {
+		return function readFile(_x8) {
 			return _ref.apply(this, arguments);
 		};
 	}();
@@ -3234,7 +3234,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee2, this);
 		}));
 
-		return function getStored(_x8) {
+		return function getStored(_x9) {
 			return _ref2.apply(this, arguments);
 		};
 	}();
@@ -3283,7 +3283,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee3, this);
 		}));
 
-		return function getStoredObj(_x9) {
+		return function getStoredObj(_x10) {
 			return _ref3.apply(this, arguments);
 		};
 	}();
@@ -3475,7 +3475,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee16, this);
 		}));
 
-		return function checkDelete(_x45) {
+		return function checkDelete(_x46) {
 			return _ref42.apply(this, arguments);
 		};
 	}();
@@ -3634,7 +3634,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee17, this, [[5, 41, 45, 53], [46,, 48, 52]]);
 		}));
 
-		return function html5Submit(_x47, _x48) {
+		return function html5Submit(_x48, _x49) {
 			return _ref45.apply(this, arguments);
 		};
 	}();
@@ -3830,7 +3830,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee24, this, [[43, 48]]);
 		}));
 
-		return function runMain(_x87, _x88) {
+		return function runMain(_x88, _x89) {
 			return _ref82.apply(this, arguments);
 		};
 	}();
@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '4a87d68';
+	var commit = '353e2e9';
 
 
 	var defaultCfg = {
@@ -4513,6 +4513,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (el) {
 			el.remove();
 		}
+	}
+
+	function $delAll(path) {
+		var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : docBody;
+
+		$each(root.querySelectorAll(path, root), function (el) {
+			return el.remove();
+		});
 	}
 
 	function $add(html) {
@@ -6524,7 +6532,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee5, _this12);
 			}));
 
-			return function (_x12) {
+			return function (_x13) {
 				return _ref7.apply(this, arguments);
 			};
 		}()));
@@ -7363,7 +7371,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}, _callee9, _this14);
 					}));
 
-					return function (_x13) {
+					return function (_x14) {
 						return _ref16.apply(this, arguments);
 					};
 				}(), true);
@@ -7624,7 +7632,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								}
 							}
 						} else {
-							$each($Q('.de-btn-src'), $del);
+							$delAll('.de-btn-src');
 						}
 						break;
 					case 'addSageBtn':
@@ -7924,7 +7932,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		},
 		_updateCSS: function _updateCSS() {
-			$each($Q('#de-css, #de-css-dynamic, #de-css-user', doc.head), $del);
+			$delAll('#de-css, #de-css-dynamic, #de-css-user', doc.head);
 			scriptCSS();
 		},
 		_updateDependant: function _updateDependant() {
@@ -8869,7 +8877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var dcBody = $q('body', dc);
 					dcBody.classList.remove('de-runned');
 					dcBody.classList.add('de-mode-local');
-					$each($Q('#de-css, #de-css-dynamic, #de-css-user', dc), $del);
+					$delAll('#de-css, #de-css-dynamic, #de-css-user', dc);
 					tar.addString('data/dollscript.js', '' + (nav.isESNext ? '(' + String(deMainFuncInner) + ')(window, null, null, (x, y) => window.scrollTo(x, y), ' : '(' + String( deMainFuncOuter) + ')(') + JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) + ');');
 					var dt = doc.doctype;
 					tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML);
@@ -8886,7 +8894,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 			});
 			if (!imgOnly) {
-				$each($Q('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' + '.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc), $del);
+				$delAll('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' + '.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
 				$each($Q('a', dc), function (el) {
 					var num = void 0;
 					var tc = el.textContent;
@@ -9784,7 +9792,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}, _callee11, _this21);
 				}));
 
-				return function (_x29) {
+				return function (_x30) {
 					return _ref23.apply(this, arguments);
 				};
 			}()).catch(function (err) {
@@ -10159,7 +10167,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}, _callee12, _this23);
 				}));
 
-				return function (_x36) {
+				return function (_x37) {
 					return _ref26.apply(this, arguments);
 				};
 			}()).then(function () {
@@ -10321,7 +10329,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee13, this, [[13, 27, 31, 39], [32,, 34, 38], [42, 51]]);
 			}));
 
-			function loadPages(_x37) {
+			function loadPages(_x38) {
 				return _ref27.apply(this, arguments);
 			}
 
@@ -10380,7 +10388,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee14, this);
 			}));
 
-			function _updateForms(_x38) {
+			function _updateForms(_x39) {
 				return _ref28.apply(this, arguments);
 			}
 
@@ -11835,7 +11843,7 @@ true, true];
 					}, _callee15, this, [[3, 21, 25, 33], [26,, 28, 32]]);
 				}));
 
-				function _ihash(_x40) {
+				function _ihash(_x41) {
 					return _ref37.apply(this, arguments);
 				}
 
@@ -15631,7 +15639,7 @@ true, true];
 					pv.classList.remove('de-pview-anim');
 					pv.style.cssText = this._newPos;
 					this._newPos = null;
-					$each($Q('.de-css-move', doc.head), $del);
+					$delAll('.de-css-move', doc.head);
 					pv.removeEventListener('animationend', this);
 					return;
 				}
@@ -15792,7 +15800,7 @@ true, true];
 											btnsEl.classList.add('de-post-hide');
 										}
 										btnsEl.innerHTML = '<svg class="de-btn-' + (post.isHidden ? 'unhide' : 'hide') + (post.userToggled ? '-user' : '') + ' de-btn-pview-hide" de-num="' + num + '"><!--\n\t\t\t\t--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--\n\t\t\t\t--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + pText;
-										$each($Q((!aib.t && isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pv), $del);
+										$delAll((!aib.t && isOp ? aib.qOmitted + ', ' : '') + '.de-fullimg-wrap, .de-fullimg-after', pv);
 										$each($Q(aib.qPostImg, pv), function (el) {
 											return $show(el.parentNode);
 										});
@@ -15833,7 +15841,7 @@ true, true];
 					}, _callee18, this);
 				}));
 
-				function _buildPview(_x59) {
+				function _buildPview(_x60) {
 					return _ref53.apply(this, arguments);
 				}
 
@@ -17366,7 +17374,7 @@ true, true];
 				}, _callee19, this);
 			}));
 
-			function _getHashHelper(_x61) {
+			function _getHashHelper(_x62) {
 				return _ref63.apply(this, arguments);
 			}
 
@@ -19816,7 +19824,7 @@ true, true];
 			}
 			formEl.setAttribute('de-form', '');
 			formEl.removeAttribute('id');
-			$each($Q('script', this.el), $del);
+			$delAll('script', this.el);
 			var threads = DelForm.getThreads(this.el);
 			for (var _i59 = 0, _len9 = threads.length; _i59 < _len9; ++_i59) {
 				var num = aib.getTNum(threads[_i59]);
@@ -20761,7 +20769,7 @@ true, true];
 										}
 
 										pr.subm.value = this._origInputs[1];
-										$each($Q(query, form), $del);
+										$delAll(query, form);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
 										return _context27.abrupt('return');
@@ -20781,7 +20789,7 @@ true, true];
 												return;
 											}
 											pr.subm.value = $q(_this81.qFormSubm, loadedDoc).value;
-											$each($Q(query, form), $del);
+											$delAll(query, form);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
 											});
@@ -20796,7 +20804,7 @@ true, true];
 						}, _callee20, this);
 					}));
 
-					function changeReplyMode(_x78, _x79) {
+					function changeReplyMode(_x79, _x80) {
 						return _ref72.apply(this, arguments);
 					}
 
@@ -21166,7 +21174,7 @@ true, true];
 												}, _callee21, _this86);
 											}));
 
-											return function getBase64(_x84) {
+											return function getBase64(_x85) {
 												return _ref76.apply(this, arguments);
 											};
 										}();
@@ -21204,7 +21212,7 @@ true, true];
 												}, _callee22, _this86);
 											}));
 
-											return function (_x85, _x86) {
+											return function (_x86, _x87) {
 												return _ref77.apply(this, arguments);
 											};
 										}());
@@ -21277,7 +21285,7 @@ true, true];
 						}, _callee23, this);
 					}));
 
-					function sendHTML5Post(_x80, _x81, _x82, _x83) {
+					function sendHTML5Post(_x81, _x82, _x83, _x84) {
 						return _ref75.apply(this, arguments);
 					}
 
@@ -21521,7 +21529,7 @@ true, true];
 						$replace(btnEl, '<input type="submit" value="Отправить">');
 					}
 					var dFormEl = $q(this.qDForm);
-					$each($Q('input[type="hidden"]', dFormEl), $del);
+					$delAll('input[type="hidden"]', dFormEl);
 					dFormEl.appendChild($q('.userdelete'));
 					return false;
 				}
@@ -22532,7 +22540,7 @@ true, true];
 				value: function fixFileInputs(el) {
 					var str = '><input type="file" name="imagefile[]">' + ($q('#spoiler') ? '<input type="checkbox" name="spoiler" style="display: none;">' : '') + '</div>';
 					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-					$each($Q('.file2, .file3, .fileurl1, .fileurl2, .fileurl3'), $del);
+					$delAll('.file2, .file3, .fileurl1, .fileurl2, .fileurl3');
 				}
 			}, {
 				key: 'qImgNameLink',
