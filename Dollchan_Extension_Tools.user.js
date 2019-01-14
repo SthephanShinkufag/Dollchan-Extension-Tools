@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'e127e3c';
+	var commit = '95e190b';
 
 
 	var defaultCfg = {
@@ -22167,7 +22167,7 @@ true, true];
 			_createClass(_4chan, [{
 				key: 'fixDeadLinks',
 				value: function fixDeadLinks(str) {
-					return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del" href="#p$1">&gt;&gt;$1</a>');
+					return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g, '<a class="de-ref-del deadlink" href="#p$1">&gt;&gt;$1</a>');
 				}
 			}, {
 				key: 'fixHTMLHelper',
