@@ -618,7 +618,7 @@ const CfgWindow = {
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
-			${ aib.jsonSubmit || aib._4chan ? this._getBox('markMyPosts') + '<br>' : '' }
+			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
 				${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getBox('showHideBtn') }
@@ -679,7 +679,7 @@ const CfgWindow = {
 				<div class="de-depend">${ this._getBox('removeHidd') }</div>
 				${ this._getBox('noNavigHidd') }
 			</div>
-			${ aib.jsonSubmit || aib._4chan ? this._getBox('markMyLinks') + '<br>' : '' }
+			${ this._getBox('markMyLinks') }<br>
 			${ this._getBox('crossLinks') }<br>
 			${ this._getBox('decodeLinks') }<br>
 			${ this._getBox('insertNum') }<br>

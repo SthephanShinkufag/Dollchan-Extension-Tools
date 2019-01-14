@@ -650,14 +650,6 @@ const Lng = {
 		'Ответить в тред',
 		'Reply to thread',
 		'Відповісти в тред'],
-	reportPost: [
-		'Жалоба на пост',
-		'Report post',
-		'Скарга на пост'],
-	reportThr: [
-		'Жалоба на тред',
-		'Report thread',
-		'Скарга на тред'],
 	expandThr: [
 		'Развернуть тред',
 		'Expand thread',
@@ -776,6 +768,24 @@ const Lng = {
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'],
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+	reportPost: [
+		'Жалоба на пост',
+		'Report post',
+		'Скарга на пост'],
+	reportThr: [
+		'Жалоба на тред',
+		'Report thread',
+		'Скарга на тред'],
+	markMyPost: [
+		'Пометить пост как мой',
+		'Mark post as mine',
+		'Відмітити пост як мій'
+	],
+	deleteMyPost: [
+		'Убрать из моих постов',
+		'Delete from my posts',
+		'Прибрати з моїх постів'
+	],
 
 	// Sauce search for images and video frames
 	searchIn: [

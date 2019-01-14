@@ -182,7 +182,6 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
 				return;
-			case 'de-btn-report': aib.callReportForm(this.num, this.thr.num); return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
@@ -214,12 +213,19 @@ class AbstractPost {
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
 		case 'de-post-btns': el.removeAttribute('title'); return;
-		case 'de-btn-reply':
-			this.btns.title = Lng.replyToPost[lang];
+		case 'de-btn-reply': {
+			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(!isOutEvent) {
 				quotetxt = deWindow.getSelection().toString();
 			}
+			this._addMenu(el, isOutEvent,
+				`<span class="de-menu-item" info="post-reply">${ title }</span>` +
+				(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+					this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
+				(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
+					MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''));
 			return;
+		}
 		case 'de-btn-hide':
 		case 'de-btn-hide-user':
 		case 'de-btn-unhide':
@@ -237,9 +243,6 @@ class AbstractPost {
 			return;
 		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
 		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
-		case 'de-btn-report':
-			this.btns.title = this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang];
-			return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
 		case 'de-btn-src':
@@ -433,8 +436,6 @@ class Post extends AbstractPost {
 	static getPostBtns(isOp, noExpThr) {
 		return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' +
 			'<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' +
-			(aib.hasReportBtn ?
-				'<svg class="de-btn-report"><use xlink:href="#de-symbol-post-report"/></svg>' : '') +
 			'<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ?
 			(noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') +
 				'<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
@@ -734,6 +735,8 @@ class Post extends AbstractPost {
 
 	_clickMenu(el) {
 		const isHide = !this.isHidden;
+		const isPview = this instanceof Pview;
+		const { num } = this;
 		switch(el.getAttribute('info')) {
 		case 'hide-sel': {
 			let { startContainer: start, endContainer: end } = this._selRange;
@@ -781,7 +784,6 @@ class Post extends AbstractPost {
 			return;
 		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
-			const { num } = this;
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
 				Post.findSameText(num, !isHide, words, post);
@@ -793,7 +795,29 @@ class Post extends AbstractPost {
 			this.ref.toggleRef(isHide, true);
 			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + this.num, false); return;
+		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'post-markmy': {
+			const isAdd = !MyPosts.has(num);
+			if(isAdd) {
+				MyPosts.set(num, this.thr.num);
+			} else {
+				MyPosts.removeStorage(num);
+			}
+			this.el.classList.toggle('de-mypost', isAdd);
+			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
+				const post = aib.getPostOfEl(el);
+				if(post.el !== this.el) {
+					el.classList.toggle('de-ref-you', isAdd);
+					post.el.classList.toggle('de-mypost-reply', isAdd);
+				}
+			});
+			return;
+		}
+		case 'post-reply':
+			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+			quotetxt = '';
+			return;
+		case 'post-report': aib.reportForm(num, this.thr.num); return;
 		case 'thr-exp': {
 			const task = +el.textContent.match(/\d+/);
 			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
@@ -824,7 +848,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href*="${ aib.anchor + num }"]`), el => {
+		$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
 			el.classList.toggle('de-link-hid', isHide);
 			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 				const refMapEl = el.parentNode;

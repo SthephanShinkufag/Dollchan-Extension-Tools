@@ -57,11 +57,6 @@ function addSVGIcons() {
 		<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>
 		<path class="de-svg-stroke" stroke-width="2" d="M9 9l3 3"/>
 	</symbol>
-	<symbol viewBox="0 0 16 16" id="de-symbol-post-report">
-		<path class="de-post-btns-back" d="M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z"/>
-		<path fill="none" class="de-svg-stroke" stroke-width="2.5" d="M8 3v6.5"/>
-		<circle class="de-svg-fill" cx="8" cy="12" r="1.5"/>
-	</symbol>
 
 	<!-- FILE ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-file-del">

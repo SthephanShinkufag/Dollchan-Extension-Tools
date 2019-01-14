@@ -3640,8 +3640,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref83 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref84, _ref85, favObj, storageName, firstThr;
+		var _ref82 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref83, _ref84, favObj, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee24$(_context31) {
 				while (1) {
@@ -3698,9 +3698,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 16:
-							_ref84 = _context31.sent;
-							_ref85 = _slicedToArray(_ref84, 1);
-							favObj = _ref85[0];
+							_ref83 = _context31.sent;
+							_ref84 = _slicedToArray(_ref83, 1);
+							favObj = _ref84[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context31.next = 21;
@@ -3831,14 +3831,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x88, _x89) {
-			return _ref83.apply(this, arguments);
+			return _ref82.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '95e190b';
+	var commit = 'bb679f5';
 
 
 	var defaultCfg = {
@@ -4180,8 +4180,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		toggleThr: ['Скрыть/Раскрыть тред', 'Hide/Unhide thread', 'Сховати/показати тред'],
 		replyToPost: ['Ответить на пост', 'Reply to post', 'Відповісти на пост'],
 		replyToThr: ['Ответить в тред', 'Reply to thread', 'Відповісти в тред'],
-		reportPost: ['Жалоба на пост', 'Report post', 'Скарга на пост'],
-		reportThr: ['Жалоба на тред', 'Report thread', 'Скарга на тред'],
 		expandThr: ['Развернуть тред', 'Expand thread', 'Розгорнути тред'],
 		addFav: ['Добавить тред в Избранное', 'Add thread to Favorites', 'Додати тред в Вибране'],
 		delFav: ['Убрать тред из Избранного', 'Remove thread from Favorites', 'Прибрати тред з Вибраного'],
@@ -4217,6 +4215,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images'], ['Завантажити весь тред', 'Завантажити зображення']],
 		selAudioNotif: [
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'], ['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
+		reportPost: ['Жалоба на пост', 'Report post', 'Скарга на пост'],
+		reportThr: ['Жалоба на тред', 'Report thread', 'Скарга на тред'],
+		markMyPost: ['Пометить пост как мой', 'Mark post as mine', 'Відмітити пост як мій'],
+		deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх постів'],
 
 		searchIn: ['Искать в ', 'Search in ', 'Шукати в '],
 		frameSearch: ['Поиск кадра в ', 'Frame search in ', 'Пошук кадру в '],
@@ -7864,7 +7866,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgPosts: function _getCfgPosts() {
-			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobrochan ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + (aib.jsonSubmit || aib._4chan ? this._getBox('markMyPosts') + '<br>' : '') + '\n\t\t\t' + (!localData ? this._getBox('hideReplies') + '<br>\n\t\t\t\t' + this._getBox('expandTrunc') + '<br>' : '') + '\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + (!localData ? this._getBox('showRepBtn') : '') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + (!localData ? this._getSel('thrBtns') : '') + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset', true, 1) + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
+			return '<div id="de-cfg-posts" class="de-cfg-unvis">\n\t\t\t' + (localData ? '' : this._getBox('ajaxUpdThr') + '\n\t\t\t\t' + this._getInp('updThrDelay') + '\n\t\t\t\t<div class="de-depend">\n\t\t\t\t\t' + this._getBox('updCount') + '<br>\n\t\t\t\t\t' + this._getBox('favIcoBlink') + '<br>\n\t\t\t\t\t' + ('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '') + '\n\t\t\t\t\t' + this._getBox('noErrInTitle') + '<br>\n\t\t\t\t\t' + this._getBox('markNewPosts') + '<br>\n\t\t\t\t\t' + (aib.dobrochan ? this._getBox('useDobrAPI') : '') + '\n\t\t\t\t</div>') + '\n\t\t\t' + this._getBox('markMyPosts') + '<br>\n\t\t\t' + (!localData ? this._getBox('hideReplies') + '<br>\n\t\t\t\t' + this._getBox('expandTrunc') + '<br>' : '') + '\n\t\t\t' + this._getBox('showHideBtn') + '\n\t\t\t' + (!localData ? this._getBox('showRepBtn') : '') + '<br>\n\t\t\t' + this._getSel('postBtnsCSS') + '\n\t\t\t' + this._getInp('postBtnsBack', false, 8) + '<br>\n\t\t\t' + (!localData ? this._getSel('thrBtns') : '') + '<br>\n\t\t\t' + this._getSel('noSpoilers') + '<br>\n\t\t\t' + this._getBox('noPostNames') + '<br>\n\t\t\t' + this._getBox('widePosts') + '<br>\n\t\t\t' + this._getBox('correctTime') + '\n\t\t\t' + this._getInp('timeOffset', true, 1) + '\n\t\t\t<a class="de-abtn" target="_blank" href="' + gitWiki + 'Settings-time-' + ((lang ? 'en' : 'ru') + '">[?]</a>\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('timePattern', true, 24) + '<br>\n\t\t\t\t' + this._getInp('timeRPattern', true, 24) + '\n\t\t\t</div>\n\t\t</div>');
 		},
 
 
@@ -7874,7 +7876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgLinks: function _getCfgLinks() {
-			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + (aib.jsonSubmit || aib._4chan ? this._getBox('markMyLinks') + '<br>' : '') + '\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + (!localData ? this._getBox('addOPLink') + '<br>\n\t\t\t\t' + this._getBox('addImgs') + '<br>' : '') + '\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('embedYTube') + '\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
+			return '<div id="de-cfg-links" class="de-cfg-unvis">\n\t\t\t' + this._getBox('linksNavig') + '\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('linksOver') + '\n\t\t\t\t' + this._getInp('linksOut') + '<br>\n\t\t\t\t' + this._getBox('markViewed') + '<br>\n\t\t\t\t' + this._getBox('strikeHidd') + '\n\t\t\t\t<div class="de-depend">' + this._getBox('removeHidd') + '</div>\n\t\t\t\t' + this._getBox('noNavigHidd') + '\n\t\t\t</div>\n\t\t\t' + this._getBox('markMyLinks') + '<br>\n\t\t\t' + this._getBox('crossLinks') + '<br>\n\t\t\t' + this._getBox('decodeLinks') + '<br>\n\t\t\t' + this._getBox('insertNum') + '<br>\n\t\t\t' + (!localData ? this._getBox('addOPLink') + '<br>\n\t\t\t\t' + this._getBox('addImgs') + '<br>' : '') + '\n\t\t\t<div>\n\t\t\t\t' + this._getBox('addMP3') + '\n\t\t\t\t' + (aib.prot === 'http:' ? this._getBox('addVocaroo') : '') + '\n\t\t\t</div>\n\t\t\t' + this._getSel('embedYTube') + '\n\t\t\t<div class="de-depend">\n\t\t\t\t' + this._getInp('YTubeWidth', false) + '\xD7\n\t\t\t\t' + this._getInp('YTubeHeigh', false) + '(px)<br>\n\t\t\t\t' + this._getBox('YTubeTitles') + '<br>\n\t\t\t\t' + this._getInp('ytApiKey', true, 25) + '<br>\n\t\t\t\t' + this._getBox('addVimeo') + '\n\t\t\t</div>\n\t\t</div>';
 		},
 
 
@@ -14501,8 +14503,6 @@ true, true];
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotetxt = '';
 							return;
-						case 'de-btn-report':
-							aib.callReportForm(this.num, this.thr.num);return;
 						case 'de-btn-sage':
 							Spells.addSpell(9, '', false);return;
 						case 'de-btn-stick':
@@ -14533,11 +14533,14 @@ true, true];
 					case 'de-post-btns':
 						el.removeAttribute('title');return;
 					case 'de-btn-reply':
-						this.btns.title = Lng.replyToPost[lang];
-						if (!isOutEvent) {
-							quotetxt = deWindow.getSelection().toString();
+						{
+							var title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
+							if (!isOutEvent) {
+								quotetxt = deWindow.getSelection().toString();
+							}
+							this._addMenu(el, isOutEvent, '<span class="de-menu-item" info="post-reply">' + title + '</span>' + (aib.reportForm ? '<span class="de-menu-item" info="post-report">' + (this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '</span>' : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? '<span class="de-menu-item" info="post-markmy">' + (MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang]) + '</span>' : ''));
+							return;
 						}
-						return;
 					case 'de-btn-hide':
 					case 'de-btn-hide-user':
 					case 'de-btn-unhide':
@@ -14555,9 +14558,6 @@ true, true];
 						this.btns.title = Lng.addFav[lang];return;
 					case 'de-btn-fav-sel':
 						this.btns.title = Lng.delFav[lang];return;
-					case 'de-btn-report':
-						this.btns.title = this.isOp ? Lng.reportThr[lang] : Lng.reportPost[lang];
-						return;
 					case 'de-btn-sage':
 						this.btns.title = 'SAGE';return;
 					case 'de-btn-stick':
@@ -15052,7 +15052,12 @@ true, true];
 		}, {
 			key: '_clickMenu',
 			value: function _clickMenu(el) {
+				var _this50 = this;
+
 				var isHide = !this.isHidden;
+				var isPview = this instanceof Pview;
+				var num = this.num;
+
 				switch (el.getAttribute('info')) {
 					case 'hide-sel':
 						{
@@ -15110,8 +15115,6 @@ true, true];
 						Spells.addSpell(0x108 , '', true);return;
 					case 'hide-text':
 						{
-							var num = this.num;
-
 							var words = Post.getWrds(this.text);
 							for (var post = Thread.first.op; post; post = post.next) {
 								Post.findSameText(num, !isHide, words, post);
@@ -15125,7 +15128,31 @@ true, true];
 						this.setUserVisib(isHide);
 						return;
 					case 'hide-refsonly':
-						Spells.addSpell(0 , '>>' + this.num, false);return;
+						Spells.addSpell(0 , '>>' + num, false);return;
+					case 'post-markmy':
+						{
+							var isAdd = !MyPosts.has(num);
+							if (isAdd) {
+								MyPosts.set(num, this.thr.num);
+							} else {
+								MyPosts.removeStorage(num);
+							}
+							this.el.classList.toggle('de-mypost', isAdd);
+							$each($Q('[de-form] a[href$="' + (aib.anchor + num) + '"]'), function (el) {
+								var post = aib.getPostOfEl(el);
+								if (post.el !== _this50.el) {
+									el.classList.toggle('de-ref-you', isAdd);
+									post.el.classList.toggle('de-mypost-reply', isAdd);
+								}
+							});
+							return;
+						}
+					case 'post-reply':
+						pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+						quotetxt = '';
+						return;
+					case 'post-report':
+						aib.reportForm(num, this.thr.num);return;
 					case 'thr-exp':
 						{
 							var task = +el.textContent.match(/\d+/);
@@ -15157,7 +15184,7 @@ true, true];
 				} else {
 					Post.hiddenNums.delete(+num);
 				}
-				$each($Q('[de-form] a[href*="' + (aib.anchor + num) + '"]'), function (el) {
+				$each($Q('[de-form] a[href$="' + (aib.anchor + num) + '"]'), function (el) {
 					el.classList.toggle('de-link-hid', isHide);
 					if (Cfg.removeHidd && el.classList.contains('de-link-ref')) {
 						var refMapEl = el.parentNode;
@@ -15278,7 +15305,7 @@ true, true];
 		}, {
 			key: 'getPostBtns',
 			value: function getPostBtns(isOp, noExpThr) {
-				return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + (aib.hasReportBtn ? '<svg class="de-btn-report"><use xlink:href="#de-symbol-post-report"/></svg>' : '') + '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? (noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') + '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
+				return '<svg class="de-btn-hide"><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/>' + '<use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>' + '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? (noExpThr ? '' : '<svg class="de-btn-expthr"><use xlink:href="#de-symbol-post-expthr"/></svg>') + '<svg class="de-btn-fav"><use xlink:href="#de-symbol-post-fav"/></svg>' : '');
 			}
 		}, {
 			key: 'findSameText',
@@ -15360,15 +15387,15 @@ true, true];
 		function PostContent(post) {
 			_classCallCheck(this, PostContent);
 
-			var _this50 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
+			var _this51 = _possibleConstructorReturn(this, (PostContent.__proto__ || Object.getPrototypeOf(PostContent)).call(this, post));
 
-			if (_this50._isInited) {
-				return _possibleConstructorReturn(_this50);
+			if (_this51._isInited) {
+				return _possibleConstructorReturn(_this51);
 			}
-			_this50._isInited = true;
-			_this50.el = post.el;
-			_this50.post = post;
-			return _this50;
+			_this51._isInited = true;
+			_this51.el = post.el;
+			_this51.post = post;
+			return _this51;
 		}
 
 		_createClass(PostContent, [{
@@ -15471,17 +15498,17 @@ true, true];
 		}, {
 			key: 'set',
 			value: function set(note) {
-				var _this51 = this;
+				var _this52 = this;
 
 				this.text = note;
 				var text = void 0;
 				if (this.isHideThr) {
 					this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-						return _this51._post.hideContent(e.type === 'mouseout');
+						return _this52._post.hideContent(e.type === 'mouseout');
 					};
 					this._aEl.onclick = function (e) {
 						$pd(e);
-						_this51._post.setUserVisib(!_this51._post.isHidden);
+						_this52._post.setUserVisib(!_this52._post.isHidden);
 					};
 					text = (this._post.title ? '(' + this._post.title + ') ' : '') + (note ? '[autohide: ' + note + ']' : '');
 				} else {
@@ -15540,51 +15567,51 @@ true, true];
 		function Pview(parent, link, pNum, tNum) {
 			_classCallCheck(this, Pview);
 
-			var _this52 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
+			var _this53 = _possibleConstructorReturn(this, (Pview.__proto__ || Object.getPrototypeOf(Pview)).call(this, parent.thr, pNum, pNum === tNum));
 
-			_this52.isSticky = false;
-			_this52.parent = parent;
-			_this52.remoteThr = null;
-			_this52.tNum = tNum;
-			_this52._isCached = false;
-			_this52._isLeft = false;
-			_this52._isTop = false;
-			_this52._link = link;
-			_this52._newPos = null;
-			_this52._offsetTop = 0;
-			_this52._readDelay = 0;
+			_this53.isSticky = false;
+			_this53.parent = parent;
+			_this53.remoteThr = null;
+			_this53.tNum = tNum;
+			_this53._isCached = false;
+			_this53._isLeft = false;
+			_this53._isTop = false;
+			_this53._link = link;
+			_this53._newPos = null;
+			_this53._offsetTop = 0;
+			_this53._readDelay = 0;
 			var post = pByNum.get(pNum);
 			if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-				_this52._buildPview(post);
-				return _possibleConstructorReturn(_this52);
+				_this53._buildPview(post);
+				return _possibleConstructorReturn(_this53);
 			}
-			_this52._isCached = true;
-			_this52.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-			if (PviewsCache.has(_this52.brd + tNum)) {
-				post = PviewsCache.get(_this52.brd + tNum).getPost(pNum);
+			_this53._isCached = true;
+			_this53.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+			if (PviewsCache.has(_this53.brd + tNum)) {
+				post = PviewsCache.get(_this53.brd + tNum).getPost(pNum);
 				if (post) {
-					_this52._buildPview(post);
+					_this53._buildPview(post);
 				} else {
-					_this52._showPview(_this52.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
+					_this53._showPview(_this53.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t\t\t' + Lng.postNotFound[lang] + '</div>'));
 				}
-				return _possibleConstructorReturn(_this52);
+				return _possibleConstructorReturn(_this53);
 			}
-			_this52._showPview(_this52.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
+			_this53._showPview(_this53.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this52._loadPromise = ajaxPostsLoad(_this52.brd, tNum, false).then(function (pBuilder) {
+			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false).then(function (pBuilder) {
 				if (!aib.JsonBuilder) {
-					_this52._onload(pBuilder._form);
+					_this53._onload(pBuilder._form);
 					return;
 				}
 				var html = [];
 				for (var _i43 = 0, len = pBuilder.length + 1; _i43 < len; ++_i43) {
 					html.push(pBuilder.getPostHTML(_i43 - 1)); 
 				}
-				_this52._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+				_this53._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
 			}, function (err) {
-				return _this52._onerror(err);
+				return _this53._onerror(err);
 			});
-			return _this52;
+			return _this53;
 		}
 
 		_createClass(Pview, [{
@@ -15673,11 +15700,11 @@ true, true];
 		}, {
 			key: 'markToDel',
 			value: function markToDel() {
-				var _this53 = this;
+				var _this54 = this;
 
 				clearTimeout(Pview._delTO);
 				Pview._delTO = setTimeout(function () {
-					return _this53.deleteNonSticky();
+					return _this54.deleteNonSticky();
 				}, Cfg.linksOut);
 			}
 		}, {
@@ -15918,11 +15945,11 @@ true, true];
 		}, {
 			key: '_showMenu',
 			value: function _showMenu(el, html) {
-				var _this54 = this;
+				var _this55 = this;
 
 				_get(Pview.prototype.__proto__ || Object.getPrototypeOf(Pview.prototype), '_showMenu', this).call(this, el, html);
 				this._menu.onover = function () {
-					return _this54.mouseEnter();
+					return _this55.mouseEnter();
 				};
 				this._menu.onout = function () {
 					return Pview.top.markToDel();
@@ -16093,12 +16120,12 @@ true, true];
 		function PviewsCache(form, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this55 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this56 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this55._isInited) {
-				return _possibleConstructorReturn(_this55);
+			if (_this56._isInited) {
+				return _possibleConstructorReturn(_this56);
 			}
-			_this55._isInited = true;
+			_this56._isInited = true;
 			var pByNum = new Map();
 			var thr = $q(aib.qThread, form) || form;
 			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
@@ -16107,17 +16134,17 @@ true, true];
 				var post = posts[_i44];
 				pByNum.set(aib.getPNum(post), new CacheItem(post, _i44 + 1));
 			}
-			_this55._opObj = new CacheItem(aib.getOp(thr), 0);
-			_this55._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this55._opObj.title };
-			pByNum.set(tNum, _this55._opObj);
-			_this55._b = b;
-			_this55._tNum = tNum;
-			_this55._tUrl = aib.getThrUrl(b, tNum);
-			_this55._posts = pByNum;
+			_this56._opObj = new CacheItem(aib.getOp(thr), 0);
+			_this56._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this56._opObj.title };
+			pByNum.set(tNum, _this56._opObj);
+			_this56._b = b;
+			_this56._tNum = tNum;
+			_this56._tUrl = aib.getThrUrl(b, tNum);
+			_this56._posts = pByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this55._tUrl);
+				RefMap.gen(pByNum, _this56._tUrl);
 			}
-			return _this55;
+			return _this56;
 		}
 
 		_createClass(PviewsCache, [{
@@ -16245,11 +16272,11 @@ true, true];
 		}, {
 			key: '_setHideTmt',
 			value: function _setHideTmt() {
-				var _this56 = this;
+				var _this57 = this;
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this56.hideBtns();
+					return _this57.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -16500,7 +16527,7 @@ true, true];
 		}, {
 			key: '_showFullImg',
 			value: function _showFullImg(data) {
-				var _this57 = this;
+				var _this58 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
 				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
@@ -16509,9 +16536,9 @@ true, true];
 				    minSize = _data$computeFullSize4[2];
 
 				this._fullEl = data.getFullImg(false, function (el) {
-					return _this57._resizeFullImg(el);
+					return _this58._resizeFullImg(el);
 				}, function (el) {
-					return _this57._rotateFullImg(el);
+					return _this58._rotateFullImg(el);
 				});
 				this._width = width;
 				this._height = height;
@@ -16603,16 +16630,16 @@ true, true];
 		}, {
 			key: 'checkForRedirect',
 			value: function checkForRedirect(fullEl) {
-				var _this58 = this;
+				var _this59 = this;
 
 				if (!aib.getImgRedirectSrc || this.redirected) {
 					return;
 				}
 				aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-					_this58.redirected = true;
-					Object.defineProperty(_this58, 'src', { value: newSrc });
-					$q('img, video', fullEl).src = _this58.el.src = _this58.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(_this58.el)).href = newSrc;
-					if (!_this58.isVideo) {
+					_this59.redirected = true;
+					Object.defineProperty(_this59, 'src', { value: newSrc });
+					$q('img, video', fullEl).src = _this59.el.src = _this59.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(_this59.el)).href = newSrc;
+					if (!_this59.isVideo) {
 						$q('a', fullEl).href = newSrc;
 					}
 				});
@@ -16687,7 +16714,7 @@ true, true];
 		}, {
 			key: 'expandImg',
 			value: function expandImg(inPost, e) {
-				var _this59 = this;
+				var _this60 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -16713,7 +16740,7 @@ true, true];
 				(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this59.collapseImg(e);
+					return _this60.collapseImg(e);
 				}, true);
 				this.srcBtnEvents(this);
 				$hide(el.parentNode);
@@ -16747,7 +16774,7 @@ true, true];
 		}, {
 			key: 'getFullImg',
 			value: function getFullImg(inPost, onsizechange, onrotate) {
-				var _this60 = this;
+				var _this61 = this;
 
 				var wrapEl = void 0,
 				    name = void 0,
@@ -16781,10 +16808,10 @@ true, true];
 						var newW = img.naturalWidth,
 						    newH = img.naturalHeight;
 
-						var ar = _this60._size ? _this60._size[1] / _this60._size[0] : newH / newW;
+						var ar = _this61._size ? _this61._size[1] / _this61._size[0] : newH / newW;
 						var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
-						if (!_this60._size || isRotated) {
-							_this60._size = isRotated ? [newH, newW] : [newW, newH];
+						if (!_this61._size || isRotated) {
+							_this61._size = isRotated ? [newH, newW] : [newW, newH];
 						}
 						var parentEl = img.parentNode.parentNode;
 						var waitEl = $q('.de-fullimg-load', parentEl);
@@ -16833,7 +16860,7 @@ true, true];
 					videoEl.addEventListener('loadedmetadata', function (_ref57) {
 						var el = _ref57.target;
 
-						_this60._size = [el.videoWidth, el.videoHeight];
+						_this61._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
 					});
 				}
@@ -16876,7 +16903,7 @@ true, true];
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
-						_this60.el.setAttribute('de-metatitle', loadedTitle);
+						_this61.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
 							$q('.de-fullimg-link', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle.replace(/\./g, ' '));
 						}
@@ -16913,7 +16940,7 @@ true, true];
 		}, {
 			key: 'srcBtnEvents',
 			value: function srcBtnEvents(_ref59) {
-				var _this61 = this;
+				var _this62 = this;
 
 				var _fullEl = _ref59._fullEl;
 
@@ -16923,13 +16950,13 @@ true, true];
 				var srcBtnEl = $q('.de-btn-src', _fullEl);
 				srcBtnEl.addEventListener('mouseover', function () {
 					return srcBtnEl.odelay = setTimeout(function () {
-						var menuHtml = !_this61.isVideo ? Menu.getMenuImgSrc(srcBtnEl) : '<span class="de-menu-item">' + Lng.getFrameLinks[lang] + '</span>';
-						new Menu(srcBtnEl, menuHtml, !_this61.isVideo ? emptyFn : function (optiontEl) {
+						var menuHtml = !_this62.isVideo ? Menu.getMenuImgSrc(srcBtnEl) : '<span class="de-menu-item">' + Lng.getFrameLinks[lang] + '</span>';
+						new Menu(srcBtnEl, menuHtml, !_this62.isVideo ? emptyFn : function (optiontEl) {
 							ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
 								$popup('upload', Lng.sending[lang], true);
 								var formData = new FormData();
 								var blob = new Blob([arr], { type: 'image/png' });
-								var name = _this61.name.substring(0, _this61.name.lastIndexOf('.')) + '.png';
+								var name = _this62.name.substring(0, _this62.name.lastIndexOf('.')) + '.png';
 								formData.append('file', blob, name);
 								var ajaxParams = { data: formData, method: 'POST' };
 								var frameLinkHtml = '<a class="de-menu-item de-list" href="' + deWindow.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
@@ -17278,7 +17305,7 @@ true, true];
 		},
 		_getHashHelper: function () {
 			var _ref63 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(_ref62) {
-				var _this64 = this;
+				var _this65 = this;
 
 				var el = _ref62.el,
 				    src = _ref62.src;
@@ -17354,7 +17381,7 @@ true, true];
 
 								_context22.next = 25;
 								return new Promise(function (resolve) {
-									return _this64._workers.runWorker([buffer, w, h], [buffer], function (val) {
+									return _this65._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
@@ -18460,19 +18487,13 @@ true, true];
 			this.btns = $bEnd(el, '<div class="de-thr-buttons">' + Post.getPostBtns(true, true) + '\n\t\t\t<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>' + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
-			if (aib.hasReportBtn) {
-				var _ref68 = [].concat(_toConsumableArray(this.btns.children));
 
-				this.btnHide = _ref68[0];
-				this.btnFav = _ref68[3];
-				this.btnUpd = _ref68[4];
-			} else {
-				var _ref69 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref68 = [].concat(_toConsumableArray(this.btns.children));
 
-				this.btnHide = _ref69[0];
-				this.btnFav = _ref69[2];
-				this.btnUpd = _ref69[3];
-			}
+			this.btnHide = _ref68[0];
+			this.btnFav = _ref68[2];
+			this.btnUpd = _ref68[3];
+
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
 				this._toggleReplies();
@@ -18523,8 +18544,6 @@ true, true];
 							break;
 						case 'de-btn-reply':
 							pr.showQuickReply(this.last, this.num, false, false, true);break;
-						case 'de-btn-report':
-							aib.callReportForm(this.num, this.num);break;
 						case 'de-btn-replies':
 						case 'de-replies-show':
 						case 'de-replies-hide':
@@ -18556,8 +18575,6 @@ true, true];
 						case 'de-btn-unhide':
 						case 'de-btn-unhide-user':
 							this.btns.title = Lng.toggleThr[lang];return;
-						case 'de-btn-report':
-							this.btns.title = Lng.reportThr[lang];return;
 						case 'de-btn-fav':
 							this.btns.title = Lng.addFav[lang];return;
 						case 'de-btn-fav-sel':
@@ -18571,7 +18588,7 @@ true, true];
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this65 = this;
+				var _this66 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -18580,7 +18597,7 @@ true, true];
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-					return _this65._loadFromBuilder(task, isSmartScroll, pBuilder);
+					return _this66._loadFromBuilder(task, isSmartScroll, pBuilder);
 				}, function (err) {
 					return $popup('load-thr', getErrorMessage(err));
 				});
@@ -18589,10 +18606,10 @@ true, true];
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this66 = this;
+				var _this67 = this;
 
 				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-					return pBuilder ? _this66._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this67._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
@@ -18697,13 +18714,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref70 = _step35.value;
+						var _ref69 = _step35.value;
 
-						var _ref71 = _slicedToArray(_ref70, 3);
+						var _ref70 = _slicedToArray(_ref69, 3);
 
-						var banId = _ref71[0];
-						var bNum = _ref71[1];
-						var bEl = _ref71[2];
+						var banId = _ref70[0];
+						var bNum = _ref70[1];
+						var bEl = _ref70[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -19007,7 +19024,7 @@ true, true];
 		}, {
 			key: '_toggleReplies',
 			value: function _toggleReplies() {
-				var _this67 = this;
+				var _this68 = this;
 
 				var isHide = !this.last.isOmitted;
 				var post = this.op;
@@ -19018,7 +19035,7 @@ true, true];
 				}
 				this.btnReplies.firstElementChild.className = (isHide ? 'de-replies-show' : 'de-replies-hide') + ' de-abtn';
 				$each(this.btns.children, function (el) {
-					return el !== _this67.btnReplies && $toggle(el, !isHide);
+					return el !== _this68.btnReplies && $toggle(el, !isHide);
 				});
 				$del($q(aib.qOmitted + ', .de-omitted', this.el));
 				i = this.pcount - 1 - (isHide ? 0 : i);
@@ -19096,12 +19113,12 @@ true, true];
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this68 = this;
+			var _this69 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					deWindow.requestAnimationFrame(function () {
-						return _this68._checkThreads();
+						return _this69._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -19147,27 +19164,27 @@ true, true];
 			}
 		},
 		_expandCollapse: function _expandCollapse(isExpand, rt) {
-			var _this69 = this;
+			var _this70 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
 				this._toggleTO = setTimeout(function () {
-					return _this69._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+					return _this70._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},
 		_findCurrentThread: function _findCurrentThread() {
-			var _this70 = this;
+			var _this71 = this;
 
 			Object.defineProperty(this, '_findCurrentThread', {
 				value: 'elementsFromPoint' in doc ? function () {
 					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-						return _this70._thrs.has(el);
+						return _this71._thrs.has(el);
 					});
 				} : function () {
 					var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 					while (el) {
-						if (_this70._thrs.has(el)) {
+						if (_this71._thrs.has(el)) {
 							return el;
 						}
 						el = el.parentElement;
@@ -19218,7 +19235,7 @@ true, true];
 				}
 			},
 			playAudio: function playAudio() {
-				var _this71 = this;
+				var _this72 = this;
 
 				this.stopAudio();
 				if (this.repeatMS === 0) {
@@ -19226,7 +19243,7 @@ true, true];
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this71._el.play();
+					return _this72._el.play();
 				}, this.repeatMS);
 			},
 			stopAudio: function stopAudio() {
@@ -19248,11 +19265,11 @@ true, true];
 
 		var counter = {
 			count: function count(delayMS, useCounter, callback) {
-				var _this72 = this;
+				var _this73 = this;
 
 				if (!this._enabled || !useCounter) {
 					this._countingTO = setTimeout(function () {
-						_this72._countingTO = null;
+						_this73._countingTO = null;
 						callback();
 					}, delayMS);
 					return;
@@ -19262,10 +19279,10 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this72._stopCounter();
+						_this73._stopCounter();
 						callback();
 					} else {
-						_this72._set(seconds);
+						_this73._set(seconds);
 					}
 				}, 1e3);
 			},
@@ -19317,7 +19334,7 @@ true, true];
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this73 = this;
+				var _this74 = this;
 
 				if (this._isInited) {
 					return;
@@ -19326,7 +19343,7 @@ true, true];
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this73._initIconsHelper(e.target);
+						_this74._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -19340,7 +19357,7 @@ true, true];
 				icon.src = this._iconEl.href;
 			},
 			startBlink: function startBlink(isError) {
-				var _this74 = this;
+				var _this75 = this;
 
 				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 				if (this._blinkInterv) {
@@ -19351,7 +19368,7 @@ true, true];
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterv = setInterval(function () {
-					return _this74._setIcon((_this74._isOrigIcon = !_this74._isOrigIcon) ? _this74.originalIcon : _this74._currentIcon);
+					return _this75._setIcon((_this75._isOrigIcon = !_this75._isOrigIcon) ? _this75.originalIcon : _this75._currentIcon);
 				}, this._blinkMS);
 			},
 			stopBlink: function stopBlink() {
@@ -19430,7 +19447,7 @@ true, true];
 				return canvas.toDataURL('image/png');
 			},
 			_initIconsHelper: function _initIconsHelper(icon) {
-				var _this75 = this;
+				var _this76 = this;
 
 				var canvas = doc.createElement('canvas');
 				var ctx = canvas.getContext('2d');
@@ -19450,11 +19467,11 @@ true, true];
 				var iconYouCircle = ctx.getImageData(0, 0, wh, wh);
 				this._getIconNew = function (newPosts) {
 					var id = newPosts < 10 ? newPosts : 0;
-					return _this75._iconsNew[id] || (_this75._iconsNew[id] = _this75._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+					return _this76._iconsNew[id] || (_this76._iconsNew[id] = _this76._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
 				};
 				this._getIconYou = function (newPosts) {
 					var id = newPosts < 10 ? newPosts : 0;
-					return _this75._iconsYou[id] || (_this75._iconsYou[id] = _this75._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+					return _this76._iconsYou[id] || (_this76._iconsYou[id] = _this76._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
 				};
 				this._hasIcons = true;
 			},
@@ -19485,7 +19502,7 @@ true, true];
 				}
 			},
 			showNotif: function showNotif() {
-				var _this76 = this;
+				var _this77 = this;
 
 				var lngQuantity = function lngQuantity(num) {
 					var new10 = num % 10;
@@ -19500,7 +19517,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this76._notifEl && _this76.closeNotif();
+						return notif === _this77._notifEl && _this77.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -19508,7 +19525,7 @@ true, true];
 				};
 				notif.onerror = function () {
 					deWindow.focus();
-					_this76._requestPermission();
+					_this77._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -19518,14 +19535,14 @@ true, true];
 			_granted: true,
 			_notifEl: null,
 			_requestPermission: function _requestPermission() {
-				var _this77 = this;
+				var _this78 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this77._granted = true;
+						_this78._granted = true;
 					}
 				});
 			}
@@ -19632,7 +19649,7 @@ true, true];
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this78 = this;
+				var _this79 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -19642,19 +19659,19 @@ true, true];
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this78._makeStep();
+									return _this79._makeStep();
 								});
 								return;
 							}
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref72) {
-								var newCount = _ref72.newCount,
-								    locked = _ref72.locked;
-								return _this78._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref71) {
+								var newCount = _ref71.newCount,
+								    locked = _ref71.locked;
+								return _this79._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
-								return _this78._handleNewPosts(0, err);
+								return _this79._handleNewPosts(0, err);
 							});
 							return;
 						case 2:
@@ -20224,7 +20241,6 @@ true, true];
 			this.hasCatalog = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
-			this.hasReportBtn = false;
 			this.hasTextLinks = false;
 			this.host = deWindow.location.hostname;
 			this.JsonBuilder = null;
@@ -20248,11 +20264,6 @@ true, true];
 		}
 
 		_createClass(BaseBoard, [{
-			key: 'callReportForm',
-			value: function callReportForm() {
-				return null;
-			}
-		}, {
 			key: 'disableRedirection',
 			value: function disableRedirection(el) {
 				$hide($qParent(el, aib.qFormTr));
@@ -20623,6 +20634,11 @@ true, true];
 				return value;
 			}
 		}, {
+			key: 'reportForm',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'sendHTML5Post',
 			get: function get() {
 				return null;
@@ -20650,16 +20666,16 @@ true, true];
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this79 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this80 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this79.kusaba = true;
+				_this80.kusaba = true;
 
-				_this79.qError = 'h1, h2, div[style*="1.25em"]';
-				_this79.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this80.qError = 'h1, h2, div[style*="1.25em"]';
+				_this80.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this79.formParent = 'replythread';
-				_this79.markupBB = true;
-				return _this79;
+				_this80.formParent = 'replythread';
+				_this80.markupBB = true;
+				return _this80;
 			}
 
 			_createClass(Kusaba, [{
@@ -20706,40 +20722,40 @@ true, true];
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this80 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this80.cReply = 'post reply';
-				_this80.qClosed = '.fa-lock';
-				_this80.qDForm = 'form[name*="postcontrols"]';
-				_this80.qForm = 'form[name="post"]';
-				_this80.qFormPassw = 'input[name="password"]';
-				_this80.qFormRedir = null;
-				_this80.qImgInfo = '.fileinfo';
-				_this80.qOmitted = '.omitted';
-				_this80.qPages = '.pages';
-				_this80.qPostHeader = '.intro';
-				_this80.qPostMsg = '.body';
-				_this80.qPostName = '.name';
-				_this80.qPostRef = '.post_no + a';
-				_this80.qPostSubj = '.subject';
-				_this80.qPostTrip = '.trip';
-				_this80.qTrunc = '.toolong';
-				_this80._origInputs = null;
-				_this80._qOPostEnd = '.post.reply';
+				_this81.cReply = 'post reply';
+				_this81.qClosed = '.fa-lock';
+				_this81.qDForm = 'form[name*="postcontrols"]';
+				_this81.qForm = 'form[name="post"]';
+				_this81.qFormPassw = 'input[name="password"]';
+				_this81.qFormRedir = null;
+				_this81.qImgInfo = '.fileinfo';
+				_this81.qOmitted = '.omitted';
+				_this81.qPages = '.pages';
+				_this81.qPostHeader = '.intro';
+				_this81.qPostMsg = '.body';
+				_this81.qPostName = '.name';
+				_this81.qPostRef = '.post_no + a';
+				_this81.qPostSubj = '.subject';
+				_this81.qPostTrip = '.trip';
+				_this81.qTrunc = '.toolong';
+				_this81._origInputs = null;
+				_this81._qOPostEnd = '.post.reply';
 
-				_this80.firstPage = 1;
-				_this80.formParent = 'thread';
-				_this80.hasCatalog = true;
-				_this80.jsonSubmit = true;
-				_this80.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-				return _this80;
+				_this81.firstPage = 1;
+				_this81.formParent = 'thread';
+				_this81.hasCatalog = true;
+				_this81.jsonSubmit = true;
+				_this81.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				return _this81;
 			}
 
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
-						var _this81 = this;
+					var _ref72 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
+						var _this82 = this;
 
 						var pageInp, query, errFn;
 						return regeneratorRuntime.wrap(function _callee20$(_context27) {
@@ -20771,7 +20787,7 @@ true, true];
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this81._origInputs[0].appendChild(el);
+											return _this82._origInputs[0].appendChild(el);
 										});
 										_context27.next = 17;
 										break;
@@ -20797,12 +20813,12 @@ true, true];
 										$popup('load-form', Lng.loading[lang], true);
 										_context27.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-											var loadedForm = $q(_this81.qForm, loadedDoc);
+											var loadedForm = $q(_this82.qForm, loadedDoc);
 											if (!loadedForm) {
 												errFn();
 												return;
 											}
-											pr.subm.value = $q(_this81.qFormSubm, loadedDoc).value;
+											pr.subm.value = $q(_this82.qFormSubm, loadedDoc).value;
 											$delAll(query, form);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
@@ -20819,7 +20835,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x79, _x80) {
-						return _ref73.apply(this, arguments);
+						return _ref72.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20840,10 +20856,10 @@ true, true];
 			}, {
 				key: 'fixVideo',
 				value: function fixVideo(isPost, data) {
-					var _this82 = this;
+					var _this83 = this;
 
 					return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-						var value = [isPost ? data : _this82.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+						var value = [isPost ? data : _this83.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 						el.remove();
 						return value;
 					});
@@ -20861,9 +20877,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref74) {
-					var error = _ref74.error,
-					    id = _ref74.id;
+				value: function getSubmitData(_ref73) {
+					var error = _ref73.error,
+					    id = _ref73.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -20918,13 +20934,13 @@ true, true];
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this83 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this84 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this83.qDelPassw = '#password';
-				_this83.qPostImg = '.post-image[alt]:not(.deleted)';
+				_this84.qDelPassw = '#password';
+				_this84.qPostImg = '.post-image[alt]:not(.deleted)';
 
-				_this83.multiFile = true;
-				return _this83;
+				_this84.multiFile = true;
+				return _this84;
 			}
 
 			_createClass(Vichan, [{
@@ -20976,12 +20992,12 @@ true, true];
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this84 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this84.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this84.qPostImg = 'img.thumb, video.thumb';
-				_this84.qPostMsg = '.message';
-				return _this84;
+				_this85.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this85.qPostImg = 'img.thumb, video.thumb';
+				_this85.qPostMsg = '.message';
+				return _this85;
 			}
 
 			_createClass(TinyIB, [{
@@ -21038,33 +21054,33 @@ true, true];
 			function Lynxchan(prot, dm) {
 				_classCallCheck(this, Lynxchan);
 
-				var _this85 = _possibleConstructorReturn(this, (Lynxchan.__proto__ || Object.getPrototypeOf(Lynxchan)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (Lynxchan.__proto__ || Object.getPrototypeOf(Lynxchan)).call(this, prot, dm));
 
-				_this85.cReply = 'innerPost';
-				_this85.qDForm = 'form[action$="contentActions.js"]';
-				_this85.qError = '#errorLabel, #labelMessage';
-				_this85.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
-				_this85.qFormPassw = 'input[name="password"]';
-				_this85.qFormRules = '.form-post > .small';
-				_this85.qFormSubm = '#formButton';
-				_this85.qImgInfo = '.uploadDetails';
-				_this85.qOmitted = '.labelOmission';
-				_this85.qOPost = '.innerOP';
-				_this85.qPages = '#divPages';
-				_this85.qPostHeader = '.postInfo, .de-post-btns';
-				_this85.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-				_this85.qPostMsg = '.divMessage';
-				_this85.qPostRef = '.linkQuote';
-				_this85.qRPost = '.innerPost';
-				_this85.qTrunc = '.contentOmissionIndicator';
-				_this85._qOPostEnd = '.divPosts';
+				_this86.cReply = 'innerPost';
+				_this86.qDForm = 'form[action$="contentActions.js"]';
+				_this86.qError = '#errorLabel, #labelMessage';
+				_this86.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
+				_this86.qFormPassw = 'input[name="password"]';
+				_this86.qFormRules = '.form-post > .small';
+				_this86.qFormSubm = '#formButton';
+				_this86.qImgInfo = '.uploadDetails';
+				_this86.qOmitted = '.labelOmission';
+				_this86.qOPost = '.innerOP';
+				_this86.qPages = '#divPages';
+				_this86.qPostHeader = '.postInfo, .de-post-btns';
+				_this86.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+				_this86.qPostMsg = '.divMessage';
+				_this86.qPostRef = '.linkQuote';
+				_this86.qRPost = '.innerPost';
+				_this86.qTrunc = '.contentOmissionIndicator';
+				_this86._qOPostEnd = '.divPosts';
 
-				_this85.firstPage = 1;
-				_this85.formParent = 'threadId';
-				_this85.hasCatalog = true;
-				_this85.jsonSubmit = true;
-				_this85.multiFile = true;
-				return _this85;
+				_this86.firstPage = 1;
+				_this86.formParent = 'threadId';
+				_this86.hasCatalog = true;
+				_this86.jsonSubmit = true;
+				_this86.multiFile = true;
+				return _this86;
 			}
 
 			_createClass(Lynxchan, [{
@@ -21118,9 +21134,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref75) {
-					var status = _ref75.status,
-					    data = _ref75.data;
+				value: function getSubmitData(_ref74) {
+					var status = _ref74.status,
+					    data = _ref74.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21154,8 +21170,8 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
-						var _this86 = this;
+					var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
+						var _this87 = this;
 
 						var getBase64, getCookies, dataObj, files, _i63, _len14, file, cookieObj, ajaxParams;
 
@@ -21164,7 +21180,7 @@ true, true];
 								switch (_context30.prev = _context30.next) {
 									case 0:
 										getBase64 = function () {
-											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
+											var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
 												return regeneratorRuntime.wrap(function _callee21$(_context28) {
 													while (1) {
 														switch (_context28.prev = _context28.next) {
@@ -21185,11 +21201,11 @@ true, true];
 																return _context28.stop();
 														}
 													}
-												}, _callee21, _this86);
+												}, _callee21, _this87);
 											}));
 
 											return function getBase64(_x85) {
-												return _ref77.apply(this, arguments);
+												return _ref76.apply(this, arguments);
 											};
 										}();
 
@@ -21207,7 +21223,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
+											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
 												return regeneratorRuntime.wrap(function _callee22$(_context29) {
 													while (1) {
 														switch (_context29.prev = _context29.next) {
@@ -21223,11 +21239,11 @@ true, true];
 																return _context29.stop();
 														}
 													}
-												}, _callee22, _this86);
+												}, _callee22, _this87);
 											}));
 
 											return function (_x86, _x87) {
-												return _ref78.apply(this, arguments);
+												return _ref77.apply(this, arguments);
 											};
 										}());
 										_i63 = 0, _len14 = files.length;
@@ -21300,7 +21316,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x81, _x82, _x83, _x84) {
-						return _ref76.apply(this, arguments);
+						return _ref75.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -21349,25 +21365,25 @@ true, true];
 			function FoolFuuka(prot, dm) {
 				_classCallCheck(this, FoolFuuka);
 
-				var _this87 = _possibleConstructorReturn(this, (FoolFuuka.__proto__ || Object.getPrototypeOf(FoolFuuka)).call(this, prot, dm));
+				var _this88 = _possibleConstructorReturn(this, (FoolFuuka.__proto__ || Object.getPrototypeOf(FoolFuuka)).call(this, prot, dm));
 
-				_this87.cReply = 'post_wrapper';
-				_this87.qDForm = '#main';
-				_this87.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
-				_this87.qOmitted = '.omitted_text';
-				_this87.qPages = '.paginate > ul > li:nth-last-child(3)';
-				_this87.qPostHeader = 'header';
-				_this87.qPostImg = '.post_image, .thread_image';
-				_this87.qPostMsg = '.text';
-				_this87.qPostRef = '.post_data > a[data-function="quote"]';
-				_this87.qPostSubj = '.post_title';
-				_this87.qRPost = '.post[id]';
-				_this87._qOPostEnd = '.posts';
+				_this88.cReply = 'post_wrapper';
+				_this88.qDForm = '#main';
+				_this88.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+				_this88.qOmitted = '.omitted_text';
+				_this88.qPages = '.paginate > ul > li:nth-last-child(3)';
+				_this88.qPostHeader = 'header';
+				_this88.qPostImg = '.post_image, .thread_image';
+				_this88.qPostMsg = '.text';
+				_this88.qPostRef = '.post_data > a[data-function="quote"]';
+				_this88.qPostSubj = '.post_title';
+				_this88.qRPost = '.post[id]';
+				_this88._qOPostEnd = '.posts';
 
-				_this87.docExt = '';
-				_this87.firstPage = 1;
-				_this87.res = 'thread/';
-				return _this87;
+				_this88.docExt = '';
+				_this88.firstPage = 1;
+				_this88.res = 'thread/';
+				return _this88;
 			}
 
 			_createClass(FoolFuuka, [{
@@ -21441,13 +21457,13 @@ true, true];
 			function _02ch(prot, dm) {
 				_classCallCheck(this, _02ch);
 
-				var _this88 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
 
-				_this88._02ch = true;
+				_this89._02ch = true;
 
-				_this88.hasCatalog = true;
-				_this88._capUpdPromise = null;
-				return _this88;
+				_this89.hasCatalog = true;
+				_this89._capUpdPromise = null;
+				return _this89;
 			}
 
 			_createClass(_02ch, [{
@@ -21473,19 +21489,19 @@ true, true];
 			function _2__ch(prot, dm) {
 				_classCallCheck(this, _2__ch);
 
-				var _this89 = _possibleConstructorReturn(this, (_2__ch.__proto__ || Object.getPrototypeOf(_2__ch)).call(this, prot, dm));
+				var _this90 = _possibleConstructorReturn(this, (_2__ch.__proto__ || Object.getPrototypeOf(_2__ch)).call(this, prot, dm));
 
-				_this89.qPages = 'table[border="1"] td > a:last-of-type';
-				_this89.qPostImg = 'img.thumb';
-				_this89._qOPostEnd = 'table:not(.postfiles)';
+				_this90.qPages = 'table[border="1"] td > a:last-of-type';
+				_this90.qPostImg = 'img.thumb';
+				_this90._qOPostEnd = 'table:not(.postfiles)';
 
-				_this89.docExt = '.html';
-				_this89.hasPicWrap = true;
-				_this89.jsonSubmit = true;
-				_this89.markupBB = true;
-				_this89.multiFile = true;
-				_this89.ru = true;
-				return _this89;
+				_this90.docExt = '.html';
+				_this90.hasPicWrap = true;
+				_this90.jsonSubmit = true;
+				_this90.markupBB = true;
+				_this90.multiFile = true;
+				_this90.ru = true;
+				return _this90;
 			}
 
 			_createClass(_2__ch, [{
@@ -21577,77 +21593,48 @@ true, true];
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this90 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this90.makaba = true;
+				_this91.makaba = true;
 
-				_this90.cReply = 'de-reply-class';
-				_this90.qBan = '.post__pomyanem';
-				_this90.qClosed = '.sticky-img[src$="locked.png"]';
-				_this90.qDForm = '#posts-form';
-				_this90.qFormFile = '.postform__raw.filer input[type="file"]';
-				_this90.qFormRedir = null;
-				_this90.qFormRules = '.rules';
-				_this90.qFormSubm = '#submit';
-				_this90.qFormTd = '.postform__raw';
-				_this90.qFormTr = '.postform__raw';
-				_this90.qFormTxta = '#shampoo';
-				_this90.qImgInfo = '.post__file-attr';
-				_this90.qOmitted = '.thread__missed';
-				_this90.qOPost = '.post_type_oppost';
-				_this90.qPostHeader = '.post__details';
-				_this90.qPostImg = '.preview';
-				_this90.qPostMsg = '.post__message';
-				_this90.qPostName = '.post__anon, .post__email';
-				_this90.qPostRef = '.post__reflink:nth-child(2)';
-				_this90.qPostSubj = '.post__title';
-				_this90.qRPost = '.post_type_reply[data-num]';
-				_this90.qTrunc = null;
+				_this91.cReply = 'de-reply-class';
+				_this91.qBan = '.post__pomyanem';
+				_this91.qClosed = '.sticky-img[src$="locked.png"]';
+				_this91.qDForm = '#posts-form';
+				_this91.qFormFile = '.postform__raw.filer input[type="file"]';
+				_this91.qFormRedir = null;
+				_this91.qFormRules = '.rules';
+				_this91.qFormSubm = '#submit';
+				_this91.qFormTd = '.postform__raw';
+				_this91.qFormTr = '.postform__raw';
+				_this91.qFormTxta = '#shampoo';
+				_this91.qImgInfo = '.post__file-attr';
+				_this91.qOmitted = '.thread__missed';
+				_this91.qOPost = '.post_type_oppost';
+				_this91.qPostHeader = '.post__details';
+				_this91.qPostImg = '.preview';
+				_this91.qPostMsg = '.post__message';
+				_this91.qPostName = '.post__anon, .post__email';
+				_this91.qPostRef = '.post__reflink:nth-child(2)';
+				_this91.qPostSubj = '.post__title';
+				_this91.qRPost = '.post_type_reply[data-num]';
+				_this91.qTrunc = null;
 
-				_this90.formParent = 'thread';
-				_this90.hasAltCaptcha = true;
-				_this90.hasCatalog = true;
-				_this90.hasOPNum = true;
-				_this90.hasPicWrap = true;
-				_this90.hasReportBtn = true;
-				_this90.JsonBuilder = MakabaPostsBuilder;
-				_this90.jsonSubmit = true;
-				_this90.markupBB = true;
-				_this90.multiFile = true;
-				_this90.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-				_this90._capUpdPromise = null;
-				return _this90;
+				_this91.formParent = 'thread';
+				_this91.hasAltCaptcha = true;
+				_this91.hasCatalog = true;
+				_this91.hasOPNum = true;
+				_this91.hasPicWrap = true;
+				_this91.JsonBuilder = MakabaPostsBuilder;
+				_this91.jsonSubmit = true;
+				_this91.markupBB = true;
+				_this91.multiFile = true;
+				_this91.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this91._capUpdPromise = null;
+				return _this91;
 			}
 
 			_createClass(Makaba, [{
-				key: 'callReportForm',
-				value: function callReportForm(pNum, tNum) {
-					var _this91 = this;
-
-					$q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
-						var inpEl = e.target.previousElementSibling;
-						if (!inpEl.value) {
-							inpEl.classList.add('de-input-error');
-							return;
-						}
-						var formData = new FormData();
-						formData.append('task', 'report');
-						formData.append('board', _this91.b);
-						formData.append('thread', tNum);
-						formData.append('posts', pNum);
-						formData.append('comment', inpEl.value);
-						closePopup('edit-report');
-						$popup('report', Lng.sending[lang], true);
-						$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(function (xhr) {
-							var obj = void 0;
-							try {
-								obj = JSON.parse(xhr.responseText);
-							} catch (e) {}
-							$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText : (obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
-						});
-					};
-				}
-			}, {
 				key: 'deleteTruncMsg',
 				value: function deleteTruncMsg(post, el) {
 					el.previousSibling.remove();
@@ -21750,9 +21737,9 @@ true, true];
 					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref79 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref79[0],
-						    inp = _ref79[1];
+						var _ref78 = [].concat(_toConsumableArray(box.children)),
+						    _img2 = _ref78[0],
+						    inp = _ref78[1];
 
 						_img2.onclick = function () {
 							return _this92.updateCaptcha(cap);
@@ -21864,6 +21851,38 @@ true, true];
 				get: function get() {
 					return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 				}
+			}, {
+				key: 'reportForm',
+				get: function get() {
+					var _this93 = this;
+
+					var value = function value(pNum, tNum) {
+						return $q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
+							var inpEl = e.target.previousElementSibling;
+							if (!inpEl.value) {
+								inpEl.classList.add('de-input-error');
+								return;
+							}
+							var formData = new FormData();
+							formData.append('task', 'report');
+							formData.append('board', _this93.b);
+							formData.append('thread', tNum);
+							formData.append('posts', pNum);
+							formData.append('comment', inpEl.value);
+							closePopup('edit-report');
+							$popup('report', Lng.sending[lang], true);
+							$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(function (xhr) {
+								var obj = void 0;
+								try {
+									obj = JSON.parse(xhr.responseText);
+								} catch (e) {}
+								$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText : (obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+							});
+						};
+					};
+					Object.defineProperty(this, 'reportForm', { value: value });
+					return value;
+				}
 			}]);
 
 			return Makaba;
@@ -21883,20 +21902,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this93 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this94 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this93.qDForm = 'form:not([enctype])';
-				_this93.qForm = '#fm';
-				_this93.qFormRedir = null;
-				_this93.qFormRules = '.chui';
-				_this93.qOmitted = 'font[color="#707070"]';
-				_this93.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this93.qPostRef = '.del';
-				_this93.qRPost = 'td:nth-child(2)';
+				_this94.qDForm = 'form:not([enctype])';
+				_this94.qForm = '#fm';
+				_this94.qFormRedir = null;
+				_this94.qFormRules = '.chui';
+				_this94.qOmitted = 'font[color="#707070"]';
+				_this94.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this94.qPostRef = '.del';
+				_this94.qRPost = 'td:nth-child(2)';
 
-				_this93.docExt = '.htm';
-				_this93.formParent = 'resto';
-				return _this93;
+				_this94.docExt = '.htm';
+				_this94.formParent = 'resto';
+				return _this94;
 			}
 
 			_createClass(_2chan, [{
@@ -21956,30 +21975,29 @@ true, true];
 			function _2channel(prot, dm) {
 				_classCallCheck(this, _2channel);
 
-				var _this94 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
 
-				_this94._2channel = true;
+				_this95._2channel = true;
 
-				_this94.cReply = 'post reply';
-				_this94.qBan = '.pomyanem';
-				_this94.qFormFile = '.postform__field input[type="file"]';
-				_this94.qFormPassw = '#postpasswd';
-				_this94.qFormRules = '.rules-area';
-				_this94.qFormTd = '.postform__field';
-				_this94.qFormTr = '.postform__field';
-				_this94.qImgInfo = '.file-attr';
-				_this94.qOmitted = '.mess-post';
-				_this94.qOPost = '.oppost';
-				_this94.qPostHeader = '.post-details';
-				_this94.qPostMsg = '.post-message';
-				_this94.qPostName = '.ananimas, .post-email';
-				_this94.qPostRef = '.reflink';
-				_this94.qPostSubj = '.post-title';
-				_this94.qRPost = '.post.reply[data-num]';
+				_this95.cReply = 'post reply';
+				_this95.qBan = '.pomyanem';
+				_this95.qFormFile = '.postform__field input[type="file"]';
+				_this95.qFormPassw = '#postpasswd';
+				_this95.qFormRules = '.rules-area';
+				_this95.qFormTd = '.postform__field';
+				_this95.qFormTr = '.postform__field';
+				_this95.qImgInfo = '.file-attr';
+				_this95.qOmitted = '.mess-post';
+				_this95.qOPost = '.oppost';
+				_this95.qPostHeader = '.post-details';
+				_this95.qPostMsg = '.post-message';
+				_this95.qPostName = '.ananimas, .post-email';
+				_this95.qPostRef = '.reflink';
+				_this95.qPostSubj = '.post-title';
+				_this95.qRPost = '.post.reply[data-num]';
 
-				_this94.hasAltCaptcha = false;
-				_this94.hasReportBtn = false;
-				return _this94;
+				_this95.hasAltCaptcha = false;
+				return _this95;
 			}
 
 			_createClass(_2channel, [{
@@ -22034,6 +22052,11 @@ true, true];
 				get: function get() {
 					return _get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,\n\t\t\t\t\t.refmap, #youtube-thumb-float { display: none !important; }\n\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t#postform { display: inline-table !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '');
 				}
+			}, {
+				key: 'reportForm',
+				get: function get() {
+					return null;
+				}
 			}]);
 
 			return _2channel;
@@ -22049,17 +22072,17 @@ true, true];
 			function _410chan(prot, dm) {
 				_classCallCheck(this, _410chan);
 
-				var _this95 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
 
-				_this95.qFormRedir = 'input#noko';
-				_this95.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this96.qFormRedir = 'input#noko';
+				_this96.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this95.ru = true;
-				_this95.hasCatalog = true;
-				_this95.markupBB = false;
-				_this95.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-				_this95._capUpdPromise = null;
-				return _this95;
+				_this96.ru = true;
+				_this96.hasCatalog = true;
+				_this96.markupBB = false;
+				_this96.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this96._capUpdPromise = null;
+				return _this96;
 			}
 
 			_createClass(_410chan, [{
@@ -22083,7 +22106,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this96 = this;
+					var _this97 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -22098,7 +22121,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this96.getCaptchaSrc(src);
+						img.src = _this97.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -22129,39 +22152,39 @@ true, true];
 			function _4chan(prot, dm) {
 				_classCallCheck(this, _4chan);
 
-				var _this97 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
 
-				_this97._4chan = true;
+				_this98._4chan = true;
 
-				_this97.cReply = 'post reply';
-				_this97.qBan = 'strong[style="color: red;"]';
-				_this97.qClosed = '.archivedIcon';
-				_this97.qDelBut = '.deleteform > input[type="submit"]';
-				_this97.qError = '#errmsg';
-				_this97.qForm = 'form[name="post"]';
-				_this97.qFormRedir = null;
-				_this97.qImgInfo = '.fileText';
-				_this97.qOmitted = '.summary.desktop';
-				_this97.qOPost = '.op';
-				_this97.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this97.qPostHeader = '.postInfo';
-				_this97.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this97.qPostName = '.name';
-				_this97.qPostRef = '.postInfo > .postNum';
-				_this97.qPostSubj = '.subject';
-				_this97._qOPostEnd = '.replyContainer';
+				_this98.cReply = 'post reply';
+				_this98.qBan = 'strong[style="color: red;"]';
+				_this98.qClosed = '.archivedIcon';
+				_this98.qDelBut = '.deleteform > input[type="submit"]';
+				_this98.qError = '#errmsg';
+				_this98.qForm = 'form[name="post"]';
+				_this98.qFormRedir = null;
+				_this98.qImgInfo = '.fileText';
+				_this98.qOmitted = '.summary.desktop';
+				_this98.qOPost = '.op';
+				_this98.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this98.qPostHeader = '.postInfo';
+				_this98.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this98.qPostName = '.name';
+				_this98.qPostRef = '.postInfo > .postNum';
+				_this98.qPostSubj = '.subject';
+				_this98._qOPostEnd = '.replyContainer';
 
-				_this97.anchor = '#p';
-				_this97.docExt = '';
-				_this97.firstPage = 1;
-				_this97.formParent = 'resto';
-				_this97.hasAltCaptcha = true;
-				_this97.hasCatalog = true;
-				_this97.hasTextLinks = true;
-				_this97.JsonBuilder = _4chanPostsBuilder;
-				_this97.res = 'thread/';
-				_this97.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-				return _this97;
+				_this98.anchor = '#p';
+				_this98.docExt = '';
+				_this98.firstPage = 1;
+				_this98.formParent = 'resto';
+				_this98.hasAltCaptcha = true;
+				_this98.hasCatalog = true;
+				_this98.hasTextLinks = true;
+				_this98.JsonBuilder = _4chanPostsBuilder;
+				_this98.res = 'thread/';
+				_this98.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				return _this98;
 			}
 
 			_createClass(_4chan, [{
@@ -22295,12 +22318,12 @@ true, true];
 			function _8ch(prot, dm) {
 				_classCallCheck(this, _8ch);
 
-				var _this98 = _possibleConstructorReturn(this, (_8ch.__proto__ || Object.getPrototypeOf(_8ch)).call(this, prot, dm));
+				var _this99 = _possibleConstructorReturn(this, (_8ch.__proto__ || Object.getPrototypeOf(_8ch)).call(this, prot, dm));
 
-				_this98._8ch = true;
+				_this99._8ch = true;
 
-				_this98._capUpdPromise = null;
-				return _this98;
+				_this99._capUpdPromise = null;
+				return _this99;
 			}
 
 			_createClass(_8ch, [{
@@ -22342,12 +22365,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this99 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this99._8ch = null;
+				_this100._8ch = null;
 
-				_this99.qFormRules = '.regras';
-				return _this99;
+				_this100.qFormRules = '.regras';
+				return _this100;
 			}
 
 			_createClass(_55chan, [{
@@ -22396,23 +22419,23 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this101 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this101.cReply = 'post';
-				_this101.qDelBut = null;
-				_this101.qDelPassw = null;
-				_this101.qDForm = 'body > .container-fluid';
-				_this101.qPostHeader = '.post_head';
-				_this101.qPostImg = '.post_image > img';
-				_this101.qPostMsg = '.post_comment_body';
-				_this101.qPostRef = '.post_id, .post_head > b';
-				_this101.qPostSubj = '.post_subject';
-				_this101.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this102.cReply = 'post';
+				_this102.qDelBut = null;
+				_this102.qDelPassw = null;
+				_this102.qDForm = 'body > .container-fluid';
+				_this102.qPostHeader = '.post_head';
+				_this102.qPostImg = '.post_image > img';
+				_this102.qPostMsg = '.post_comment_body';
+				_this102.qPostRef = '.post_id, .post_head > b';
+				_this102.qPostSubj = '.post_subject';
+				_this102.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this101.docExt = '';
-				_this101.hasOPNum = true;
-				_this101.res = 'thread/';
-				return _this101;
+				_this102.docExt = '';
+				_this102.hasOPNum = true;
+				_this102.res = 'thread/';
+				return _this102;
 			}
 
 			_createClass(Arhivach, [{
@@ -22465,13 +22488,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var _this102 = this;
+					var _this103 = this;
 
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
 						for (var _i65 = 0, _len16 = delPosts.length; _i65 < _len16; ++_i65) {
-							var post = pByNum.get(_this102.getPNum(delPosts[_i65]));
+							var post = pByNum.get(_this103.getPNum(delPosts[_i65]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
 							}
@@ -22516,10 +22539,10 @@ true, true];
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this103 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this103.markupBB = true;
-				return _this103;
+				_this104.markupBB = true;
+				return _this104;
 			}
 
 			_createClass(Brchan, [{
@@ -22543,12 +22566,12 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this104 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this104.qImgInfo = '.filesize, .fileinfo';
+				_this105.qImgInfo = '.filesize, .fileinfo';
 
-				_this104.multiFile = true;
-				return _this104;
+				_this105.multiFile = true;
+				return _this105;
 			}
 
 			_createClass(Diochan, [{
@@ -22581,29 +22604,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this105 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this105.dobrochan = true;
+				_this106.dobrochan = true;
 
-				_this105.qClosed = 'img[src="/images/locked.png"]';
-				_this105.qDForm = 'form[action*="delete"]';
-				_this105.qError = '.post-error, h2';
-				_this105.qFormRedir = 'select[name="goto"]';
-				_this105.qImgInfo = '.fileinfo';
-				_this105.qOmitted = '.abbrev > span:last-of-type';
-				_this105.qPages = '.pages > tbody > tr > td';
-				_this105.qPostMsg = '.postbody';
-				_this105.qPostSubj = '.replytitle';
-				_this105.qTrunc = '.abbrev > span:first-of-type';
+				_this106.qClosed = 'img[src="/images/locked.png"]';
+				_this106.qDForm = 'form[action*="delete"]';
+				_this106.qError = '.post-error, h2';
+				_this106.qFormRedir = 'select[name="goto"]';
+				_this106.qImgInfo = '.fileinfo';
+				_this106.qOmitted = '.abbrev > span:last-of-type';
+				_this106.qPages = '.pages > tbody > tr > td';
+				_this106.qPostMsg = '.postbody';
+				_this106.qPostSubj = '.replytitle';
+				_this106.qTrunc = '.abbrev > span:first-of-type';
 
-				_this105.anchor = '#i';
-				_this105.formParent = 'thread_id';
-				_this105.hasPicWrap = true;
-				_this105.JsonBuilder = DobrochanPostsBuilder;
-				_this105.multiFile = true;
-				_this105.ru = true;
-				_this105.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this105;
+				_this106.anchor = '#i';
+				_this106.formParent = 'thread_id';
+				_this106.hasPicWrap = true;
+				_this106.JsonBuilder = DobrochanPostsBuilder;
+				_this106.multiFile = true;
+				_this106.ru = true;
+				_this106.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this106;
 			}
 
 			_createClass(Dobrochan, [{
@@ -22749,11 +22772,11 @@ true, true];
 			function Dscript(prot, dm) {
 				_classCallCheck(this, Dscript);
 
-				var _this106 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
 
-				_this106.markupBB = true;
-				_this106.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-				return _this106;
+				_this107.markupBB = true;
+				_this107.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+				return _this107;
 			}
 
 			_createClass(Dscript, [{
@@ -22784,10 +22807,10 @@ true, true];
 			function Endchan(prot, dm) {
 				_classCallCheck(this, Endchan);
 
-				var _this107 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
 
-				_this107.qTrunc = '.contentOmissionIndicator > p';
-				return _this107;
+				_this108.qTrunc = '.contentOmissionIndicator > p';
+				return _this108;
 			}
 
 			_createClass(Endchan, [{
@@ -22822,26 +22845,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this108 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this108.cReply = 'post';
-				_this108.qError = '.error > .info';
-				_this108.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this108.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-				_this108.qOPost = '.thread_OP';
-				_this108.qPages = '.pagelist > li:nth-last-child(2)';
-				_this108.qPostHeader = '.post_head';
-				_this108.qPostMsg = '.text';
-				_this108.qPostSubj = '.subject';
-				_this108.qPostTrip = '.tripcode';
-				_this108.qRPost = '.thread_reply';
-				_this108.qTrunc = '.tldr';
-				_this108.docExt = '';
-				_this108.firstPage = 1;
-				_this108.markupBB = true;
-				_this108.multiFile = true;
-				_this108.res = 'thread/';
-				return _this108;
+				_this109.cReply = 'post';
+				_this109.qError = '.error > .info';
+				_this109.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this109.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+				_this109.qOPost = '.thread_OP';
+				_this109.qPages = '.pagelist > li:nth-last-child(2)';
+				_this109.qPostHeader = '.post_head';
+				_this109.qPostMsg = '.text';
+				_this109.qPostSubj = '.subject';
+				_this109.qPostTrip = '.tripcode';
+				_this109.qRPost = '.thread_reply';
+				_this109.qTrunc = '.tldr';
+				_this109.docExt = '';
+				_this109.firstPage = 1;
+				_this109.markupBB = true;
+				_this109.multiFile = true;
+				_this109.res = 'thread/';
+				return _this109;
 			}
 
 			_createClass(Ernstchan, [{
@@ -22891,12 +22914,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this109 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this109.iichan = true;
+				_this110.iichan = true;
 
-				_this109.hasCatalog = true;
-				return _this109;
+				_this110.hasCatalog = true;
+				return _this110;
 			}
 
 			_createClass(Iichan, [{
@@ -22959,12 +22982,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this110 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this110.qImgInfo = '.fileinfo';
+				_this111.qImgInfo = '.fileinfo';
 
-				_this110.hasTextLinks = true;
-				return _this110;
+				_this111.hasTextLinks = true;
+				return _this111;
 			}
 
 			_createClass(Kohlchan, [{
@@ -22990,10 +23013,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this111 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this111.markupBB = true;
-				return _this111;
+				_this112.markupBB = true;
+				return _this112;
 			}
 
 			_createClass(Kropyvach, [{
@@ -23019,10 +23042,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this112 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this112.qOPost = '.op';
-				return _this112;
+				_this113.qOPost = '.op';
+				return _this113;
 			}
 
 			_createClass(Lainchan, [{
@@ -23142,15 +23165,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this116 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this117 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this116.qBan = 'font[color="#FF0000"]';
-				_this116.qImgInfo = '.filesize[style="display: inline;"]';
+				_this117.qBan = 'font[color="#FF0000"]';
+				_this117.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this116.formParent = 'replythread';
-				_this116.jsonSubmit = true;
-				_this116.multiFile = true;
-				return _this116;
+				_this117.formParent = 'replythread';
+				_this117.jsonSubmit = true;
+				_this117.multiFile = true;
+				return _this117;
 			}
 
 			_createClass(Ponyach, [{
@@ -23175,9 +23198,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref80) {
-					var error = _ref80.error,
-					    id = _ref80.id;
+				value: function getSubmitData(_ref79) {
+					var error = _ref79.error,
+					    id = _ref79.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23213,12 +23236,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this117 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this118 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this117.qOPost = '.opContainer';
+				_this118.qOPost = '.opContainer';
 
-				_this117.jsonSubmit = false;
-				return _this117;
+				_this118.jsonSubmit = false;
+				return _this118;
 			}
 
 			_createClass(Ponychan, [{
@@ -23253,13 +23276,13 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this118 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this119 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this118.qImgInfo = '.unimportant';
-				_this118.qPages = '.pagination';
+				_this119.qImgInfo = '.unimportant';
+				_this119.qPages = '.pagination';
 
-				_this118.markupBB = true;
-				return _this118;
+				_this119.markupBB = true;
+				return _this119;
 			}
 
 			_createClass(Synch, [{
@@ -23317,16 +23340,16 @@ true, true];
 			function Warosu(prot, dm) {
 				_classCallCheck(this, Warosu);
 
-				var _this119 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+				var _this120 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
 
-				_this119.qDForm = '.content';
-				_this119.qForm = '.subreply';
-				_this119.qPostRef = '.js';
-				_this119.qImgInfo = 'span';
-				_this119.qOPost = 'div[itemscope]';
+				_this120.qDForm = '.content';
+				_this120.qForm = '.subreply';
+				_this120.qPostRef = '.js';
+				_this120.qImgInfo = 'span';
+				_this120.qOPost = 'div[itemscope]';
 
-				_this119.res = 'thread/';
-				return _this119;
+				_this120.res = 'thread/';
+				return _this120;
 			}
 
 			_createClass(Warosu, [{
@@ -23391,7 +23414,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this120 = this;
+			var _this121 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -23404,7 +23427,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this120.hasListeners = true;
+					_this121.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -23418,8 +23441,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref81) {
-			var arg = _ref81.data;
+		_handleMessage: function _handleMessage(_ref80) {
+			var arg = _ref80.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23482,8 +23505,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref82) {
-			var responseText = _ref82.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref81) {
+			var responseText = _ref81.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
@@ -23561,7 +23584,7 @@ true, true];
 
 
 	function addSVGIcons() {
-		docBody.insertAdjacentHTML('beforeend', '\n\t<div id="de-svg-icons">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<linearGradient id="de-file-del-gradient" x1="50%" y1="10%" x2="50%" y2="90%">\n\t\t\t<stop offset="0" stop-color="#fbd"/>\n\t\t\t<stop offset="50%" stop-color="#f30"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-post-btns-back" d="M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M4.5 11.5l7-7M11.5 11.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M8 4v8M4 8h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-reply">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13l-3.5-3h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M9 9l3 3"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-report">\n\t\t<path class="de-post-btns-back" d="M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z"/>\n\t\t<path fill="none" class="de-svg-stroke" stroke-width="2.5" d="M8 3v6.5"/>\n\t\t<circle class="de-svg-fill" cx="8" cy="12" r="1.5"/>\n\t</symbol>\n\n\t<!-- FILE ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-file-del">\n\t\t<path fill="url(#de-file-del-gradient)" stroke="#ca2900" d="M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" width="16" height="16" id="de-symbol-file-rar">\n\t\t<path stroke="#07ac07" stroke-width="2" d="M3 13h13"/>\n\t\t<path stroke="#03043f" stroke-width="4" d="M3 10h13"/>\n\t\t<path stroke="#cc5dc1" stroke-width="2" d="M3 7h13"/>\n\t\t<path fill="#ccd0db" d="M3 14l-3-3V3l3 3v8z"/>\n\t\t<path fill="#666" d="M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z"/>\n\t\t<path stroke="#103cef" stroke-width="2" d="M3 10h13"/>\n\t\t<path stroke="#294f1d" d="M3 14.5h13"/>\n\t\t<path fill="#994a95" d="M13 2H0l3 3h13l-3-3z"/>\n\t\t<path stroke="#7C467a" d="M3 5.5h13"/>\n\t\t<path stroke="#513400" stroke-width="2" d="M9.5 15V5"/>\n\t\t<path fill="#513400" d="M10.5 5l-3-3h-2l3 3h2z"/>\n\t\t<path stroke="#ceab00" stroke-width="4" d="M7 10h5"/>\n\t\t<path fill="none" stroke="#222" d="M8.5 9v1.5h2V9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-file-ren">\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="6" cy="14" r="1.5"/>\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="10" cy="14" r="1.5"/>\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="14" cy="14" r="1.5"/>\n\t\t<path fill="#fcb45e" stroke="#3a2200" stroke-width=".75" d="M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z"/>\n\t\t<path fill="#ff8a33" stroke="#3a2200" stroke-width=".75" d="M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z"/>\n\t\t<path fill="#ffe888" stroke="#333" stroke-width=".75" d="M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z"/>\n\t\t<path stroke="#333" d="M1 12.5L2.5 11"/>\n\t</symbol>\n\t<svg viewBox="0 0 16 16" id="de-symbol-file-txt">\n\t\t<circle fill="#2cabe1" cx="8" cy="8" r="7.5"/>\n\t\t<line stroke="#fff" stroke-width="2" x1="8" y1="3" x2="8" y2="13"/>\n\t\t<line stroke="#fff" stroke-width="2" x1="3" y1="8" x2="13" y2="8"/>\n\t</svg>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>\n\t\t<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>\n\t</symbol>\n\n\t<!-- THREAD NAVIGATION ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-thr-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\n\t<!-- IMAGE BUTTON ICONS -->\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>\n\t\t<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>\n\t</symbol>\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">\n\t\t<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-rotate">\n\t\t<path class="de-svg-stroke" stroke-width="7" d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16"/>\n\t\t<path class="de-svg-fill" d="M13.5 19.2L0 27V11.4z"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h12"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>\n\t\t<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>\n\t\t<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M13.5 9V4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle cx="12.5" cy="10.8" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" d="M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4l5 5z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6m0-6l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>\n\t\t<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">\n\t\t<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>\n\t\t<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>\n\t\t<path stroke="#444" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<path stroke="#666" stroke-width="10" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5" y="17" style="font-family: \'Lucida Console\', monospace; font-size: 18px; font-weight: 600;">C</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-wait">\n\t\t<circle fill="#929087" cx="8" cy="2" r="2"/>\n\t\t<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>\n\t\t<circle fill="#ACAAA0" cx="2" cy="8" r="2"/>\n\t\t<circle fill="#79766C" cx="14" cy="8" r="2"/>\n\t\t<circle fill="#D2CFC6" cx="12.25" cy="12.25" r="2"/>\n\t\t<circle fill="#9F9C93" cx="3.75" cy="3.75" r="2"/>\n\t\t<circle fill="#B9B6AE" cx="3.75" cy="12.25" r="2"/>\n\t\t<circle fill="#868379" cx="12.25" cy="3.75" r="2"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-closed">\n\t\t<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-unavail">\n\t\t<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>\n\t</symbol>\n\t</svg>\n\t</div>');
+		docBody.insertAdjacentHTML('beforeend', '\n\t<div id="de-svg-icons">\n\t<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n\t<defs>\n\t\t<linearGradient id="de-btn-back-gradient" x1="50%" y1="0%" y2="100%" x2="50%">\n\t\t\t<stop offset="0%" stop-color="#A0A0A0"/>\n\t\t\t<stop offset="50%" stop-color="#505050"/>\n\t\t\t<stop offset="100%" stop-color="#A0A0A0"/>\n\t\t</linearGradient>\n\t\t<linearGradient id="de-file-del-gradient" x1="50%" y1="10%" x2="50%" y2="90%">\n\t\t\t<stop offset="0" stop-color="#fbd"/>\n\t\t\t<stop offset="50%" stop-color="#f30"/>\n\t\t</linearGradient>\n\t</defs>\n\n\t<!-- POST ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-back">\n\t\t<path class="de-post-btns-back" d="M4 1Q1 1 1 4v8q0 3 3 3h8q3 0 3-3V4q0-3-3-3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-hide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M4.5 11.5l7-7M11.5 11.5l-7-7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-unhide">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M8 4v8M4 8h8"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-reply">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 11c0 .8.6 1.2 1.3.7l5-3c.6-.4.6-1 0-1.5l-5-3C5.6 4 5 4.3 5 5v6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-expthr">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4.5 6L8 3l3.5 3H9.25v4h2.25L8 13l-3.5-3h2.25V6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-fav">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M8 3l1.5 3 3.5.5-2.5 2.2 1 3.8-3.5-2-3.5 2 1-3.8L3 6.5 6.5 6 8 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-stick">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M5 5h6v6H5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-sage">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<path class="de-svg-fill" d="M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-post-src">\n\t\t<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>\n\t\t<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M9 9l3 3"/>\n\t</symbol>\n\n\t<!-- FILE ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-file-del">\n\t\t<path fill="url(#de-file-del-gradient)" stroke="#ca2900" d="M4 1.3l4 4 4-4L14.8 4l-4 4 4 4-2.8 2.8-4-4-4 4L1.3 12l4-4-4-4L4 1.3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" width="16" height="16" id="de-symbol-file-rar">\n\t\t<path stroke="#07ac07" stroke-width="2" d="M3 13h13"/>\n\t\t<path stroke="#03043f" stroke-width="4" d="M3 10h13"/>\n\t\t<path stroke="#cc5dc1" stroke-width="2" d="M3 7h13"/>\n\t\t<path fill="#ccd0db" d="M3 14l-3-3V3l3 3v8z"/>\n\t\t<path fill="#666" d="M3 5L0 2v1l3 3V5zm0 3L0 5v1l3 3V8zm0 3L0 8v1l3 3v-1zm0 3l-3-3v1l3 3v-1z"/>\n\t\t<path stroke="#103cef" stroke-width="2" d="M3 10h13"/>\n\t\t<path stroke="#294f1d" d="M3 14.5h13"/>\n\t\t<path fill="#994a95" d="M13 2H0l3 3h13l-3-3z"/>\n\t\t<path stroke="#7C467a" d="M3 5.5h13"/>\n\t\t<path stroke="#513400" stroke-width="2" d="M9.5 15V5"/>\n\t\t<path fill="#513400" d="M10.5 5l-3-3h-2l3 3h2z"/>\n\t\t<path stroke="#ceab00" stroke-width="4" d="M7 10h5"/>\n\t\t<path fill="none" stroke="#222" d="M8.5 9v1.5h2V9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-file-ren">\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="6" cy="14" r="1.5"/>\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="10" cy="14" r="1.5"/>\n\t\t<circle fill="#ffe888" stroke="#333" stroke-width=".75" cx="14" cy="14" r="1.5"/>\n\t\t<path fill="#fcb45e" stroke="#3a2200" stroke-width=".75" d="M2 8L9.5.5l1.8 1.8-7.5 7.5L2 8z"/>\n\t\t<path fill="#ff8a33" stroke="#3a2200" stroke-width=".75" d="M3.8 9.8l7.5-7.5L13 4l-7.5 7.5-1.7-1.7z"/>\n\t\t<path fill="#ffe888" stroke="#333" stroke-width=".75" d="M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z"/>\n\t\t<path stroke="#333" d="M1 12.5L2.5 11"/>\n\t</symbol>\n\t<svg viewBox="0 0 16 16" id="de-symbol-file-txt">\n\t\t<circle fill="#2cabe1" cx="8" cy="8" r="7.5"/>\n\t\t<line stroke="#fff" stroke-width="2" x1="8" y1="3" x2="8" y2="13"/>\n\t\t<line stroke="#fff" stroke-width="2" x1="3" y1="8" x2="13" y2="8"/>\n\t</svg>\n\n\t<!-- WINDOW ICONS -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="3.5" d="M8 13V6"/>\n\t\t<path class="de-svg-fill"  d="M3.5 7h9L8 2.5 3.5 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-win-close">\n\t\t<path class="de-svg-stroke" stroke-width="2.5" d="M3.5 3.5l9 9m-9 0l9-9"/>\n\t</symbol>\n\n\t<!-- THREAD NAVIGATION ICONS -->\n\t<symbol viewBox="0 0 7 7" id="de-symbol-thr-nav-arrow">\n\t\t<path class="de-svg-fill" d="M6 3.5L2 0v7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-up">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 22.5l9-9 9 9M3 13.5l9-9 9 9"/>\n\t</symbol>\n\t<symbol viewBox="0 0 24 24" id="de-symbol-thr-nav-down">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M3 11.5l9 9 9-9M3 2.5l9 9 9-9"/>\n\t</symbol>\n\n\t<!-- IMAGE BUTTON ICONS -->\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="8" d="M0 16h20"/>\n\t\t<path class="de-svg-stroke" stroke-width="9" d="M13 3l16 16M13 29l16-16"/>\n\t</symbol>\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-auto">\n\t\t<path class="de-svg-fill" d="M13.2 26.6c-3.1 2.4-5.9.5-5.9-3.3V8.7c0-3.8 2.8-5.6 6.1-3.3l12.5 7.1c3.1 1.9 3.1 5.2 0 7.1 0-.1-12.7 7-12.7 7z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 32 32" id="de-symbol-img-btn-rotate">\n\t\t<path class="de-svg-stroke" stroke-width="7" d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16"/>\n\t\t<path class="de-svg-fill" d="M13.5 19.2L0 27V11.4z"/>\n\t</symbol>\n\n\t<!-- MAIN PANEL -->\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-logo">\n\t\t<path class="de-svg-fill" d="M22 5h-10v16h4v-14h6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M22 20.5H12c-2.8 0-5.7 0-5.7-4s2.8-4 5.7-4H21"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-cfg">\n\t\t<circle class="de-svg-stroke" stroke-width="3" cx="12.5" cy="12.5" r="6"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 6.5v-3M18.5 12.5h3M12.5 18.5v3M6.5 12.5h-3M16.7 8.3L19 6M16.7 16.7L19 19M8.3 16.7L6 19M8.3 8.3L6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-hid">\n\t\t<path class="de-svg-stroke" stroke-width="4" d="M6 19L19 6M6 6l13 13"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-fav">\n\t\t<path class="de-svg-fill" d="M12.5 3.5l2.5 6 6.5.5-5 4.2 2 6.8-6-4-6 4 2-6.8-5-4.2 6.5-.5 2.5-6z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-vid">\n\t\t<path class="de-svg-fill" d="M12.5 4a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm-1 13c-1.3 1-2.5.2-2.5-1.4V9.4C9 7.8 10.2 7 11.6 8l5.3 3c1.3.8 1.3 2.2 0 3l-5.4 3z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-refresh">\n\t\t<path class="de-svg-fill" d="M14 4v4.3a4.5 4.5 0 1 1-3 0V4a8.5 8.5 0 1 0 3 0z"/>\n\t\t<path class="de-svg-fill" d="M13 11V4h7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-arrow">\n\t\t<path class="de-svg-stroke" stroke-width="5" d="M4 12.5h12"/>\n\t\t<path class="de-svg-fill" d="M14 19V6l7 6.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>\n\t\t<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>\n\t\t<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">\n\t\t<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M13.5 9V4"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-upd">\n\t\t<circle cx="12.5" cy="10.8" r="4"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" stroke-linejoin="round" d="M4.5 12q8-10,16 0q-8 10,-16 0z"/>\n\t\t<path class="de-svg-stroke" d="M11 7L9.8 5M14 7l1.2-2M11 17l-1.2 2m4.2-2l1.2 2M7 8.5L5.3 6.8M7 15.5l-1.7 1.7M18 8.5l1.7-1.7M18 15.5l1.7 1.7"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-off">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4l5 5z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15 9.5l6 6m0-6l-6 6"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-audio-on">\n\t\t<path class="de-svg-fill" d="M13 21V4L8 9H4v7h4z"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M15.5 7.5c1.7 3.3 1.7 6.7 0 10m3-12.5c3 5 3 10 0 15"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-catalog">\n\t\t<path class="de-svg-fill" d="M5 5h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 5h3v3H9zM5 9h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zM9 9h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9zm-4 4h3v3H5zm12 0h3v3h-3zm-4 0h3v3h-3zm-4 0h3v3H9z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 25 25" id="de-symbol-panel-enable">\n\t\t<path class="de-svg-stroke" stroke-width="3" d="M12.5 4v8"/>\n\t\t<path class="de-svg-fill" d="M16 4.8v4a5 5 0 0 1-3.5 8.7A5 5 0 0 1 9 9V4.7a8.5 8.5 0 1 0 7 0z"/>\n\t</symbol>\n\n\t<!-- MARKUP BUTTONS -->\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-back">\n\t\t<path class="de-markup-back" stroke-width="2" d="M6 1q-5 0,-5 5v10q0 5,5 5h11q5 0,5 -5v-10q0 -5,-5-5z"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-bold">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5.5" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 800;">B</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-italic">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="8" y="17" style="font-family: sans-serif; font-size: 17px; font-weight: 600; font-style: italic;">i</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-under">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="15" width="20" style="font-family: sans-serif; font-size: 17px; font-weight: 600;">u</text>\n\t\t<path stroke="#444" stroke-width="1.5" d="M6 17H17.5"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-strike">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="17" style="font-family: sans-serif; font-size: 22px; font-weight: 600; font-style: italic;">s</text>\n\t\t<path stroke="#444" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-spoil">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<path stroke="#666" stroke-width="10" d="M4 11H19"/>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-code">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="5" y="17" style="font-family: \'Lucida Console\', monospace; font-size: 18px; font-weight: 600;">C</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sup">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="10" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-sub">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="4" y="15" style="font-family: sans-serif; font-size: 16px; font-weight: 600;">x</text>\n\t\t<text x="14" y="17" style="font-family: sans-serif; font-size: 8px; font-weight: 600;">2</text>\n\t</symbol>\n\t<symbol viewBox="0 0 23 22" id="de-symbol-markup-quote">\n\t\t<use xlink:href="#de-symbol-markup-back"/>\n\t\t<text x="6" y="18" style="font-family: sans-serif; font-size: 20px; font-weight: 600;">&gt;</text>\n\t</symbol>\n\n\t<!-- OTHER -->\n\t<symbol viewBox="0 0 16 16" id="de-symbol-wait">\n\t\t<circle fill="#929087" cx="8" cy="2" r="2"/>\n\t\t<circle fill="#C5C2BA" cx="8" cy="14" r="2"/>\n\t\t<circle fill="#ACAAA0" cx="2" cy="8" r="2"/>\n\t\t<circle fill="#79766C" cx="14" cy="8" r="2"/>\n\t\t<circle fill="#D2CFC6" cx="12.25" cy="12.25" r="2"/>\n\t\t<circle fill="#9F9C93" cx="3.75" cy="3.75" r="2"/>\n\t\t<circle fill="#B9B6AE" cx="3.75" cy="12.25" r="2"/>\n\t\t<circle fill="#868379" cx="12.25" cy="3.75" r="2"/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-closed">\n\t\t<image display="inline" width="16" height="16" xlink:href="data:image/gif;base64,R0lGODlhEAAQAKIAAP3rqPPOd+y6V+WmN+Dg4M7OzmZmZv///yH5BAEAAAcALAAAAAAQABAAAANCeLrWvZARUqqJkjiLj9FMcWHf6IldGZqM4zqRAcw0zXpAoO/6LfeNnS8XcAhjAIHSoFwim0wockCtUodWq+/1UiQAADs="/>\n\t</symbol>\n\t<symbol viewBox="0 0 16 16" id="de-symbol-unavail">\n\t\t<circle class="de-svg-stroke" fill="none" stroke-width="2" cx="8" cy="8" r="5"/>\n\t\t<path class="de-svg-stroke" stroke-width="2" d="M4 4l8 8"/>\n\t</symbol>\n\t</svg>\n\t</div>');
 	}
 
 
@@ -23589,7 +23612,7 @@ true, true];
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',
 		'#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t.de-cfg-tab { border-color: #001450 !important; }',
-		'#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }'][Cfg.scriptStyle] + '\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons { padding-top:6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-report, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle, .de-btn-unhide, .de-btn-unhide-user { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' + (!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '') + '\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t' + cont('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw==') + '\n\t' + cont('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw==') + '\n\t' + cont('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs=') + '\n\t' + cont('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7') + '\n\t' + cont('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7') + '\n\t' + cont('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs=') + '\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\r\n';
+		'#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }'][Cfg.scriptStyle] + '\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons { padding-top:6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: " +"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle, .de-btn-unhide, .de-btn-unhide-user { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }' + (!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '') + '\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t' + cont('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw==') + '\n\t' + cont('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw==') + '\n\t' + cont('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs=') + '\n\t' + cont('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7') + '\n\t' + cont('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7') + '\n\t' + cont('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs=') + '\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\r\n';
 
 		if ('animation' in docBody.style) {
 			x += '\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-close { animation: de-win-close .2s ease-in both; }\r\n';
@@ -23607,7 +23630,7 @@ true, true];
 	}
 
 	function updateCSS() {
-		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-report, .de-btn-src, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-report, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-report, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'max-width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-reply, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
+		var x = '\n\t.de-video-obj { width: ' + Cfg.YTubeWidth + 'px; height: ' + Cfg.YTubeHeigh + 'px; }\n\t.de-new-post { ' + (nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)') + ' !important; }\n\t.de-selected, .de-input-error { ' + (nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)') + ' !important; }\n\t' + (Cfg.markMyPosts ? '.de-mypost { ' + (nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)') + ' !important; }\n\t\t.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }' : '') + '\n\t' + (Cfg.markMyLinks ? '.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }\n\t\t\t.de-ref-you::after { content: " (You)"; }' : '.de-post-counter-you { display: none; }') + '\n\t' + (Cfg.postBtnsCSS === 0 ? '.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-src, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }' : '.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ' + (Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack) + '; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }') + '\n\t.de-fullimg-wrap-inpost > .de-fullimg { ' + (Cfg.resizeImgs ? 'max-width: 100%;' + (Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto') + '; }\n\t' + (Cfg.maskImgs ? aib.qPostImg + ', .de-img-embed, .de-video-obj { opacity: ' + Cfg.maskVisib / 100 + ' !important; }\n\t\t\t' + aib.qPostImg.split(', ').join(':hover, ') + ':hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }' : '') + '\n\t' + (Cfg.imgNames === 1 ? '.de-img-name { display: inline-block; max-width: 165px; overflow: hidden; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }\n\t\t\t.de-img-name::before { content: "." attr(de-ext); float: right; }' : '') + '\n\t' + (Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '') + '\n\t' + (Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '') + '\n\t' + (Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 1 ? '.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }' : '') + '\n\t' + (Cfg.noSpoilers === 2 ? '.spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }' : '') + '\n\t' + (Cfg.addSageBtn ? '' : '#de-sagebtn, ') + '\n\t' + (Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ') + '\n\t' + (Cfg.imgNavBtns ? '' : '.de-img-btn, ') + '\n\t' + (Cfg.imgInfoLink ? '' : '.de-fullimg-info, ') + '\n\t' + (Cfg.noPostNames ? aib.qPostName + ', ' + aib.qPostTrip + ', ' : '') + '\n\t' + (Cfg.noBoardRule ? aib.qFormRules + ', ' : '') + '\n\t' + (Cfg.panelCounter ? '' : '#de-panel-info, ') + '\n\t' + (Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '') + '\n\t' + (Cfg.showHideBtn ? '' : '.de-btn-hide, ') + '\n\t' + (Cfg.showRepBtn ? '' : '.de-btn-reply, ') + '\n\t' + (Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ') + '\n\t' + (Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ') + '\n\t' + (Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ') + '\n\t' + (Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ') + '\n\t' + (!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '') + 'body > hr, .postarea, .theader { display: none !important; }\r\n';
 		$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 		$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 	}

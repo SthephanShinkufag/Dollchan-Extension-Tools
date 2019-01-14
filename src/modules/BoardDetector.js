@@ -625,7 +625,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
-			this.hasReportBtn = true;
 			this.JsonBuilder = MakabaPostsBuilder;
 			this.jsonSubmit = true;
 			this.markupBB = true;
@@ -687,10 +686,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
 		}
-		callReportForm(pNum, tNum) {
-			$q('input[type="button"]', $popup('edit-report', `<input name="comment" value="" placeholder="${
-				pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
-			}" type="text"> <input value="OK" type="button">`)).onclick = e => {
+		get reportForm() {
+			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(
+				'edit-report',
+				`<input name="comment" value="" placeholder="${
+					pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]
+				}" type="text"> <input value="OK" type="button">`)
+			).onclick = e => {
 				const inpEl = e.target.previousElementSibling;
 				if(!inpEl.value) {
 					inpEl.classList.add('de-input-error');
@@ -712,7 +714,9 @@ function getImageBoard(checkDomains, checkEngines) {
 					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
 						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
 				});
-			};
+			});
+			Object.defineProperty(this, 'reportForm', { value });
+			return value;
 		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
@@ -963,7 +967,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qRPost = '.post.reply[data-num]';
 
 			this.hasAltCaptcha = false;
-			this.hasReportBtn = false;
 		}
 		get css() {
 			return `${ super.css }
@@ -974,6 +977,9 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '' }
 				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 					.file-attr { margin-bottom: 1px; }` : '' }`;
+		}
+		get reportForm() {
+			return null;
 		}
 		init() {
 			super.init();
