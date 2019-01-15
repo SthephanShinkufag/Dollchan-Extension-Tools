@@ -388,7 +388,8 @@ function updateCSS() {
 			'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' :
 			'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)'
 		} !important; }
-		.de-mypost-reply { border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
+		.de-mypost-reply:not(.de-pview) { position: relative; }
+		.de-mypost-reply::before { content: ""; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }` : '' }
 	${ Cfg.markMyLinks ?
 		`.de-ref-del.de-ref-you::after { content: " (Del)(You)"; }
 			.de-ref-op.de-ref-you::after { content: " (OP)(You)"; }
