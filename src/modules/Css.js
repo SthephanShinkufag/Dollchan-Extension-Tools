@@ -329,9 +329,9 @@ function scriptCSS() {
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
 	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
+	.de-link-backref { text-decoration: none; }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
-	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
@@ -433,7 +433,7 @@ function updateCSS() {
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
 	${ Cfg.noBoardRule ? `${ aib.qFormRules }, ` : '' }
 	${ Cfg.panelCounter ? '' : '#de-panel-info, ' }
-	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
+	${ Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-reply, ' }
 	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }

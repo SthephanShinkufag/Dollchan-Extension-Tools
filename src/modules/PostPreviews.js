@@ -325,7 +325,7 @@ class Pview extends AbstractPost {
 		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
-				.insertAdjacentHTML('afterbegin', `<a class="de-link-ref" href="${
+				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
 					aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
 					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}

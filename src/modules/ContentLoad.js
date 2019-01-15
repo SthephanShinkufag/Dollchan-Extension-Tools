@@ -84,8 +84,8 @@ const ContentLoader = {
 				const tc = el.textContent;
 				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 					el.href = aib.anchor + num;
-					if(!el.classList.contains('de-link-pref')) {
-						el.className = 'de-link-pref ' + el.className;
+					if(!el.classList.contains('de-link-postref')) {
+						el.className = 'de-link-postref ' + el.className;
 					}
 				} else {
 					el.href = getAbsLink(el.href);

@@ -215,7 +215,7 @@ class RefMap {
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
-		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
+		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-backref${
 			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-you' : ''
 		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}

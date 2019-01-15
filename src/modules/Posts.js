@@ -259,11 +259,11 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Don't use classList here, 'de-link-pref ' should be first
-			el.className = 'de-link-pref ' + el.className;
+			// Don't use classList here, 'de-link-postref ' should be first
+			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
-		case 'de-link-ref':
-		case 'de-link-pref':
+		case 'de-link-backref':
+		case 'de-link-postref':
 			if(!Cfg.linksNavig) {
 				return;
 			}
@@ -804,7 +804,7 @@ class Post extends AbstractPost {
 				MyPosts.removeStorage(num);
 			}
 			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
+			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]:not(.de-link-backref)`), el => {
 				const post = aib.getPostOfEl(el);
 				if(post.el !== this.el) {
 					el.classList.toggle('de-ref-you', isAdd);
@@ -850,9 +850,9 @@ class Post extends AbstractPost {
 		}
 		$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
 			el.classList.toggle('de-link-hid', isHide);
-			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+			if(Cfg.removeHidd && el.classList.contains('de-link-backref')) {
 				const refMapEl = el.parentNode;
-				if(isHide === !$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+				if(isHide === !$q('.de-link-backref:not(.de-link-hid)', refMapEl)) {
 					$toggle(refMapEl, !isHide);
 				}
 			}

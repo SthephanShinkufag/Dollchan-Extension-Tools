@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '83df265';
+const commit = 'fb4e9e2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5899,8 +5899,8 @@ const ContentLoader = {
 				const tc = el.textContent;
 				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
 					el.href = aib.anchor + num;
-					if(!el.classList.contains('de-link-pref')) {
-						el.className = 'de-link-pref ' + el.className;
+					if(!el.classList.contains('de-link-postref')) {
+						el.className = 'de-link-postref ' + el.className;
 					}
 				} else {
 					el.href = getAbsLink(el.href);
@@ -10405,11 +10405,11 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Don't use classList here, 'de-link-pref ' should be first
-			el.className = 'de-link-pref ' + el.className;
+			// Don't use classList here, 'de-link-postref ' should be first
+			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
-		case 'de-link-ref':
-		case 'de-link-pref':
+		case 'de-link-backref':
+		case 'de-link-postref':
 			if(!Cfg.linksNavig) {
 				return;
 			}
@@ -10950,7 +10950,7 @@ class Post extends AbstractPost {
 				MyPosts.removeStorage(num);
 			}
 			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
+			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]:not(.de-link-backref)`), el => {
 				const post = aib.getPostOfEl(el);
 				if(post.el !== this.el) {
 					el.classList.toggle('de-ref-you', isAdd);
@@ -10996,9 +10996,9 @@ class Post extends AbstractPost {
 		}
 		$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
 			el.classList.toggle('de-link-hid', isHide);
-			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+			if(Cfg.removeHidd && el.classList.contains('de-link-backref')) {
 				const refMapEl = el.parentNode;
-				if(isHide === !$q('.de-link-ref:not(.de-link-hid)', refMapEl)) {
+				if(isHide === !$q('.de-link-backref:not(.de-link-hid)', refMapEl)) {
 					$toggle(refMapEl, !isHide);
 				}
 			}
@@ -11481,7 +11481,7 @@ class Pview extends AbstractPost {
 		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
-				.insertAdjacentHTML('afterbegin', `<a class="de-link-ref" href="${
+				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
 					aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
 					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
@@ -13373,7 +13373,7 @@ class RefMap {
 		}
 	}
 	_getHTML(num, tUrl, isHidden) {
-		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-ref${
+		return `<a href="${ tUrl }${ aib.anchor }${ num }" class="de-link-backref${
 			isHidden ? ' de-link-hid' : '' }${ MyPosts.has(num) ? ' de-ref-you' : ''
 		}">&gt;&gt;${ num }</a><span class="de-refcomma">, </span>`;
 	}
@@ -17994,9 +17994,9 @@ function scriptCSS() {
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }
 	input[type="text"].de-input-selected { background: rgba(255,255,150,0.4) !important }
+	.de-link-backref { text-decoration: none; }
 	.de-link-parent { outline: 1px dotted !important; }
 	.de-link-pview { font-weight: bold; }
-	.de-link-ref { text-decoration: none; }
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
@@ -18098,7 +18098,7 @@ function updateCSS() {
 	${ Cfg.noPostNames ? `${ aib.qPostName }, ${ aib.qPostTrip }, ` : '' }
 	${ Cfg.noBoardRule ? `${ aib.qFormRules }, ` : '' }
 	${ Cfg.panelCounter ? '' : '#de-panel-info, ' }
-	${ Cfg.removeHidd ? '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma, ' : '' }
+	${ Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '' }
 	${ Cfg.showHideBtn ? '' : '.de-btn-hide, ' }
 	${ Cfg.showRepBtn ? '' : '.de-btn-reply, ' }
 	${ Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ' }
