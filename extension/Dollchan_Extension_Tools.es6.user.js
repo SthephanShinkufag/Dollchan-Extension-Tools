@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = 'fb4e9e2';
+const commit = 'fe8baab';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10950,7 +10950,7 @@ class Post extends AbstractPost {
 				MyPosts.removeStorage(num);
 			}
 			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]:not(.de-link-backref)`), el => {
+			$each($Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`), el => {
 				const post = aib.getPostOfEl(el);
 				if(post.el !== this.el) {
 					el.classList.toggle('de-ref-you', isAdd);

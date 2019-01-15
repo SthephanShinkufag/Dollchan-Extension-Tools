@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'fb4e9e2';
+	var commit = 'fe8baab';
 
 
 	var defaultCfg = {
@@ -15138,7 +15138,7 @@ true, true];
 								MyPosts.removeStorage(num);
 							}
 							this.el.classList.toggle('de-mypost', isAdd);
-							$each($Q('[de-form] a[href$="' + (aib.anchor + num) + '"]:not(.de-link-backref)'), function (el) {
+							$each($Q('[de-form] ' + aib.qPostMsg + ' a[href$="' + (aib.anchor + num) + '"]'), function (el) {
 								var post = aib.getPostOfEl(el);
 								if (post.el !== _this50.el) {
 									el.classList.toggle('de-ref-you', isAdd);
