@@ -598,7 +598,6 @@ const CfgWindow = {
 				<textarea id="de-spell-txt" wrap="off"></textarea>
 			</div>
 			${ this._getBox('sortSpells') }<br>
-			${ this._getBox('menuHiddBtn') }<br>
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getBox('nextPageThr') }<br>
 			${ this._getSel('delHiddPost') }
@@ -621,8 +620,8 @@ const CfgWindow = {
 			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
 				${ this._getBox('expandTrunc') }<br>` : '' }
-			${ this._getBox('showHideBtn') }
-			${ !localData ? this._getBox('showRepBtn') : '' }<br>
+			${ this._getSel('showHideBtn') }<br>
+			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
@@ -777,7 +776,7 @@ const CfgWindow = {
 			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
-				&lt;&lt;</div><br>
+				&lt;&lt;</div>
 				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
 	},
@@ -857,7 +856,7 @@ const CfgWindow = {
 		const top = node.scrollTop;
 		const el = node.previousElementSibling;
 		let num = el.numLines || 1;
-		let i = 17;
+		let i = 19;
 		if(num - i < ((top / 12) | 0 + 1)) {
 			let str = '';
 			while(i--) {

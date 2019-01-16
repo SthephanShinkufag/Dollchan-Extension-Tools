@@ -29,10 +29,6 @@ const Lng = {
 			'Сортировать спеллы и удалять дубликаты',
 			'Sort spells and remove duplicates',
 			'Сортувати спелли та видаляти дублікати'],
-		menuHiddBtn: [
-			'Дополнительное меню для кнопок "Скрыть"',
-			'Extra options for "Hide" buttons',
-			'Додаткове меню для кнопок "Сховати"'],
 		hideRefPsts: [
 			'Скрывать ответы на скрытые посты',
 			'Hide replies to hidden posts',
@@ -107,14 +103,26 @@ const Lng = {
 				'Buttons under threads',
 				'Кнопки під тредами']
 		},
-		showHideBtn: [
-			'Кнопки "Скрыть" ',
-			'Show "Hide" buttons ',
-			'Кнопки "Сховати" '],
-		showRepBtn: [
-			'Кнопки "Быстрый ответ"',
-			'Show "Quick reply" buttons',
-			'Кнопки "Швидка відповідь"'],
+		showHideBtn: {
+			sel: [
+				['Откл.', 'С меню', 'Без меню'],
+				['Disable', 'With menu', 'No menu'],
+				['Вимк.', 'Із меню', 'Без меню']],
+			txt: [
+				'Кнопки "Скрыть пост/тред"',
+				'"Hide post/thread" buttons',
+				'Кнопки "Сховати пост/тред"']
+		},
+		showRepBtn: {
+			sel: [
+				['Откл.', 'С меню', 'Без меню'],
+				['Disable', 'With menu', 'No menu'],
+				['Вимк.', 'Із меню', 'Без меню']],
+			txt: [
+				'Кнопки "Ответить на пост/тред"',
+				'"Reply to post/thread" buttons',
+				'Кнопки "Відповісти на пост/тред"']
+		},
 		postBtnsCSS: {
 			sel: [
 				['Упрощенные', 'Серый градиент', 'Настраиваемые'],

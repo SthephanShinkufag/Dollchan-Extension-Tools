@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '8f553df';
+const commit = '6e5be70';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -43,7 +43,6 @@ const defaultCfg = {
 	hideBySpell  : 1,    // hide posts by spells
 	spells       : null, // user defined spells
 	sortSpells   : 0,    // sort spells and remove duplicates
-	menuHiddBtn  : 1,    // extra options for "Hide" buttons
 	hideRefPsts  : 0,    // hide replies to hidden posts
 	nextPageThr  : 0,    // load threads from next pages instead of hidden
 	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
@@ -58,8 +57,8 @@ const defaultCfg = {
 	markMyPosts  : 1,    // highlight my own posts
 	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
-	showHideBtn  : 1,    // show "Hide" buttons
-	showRepBtn   : 1,    // show "Quick reply" buttons
+	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
+	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
 	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
 	thrBtns      : 1,    /* additional buttons under threads
@@ -202,10 +201,6 @@ const Lng = {
 			'Сортировать спеллы и удалять дубликаты',
 			'Sort spells and remove duplicates',
 			'Сортувати спелли та видаляти дублікати'],
-		menuHiddBtn: [
-			'Дополнительное меню для кнопок "Скрыть"',
-			'Extra options for "Hide" buttons',
-			'Додаткове меню для кнопок "Сховати"'],
 		hideRefPsts: [
 			'Скрывать ответы на скрытые посты',
 			'Hide replies to hidden posts',
@@ -280,14 +275,26 @@ const Lng = {
 				'Buttons under threads',
 				'Кнопки під тредами']
 		},
-		showHideBtn: [
-			'Кнопки "Скрыть" ',
-			'Show "Hide" buttons ',
-			'Кнопки "Сховати" '],
-		showRepBtn: [
-			'Кнопки "Быстрый ответ"',
-			'Show "Quick reply" buttons',
-			'Кнопки "Швидка відповідь"'],
+		showHideBtn: {
+			sel: [
+				['Откл.', 'С меню', 'Без меню'],
+				['Disable', 'With menu', 'No menu'],
+				['Вимк.', 'Із меню', 'Без меню']],
+			txt: [
+				'Кнопки "Скрыть пост/тред"',
+				'"Hide post/thread" buttons',
+				'Кнопки "Сховати пост/тред"']
+		},
+		showRepBtn: {
+			sel: [
+				['Откл.', 'С меню', 'Без меню'],
+				['Disable', 'With menu', 'No menu'],
+				['Вимк.', 'Із меню', 'Без меню']],
+			txt: [
+				'Кнопки "Ответить на пост/тред"',
+				'"Reply to post/thread" buttons',
+				'Кнопки "Відповісти на пост/тред"']
+		},
 		postBtnsCSS: {
 			sel: [
 				['Упрощенные', 'Серый градиент', 'Настраиваемые'],
@@ -4757,7 +4764,6 @@ const CfgWindow = {
 				<textarea id="de-spell-txt" wrap="off"></textarea>
 			</div>
 			${ this._getBox('sortSpells') }<br>
-			${ this._getBox('menuHiddBtn') }<br>
 			${ this._getBox('hideRefPsts') }<br>
 			${ this._getBox('nextPageThr') }<br>
 			${ this._getSel('delHiddPost') }
@@ -4780,8 +4786,8 @@ const CfgWindow = {
 			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('hideReplies') }<br>
 				${ this._getBox('expandTrunc') }<br>` : '' }
-			${ this._getBox('showHideBtn') }
-			${ !localData ? this._getBox('showRepBtn') : '' }<br>
+			${ this._getSel('showHideBtn') }<br>
+			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
@@ -4936,7 +4942,7 @@ const CfgWindow = {
 			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
-				&lt;&lt;</div><br>
+				&lt;&lt;</div>
 				${ this._getSel('updDollchan') }` : '' }
 		</div>`;
 	},
@@ -5016,7 +5022,7 @@ const CfgWindow = {
 		const top = node.scrollTop;
 		const el = node.previousElementSibling;
 		let num = el.numLines || 1;
-		let i = 17;
+		let i = 19;
 		if(num - i < ((top / 12) | 0 + 1)) {
 			let str = '';
 			while(i--) {
@@ -10362,15 +10368,19 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-reply': {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
-			if(!isOutEvent) {
-				quotetxt = deWindow.getSelection().toString();
+			if(Cfg.showRepBtn === 1) {
+				if(!isOutEvent) {
+					quotetxt = deWindow.getSelection().toString();
+				}
+				this._addMenu(el, isOutEvent,
+					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
+					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+					) +
+					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
+						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
+					));
 			}
-			this._addMenu(el, isOutEvent,
-				`<span class="de-menu-item" info="post-reply">${ title }</span>` +
-				(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-					this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
-				(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
-					MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''));
 			return;
 		}
 		case 'de-btn-hide':
@@ -10378,7 +10388,7 @@ class AbstractPost {
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.menuHiddBtn) {
+			if(Cfg.showHideBtn === 1) {
 				this._addMenu(el, isOutEvent,
 					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
@@ -17749,7 +17759,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 351px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -17757,7 +17767,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
-	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }
@@ -17773,7 +17783,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 221px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }

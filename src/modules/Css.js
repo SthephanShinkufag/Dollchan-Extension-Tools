@@ -83,7 +83,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 331px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 351px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -91,7 +91,7 @@ function scriptCSS() {
 	#de-cfg-buttons > label { flex: 1 0 auto; }
 	.de-cfg-chkbox { ${ nav.isPresto ? '' : 'vertical-align: -1px !important; ' }margin: 2px 1px !important; }
 	#de-cfg-info { display: flex; flex-direction: column; }
-	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; }
+	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }
@@ -107,7 +107,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 221px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }

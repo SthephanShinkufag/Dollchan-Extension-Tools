@@ -215,15 +215,19 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		case 'de-btn-reply': {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
-			if(!isOutEvent) {
-				quotetxt = deWindow.getSelection().toString();
+			if(Cfg.showRepBtn === 1) {
+				if(!isOutEvent) {
+					quotetxt = deWindow.getSelection().toString();
+				}
+				this._addMenu(el, isOutEvent,
+					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
+					(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
+						this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : ''
+					) +
+					(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
+						MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''
+					));
 			}
-			this._addMenu(el, isOutEvent,
-				`<span class="de-menu-item" info="post-reply">${ title }</span>` +
-				(aib.reportForm ? `<span class="de-menu-item" info="post-report">${
-					this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang] }</span>` : '') +
-				(Cfg.markMyPosts || Cfg.markMyLinks ? `<span class="de-menu-item" info="post-markmy">${
-					MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang] }</span>` : ''));
 			return;
 		}
 		case 'de-btn-hide':
@@ -231,7 +235,7 @@ class AbstractPost {
 		case 'de-btn-unhide':
 		case 'de-btn-unhide-user':
 			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.menuHiddBtn) {
+			if(Cfg.showHideBtn === 1) {
 				this._addMenu(el, isOutEvent,
 					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
 			}
