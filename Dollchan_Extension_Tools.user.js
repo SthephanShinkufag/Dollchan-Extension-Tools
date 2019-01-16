@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = 'fe8baab';
+	var commit = '8f553df';
 
 
 	var defaultCfg = {
@@ -5385,7 +5385,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!firstPost) {
 			return;
 		}
-		var updateFav = false;
+		var updateFav = null;
 		var favBrd = aib.host in favObj && aib.b in favObj[aib.host] ? favObj[aib.host][aib.b] : {};
 		var spellsHide = Cfg.hideBySpell;
 		var maybeSpells = new Maybe(SpellsRunner);
@@ -5416,7 +5416,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				} else {
 					f.new = thr.pcount - f.cnt;
 				}
-				updateFav = true;
+				updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
 			}
 			if (HiddenPosts.has(num)) {
 				HiddenPosts.hideHidden(post, num);
@@ -5452,6 +5452,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (updateFav) {
 			saveFavorites(favObj);
+			sendStorageEvent('__de-favorites', updateFav);
 		}
 		if (sesStorage['de-fav-win'] === '1') {
 			toggleWindow('fav', false, null, true);

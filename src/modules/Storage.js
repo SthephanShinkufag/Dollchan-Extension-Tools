@@ -220,7 +220,7 @@ function readPostsData(firstPost, favObj) {
 	if(!firstPost) {
 		return;
 	}
-	let updateFav = false;
+	let updateFav = null;
 	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
@@ -250,7 +250,7 @@ function readPostsData(firstPost, favObj) {
 			} else {
 				f.new = thr.pcount - f.cnt;
 			}
-			updateFav = true;
+			updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
 		}
 		if(HiddenPosts.has(num)) {
 			HiddenPosts.hideHidden(post, num);
@@ -286,6 +286,7 @@ function readPostsData(firstPost, favObj) {
 	}
 	if(updateFav) {
 		saveFavorites(favObj);
+		sendStorageEvent('__de-favorites', updateFav);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	if(sesStorage['de-fav-win'] === '1') {
