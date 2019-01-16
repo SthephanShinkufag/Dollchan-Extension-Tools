@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.5.0';
-const commit = '6e5be70';
+const commit = 'e32cdfe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16485,8 +16485,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
-				.replace(/<\/?wbr>/g, '')
-				.replace(/ \(OP\)<\/a/g, '</a');
+				.replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
 		}
 		fixVideo(isPost, data) {
 			return [];

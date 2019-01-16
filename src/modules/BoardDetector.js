@@ -1157,8 +1157,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixHTMLHelper(str) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
-				.replace(/<\/?wbr>/g, '')
-				.replace(/ \(OP\)<\/a/g, '</a');
+				.replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
 		}
 		fixVideo(isPost, data) {
 			return [];

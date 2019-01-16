@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.5.0';
-	var commit = '6e5be70';
+	var commit = 'e32cdfe';
 
 
 	var defaultCfg = {
@@ -22202,7 +22202,7 @@ true, true];
 			}, {
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
-					return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2').replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
+					return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2').replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
 				}
 			}, {
 				key: 'fixVideo',
