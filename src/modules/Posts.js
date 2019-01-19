@@ -402,9 +402,12 @@ class Post extends AbstractPost {
 		}
 		pByEl.set(el, this);
 		pByNum.set(num, this);
-		const isMyPost = MyPosts.has(num);
+		let isMyPost = MyPosts.has(num);
 		if(isMyPost) {
 			this.el.classList.add('de-mypost');
+		} else if(localData && this.el.classList.contains('de-mypost')) {
+			MyPosts.set(num, thr.num);
+			isMyPost = true;
 		}
 		el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 		this.sage = aib.getSage(el);

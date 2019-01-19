@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '1c0195f';
+	var commit = '883c680';
 
 
 	var defaultCfg = {
@@ -14808,6 +14808,9 @@ true, true];
 			var isMyPost = MyPosts.has(num);
 			if (isMyPost) {
 				_this48.el.classList.add('de-mypost');
+			} else if (localData && _this48.el.classList.contains('de-mypost')) {
+				MyPosts.set(num, thr.num);
+				isMyPost = true;
 			}
 			el.classList.add(isOp ? 'de-oppost' : 'de-reply');
 			_this48.sage = aib.getSage(el);
