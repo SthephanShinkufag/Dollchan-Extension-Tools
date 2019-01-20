@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '883c680';
+	var commit = 'b229afd';
 
 
 	var defaultCfg = {
@@ -21709,6 +21709,31 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
+					if ($q('section.posts')) {
+						this.cReply = 'post reply';
+						this.qBan = '.pomyanem';
+						this.qFormFile = 'tr input[type="file"]';
+						this.qFormRules = '.rules-area';
+						this.qFormTd = 'td';
+						this.qFormTr = 'tr';
+						this.qImgInfo = '.file-attr';
+						this.qOmitted = '.mess-post';
+						this.qOPost = '.oppost';
+						this.qPostHeader = '.post-details';
+						this.qPostMsg = '.post-message';
+						this.qPostName = '.ananimas, .post-email';
+						this.qPostRef = '.reflink';
+						this.qPostSubj = '.post-title';
+						this.qRPost = '.post.reply[data-num]';
+						var css = this.css;
+
+						Object.defineProperty(this, 'css', {
+							configurable: true,
+							get: function get() {
+								return css + '\n\t\t\t\t\t\t#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,\n\t\t\t\t\t\t.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,\n\t\t\t\t\t\t.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,\n\t\t\t\t\t\t.toolbar-area { display: none !important; }\n\t\t\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] {\n\t\t\t\t\t\t\tdisplay: none !important; }' : '') + '\n\t\t\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '');
+							}
+						});
+					}
 					$script('(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start"); // Old makaba only\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("Media");\n\t\t\t\tfixGlobalFunc("MExpandMedia");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), function (el) {
 						var inpEl = $q('input', el);
@@ -21989,23 +22014,6 @@ true, true];
 
 				_this95._2channel = true;
 
-				_this95.cReply = 'post reply';
-				_this95.qBan = '.pomyanem';
-				_this95.qFormFile = '.postform__field input[type="file"]';
-				_this95.qFormPassw = '#postpasswd';
-				_this95.qFormRules = '.rules-area';
-				_this95.qFormTd = '.postform__field';
-				_this95.qFormTr = '.postform__field';
-				_this95.qImgInfo = '.file-attr';
-				_this95.qOmitted = '.mess-post';
-				_this95.qOPost = '.oppost';
-				_this95.qPostHeader = '.post-details';
-				_this95.qPostMsg = '.post-message';
-				_this95.qPostName = '.ananimas, .post-email';
-				_this95.qPostRef = '.reflink';
-				_this95.qPostSubj = '.post-title';
-				_this95.qRPost = '.post.reply[data-num]';
-
 				_this95.hasAltCaptcha = false;
 				return _this95;
 			}
@@ -22014,6 +22022,17 @@ true, true];
 				key: 'init',
 				value: function init() {
 					_get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'init', this).call(this);
+					this.qFormFile = '.postform__field input[type="file"]';
+					this.qFormTd = '.postform__field';
+					this.qFormTr = '.postform__field';
+					var css = this.css;
+
+					Object.defineProperty(this, 'css', {
+						configurable: true,
+						get: function get() {
+							return css + '\n\t\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }';
+						}
+					});
 					var el = $id('postform');
 					if (el) {
 						el.setAttribute('action', el.getAttribute('action') + '?json=1');
@@ -22056,11 +22075,6 @@ true, true];
 						box.removeAttribute('hidden');
 						cap.textEl.tabIndex = 999;
 					});
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return _get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'css', this) + '\n\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,\n\t\t\t\t\t.refmap, #youtube-thumb-float { display: none !important; }\n\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t#postform { display: inline-table !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '');
 				}
 			}, {
 				key: 'reportForm',

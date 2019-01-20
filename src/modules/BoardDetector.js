@@ -763,6 +763,36 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
+			if($q('section.posts')) {
+				this.cReply = 'post reply';
+				this.qBan = '.pomyanem';
+				this.qFormFile = 'tr input[type="file"]';
+				this.qFormRules = '.rules-area';
+				this.qFormTd = 'td';
+				this.qFormTr = 'tr';
+				this.qImgInfo = '.file-attr';
+				this.qOmitted = '.mess-post';
+				this.qOPost = '.oppost';
+				this.qPostHeader = '.post-details';
+				this.qPostMsg = '.post-message';
+				this.qPostName = '.ananimas, .post-email';
+				this.qPostRef = '.reflink';
+				this.qPostSubj = '.post-title';
+				this.qRPost = '.post.reply[data-num]';
+				const { css } = this;
+				Object.defineProperty(this, 'css', {
+					configurable : true,
+					get          : () => `${ css }
+						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
+						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
+						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
+						.toolbar-area { display: none !important; }
+						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
+							display: none !important; }` : '' }
+						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
+							.file-attr { margin-bottom: 1px; }` : '' }`
+				});
+			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
 					Object.defineProperty(window, name,
@@ -949,40 +979,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 			this._2channel = true;
 
-			this.cReply = 'post reply';
-			this.qBan = '.pomyanem';
-			this.qFormFile = '.postform__field input[type="file"]';
-			this.qFormPassw = '#postpasswd';
-			this.qFormRules = '.rules-area';
-			this.qFormTd = '.postform__field';
-			this.qFormTr = '.postform__field';
-			this.qImgInfo = '.file-attr';
-			this.qOmitted = '.mess-post';
-			this.qOPost = '.oppost';
-			this.qPostHeader = '.post-details';
-			this.qPostMsg = '.post-message';
-			this.qPostName = '.ananimas, .post-email';
-			this.qPostRef = '.reflink';
-			this.qPostSubj = '.post-title';
-			this.qRPost = '.post.reply[data-num]';
-
 			this.hasAltCaptcha = false;
-		}
-		get css() {
-			return `${ super.css }
-				#AlertBox, .postform__checkbox.first, .postform__header, .postpanel > :not(img), .posts > hr,
-					.refmap, #youtube-thumb-float { display: none !important; }
-				.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
-				#postform { display: inline-table !important; }
-				${ Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] { display: none !important; }' : '' }
-				${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
-					.file-attr { margin-bottom: 1px; }` : '' }`;
 		}
 		get reportForm() {
 			return null;
 		}
 		init() {
 			super.init();
+			this.qFormFile = '.postform__field input[type="file"]';
+			this.qFormTd = '.postform__field';
+			this.qFormTr = '.postform__field';
+			const { css } = this;
+			Object.defineProperty(this, 'css', {
+				configurable : true,
+				get          : () => `${ css }
+					#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float
+						{ display: none !important; }
+					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }`
+			});
 			const el = $id('postform');
 			if(el) {
 				el.setAttribute('action', el.getAttribute('action') + '?json=1');
