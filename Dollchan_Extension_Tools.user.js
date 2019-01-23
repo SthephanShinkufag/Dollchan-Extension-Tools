@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'b229afd';
+	var commit = '8ed4db9';
 
 
 	var defaultCfg = {
@@ -21930,6 +21930,7 @@ true, true];
 		ibDomains['2ch.wf'] = Makaba;
 		ibDomains['2ch.yt'] = Makaba;
 		ibDomains['2-ch.so'] = Makaba;
+		ibDomains['5.61.239.35'] = Makaba;
 
 		var _2chan = function (_BaseBoard8) {
 			_inherits(_2chan, _BaseBoard8);

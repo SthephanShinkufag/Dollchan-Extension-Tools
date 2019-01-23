@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'b229afd';
+const commit = '8ed4db9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16255,6 +16255,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.wf'] = Makaba;
 	ibDomains['2ch.yt'] = Makaba;
 	ibDomains['2-ch.so'] = Makaba;
+	ibDomains['5.61.239.35'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
