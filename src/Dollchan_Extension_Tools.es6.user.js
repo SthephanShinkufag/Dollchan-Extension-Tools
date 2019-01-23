@@ -16255,6 +16255,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.wf'] = Makaba;
 	ibDomains['2ch.yt'] = Makaba;
 	ibDomains['2-ch.so'] = Makaba;
+	ibDomains['5.61.239.35'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
