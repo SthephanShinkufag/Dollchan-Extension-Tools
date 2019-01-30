@@ -269,6 +269,7 @@ function scriptCSS() {
 	a.de-video-player::after { content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }
 	a.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }
 	.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }
+	.de-video-title[de-time].de-current::after { content: " [" attr(de-time) "] \u25CF"; color: red; }
 	.de-vocaroo > embed { display: inline-block; }
 	video { background: black; }
 
