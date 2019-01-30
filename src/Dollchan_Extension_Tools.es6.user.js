@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '8ed4db9';
+const commit = '805b585';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16690,7 +16690,9 @@ function getImageBoard(checkDomains, checkEngines) {
 						post.thr.deletePosts(post, false, false);
 					}
 				}
-			}, 0);
+				$css(`.post { background-color: ${
+					getComputedStyle($q('.post')).getPropertyValue('background-color') } !important; }`);
+			}, 500);
 			return false;
 		}
 	}

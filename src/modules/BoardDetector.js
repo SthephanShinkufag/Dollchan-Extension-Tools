@@ -1359,7 +1359,9 @@ function getImageBoard(checkDomains, checkEngines) {
 						post.thr.deletePosts(post, false, false);
 					}
 				}
-			}, 0);
+				$css(`.post { background-color: ${
+					getComputedStyle($q('.post')).getPropertyValue('background-color') } !important; }`);
+			}, 500);
 			return false;
 		}
 	}

@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '8ed4db9';
+	var commit = '805b585';
 
 
 	var defaultCfg = {
@@ -22524,7 +22524,8 @@ true, true];
 								post.thr.deletePosts(post, false, false);
 							}
 						}
-					}, 0);
+						$css('.post { background-color: ' + getComputedStyle($q('.post')).getPropertyValue('background-color') + ' !important; }');
+					}, 500);
 					return false;
 				}
 			}, {
