@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'b15b250';
+const commit = '18844c2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6648,6 +6648,8 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		if(isCORS) {
 			params.mode = 'cors';
+		} else {
+			params.credentials = 'same-origin';
 		}
 		const controller = new AbortController();
 		params.signal = controller.signal;
@@ -6818,7 +6820,7 @@ const AjaxCache = {
 		let hasCacheControl = false;
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
-		for(let header of headers) {
+		for(let header in headers) {
 			if(typeof header === 'string') { // usual xhr
 				header = header.split(' :');
 			}
