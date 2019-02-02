@@ -34,7 +34,7 @@ const Panel = Object.create({
 						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
 					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
-					(isThr ? `<span id="de-panel-info">
+					(isThr && Thread.first ? `<span id="de-panel-info">
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>

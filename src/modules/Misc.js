@@ -104,7 +104,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 
 function initPage() {
 	if(aib.t) {
-		if(Cfg.rePageTitle) {
+		if(Cfg.rePageTitle && Thread.first) {
 			doc.title = `/${ aib.b } - ${ Thread.first.op.title }`;
 		}
 		if(!localData) {

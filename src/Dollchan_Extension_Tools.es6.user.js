@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'a069270';
+const commit = 'b15b250';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3007,7 +3007,7 @@ const Panel = Object.create({
 						(!nav.isSafari ? this._getButton('audio-off') : '') : '') +
 					(aib.hasCatalog ? this._getButton('catalog') : '') +
 					this._getButton('enable') +
-					(isThr ? `<span id="de-panel-info">
+					(isThr && Thread.first ? `<span id="de-panel-info">
 						<span id="de-panel-info-pcount" title="` +
 							`${ Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang] }">` +
 							`${ Thread.first.pcount }</span>
@@ -17389,7 +17389,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 
 function initPage() {
 	if(aib.t) {
-		if(Cfg.rePageTitle) {
+		if(Cfg.rePageTitle && Thread.first) {
 			doc.title = `/${ aib.b } - ${ Thread.first.op.title }`;
 		}
 		if(!localData) {
