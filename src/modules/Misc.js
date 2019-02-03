@@ -121,9 +121,7 @@ function initPage() {
 
 function scrollPage() {
 	if(!aib.t && Cfg.scrollToTop) {
-		if(doc.hidden || needScroll) {
-			scrollTo(0, 1);
-		}
+		scrollTo(0, 1);
 		return;
 	}
 	if(!needScroll) {

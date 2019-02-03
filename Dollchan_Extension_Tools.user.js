@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '93cb4fb';
+	var commit = '59a954c';
 
 
 	var defaultCfg = {
@@ -23564,9 +23564,7 @@ true, true];
 
 	function scrollPage() {
 		if (!aib.t && Cfg.scrollToTop) {
-			if (doc.hidden || needScroll) {
-				scrollTo(0, 1);
-			}
+			scrollTo(0, 1);
 			return;
 		}
 		if (!needScroll) {
