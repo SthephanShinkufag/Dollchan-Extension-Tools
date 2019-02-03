@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '18844c2';
+const commit = '93cb4fb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6636,7 +6636,10 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+	if((!params || !params.onprogress || aib.tiny) &&
+		(isCORS ? nav.canUseFetchCORS : nav.canUseFetch) &&
+		(nav.canUseFetchBlob || !url.startsWith('blob'))
+	) {
 		if(!params) {
 			params = {};
 		}
@@ -6649,7 +6652,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		} else {
-			params.credentials = 'same-origin';
+			params.credentials = 'include';
 		}
 		const controller = new AbortController();
 		params.signal = controller.signal;
@@ -15043,6 +15046,7 @@ class BaseBoard {
 		this.dobrochan = false;
 		this.iichan = false;
 		this.makaba = false;
+		this.tiny = false;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -15385,6 +15389,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.tiny = true;
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';

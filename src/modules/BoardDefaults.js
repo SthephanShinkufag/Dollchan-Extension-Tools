@@ -69,6 +69,7 @@ class BaseBoard {
 		this.dobrochan = false;
 		this.iichan = false;
 		this.makaba = false;
+		this.tiny = false;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',

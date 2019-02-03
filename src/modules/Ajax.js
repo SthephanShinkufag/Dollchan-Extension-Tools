@@ -7,7 +7,10 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+	if((!params || !params.onprogress || aib.tiny) &&
+		(isCORS ? nav.canUseFetchCORS : nav.canUseFetch) &&
+		(nav.canUseFetchBlob || !url.startsWith('blob'))
+	) {
 		if(!params) {
 			params = {};
 		}
@@ -20,7 +23,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		} else {
-			params.credentials = 'same-origin';
+			params.credentials = 'include';
 		}
 		const controller = new AbortController();
 		params.signal = controller.signal;

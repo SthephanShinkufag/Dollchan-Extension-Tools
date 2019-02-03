@@ -52,6 +52,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.tiny = true;
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';

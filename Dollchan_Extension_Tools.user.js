@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '18844c2';
+	var commit = '93cb4fb';
 
 
 	var defaultCfg = {
@@ -9721,7 +9721,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if ((isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+		if ((!params || !params.onprogress || aib.tiny) && (isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 			if (!params) {
 				params = {};
 			}
@@ -9733,7 +9733,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (isCORS) {
 				params.mode = 'cors';
 			} else {
-				params.credentials = 'same-origin';
+				params.credentials = 'include';
 			}
 			var controller = new AbortController();
 			params.signal = controller.signal;
@@ -20251,6 +20251,7 @@ true, true];
 			this.dobrochan = false;
 			this.iichan = false;
 			this.makaba = false;
+			this.tiny = false;
 		}
 
 		_createClass(BaseBoard, [{
@@ -20713,6 +20714,8 @@ true, true];
 				_classCallCheck(this, Tinyboard);
 
 				var _this81 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+
+				_this81.tiny = true;
 
 				_this81.cReply = 'post reply';
 				_this81.qClosed = '.fa-lock';
