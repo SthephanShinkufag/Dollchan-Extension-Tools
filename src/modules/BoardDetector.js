@@ -647,7 +647,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
-					#down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,
+					.de-btn-src + a + a, #down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,
 					.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow
 					{ display: none !important; }
