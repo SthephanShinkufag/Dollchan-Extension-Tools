@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'b06e8f4';
+const commit = '0b61b28';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18153,9 +18153,17 @@ function updateCSS() {
                                                      MAIN
 =========================================================================================================== */
 
-// XXX: Workaround for Greasemonkey bug to load Dollchan in all frames
 function runFrames() {
-	if((typeof GM === 'undefined') || !GM.info || GM.info.scriptHandler !== 'Greasemonkey' ||
+	let inf;
+	if(typeof GM !== 'undefined') {
+		inf = GM.info;
+	} else {
+		if(typeof GM_info === 'undefined') {
+			return;
+		}
+		inf = GM_info;
+	}
+	if(!inf || inf.scriptHandler !== 'Greasemonkey' && inf.scriptHandler !== 'Violentmonkey' ||
 		!deWindow.frames[0]
 	) {
 		return;

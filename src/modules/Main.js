@@ -2,9 +2,17 @@
                                                      MAIN
 =========================================================================================================== */
 
-// XXX: Workaround for Greasemonkey bug to load Dollchan in all frames
 function runFrames() {
-	if((typeof GM === 'undefined') || !GM.info || GM.info.scriptHandler !== 'Greasemonkey' ||
+	let inf;
+	if(typeof GM !== 'undefined') {
+		inf = GM.info;
+	} else {
+		if(typeof GM_info === 'undefined') {
+			return;
+		}
+		inf = GM_info;
+	}
+	if(!inf || inf.scriptHandler !== 'Greasemonkey' && inf.scriptHandler !== 'Violentmonkey' ||
 		!deWindow.frames[0]
 	) {
 		return;

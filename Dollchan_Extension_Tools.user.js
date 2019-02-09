@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'b06e8f4';
+	var commit = '0b61b28';
 
 
 	var defaultCfg = {
@@ -23645,7 +23645,16 @@ true, true];
 
 
 	function runFrames() {
-		if (typeof GM === 'undefined' || !GM.info || GM.info.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
+		var inf = void 0;
+		if (typeof GM !== 'undefined') {
+			inf = GM.info;
+		} else {
+			if (typeof GM_info === 'undefined') {
+				return;
+			}
+			inf = GM_info;
+		}
+		if (!inf || inf.scriptHandler !== 'Greasemonkey' && inf.scriptHandler !== 'Violentmonkey' || !deWindow.frames[0]) {
 			return;
 		}
 		var deMainFuncFrame = function deMainFuncFrame(frameEl) {
