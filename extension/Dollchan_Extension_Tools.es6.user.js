@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'c0f2078';
+const commit = 'f2d9509';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16153,11 +16153,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				el.remove();
 			});
-			let el = $q('.anoniconsselectlist');
+			let el = $q('.search');
 			if(el) {
-				$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
-			}
-			if((el = $q('.search'))) {
 				let node = $q('.adminbar__menu, .menu');
 				if(node && (node = node.firstChild)) {
 					$before(node, el);

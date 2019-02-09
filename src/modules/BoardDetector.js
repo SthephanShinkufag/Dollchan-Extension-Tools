@@ -814,11 +814,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				el.remove();
 			});
-			let el = $q('.anoniconsselectlist');
+			let el = $q('.search');
 			if(el) {
-				$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
-			}
-			if((el = $q('.search'))) {
 				let node = $q('.adminbar__menu, .menu');
 				if(node && (node = node.firstChild)) {
 					$before(node, el);

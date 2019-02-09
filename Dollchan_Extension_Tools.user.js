@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'c0f2078';
+	var commit = 'f2d9509';
 
 
 	var defaultCfg = {
@@ -21725,11 +21725,8 @@ true, true];
 						}
 						el.remove();
 					});
-					var el = $q('.anoniconsselectlist');
+					var el = $q('.search');
 					if (el) {
-						$q('.option-area > td:last-child, .options > div:last-child').appendChild(el);
-					}
-					if (el = $q('.search')) {
 						var node = $q('.adminbar__menu, .menu');
 						if (node && (node = node.firstChild)) {
 							$before(node, el);
