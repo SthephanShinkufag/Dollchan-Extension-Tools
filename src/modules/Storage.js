@@ -169,7 +169,9 @@ async function readCfg() {
 		const font = ' style="font: 13px monospace; color: green;"';
 		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
 			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
+			'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
+			`<span class="de-list de-depend"><i${
+				font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
 			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +

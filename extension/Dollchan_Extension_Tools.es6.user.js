@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '0b61b28';
+const commit = 'bd8988e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2546,7 +2546,9 @@ async function readCfg() {
 		const font = ' style="font: 13px monospace; color: green;"';
 		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
 			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>WebMoney</i></b><br>' +
+			'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
+			`<span class="de-list de-depend"><i${
+				font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
 			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
 			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
 			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
@@ -18036,7 +18038,7 @@ function scriptCSS() {
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 122px; height: 122px; }
+	.de-logo > svg { width: 156px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }
