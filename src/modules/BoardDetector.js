@@ -1654,7 +1654,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ this.prot }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
-			return `${ !this.t ? '' : '#de-main { margin-top: -37px; } .logo { margin-bottom: 14px; }' }
+			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
 			.iichan-hide-thread-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
