@@ -212,7 +212,7 @@ class Thread {
 				let f = favObj[h] || (favObj[h] = {});
 				f = f[b] || (f[b] = {});
 				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
+				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last, time: Date.now() };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}

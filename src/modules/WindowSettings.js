@@ -299,7 +299,13 @@ const CfgWindow = {
 			case 'addTextBtns': pr.addMarkupPanel();
 				/* falls through */
 			case 'scriptStyle':
-			case 'panelCounter': this._updateCSS();
+			case 'panelCounter': this._updateCSS(); break;
+			case 'favThrOrder':
+				readFavorites().then(favObj => {
+					const body = $q('#de-win-fav > .de-win-body');
+					body.innerHTML = '';
+					showFavoritesWindow(body, favObj);
+				});
 			}
 			return;
 		}
@@ -749,6 +755,7 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
+			${ this._getSel('favThrOrder') }
 		</div>`;
 	},
 

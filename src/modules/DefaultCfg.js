@@ -113,6 +113,8 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
+	favThrOrder  : 0,     /* threads sorting order in the Favorites window
+		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)

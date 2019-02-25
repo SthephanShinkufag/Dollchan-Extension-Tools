@@ -116,8 +116,15 @@ function showFavoritesWindow(body, favObj) {
 			const delBtn = `<span class="de-fav-del-btn">
 				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
 			</span>`;
-			let innerHtml = '';
-			for(const tNum in f) {
+			let fArr, innerHtml = '';
+			switch(Cfg.favThrOrder) {
+			case 0: fArr = Object.entries(f); break;
+			case 1: fArr = Object.entries(f).reverse(); break;
+			case 2: fArr = Object.entries(f).sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
+			case 3: fArr = Object.entries(f).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+			}
+			for(let i = 0, len = fArr.length; i < len; ++i) {
+				const tNum = fArr[i][0];
 				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}

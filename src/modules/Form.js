@@ -546,9 +546,9 @@ class PostForm {
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 			<span class="de-win-title"></span>
 			<span class="de-win-buttons">
-				<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
-				<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
-				<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
+				<svg class="de-win-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
+				<svg class="de-win-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
+				<svg class="de-win-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 			</span>
 		</div>
 		<div class="de-resizer de-resizer-top"></div>
@@ -559,9 +559,9 @@ class PostForm {
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
 			switch(fixEventEl(target).classList[0]) {
-			case 'de-btn-clear': el.title = Lng.clearForm[lang]; break;
-			case 'de-btn-close': el.title = Lng.closeReply[lang]; break;
-			case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
+			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
+			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
+			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];

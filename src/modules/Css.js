@@ -59,7 +59,7 @@ function scriptCSS() {
 
 	x += `
 	/* Windows */
-	.de-win .de-btn-toggle { transform: rotate(180deg); }
+	.de-win .de-win-btn-toggle { transform: rotate(180deg); }
 	.de-resizer { position: absolute; }
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }
@@ -158,7 +158,7 @@ function scriptCSS() {
 
 	/* Post panel */
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle, .de-btn-unhide, .de-btn-unhide-user { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
 	!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '' }
 	.de-post-btns { margin-left: 4px; }
 	.de-post-btns-back { fill: inherit; stroke: none; }

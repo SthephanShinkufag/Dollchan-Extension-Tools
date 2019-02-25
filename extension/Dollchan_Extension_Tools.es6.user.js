@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'ad675ec';
+const commit = 'f3d83af';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -148,6 +148,8 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
+	favThrOrder  : 0,     /* threads sorting order in the Favorites window
+		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
@@ -705,6 +707,16 @@ const Lng = {
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
+		favThrOrder: {
+			sel: [
+				['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'],
+				['By number', 'By number (desc)', 'By adding', 'By adding (desc)'],
+				['За номером', 'За номером (зменш)', 'По додаванню', 'По додаванню (зменш)']],
+			txt: [
+				'Сортировка в Избранном',
+				'Sorting in Favorites',
+				'Сортування в Вибраному']
+		},
 		updDollchan: {
 			sel: [
 				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -3378,8 +3390,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
 				</span>
 				<span class="de-win-buttons">
-					<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
-					<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
+					<svg class="de-win-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
+					<svg class="de-win-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 				</span>
 			</div>
 			<div class="de-win-body"></div>
@@ -3401,15 +3413,17 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = ({ target }) => {
-			const el = target.parentNode;
-			switch(fixEventEl(target).classList[0]) {
-			case 'de-btn-close': el.title = Lng.closeWindow[lang]; break;
-			case 'de-btn-toggle': el.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+		el.onmouseover = e => {
+			const el = fixEventEl(e.target);
+			const parent = el.parentNode;
+			switch(el.classList[0]) {
+			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
+			case 'de-win-btn-toggle':
+				parent.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		el.firstElementChild.onclick = () => {
+		$q('.de-win-btn-toggle', el).onclick = () => {
 			toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
@@ -3815,8 +3829,15 @@ function showFavoritesWindow(body, favObj) {
 			const delBtn = `<span class="de-fav-del-btn">
 				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
 			</span>`;
-			let innerHtml = '';
-			for(const tNum in f) {
+			let fArr, innerHtml = '';
+			switch(Cfg.favThrOrder) {
+			case 0: fArr = Object.entries(f); break;
+			case 1: fArr = Object.entries(f).reverse(); break;
+			case 2: fArr = Object.entries(f).sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
+			case 3: fArr = Object.entries(f).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+			}
+			for(let i = 0, len = fArr.length; i < len; ++i) {
+				const tNum = fArr[i][0];
 				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}
@@ -4467,7 +4488,13 @@ const CfgWindow = {
 			case 'addTextBtns': pr.addMarkupPanel();
 				/* falls through */
 			case 'scriptStyle':
-			case 'panelCounter': this._updateCSS();
+			case 'panelCounter': this._updateCSS(); break;
+			case 'favThrOrder':
+				readFavorites().then(favObj => {
+					const body = $q('#de-win-fav > .de-win-body');
+					body.innerHTML = '';
+					showFavoritesWindow(body, favObj);
+				});
 			}
 			return;
 		}
@@ -4917,6 +4944,7 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
+			${ this._getSel('favThrOrder') }
 		</div>`;
 	},
 
@@ -8908,9 +8936,9 @@ class PostForm {
 		makeDraggable('reply', this.qArea, $aBegin(this.qArea, `<div class="de-win-head">
 			<span class="de-win-title"></span>
 			<span class="de-win-buttons">
-				<svg class="de-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
-				<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
-				<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
+				<svg class="de-win-btn-clear"><use xlink:href="#de-symbol-unavail"/></svg>
+				<svg class="de-win-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
+				<svg class="de-win-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 			</span>
 		</div>
 		<div class="de-resizer de-resizer-top"></div>
@@ -8921,9 +8949,9 @@ class PostForm {
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
 			switch(fixEventEl(target).classList[0]) {
-			case 'de-btn-clear': el.title = Lng.clearForm[lang]; break;
-			case 'de-btn-close': el.title = Lng.closeReply[lang]; break;
-			case 'de-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
+			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
+			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
+			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
 			}
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
@@ -13614,7 +13642,7 @@ class Thread {
 				let f = favObj[h] || (favObj[h] = {});
 				f = f[b] || (f[b] = {});
 				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last };
+				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last, time: Date.now() };
 			} else {
 				removeFavEntry(favObj, h, b, num);
 			}
@@ -17758,7 +17786,7 @@ function scriptCSS() {
 
 	x += `
 	/* Windows */
-	.de-win .de-btn-toggle { transform: rotate(180deg); }
+	.de-win .de-win-btn-toggle { transform: rotate(180deg); }
 	.de-resizer { position: absolute; }
 	.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }
 	.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }
@@ -17857,7 +17885,7 @@ function scriptCSS() {
 
 	/* Post panel */
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-clear, .de-btn-close, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-toggle, .de-btn-unhide, .de-btn-unhide-user { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
 	!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '' }
 	.de-post-btns { margin-left: 4px; }
 	.de-post-btns-back { fill: inherit; stroke: none; }

@@ -156,8 +156,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 					${ name === 'cfg' ? 'Dollchan Extension Tools' : Lng.panelBtn[name][lang] }
 				</span>
 				<span class="de-win-buttons">
-					<svg class="de-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
-					<svg class="de-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
+					<svg class="de-win-btn-toggle"><use xlink:href="#de-symbol-win-arrow"/></svg>
+					<svg class="de-win-btn-close"><use xlink:href="#de-symbol-win-close"/></svg>
 				</span>
 			</div>
 			<div class="de-win-body"></div>
@@ -179,15 +179,17 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			new WinResizer('fav', 'right', 'favWinWidth', win, win);
 		}
 		el = $q('.de-win-buttons', win);
-		el.onmouseover = ({ target }) => {
-			const el = target.parentNode;
-			switch(fixEventEl(target).classList[0]) {
-			case 'de-btn-close': el.title = Lng.closeWindow[lang]; break;
-			case 'de-btn-toggle': el.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
+		el.onmouseover = e => {
+			const el = fixEventEl(e.target);
+			const parent = el.parentNode;
+			switch(el.classList[0]) {
+			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
+			case 'de-win-btn-toggle':
+				parent.title = Cfg[name + 'WinDrag'] ? Lng.toPanel[lang] : Lng.makeDrag[lang];
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		el.firstElementChild.onclick = () => {
+		$q('.de-win-btn-toggle', el).onclick = () => {
 			toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
