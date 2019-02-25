@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '935d6b1';
+	var commit = '8e88db8';
 
 
 	var defaultCfg = {
@@ -16678,7 +16678,7 @@ true, true];
 						this.sendCloseEvent(e, true);
 					}
 					if (cr.top < 0) {
-						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - cr.height + this.el.height);
+						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + cr.top);
 					}
 				}
 			}

@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '935d6b1';
+const commit = '8e88db8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12124,7 +12124,7 @@ class ExpandableImage {
 				this.sendCloseEvent(e, true);
 			}
 			if(cr.top < 0) {
-				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - cr.height + this.el.height);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + cr.top);
 			}
 		}
 	}

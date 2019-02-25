@@ -446,7 +446,7 @@ class ExpandableImage {
 				this.sendCloseEvent(e, true);
 			}
 			if(cr.top < 0) {
-				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - cr.height + this.el.height);
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + cr.top);
 			}
 		}
 	}
