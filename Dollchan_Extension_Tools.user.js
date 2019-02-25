@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '0a354a7';
+	var commit = '935d6b1';
 
 
 	var defaultCfg = {
@@ -16665,6 +16665,7 @@ true, true];
 				if (e && this.isVideo && ExpandableImage.isControlClick(e)) {
 					return;
 				}
+				var cr = e.target.getBoundingClientRect();
 				this.cancelWebmLoad(this._fullEl);
 				this.expanded = false;
 				this._fullEl.remove();
@@ -16675,6 +16676,9 @@ true, true];
 					$pd(e);
 					if (this.inPview) {
 						this.sendCloseEvent(e, true);
+					}
+					if (cr.top < 0) {
+						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset - cr.height + this.el.height);
 					}
 				}
 			}
