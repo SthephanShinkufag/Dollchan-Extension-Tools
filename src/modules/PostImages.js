@@ -433,7 +433,7 @@ class ExpandableImage {
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}
-		const cr = e.target.getBoundingClientRect();
+		const fullImgTop = e.target.getBoundingClientRect().top;
 		this.cancelWebmLoad(this._fullEl);
 		this.expanded = false;
 		this._fullEl.remove();
@@ -445,8 +445,9 @@ class ExpandableImage {
 			if(this.inPview) {
 				this.sendCloseEvent(e, true);
 			}
-			if(cr.top < 0) {
-				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + cr.top);
+			const origImgTop = this.el.getBoundingClientRect().top;
+			if((this.inPview ? fullImgTop : origImgTop) < 0) {
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + origImgTop);
 			}
 		}
 	}
