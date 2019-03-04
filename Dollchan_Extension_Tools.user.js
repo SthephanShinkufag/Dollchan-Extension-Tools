@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'f735b8f';
+	var commit = 'f29c6bd';
 
 
 	var defaultCfg = {
@@ -17966,7 +17966,7 @@ true, true];
 
 				var emailEl = data.email ? '<a href="' + data.email + '" class="' + (isNew ? 'post__' : 'post-') + 'email">' + data.name + '</a>' : '<span class="' + (isNew ? 'post__anon' : 'ananimas') + '">' + data.name + '</span>';
 				var tripEl = !data.trip ? '' : '<span class="' + _switch(data.trip, {
-					'!!%adm%!!': p + 'adm">## Abu ##',
+					'!!%adm%!!': p + 'adm">## ' + (aib._2channel ? 'Admin' : 'Abu') + ' ##',
 					'!!%mod%!!': p + 'mod">## Mod ##',
 					'!!%Inquisitor%!!': p + 'inquisitor">## Applejack ##',
 					'!!%coder%!!': p + 'mod">## \u041A\u043E\u0434\u0435\u0440 ##',
@@ -17982,7 +17982,7 @@ true, true];
 				}
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
-				var timeReflink = '<span class="' + (isNew ? 'post__time' : 'posttime') + '">' + data.date + '</span>\n\t\t\t<span class="' + (isNew ? 'post__detailpart' : 'reflink') + '">' + ('<a id="' + num + '" ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">\u2116</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href" href="' + refHref + '"') + (' name="' + num + '">' + num + '</a>\n\t\t\t</span>');
+				var timeReflink = '<span class="' + (isNew ? 'post__time' : 'posttime') + '">' + data.date + '</span>\n\t\t\t<span class="' + (isNew ? 'post__detailpart' : 'reflink') + '">' + ('<a id="' + num + '" ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">') + ((aib._2channel ? 'No.' : '№') + '</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href" href="' + refHref + '"') + (' name="' + num + '">' + num + '</a>\n\t\t\t</span>');
 				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {

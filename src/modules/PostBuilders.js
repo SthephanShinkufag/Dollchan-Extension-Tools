@@ -374,7 +374,7 @@ class MakabaPostsBuilder {
 			`<a href="${ data.email }" class="${ isNew ? 'post__' : 'post-' }email">${ data.name }</a>` :
 			`<span class="${ isNew ? 'post__anon' : 'ananimas' }">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : `${ p }adm">## Abu ##`,
+			'!!%adm%!!'        : `${ p }adm">## ${ aib._2channel ? 'Admin' : 'Abu' } ##`,
 			'!!%mod%!!'        : `${ p }mod">## Mod ##`,
 			'!!%Inquisitor%!!' : `${ p }inquisitor">## Applejack ##`,
 			'!!%coder%!!'      : `${ p }mod">## Кодер ##`,
@@ -399,7 +399,8 @@ class MakabaPostsBuilder {
 		const wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
 		const timeReflink = `<span class="${ isNew ? 'post__time' : 'posttime' }">${ data.date }</span>
 			<span class="${ isNew ? 'post__detailpart' : 'reflink' }">` +
-				`<a id="${ num }" ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">№</a>` +
+				`<a id="${ num }" ${ isNew ? 'class="post__reflink" ' : '' }href="${ refHref }">` +
+					`${ aib._2channel ? 'No.' : '№' }</a>` +
 				`<a class="${ isNew ? 'post__reflink ' : '' }postbtn-reply-href" href="${ refHref }"` +
 					` name="${ num }">${ num }</a>
 			</span>`;
