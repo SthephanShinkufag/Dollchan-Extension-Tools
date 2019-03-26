@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '6587d58';
+const commit = 'e571b27';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6681,8 +6681,6 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		if(isCORS) {
 			params.mode = 'cors';
-		} else {
-			params.credentials = 'include';
 		}
 		const controller = new AbortController();
 		params.signal = controller.signal;

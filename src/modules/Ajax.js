@@ -22,8 +22,6 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		if(isCORS) {
 			params.mode = 'cors';
-		} else {
-			params.credentials = 'include';
 		}
 		const controller = new AbortController();
 		params.signal = controller.signal;

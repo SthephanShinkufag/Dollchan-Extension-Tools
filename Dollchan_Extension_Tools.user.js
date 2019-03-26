@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '6587d58';
+	var commit = 'e571b27';
 
 
 	var defaultCfg = {
@@ -9757,8 +9757,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			if (isCORS) {
 				params.mode = 'cors';
-			} else {
-				params.credentials = 'include';
 			}
 			var controller = new AbortController();
 			params.signal = controller.signal;
