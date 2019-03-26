@@ -187,10 +187,11 @@ class FileInput {
 					this._parent._files[curInpIdx + i] = el.files[i];
 				}
 			} else {
-				setTimeout(() => this._onFileChange(false), 20);
 				if(filesLen > 0) {
+					setTimeout(() => this._onFileChange(false), 20);
 					this._parent._files[curInpIdx] = el.files[0];
 				} else {
+					this.clearInp();
 					delete this._parent._files[curInpIdx];
 				}
 			}

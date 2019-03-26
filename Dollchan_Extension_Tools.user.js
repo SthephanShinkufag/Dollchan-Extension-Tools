@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '401a33b';
+	var commit = '6587d58';
 
 
 	var defaultCfg = {
@@ -12723,7 +12723,7 @@ true, true];
 						}
 					}
 				});
-				if (nav.isFirefox) {
+				if (nav.isFirefox || nav.isWebkit) {
 					el.addEventListener('mouseup', function (_ref37) {
 						var target = _ref37.target;
 
@@ -13721,12 +13721,13 @@ true, true];
 									}
 								})();
 							} else {
-								setTimeout(function () {
-									return _this36._onFileChange(false);
-								}, 20);
 								if (filesLen > 0) {
+									setTimeout(function () {
+										return _this36._onFileChange(false);
+									}, 20);
 									this._parent._files[curInpIdx] = el.files[0];
 								} else {
+									this.clearInp();
 									delete this._parent._files[curInpIdx];
 								}
 							}

@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '401a33b';
+const commit = '6587d58';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8874,7 +8874,7 @@ class PostForm {
 			}
 		});
 		// Make textarea resizer
-		if(nav.isFirefox) {
+		if(nav.isFirefox || nav.isWebkit) {
 			el.addEventListener('mouseup', ({ target }) => {
 				const s = target.style;
 				const { width, height } = s;
@@ -9645,10 +9645,11 @@ class FileInput {
 					this._parent._files[curInpIdx + i] = el.files[i];
 				}
 			} else {
-				setTimeout(() => this._onFileChange(false), 20);
 				if(filesLen > 0) {
+					setTimeout(() => this._onFileChange(false), 20);
 					this._parent._files[curInpIdx] = el.files[0];
 				} else {
+					this.clearInp();
 					delete this._parent._files[curInpIdx];
 				}
 			}

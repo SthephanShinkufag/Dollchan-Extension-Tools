@@ -484,7 +484,7 @@ class PostForm {
 			}
 		});
 		// Make textarea resizer
-		if(nav.isFirefox) {
+		if(nav.isFirefox || nav.isWebkit) {
 			el.addEventListener('mouseup', ({ target }) => {
 				const s = target.style;
 				const { width, height } = s;
