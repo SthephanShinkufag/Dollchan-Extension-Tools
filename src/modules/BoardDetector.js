@@ -1656,7 +1656,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
-			.iichan-hide-thread-btn, .postnum { display: none; }
+			.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }
 			.replypage div[id^="thread"] span.reflink::after { content: none; }`;
 		}
 		get isArchived() {
