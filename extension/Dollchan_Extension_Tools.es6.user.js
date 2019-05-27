@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '27f5a2d';
+const commit = '1daf197';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16428,7 +16428,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				#resizer { display: none; }
-				body { margin: 0 }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { z-index: 1; }`;

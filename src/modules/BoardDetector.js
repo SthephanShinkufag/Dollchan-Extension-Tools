@@ -1056,7 +1056,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				#resizer { display: none; }
-				body { margin: 0 }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
 				.topmenu { z-index: 1; }`;
