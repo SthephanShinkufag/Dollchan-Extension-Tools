@@ -3838,7 +3838,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'e571b27';
+	var commit = '1daf197';
 
 
 	var defaultCfg = {
@@ -22165,7 +22165,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tbody { margin: 0 }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { z-index: 1; }';
+					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { z-index: 1; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -22996,7 +22996,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return (!this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }') + '\n\t\t\t.iichan-hide-thread-btn, .postnum { display: none; }\n\t\t\t.replypage div[id^="thread"] span.reflink::after { content: none; }';
+					return (!this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }') + '\n\t\t\t.iichan-hide-thread-btn, .iichan-quick-reply-btn, .postnum { display: none; }\n\t\t\t.replypage div[id^="thread"] span.reflink::after { content: none; }';
 				}
 			}, {
 				key: 'isArchived',
