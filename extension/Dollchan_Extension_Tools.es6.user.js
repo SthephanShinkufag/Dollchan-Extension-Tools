@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'b4f54db';
+const commit = 'd52f052';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13866,7 +13866,8 @@ class Thread {
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
 				pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0),
-				$Q(aib.qPostImg, this.el).length,
+				$Q(`.de-reply:not(.de-post-removed) ${
+					aib.qPostImg }, .de-oppost ${ aib.qPostImg }`, this.el).length,
 				pBuilder.postersCount);
 			Pview.updatePosition(true);
 		}

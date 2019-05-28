@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'b4f54db';
+	var commit = 'd52f052';
 
 
 	var defaultCfg = {
@@ -18972,7 +18972,7 @@ true, true];
 					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
 				}
 				if (newPosts !== 0 || Panel.isNew) {
-					Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0), $Q(aib.qPostImg, this.el).length, pBuilder.postersCount);
+					Panel.updateCounter(pBuilder.length + 1 - (Cfg.panelCounter === 2 ? this.hidCounter : 0), $Q('.de-reply:not(.de-post-removed) ' + aib.qPostImg + ', .de-oppost ' + aib.qPostImg, this.el).length, pBuilder.postersCount);
 					Pview.updatePosition(true);
 				}
 				if (pBuilder.isClosed) {
