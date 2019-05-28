@@ -686,7 +686,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		get markupTags() {
-			return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
+			return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 		}
 		get reportForm() {
 			const value = (pNum, tNum) => ($q('input[type="button"]', $popup(

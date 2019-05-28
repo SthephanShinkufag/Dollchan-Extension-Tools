@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '8670427';
+	var commit = 'b4f54db';
 
 
 	var defaultCfg = {
@@ -21931,7 +21931,7 @@ true, true];
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB'];
+					return ['B', 'I', 'U', 'S', 'SPOILER', '', 'SUP', 'SUB'];
 				}
 			}, {
 				key: 'reportForm',
