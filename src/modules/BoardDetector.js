@@ -647,10 +647,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
-					.de-btn-src + a + a, #down-nav-arrow, .media-expand-button, .media-thumbnail, .newpost,
-					.post__btn:not(.icon_type_active), .post__message .icon, .post__number, .post__panel,
-					.post__refmap, .postform__len, .postform-hr, .thread-nav, #up-nav-arrow
-					{ display: none !important; }
+					.de-btn-src + a + a, #de-win-reply #tags, #down-nav-arrow, .media-expand-button,
+					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__message .icon,
+					.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr, .thread-nav,
+					#up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-flex; }
