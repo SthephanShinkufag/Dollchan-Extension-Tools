@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '1daf197';
+const commit = 'd006594';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15430,7 +15430,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qClosed = '.fa-lock';
 			this.qDForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
-			this.qFormPassw = 'input[name="password"]';
+			this.qFormPassw = 'input[name="password"]:not([type="hidden"])';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
@@ -16756,6 +16756,24 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
 
+	class CrystalCafe extends Tinyboard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qRPost = '.post.reply';
+		}
+		get qImgNameLink() {
+			return '.fileinfo > a[title]';
+		}
+		getImgInfo(wrap) {
+			return $q(this.qImgNameLink, wrap).title;
+		}
+		getTNum(thr) {
+			return +thr.id.match(/\d+/);
+		}
+	}
+	ibDomains['crystal.cafe'] = CrystalCafe;
+
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -17557,11 +17575,11 @@ function addSVGIcons() {
 		<path fill="#ffe888" stroke="#333" stroke-width=".75" d="M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z"/>
 		<path stroke="#333" d="M1 12.5L2.5 11"/>
 	</symbol>
-	<svg viewBox="0 0 16 16" id="de-symbol-file-txt">
+	<symbol viewBox="0 0 16 16" id="de-symbol-file-txt">
 		<circle fill="#2cabe1" cx="8" cy="8" r="7.5"/>
 		<line stroke="#fff" stroke-width="2" x1="8" y1="3" x2="8" y2="13"/>
 		<line stroke="#fff" stroke-width="2" x1="3" y1="8" x2="13" y2="8"/>
-	</svg>
+	</symbol>
 
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">
@@ -17804,7 +17822,7 @@ function scriptCSS() {
 	.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }
 	#de-win-cfg { width: 355px; }
 	#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }
-	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0; margin: 0 !important; border: none; }
+	#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }
 	#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }
 	#de-win-hid { max-width: 60%; }
 	#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }

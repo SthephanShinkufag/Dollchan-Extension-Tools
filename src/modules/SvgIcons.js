@@ -86,11 +86,11 @@ function addSVGIcons() {
 		<path fill="#ffe888" stroke="#333" stroke-width=".75" d="M2 8l-.5.5L1 9v3.5h3.5l1-1-1.7-1.7L2 8z"/>
 		<path stroke="#333" d="M1 12.5L2.5 11"/>
 	</symbol>
-	<svg viewBox="0 0 16 16" id="de-symbol-file-txt">
+	<symbol viewBox="0 0 16 16" id="de-symbol-file-txt">
 		<circle fill="#2cabe1" cx="8" cy="8" r="7.5"/>
 		<line stroke="#fff" stroke-width="2" x1="8" y1="3" x2="8" y2="13"/>
 		<line stroke="#fff" stroke-width="2" x1="3" y1="8" x2="13" y2="8"/>
-	</svg>
+	</symbol>
 
 	<!-- WINDOW ICONS -->
 	<symbol viewBox="0 0 16 16" id="de-symbol-win-arrow">

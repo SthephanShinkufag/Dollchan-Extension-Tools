@@ -58,7 +58,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qClosed = '.fa-lock';
 			this.qDForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
-			this.qFormPassw = 'input[name="password"]';
+			this.qFormPassw = 'input[name="password"]:not([type="hidden"])';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
@@ -1383,6 +1383,24 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
+
+	class CrystalCafe extends Tinyboard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qRPost = '.post.reply';
+		}
+		get qImgNameLink() {
+			return '.fileinfo > a[title]';
+		}
+		getImgInfo(wrap) {
+			return $q(this.qImgNameLink, wrap).title;
+		}
+		getTNum(thr) {
+			return +thr.id.match(/\d+/);
+		}
+	}
+	ibDomains['crystal.cafe'] = CrystalCafe;
 
 	class Diochan extends Kusaba {
 		constructor(prot, dm) {
