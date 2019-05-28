@@ -1037,6 +1037,35 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2channel.moe'] = _2channel;
 	ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
+	class _2chRip extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.ru = true;
+
+			this._capUpdPromise = null;
+		}
+		get css() {
+			return 'small[id^="rfmap_"] { display: none; }';
+		}
+		init() {
+			const el = $id('submit_button');
+			if(el) {
+				$del(el.previousElementSibling);
+				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
+			}
+			return false;
+		}
+		updateCaptcha(cap) {
+			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
+				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+				$id('captchaid').value = id;
+			});
+		}
+	}
+	ibDomains['2ch.rip'] = _2chRip;
+	ibDomains['dva-ch.net'] = _2chRip;
+
 	class _410chan extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
