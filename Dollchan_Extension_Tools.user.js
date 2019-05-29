@@ -3394,7 +3394,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								Cfg.sageReply = 0;
 							}
 							if (!Cfg.passwValue) {
-								Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
+								Cfg.passwValue = Math.round(Math.random() * 1e12).toString(32);
 							}
 							if (!Cfg.stats) {
 								Cfg.stats = { view: 0, op: 0, reply: 0 };
@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'f18505b';
+	var commit = '29de202';
 
 
 	var defaultCfg = {
@@ -7742,7 +7742,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (type === 'click' && tag === 'INPUT' && el.type === 'button') {
 				switch (el.id) {
 					case 'de-cfg-button-pass':
-						$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
+						$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
 						PostForm.setUserPassw();
 						break;
 					case 'de-cfg-button-keys':
@@ -21405,7 +21405,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '.de-video-link + div[style="display: inline;"] > .embedButton, .de-parea > hr,\n\t\t\t\t\t.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,\n\t\t\t\t\tbody > div[style^="display: inline;"] { display: none !important; }\n\t\t\t\t.divPosts { margin: 0 0; }\n\t\t\t\t#formButton { display: initial !important; }\n\t\t\t\t.form-post button, .form-post input, .form-post img { width: initial; }';
+					return '.de-video-link + div[style="display: inline;"] > .embedButton, .de-parea > hr,\n\t\t\t\t\t.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,\n\t\t\t\t\t.quoteTooltip, body > div[style^="display: inline;"] { display: none !important; }\n\t\t\t\t.divPosts { margin: 0 0; }\n\t\t\t\t#formButton { display: initial !important; }\n\t\t\t\t.form-post button, .form-post input, .form-post img { width: initial; }';
 				}
 			}, {
 				key: 'markupTags',
@@ -23130,39 +23130,37 @@ true, true];
 
 		ibDomains['iichan.hk'] = Iichan;
 
-		var Kohlchan = function (_Vichan3) {
-			_inherits(Kohlchan, _Vichan3);
+		var Kohlchan = function (_Lynxchan2) {
+			_inherits(Kohlchan, _Lynxchan2);
 
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
 				var _this113 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this113.qImgInfo = '.fileinfo';
-
-				_this113.hasTextLinks = true;
+				_this113.qFormRules = '#rules_row';
 				return _this113;
 			}
 
 			_createClass(Kohlchan, [{
-				key: 'qImgNameLink',
-				get: function get() {
-					return '.postfilename';
+				key: 'getSage',
+				value: function getSage(post) {
+					return !!$q('.sage', post).hasChildNodes();
 				}
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'css', this) + '\n\t\t\t\t.sage { display: none; }\n\t\t\t\tdiv.post.reply::before { content: none; }';
+					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'css', this) + '\n\t\t\t\t#postingForm, .sage { display: none; }\n\t\t\t\t.innerPost::before { content: none; }';
 				}
 			}]);
 
 			return Kohlchan;
-		}(Vichan);
+		}(Lynxchan);
 
 		ibDomains['kohlchan.net'] = Kohlchan;
 
-		var Kropyvach = function (_Vichan4) {
-			_inherits(Kropyvach, _Vichan4);
+		var Kropyvach = function (_Vichan3) {
+			_inherits(Kropyvach, _Vichan3);
 
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
@@ -23190,8 +23188,8 @@ true, true];
 
 		ibDomains['kropyva.ch'] = Kropyvach;
 
-		var Lainchan = function (_Vichan5) {
-			_inherits(Lainchan, _Vichan5);
+		var Lainchan = function (_Vichan4) {
+			_inherits(Lainchan, _Vichan4);
 
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);

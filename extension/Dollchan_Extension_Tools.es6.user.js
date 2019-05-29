@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'f18505b';
+const commit = '29de202';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2544,7 +2544,7 @@ async function readCfg() {
 		Cfg.sageReply = 0;
 	}
 	if(!Cfg.passwValue) {
-		Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
+		Cfg.passwValue = Math.round(Math.random() * 1e12).toString(32);
 	}
 	if(!Cfg.stats) {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
@@ -4599,7 +4599,7 @@ const CfgWindow = {
 		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
-				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e15).toString(32);
+				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
 				PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
@@ -15681,7 +15681,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.de-video-link + div[style="display: inline;"] > .embedButton, .de-parea > hr,
 					.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,
-					body > div[style^="display: inline;"] { display: none !important; }
+					.quoteTooltip, body > div[style^="display: inline;"] { display: none !important; }
 				.divPosts { margin: 0 0; }
 				#formButton { display: initial !important; }
 				.form-post button, .form-post input, .form-post img { width: initial; }`;
@@ -17098,21 +17098,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['iichan.hk'] = Iichan;
 
-	class Kohlchan extends Vichan {
+	class Kohlchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qImgInfo = '.fileinfo';
-
-			this.hasTextLinks = true;
-		}
-		get qImgNameLink() {
-			return '.postfilename';
+			this.qFormRules = '#rules_row';
 		}
 		get css() {
 			return `${ super.css }
-				.sage { display: none; }
-				div.post.reply::before { content: none; }`;
+				#postingForm, .sage { display: none; }
+				.innerPost::before { content: none; }`;
+		}
+		getSage(post) {
+			return !!$q('.sage', post).hasChildNodes();
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;

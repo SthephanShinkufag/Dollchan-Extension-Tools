@@ -308,7 +308,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `.de-video-link + div[style="display: inline;"] > .embedButton, .de-parea > hr,
 					.divRefresh, #jsButton, .hideButton, .nameLink, #newPostFieldset, .panelBacklinks,
-					body > div[style^="display: inline;"] { display: none !important; }
+					.quoteTooltip, body > div[style^="display: inline;"] { display: none !important; }
 				.divPosts { margin: 0 0; }
 				#formButton { display: initial !important; }
 				.form-post button, .form-post input, .form-post img { width: initial; }`;
@@ -1725,21 +1725,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['iichan.hk'] = Iichan;
 
-	class Kohlchan extends Vichan {
+	class Kohlchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qImgInfo = '.fileinfo';
-
-			this.hasTextLinks = true;
-		}
-		get qImgNameLink() {
-			return '.postfilename';
+			this.qFormRules = '#rules_row';
 		}
 		get css() {
 			return `${ super.css }
-				.sage { display: none; }
-				div.post.reply::before { content: none; }`;
+				#postingForm, .sage { display: none; }
+				.innerPost::before { content: none; }`;
+		}
+		getSage(post) {
+			return !!$q('.sage', post).hasChildNodes();
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
