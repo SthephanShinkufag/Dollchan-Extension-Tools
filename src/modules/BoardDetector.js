@@ -1173,7 +1173,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
-			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : ''];
+			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
+				this.b === 'g' ? '[code' : ''];
 		}
 		get updateCaptcha() {
 			let value = null;

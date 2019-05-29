@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '37dbaf1';
+	var commit = 'f18505b';
 
 
 	var defaultCfg = {
@@ -22401,7 +22401,7 @@ true, true];
 			}, {
 				key: 'markupTags',
 				get: function get() {
-					return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : ''];
+					return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '', this.b === 'g' ? '[code' : ''];
 				}
 			}, {
 				key: 'updateCaptcha',

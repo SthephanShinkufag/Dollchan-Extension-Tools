@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '37dbaf1';
+const commit = 'f18505b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16546,7 +16546,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
 		}
 		get markupTags() {
-			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : ''];
+			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
+				this.b === 'g' ? '[code' : ''];
 		}
 		get updateCaptcha() {
 			let value = null;
