@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '29de202';
+	var commit = '0c64743';
 
 
 	var defaultCfg = {
@@ -21211,7 +21211,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
+					$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
 					var el = $q(this.qForm);
 					if (el && !$q('td', el)) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;

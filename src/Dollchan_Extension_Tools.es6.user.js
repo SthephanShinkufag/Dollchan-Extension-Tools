@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '29de202';
+const commit = '0c64743';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15732,7 +15732,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
-			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
+			$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
 			const el = $q(this.qForm);
 			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;

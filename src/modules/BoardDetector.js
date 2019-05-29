@@ -359,7 +359,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
-			$script('if("autoRefresh" in window) clearInterval(refreshTimer);');
+			$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
 			const el = $q(this.qForm);
 			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
