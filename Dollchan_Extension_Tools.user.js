@@ -7,7 +7,6 @@
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
-// @inject-into     content
 // @nocompat        Chrome
 // @run-at          document-start
 // @grant           GM_getValue
@@ -3877,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '8361aae';
+	var commit = '4bd64b6';
 
 
 	var defaultCfg = {

@@ -7,7 +7,6 @@
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
-// @inject-into     content
 // @nocompat        Chrome
 // @run-at          document-start
 // @grant           GM_getValue
@@ -31,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '8361aae';
+const commit = '4bd64b6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
