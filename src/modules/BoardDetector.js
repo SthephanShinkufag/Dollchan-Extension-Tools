@@ -995,12 +995,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				get          : () => `${ css }
 					#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float
 						{ display: none !important; }
-					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }`
+					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
+					.preview.lazy { opacity: 1; }`
 			});
 			const el = $id('postform');
 			if(el) {
 				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}
+			$each($Q('.preview.lazy'), el => el.setAttribute('src', el.getAttribute('data-src')));
 			return false;
 		}
 		initCaptcha(cap) {

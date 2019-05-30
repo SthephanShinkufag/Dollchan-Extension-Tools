@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '43c0258';
+	var commit = '2d27690';
 
 
 	var defaultCfg = {
@@ -22076,13 +22076,16 @@ true, true];
 					Object.defineProperty(this, 'css', {
 						configurable: true,
 						get: function get() {
-							return css + '\n\t\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }';
+							return css + '\n\t\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t\t.preview.lazy { opacity: 1; }';
 						}
 					});
 					var el = $id('postform');
 					if (el) {
 						el.setAttribute('action', el.getAttribute('action') + '?json=1');
 					}
+					$each($Q('.preview.lazy'), function (el) {
+						return el.setAttribute('src', el.getAttribute('data-src'));
+					});
 					return false;
 				}
 			}, {
