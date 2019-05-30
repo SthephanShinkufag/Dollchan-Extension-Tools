@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '4bd64b6';
+const commit = '43c0258';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11475,7 +11475,7 @@ class Pview extends AbstractPost {
 			embedPostMsgImages(pv);
 			processImgInfoLinks(this);
 		} else {
-			const btnsEl = this.btns = this._pref.nextSibling;
+			const btnsEl = this.btns = this._pref.nextElementSibling;
 			$del($q('.de-post-counter', btnsEl));
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');

@@ -273,7 +273,7 @@ class Pview extends AbstractPost {
 			embedPostMsgImages(pv);
 			processImgInfoLinks(this);
 		} else {
-			const btnsEl = this.btns = this._pref.nextSibling;
+			const btnsEl = this.btns = this._pref.nextElementSibling;
 			$del($q('.de-post-counter', btnsEl));
 			if(post.isHidden) {
 				btnsEl.classList.add('de-post-hide');
