@@ -31,7 +31,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '0c64743';
+const commit = '8361aae';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6509,7 +6509,7 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		const canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+		const canSendCORS = nav.hasGMXHR || nav.canUseFetch;
 		return (canSendCORS ?
 			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
 				id }&format=json`, null, true) :
@@ -6666,8 +6666,7 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if((!params || !params.onprogress || aib.tiny) &&
-		(isCORS ? nav.canUseFetchCORS : nav.canUseFetch) &&
+	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.tiny && nav.canUseFetch) &&
 		(nav.canUseFetchBlob || !url.startsWith('blob'))
 	) {
 		if(!params) {
@@ -14921,9 +14920,7 @@ function initNavFuncs() {
 			val => val + rules.join(', ' + val)
 		).join(', '),
 		canUseFetch,
-		canUseFetchBlob: canUseFetch &&
-			(!isChrome || scriptHandler !== 'WebExtension' && !scriptHandler.startsWith('Violentmonkey')),
-		canUseFetchCORS  : canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		fixLink          : isSafari ? getAbsLink : url => url,
@@ -18242,9 +18239,7 @@ function runFrames() {
 		}
 		inf = GM_info;
 	}
-	if(!inf || inf.scriptHandler !== 'Greasemonkey' && inf.scriptHandler !== 'Violentmonkey' ||
-		!deWindow.frames[0]
-	) {
+	if(!inf || inf.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {

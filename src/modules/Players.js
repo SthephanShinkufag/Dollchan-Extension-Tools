@@ -234,7 +234,7 @@ class Videos {
 		}).catch(() => Videos._getYTInfoOembed(info, num, id));
 	}
 	static _getYTInfoOembed(info, num, id) {
-		const canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+		const canSendCORS = nav.hasGMXHR || nav.canUseFetch;
 		return (canSendCORS ?
 			$ajax(`https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D${
 				id }&format=json`, null, true) :

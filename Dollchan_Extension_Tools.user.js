@@ -3877,7 +3877,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '0c64743';
+	var commit = '8361aae';
 
 
 	var defaultCfg = {
@@ -9624,7 +9624,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_getYTInfoOembed',
 			value: function _getYTInfoOembed(info, num, id) {
-				var canSendCORS = nav.canUseFetchCORS || nav.hasGMXHR;
+				var canSendCORS = nav.hasGMXHR || nav.canUseFetch;
 				return (canSendCORS ? $ajax('https://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&format=json', null, true) : $ajax('https://noembed.com/embed?url=http%3A//youtube.com/watch%3Fv%3D' + id + '&callback=?')).then(function (xhr) {
 					var res = xhr.responseText;
 					var json = JSON.parse(canSendCORS ? res : res.replace(/^[^{]+|\)$/g, ''));
@@ -9785,7 +9785,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if ((!params || !params.onprogress || aib.tiny) && (isCORS ? nav.canUseFetchCORS : nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+		if (((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.tiny && nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 			if (!params) {
 				params = {};
 			}
@@ -20152,8 +20152,7 @@ true, true];
 				}).join(', ');
 			},
 			canUseFetch: canUseFetch,
-			canUseFetchBlob: canUseFetch && (!isChrome || scriptHandler !== 'WebExtension' && !scriptHandler.startsWith('Violentmonkey')),
-			canUseFetchCORS: canUseFetch && !scriptHandler.startsWith('Tampermonkey'),
+			canUseFetchBlob: canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 			canUseNativeXHR: true,
 			firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 			fixLink: isSafari ? getAbsLink : function (url) {
@@ -23797,7 +23796,7 @@ true, true];
 			}
 			inf = GM_info;
 		}
-		if (!inf || inf.scriptHandler !== 'Greasemonkey' && inf.scriptHandler !== 'Violentmonkey' || !deWindow.frames[0]) {
+		if (!inf || inf.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
 			return;
 		}
 		var deMainFuncFrame = function deMainFuncFrame(frameEl) {
