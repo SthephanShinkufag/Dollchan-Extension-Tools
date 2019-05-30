@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '12523eb';
+const commit = '3c8ffdc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18366,6 +18366,8 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Init page');
 	Panel.initPanel(formEl);
 	Logger.log('Add panel');
+	embedPostMsgImages(DelForm.first.el);
+	Logger.log('Image-links');
 	DelForm.first.addStuff();
 	readViewedPosts();
 	scriptCSS();
@@ -18379,8 +18381,6 @@ async function runMain(checkDomains, dataPromise) {
 		readPostsData(firstThr.op, favObj);
 	}
 	Logger.log('Hide posts');
-	embedPostMsgImages(DelForm.first.el);
-	Logger.log('Image-links');
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {

@@ -3831,6 +3831,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Init page');
 							Panel.initPanel(formEl);
 							Logger.log('Add panel');
+							embedPostMsgImages(DelForm.first.el);
+							Logger.log('Image-links');
 							DelForm.first.addStuff();
 							readViewedPosts();
 							scriptCSS();
@@ -3845,8 +3847,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								readPostsData(firstThr.op, favObj);
 							}
 							Logger.log('Hide posts');
-							embedPostMsgImages(DelForm.first.el);
-							Logger.log('Image-links');
 							scrollPage();
 							Logger.log('Scroll page');
 							if (localData) {
