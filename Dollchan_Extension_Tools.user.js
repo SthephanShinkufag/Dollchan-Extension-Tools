@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '2d27690';
+	var commit = '12523eb';
 
 
 	var defaultCfg = {
@@ -23140,6 +23140,8 @@ true, true];
 				var _this113 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
 				_this113.qFormRules = '#rules_row';
+
+				_this113.hasTextLinks = true;
 				return _this113;
 			}
 
