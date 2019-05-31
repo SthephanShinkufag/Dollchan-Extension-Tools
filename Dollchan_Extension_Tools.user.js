@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '12523eb';
+	var commit = '631c6a3';
 
 
 	var defaultCfg = {
@@ -15876,7 +15876,7 @@ true, true];
 										embedPostMsgImages(pv);
 										processImgInfoLinks(this);
 									} else {
-										btnsEl = this.btns = this._pref.nextElementSibling;
+										btnsEl = this.btns = $q('.de-post-btns', pv);
 
 										$del($q('.de-post-counter', btnsEl));
 										if (post.isHidden) {
