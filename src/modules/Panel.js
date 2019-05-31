@@ -81,8 +81,8 @@ const Panel = Object.create({
 			case 'de-panel-hid': toggleWindow('hid', false); break;
 			case 'de-panel-fav': toggleWindow('fav', false); break;
 			case 'de-panel-vid':
-				toggleWindow('vid', false);
 				this.isVidEnabled = !this.isVidEnabled;
+				toggleWindow('vid', false);
 				break;
 			case 'de-panel-refresh': deWindow.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;

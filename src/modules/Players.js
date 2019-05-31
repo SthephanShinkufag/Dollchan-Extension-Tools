@@ -100,8 +100,9 @@ class Videos {
 			this.currentLink = link;
 		}
 		link.videoInfo = m;
-		if(Panel.isVidEnabled) {
-			updateVideoList($id('de-video-list'), link, this.post.num);
+		let vidListEl;
+		if(Panel.isVidEnabled && (vidListEl = $id('de-video-list'))) {
+			updateVideoList(vidListEl, link, this.post.num);
 		}
 		if(loader && !dataObj) {
 			loader.runTask([link, isYtube, this, m[1]]);

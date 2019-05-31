@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '631c6a3';
+	var commit = 'd284834';
 
 
 	var defaultCfg = {
@@ -5936,8 +5936,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-fav':
 							toggleWindow('fav', false);break;
 						case 'de-panel-vid':
-							toggleWindow('vid', false);
 							this.isVidEnabled = !this.isVidEnabled;
+							toggleWindow('vid', false);
 							break;
 						case 'de-panel-refresh':
 							deWindow.location.reload();break;
@@ -9415,8 +9415,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					this.currentLink = link;
 				}
 				link.videoInfo = m;
-				if (Panel.isVidEnabled) {
-					updateVideoList($id('de-video-list'), link, this.post.num);
+				var vidListEl = void 0;
+				if (Panel.isVidEnabled && (vidListEl = $id('de-video-list'))) {
+					updateVideoList(vidListEl, link, this.post.num);
 				}
 				if (loader && !dataObj) {
 					loader.runTask([link, isYtube, this, m[1]]);

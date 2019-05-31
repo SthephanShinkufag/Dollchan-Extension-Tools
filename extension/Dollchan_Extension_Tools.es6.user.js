@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '631c6a3';
+const commit = 'd284834';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3067,8 +3067,8 @@ const Panel = Object.create({
 			case 'de-panel-hid': toggleWindow('hid', false); break;
 			case 'de-panel-fav': toggleWindow('fav', false); break;
 			case 'de-panel-vid':
-				toggleWindow('vid', false);
 				this.isVidEnabled = !this.isVidEnabled;
+				toggleWindow('vid', false);
 				break;
 			case 'de-panel-refresh': deWindow.location.reload(); break;
 			case 'de-panel-goup': scrollTo(0, 0); break;
@@ -6374,8 +6374,9 @@ class Videos {
 			this.currentLink = link;
 		}
 		link.videoInfo = m;
-		if(Panel.isVidEnabled) {
-			updateVideoList($id('de-video-list'), link, this.post.num);
+		let vidListEl;
+		if(Panel.isVidEnabled && (vidListEl = $id('de-video-list'))) {
+			updateVideoList(vidListEl, link, this.post.num);
 		}
 		if(loader && !dataObj) {
 			loader.runTask([link, isYtube, this, m[1]]);
