@@ -93,6 +93,9 @@ class PostForm {
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
 	static setUserPassw() {
+		if(!Cfg.userPassw) {
+			return;
+		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
 			saveCfg('passwValue', el.value);

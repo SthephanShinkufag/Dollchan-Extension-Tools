@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'd284834';
+const commit = 'd91283d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -127,7 +127,8 @@ const defaultCfg = {
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
-	passwValue   : '',   // user password value
+	userPassw    : 1,    // user password
+	passwValue   : '',   //    value
 	userName     : 0,    // user name
 	nameValue    : '',   //    value
 	noBoardRule  : 0,    // hide board rules
@@ -636,7 +637,7 @@ const Lng = {
 			'Внизу',
 			'At bottom',
 			'Знизу'],
-		passwValue: [
+		userPassw: [
 			'Постоянный пароль',
 			'Fixed password',
 			'Постійний пароль'],
@@ -4581,6 +4582,7 @@ const CfgWindow = {
 				pr.addMarkupPanel();
 				updateCSS();
 				break;
+			case 'userPassw': PostForm.setUserPassw(); break;
 			case 'userName': PostForm.setUserName(); break;
 			case 'noPassword': $toggle($qParent(pr.passw, aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
@@ -4916,7 +4918,8 @@ const CfgWindow = {
 				${ this._getSel('captchaLang') }<br>` : '' }
 			${ pr.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
-			${ pr.passw ? `${ this._getInp('passwValue', true, 9) }<input type="button"` +
+			${ pr.passw ? `${ this._getInp('passwValue', false, 9) }
+				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
 			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
 				${ this._getBox('userName') }<br>` : '' }
@@ -8480,6 +8483,9 @@ class PostForm {
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
 	static setUserPassw() {
+		if(!Cfg.userPassw) {
+			return;
+		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
 			saveCfg('passwValue', el.value);

@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'd284834';
+	var commit = 'd91283d';
 
 
 	var defaultCfg = {
@@ -3969,6 +3969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		captchaLang: 1, 
 		addTextBtns: 1, 
 		txtBtnsLoc: 1, 
+		userPassw: 1, 
 		passwValue: '', 
 		userName: 0, 
 		nameValue: '', 
@@ -4166,7 +4167,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				txt: ['Кнопки разметки текста ', 'Text markup buttons ', 'Кнопки розмітки тексту ']
 			},
 			txtBtnsLoc: ['Внизу', 'At bottom', 'Знизу'],
-			passwValue: ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
+			userPassw: ['Постоянный пароль', 'Fixed password', 'Постійний пароль'],
 			userName: ['Постоянное имя', 'Fixed name', 'Постійне імʼя'],
 			noBoardRule: ['Правила ', 'Rules ', 'Правила '],
 			noPassword: ['Пароль ', 'Password ', 'Пароль '],
@@ -7719,6 +7720,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						pr.addMarkupPanel();
 						updateCSS();
 						break;
+					case 'userPassw':
+						PostForm.setUserPassw();break;
 					case 'userName':
 						PostForm.setUserName();break;
 					case 'noPassword':
@@ -7949,7 +7952,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgForm: function _getCfgForm() {
-			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '<br>\n\t\t\t\t' + this._getSel('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.hasAltCaptcha ? this._getBox('altCaptcha') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib._4chan ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', true, 9) + '<input type="button"' + (' id="de-cfg-button-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
+			return '<div id="de-cfg-form" class="de-cfg-unvis">\n\t\t\t' + this._getBox('ajaxPosting') + '<br>\n\t\t\t' + (pr.form ? '<div class="de-depend">\n\t\t\t\t' + this._getBox('postSameImg') + '<br>\n\t\t\t\t' + this._getBox('removeEXIF') + '<br>\n\t\t\t\t' + this._getSel('removeFName') + '<br>\n\t\t\t\t' + this._getBox('sendErrNotif') + '<br>\n\t\t\t\t' + this._getBox('scrAfterRep') + '<br>\n\t\t\t\t' + (pr.files && !nav.isPresto ? this._getSel('fileInputs') : '') + '\n\t\t\t</div>' : '') + '\n\t\t\t' + (pr.form ? this._getSel('addPostForm') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getBox('spacedQuote') + '<br>' : '') + '\n\t\t\t' + this._getBox('favOnReply') + '<br>\n\t\t\t' + (pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '') + '\n\t\t\t' + (pr.mail ? this._getBox('addSageBtn') + '\n\t\t\t\t' + this._getBox('saveSage') + '<br>' : '') + '\n\t\t\t' + (pr.cap ? (aib.hasAltCaptcha ? this._getBox('altCaptcha') + '<br>' : '') + '\n\t\t\t\t' + this._getInp('capUpdTime') + '<br>\n\t\t\t\t' + this._getSel('captchaLang') + '<br>' : '') + '\n\t\t\t' + (pr.txta ? this._getSel('addTextBtns') + '\n\t\t\t\t' + (!aib._4chan ? this._getBox('txtBtnsLoc') : '') + '<br>' : '') + '\n\t\t\t' + (pr.passw ? this._getInp('passwValue', false, 9) + '\n\t\t\t\t' + this._getBox('userPassw') + '<input type="button"' + (' id="de-cfg-button-pass" class="de-cfg-button" value="' + Lng.change[lang] + '"><br>') : '') + '\n\t\t\t' + (pr.name ? this._getInp('nameValue', false, 9) + '\n\t\t\t\t' + this._getBox('userName') + '<br>' : '') + '\n\t\t\t' + (pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '') + '\n\t\t</div>';
 		},
 
 
@@ -12946,6 +12949,9 @@ true, true];
 		}, {
 			key: 'setUserPassw',
 			value: function setUserPassw() {
+				if (!Cfg.userPassw) {
+					return;
+				}
 				var el = $q('input[info="passwValue"]');
 				if (el) {
 					saveCfg('passwValue', el.value);

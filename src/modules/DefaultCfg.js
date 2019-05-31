@@ -93,7 +93,8 @@ const defaultCfg = {
 	captchaLang  : 1,    // forced captcha input language [0=off, 1=en, 2=ru]
 	addTextBtns  : 1,    // text markup buttons [0=off, 1=graphics, 2=text, 3=usual]
 	txtBtnsLoc   : 1,    //    located at [0=top, 1=bottom]
-	passwValue   : '',   // user password value
+	userPassw    : 1,    // user password
+	passwValue   : '',   //    value
 	userName     : 0,    // user name
 	nameValue    : '',   //    value
 	noBoardRule  : 0,    // hide board rules
