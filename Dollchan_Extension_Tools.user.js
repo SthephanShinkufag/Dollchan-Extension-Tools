@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '038b9bd';
+	var commit = 'bc7e33d';
 
 
 	var defaultCfg = {
@@ -16722,7 +16722,7 @@ true, true];
 						this.sendCloseEvent(e, true);
 					}
 					var origImgTop = this.el.getBoundingClientRect().top;
-					if ((this.inPview ? fullImgTop : origImgTop) < 0) {
+					if (fullImgTop < 0 || origImgTop < 0) {
 						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + origImgTop);
 					}
 				}
@@ -16811,8 +16811,9 @@ true, true];
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 				this.checkForRedirect(this._fullEl);
-				if (!this.inPview && origImgTop < 0) {
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._fullEl.getBoundingClientRect().top);
+				var fullImgTop = this._fullEl.getBoundingClientRect().top;
+				if (fullImgTop < 0 || origImgTop < 0) {
+					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
 				}
 			}
 		}, {

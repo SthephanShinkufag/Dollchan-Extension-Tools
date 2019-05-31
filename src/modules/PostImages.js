@@ -446,7 +446,7 @@ class ExpandableImage {
 				this.sendCloseEvent(e, true);
 			}
 			const origImgTop = this.el.getBoundingClientRect().top;
-			if((this.inPview ? fullImgTop : origImgTop) < 0) {
+			if(fullImgTop < 0 || origImgTop < 0) {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + origImgTop);
 			}
 		}
@@ -523,8 +523,9 @@ class ExpandableImage {
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 		this.checkForRedirect(this._fullEl);
-		if(!this.inPview && origImgTop < 0) {
-			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._fullEl.getBoundingClientRect().top);
+		const fullImgTop = this._fullEl.getBoundingClientRect().top;
+		if(fullImgTop < 0 || origImgTop < 0) {
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
 		}
 	}
 	getFollowImg(isForward) {
