@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'd91283d';
+const commit = '038b9bd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12194,6 +12194,7 @@ class ExpandableImage {
 			viewer.updateImgViewer(this, e);
 			return;
 		}
+		const origImgTop = e.target.getBoundingClientRect().top;
 		this.expanded = true;
 		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
@@ -12204,6 +12205,9 @@ class ExpandableImage {
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 		this.checkForRedirect(this._fullEl);
+		if(!this.inPview && origImgTop < 0) {
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._fullEl.getBoundingClientRect().top);
+		}
 	}
 	getFollowImg(isForward) {
 		const nImage = isForward ? this.next : this.prev;

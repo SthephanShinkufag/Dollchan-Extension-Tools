@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'd91283d';
+	var commit = '038b9bd';
 
 
 	var defaultCfg = {
@@ -16798,6 +16798,7 @@ true, true];
 					viewer.updateImgViewer(this, e);
 					return;
 				}
+				var origImgTop = e.target.getBoundingClientRect().top;
 				this.expanded = true;
 				var el = this.el;
 
@@ -16810,6 +16811,9 @@ true, true];
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 				this.checkForRedirect(this._fullEl);
+				if (!this.inPview && origImgTop < 0) {
+					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + this._fullEl.getBoundingClientRect().top);
+				}
 			}
 		}, {
 			key: 'getFollowImg',
