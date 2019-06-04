@@ -280,7 +280,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
 			this.qFormRules = '.form-post > .small';
-			this.qFormSubm = '#formButton';
+			this.qFormSubm = '#formButton, #de-postform-submit';
 			this.qImgInfo = '.uploadDetails';
 			this.qOmitted = '.labelOmission';
 			this.qOPost = '.innerOP';
@@ -289,6 +289,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 			this.qPostMsg = '.divMessage';
 			this.qPostRef = '.linkQuote';
+			this.qPostsParent = '.divPosts';
 			this.qRPost = '.innerPost';
 			this.qTrunc = '.contentOmissionIndicator';
 			this._qOPostEnd = '.divPosts';
@@ -298,6 +299,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this.jsonSubmit = true;
 			this.multiFile = true;
+
+			this._hasNewAPI = false;
 		}
 		get qImgNameLink() {
 			return '.originalNameLink';
@@ -359,6 +362,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
+			const submEl = $id('formButton');
+			if(submEl.type === 'button') {
+				this._hasNewAPI = true;
+				$replace(submEl, `<button id="de-postform-submit" type="submit">${
+					submEl.innerHTML }</button>`);
+			}
 			$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
 			const el = $q(this.qForm);
 			if(el && !$q('td', el)) {
@@ -375,57 +384,63 @@ function getImageBoard(checkDomains, checkEngines) {
 			return status === 200 || status === 206 || status === 400 || status === 500;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
-			const getBase64 = async file => new Promise((resolve, reject) => {
-				const reader = new FileReader();
-				reader.readAsDataURL(file);
-				reader.onload = () => resolve(reader.result);
-				reader.onerror = err => reject(err);
-			});
-			const getCookies = () => {
-				const obj = {};
-				const cookies = doc.cookie.split(';');
-				for(let i = 0, len = cookies.length; i < len; ++i) {
-					const parts = cookies[i].split('=');
-					obj[parts.shift().trim()] = decodeURI(parts.join('='));
+			let ajaxParams;
+			if(this._hasNewAPI) {
+				ajaxParams = { data, method: 'POST' };
+			} else {
+				const getBase64 = async file => new Promise((resolve, reject) => {
+					const reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onload = () => resolve(reader.result);
+					reader.onerror = err => reject(err);
+				});
+				const getCookies = () => {
+					const obj = {};
+					const cookies = doc.cookie.split(';');
+					for(let i = 0, len = cookies.length; i < len; ++i) {
+						const parts = cookies[i].split('=');
+						obj[parts.shift().trim()] = decodeURI(parts.join('='));
+					}
+					return obj;
+				};
+				const dataObj = { files: [] };
+				const files = [];
+				data.forEach(async (value, key) => {
+					if(key !== 'files') {
+						dataObj[key] = value;
+					} else {
+						files.push(value);
+					}
+				});
+				for(let i = 0, len = files.length; i < len; ++i) {
+					const file = files[i];
+					if(file.type) {
+						dataObj.files.push({
+							content: `data:${ file.type };base64,${
+								await getBase64(file).then(data => data.split(',')[1]) }`,
+							name    : file.name,
+							spoiler : false
+						});
+					}
 				}
-				return obj;
-			};
-			const dataObj = { files: [] };
-			const files = [];
-			data.forEach(async (value, key) => {
-				if(key !== 'files') {
-					dataObj[key] = value;
-				} else {
-					files.push(value);
-				}
-			});
-			for(let i = 0, len = files.length; i < len; ++i) {
-				const file = files[i];
-				if(file.type) {
-					dataObj.files.push({
-						content: `data:${ file.type };base64,${
-							await getBase64(file).then(data => data.split(',')[1]) }`,
-						name    : file.name,
-						spoiler : false
-					});
-				}
+				const cookieObj = getCookies();
+				ajaxParams = {
+					data: JSON.stringify({
+						captchaId  : cookieObj.captchaid,
+						bypassId   : cookieObj.bypass,
+						parameters : dataObj,
+						auth       : { login: cookieObj.login, hash: cookieObj.hash }
+					}),
+					headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
+					method  : 'POST'
+				};
 			}
-			const cookieObj = getCookies();
-			const ajaxParams = {
-				data: JSON.stringify({
-					captchaId  : cookieObj.captchaid,
-					bypassId   : cookieObj.bypass,
-					parameters : dataObj,
-					auth       : { login: cookieObj.login, hash: cookieObj.hash }
-				}),
-				headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
-				method  : 'POST'
-			};
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			return $ajax('/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams)
-				.then(xhr => xhr.responseText).catch(err => Promise.reject(err));
+			const task = form.action.split('/').pop();
+			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
+			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
 		updateCaptcha() {
 			$script('reloadCaptcha();');
@@ -451,6 +466,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.text';
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
+			this.qPostsParent = '.posts';
 			this.qRPost = '.post[id]';
 			this._qOPostEnd = '.posts';
 
@@ -1737,8 +1753,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#postingForm, .sage { display: none; }
-				.innerPost::before { content: none; }`;
+				#postingForm, .sage { display: none; }`;
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();

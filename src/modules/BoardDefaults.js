@@ -33,6 +33,7 @@ class BaseBoard {
 		this.qPostSubj = '.filetitle';
 		this.qPostTrip = '.postertrip';
 		this.qPostRef = '.reflink';
+		this.qPostsParent = null;
 		this.qRPost = '.reply';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
 		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';

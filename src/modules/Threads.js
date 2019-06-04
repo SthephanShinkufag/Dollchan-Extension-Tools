@@ -515,7 +515,7 @@ class Thread {
 				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
-			this.el.appendChild(res[2]);
+			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).appendChild(res[2]);
 			this.last = res[3];
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;

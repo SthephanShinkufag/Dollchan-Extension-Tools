@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'bc7e33d';
+	var commit = 'a564b61';
 
 
 	var defaultCfg = {
@@ -19075,7 +19075,7 @@ true, true];
 					var _res = this._importPosts(this.last, pBuilder, this.lastNotDeleted.count, len, maybeVParser, maybeSpells);
 					newPosts += _res[0];
 					newVisPosts += _res[1];
-					this.el.appendChild(_res[2]);
+					(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).appendChild(_res[2]);
 					this.last = _res[3];
 					DollchanAPI.notify('newpost', _res[4]);
 					this.pcount = len + 1;
@@ -20294,6 +20294,7 @@ true, true];
 			this.qPostSubj = '.filetitle';
 			this.qPostTrip = '.postertrip';
 			this.qPostRef = '.reflink';
+			this.qPostsParent = null;
 			this.qRPost = '.reply';
 			this.qTrunc = '.abbrev, .abbr, .shortened';
 			this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
@@ -21132,7 +21133,7 @@ true, true];
 				_this86.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 				_this86.qFormPassw = 'input[name="password"]';
 				_this86.qFormRules = '.form-post > .small';
-				_this86.qFormSubm = '#formButton';
+				_this86.qFormSubm = '#formButton, #de-postform-submit';
 				_this86.qImgInfo = '.uploadDetails';
 				_this86.qOmitted = '.labelOmission';
 				_this86.qOPost = '.innerOP';
@@ -21141,6 +21142,7 @@ true, true];
 				_this86.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 				_this86.qPostMsg = '.divMessage';
 				_this86.qPostRef = '.linkQuote';
+				_this86.qPostsParent = '.divPosts';
 				_this86.qRPost = '.innerPost';
 				_this86.qTrunc = '.contentOmissionIndicator';
 				_this86._qOPostEnd = '.divPosts';
@@ -21150,6 +21152,8 @@ true, true];
 				_this86.hasCatalog = true;
 				_this86.jsonSubmit = true;
 				_this86.multiFile = true;
+
+				_this86._hasNewAPI = false;
 				return _this86;
 			}
 
@@ -21221,6 +21225,11 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
+					var submEl = $id('formButton');
+					if (submEl.type === 'button') {
+						this._hasNewAPI = true;
+						$replace(submEl, '<button id="de-postform-submit" type="submit">' + submEl.innerHTML + '</button>');
+					}
 					$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
 					var el = $q(this.qForm);
 					if (el && !$q('td', el)) {
@@ -21243,12 +21252,24 @@ true, true];
 					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
 						var _this87 = this;
 
-						var getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, ajaxParams;
+						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, task, url;
 
 						return regeneratorRuntime.wrap(function _callee23$(_context30) {
 							while (1) {
 								switch (_context30.prev = _context30.next) {
 									case 0:
+										ajaxParams = void 0;
+
+										if (!this._hasNewAPI) {
+											_context30.next = 5;
+											break;
+										}
+
+										ajaxParams = { data: data, method: 'POST' };
+										_context30.next = 28;
+										break;
+
+									case 5:
 										getBase64 = function () {
 											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
 												return regeneratorRuntime.wrap(function _callee21$(_context28) {
@@ -21318,27 +21339,27 @@ true, true];
 										}());
 										i = 0, _len16 = files.length;
 
-									case 6:
+									case 11:
 										if (!(i < _len16)) {
-											_context30.next = 21;
+											_context30.next = 26;
 											break;
 										}
 
 										file = files[i];
 
 										if (!file.type) {
-											_context30.next = 18;
+											_context30.next = 23;
 											break;
 										}
 
 										_context30.t0 = dataObj.files;
 										_context30.t1 = 'data:' + file.type + ';base64,';
-										_context30.next = 13;
+										_context30.next = 18;
 										return getBase64(file).then(function (data) {
 											return data.split(',')[1];
 										});
 
-									case 13:
+									case 18:
 										_context30.t2 = _context30.sent;
 										_context30.t3 = _context30.t1 + _context30.t2;
 										_context30.t4 = file.name;
@@ -21350,13 +21371,14 @@ true, true];
 
 										_context30.t0.push.call(_context30.t0, _context30.t5);
 
-									case 18:
+									case 23:
 										++i;
-										_context30.next = 6;
+										_context30.next = 11;
 										break;
 
-									case 21:
+									case 26:
 										cookieObj = getCookies();
+
 										ajaxParams = {
 											data: JSON.stringify({
 												captchaId: cookieObj.captchaid,
@@ -21368,16 +21390,19 @@ true, true];
 											method: 'POST'
 										};
 
+									case 28:
 										if (needProgress && hasFiles) {
 											ajaxParams.onprogress = getUploadFunc();
 										}
-										return _context30.abrupt('return', $ajax('/.api/' + form.action.split('/').pop().replace('.js', ''), ajaxParams).then(function (xhr) {
+										task = form.action.split('/').pop();
+										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
+										return _context30.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;
 										}).catch(function (err) {
 											return Promise.reject(err);
 										}));
 
-									case 25:
+									case 32:
 									case 'end':
 										return _context30.stop();
 								}
@@ -21447,6 +21472,7 @@ true, true];
 				_this88.qPostMsg = '.text';
 				_this88.qPostRef = '.post_data > a[data-function="quote"]';
 				_this88.qPostSubj = '.post_title';
+				_this88.qPostsParent = '.posts';
 				_this88.qRPost = '.post[id]';
 				_this88._qOPostEnd = '.posts';
 
@@ -23165,7 +23191,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'css', this) + '\n\t\t\t\t#postingForm, .sage { display: none; }\n\t\t\t\t.innerPost::before { content: none; }';
+					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'css', this) + '\n\t\t\t\t#postingForm, .sage { display: none; }';
 				}
 			}]);
 
