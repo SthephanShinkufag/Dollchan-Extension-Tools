@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'a564b61';
+const commit = '8adefc2';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -7084,6 +7084,7 @@ function toggleInfinityScroll() {
 toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		deWindow.requestAnimationFrame(() => {
+			console.log(Thread.last.bottom, Post.sizing.wHeight)
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				Pages.addPage();
 			}
@@ -13502,7 +13503,7 @@ class Thread {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
-		return this.isHidden ? this.op.bottom : this.last.bottom;
+		return this.isHidden || Cfg.hideReplies ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
 		let post = this.last;

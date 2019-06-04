@@ -142,6 +142,7 @@ function toggleInfinityScroll() {
 toggleInfinityScroll.onwheel = e => {
 	if((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 		deWindow.requestAnimationFrame(() => {
+			console.log(Thread.last.bottom, Post.sizing.wHeight)
 			if(Thread.last.bottom - 150 < Post.sizing.wHeight) {
 				Pages.addPage();
 			}

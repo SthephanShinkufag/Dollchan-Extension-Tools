@@ -57,7 +57,7 @@ class Thread {
 		// TODO: remove relevant spells, hidden posts and user posts
 	}
 	get bottom() {
-		return this.isHidden ? this.op.bottom : this.last.bottom;
+		return this.isHidden || Cfg.hideReplies ? this.op.bottom : this.last.bottom;
 	}
 	get lastNotDeleted() {
 		let post = this.last;

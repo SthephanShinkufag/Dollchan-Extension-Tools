@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'a564b61';
+	var commit = '8adefc2';
 
 
 	var defaultCfg = {
@@ -10462,6 +10462,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	toggleInfinityScroll.onwheel = function (e) {
 		if ((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 			deWindow.requestAnimationFrame(function () {
+				console.log(Thread.last.bottom, Post.sizing.wHeight);
 				if (Thread.last.bottom - 150 < Post.sizing.wHeight) {
 					Pages.addPage();
 				}
@@ -19114,7 +19115,7 @@ true, true];
 		}, {
 			key: 'bottom',
 			get: function get() {
-				return this.isHidden ? this.op.bottom : this.last.bottom;
+				return this.isHidden || Cfg.hideReplies ? this.op.bottom : this.last.bottom;
 			}
 		}, {
 			key: 'lastNotDeleted',
