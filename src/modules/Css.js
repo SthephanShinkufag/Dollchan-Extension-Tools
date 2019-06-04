@@ -219,8 +219,9 @@ function scriptCSS() {
 	let p = Math.max(Cfg.minImgSize || 0, 50);
 	x += `
 	/* Full images */
-	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
+	.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-embed { max-width: 200px; max-height: 200px; }
+	.de-fullimg { display: block; }
 	.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }

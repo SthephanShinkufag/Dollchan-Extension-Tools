@@ -1061,10 +1061,8 @@ function embedPostMsgImages(el) {
 		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
-		const a = link.cloneNode(false);
-		a.target = '_blank';
-		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
-		$before(link, a);
+		$bBegin(link, `<a href="${
+			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
 			addImgSrcButtons(link);
 		}

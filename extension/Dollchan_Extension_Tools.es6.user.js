@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = '8adefc2';
+const commit = 'b000d71';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4566,7 +4566,8 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
-						$each($Q('.de-img-embed'), el => addImgSrcButtons(el.parentNode.nextSibling));
+						$each($Q('.de-img-embed'),
+							el => addImgSrcButtons(el.parentNode.nextSibling.nextSibling));
 					}
 				} else {
 					$delAll('.de-btn-src');
@@ -12744,10 +12745,8 @@ function embedPostMsgImages(el) {
 		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
-		const a = link.cloneNode(false);
-		a.target = '_blank';
-		a.innerHTML = `<img class="de-img-embed" src="${ url }">`;
-		$before(link, a);
+		$bBegin(link, `<a href="${
+			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
 			addImgSrcButtons(link);
 		}
@@ -18027,8 +18026,9 @@ function scriptCSS() {
 	let p = Math.max(Cfg.minImgSize || 0, 50);
 	x += `
 	/* Full images */
-	.de-img-embed, .de-fullimg { display: block; border: none; outline: none; cursor: pointer; image-orientation: from-image; }
+	.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }
 	.de-img-embed { max-width: 200px; max-height: 200px; }
+	.de-fullimg { display: block; }
 	.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }
