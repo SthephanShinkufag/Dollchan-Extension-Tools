@@ -368,7 +368,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(submEl, `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);
 			}
-			$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
+			$script(`if("autoRefresh" in window) {
+					clearInterval(refreshTimer);
+				}
+				if("thread" in window && thread.refreshTimer) {
+					clearInterval(thread.refreshTimer);
+					Object.defineProperty(thread, "startTimer",
+						{ value: Function.prototype, writable: false, configurable: false });
+				}`);
 			const el = $q(this.qForm);
 			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;

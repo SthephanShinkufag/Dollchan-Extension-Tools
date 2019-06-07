@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'b000d71';
+	var commit = 'd9a0858';
 
 
 	var defaultCfg = {
@@ -21228,7 +21228,7 @@ true, true];
 						this._hasNewAPI = true;
 						$replace(submEl, '<button id="de-postform-submit" type="submit">' + submEl.innerHTML + '</button>');
 					}
-					$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
+					$script('if("autoRefresh" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif("thread" in window && thread.refreshTimer) {\n\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\tObject.defineProperty(thread, "startTimer",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}');
 					var el = $q(this.qForm);
 					if (el && !$q('td', el)) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'b000d71';
+const commit = 'd9a0858';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15750,7 +15750,14 @@ function getImageBoard(checkDomains, checkEngines) {
 				$replace(submEl, `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);
 			}
-			$script('if("thread" in window && thread.refreshTimer) clearInterval(thread.refreshTimer);');
+			$script(`if("autoRefresh" in window) {
+					clearInterval(refreshTimer);
+				}
+				if("thread" in window && thread.refreshTimer) {
+					clearInterval(thread.refreshTimer);
+					Object.defineProperty(thread, "startTimer",
+						{ value: Function.prototype, writable: false, configurable: false });
+				}`);
 			const el = $q(this.qForm);
 			if(el && !$q('td', el)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
