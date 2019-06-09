@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.1.16.0';
-const commit = 'd9a0858';
+const commit = 'e9e448f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13102,7 +13102,7 @@ class MakabaPostsBuilder {
 				const { fullname = file.name, displayname: dispName = file.name } = file;
 				const isVideo = file.type === 6 || file.type === 10;
 				const imgClass = isNew ?
-					`post__file-preview preview${ isVideo ? ' post__file-webm' : '' }${
+					`post__file-preview${ isVideo ? ' post__file-webm' : '' }${
 						data.nsfw ? ' post__file-nsfw' : '' }` :
 					`img preview${ isVideo ? ' webm-file' : '' }`;
 				filesHTML += `<figure class="${ p }image">
@@ -16018,7 +16018,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qOmitted = '.thread__missed';
 			this.qOPost = '.post_type_oppost';
 			this.qPostHeader = '.post__details';
-			this.qPostImg = '.preview';
+			this.qPostImg = '.post__file-preview';
 			this.qPostMsg = '.post__message';
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
@@ -16181,6 +16181,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qOmitted = '.mess-post';
 				this.qOPost = '.oppost';
 				this.qPostHeader = '.post-details';
+				this.qPostImg = '.preview';
 				this.qPostMsg = '.post-message';
 				this.qPostName = '.ananimas, .post-email';
 				this.qPostRef = '.reflink';

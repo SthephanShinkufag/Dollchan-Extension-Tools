@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = 'd9a0858';
+	var commit = 'e9e448f';
 
 
 	var defaultCfg = {
@@ -17990,7 +17990,7 @@ true, true];
 							    dispName = _file$displayname === undefined ? file.name : _file$displayname;
 
 							var isVideo = file.type === 6 || file.type === 10;
-							var imgClass = isNew ? 'post__file-preview preview' + (isVideo ? ' post__file-webm' : '') + (data.nsfw ? ' post__file-nsfw' : '') : 'img preview' + (isVideo ? ' webm-file' : '');
+							var imgClass = isNew ? 'post__file-preview' + (isVideo ? ' post__file-webm' : '') + (data.nsfw ? ' post__file-nsfw' : '') : 'img preview' + (isVideo ? ' webm-file' : '');
 							filesHTML += '<figure class="' + p + 'image">\n\t\t\t\t\t<figcaption class="' + p + 'file-attr">\n\t\t\t\t\t\t<a id="title-' + imgId + '" class="desktop" target="_blank" href="' + ((file.type === 100  ? file.install : file.path) + '"') + ((dispName === fullname ? '' : ' title="' + fullname + '"') + '>' + dispName + '</a>\n\t\t\t\t\t\t<span class="' + (isNew ? 'post__filezise' : 'filesize') + '">(' + file.size + '\u041A\u0431, ') + (file.width + 'x' + file.height + (isVideo ? ', ' + file.duration : '') + ')</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id="exlink-' + imgId + '"' + (isNew ? '' : 'class="image-link"') + '>\n\t\t\t\t\t\t<a ' + (isNew ? 'class="post__image-link" ' : '') + 'href="' + file.path + '">\n\t\t\t\t\t\t\t<img class="' + imgClass + '" src="' + file.thumbnail + '" alt="' + file.width + 'x') + (file.height + '" width="' + file.tn_width + '" height="' + file.tn_height + '">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>');
 						}
 					} catch (err) {
@@ -21706,7 +21706,7 @@ true, true];
 				_this91.qOmitted = '.thread__missed';
 				_this91.qOPost = '.post_type_oppost';
 				_this91.qPostHeader = '.post__details';
-				_this91.qPostImg = '.preview';
+				_this91.qPostImg = '.post__file-preview';
 				_this91.qPostMsg = '.post__message';
 				_this91.qPostName = '.post__anon, .post__email';
 				_this91.qPostRef = '.post__reflink:nth-child(2)';
@@ -21804,6 +21804,7 @@ true, true];
 						this.qOmitted = '.mess-post';
 						this.qOPost = '.oppost';
 						this.qPostHeader = '.post-details';
+						this.qPostImg = '.preview';
 						this.qPostMsg = '.post-message';
 						this.qPostName = '.ananimas, .post-email';
 						this.qPostRef = '.reflink';

@@ -347,7 +347,7 @@ class MakabaPostsBuilder {
 				const { fullname = file.name, displayname: dispName = file.name } = file;
 				const isVideo = file.type === 6 || file.type === 10;
 				const imgClass = isNew ?
-					`post__file-preview preview${ isVideo ? ' post__file-webm' : '' }${
+					`post__file-preview${ isVideo ? ' post__file-webm' : '' }${
 						data.nsfw ? ' post__file-nsfw' : '' }` :
 					`img preview${ isVideo ? ' webm-file' : '' }`;
 				filesHTML += `<figure class="${ p }image">

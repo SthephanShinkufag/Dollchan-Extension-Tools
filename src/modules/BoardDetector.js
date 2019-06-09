@@ -636,7 +636,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qOmitted = '.thread__missed';
 			this.qOPost = '.post_type_oppost';
 			this.qPostHeader = '.post__details';
-			this.qPostImg = '.preview';
+			this.qPostImg = '.post__file-preview';
 			this.qPostMsg = '.post__message';
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
@@ -799,6 +799,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qOmitted = '.mess-post';
 				this.qOPost = '.oppost';
 				this.qPostHeader = '.post-details';
+				this.qPostImg = '.preview';
 				this.qPostMsg = '.post-message';
 				this.qPostName = '.ananimas, .post-email';
 				this.qPostRef = '.reflink';
