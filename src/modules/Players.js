@@ -288,7 +288,6 @@ Videos._global = {
 	get vData() {
 		let value;
 		try {
-			sesStorage.removeItem('de-videos-data1');
 			value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 		} catch(err) {
 			value = [{}, {}];

@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.1.16.0';
-	var commit = '221e361';
+	var commit = '6c9469f';
 
 
 	var defaultCfg = {
@@ -9676,7 +9676,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		get vData() {
 			var value = void 0;
 			try {
-				sesStorage.removeItem('de-videos-data1');
 				value = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data2'] || '[{}, {}]') : [{}, {}];
 			} catch (err) {
 				value = [{}, {}];
@@ -9800,79 +9799,116 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (isCORS) {
 				params.mode = 'cors';
 			}
-			var controller = new AbortController();
-			params.signal = controller.signal;
-			var loadTO = needTO && setTimeout(function () {
-				reject(AjaxError.Timeout);
-				try {
-					controller.abort();
-				} catch (err) {}
-			}, WAITING_TIME);
-			cancelFn = function cancelFn() {
-				if (needTO) {
-					clearTimeout(loadTO);
+			url = getAbsLink(url);
+			if (isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
+				if (params.body) {
+					var textData = '';
+					var arrData = params.body.arr;
+					for (var i = 0, len = arrData.length; i < len; ++i) {
+						textData += String.fromCharCode(arrData[i]);
+					}
+					params.body.arr = textData;
 				}
-				controller.abort();
-			};
-			fetch(getAbsLink(url), params).then(function () {
-				var _ref22 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(res) {
-					return regeneratorRuntime.wrap(function _callee11$(_context13) {
-						while (1) {
-							switch (_context13.prev = _context13.next) {
-								case 0:
-									if (aib.isAjaxStatusOK(res.status)) {
-										_context13.next = 3;
-										break;
-									}
+				chrome.runtime.sendMessage({ 'de-messsage': 'corsRequest', url: url, params: params }, function (res) {
+					var answer = res.answer;
 
-									reject(new AjaxError(res.status, res.statusText));
-									return _context13.abrupt('return');
-
-								case 3:
-									_context13.t0 = params.responseType;
-									_context13.next = _context13.t0 === 'arraybuffer' ? 6 : _context13.t0 === 'blob' ? 10 : 14;
-									break;
-
-								case 6:
-									_context13.next = 8;
-									return res.arrayBuffer();
-
-								case 8:
-									res.response = _context13.sent;
-									return _context13.abrupt('break', 17);
-
-								case 10:
-									_context13.next = 12;
-									return res.blob();
-
-								case 12:
-									res.response = _context13.sent;
-									return _context13.abrupt('break', 17);
-
-								case 14:
-									_context13.next = 16;
-									return res.text();
-
-								case 16:
-									res.responseText = _context13.sent;
-
-								case 17:
-									resolve(res);
-
-								case 18:
-								case 'end':
-									return _context13.stop();
+					if (res.isError || !aib.isAjaxStatusOK(res.status)) {
+						reject(res.statusText ? new AjaxError(res.status, res.statusText) : getErrorMessage(answer));
+						return;
+					}
+					var obj = {};
+					switch (params.responseType) {
+						case 'arraybuffer':
+						case 'blob':
+							{
+								var buf = new ArrayBuffer(answer.length);
+								var bufView = new Uint8Array(buf);
+								for (var _i9 = 0, _len8 = answer.length; _i9 < _len8; ++_i9) {
+									bufView[_i9] = answer.charCodeAt(_i9);
+								}
+								obj.response = params.responseType === 'blob' ? new Blob([buf]) : buf;
+								break;
 							}
-						}
-					}, _callee11, _this21);
-				}));
-
-				return function (_x30) {
-					return _ref22.apply(this, arguments);
+						default:
+							obj.responseText = answer;
+					}
+					resolve(obj);
+				});
+			} else {
+				var controller = new AbortController();
+				params.signal = controller.signal;
+				var loadTO = needTO && setTimeout(function () {
+					reject(AjaxError.Timeout);
+					try {
+						controller.abort();
+					} catch (err) {}
+				}, WAITING_TIME);
+				cancelFn = function cancelFn() {
+					if (needTO) {
+						clearTimeout(loadTO);
+					}
+					controller.abort();
 				};
-			}()).catch(function (err) {
-				return reject(err.statusText ? new AjaxError(err.status, err.statusText) : getErrorMessage(err));
-			});
+				fetch(url, params).then(function () {
+					var _ref22 = _asyncToGenerator( regeneratorRuntime.mark(function _callee11(res) {
+						return regeneratorRuntime.wrap(function _callee11$(_context13) {
+							while (1) {
+								switch (_context13.prev = _context13.next) {
+									case 0:
+										if (aib.isAjaxStatusOK(res.status)) {
+											_context13.next = 3;
+											break;
+										}
+
+										reject(new AjaxError(res.status, res.statusText));
+										return _context13.abrupt('return');
+
+									case 3:
+										_context13.t0 = params.responseType;
+										_context13.next = _context13.t0 === 'arraybuffer' ? 6 : _context13.t0 === 'blob' ? 10 : 14;
+										break;
+
+									case 6:
+										_context13.next = 8;
+										return res.arrayBuffer();
+
+									case 8:
+										res.response = _context13.sent;
+										return _context13.abrupt('break', 17);
+
+									case 10:
+										_context13.next = 12;
+										return res.blob();
+
+									case 12:
+										res.response = _context13.sent;
+										return _context13.abrupt('break', 17);
+
+									case 14:
+										_context13.next = 16;
+										return res.text();
+
+									case 16:
+										res.responseText = _context13.sent;
+
+									case 17:
+										resolve(res);
+
+									case 18:
+									case 'end':
+										return _context13.stop();
+								}
+							}
+						}, _callee11, _this21);
+					}));
+
+					return function (_x30) {
+						return _ref22.apply(this, arguments);
+					};
+				}()).catch(function (err) {
+					return reject(getErrorMessage(err));
+				});
+			}
 		} else if ((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 			var gmxhr = void 0;
 			var timeoutFn = function timeoutFn() {
@@ -10028,8 +10064,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			    params = _ref24.params;
 
 			var ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
-			return $ajax(ajaxURL, useCache && params || { useTimeout: true }).then(function (xhr) {
-				return _this22.saveData(url, xhr) ? xhr : $ajax(_this22.fixURL(url), useCache && params);
+			return $ajax(ajaxURL, useCache && params || { useTimeout: true }, aib._4chan).then(function (xhr) {
+				return _this22.saveData(url, xhr) ? xhr : $ajax(_this22.fixURL(url), useCache && params, aib._4chan);
 			});
 		},
 		saveData: function saveData(url, xhr) {
@@ -10462,7 +10498,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	toggleInfinityScroll.onwheel = function (e) {
 		if ((e.type === 'wheel' ? e.deltaY : -('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta)) > 0) {
 			deWindow.requestAnimationFrame(function () {
-				console.log(Thread.last.bottom, Post.sizing.wHeight);
 				if (Thread.last.bottom - 150 < Post.sizing.wHeight) {
 					Pages.addPage();
 				}
@@ -11070,18 +11105,18 @@ true, true];
 				}
 			}
 			sp = sp.sort();
-			for (var _i9 = 0, _len8 = sp.length - 1; _i9 < _len8; ++_i9) {
-				var j = _i9 + 1;
-				if (sp[_i9][0] === sp[j][0] && sp[_i9][1] <= sp[j][1] && sp[_i9][1] >= sp[j][1] && (sp[_i9][2] === null || 
-				sp[_i9][2] === undefined || 
-				sp[_i9][2] <= sp[j][2] && sp[_i9][2] >= sp[j][2])) {
+			for (var _i10 = 0, _len9 = sp.length - 1; _i10 < _len9; ++_i10) {
+				var j = _i10 + 1;
+				if (sp[_i10][0] === sp[j][0] && sp[_i10][1] <= sp[j][1] && sp[_i10][1] >= sp[j][1] && (sp[_i10][2] === null || 
+				sp[_i10][2] === undefined || 
+				sp[_i10][2] <= sp[j][2] && sp[_i10][2] >= sp[j][2])) {
 					sp.splice(j, 1);
-					_i9--;
-					_len8--;
-				} else if (sp[_i9][0] === 0xFF) {
-					sp.push(sp.splice(_i9, 1)[0]);
-					_i9--;
-					_len8--;
+					_i10--;
+					_len9--;
+				} else if (sp[_i10][0] === 0xFF) {
+					sp.push(sp.splice(_i10, 1)[0]);
+					_i10--;
+					_len9--;
 				}
 			}
 		},
@@ -11350,8 +11385,8 @@ true, true];
 						if (m) {
 							var _val = 0;
 							var arr = m[1].split(/, */);
-							for (var _i10 = 0, len = arr.length; _i10 < len; ++_i10) {
-								switch (arr[_i10]) {
+							for (var _i11 = 0, len = arr.length; _i11 < len; ++_i11) {
+								switch (arr[_i11]) {
 									case 'samelines':
 										_val |= 1;break;
 									case 'samewords':
@@ -12170,10 +12205,10 @@ true, true];
 						arr.sort();
 						var keys = 0;
 						var pop = 0;
-						for (var _i11 = 0, _n = len / 4; _i11 < len; keys++) {
-							x = arr[_i11];
+						for (var _i12 = 0, _n = len / 4; _i12 < len; keys++) {
+							x = arr[_i12];
 							var _j = 0;
-							while (arr[_i11++] === x) {
+							while (arr[_i12++] === x) {
 								_j++;
 							}
 							if (len > 25) {
@@ -12213,8 +12248,8 @@ true, true];
 						var _n2 = 0;
 						var capsw = 0;
 						var casew = 0;
-						for (var _i12 = 0; _i12 < len; ++_i12) {
-							x = arr[_i12];
+						for (var _i13 = 0; _i13 < len; ++_i13) {
+							x = arr[_i13];
 							if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
 								continue;
 							}
@@ -12263,8 +12298,8 @@ true, true];
 						return true;
 					}
 				}
-				for (var _arr = val[1], _i13 = _arr.length - 1; _i13 >= 0; --_i13) {
-					if (num >= _arr[_i13][0] && num <= _arr[_i13][1]) {
+				for (var _arr = val[1], _i14 = _arr.length - 1; _i14 >= 0; --_i14) {
+					if (num >= _arr[_i14][0] && num <= _arr[_i14][1]) {
 						return true;
 					}
 				}
@@ -17024,11 +17059,14 @@ true, true];
 						new Menu(srcBtnEl, menuHtml, !_this62.isVideo ? emptyFn : function (optiontEl) {
 							ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
 								$popup('upload', Lng.sending[lang], true);
-								var formData = new FormData();
-								var blob = new Blob([arr], { type: 'image/png' });
 								var name = _this62.name.substring(0, _this62.name.lastIndexOf('.')) + '.png';
-								formData.append('file', blob, name);
-								var ajaxParams = { data: formData, method: 'POST' };
+								var blob = new Blob([arr], { type: 'image/png' });
+								var formData = void 0;
+								if (!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
+									formData = new FormData();
+									formData.append('file', blob, name);
+								}
+								var ajaxParams = { data: formData || { arr: arr, name: name }, method: 'POST' };
 								var frameLinkHtml = '<a class="de-menu-item de-list" href="' + deWindow.URL.createObjectURL(blob) + '" download="' + name + '" target="_blank">' + Lng.saveFrame[lang] + '</a>';
 								$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(function (xhr) {
 									var hostUrl = void 0,
@@ -17244,8 +17282,8 @@ true, true];
 			}
 			if (Cfg.addImgs || localData) {
 				els = $Q('.de-img-embed', post.el);
-				for (var _i14 = 0, _len9 = els.length; _i14 < _len9; ++_i14) {
-					var _el24 = els[_i14];
+				for (var _i15 = 0, _len10 = els.length; _i15 < _len10; ++_i15) {
+					var _el24 = els[_i15];
 					last = new EmbeddedImage(post, _el24, last);
 					filesMap.set(_el24, last);
 					if (!first) {
@@ -17355,9 +17393,9 @@ true, true];
 			var areas = 256 / levels;
 			var values = 256 / (levels - 1);
 			var hash = 0;
-			for (var _i15 = 0; _i15 < newh; ++_i15) {
+			for (var _i16 = 0; _i16 < newh; ++_i16) {
 				for (var _j3 = 0; _j3 < neww; ++_j3) {
-					var temp = _i15 / (newh - 1) * (oldh - 1);
+					var temp = _i16 / (newh - 1) * (oldh - 1);
 					var l = Math.min(temp | 0, oldh - 2);
 					var u = temp - l;
 					temp = _j3 / (neww - 1) * (oldw - 1);
@@ -18827,8 +18865,8 @@ true, true];
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var _posts2 = $Q(aib.qRPost, fragm);
-					for (var _i16 = 0, _len10 = _posts2.length; _i16 < _len10; ++_i16) {
-						last = this._addPost(fragm, _posts2[_i16], begin + _i16 + 1, last, maybeVParser);
+					for (var _i17 = 0, _len11 = _posts2.length; _i17 < _len11; ++_i17) {
+						last = this._addPost(fragm, _posts2[_i17], begin + _i17 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
@@ -19923,7 +19961,7 @@ true, true];
 			formEl.removeAttribute('id');
 			$delAll('script', this.el);
 			var threads = DelForm.getThreads(this.el);
-			for (var i = 0, _len11 = threads.length; i < _len11; ++i) {
+			for (var i = 0, _len12 = threads.length; i < _len12; ++i) {
 				var num = aib.getTNum(threads[i]);
 				if (!DelForm.tNums.has(num)) {
 					DelForm.tNums.add(num);
@@ -20152,7 +20190,7 @@ true, true];
 		}
 		nav = {
 			cssMatches: function cssMatches(leftSel) {
-				for (var _len12 = arguments.length, rules = Array(_len12 > 1 ? _len12 - 1 : 0), _key3 = 1; _key3 < _len12; _key3++) {
+				for (var _len13 = arguments.length, rules = Array(_len13 > 1 ? _len13 - 1 : 0), _key3 = 1; _key3 < _len13; _key3++) {
 					rules[_key3 - 1] = arguments[_key3];
 				}
 
@@ -20402,7 +20440,7 @@ true, true];
 			value: function fixVideo(isPost, data) {
 				var videos = [];
 				var els = $Q('embed, object, iframe', isPost ? data.el : data);
-				for (var i = 0, _len13 = els.length; i < _len13; ++i) {
+				for (var i = 0, _len14 = els.length; i < _len14; ++i) {
 					var _el28 = els[i];
 					var src = _el28.src || _el28.data;
 					if (!src) {
@@ -21233,7 +21271,7 @@ true, true];
 					if (el && !$q('td', el)) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 						var _els4 = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' + ' #fieldPostingPassword, #fieldSubject');
-						for (var i = 0, _len14 = _els4.length; i < _len14; ++i) {
+						for (var i = 0, _len15 = _els4.length; i < _len15; ++i) {
 							$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(_els4[i]);
 						}
 					}
@@ -21250,7 +21288,7 @@ true, true];
 					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
 						var _this87 = this;
 
-						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len16, file, cookieObj, task, url;
+						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len17, file, cookieObj, task, url;
 
 						return regeneratorRuntime.wrap(function _callee23$(_context30) {
 							while (1) {
@@ -21301,7 +21339,7 @@ true, true];
 										getCookies = function getCookies() {
 											var obj = {};
 											var cookies = doc.cookie.split(';');
-											for (var i = 0, _len15 = cookies.length; i < _len15; ++i) {
+											for (var i = 0, _len16 = cookies.length; i < _len16; ++i) {
 												var parts = cookies[i].split('=');
 												obj[parts.shift().trim()] = decodeURI(parts.join('='));
 											}
@@ -21335,10 +21373,10 @@ true, true];
 												return _ref76.apply(this, arguments);
 											};
 										}());
-										i = 0, _len16 = files.length;
+										i = 0, _len17 = files.length;
 
 									case 11:
-										if (!(i < _len16)) {
+										if (!(i < _len17)) {
 											_context30.next = 26;
 											break;
 										}
@@ -22600,7 +22638,7 @@ true, true];
 				value: function fixHTML(data, isForm) {
 					var formEl = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					var links = $Q('.expand_image', formEl);
-					for (var i = 0, _len17 = links.length; i < _len17; ++i) {
+					for (var i = 0, _len18 = links.length; i < _len18; ++i) {
 						var link = links[i];
 						link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
 						link.removeAttribute('onclick');
@@ -22650,7 +22688,7 @@ true, true];
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
-						for (var i = 0, _len18 = delPosts.length; i < _len18; ++i) {
+						for (var i = 0, _len19 = delPosts.length; i < _len19; ++i) {
 							var post = pByNum.get(_this104.getPNum(delPosts[i]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
@@ -23497,7 +23535,7 @@ true, true];
 				value: function fixHTML(data, isForm) {
 					var formEl = _get(Synch.prototype.__proto__ || Object.getPrototypeOf(Synch.prototype), 'fixHTML', this).call(this, data, isForm);
 					var els = $Q('.btn-group', formEl);
-					for (var i = 0, _len19 = els.length; i < _len19; ++i) {
+					for (var i = 0, _len20 = els.length; i < _len20; ++i) {
 						$replace(els[i], $q('a', els[i]));
 					}
 					return formEl;
@@ -23591,8 +23629,8 @@ true, true];
 			return null;
 		}
 		dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		for (var _i17 = ibEngines.length - 1; _i17 >= 0; --_i17) {
-			var _ibEngines$_i = _slicedToArray(ibEngines[_i17], 2),
+		for (var _i18 = ibEngines.length - 1; _i18 >= 0; --_i18) {
+			var _ibEngines$_i = _slicedToArray(ibEngines[_i18], 2),
 			    path = _ibEngines$_i[0],
 			    Ctor = _ibEngines$_i[1];
 
@@ -23710,7 +23748,7 @@ true, true];
 			saveCfgObj('lastUpd', Date.now());
 			var link = '<a style="color: blue; font-weight: bold;" href="' + src + '">';
 			var chLogLink = '<a target="_blank" href="' + gitWiki + (lang === 1 ? 'versions-en' : 'versions') + '">\r\n' + Lng.changeLog[lang] + '<a>';
-			for (var i = 0, _len20 = Math.max(currentVer.length, remoteVer.length); i < _len20; ++i) {
+			for (var i = 0, _len21 = Math.max(currentVer.length, remoteVer.length); i < _len21; ++i) {
 				if ((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
 					return '' + link + Lng.updAvail[lang].replace('%s', v[1]) + '</a>' + chLogLink;
 				} else if ((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
@@ -23850,7 +23888,7 @@ true, true];
 			}
 		};
 
-		var _loop4 = function _loop4(i, _len21) {
+		var _loop4 = function _loop4(i, _len22) {
 			var frameEl = deWindow.frames[i].frameElement;
 			var fDoc = frameEl.contentDocument;
 			if (fDoc) {
@@ -23868,8 +23906,8 @@ true, true];
 			}
 		};
 
-		for (var i = 0, _len21 = deWindow.length; i < _len21; ++i) {
-			_loop4(i, _len21);
+		for (var i = 0, _len22 = deWindow.length; i < _len22; ++i) {
+			_loop4(i, _len22);
 		}
 	}
 

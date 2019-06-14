@@ -730,11 +730,14 @@ class ExpandableImage {
 			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
 				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
 					$popup('upload', Lng.sending[lang], true);
-					const formData = new FormData();
-					const blob = new Blob([arr], { type: 'image/png' });
 					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
-					formData.append('file', blob, name);
-					const ajaxParams = { data: formData, method: 'POST' };
+					const blob = new Blob([arr], { type: 'image/png' });
+					let formData;
+					if(!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
+						formData = new FormData();
+						formData.append('file', blob, name);
+					}
+					const ajaxParams = { data: formData || { arr, name }, method: 'POST' };
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;

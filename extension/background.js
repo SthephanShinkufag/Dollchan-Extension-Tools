@@ -98,6 +98,40 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		}
 		sendResponse({ answer: isEnabled });
 		break;
+	case 'corsRequest': { // Chrome-extension: avoid CORS in content-script.
+		// Getting data from content-script and sending a CORS request.
+		const { url, params } = request;
+		if(params.body) {
+			// Converting text data to blob & FormData for sending in the POST request
+			const str = params.body.arr;
+			const buf = new ArrayBuffer(str.length);
+			const bufView = new Uint8Array(buf);
+			for(let i = 0, len = str.length; i < len; ++i) {
+				bufView[i] = str.charCodeAt(i);
+			}
+			const formData = new FormData();
+			formData.append('file', new Blob([buf], { type: 'image/png' }), params.body.name);
+			params.body = formData;
+		}
+		fetch(url, params).then(async res => {
+			let answer;
+			switch(params.responseType) {
+			case 'arraybuffer':
+			case 'blob': { // Converting arraybuffer/blob from the request response
+				// to text data for sending to the content-script
+				const arr =  new Uint8Array(await res.arrayBuffer());
+				answer = '';
+				for(let i = 0, len = arr.length; i < len; ++i) {
+					answer += String.fromCharCode(arr[i]);
+				}
+				break;
+			}
+			default: answer = await res.text();
+			}
+			sendResponse({ isError: false, answer, status: res.status, statusText: res.statusText });
+		}).catch(err => sendResponse({ isError: true, answer: err }));
+		return true; // Will respond asynchronously
+	}
 	default: sendResponse({ answer: 'Unknown request' });
 	}
 });

@@ -22,33 +22,69 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		}
-		const controller = new AbortController();
-		params.signal = controller.signal;
-		const loadTO = needTO && setTimeout(() => {
-			reject(AjaxError.Timeout);
-			try {
+		url = getAbsLink(url);
+		// Chrome-extension: avoid CORS in content script. Sending data to background.js
+		if(isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
+			if(params.body) {
+				// Converting image as Uint8Array to text data for sending in POST request from background.js
+				let textData = '';
+				const arrData = params.body.arr;
+				for(let i = 0, len = arrData.length; i < len; ++i) {
+					textData += String.fromCharCode(arrData[i]);
+				}
+				params.body.arr = textData;
+			}
+			chrome.runtime.sendMessage({ 'de-messsage': 'corsRequest', url, params }, res => {
+				const { answer } = res;
+				if(res.isError || !aib.isAjaxStatusOK(res.status)) {
+					reject(res.statusText ?
+						new AjaxError(res.status, res.statusText) : getErrorMessage(answer));
+					return;
+				}
+				const obj = {};
+				switch(params.responseType) {
+				case 'arraybuffer':
+				case 'blob': { // Converting text data from the background.js response to arraybuffer/blob
+					const buf = new ArrayBuffer(answer.length);
+					const bufView = new Uint8Array(buf);
+					for(let i = 0, len = answer.length; i < len; ++i) {
+						bufView[i] = answer.charCodeAt(i);
+					}
+					obj.response = params.responseType === 'blob' ? new Blob([buf]) : buf;
+					break;
+				}
+				default: obj.responseText = answer;
+				}
+				resolve(obj);
+			});
+		} else {
+			const controller = new AbortController();
+			params.signal = controller.signal;
+			const loadTO = needTO && setTimeout(() => {
+				reject(AjaxError.Timeout);
+				try {
+					controller.abort();
+				} catch(err) {}
+			}, WAITING_TIME);
+			cancelFn = () => {
+				if(needTO) {
+					clearTimeout(loadTO);
+				}
 				controller.abort();
-			} catch(err) {}
-		}, WAITING_TIME);
-		cancelFn = () => {
-			if(needTO) {
-				clearTimeout(loadTO);
-			}
-			controller.abort();
-		};
-		fetch(getAbsLink(url), params).then(async res => {
-			if(!aib.isAjaxStatusOK(res.status)) {
-				reject(new AjaxError(res.status, res.statusText));
-				return;
-			}
-			switch(params.responseType) {
-			case 'arraybuffer': res.response = await res.arrayBuffer(); break;
-			case 'blob': res.response = await res.blob(); break;
-			default: res.responseText = await res.text();
-			}
-			resolve(res);
-		}).catch(err => reject(err.statusText ?
-			new AjaxError(err.status, err.statusText) : getErrorMessage(err)));
+			};
+			fetch(url, params).then(async res => {
+				if(!aib.isAjaxStatusOK(res.status)) {
+					reject(new AjaxError(res.status, res.statusText));
+					return;
+				}
+				switch(params.responseType) {
+				case 'arraybuffer': res.response = await res.arrayBuffer(); break;
+				case 'blob': res.response = await res.blob(); break;
+				default: res.responseText = await res.text();
+				}
+				resolve(res);
+			}).catch(err => reject(getErrorMessage(err)));
+		}
 	} else if((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
@@ -181,8 +217,8 @@ const AjaxCache = {
 	runCachedAjax(url, useCache) {
 		const { hasCacheControl, params } = this._data.get(url) || {};
 		const ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
-		return $ajax(ajaxURL, useCache && params || { useTimeout: true })
-			.then(xhr => this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params));
+		return $ajax(ajaxURL, useCache && params || { useTimeout: true }, aib._4chan).then(xhr =>
+			this.saveData(url, xhr) ? xhr : $ajax(this.fixURL(url), useCache && params, aib._4chan));
 	},
 	saveData(url, xhr) {
 		let ETag = null;
