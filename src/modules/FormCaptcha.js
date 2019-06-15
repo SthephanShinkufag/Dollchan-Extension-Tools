@@ -189,11 +189,13 @@ class Captcha {
 		}
 	}
 	_updateRecap() {
+		// EXCLUDED FROM FIREFOX EXTENSION - START
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
 		doc.head.appendChild(script);
 		setTimeout(() => script.remove(), 1e5);
+		// EXCLUDED FROM FIREFOX EXTENSION - END
 	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
