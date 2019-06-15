@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.14.0';
-	var commit = 'b42fc75';
+	var commit = '3ec4ada';
 
 
 	var defaultCfg = {
@@ -16745,7 +16745,10 @@ true, true];
 				if (e && this.isVideo && ExpandableImage.isControlClick(e)) {
 					return;
 				}
-				var fullImgTop = e.target.getBoundingClientRect().top;
+				var fullImgTop = void 0;
+				if (e) {
+					fullImgTop = e.target.getBoundingClientRect().top;
+				}
 				this.cancelWebmLoad(this._fullEl);
 				this.expanded = false;
 				this._fullEl.remove();
@@ -16834,7 +16837,10 @@ true, true];
 					viewer.updateImgViewer(this, e);
 					return;
 				}
-				var origImgTop = e.target.getBoundingClientRect().top;
+				var origImgTop = void 0;
+				if (e) {
+					origImgTop = e.target.getBoundingClientRect().top;
+				}
 				this.expanded = true;
 				var el = this.el;
 
@@ -16847,9 +16853,11 @@ true, true];
 				$hide(el.parentNode);
 				$after(el.parentNode, this._fullEl);
 				this.checkForRedirect(this._fullEl);
-				var fullImgTop = this._fullEl.getBoundingClientRect().top;
-				if (fullImgTop < 0 || origImgTop < 0) {
-					scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+				if (e) {
+					var fullImgTop = this._fullEl.getBoundingClientRect().top;
+					if (fullImgTop < 0 || origImgTop < 0) {
+						scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+					}
 				}
 			}
 		}, {

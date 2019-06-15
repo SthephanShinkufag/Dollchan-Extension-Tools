@@ -433,7 +433,10 @@ class ExpandableImage {
 		if(e && this.isVideo && ExpandableImage.isControlClick(e)) {
 			return;
 		}
-		const fullImgTop = e.target.getBoundingClientRect().top;
+		let fullImgTop;
+		if(e) {
+			fullImgTop = e.target.getBoundingClientRect().top;
+		}
 		this.cancelWebmLoad(this._fullEl);
 		this.expanded = false;
 		this._fullEl.remove();
@@ -512,7 +515,10 @@ class ExpandableImage {
 			viewer.updateImgViewer(this, e);
 			return;
 		}
-		const origImgTop = e.target.getBoundingClientRect().top;
+		let origImgTop;
+		if(e) {
+			origImgTop = e.target.getBoundingClientRect().top;
+		}
 		this.expanded = true;
 		const { el } = this;
 		(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend',
@@ -523,9 +529,11 @@ class ExpandableImage {
 		$hide(el.parentNode);
 		$after(el.parentNode, this._fullEl);
 		this.checkForRedirect(this._fullEl);
-		const fullImgTop = this._fullEl.getBoundingClientRect().top;
-		if(fullImgTop < 0 || origImgTop < 0) {
-			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+		if(e) {
+			const fullImgTop = this._fullEl.getBoundingClientRect().top;
+			if(fullImgTop < 0 || origImgTop < 0) {
+				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+			}
 		}
 	}
 	getFollowImg(isForward) {
