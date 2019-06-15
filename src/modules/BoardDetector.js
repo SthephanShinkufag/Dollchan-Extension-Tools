@@ -680,11 +680,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-pview > .post__details { margin-left: 4px; }
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
-				.de-thr-hid + .thread + .de-thr-hid { margin-top: 4px; }
-				.de-thr-hid + .thread + .thread::before,
-				.de-thr-hid[style="display: none;"] + .thread::before {
-					content: ""; border-top: 1px solid var(--theme_default_border); width: 100%;
-					display: block; margin: 8px 0; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
