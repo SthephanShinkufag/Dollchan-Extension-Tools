@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'd6b7f8a';
+	var commit = 'bb98d37';
 
 
 	var defaultCfg = {
@@ -13757,6 +13757,9 @@ true, true];
 				if (this._btnDel) {
 					this._toggleDelBtn(false);
 					$hide(this._btnSpoil);
+					if (this._spoilEl) {
+						this._spoilEl.checked = this._btnSpoil.checked = false;
+					}
 					$hide(this._btnRar);
 					$hide(this._txtAddBtn);
 					$del(this._rarMsg);

@@ -151,6 +151,9 @@ class FileInput {
 		if(this._btnDel) {
 			this._toggleDelBtn(false);
 			$hide(this._btnSpoil);
+			if(this._spoilEl) {
+				this._spoilEl.checked = this._btnSpoil.checked = false;
+			}
 			$hide(this._btnRar);
 			$hide(this._txtAddBtn);
 			$del(this._rarMsg);
