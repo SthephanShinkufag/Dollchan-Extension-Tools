@@ -34,13 +34,11 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	constructor(json, brd) {
+		console.log(json);
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
-		if(this._posts[0].custom_spoiler) {
-			_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
-		}
 	}
 	static fixFileName(name, maxLength) {
 		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
@@ -50,17 +48,6 @@ class _4chanPostsBuilder {
 			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
 				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 		};
-	}
-	static _setCustomSpoiler(board, val) {
-		const spoiler = _4chanPostsBuilder._customSpoiler;
-		if(!spoiler[board] && (val = parseInt(val))) {
-			let spoilerEl;
-			if(board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
-				spoiler.set(board, spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
-			}
-		} else {
-			spoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
-		}
 	}
 	get isClosed() {
 		return !!(this._posts[0].closed || this._posts[0].archived);
@@ -95,7 +82,7 @@ class _4chanPostsBuilder {
 				data.tn_w = data.w;
 				data.tn_h = data.h;
 			}
-			const isSpoiler = data.spoiler && !Cfg.noSpoilers;
+			const isSpoiler = data.spoiler;
 			if(isSpoiler) {
 				name = 'Spoiler Image';
 				data.tn_w = data.tn_h = 100;
@@ -104,8 +91,7 @@ class _4chanPostsBuilder {
 			const size = prettifySize(data.fsize);
 			const fileTextTitle = isSpoiler ? ` title="${ data.filename + data.ext }"` : '';
 			const aHref = needTitle ? `title="${ data.filename + data.ext }"` : '';
-			const imgSrc = isSpoiler ?
-				`//s.4cdn.org/image/spoiler${ _4chanPostsBuilder._customSpoiler.get(brd) || '' }.png` :
+			const imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' :
 				`//i.4cdn.org/${ brd }/${ data.tim }s.jpg`;
 			fileHTML = `<div class="file" id="f${ num }">
 				<div class="fileText" id="fT${ num }"${ fileTextTitle }>File:
@@ -113,7 +99,7 @@ class _4chanPostsBuilder {
 						data.ext }" ${ aHref } target="_blank">${ name }</a>
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
-				<a class="fileThumb ${ isSpoiler ? 'imgSpoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
+				<a class="fileThumb ${ isSpoiler ? 'imgspoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
 					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
 						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">

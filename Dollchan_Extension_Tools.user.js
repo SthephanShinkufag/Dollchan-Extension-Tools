@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'bf6a991';
+	var commit = 'd6b7f8a';
 
 
 	var defaultCfg = {
@@ -17693,13 +17693,11 @@ true, true];
 		function _4chanPostsBuilder(json, brd) {
 			_classCallCheck(this, _4chanPostsBuilder);
 
+			console.log(json);
 			this._posts = json.posts;
 			this._brd = brd;
 			this.length = json.posts.length - 1;
 			this.postersCount = this._posts[0].unique_ips;
-			if (this._posts[0].custom_spoiler) {
-				_4chanPostsBuilder._setCustomSpoiler(brd, this._posts[0].custom_spoiler);
-			}
 		}
 
 		_createClass(_4chanPostsBuilder, [{
@@ -17744,7 +17742,7 @@ true, true];
 						data.tn_w = data.w;
 						data.tn_h = data.h;
 					}
-					var isSpoiler = data.spoiler && !Cfg.noSpoilers;
+					var isSpoiler = data.spoiler;
 					if (isSpoiler) {
 						_name2 = 'Spoiler Image';
 						data.tn_w = data.tn_h = 100;
@@ -17753,8 +17751,8 @@ true, true];
 					var size = prettifySize(data.fsize);
 					var fileTextTitle = isSpoiler ? ' title="' + (data.filename + data.ext) + '"' : '';
 					var aHref = needTitle ? 'title="' + (data.filename + data.ext) + '"' : '';
-					var imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler' + (_4chanPostsBuilder._customSpoiler.get(brd) || '') + '.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg';
-					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '"' + fileTextTitle + '>File:\n\t\t\t\t\t<a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + aHref + ' target="_blank">' + _name2 + '</a>\n\t\t\t\t\t(' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')\n\t\t\t\t</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgSpoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext + '" target="_blank">\n\t\t\t\t\t<img src="' + imgSrc + '" alt="' + size + '" data-md5="') + (data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">\n\t\t\t\t\t\t' + size + ' ' + data.ext.substr(1).toUpperCase() + '\n\t\t\t\t\t</div>\n\t\t\t\t</a>\n\t\t\t</div>');
+					var imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' : '//i.4cdn.org/' + brd + '/' + data.tim + 's.jpg';
+					fileHTML = '<div class="file" id="f' + num + '">\n\t\t\t\t<div class="fileText" id="fT' + num + '"' + fileTextTitle + '>File:\n\t\t\t\t\t<a href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext) + '" ' + aHref + ' target="_blank">' + _name2 + '</a>\n\t\t\t\t\t(' + size + ', ' + (data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h) + ')\n\t\t\t\t</div>\n\t\t\t\t<a class="fileThumb ' + (isSpoiler ? 'imgspoiler' : '') + '" href="//i.4cdn.org/' + brd + '/' + (data.tim + data.ext + '" target="_blank">\n\t\t\t\t\t<img src="' + imgSrc + '" alt="' + size + '" data-md5="') + (data.md5 + '" style="height: ' + data.tn_h + 'px; width: ' + data.tn_w + 'px;">\n\t\t\t\t\t<div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">\n\t\t\t\t\t\t' + size + ' ' + data.ext.substr(1).toUpperCase() + '\n\t\t\t\t\t</div>\n\t\t\t\t</a>\n\t\t\t</div>');
 				}
 
 				var highlight = '',
@@ -17825,19 +17823,6 @@ true, true];
 					isFixed: true,
 					name: decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				};
-			}
-		}, {
-			key: '_setCustomSpoiler',
-			value: function _setCustomSpoiler(board, val) {
-				var spoiler = _4chanPostsBuilder._customSpoiler;
-				if (!spoiler[board] && (val = parseInt(val))) {
-					var spoilerEl = void 0;
-					if (board === aib.brd && (spoilerEl = $q('.imgspoiler'))) {
-						spoiler.set(board, spoilerEl.firstChild.src.match(/spoiler(-[a-z0-9]+)\.png$/)[1]);
-					}
-				} else {
-					spoiler.set(board, '-' + board + (Math.floor(Math.random() * val) + 1));
-				}
 			}
 		}]);
 
