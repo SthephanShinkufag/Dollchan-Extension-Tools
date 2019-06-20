@@ -1043,19 +1043,21 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 		if(addSrc) {
 			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 		}
-		if(imgNames) {
-			let { name } = image;
-			link.setAttribute('download', name);
-			if(!link.getAttribute('de-href')) {
-				link.setAttribute('de-href', link.href);
-			}
+		const { name } = image;
+		if(!link.classList.contains('de-img-name')) {
 			link.classList.add('de-img-name');
 			link.title = name;
-			const ext = (name = name.split('.')).pop() || link.href.split('.').pop();
-			if(!link.getAttribute('de-ext')) {
-				link.setAttribute('de-ext', ext);
+			link.setAttribute('download', name);
+			link.setAttribute('de-href', link.href);
+		}
+		if(imgNames) {
+			let ext;
+			if(!(ext = link.getAttribute('de-img-ext'))) {
+				ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+				link.setAttribute('de-img-ext', ext);
+				link.setAttribute('de-img-name-old', link.textContent);
 			}
-			link.textContent = imgNames === 1 ? name.join('.') : ext;
+			link.textContent = imgNames === 1 ? name : ext;
 		}
 	}
 }

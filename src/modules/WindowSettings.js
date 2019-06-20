@@ -275,15 +275,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, Cfg.imgNames);
 					}
 				} else {
-					$each($Q('.de-img-name'), el => {
-						el.classList.remove('de-img-name');
-						el.textContent = decodeURIComponent(el.getAttribute('de-href').split('/').pop());
-						el.removeAttribute('title');
-						if(!isPreImg && !Cfg.preLoadImgs) {
-							el.removeAttribute('download');
-							el.removeAttribute('de-href');
-						}
-					});
+					$each($Q('.de-img-name'), el => (el.textContent = el.getAttribute('de-img-name-old')));
 				}
 				updateCSS();
 				break;

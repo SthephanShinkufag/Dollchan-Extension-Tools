@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'bb98d37';
+const commit = 'cbd1fdc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4468,15 +4468,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, Cfg.imgNames);
 					}
 				} else {
-					$each($Q('.de-img-name'), el => {
-						el.classList.remove('de-img-name');
-						el.textContent = decodeURIComponent(el.getAttribute('de-href').split('/').pop());
-						el.removeAttribute('title');
-						if(!isPreImg && !Cfg.preLoadImgs) {
-							el.removeAttribute('download');
-							el.removeAttribute('de-href');
-						}
-					});
+					$each($Q('.de-img-name'), el => (el.textContent = el.getAttribute('de-img-name-old')));
 				}
 				updateCSS();
 				break;
@@ -12770,19 +12762,21 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 		if(addSrc) {
 			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 		}
-		if(imgNames) {
-			let { name } = image;
-			link.setAttribute('download', name);
-			if(!link.getAttribute('de-href')) {
-				link.setAttribute('de-href', link.href);
-			}
+		const { name } = image;
+		if(!link.classList.contains('de-img-name')) {
 			link.classList.add('de-img-name');
 			link.title = name;
-			const ext = (name = name.split('.')).pop() || link.href.split('.').pop();
-			if(!link.getAttribute('de-ext')) {
-				link.setAttribute('de-ext', ext);
+			link.setAttribute('download', name);
+			link.setAttribute('de-href', link.href);
+		}
+		if(imgNames) {
+			let ext;
+			if(!(ext = link.getAttribute('de-img-ext'))) {
+				ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+				link.setAttribute('de-img-ext', ext);
+				link.setAttribute('de-img-name-old', link.textContent);
 			}
-			link.textContent = imgNames === 1 ? name.join('.') : ext;
+			link.textContent = imgNames === 1 ? name : ext;
 		}
 	}
 }
@@ -12843,7 +12837,6 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	constructor(json, brd) {
-		console.log(json);
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;
@@ -18265,9 +18258,8 @@ function updateCSS() {
 			${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 			.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.imgNames === 1 ?
-		`.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }
-			.de-img-name::after { content: "." attr(de-ext); }` : '' }
-	${ Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
+		'.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' :
+		Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
