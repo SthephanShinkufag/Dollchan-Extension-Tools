@@ -385,13 +385,15 @@ class ExpandableImage {
 	}
 	get isImage() {
 		const value = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
-			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video')) ||
+			/image\/\w+/.test(this.el.parentNode.dataset.filemime);
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
 	}
 	get isVideo() {
 		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
-			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video')) ||
+        		/video\/\w+/.test(this.el.parentNode.dataset.filemime);
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
 	}
