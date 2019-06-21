@@ -12112,7 +12112,7 @@ class ExpandableImage {
 	get isVideo() {
 		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video')) ||
-        		/video\/\w+/.test(this.el.parentNode.dataset.filemime);
+			/video\/\w+/.test(this.el.parentNode.dataset.filemime);
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
 	}
