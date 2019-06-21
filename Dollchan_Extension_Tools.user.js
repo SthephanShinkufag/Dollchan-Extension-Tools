@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '9c03706';
+	var commit = 'e1e6c2e';
 
 
 	var defaultCfg = {
@@ -22744,6 +22744,40 @@ true, true];
 
 		ibDomains['brchan.org'] = Brchan;
 
+		var Animach = function (_Brchan) {
+			_inherits(Animach, _Brchan);
+
+			function Animach() {
+				_classCallCheck(this, Animach);
+
+				return _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).apply(this, arguments));
+			}
+
+			_createClass(Animach, [{
+				key: 'getImgWrap',
+				value: function getImgWrap(img) {
+					return img.parentNode.parentNode;
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					_get(Animach.prototype.__proto__ || Object.getPrototypeOf(Animach.prototype), 'init', this).call(this);
+					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
+					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+					return false;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return _get(Animach.prototype.__proto__ || Object.getPrototypeOf(Animach.prototype), 'css', this) + '\r\n\t' + (Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : '') + '\n\t\t\t\t#thread-interactions { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
+				}
+			}]);
+
+			return Animach;
+		}(Brchan);
+
+		ibDomains['animach.pw'] = Animach;
+
 		ibDomains['desuchan.moe'] = BaseBoard;
 		ibDomains['desuchan.net'] = BaseBoard;
 
@@ -22753,10 +22787,10 @@ true, true];
 			function CrystalCafe(prot, dm) {
 				_classCallCheck(this, CrystalCafe);
 
-				var _this106 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
 
-				_this106.qRPost = '.post.reply';
-				return _this106;
+				_this107.qRPost = '.post.reply';
+				return _this107;
 			}
 
 			_createClass(CrystalCafe, [{
@@ -22787,12 +22821,12 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this107 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this107.qImgInfo = '.filesize, .fileinfo';
+				_this108.qImgInfo = '.filesize, .fileinfo';
 
-				_this107.multiFile = true;
-				return _this107;
+				_this108.multiFile = true;
+				return _this108;
 			}
 
 			_createClass(Diochan, [{
@@ -22825,29 +22859,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this108 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this108.dobrochan = true;
+				_this109.dobrochan = true;
 
-				_this108.qClosed = 'img[src="/images/locked.png"]';
-				_this108.qDForm = 'form[action*="delete"]';
-				_this108.qError = '.post-error, h2';
-				_this108.qFormRedir = 'select[name="goto"]';
-				_this108.qImgInfo = '.fileinfo';
-				_this108.qOmitted = '.abbrev > span:last-of-type';
-				_this108.qPages = '.pages > tbody > tr > td';
-				_this108.qPostMsg = '.postbody';
-				_this108.qPostSubj = '.replytitle';
-				_this108.qTrunc = '.abbrev > span:first-of-type';
+				_this109.qClosed = 'img[src="/images/locked.png"]';
+				_this109.qDForm = 'form[action*="delete"]';
+				_this109.qError = '.post-error, h2';
+				_this109.qFormRedir = 'select[name="goto"]';
+				_this109.qImgInfo = '.fileinfo';
+				_this109.qOmitted = '.abbrev > span:last-of-type';
+				_this109.qPages = '.pages > tbody > tr > td';
+				_this109.qPostMsg = '.postbody';
+				_this109.qPostSubj = '.replytitle';
+				_this109.qTrunc = '.abbrev > span:first-of-type';
 
-				_this108.anchor = '#i';
-				_this108.formParent = 'thread_id';
-				_this108.hasPicWrap = true;
-				_this108.JsonBuilder = DobrochanPostsBuilder;
-				_this108.multiFile = true;
-				_this108.ru = true;
-				_this108.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this108;
+				_this109.anchor = '#i';
+				_this109.formParent = 'thread_id';
+				_this109.hasPicWrap = true;
+				_this109.JsonBuilder = DobrochanPostsBuilder;
+				_this109.multiFile = true;
+				_this109.ru = true;
+				_this109.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this109;
 			}
 
 			_createClass(Dobrochan, [{
@@ -22993,11 +23027,11 @@ true, true];
 			function Dscript(prot, dm) {
 				_classCallCheck(this, Dscript);
 
-				var _this109 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
 
-				_this109.markupBB = true;
-				_this109.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-				return _this109;
+				_this110.markupBB = true;
+				_this110.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+				return _this110;
 			}
 
 			_createClass(Dscript, [{
@@ -23028,10 +23062,10 @@ true, true];
 			function Endchan(prot, dm) {
 				_classCallCheck(this, Endchan);
 
-				var _this110 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
 
-				_this110.qTrunc = '.contentOmissionIndicator > p';
-				return _this110;
+				_this111.qTrunc = '.contentOmissionIndicator > p';
+				return _this111;
 			}
 
 			_createClass(Endchan, [{
@@ -23066,26 +23100,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this111 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this111.cReply = 'post';
-				_this111.qError = '.error > .info';
-				_this111.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this111.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-				_this111.qOPost = '.thread_OP';
-				_this111.qPages = '.pagelist > li:nth-last-child(2)';
-				_this111.qPostHeader = '.post_head';
-				_this111.qPostMsg = '.text';
-				_this111.qPostSubj = '.subject';
-				_this111.qPostTrip = '.tripcode';
-				_this111.qRPost = '.thread_reply';
-				_this111.qTrunc = '.tldr';
-				_this111.docExt = '';
-				_this111.firstPage = 1;
-				_this111.markupBB = true;
-				_this111.multiFile = true;
-				_this111.res = 'thread/';
-				return _this111;
+				_this112.cReply = 'post';
+				_this112.qError = '.error > .info';
+				_this112.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this112.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+				_this112.qOPost = '.thread_OP';
+				_this112.qPages = '.pagelist > li:nth-last-child(2)';
+				_this112.qPostHeader = '.post_head';
+				_this112.qPostMsg = '.text';
+				_this112.qPostSubj = '.subject';
+				_this112.qPostTrip = '.tripcode';
+				_this112.qRPost = '.thread_reply';
+				_this112.qTrunc = '.tldr';
+				_this112.docExt = '';
+				_this112.firstPage = 1;
+				_this112.markupBB = true;
+				_this112.multiFile = true;
+				_this112.res = 'thread/';
+				return _this112;
 			}
 
 			_createClass(Ernstchan, [{
@@ -23135,12 +23169,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this112 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this112.iichan = true;
+				_this113.iichan = true;
 
-				_this112.hasCatalog = true;
-				return _this112;
+				_this113.hasCatalog = true;
+				return _this113;
 			}
 
 			_createClass(Iichan, [{
@@ -23203,12 +23237,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this113 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this114 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this113.qFormRules = '#rules_row';
+				_this114.qFormRules = '#rules_row';
 
-				_this113.hasTextLinks = true;
-				return _this113;
+				_this114.hasTextLinks = true;
+				return _this114;
 			}
 
 			_createClass(Kohlchan, [{
@@ -23234,10 +23268,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this114 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this115 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this114.markupBB = true;
-				return _this114;
+				_this115.markupBB = true;
+				return _this115;
 			}
 
 			_createClass(Kropyvach, [{
@@ -23263,10 +23297,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this115 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this116 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this115.qOPost = '.op';
-				return _this115;
+				_this116.qOPost = '.op';
+				return _this116;
 			}
 
 			_createClass(Lainchan, [{
@@ -23294,43 +23328,6 @@ true, true];
 		}(Vichan);
 
 		ibDomains['lainchan.org'] = Lainchan;
-
-		var Lolifox = function (_Brchan) {
-			_inherits(Lolifox, _Brchan);
-
-			function Lolifox() {
-				_classCallCheck(this, Lolifox);
-
-				return _possibleConstructorReturn(this, (Lolifox.__proto__ || Object.getPrototypeOf(Lolifox)).apply(this, arguments));
-			}
-
-			_createClass(Lolifox, [{
-				key: 'getImgWrap',
-				value: function getImgWrap(img) {
-					return img.parentNode.parentNode;
-				}
-			}, {
-				key: 'init',
-				value: function init() {
-					_get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'init', this).call(this);
-					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-					return false;
-				}
-			}, {
-				key: 'css',
-				get: function get() {
-					return _get(Lolifox.prototype.__proto__ || Object.getPrototypeOf(Lolifox.prototype), 'css', this) + '\r\n\t' + (Cfg.noSpoilers ? 'span.spoiler, span.spoiler:hover { ' + (Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' : 'color: inherit !important') + '; transition: none !important; }' : '') + '\n\t\t\t\t#thread-interactions { display: none; }\n\t\t\t\t.reflink::after { content: "" !important; }';
-				}
-			}]);
-
-			return Lolifox;
-		}(Brchan);
-
-		ibDomains['lisach.pw'] = Lolifox;
-		ibDomains['lolifox.org'] = Lolifox;
-		ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-		ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 		var Niuchan = function (_Kusaba4) {
 			_inherits(Niuchan, _Kusaba4);
@@ -23826,7 +23823,7 @@ true, true];
 			return;
 		}
 
-		x += '\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 351px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
+		x += '\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 351px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ' + (nav.isFirefox ? '2' : '4') + 'px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ' + (nav.isPresto ? '' : 'vertical-align: -1px !important; ') + 'margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::' + (nav.isFirefox ? '-moz-' : '') + 'selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ' + (nav.isPresto ? '' : 'resize: none !important; ') + '}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t' + [
 		'#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }',
 		'#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }',
 		'#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }',

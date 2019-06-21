@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '9c03706';
+const commit = 'e1e6c2e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16848,6 +16848,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 
+	class Animach extends Brchan {
+		get css() {
+			return `${ super.css }\r\n\t${
+				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+					'color: inherit !important' }; transition: none !important; }` : '' }
+				#thread-interactions { display: none; }
+				.reflink::after { content: "" !important; }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
+		}
+		init() {
+			super.init();
+			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
+			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+			return false;
+		}
+	}
+	ibDomains['animach.pw'] = Animach;
+
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
 
@@ -17217,30 +17238,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
-
-	class Lolifox extends Brchan {
-		get css() {
-			return `${ super.css }\r\n\t${
-				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-					'color: inherit !important' }; transition: none !important; }` : '' }
-				#thread-interactions { display: none; }
-				.reflink::after { content: "" !important; }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			return false;
-		}
-	}
-	ibDomains['lisach.pw'] = Lolifox;
-	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 	class Niuchan extends Kusaba {
 		get css() {
@@ -17938,7 +17935,7 @@ function scriptCSS() {
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
-	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: float: none; }
+	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }

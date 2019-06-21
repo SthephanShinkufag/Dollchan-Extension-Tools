@@ -1433,6 +1433,27 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['brchan.org'] = Brchan;
 
+	class Animach extends Brchan {
+		get css() {
+			return `${ super.css }\r\n\t${
+				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
+					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
+					'color: inherit !important' }; transition: none !important; }` : '' }
+				#thread-interactions { display: none; }
+				.reflink::after { content: "" !important; }`;
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode;
+		}
+		init() {
+			super.init();
+			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
+			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
+			return false;
+		}
+	}
+	ibDomains['animach.pw'] = Animach;
+
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
 
@@ -1802,30 +1823,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['lainchan.org'] = Lainchan;
-
-	class Lolifox extends Brchan {
-		get css() {
-			return `${ super.css }\r\n\t${
-				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-					'color: inherit !important' }; transition: none !important; }` : '' }
-				#thread-interactions { display: none; }
-				.reflink::after { content: "" !important; }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			return false;
-		}
-	}
-	ibDomains['lisach.pw'] = Lolifox;
-	ibDomains['lolifox.org'] = Lolifox;
-	ibDomains['lisach7joohmqk3a.onion'] = Lolifox;
-	ibDomains['d4pdldleatdext7ejb45c3uxg67eddl2pwftnxpm4thwtjigci3rmrqd.onion'] = Lolifox;
 
 	class Niuchan extends Kusaba {
 		get css() {
