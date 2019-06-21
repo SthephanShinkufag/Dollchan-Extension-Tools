@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'cbd1fdc';
+const commit = '9c03706';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -437,9 +437,9 @@ const Lng = {
 			'Додавати кнопки "Пошук" для зображень'],
 		imgNames: {
 			sel: [
-				['Не изменять', 'Настоящие', 'Скрывать'],
-				['Don`t change', 'Original', 'Hide'],
-				['Не змінювати', 'Справжні', 'Ховати']],
+				['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'],
+				['Don`t change', 'Original (trunc.)', 'Hide', 'Original (full)'],
+				['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
 			txt: [
 				'имена картинок',
 				'filenames',
@@ -12776,7 +12776,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);
 			}
-			link.textContent = imgNames === 1 ? name : ext;
+			link.textContent = imgNames === 2 ? ext : name;
 		}
 	}
 }
@@ -15502,7 +15502,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.post-hover { display: none !important; }
 				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
 					float: left !important; clear: left; display: block; }
-				${ Cfg.imgNames === 1 ? '.postfilename, .unimportant > a[download] { display: none }' : '' }`;
+				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
+					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
@@ -17204,7 +17205,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.sidearrows { display: none !important; }
 				.bar { z-index: 1; }
-				${ Cfg.imgNames === 1 ? '.details > a { display: none; }' : '' }`;
+				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.details > a', wrap).textContent;
@@ -17316,7 +17317,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.mature_thread { display: block !important; }
 				.mature_warning { display: none; }
-				${ Cfg.imgNames === 1 ? '.post-filename { display: none; }' : '' }`;
+				${ Cfg.imgNames ? '.post-filename { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.post-filename', wrap).textContent;
@@ -18257,7 +18258,8 @@ function updateCSS() {
 		`${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 			${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 			.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.imgNames === 1 ?
+	${ Cfg.imgNames === 1 ? '.de-img-name { max-width: 165px; overflow: hidden; }' : '' }
+	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
 		'.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' :
 		Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }

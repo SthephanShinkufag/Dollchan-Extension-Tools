@@ -1057,7 +1057,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);
 			}
-			link.textContent = imgNames === 1 ? name : ext;
+			link.textContent = imgNames === 2 ? ext : name;
 		}
 	}
 }

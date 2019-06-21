@@ -414,7 +414,8 @@ function updateCSS() {
 		`${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 			${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 			.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
-	${ Cfg.imgNames === 1 ?
+	${ Cfg.imgNames === 1 ? '.de-img-name { max-width: 165px; overflow: hidden; }' : '' }
+	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
 		'.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' :
 		Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }

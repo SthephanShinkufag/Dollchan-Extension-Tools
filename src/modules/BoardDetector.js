@@ -87,7 +87,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					.post-hover { display: none !important; }
 				div.post.reply:not(.de-entry):not(.de-cfg-tab):not(.de-win-body) {
 					float: left !important; clear: left; display: block; }
-				${ Cfg.imgNames === 1 ? '.postfilename, .unimportant > a[download] { display: none }' : '' }`;
+				${ Cfg.imgNames ? `.postfilename, .unimportant > a[download] { display: none }
+					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
@@ -1789,7 +1790,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.sidearrows { display: none !important; }
 				.bar { z-index: 1; }
-				${ Cfg.imgNames === 1 ? '.details > a { display: none; }' : '' }`;
+				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.details > a', wrap).textContent;
@@ -1901,7 +1902,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				.mature_thread { display: block !important; }
 				.mature_warning { display: none; }
-				${ Cfg.imgNames === 1 ? '.post-filename { display: none; }' : '' }`;
+				${ Cfg.imgNames ? '.post-filename { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
 			return $q('.post-filename', wrap).textContent;
