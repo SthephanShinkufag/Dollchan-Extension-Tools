@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'e1e6c2e';
+	var commit = '1c9141e';
 
 
 	var defaultCfg = {
@@ -22393,6 +22393,12 @@ true, true];
 				value: function getImgInfo(wrap) {
 					var el = $q(this.qImgInfo, wrap);
 					return el ? el.lastChild.textContent : '';
+				}
+			}, {
+				key: 'getImgRealName',
+				value: function getImgRealName(wrap) {
+					var el = $q(this.qImgNameLink, wrap);
+					return el ? el.parentNode.title || el.textContent : '';
 				}
 			}, {
 				key: 'getJsonApiUrl',

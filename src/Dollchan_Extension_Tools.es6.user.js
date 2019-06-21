@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'e1e6c2e';
+const commit = '1c9141e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16645,6 +16645,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgInfo(wrap) {
 			const el = $q(this.qImgInfo, wrap);
 			return el ? el.lastChild.textContent : '';
+		}
+		getImgRealName(wrap) {
+			const el = $q(this.qImgNameLink, wrap);
+			return el ? el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;

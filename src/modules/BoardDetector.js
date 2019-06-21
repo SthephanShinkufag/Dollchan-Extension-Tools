@@ -1231,6 +1231,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el = $q(this.qImgInfo, wrap);
 			return el ? el.lastChild.textContent : '';
 		}
+		getImgRealName(wrap) {
+			const el = $q(this.qImgNameLink, wrap);
+			return el ? el.parentNode.title || el.textContent : '';
+		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
 		}
