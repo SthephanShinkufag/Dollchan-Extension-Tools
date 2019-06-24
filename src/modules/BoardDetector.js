@@ -1233,7 +1233,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgRealName(wrap) {
 			const el = $q(this.qImgNameLink, wrap);
-			return el ? el.parentNode.title || el.textContent : '';
+			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(brd, tNum) {
 			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
