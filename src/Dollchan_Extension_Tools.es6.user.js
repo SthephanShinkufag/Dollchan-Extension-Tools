@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'fd0903f';
+const commit = 'dc8f311';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17055,10 +17055,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.markupBB = true;
+			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 		}
 		get fixHTMLHelper() {
 			return null;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		getImgRealName(wrap) {
 			return $q('.filesize > a', wrap).textContent;

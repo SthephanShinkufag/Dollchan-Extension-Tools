@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'fd0903f';
+	var commit = 'dc8f311';
 
 
 	var defaultCfg = {
@@ -23036,11 +23036,18 @@ true, true];
 				var _this110 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
 
 				_this110.markupBB = true;
+				_this110.multiFile = true;
 				_this110.timePattern = 'yy+nn+dd+w+hh+ii+ss';
 				return _this110;
 			}
 
 			_createClass(Dscript, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					var str = '><input type="file" name="file[]"></div>';
+					el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				}
+			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
 					return $q('.filesize > a', wrap).textContent;
