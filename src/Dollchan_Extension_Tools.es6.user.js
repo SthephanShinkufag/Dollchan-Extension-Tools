@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'dc8f311';
+const commit = '7eb624f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16478,19 +16478,27 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.jsonSubmit = true;
 			this.ru = true;
 
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return 'small[id^="rfmap_"] { display: none; }';
+			return `small[id^="rfmap_"], .qreply_btn { display: none; }
+				.replypage .reply .reflink::before { content: "" }`;
+		}
+		getSubmitData(json) {
+			return {
+				error   : json.message ? json.message_title + ': ' + json.message : null,
+				postNum : json.num ? +json.num : null
+			};
 		}
 		init() {
-			const el = $id('submit_button');
+			const el = $id('submit_button') || $id('submit');
 			if(el) {
-				$del(el.previousElementSibling);
 				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
 			}
+			$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 			return false;
 		}
 		updateCaptcha(cap) {

@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'dc8f311';
+	var commit = '7eb624f';
 
 
 	var defaultCfg = {
@@ -22213,6 +22213,7 @@ true, true];
 
 				var _this96 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
+				_this96.jsonSubmit = true;
 				_this96.ru = true;
 
 				_this96._capUpdPromise = null;
@@ -22220,13 +22221,21 @@ true, true];
 			}
 
 			_createClass(_2chRip, [{
+				key: 'getSubmitData',
+				value: function getSubmitData(json) {
+					return {
+						error: json.message ? json.message_title + ': ' + json.message : null,
+						postNum: json.num ? +json.num : null
+					};
+				}
+			}, {
 				key: 'init',
 				value: function init() {
-					var el = $id('submit_button');
+					var el = $id('submit_button') || $id('submit');
 					if (el) {
-						$del(el.previousElementSibling);
 						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
 					}
+					$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 					return false;
 				}
 			}, {
@@ -22242,7 +22251,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return 'small[id^="rfmap_"] { display: none; }';
+					return 'small[id^="rfmap_"], .qreply_btn { display: none; }\n\t\t\t\t.replypage .reply .reflink::before { content: "" }';
 				}
 			}]);
 
