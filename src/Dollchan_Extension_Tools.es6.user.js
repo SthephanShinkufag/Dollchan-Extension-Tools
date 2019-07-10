@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '7eb624f';
+const commit = 'de5d2af';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9083,10 +9083,11 @@ function checkUpload(data) {
 				});
 				return;
 			}
+			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
-				data = JSON.parse((isDocument ? data.body.textContent : data).trim());
+				data = JSON.parse(_data);
 			} catch(err) {
-				error = getErrorMessage(err);
+				error = getSubmitError(_data);
 			}
 		}
 		if(!error) {

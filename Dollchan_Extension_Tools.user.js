@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '7eb624f';
+	var commit = 'de5d2af';
 
 
 	var defaultCfg = {
@@ -5102,10 +5102,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return new Promise(function (resolve) {
 					var worker = _this5._freeWorkers.pop();
 
-					var _data = _slicedToArray(data, 3),
-					    sendData = _data[0],
-					    transferObjs = _data[1],
-					    fn = _data[2];
+					var _data2 = _slicedToArray(data, 3),
+					    sendData = _data2[0],
+					    transferObjs = _data2[1],
+					    fn = _data2[2];
 
 					worker.onmessage = function (e) {
 						fn(e.data);
@@ -5607,10 +5607,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 					for (var b in storage) {
 						if (storage.hasOwnProperty(b)) {
-							var _data2 = storage[b];
-							for (var key in _data2) {
-								if (_data2.hasOwnProperty(key) && _data2[key][0] < minDate) {
-									delete _data2[key];
+							var _data3 = storage[b];
+							for (var key in _data3) {
+								if (_data3.hasOwnProperty(key) && _data3[key][0] < minDate) {
+									delete _data3[key];
 								}
 							}
 						}
@@ -8898,11 +8898,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var count = els.length;
 			this._thrPool = new TasksPool(4, function (num, data) {
 				return _this17.loadImgData(data[0]).then(function (imgData) {
-					var _data3 = _slicedToArray(data, 4),
-					    url = _data3[0],
-					    fName = _data3[1],
-					    el = _data3[2],
-					    imgLink = _data3[3];
+					var _data4 = _slicedToArray(data, 4),
+					    url = _data4[0],
+					    fName = _data4[1],
+					    el = _data4[2],
+					    imgLink = _data4[3];
 
 					var safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 					progress.value = counter.innerHTML = current++;
@@ -9062,13 +9062,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 				preloadPool = new TasksPool(mReqs, function (num, data) {
 					return _this18.loadImgData(data[0]).then(function (imageData) {
-						var _data4 = _slicedToArray(data, 6),
-						    url = _data4[0],
-						    imgLink = _data4[1],
-						    iType = _data4[2],
-						    isRepToOrig = _data4[3],
-						    el = _data4[4],
-						    isVideo = _data4[5];
+						var _data5 = _slicedToArray(data, 6),
+						    url = _data5[0],
+						    imgLink = _data5[1],
+						    iType = _data5[2],
+						    isRepToOrig = _data5[3],
+						    el = _data5[4],
+						    isVideo = _data5[5];
 
 						if (imageData) {
 							var fName = url.substring(url.lastIndexOf('/') + 1);
@@ -9552,12 +9552,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function setLinkData(link, data) {
 				var isCloned = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-				var _data5 = _slicedToArray(data, 5),
-				    title = _data5[0],
-				    author = _data5[1],
-				    views = _data5[2],
-				    publ = _data5[3],
-				    duration = _data5[4];
+				var _data6 = _slicedToArray(data, 5),
+				    title = _data6[0],
+				    author = _data6[1],
+				    views = _data6[2],
+				    publ = _data6[3],
+				    duration = _data6[4];
 
 				if (Panel.isVidEnabled && !isCloned) {
 					var clonedLink = $q('.de-entry > .de-video-link[href="' + link.href + '"]:not(title)');
@@ -10517,11 +10517,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return '';
 			}
 
-			var _data6 = data,
-			    _data7 = _slicedToArray(_data6, 4),
-			    s = _data7[1],
-			    reps = _data7[2],
-			    oreps = _data7[3];
+			var _data7 = data,
+			    _data8 = _slicedToArray(_data7, 4),
+			    s = _data8[1],
+			    reps = _data8[2],
+			    oreps = _data8[3];
 
 			var str = s ? this._decompileScope(s, '')[0].join('\n') : '';
 			if (reps || oreps) {
@@ -13091,10 +13091,11 @@ true, true];
 					});
 					return;
 				}
+				var _data = (isDocument ? data.body.textContent : data).trim();
 				try {
-					data = JSON.parse((isDocument ? data.body.textContent : data).trim());
+					data = JSON.parse(_data);
 				} catch (err) {
-					error = getErrorMessage(err);
+					error = getSubmitError(_data);
 				}
 			}
 			if (!error) {

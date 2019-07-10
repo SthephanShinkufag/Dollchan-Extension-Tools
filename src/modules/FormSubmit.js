@@ -45,10 +45,11 @@ function checkUpload(data) {
 				});
 				return;
 			}
+			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
-				data = JSON.parse((isDocument ? data.body.textContent : data).trim());
+				data = JSON.parse(_data);
 			} catch(err) {
-				error = getErrorMessage(err);
+				error = getSubmitError(_data);
 			}
 		}
 		if(!error) {
