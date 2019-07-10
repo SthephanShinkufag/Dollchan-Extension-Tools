@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '06832d1';
+	var commit = '1bc15f0';
 
 
 	var defaultCfg = {
@@ -17112,14 +17112,14 @@ true, true];
 		}, {
 			key: 'isImage',
 			get: function get() {
-				var value = /\.jpe?g|\.png|\.gif/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
+				var value = /(jpe?g|png|gif)$/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isImage', { value: value });
 				return value;
 			}
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+				var value = /(webm|mp4|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isVideo', { value: value });
 				return value;
 			}

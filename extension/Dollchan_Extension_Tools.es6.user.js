@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '06832d1';
+const commit = '1bc15f0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12104,13 +12104,13 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
+		const value = /(jpe?g|png|gif)$/i.test(this.src) ||
 			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
 	}
 	get isVideo() {
-		const value = /\.(?:webm|mp4|ogv)(?:&|$)/i.test(this.src) ||
+		const value = /(webm|mp4|ogv)(&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
