@@ -49,6 +49,7 @@ class BaseBoard {
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
+		this.hasRefererErr = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
@@ -70,7 +71,6 @@ class BaseBoard {
 		this.dobrochan = false;
 		this.iichan = false;
 		this.makaba = false;
-		this.tiny = false;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',

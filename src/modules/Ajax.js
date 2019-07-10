@@ -7,7 +7,7 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.tiny && nav.canUseFetch) &&
+	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) &&
 		(nav.canUseFetchBlob || !url.startsWith('blob'))
 	) {
 		if(!params) {

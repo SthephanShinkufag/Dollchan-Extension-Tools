@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'de5d2af';
+	var commit = '06832d1';
 
 
 	var defaultCfg = {
@@ -9781,7 +9781,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		    cancelFn = void 0;
 		var needTO = params ? params.useTimeout : false;
 		var WAITING_TIME = 5e3;
-		if (((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.tiny && nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+		if (((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
 			if (!params) {
 				params = {};
 			}
@@ -20337,6 +20337,7 @@ true, true];
 			this.hasCatalog = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
+			this.hasRefererErr = false;
 			this.hasTextLinks = false;
 			this.host = deWindow.location.hostname;
 			this.JsonBuilder = null;
@@ -20357,7 +20358,6 @@ true, true];
 			this.dobrochan = false;
 			this.iichan = false;
 			this.makaba = false;
-			this.tiny = false;
 		}
 
 		_createClass(BaseBoard, [{
@@ -20821,8 +20821,6 @@ true, true];
 
 				var _this81 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this81.tiny = true;
-
 				_this81.cReply = 'post reply';
 				_this81.qClosed = '.fa-lock';
 				_this81.qDForm = 'form[name*="postcontrols"]';
@@ -20845,6 +20843,7 @@ true, true];
 				_this81.firstPage = 1;
 				_this81.formParent = 'thread';
 				_this81.hasCatalog = true;
+				_this81.hasRefererErr = true;
 				_this81.jsonSubmit = true;
 				_this81.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 				return _this81;
@@ -22763,10 +22762,13 @@ true, true];
 		var Animach = function (_Brchan) {
 			_inherits(Animach, _Brchan);
 
-			function Animach() {
+			function Animach(prot, dm) {
 				_classCallCheck(this, Animach);
 
-				return _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).apply(this, arguments));
+				var _this106 = _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).call(this, prot, dm));
+
+				_this106.hasRefererErr = false;
+				return _this106;
 			}
 
 			_createClass(Animach, [{

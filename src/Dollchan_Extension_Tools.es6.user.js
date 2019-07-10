@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'de5d2af';
+const commit = '06832d1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6665,7 +6665,7 @@ function $ajax(url, params = null, isCORS = false) {
 	let resolve, reject, cancelFn;
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
-	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.tiny && nav.canUseFetch) &&
+	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) &&
 		(nav.canUseFetchBlob || !url.startsWith('blob'))
 	) {
 		if(!params) {
@@ -15104,6 +15104,7 @@ class BaseBoard {
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
+		this.hasRefererErr = false;
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
@@ -15125,7 +15126,6 @@ class BaseBoard {
 		this.dobrochan = false;
 		this.iichan = false;
 		this.makaba = false;
-		this.tiny = false;
 	}
 	get qFormMail() {
 		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -15468,7 +15468,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Tinyboard extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.tiny = true;
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
@@ -15492,6 +15491,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.formParent = 'thread';
 			this.hasCatalog = true;
+			this.hasRefererErr = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 		}
@@ -16862,6 +16862,11 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['brchan.org'] = Brchan;
 
 	class Animach extends Brchan {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasRefererErr = false;
+		}
 		get css() {
 			return `${ super.css }\r\n\t${
 				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
