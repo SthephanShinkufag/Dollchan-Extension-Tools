@@ -10,20 +10,19 @@ class RefMap {
 		this._post = post;
 		this._set = new Set();
 	}
-	static gen(posts, thrURL) {
+	static gen(posts) {
 		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
-			const links = $Q('a', post.msg);
-			for(let lNum, i = 0, len = links.length; i < len; ++i) {
-				const link = links[i];
-				const tc = link.textContent;
-				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
-					continue;
-				}
-				if(MyPosts.has(lNum)) {
-					link.classList.add('de-ref-you');
-					if(!MyPosts.has(pNum)) {
-						post.el.classList.add('de-mypost-reply');
+			for (const [link, lNum] of post.refLinks()) {
+				if (link !== null) {
+					if(MyPosts.has(lNum)) {
+						link.classList.add('de-ref-you');
+						if(!MyPosts.has(pNum)) {
+							post.el.classList.add('de-mypost-reply');
+						}
+					}
+					if(!aib.hasOPNum && tNums.has(lNum)) {
+						link.classList.add('de-ref-op');
 					}
 				}
 				if(!posts.has(lNum)) {
@@ -36,22 +35,13 @@ class RefMap {
 					ref._set.add(pNum);
 					ref.hasMap = true;
 				}
-				if(!aib.hasOPNum && tNums.has(lNum)) {
-					link.classList.add('de-ref-op');
-				}
-				if(thrURL) {
-					const url = link.getAttribute('href');
-					if(url[0] === '#') {
-						link.setAttribute('href', thrURL + url);
-					}
-				}
 			}
 		}
 	}
 	static initRefMap(form) {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
-			this.gen(pByNum, '');
+			this.gen(pByNum);
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {

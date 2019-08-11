@@ -3639,74 +3639,74 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref82 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref83, _ref84, favObj, storageName, firstThr;
+		var _ref84 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref85, _ref86, favObj, storageName, firstThr;
 
-			return regeneratorRuntime.wrap(function _callee24$(_context31) {
+			return regeneratorRuntime.wrap(function _callee24$(_context33) {
 				while (1) {
-					switch (_context31.prev = _context31.next) {
+					switch (_context33.prev = _context33.next) {
 						case 0:
 							Logger.initLogger();
 
 							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-								_context31.next = 3;
+								_context33.next = 3;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 3:
 							formEl = $q(aib.qDForm + ', form[de-form]');
 
 							if (formEl) {
-								_context31.next = 7;
+								_context33.next = 7;
 								break;
 							}
 
 							runFrames();
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 7:
 							if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-								_context31.next = 9;
+								_context33.next = 9;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 9:
 							Logger.log('Imageboard check');
 
 							if (locStorage) {
-								_context31.next = 14;
+								_context33.next = 14;
 								break;
 							}
 
 							if (checkStorage()) {
-								_context31.next = 13;
+								_context33.next = 13;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 13:
 							initNavFuncs();
 
 						case 14:
-							_context31.next = 16;
+							_context33.next = 16;
 							return dataPromise || readData();
 
 						case 16:
-							_ref83 = _context31.sent;
-							_ref84 = _slicedToArray(_ref83, 1);
-							favObj = _ref84[0];
+							_ref85 = _context33.sent;
+							_ref86 = _slicedToArray(_ref85, 1);
+							favObj = _ref86[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
-								_context31.next = 21;
+								_context33.next = 21;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 21:
 							docBody.classList.add('de-runned');
@@ -3714,13 +3714,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context31.next = 28;
+								_context33.next = 28;
 								break;
 							}
 
 							Panel.initPanel(formEl);
 							scriptCSS();
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 28:
 							if ('toJSON' in aProto) {
@@ -3757,22 +3757,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context31.prev = 43;
+							_context33.prev = 43;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context31.next = 53;
+							_context33.next = 53;
 							break;
 
 						case 48:
-							_context31.prev = 48;
-							_context31.t0 = _context31['catch'](43);
+							_context33.prev = 48;
+							_context33.t0 = _context33['catch'](43);
 
-							console.error('Delform parsing error:', getErrorMessage(_context31.t0));
+							console.error('Delform parsing error:', getErrorMessage(_context33.t0));
 							$show(docBody);
-							return _context31.abrupt('return');
+							return _context33.abrupt('return');
 
 						case 53:
 							Logger.log('Parse delform');
@@ -3823,21 +3823,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 80:
 						case 'end':
-							return _context31.stop();
+							return _context33.stop();
 					}
 				}
 			}, _callee24, this, [[43, 48]]);
 		}));
 
 		return function runMain(_x88, _x89) {
-			return _ref82.apply(this, arguments);
+			return _ref84.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'c02ab2e';
+	var commit = '50cf24c';
 
 
 	var defaultCfg = {
@@ -8157,8 +8157,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (typeof data === 'string') {
 					p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 				} else {
-					var link = data.nextSibling;
-					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
+					var _link = data.nextSibling;
+					p = encodeURIComponent(data.getAttribute('de-href') || _link.getAttribute('de-href') || _link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
 				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-tracemoe" href="https://trace.moe/?auto&url=' + p + 'TraceMoe'], '<a class="de-menu-item ', '</a>');
 			}
@@ -9439,12 +9439,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var j = 0;
 				for (var i = 0, len = newLinks.length; i < len; ++i) {
 					var _el8 = newLinks[i];
-					var link = oldLinks[j];
-					if (link && link.classList.contains('de-current')) {
+					var _link2 = oldLinks[j];
+					if (_link2 && _link2.classList.contains('de-current')) {
 						this.currentLink = _el8;
 					}
 					if (cloned) {
-						_el8.videoInfo = link.videoInfo;
+						_el8.videoInfo = _link2.videoInfo;
 						j++;
 					} else {
 						var m = _el8.href.match(Videos.ytReg);
@@ -9681,12 +9681,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _parserHelper(qPath, data, loader, isPost, isYtube, reg) {
 				var links = $Q(qPath, isPost ? data.el : data);
 				for (var i = 0, len = links.length; i < len; ++i) {
-					var link = links[i];
-					var m = link.href.match(reg);
+					var _link3 = links[i];
+					var m = _link3.href.match(reg);
 					if (m) {
-						var mPost = isPost ? data : aib.getPostOfEl(link);
+						var mPost = isPost ? data : aib.getPostOfEl(_link3);
 						if (mPost) {
-							mPost.videos.addLink(m, loader, link, isYtube);
+							mPost.videos.addLink(m, loader, _link3, isYtube);
 						}
 					}
 				}
@@ -9703,12 +9703,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.addMP3) {
 			var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var link = els[i];
-				if (link.target !== '_blank' && link.rel !== 'nofollow' || !link.pathname.includes('.mp3')) {
+				var _link4 = els[i];
+				if (_link4.target !== '_blank' && _link4.rel !== 'nofollow' || !_link4.pathname.includes('.mp3')) {
 					continue;
 				}
-				var src = link.href;
-				var _el9 = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
+				var src = _link4.href;
+				var _el9 = (isPost ? data : aib.getPostOfEl(_link4)).mp3Obj;
 				if (nav.canPlayMP3) {
 					if (!$q('audio[src="' + src + '"]', _el9)) {
 						_el9.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
@@ -9721,10 +9721,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.addVocaroo) {
 			var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i8 = 0, _len7 = _els2.length; _i8 < _len7; ++_i8) {
-				var _link = _els2[_i8];
-				var _el10 = _link.previousSibling;
+				var _link5 = _els2[_i8];
+				var _el10 = _link5.previousSibling;
 				if (!_el10 || _el10.className !== 'de-vocaroo') {
-					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
+					_link5.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link5.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -14432,6 +14432,50 @@ true, true];
 		}
 
 		_createClass(AbstractPost, [{
+			key: 'refLinks',
+			value: regeneratorRuntime.mark(function refLinks() {
+				var links, lNum, i, len, _link6, tc;
+
+				return regeneratorRuntime.wrap(function refLinks$(_context21) {
+					while (1) {
+						switch (_context21.prev = _context21.next) {
+							case 0:
+								links = $Q('a', this.msg);
+								i = 0, len = links.length;
+
+							case 2:
+								if (!(i < len)) {
+									_context21.next = 12;
+									break;
+								}
+
+								_link6 = links[i];
+								tc = _link6.textContent;
+
+								if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
+									_context21.next = 7;
+									break;
+								}
+
+								return _context21.abrupt('continue', 9);
+
+							case 7:
+								_context21.next = 9;
+								return [_link6, lNum];
+
+							case 9:
+								++i;
+								_context21.next = 2;
+								break;
+
+							case 12:
+							case 'end':
+								return _context21.stop();
+						}
+					}
+				}, refLinks, this);
+			})
+		}, {
 			key: 'addFuncs',
 			value: function addFuncs() {
 				RefMap.updateRefMap(this, true);
@@ -15660,15 +15704,7 @@ true, true];
 			_this53._showPview(_this53.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
 			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false).then(function (pBuilder) {
-				if (!aib.JsonBuilder) {
-					_this53._onload(pBuilder._form);
-					return;
-				}
-				var html = [];
-				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
-					html.push(pBuilder.getPostHTML(i - 1)); 
-				}
-				_this53._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+				return _this53._onload(pBuilder);
 			}, function (err) {
 				return _this53._onerror(err);
 			});
@@ -15799,10 +15835,11 @@ true, true];
 			key: '_buildPview',
 			value: function () {
 				var _ref52 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(post) {
-					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
-					return regeneratorRuntime.wrap(function _callee18$(_context21) {
+					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, _link7;
+
+					return regeneratorRuntime.wrap(function _callee18$(_context22) {
 						while (1) {
-							switch (_context21.prev = _context21.next) {
+							switch (_context22.prev = _context22.next) {
 								case 0:
 									$del(this.el);
 									num = this.num;
@@ -15823,52 +15860,52 @@ true, true];
 									this._link.classList.add('de-link-parent');
 									isOp = this.isOp;
 									f = void 0;
-									_context21.t0 = isOp;
+									_context22.t0 = isOp;
 
-									if (!_context21.t0) {
-										_context21.next = 28;
+									if (!_context22.t0) {
+										_context22.next = 28;
 										break;
 									}
 
-									_context21.t1 = post.thr.isFav;
+									_context22.t1 = post.thr.isFav;
 
-									if (_context21.t1) {
-										_context21.next = 27;
+									if (_context22.t1) {
+										_context22.next = 27;
 										break;
 									}
 
-									_context21.next = 19;
+									_context22.next = 19;
 									return readFavorites();
 
 								case 19:
-									_context21.t4 = aib.host;
-									_context21.t3 = f = _context21.sent[_context21.t4];
+									_context22.t4 = aib.host;
+									_context22.t3 = f = _context22.sent[_context22.t4];
 
-									if (!_context21.t3) {
-										_context21.next = 23;
+									if (!_context22.t3) {
+										_context22.next = 23;
 										break;
 									}
 
-									_context21.t3 = f = f[this.brd];
+									_context22.t3 = f = f[this.brd];
 
 								case 23:
-									_context21.t2 = _context21.t3;
+									_context22.t2 = _context22.t3;
 
-									if (!_context21.t2) {
-										_context21.next = 26;
+									if (!_context22.t2) {
+										_context22.next = 26;
 										break;
 									}
 
-									_context21.t2 = num in f;
+									_context22.t2 = num in f;
 
 								case 26:
-									_context21.t1 = _context21.t2;
+									_context22.t1 = _context22.t2;
 
 								case 27:
-									_context21.t0 = _context21.t1;
+									_context22.t0 = _context22.t1;
 
 								case 28:
-									isFav = _context21.t0;
+									isFav = _context22.t0;
 									isCached = post instanceof CacheItem;
 									pCountHtml = (post.isDeleted ? ' de-post-counter-deleted">' + Lng.deleted[lang] + '</span>' : '">' + (isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>') + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
 									pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? '<svg class="' + (isFav ? 'de-btn-fav-sel' : 'de-btn-fav') + '">' + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
@@ -15896,10 +15933,10 @@ true, true];
 										$each($Q(aib.qPostImg, pv), function (el) {
 											return $show(el.parentNode);
 										});
-										link = $q('.de-link-parent', pv);
+										_link7 = $q('.de-link-parent', pv);
 
-										if (link) {
-											link.classList.remove('de-link-parent');
+										if (_link7) {
+											_link7.classList.remove('de-link-parent');
 										}
 										if (Cfg.embedYTube && post.videos.hasLinks) {
 											if (post.videos.playerInfo !== null) {
@@ -15927,7 +15964,7 @@ true, true];
 
 								case 35:
 								case 'end':
-									return _context21.stop();
+									return _context22.stop();
 							}
 						}
 					}, _callee18, this);
@@ -15948,11 +15985,11 @@ true, true];
 			}
 		}, {
 			key: '_onload',
-			value: function _onload(form) {
+			value: function _onload(pBuilder) {
 				var b = this.brd;
 				var num = this.parent.num;
 
-				var post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
+				var post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
 				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 					(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', '<a class="de-link-backref" href="' + (aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num) + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + num + '</a><span class="de-refcomma">, </span>');
 				}
@@ -16133,11 +16170,13 @@ true, true];
 	Pview._delTO = null;
 
 	var CacheItem = function () {
-		function CacheItem(el, count) {
+		function CacheItem(pBuilder, thrUrl, count) {
 			_classCallCheck(this, CacheItem);
 
+			this.thrUrl = thrUrl;
 			this.count = count;
-			this.el = el;
+			this.pBuilder = pBuilder;
+			this.el = null;
 			this.isDeleted = false;
 			this.isInited = false;
 			this.isOp = count === 0;
@@ -16145,10 +16184,26 @@ true, true];
 		}
 
 		_createClass(CacheItem, [{
+			key: 'refLinks',
+			value: regeneratorRuntime.mark(function refLinks() {
+				return regeneratorRuntime.wrap(function refLinks$(_context23) {
+					while (1) {
+						switch (_context23.prev = _context23.next) {
+							case 0:
+								return _context23.delegateYield(this.pBuilder.getRefLinksNum(this.count, this._thrUrl), 't0', 1);
+
+							case 1:
+							case 'end':
+								return _context23.stop();
+						}
+					}
+				}, refLinks, this);
+			})
+		}, {
 			key: 'msg',
 			get: function get() {
 				var value = $q(aib.qPostMsg, this.el);
-				Object.defineProperty(this, 'msg', { value: value, configurable: true });
+				Object.defineProperty(this, 'msg', { value: value });
 				return value;
 			}
 		}, {
@@ -16178,7 +16233,7 @@ true, true];
 	var PviewsCache = function (_TemporaryContent2) {
 		_inherits(PviewsCache, _TemporaryContent2);
 
-		function PviewsCache(form, b, tNum) {
+		function PviewsCache(pBuilder, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
 			var _this56 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
@@ -16187,23 +16242,21 @@ true, true];
 				return _possibleConstructorReturn(_this56);
 			}
 			_this56._isInited = true;
-			var pByNum = new Map();
-			var thr = $q(aib.qThread, form) || form;
-			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-			var pcount = posts.length;
+			var lPByNum = new Map();
+			var pcount = pBuilder.length;
+			var thrUrl = aib.getThrUrl(b, tNum);
 			for (var i = 0; i < pcount; ++i) {
-				var post = posts[i];
-				pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
+				lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 			}
-			_this56._opObj = new CacheItem(aib.getOp(thr), 0);
-			_this56._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this56._opObj.title };
-			pByNum.set(tNum, _this56._opObj);
+			_this56._opObj = new CacheItem(pBuilder, thrUrl, 0);
+			_this56._opObj.thr = { lastNum: pBuilder.getPNum(pBuilder.length - 1), pcount: pcount, title: '' };
+			lPByNum.set(tNum, _this56._opObj);
 			_this56._b = b;
 			_this56._tNum = tNum;
-			_this56._tUrl = aib.getThrUrl(b, tNum);
-			_this56._posts = pByNum;
+			DelForm.tNums.add(tNum);
+			_this56._posts = lPByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this56._tUrl);
+				RefMap.gen(lPByNum);
 			}
 			return _this56;
 		}
@@ -16218,10 +16271,13 @@ true, true];
 				if (num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
 					post.ref.makeUnion(pByNum.get(this._tNum).ref);
 				}
-				post.el = aib.fixHTML(post.el);
-				delete post.msg;
+				if (post.count == 0) {
+					post.el = post.pBuilder.getOpEl();
+				} else {
+					post.el = post.pBuilder.getPostEl(post.count - 1);
+				}
 				if (post.ref.hasMap) {
-					post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+					post.ref.initPostRef(post.thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 				}
 				post.isInited = true;
 				return post;
@@ -17392,24 +17448,24 @@ true, true];
 				var el = _ref61.el,
 				    src = _ref61.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
-				return regeneratorRuntime.wrap(function _callee19$(_context22) {
+				return regeneratorRuntime.wrap(function _callee19$(_context24) {
 					while (1) {
-						switch (_context22.prev = _context22.next) {
+						switch (_context24.prev = _context24.next) {
 							case 0:
 								if (!(src in this._storage)) {
-									_context22.next = 2;
+									_context24.next = 2;
 									break;
 								}
 
-								return _context22.abrupt('return', this._storage[src]);
+								return _context24.abrupt('return', this._storage[src]);
 
 							case 2:
 								if (el.complete) {
-									_context22.next = 5;
+									_context24.next = 5;
 									break;
 								}
 
-								_context22.next = 5;
+								_context24.next = 5;
 								return new Promise(function (resolve) {
 									return el.addEventListener('load', function () {
 										return resolve();
@@ -17418,31 +17474,31 @@ true, true];
 
 							case 5:
 								if (!(el.naturalWidth + el.naturalHeight === 0)) {
-									_context22.next = 7;
+									_context24.next = 7;
 									break;
 								}
 
-								return _context22.abrupt('return', -1);
+								return _context24.abrupt('return', -1);
 
 							case 7:
 								data = void 0, buffer = void 0, val = -1;
 								w = el.naturalWidth, h = el.naturalHeight;
 
 								if (!aib._4chan) {
-									_context22.next = 16;
+									_context24.next = 16;
 									break;
 								}
 
-								_context22.next = 12;
+								_context24.next = 12;
 								return ContentLoader.loadImgData(el.src);
 
 							case 12:
-								imgData = _context22.sent;
+								imgData = _context24.sent;
 
 								if (imgData) {
 									buffer = imgData.buffer;
 								}
-								_context22.next = 22;
+								_context24.next = 22;
 								break;
 
 							case 16:
@@ -17457,11 +17513,11 @@ true, true];
 
 							case 22:
 								if (!buffer) {
-									_context22.next = 27;
+									_context24.next = 27;
 									break;
 								}
 
-								_context22.next = 25;
+								_context24.next = 25;
 								return new Promise(function (resolve) {
 									return _this65._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
@@ -17469,7 +17525,7 @@ true, true];
 								});
 
 							case 25:
-								data = _context22.sent;
+								data = _context24.sent;
 
 								if (data && 'hash' in data) {
 									val = data.hash;
@@ -17477,11 +17533,11 @@ true, true];
 
 							case 27:
 								this._storage[src] = val;
-								return _context22.abrupt('return', val);
+								return _context24.abrupt('return', val);
 
 							case 29:
 							case 'end':
-								return _context22.stop();
+								return _context24.stop();
 						}
 					}
 				}, _callee19, this);
@@ -17507,9 +17563,9 @@ true, true];
 			if (parent instanceof AbstractPost) {
 				processPostImgInfoLinks(parent, addSrc, imgNames);
 			} else {
-				var _posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
-				for (var i = 0, len = _posts.length; i < len; ++i) {
-					processPostImgInfoLinks(pByEl.get(_posts[i]), addSrc, imgNames);
+				var posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+				for (var i = 0, len = posts.length; i < len; ++i) {
+					processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
 				}
 			}
 		}
@@ -17527,29 +17583,29 @@ true, true];
 			for (var _iterator26 = post.images[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
 				var image = _step26.value;
 
-				var link = image.nameLink;
-				if (!link) {
+				var _link8 = image.nameLink;
+				if (!_link8) {
 					return;
 				}
 				if (addSrc) {
-					addImgSrcButtons(link, image.isVideo ? image.el.src : null);
+					addImgSrcButtons(_link8, image.isVideo ? image.el.src : null);
 				}
 				var name = image.name;
 
-				if (!link.classList.contains('de-img-name')) {
-					link.classList.add('de-img-name');
-					link.title = name;
-					link.setAttribute('download', name);
-					link.setAttribute('de-href', link.href);
+				if (!_link8.classList.contains('de-img-name')) {
+					_link8.classList.add('de-img-name');
+					_link8.title = name;
+					_link8.setAttribute('download', name);
+					_link8.setAttribute('de-href', _link8.href);
 				}
 				if (imgNames) {
 					var ext = void 0;
-					if (!(ext = link.getAttribute('de-img-ext'))) {
-						ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
-						link.setAttribute('de-img-ext', ext);
-						link.setAttribute('de-img-name-old', link.textContent);
+					if (!(ext = _link8.getAttribute('de-img-ext'))) {
+						ext = name.split('.').pop() || _link8.href.split('/').pop().split('.').pop();
+						_link8.setAttribute('de-img-ext', ext);
+						_link8.setAttribute('de-img-name-old', _link8.textContent);
 					}
-					link.textContent = imgNames === 2 ? ext : name;
+					_link8.textContent = imgNames === 2 ? ext : name;
 				}
 			}
 		} catch (err) {
@@ -17574,14 +17630,14 @@ true, true];
 		}
 		var els = $Q(aib.qMsgImgLink, el);
 		for (var i = 0, len = els.length; i < len; ++i) {
-			var link = els[i];
-			var _url3 = link.href;
-			if (_url3.includes('?') || aib.getPostOfEl(link).hidden) {
+			var _link9 = els[i];
+			var _url3 = _link9.href;
+			if (_url3.includes('?') || aib.getPostOfEl(_link9).hidden) {
 				continue;
 			}
-			$bBegin(link, '<a href="' + link.href + '" target="_blank"><img class="de-img-embed" src="' + _url3 + '"></a><br>');
+			$bBegin(_link9, '<a href="' + _link9.href + '" target="_blank"><img class="de-img-embed" src="' + _url3 + '"></a><br>');
 			if (Cfg.imgSrcBtns) {
-				addImgSrcButtons(link);
+				addImgSrcButtons(_link9);
 			}
 		}
 	}
@@ -17609,40 +17665,73 @@ true, true];
 				return aib.getPNum(this._posts[i]);
 			}
 		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+			}
+		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return aib.fixHTML(this._posts[i]);
+				return aib.fixHTML(doc.adoptNode(this._posts[i]));
+			}
+		}, {
+			key: 'getRefLinksNum',
+			value: function getRefLinksNum(i, thrUrl) {
+				var msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
+				var links = $Q('a', msg);
+				var rv = [];
+				for (var lNum, _i17 = 0, len = links.length; _i17 < len; ++_i17) {
+					var _link10 = links[_i17];
+					var tc = _link10.textContent;
+					if (tc[0] === '>' && tc[1] === '>') {
+						var _lNum = parseInt(tc.substr(2), 10);
+						if (_lNum) {
+							rv.push([null, _lNum]);
+							var _url4 = _link10.getAttribute('href');
+							if (_url4[0] === '#') {
+								_link10.setAttribute('href', thrURL + _url4);
+							}
+							if (!aib.hasOPNum && DelForm.tNums.has(_lNum)) {
+								_link10.classList.add('de-ref-op');
+							}
+							if (MyPosts.has(_lNum)) {
+								_link10.classList.add('de-ref-you');
+							}
+						}
+					}
+				}
+				return rv;
 			}
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var banEls, i, len, banEl, postEl;
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context23) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context25) {
 					while (1) {
-						switch (_context23.prev = _context23.next) {
+						switch (_context25.prev = _context25.next) {
 							case 0:
 								banEls = $Q(aib.qBan, this._form);
 								i = 0, len = banEls.length;
 
 							case 2:
 								if (!(i < len)) {
-									_context23.next = 10;
+									_context25.next = 10;
 									break;
 								}
 
 								banEl = banEls[i];
 								postEl = aib.getPostElOfEl(banEl);
-								_context23.next = 7;
+								_context25.next = 7;
 								return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
 							case 7:
 								++i;
-								_context23.next = 2;
+								_context25.next = 2;
 								break;
 
 							case 10:
 							case 'end':
-								return _context23.stop();
+								return _context25.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17680,6 +17769,11 @@ true, true];
 			key: 'getPNum',
 			value: function getPNum(i) {
 				return this._posts[i + 1].no;
+			}
+		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
 			}
 		}, {
 			key: 'getPostEl',
@@ -17765,14 +17859,53 @@ true, true];
 				return '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post ' + (i === -1 ? 'op' : 'reply') + ' ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + mobNameEl + '\n\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '<br>\n\t\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' ' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi' + num + '">\n\t\t\t\t\t<input name="' + num + '" value="delete" type="checkbox">\n\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t\t\t' + nameEl + '\n\t\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop">' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + (data.com || '') + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
 			}
 		}, {
+			key: 'getRefLinksNum',
+			value: function getRefLinksNum(i, thrUrl) {
+				var msg = this._posts[i].com || '';
+				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*?) href="([^"]+)"([^>]*?)(?: class="([^"]+)")?([^>]*?)>&gt;&gt;(\d+)/g;
+				var rv = [];
+				this._posts[i].com = msg.replace(regex, function (full, part1, classes1, part2, url, part3, classes2, part4, num) {
+					var lNum = +num;
+					rv.push([null, lNum]);
+					var isOpLink = DelForm.tNums.has(lNum);
+					var isYouLink = MyPosts.has(lNum);
+					var fixedUrl = url[0] == '#' ? thrUrl + url : url;
+					if (isOpLink || isYouLink) {
+						var classes = [];
+						if (isOpLink) {
+							classes.push('de-ref-op');
+						}
+						if (isYouLink) {
+							classes.push('de-ref-you');
+						}
+						classes = classes.join(' ');
+						if (classes1 !== undefined) {
+							return part1 + ' class="' + classes + ' ' + classes1 + '"' + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
+						}
+						if (classes2 !== undefined) {
+							return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + ' class="' + classes + ' ' + classes2 + '"' + part4 + '>&gt;&gt;' + num;
+						}
+						return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + ' class="' + classes + '">&gt;&gt;' + num;
+					}
+					if (classes1 !== undefined) {
+						return part1 + ' class="' + classes1 + '"' + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
+					}
+					if (classes2 !== undefined) {
+						return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + ' class="' + classes2 + '"' + part4 + '>&gt;&gt;' + num;
+					}
+					return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
+				});
+				return rv;
+			}
+		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context24) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
 					while (1) {
-						switch (_context24.prev = _context24.next) {
+						switch (_context26.prev = _context26.next) {
 							case 0:
 							case 'end':
-								return _context24.stop();
+								return _context26.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17823,9 +17956,18 @@ true, true];
 				return this._posts[i + 1].display_id;
 			}
 		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
+			}
+		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+				var el = $add(aib.fixHTML(this.getPostHTML(i)));
+				if (i == -1) {
+					return el;
+				}
+				return el.firstElementChild.firstElementChild.lastElementChild;
 			}
 		}, {
 			key: 'getPostHTML',
@@ -17906,14 +18048,43 @@ true, true];
 				return (isOp ? '<div id="post_' + num + '" class="oppost post">' : '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">') + '\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name="' + num + '" value="' + data.thread_id + '" ' + ('class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t' + (data.subject ? '<span class="replytitle">' + data.subject + '</span>' : '') + '\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span> ' + date + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a href="/' + brd + '/res/' + data.thread_id + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span><br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t' + (isOp ? '</div>' : '</td></tr></tbody></table>'));
 			}
 		}, {
+			key: 'getRefLinksNum',
+			value: function getRefLinksNum(i, thrUrl) {
+				var msg = this._posts[i].message_html || '';
+				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>&gt;&gt;(\d+)/g;
+				var rv = [];
+				this._posts[i].message_html = msg.replace(regex, function (full, part1, classes, end, num) {
+					var lNum = +num;
+					rv.push([null, lNum]);
+					var isOpLink = DelForm.tNums.has(lNum);
+					var isYouLink = MyPosts.has(lNum);
+					if (isOpLink || isYouLink) {
+						var eClasses = [];
+						if (isOpLink) {
+							eClasses.push('de-ref-op');
+						}
+						if (isYouLink) {
+							eClasses.push('de-ref-you');
+						}
+						eClasses = eClasses.join(' ');
+						if (classes === undefined) {
+							return '' + part1 + end + ' class="' + eClasses + '">&gt;&gt;' + num;
+						}
+						return part1 + ' class="' + eClasses + ' ' + classes + '"' + end + '>&gt;&gt;' + num;
+					}
+					return full;
+				});
+				return rv;
+			}
+		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context25) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context27) {
 					while (1) {
-						switch (_context25.prev = _context25.next) {
+						switch (_context27.prev = _context27.next) {
 							case 0:
 							case 'end':
-								return _context25.stop();
+								return _context27.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17951,6 +18122,11 @@ true, true];
 			key: 'getPNum',
 			value: function getPNum(i) {
 				return this._posts[i + 1].num;
+			}
+		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
 			}
 		}, {
 			key: 'getPostEl',
@@ -18031,90 +18207,110 @@ true, true];
 				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {
+			key: 'getRefLinksNum',
+			value: function getRefLinksNum(i, thrUrl) {
+				var msg = this._posts[i].comment || '';
+				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>>>(\d+)/g;
+				var rv = [];
+				this._posts[i].comment = msg.replace(regex, function (full, part1, classes, end, num) {
+					var lNum = +num;
+					rv.push([null, lNum]);
+					if (MyPosts.has(lNum)) {
+						link.classList.add('de-ref-you');
+						if (classes === undefined) {
+							return '' + part1 + end + ' class="de-ref-you">&gt;&gt;' + num;
+						}
+						return part1 + ' class="de-ref-you ' + classes + '"' + end + '>&gt;&gt;' + num;
+					}
+					return full;
+				});
+				return rv;
+			}
+		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref64, banned, num;
 
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context28) {
 					while (1) {
-						switch (_context26.prev = _context26.next) {
+						switch (_context28.prev = _context28.next) {
 							case 0:
 								p = this._isNew ? 'post__' : '';
 								_iteratorNormalCompletion29 = true;
 								_didIteratorError29 = false;
 								_iteratorError29 = undefined;
-								_context26.prev = 4;
+								_context28.prev = 4;
 								_iterator29 = this._posts[Symbol.iterator]();
 
 							case 6:
 								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
-									_context26.next = 22;
+									_context28.next = 22;
 									break;
 								}
 
 								_ref64 = _step29.value;
 								banned = _ref64.banned;
 								num = _ref64.num;
-								_context26.t0 = banned;
-								_context26.next = _context26.t0 === 1 ? 13 : _context26.t0 === 2 ? 16 : 19;
+								_context28.t0 = banned;
+								_context28.next = _context28.t0 === 1 ? 13 : _context28.t0 === 2 ? 16 : 19;
 								break;
 
 							case 13:
-								_context26.next = 15;
+								_context28.next = 15;
 								return [1, num, $add('<span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>')];
 
 							case 15:
-								return _context26.abrupt('break', 19);
+								return _context28.abrupt('break', 19);
 
 							case 16:
-								_context26.next = 18;
+								_context28.next = 18;
 								return [2, num, $add('<span class="' + p + 'pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
 
 							case 18:
-								return _context26.abrupt('break', 19);
+								return _context28.abrupt('break', 19);
 
 							case 19:
 								_iteratorNormalCompletion29 = true;
-								_context26.next = 6;
+								_context28.next = 6;
 								break;
 
 							case 22:
-								_context26.next = 28;
+								_context28.next = 28;
 								break;
 
 							case 24:
-								_context26.prev = 24;
-								_context26.t1 = _context26['catch'](4);
+								_context28.prev = 24;
+								_context28.t1 = _context28['catch'](4);
 								_didIteratorError29 = true;
-								_iteratorError29 = _context26.t1;
+								_iteratorError29 = _context28.t1;
 
 							case 28:
-								_context26.prev = 28;
-								_context26.prev = 29;
+								_context28.prev = 28;
+								_context28.prev = 29;
 
 								if (!_iteratorNormalCompletion29 && _iterator29.return) {
 									_iterator29.return();
 								}
 
 							case 31:
-								_context26.prev = 31;
+								_context28.prev = 31;
 
 								if (!_didIteratorError29) {
-									_context26.next = 34;
+									_context28.next = 34;
 									break;
 								}
 
 								throw _iteratorError29;
 
 							case 34:
-								return _context26.finish(31);
+								return _context28.finish(31);
 
 							case 35:
-								return _context26.finish(28);
+								return _context28.finish(28);
 
 							case 36:
 							case 'end':
-								return _context26.stop();
+								return _context28.stop();
 						}
 					}
 				}, bannedPostsData, this, [[4, 24, 28, 36], [29,, 31, 35]]);
@@ -18384,7 +18580,7 @@ true, true];
 			}
 		}], [{
 			key: 'gen',
-			value: function gen(posts, thrURL) {
+			value: function gen(posts) {
 				var tNums = DelForm.tNums;
 				var _iteratorNormalCompletion33 = true;
 				var _didIteratorError33 = false;
@@ -18398,40 +18594,55 @@ true, true];
 
 						var pNum = _ref66[0];
 						var post = _ref66[1];
+						var _iteratorNormalCompletion34 = true;
+						var _didIteratorError34 = false;
+						var _iteratorError34 = undefined;
 
-						var links = $Q('a', post.msg);
-						for (var lNum, i = 0, len = links.length; i < len; ++i) {
-							var link = links[i];
-							var tc = link.textContent;
-							if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
-								continue;
-							}
-							if (MyPosts.has(lNum)) {
-								link.classList.add('de-ref-you');
-								if (!MyPosts.has(pNum)) {
-									post.el.classList.add('de-mypost-reply');
+						try {
+							for (var _iterator34 = post.refLinks()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
+								var _ref67 = _step34.value;
+
+								var _ref68 = _slicedToArray(_ref67, 2);
+
+								var _link11 = _ref68[0];
+								var lNum = _ref68[1];
+
+								if (_link11 !== null) {
+									if (MyPosts.has(lNum)) {
+										_link11.classList.add('de-ref-you');
+										if (!MyPosts.has(pNum)) {
+											post.el.classList.add('de-mypost-reply');
+										}
+									}
+									if (!aib.hasOPNum && tNums.has(lNum)) {
+										_link11.classList.add('de-ref-op');
+									}
+								}
+								if (!posts.has(lNum)) {
+									continue;
+								}
+
+								var _posts$get = posts.get(lNum),
+								    ref = _posts$get.ref;
+
+								if (ref._isInited) {
+									ref.addRefNum(post, pNum);
+								} else {
+									ref._set.add(pNum);
+									ref.hasMap = true;
 								}
 							}
-							if (!posts.has(lNum)) {
-								continue;
-							}
-
-							var _posts$get = posts.get(lNum),
-							    ref = _posts$get.ref;
-
-							if (ref._isInited) {
-								ref.addRefNum(post, pNum);
-							} else {
-								ref._set.add(pNum);
-								ref.hasMap = true;
-							}
-							if (!aib.hasOPNum && tNums.has(lNum)) {
-								link.classList.add('de-ref-op');
-							}
-							if (thrURL) {
-								var _url4 = link.getAttribute('href');
-								if (_url4[0] === '#') {
-									link.setAttribute('href', thrURL + _url4);
+						} catch (err) {
+							_didIteratorError34 = true;
+							_iteratorError34 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion34 && _iterator34.return) {
+									_iterator34.return();
+								}
+							} finally {
+								if (_didIteratorError34) {
+									throw _iteratorError34;
 								}
 							}
 						}
@@ -18456,7 +18667,7 @@ true, true];
 			value: function initRefMap(form) {
 				var post = form.firstThr && form.firstThr.op;
 				if (post && Cfg.linksNavig) {
-					this.gen(pByNum, '');
+					this.gen(pByNum);
 					var strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 					for (; post; post = post.next) {
 						if (post.ref.hasMap) {
@@ -18472,13 +18683,13 @@ true, true];
 				var strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 				var links = $Q('a', post.msg);
 				for (var lNum, i = 0, len = links.length; i < len; ++i) {
-					var link = links[i];
-					var tc = link.textContent;
+					var _link12 = links[i];
+					var tc = _link12.textContent;
 					if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 						continue;
 					}
 					if (isAdd && MyPosts.has(lNum)) {
-						link.classList.add('de-ref-you');
+						_link12.classList.add('de-ref-you');
 						if (!MyPosts.has(pNum)) {
 							var postClass = post.el.classList;
 							if (!postClass.contains('de-mypost-reply')) {
@@ -18492,17 +18703,17 @@ true, true];
 					}
 					var lPost = pByNum.get(lNum);
 					if (!aib.t) {
-						link.href = '#' + (aib._4chan ? 'p' : '') + lNum;
+						_link12.href = '#' + (aib._4chan ? 'p' : '') + lNum;
 					}
 					if (!isAdd) {
 						lPost.ref.removeLink(pNum);
 						return;
 					}
 					if (strNums && strNums.has(lNum)) {
-						link.classList.add('de-link-hid');
+						_link12.classList.add('de-link-hid');
 					}
 					if (!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-						link.classList.add('de-ref-op');
+						_link12.classList.add('de-ref-op');
 					}
 					lPost.ref.hasMap = true;
 					lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
@@ -18552,11 +18763,11 @@ true, true];
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
-			var _ref67 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref69 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref67[0];
-			this.btnFav = _ref67[2];
-			this.btnUpd = _ref67[3];
+			this.btnHide = _ref69[0];
+			this.btnFav = _ref69[2];
+			this.btnUpd = _ref69[3];
 
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -18772,19 +18983,19 @@ true, true];
 				if (!aib.qBan) {
 					return;
 				}
-				var _iteratorNormalCompletion34 = true;
-				var _didIteratorError34 = false;
-				var _iteratorError34 = undefined;
+				var _iteratorNormalCompletion35 = true;
+				var _didIteratorError35 = false;
+				var _iteratorError35 = undefined;
 
 				try {
-					for (var _iterator34 = pBuilder.bannedPostsData()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref68 = _step34.value;
+					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
+						var _ref70 = _step35.value;
 
-						var _ref69 = _slicedToArray(_ref68, 3);
+						var _ref71 = _slicedToArray(_ref70, 3);
 
-						var banId = _ref69[0];
-						var bNum = _ref69[1];
-						var bEl = _ref69[2];
+						var banId = _ref71[0];
+						var bNum = _ref71[1];
+						var bEl = _ref71[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -18794,16 +19005,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError34 = true;
-					_iteratorError34 = err;
+					_didIteratorError35 = true;
+					_iteratorError35 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion34 && _iterator34.return) {
-							_iterator34.return();
+						if (!_iteratorNormalCompletion35 && _iterator35.return) {
+							_iterator35.return();
 						}
 					} finally {
-						if (_didIteratorError34) {
-							throw _iteratorError34;
+						if (_didIteratorError35) {
+							throw _iteratorError35;
 						}
 					}
 				}
@@ -18824,9 +19035,9 @@ true, true];
 					var temp = doc.createElement('template');
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
-					var _posts2 = $Q(aib.qRPost, fragm);
-					for (var _i17 = 0, _len11 = _posts2.length; _i17 < _len11; ++_i17) {
-						last = this._addPost(fragm, _posts2[_i17], begin + _i17 + 1, last, maybeVParser);
+					var posts = $Q(aib.qRPost, fragm);
+					for (var _i18 = 0, _len11 = posts.length; _i18 < _len11; ++_i18) {
+						last = this._addPost(fragm, posts[_i18], begin + _i18 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
@@ -19730,9 +19941,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref70) {
-								var newCount = _ref70.newCount,
-								    locked = _ref70.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref72) {
+								var newCount = _ref72.newCount,
+								    locked = _ref72.locked;
 								return _this79._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
 								return _this79._handleNewPosts(0, err);
@@ -20820,16 +21031,16 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref71 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
+					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
 						var _this82 = this;
 
 						var pageInp, query, errFn;
-						return regeneratorRuntime.wrap(function _callee20$(_context27) {
+						return regeneratorRuntime.wrap(function _callee20$(_context29) {
 							while (1) {
-								switch (_context27.prev = _context27.next) {
+								switch (_context29.prev = _context29.next) {
 									case 0:
 										if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-											_context27.next = 5;
+											_context29.next = 5;
 											break;
 										}
 
@@ -20841,13 +21052,13 @@ true, true];
 										} else if (!pageInp) {
 											form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
 										}
-										return _context27.abrupt('return');
+										return _context29.abrupt('return');
 
 									case 5:
 										query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
 										if ($q('input[name="thread"]', form)) {
-											_context27.next = 11;
+											_context29.next = 11;
 											break;
 										}
 
@@ -20855,12 +21066,12 @@ true, true];
 										$each($Q(query, form), function (el) {
 											return _this82._origInputs[0].appendChild(el);
 										});
-										_context27.next = 17;
+										_context29.next = 17;
 										break;
 
 									case 11:
 										if (tNum) {
-											_context27.next = 17;
+											_context29.next = 17;
 											break;
 										}
 
@@ -20868,7 +21079,7 @@ true, true];
 										$delAll(query, form);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
-										return _context27.abrupt('return');
+										return _context29.abrupt('return');
 
 									case 17:
 										errFn = function errFn() {
@@ -20877,7 +21088,7 @@ true, true];
 										};
 
 										$popup('load-form', Lng.loading[lang], true);
-										_context27.next = 21;
+										_context29.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
 											var loadedForm = $q(_this82.qForm, loadedDoc);
 											if (!loadedForm) {
@@ -20894,14 +21105,14 @@ true, true];
 
 									case 21:
 									case 'end':
-										return _context27.stop();
+										return _context29.stop();
 								}
 							}
 						}, _callee20, this);
 					}));
 
 					function changeReplyMode(_x79, _x80) {
-						return _ref71.apply(this, arguments);
+						return _ref73.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20943,9 +21154,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref72) {
-					var error = _ref72.error,
-					    id = _ref72.id;
+				value: function getSubmitData(_ref74) {
+					var error = _ref74.error,
+					    id = _ref74.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -21203,9 +21414,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref73) {
-					var status = _ref73.status,
-					    data = _ref73.data;
+				value: function getSubmitData(_ref75) {
+					var status = _ref75.status,
+					    data = _ref75.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21244,34 +21455,34 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
+					var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
 						var _this87 = this;
 
 						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len17, file, cookieObj, task, url;
 
-						return regeneratorRuntime.wrap(function _callee23$(_context30) {
+						return regeneratorRuntime.wrap(function _callee23$(_context32) {
 							while (1) {
-								switch (_context30.prev = _context30.next) {
+								switch (_context32.prev = _context32.next) {
 									case 0:
 										ajaxParams = void 0;
 
 										if (!this._hasNewAPI) {
-											_context30.next = 5;
+											_context32.next = 5;
 											break;
 										}
 
 										ajaxParams = { data: data, method: 'POST' };
-										_context30.next = 28;
+										_context32.next = 28;
 										break;
 
 									case 5:
 										getBase64 = function () {
-											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
-												return regeneratorRuntime.wrap(function _callee21$(_context28) {
+											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
+												return regeneratorRuntime.wrap(function _callee21$(_context30) {
 													while (1) {
-														switch (_context28.prev = _context28.next) {
+														switch (_context30.prev = _context30.next) {
 															case 0:
-																return _context28.abrupt('return', new Promise(function (resolve, reject) {
+																return _context30.abrupt('return', new Promise(function (resolve, reject) {
 																	var reader = new FileReader();
 																	reader.readAsDataURL(file);
 																	reader.onload = function () {
@@ -21284,14 +21495,14 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context28.stop();
+																return _context30.stop();
 														}
 													}
 												}, _callee21, _this87);
 											}));
 
 											return function getBase64(_x85) {
-												return _ref75.apply(this, arguments);
+												return _ref77.apply(this, arguments);
 											};
 										}();
 
@@ -21309,10 +21520,10 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
-												return regeneratorRuntime.wrap(function _callee22$(_context29) {
+											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
+												return regeneratorRuntime.wrap(function _callee22$(_context31) {
 													while (1) {
-														switch (_context29.prev = _context29.next) {
+														switch (_context31.prev = _context31.next) {
 															case 0:
 																if (key !== 'files') {
 																	dataObj[key] = value;
@@ -21322,53 +21533,53 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context29.stop();
+																return _context31.stop();
 														}
 													}
 												}, _callee22, _this87);
 											}));
 
 											return function (_x86, _x87) {
-												return _ref76.apply(this, arguments);
+												return _ref78.apply(this, arguments);
 											};
 										}());
 										i = 0, _len17 = files.length;
 
 									case 11:
 										if (!(i < _len17)) {
-											_context30.next = 26;
+											_context32.next = 26;
 											break;
 										}
 
 										file = files[i];
 
 										if (!file.type) {
-											_context30.next = 23;
+											_context32.next = 23;
 											break;
 										}
 
-										_context30.t0 = dataObj.files;
-										_context30.t1 = 'data:' + file.type + ';base64,';
-										_context30.next = 18;
+										_context32.t0 = dataObj.files;
+										_context32.t1 = 'data:' + file.type + ';base64,';
+										_context32.next = 18;
 										return getBase64(file).then(function (data) {
 											return data.split(',')[1];
 										});
 
 									case 18:
-										_context30.t2 = _context30.sent;
-										_context30.t3 = _context30.t1 + _context30.t2;
-										_context30.t4 = file.name;
-										_context30.t5 = {
-											content: _context30.t3,
-											name: _context30.t4,
+										_context32.t2 = _context32.sent;
+										_context32.t3 = _context32.t1 + _context32.t2;
+										_context32.t4 = file.name;
+										_context32.t5 = {
+											content: _context32.t3,
+											name: _context32.t4,
 											spoiler: false
 										};
 
-										_context30.t0.push.call(_context30.t0, _context30.t5);
+										_context32.t0.push.call(_context32.t0, _context32.t5);
 
 									case 23:
 										++i;
-										_context30.next = 11;
+										_context32.next = 11;
 										break;
 
 									case 26:
@@ -21391,7 +21602,7 @@ true, true];
 										}
 										task = form.action.split('/').pop();
 										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
-										return _context30.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
+										return _context32.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;
 										}).catch(function (err) {
 											return Promise.reject(err);
@@ -21399,14 +21610,14 @@ true, true];
 
 									case 32:
 									case 'end':
-										return _context30.stop();
+										return _context32.stop();
 								}
 							}
 						}, _callee23, this);
 					}));
 
 					function sendHTML5Post(_x81, _x82, _x83, _x84) {
-						return _ref74.apply(this, arguments);
+						return _ref76.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -21851,9 +22062,9 @@ true, true];
 					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref77 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref77[0],
-						    inp = _ref77[1];
+						var _ref79 = [].concat(_toConsumableArray(box.children)),
+						    _img2 = _ref79[0],
+						    inp = _ref79[1];
 
 						_img2.onclick = function () {
 							return _this92.updateCaptcha(cap);
@@ -22209,8 +22420,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref78) {
-						var id = _ref78.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
+						var id = _ref80.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -22613,9 +22824,9 @@ true, true];
 					var formEl = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					var links = $Q('.expand_image', formEl);
 					for (var i = 0, _len18 = links.length; i < _len18; ++i) {
-						var link = links[i];
-						link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
-						link.removeAttribute('onclick');
+						var _link13 = links[i];
+						_link13.href = _link13.getAttribute('onclick').match(/https?:\/[^']+/)[0];
+						_link13.removeAttribute('onclick');
 					}
 					return formEl;
 				}
@@ -23409,9 +23620,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref79) {
-					var error = _ref79.error,
-					    id = _ref79.id;
+				value: function getSubmitData(_ref81) {
+					var error = _ref81.error,
+					    id = _ref81.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23610,8 +23821,8 @@ true, true];
 			return null;
 		}
 		dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		for (var _i18 = ibEngines.length - 1; _i18 >= 0; --_i18) {
-			var _ibEngines$_i = _slicedToArray(ibEngines[_i18], 2),
+		for (var _i19 = ibEngines.length - 1; _i19 >= 0; --_i19) {
+			var _ibEngines$_i = _slicedToArray(ibEngines[_i19], 2),
 			    path = _ibEngines$_i[0],
 			    Ctor = _ibEngines$_i[1];
 
@@ -23652,8 +23863,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref80) {
-			var arg = _ref80.data;
+		_handleMessage: function _handleMessage(_ref82) {
+			var arg = _ref82.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23666,27 +23877,27 @@ true, true];
 				case 'registerapi':
 					if (data) {
 						rv = {};
-						var _iteratorNormalCompletion35 = true;
-						var _didIteratorError35 = false;
-						var _iteratorError35 = undefined;
+						var _iteratorNormalCompletion36 = true;
+						var _didIteratorError36 = false;
+						var _iteratorError36 = undefined;
 
 						try {
-							for (var _iterator35 = data[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-								var aName = _step35.value;
+							for (var _iterator36 = data[Symbol.iterator](), _step36; !(_iteratorNormalCompletion36 = (_step36 = _iterator36.next()).done); _iteratorNormalCompletion36 = true) {
+								var aName = _step36.value;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
 						} catch (err) {
-							_didIteratorError35 = true;
-							_iteratorError35 = err;
+							_didIteratorError36 = true;
+							_iteratorError36 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion35 && _iterator35.return) {
-									_iterator35.return();
+								if (!_iteratorNormalCompletion36 && _iterator36.return) {
+									_iterator36.return();
 								}
 							} finally {
-								if (_didIteratorError35) {
-									throw _iteratorError35;
+								if (_didIteratorError36) {
+									throw _iteratorError36;
 								}
 							}
 						}
@@ -23716,8 +23927,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref81) {
-			var responseText = _ref81.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref83) {
+			var responseText = _ref83.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;

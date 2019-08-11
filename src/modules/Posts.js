@@ -34,6 +34,17 @@ class AbstractPost {
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
+	*refLinks() {
+		const links = $Q('a', this.msg);
+		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const tc = link.textContent;
+			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
+				continue;
+			}
+			yield [link, lNum];
+		}
+	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
 		Object.defineProperty(this, 'msg', { value, configurable: true });
