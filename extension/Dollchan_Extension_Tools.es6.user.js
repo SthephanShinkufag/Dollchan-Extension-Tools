@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'c58b8f6';
+const commit = 'c02ab2e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6885,9 +6885,16 @@ const AjaxCache = {
 		let hasCacheControl = false;
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
-		for(let header in headers) {
+		for(const idx in headers) {
+			let header = headers[idx];
 			if(typeof header === 'string') { // usual xhr
-				header = header.split(' :');
+				const сIdx = header.indexOf(':');
+				if (сIdx === -1) {
+					continue;
+				}
+				const name = header.substring(0, сIdx);
+				const value = header.substring(сIdx + 2, header.length);
+				header = [name, value];
 			}
 			const hName = header[0].toLowerCase();
 			let matched = true;
