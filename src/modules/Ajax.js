@@ -227,14 +227,15 @@ const AjaxCache = {
 		let hasCacheControl = false;
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
-		for(let header of headers) {
+		for(const idx in headers) {
+			let header = headers[idx];
 			if(typeof header === 'string') { // usual xhr
-				let idx = header.indexOf(':');
-				if (idx === -1) {
+				const сIdx = header.indexOf(':');
+				if (сIdx === -1) {
 					continue;
 				}
-				let name = header.substring(0, idx);
-				let value = header.substring(idx + 2, header.length);
+				const name = header.substring(0, сIdx);
+				const value = header.substring(сIdx + 2, header.length);
 				header = [name, value];
 			}
 			const hName = header[0].toLowerCase();
