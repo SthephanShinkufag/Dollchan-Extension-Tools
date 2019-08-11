@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '50cf24c';
+const commit = 'ea0c6c8';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14256,7 +14256,7 @@ const thrNavPanel = {
 	},
 	_toggleNavPanel(isHide) {
 		this._el.style.display = isHide ? 'none' : 'initial';
-		this._visible = isHide;
+		this._visible = !isHide;
 	}
 };
 

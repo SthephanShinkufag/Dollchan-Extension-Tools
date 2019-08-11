@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '50cf24c';
+	var commit = 'ea0c6c8';
 
 
 	var defaultCfg = {
@@ -19482,7 +19482,7 @@ true, true];
 		},
 		_toggleNavPanel: function _toggleNavPanel(isHide) {
 			this._el.style.display = isHide ? 'none' : 'initial';
-			this._visible = isHide;
+			this._visible = !isHide;
 		}
 	};
 

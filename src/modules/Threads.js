@@ -649,6 +649,6 @@ const thrNavPanel = {
 	},
 	_toggleNavPanel(isHide) {
 		this._el.style.display = isHide ? 'none' : 'initial';
-		this._visible = isHide;
+		this._visible = !isHide;
 	}
 };
