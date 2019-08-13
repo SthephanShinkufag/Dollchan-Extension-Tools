@@ -36,18 +36,8 @@ class Pview extends AbstractPost {
 		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
-		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false).then(pBuilder => {
-			if(!aib.JsonBuilder) {
-				this._onload(pBuilder._form);
-				return;
-			}
-			const html = [];
-			for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-			}
-			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-		}, err => this._onerror(err));
+		// Get post preview via ajax. Always use DOM parsing.
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false).then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -319,10 +309,10 @@ class Pview extends AbstractPost {
 				Lng.postNotFound[lang] : getErrorMessage(err);
 		}
 	}
-	_onload(form) {
+	_onload(pBuilder) {
 		const b = this.brd;
 		const { num } = this.parent;
-		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
+		const post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
@@ -398,17 +388,21 @@ Pview.top = null;
 Pview._delTO = null;
 
 class CacheItem {
-	constructor(el, count) {
+	constructor(pBuilder, thrUrl, count) {
+		this._pBuilder = pBuilder;
+		this._thrUrl = thrUrl;
 		this.count = count;
-		this.el = el;
 		this.isDeleted = false;
 		this.isInited = false;
 		this.isOp = count === 0;
 		this.isViewed = false;
 	}
+	*refLinks() {
+		yield* this._pBuilder.getRefLinks(this.count, this._thrUrl);
+	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { value, configurable: true });
+		Object.defineProperty(this, 'msg', { value });
 		return value;
 	}
 	get ref() {
@@ -424,48 +418,54 @@ class CacheItem {
 	get title() {
 		return new Post.Сontent(this).title;
 	}
+	get el() {
+		let value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
+		Object.defineProperty(this, 'el', { value });
+		return value;
+	}
+	get thr() {
+		let value = null;
+		if (this.isOp) {
+			const pcount = this._pBuilder.length;
+			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
+			Object.defineProperty(value, 'title', { get: () => this.title });
+		}
+		Object.defineProperty(this, 'thr', { value });
+		return value;
+	}
 }
 
 class PviewsCache extends TemporaryContent {
-	constructor(form, b, tNum) {
+	constructor(pBuilder, b, tNum) {
 		super(b + tNum);
 		if(this._isInited) {
 			return;
 		}
 		this._isInited = true;
-		const pByNum = new Map();
-		const thr = $q(aib.qThread, form) || form;
-		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-		const pcount = posts.length;
-		for(let i = 0; i < pcount; ++i) {
-			const post = posts[i];
-			pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
+		const lPByNum = new Map();
+		const thrUrl = aib.getThrUrl(b, tNum);
+		lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
+		for(let i = 0; i < pBuilder.length; ++i) {
+			lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 		}
-		this._opObj = new CacheItem(aib.getOp(thr), 0);
-		this._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount, title: this._opObj.title };
-		pByNum.set(tNum, this._opObj);
+		DelForm.tNums.add(tNum)
 		this._b = b;
-		this._tNum = tNum;
-		this._tUrl = aib.getThrUrl(b, tNum);
-		this._posts = pByNum;
+		this._posts = lPByNum;
 		if(Cfg.linksNavig) {
-			RefMap.gen(pByNum, this._tUrl);
+			RefMap.gen(lPByNum);
 		}
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.isInited) {
-			return post;
+		if (post && !post.isInited) {
+			if(this._b === aib.b && pByNum.has(num)) {
+				post.ref.makeUnion(pByNum.get(num).ref);
+			}
+			if(post.ref.hasMap) {
+				post.ref.initPostRef(post._thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+			}
+			post.isInited = true;
 		}
-		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-			post.ref.makeUnion(pByNum.get(this._tNum).ref);
-		}
-		post.el = aib.fixHTML(post.el);
-		delete post.msg;
-		if(post.ref.hasMap) {
-			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
-		}
-		post.isInited = true;
 		return post;
 	}
 }

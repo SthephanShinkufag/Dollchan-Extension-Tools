@@ -19,8 +19,29 @@ class DOMPostsBuilder {
 	getPNum(i) {
 		return aib.getPNum(this._posts[i]);
 	}
+	getOpEl() {
+		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+	}
 	getPostEl(i) {
-		return aib.fixHTML(this._posts[i]);
+		return aib.fixHTML(doc.adoptNode(this._posts[i]));
+	}
+	*getRefLinks(i, thrUrl) { // i === 0 - OP-post
+		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
+		const links = $Q('a', msg);
+		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const tc = link.textContent;
+			if(tc[0] === '>' && tc[1] === '>') {
+				let lNum = parseInt(tc.substr(2), 10);
+				if (lNum) {
+					yield [link, lNum];
+					const url = link.getAttribute('href');
+					if(url[0] === '#') {
+						link.setAttribute('href', thrUrl + url);
+					}
+				}
+			}
+		}
 	}
 	* bannedPostsData() {
 		const banEls = $Q(aib.qBan, this._form);
@@ -57,6 +78,9 @@ class _4chanPostsBuilder {
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
+	}
+	getOpEl() {
+		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -208,8 +232,15 @@ class DobrochanPostsBuilder {
 	getPNum(i) {
 		return this._posts[i + 1].display_id;
 	}
+	getOpEl() {
+		return this.getPostEl(-1);
+	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+		const el = $add(aib.fixHTML(this.getPostHTML(i)));
+		if (i == -1) {
+			return el;
+		}
+		return el.firstElementChild.firstElementChild.lastElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -310,6 +341,9 @@ class MakabaPostsBuilder {
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
+	}
+	getOpEl() {
+		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'c02ab2e';
+const commit = 'e726631';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6941,8 +6941,8 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
-function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.JsonBuilder) {
+function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
+	if(useJson && aib.JsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
@@ -10271,6 +10271,17 @@ class AbstractPost {
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
+	*refLinks() {
+		const links = $Q('a', this.msg);
+		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const tc = link.textContent;
+			if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
+				continue;
+			}
+			yield [link, lNum];
+		}
+	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
 		Object.defineProperty(this, 'msg', { value, configurable: true });
@@ -11290,18 +11301,8 @@ class Pview extends AbstractPost {
 		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
-		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false).then(pBuilder => {
-			if(!aib.JsonBuilder) {
-				this._onload(pBuilder._form);
-				return;
-			}
-			const html = [];
-			for(let i = 0, len = pBuilder.length + 1; i < len; ++i) {
-				html.push(pBuilder.getPostHTML(i - 1)); // pBuilder.getPostHTML(-1) is oppost
-			}
-			this._onload($add(`<div>${ aib.fixHTML(html.join('')) }</div>`));
-		}, err => this._onerror(err));
+		// Get post preview via ajax. Always use DOM parsing.
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false).then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -11573,10 +11574,10 @@ class Pview extends AbstractPost {
 				Lng.postNotFound[lang] : getErrorMessage(err);
 		}
 	}
-	_onload(form) {
+	_onload(pBuilder) {
 		const b = this.brd;
 		const { num } = this.parent;
-		const post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
+		const post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
 		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
@@ -11652,17 +11653,21 @@ Pview.top = null;
 Pview._delTO = null;
 
 class CacheItem {
-	constructor(el, count) {
+	constructor(pBuilder, thrUrl, count) {
+		this._pBuilder = pBuilder;
+		this._thrUrl = thrUrl;
 		this.count = count;
-		this.el = el;
 		this.isDeleted = false;
 		this.isInited = false;
 		this.isOp = count === 0;
 		this.isViewed = false;
 	}
+	*refLinks() {
+		yield* this._pBuilder.getRefLinks(this.count, this._thrUrl);
+	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
-		Object.defineProperty(this, 'msg', { value, configurable: true });
+		Object.defineProperty(this, 'msg', { value });
 		return value;
 	}
 	get ref() {
@@ -11678,48 +11683,54 @@ class CacheItem {
 	get title() {
 		return new Post.Сontent(this).title;
 	}
+	get el() {
+		let value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
+		Object.defineProperty(this, 'el', { value });
+		return value;
+	}
+	get thr() {
+		let value = null;
+		if (this.isOp) {
+			const pcount = this._pBuilder.length;
+			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
+			Object.defineProperty(value, 'title', { get: () => this.title });
+		}
+		Object.defineProperty(this, 'thr', { value });
+		return value;
+	}
 }
 
 class PviewsCache extends TemporaryContent {
-	constructor(form, b, tNum) {
+	constructor(pBuilder, b, tNum) {
 		super(b + tNum);
 		if(this._isInited) {
 			return;
 		}
 		this._isInited = true;
-		const pByNum = new Map();
-		const thr = $q(aib.qThread, form) || form;
-		const posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-		const pcount = posts.length;
-		for(let i = 0; i < pcount; ++i) {
-			const post = posts[i];
-			pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
+		const lPByNum = new Map();
+		const thrUrl = aib.getThrUrl(b, tNum);
+		lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
+		for(let i = 0; i < pBuilder.length; ++i) {
+			lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 		}
-		this._opObj = new CacheItem(aib.getOp(thr), 0);
-		this._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount, title: this._opObj.title };
-		pByNum.set(tNum, this._opObj);
+		DelForm.tNums.add(tNum)
 		this._b = b;
-		this._tNum = tNum;
-		this._tUrl = aib.getThrUrl(b, tNum);
-		this._posts = pByNum;
+		this._posts = lPByNum;
 		if(Cfg.linksNavig) {
-			RefMap.gen(pByNum, this._tUrl);
+			RefMap.gen(lPByNum);
 		}
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.isInited) {
-			return post;
+		if (post && !post.isInited) {
+			if(this._b === aib.b && pByNum.has(num)) {
+				post.ref.makeUnion(pByNum.get(num).ref);
+			}
+			if(post.ref.hasMap) {
+				post.ref.initPostRef(post._thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+			}
+			post.isInited = true;
 		}
-		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-			post.ref.makeUnion(pByNum.get(this._tNum).ref);
-		}
-		post.el = aib.fixHTML(post.el);
-		delete post.msg;
-		if(post.ref.hasMap) {
-			post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
-		}
-		post.isInited = true;
 		return post;
 	}
 }
@@ -12830,8 +12841,29 @@ class DOMPostsBuilder {
 	getPNum(i) {
 		return aib.getPNum(this._posts[i]);
 	}
+	getOpEl() {
+		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+	}
 	getPostEl(i) {
-		return aib.fixHTML(this._posts[i]);
+		return aib.fixHTML(doc.adoptNode(this._posts[i]));
+	}
+	*getRefLinks(i, thrUrl) { // i === 0 - OP-post
+		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
+		const links = $Q('a', msg);
+		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+			const link = links[i];
+			const tc = link.textContent;
+			if(tc[0] === '>' && tc[1] === '>') {
+				let lNum = parseInt(tc.substr(2), 10);
+				if (lNum) {
+					yield [link, lNum];
+					const url = link.getAttribute('href');
+					if(url[0] === '#') {
+						link.setAttribute('href', thrUrl + url);
+					}
+				}
+			}
+		}
 	}
 	* bannedPostsData() {
 		const banEls = $Q(aib.qBan, this._form);
@@ -12868,6 +12900,9 @@ class _4chanPostsBuilder {
 	}
 	getPNum(i) {
 		return this._posts[i + 1].no;
+	}
+	getOpEl() {
+		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).lastElementChild;
@@ -13019,8 +13054,15 @@ class DobrochanPostsBuilder {
 	getPNum(i) {
 		return this._posts[i + 1].display_id;
 	}
+	getOpEl() {
+		return this.getPostEl(-1);
+	}
 	getPostEl(i) {
-		return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+		const el = $add(aib.fixHTML(this.getPostHTML(i)));
+		if (i == -1) {
+			return el;
+		}
+		return el.firstElementChild.firstElementChild.lastElementChild;
 	}
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
@@ -13121,6 +13163,9 @@ class MakabaPostsBuilder {
 	}
 	getPNum(i) {
 		return this._posts[i + 1].num;
+	}
+	getOpEl() {
+		return this.getPostEl(-1);
 	}
 	getPostEl(i) {
 		return $add(aib.fixHTML(this.getPostHTML(i))).firstElementChild;
@@ -13273,21 +13318,18 @@ class RefMap {
 		this._post = post;
 		this._set = new Set();
 	}
-	static gen(posts, thrURL) {
+	static gen(posts) {
 		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
-			const links = $Q('a', post.msg);
-			for(let lNum, i = 0, len = links.length; i < len; ++i) {
-				const link = links[i];
-				const tc = link.textContent;
-				if(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
-					continue;
-				}
+			for (const [link, lNum] of post.refLinks()) { // link might be from another document
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-you');
-					if(!MyPosts.has(pNum)) {
+					if(!MyPosts.has(pNum) && (post instanceof AbstractPost)) {
 						post.el.classList.add('de-mypost-reply');
 					}
+				}
+				if(!aib.hasOPNum && tNums.has(lNum)) {
+					link.classList.add('de-ref-op');
 				}
 				if(!posts.has(lNum)) {
 					continue;
@@ -13299,22 +13341,13 @@ class RefMap {
 					ref._set.add(pNum);
 					ref.hasMap = true;
 				}
-				if(!aib.hasOPNum && tNums.has(lNum)) {
-					link.classList.add('de-ref-op');
-				}
-				if(thrURL) {
-					const url = link.getAttribute('href');
-					if(url[0] === '#') {
-						link.setAttribute('href', thrURL + url);
-					}
-				}
 			}
 		}
 	}
 	static initRefMap(form) {
 		let post = form.firstThr && form.firstThr.op;
 		if(post && Cfg.linksNavig) {
-			this.gen(pByNum, '');
+			this.gen(pByNum);
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 			for(; post; post = post.next) {
 				if(post.ref.hasMap) {
@@ -13372,7 +13405,7 @@ class RefMap {
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.isHidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden && (post instanceof Post)) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}
@@ -14135,7 +14168,7 @@ const thrNavPanel = {
 	},
 	_toggleNavPanel(isHide) {
 		this._el.style.display = isHide ? 'none' : 'initial';
-		this._visible = isHide;
+		this._visible = !isHide;
 	}
 };
 

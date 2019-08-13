@@ -3474,7 +3474,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee16, this);
 		}));
 
-		return function checkDelete(_x46) {
+		return function checkDelete(_x47) {
 			return _ref41.apply(this, arguments);
 		};
 	}();
@@ -3633,80 +3633,80 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee17, this, [[5, 41, 45, 53], [46,, 48, 52]]);
 		}));
 
-		return function html5Submit(_x48, _x49) {
+		return function html5Submit(_x49, _x50) {
 			return _ref44.apply(this, arguments);
 		};
 	}();
 
 	var runMain = function () {
-		var _ref82 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref83, _ref84, favObj, storageName, firstThr;
+		var _ref84 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref85, _ref86, favObj, storageName, firstThr;
 
-			return regeneratorRuntime.wrap(function _callee24$(_context31) {
+			return regeneratorRuntime.wrap(function _callee24$(_context34) {
 				while (1) {
-					switch (_context31.prev = _context31.next) {
+					switch (_context34.prev = _context34.next) {
 						case 0:
 							Logger.initLogger();
 
 							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-								_context31.next = 3;
+								_context34.next = 3;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 3:
 							formEl = $q(aib.qDForm + ', form[de-form]');
 
 							if (formEl) {
-								_context31.next = 7;
+								_context34.next = 7;
 								break;
 							}
 
 							runFrames();
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 7:
 							if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-								_context31.next = 9;
+								_context34.next = 9;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 9:
 							Logger.log('Imageboard check');
 
 							if (locStorage) {
-								_context31.next = 14;
+								_context34.next = 14;
 								break;
 							}
 
 							if (checkStorage()) {
-								_context31.next = 13;
+								_context34.next = 13;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 13:
 							initNavFuncs();
 
 						case 14:
-							_context31.next = 16;
+							_context34.next = 16;
 							return dataPromise || readData();
 
 						case 16:
-							_ref83 = _context31.sent;
-							_ref84 = _slicedToArray(_ref83, 1);
-							favObj = _ref84[0];
+							_ref85 = _context34.sent;
+							_ref86 = _slicedToArray(_ref85, 1);
+							favObj = _ref86[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
-								_context31.next = 21;
+								_context34.next = 21;
 								break;
 							}
 
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 21:
 							docBody.classList.add('de-runned');
@@ -3714,13 +3714,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context31.next = 28;
+								_context34.next = 28;
 								break;
 							}
 
 							Panel.initPanel(formEl);
 							scriptCSS();
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 28:
 							if ('toJSON' in aProto) {
@@ -3757,22 +3757,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context31.prev = 43;
+							_context34.prev = 43;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context31.next = 53;
+							_context34.next = 53;
 							break;
 
 						case 48:
-							_context31.prev = 48;
-							_context31.t0 = _context31['catch'](43);
+							_context34.prev = 48;
+							_context34.t0 = _context34['catch'](43);
 
-							console.error('Delform parsing error:', getErrorMessage(_context31.t0));
+							console.error('Delform parsing error:', getErrorMessage(_context34.t0));
 							$show(docBody);
-							return _context31.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 53:
 							Logger.log('Parse delform');
@@ -3823,21 +3823,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 80:
 						case 'end':
-							return _context31.stop();
+							return _context34.stop();
 					}
 				}
 			}, _callee24, this, [[43, 48]]);
 		}));
 
-		return function runMain(_x88, _x89) {
-			return _ref82.apply(this, arguments);
+		return function runMain(_x89, _x90) {
+			return _ref84.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'c02ab2e';
+	var commit = 'e726631';
 
 
 	var defaultCfg = {
@@ -10097,7 +10097,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function ajaxPostsLoad(brd, tNum, useCache) {
-		if (aib.JsonBuilder) {
+		var useJson = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+		if (useJson && aib.JsonBuilder) {
 			return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(function (xhr) {
 				try {
 					return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
@@ -10218,7 +10220,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}, _callee12, _this23);
 				}));
 
-				return function (_x37) {
+				return function (_x38) {
 					return _ref25.apply(this, arguments);
 				};
 			}()).then(function () {
@@ -10380,7 +10382,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee13, this, [[13, 27, 31, 39], [32,, 34, 38], [42, 51]]);
 			}));
 
-			function loadPages(_x38) {
+			function loadPages(_x39) {
 				return _ref26.apply(this, arguments);
 			}
 
@@ -10439,7 +10441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee14, this);
 			}));
 
-			function _updateForms(_x39) {
+			function _updateForms(_x40) {
 				return _ref27.apply(this, arguments);
 			}
 
@@ -11894,7 +11896,7 @@ true, true];
 					}, _callee15, this, [[3, 21, 25, 33], [26,, 28, 32]]);
 				}));
 
-				function _ihash(_x41) {
+				function _ihash(_x42) {
 					return _ref36.apply(this, arguments);
 				}
 
@@ -14432,6 +14434,49 @@ true, true];
 		}
 
 		_createClass(AbstractPost, [{
+			key: 'refLinks',
+			value: regeneratorRuntime.mark(function refLinks() {
+				var links, lNum, i, len, link, tc;
+				return regeneratorRuntime.wrap(function refLinks$(_context21) {
+					while (1) {
+						switch (_context21.prev = _context21.next) {
+							case 0:
+								links = $Q('a', this.msg);
+								i = 0, len = links.length;
+
+							case 2:
+								if (!(i < len)) {
+									_context21.next = 12;
+									break;
+								}
+
+								link = links[i];
+								tc = link.textContent;
+
+								if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
+									_context21.next = 7;
+									break;
+								}
+
+								return _context21.abrupt('continue', 9);
+
+							case 7:
+								_context21.next = 9;
+								return [link, lNum];
+
+							case 9:
+								++i;
+								_context21.next = 2;
+								break;
+
+							case 12:
+							case 'end':
+								return _context21.stop();
+						}
+					}
+				}, refLinks, this);
+			})
+		}, {
 			key: 'addFuncs',
 			value: function addFuncs() {
 				RefMap.updateRefMap(this, true);
@@ -15659,16 +15704,8 @@ true, true];
 			}
 			_this53._showPview(_this53.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false).then(function (pBuilder) {
-				if (!aib.JsonBuilder) {
-					_this53._onload(pBuilder._form);
-					return;
-				}
-				var html = [];
-				for (var i = 0, len = pBuilder.length + 1; i < len; ++i) {
-					html.push(pBuilder.getPostHTML(i - 1)); 
-				}
-				_this53._onload($add('<div>' + aib.fixHTML(html.join('')) + '</div>'));
+			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false, false).then(function (pBuilder) {
+				return _this53._onload(pBuilder);
 			}, function (err) {
 				return _this53._onerror(err);
 			});
@@ -15800,9 +15837,9 @@ true, true];
 			value: function () {
 				var _ref52 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(post) {
 					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
-					return regeneratorRuntime.wrap(function _callee18$(_context21) {
+					return regeneratorRuntime.wrap(function _callee18$(_context22) {
 						while (1) {
-							switch (_context21.prev = _context21.next) {
+							switch (_context22.prev = _context22.next) {
 								case 0:
 									$del(this.el);
 									num = this.num;
@@ -15823,52 +15860,52 @@ true, true];
 									this._link.classList.add('de-link-parent');
 									isOp = this.isOp;
 									f = void 0;
-									_context21.t0 = isOp;
+									_context22.t0 = isOp;
 
-									if (!_context21.t0) {
-										_context21.next = 28;
+									if (!_context22.t0) {
+										_context22.next = 28;
 										break;
 									}
 
-									_context21.t1 = post.thr.isFav;
+									_context22.t1 = post.thr.isFav;
 
-									if (_context21.t1) {
-										_context21.next = 27;
+									if (_context22.t1) {
+										_context22.next = 27;
 										break;
 									}
 
-									_context21.next = 19;
+									_context22.next = 19;
 									return readFavorites();
 
 								case 19:
-									_context21.t4 = aib.host;
-									_context21.t3 = f = _context21.sent[_context21.t4];
+									_context22.t4 = aib.host;
+									_context22.t3 = f = _context22.sent[_context22.t4];
 
-									if (!_context21.t3) {
-										_context21.next = 23;
+									if (!_context22.t3) {
+										_context22.next = 23;
 										break;
 									}
 
-									_context21.t3 = f = f[this.brd];
+									_context22.t3 = f = f[this.brd];
 
 								case 23:
-									_context21.t2 = _context21.t3;
+									_context22.t2 = _context22.t3;
 
-									if (!_context21.t2) {
-										_context21.next = 26;
+									if (!_context22.t2) {
+										_context22.next = 26;
 										break;
 									}
 
-									_context21.t2 = num in f;
+									_context22.t2 = num in f;
 
 								case 26:
-									_context21.t1 = _context21.t2;
+									_context22.t1 = _context22.t2;
 
 								case 27:
-									_context21.t0 = _context21.t1;
+									_context22.t0 = _context22.t1;
 
 								case 28:
-									isFav = _context21.t0;
+									isFav = _context22.t0;
 									isCached = post instanceof CacheItem;
 									pCountHtml = (post.isDeleted ? ' de-post-counter-deleted">' + Lng.deleted[lang] + '</span>' : '">' + (isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached)) + '</span>') + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
 									pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? '<svg class="' + (isFav ? 'de-btn-fav-sel' : 'de-btn-fav') + '">' + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
@@ -15927,13 +15964,13 @@ true, true];
 
 								case 35:
 								case 'end':
-									return _context21.stop();
+									return _context22.stop();
 							}
 						}
 					}, _callee18, this);
 				}));
 
-				function _buildPview(_x60) {
+				function _buildPview(_x61) {
 					return _ref52.apply(this, arguments);
 				}
 
@@ -15948,11 +15985,11 @@ true, true];
 			}
 		}, {
 			key: '_onload',
-			value: function _onload(form) {
+			value: function _onload(pBuilder) {
 				var b = this.brd;
 				var num = this.parent.num;
 
-				var post = new PviewsCache(doc.adoptNode(form), b, this.tNum).getPost(this.num);
+				var post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
 				if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
 					(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', '<a class="de-link-backref" href="' + (aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num) + '">&gt;&gt;' + (aib.b === b ? '' : '/' + aib.b + '/') + num + '</a><span class="de-refcomma">, </span>');
 				}
@@ -16133,11 +16170,12 @@ true, true];
 	Pview._delTO = null;
 
 	var CacheItem = function () {
-		function CacheItem(el, count) {
+		function CacheItem(pBuilder, thrUrl, count) {
 			_classCallCheck(this, CacheItem);
 
+			this._pBuilder = pBuilder;
+			this._thrUrl = thrUrl;
 			this.count = count;
-			this.el = el;
 			this.isDeleted = false;
 			this.isInited = false;
 			this.isOp = count === 0;
@@ -16145,10 +16183,26 @@ true, true];
 		}
 
 		_createClass(CacheItem, [{
+			key: 'refLinks',
+			value: regeneratorRuntime.mark(function refLinks() {
+				return regeneratorRuntime.wrap(function refLinks$(_context23) {
+					while (1) {
+						switch (_context23.prev = _context23.next) {
+							case 0:
+								return _context23.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), 't0', 1);
+
+							case 1:
+							case 'end':
+								return _context23.stop();
+						}
+					}
+				}, refLinks, this);
+			})
+		}, {
 			key: 'msg',
 			get: function get() {
 				var value = $q(aib.qPostMsg, this.el);
-				Object.defineProperty(this, 'msg', { value: value, configurable: true });
+				Object.defineProperty(this, 'msg', { value: value });
 				return value;
 			}
 		}, {
@@ -16170,6 +16224,29 @@ true, true];
 			get: function get() {
 				return new Post.Сontent(this).title;
 			}
+		}, {
+			key: 'el',
+			get: function get() {
+				var value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
+				Object.defineProperty(this, 'el', { value: value });
+				return value;
+			}
+		}, {
+			key: 'thr',
+			get: function get() {
+				var _this56 = this;
+
+				var value = null;
+				if (this.isOp) {
+					var pcount = this._pBuilder.length;
+					value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount: pcount };
+					Object.defineProperty(value, 'title', { get: function get() {
+							return _this56.title;
+						} });
+				}
+				Object.defineProperty(this, 'thr', { value: value });
+				return value;
+			}
 		}]);
 
 		return CacheItem;
@@ -16178,52 +16255,43 @@ true, true];
 	var PviewsCache = function (_TemporaryContent2) {
 		_inherits(PviewsCache, _TemporaryContent2);
 
-		function PviewsCache(form, b, tNum) {
+		function PviewsCache(pBuilder, b, tNum) {
 			_classCallCheck(this, PviewsCache);
 
-			var _this56 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
+			var _this57 = _possibleConstructorReturn(this, (PviewsCache.__proto__ || Object.getPrototypeOf(PviewsCache)).call(this, b + tNum));
 
-			if (_this56._isInited) {
-				return _possibleConstructorReturn(_this56);
+			if (_this57._isInited) {
+				return _possibleConstructorReturn(_this57);
 			}
-			_this56._isInited = true;
-			var pByNum = new Map();
-			var thr = $q(aib.qThread, form) || form;
-			var posts = $Q(aib.qRPost + ', ' + aib.qOPost, thr);
-			var pcount = posts.length;
-			for (var i = 0; i < pcount; ++i) {
-				var post = posts[i];
-				pByNum.set(aib.getPNum(post), new CacheItem(post, i + 1));
+			_this57._isInited = true;
+			var lPByNum = new Map();
+			var thrUrl = aib.getThrUrl(b, tNum);
+			lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
+			for (var i = 0; i < pBuilder.length; ++i) {
+				lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 			}
-			_this56._opObj = new CacheItem(aib.getOp(thr), 0);
-			_this56._opObj.thr = { lastNum: aib.getPNum(posts[pcount - 1]), pcount: pcount, title: _this56._opObj.title };
-			pByNum.set(tNum, _this56._opObj);
-			_this56._b = b;
-			_this56._tNum = tNum;
-			_this56._tUrl = aib.getThrUrl(b, tNum);
-			_this56._posts = pByNum;
+			DelForm.tNums.add(tNum);
+			_this57._b = b;
+			_this57._posts = lPByNum;
 			if (Cfg.linksNavig) {
-				RefMap.gen(pByNum, _this56._tUrl);
+				RefMap.gen(lPByNum);
 			}
-			return _this56;
+			return _this57;
 		}
 
 		_createClass(PviewsCache, [{
 			key: 'getPost',
 			value: function getPost(num) {
 				var post = this._posts.get(num);
-				if (!post || post.isInited) {
-					return post;
+				if (post && !post.isInited) {
+					if (this._b === aib.b && pByNum.has(num)) {
+						post.ref.makeUnion(pByNum.get(num).ref);
+					}
+					if (post.ref.hasMap) {
+						post.ref.initPostRef(post._thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+					}
+					post.isInited = true;
 				}
-				if (num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-					post.ref.makeUnion(pByNum.get(this._tNum).ref);
-				}
-				post.el = aib.fixHTML(post.el);
-				delete post.msg;
-				if (post.ref.hasMap) {
-					post.ref.initPostRef(this._tUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
-				}
-				post.isInited = true;
 				return post;
 			}
 		}]);
@@ -16333,11 +16401,11 @@ true, true];
 		}, {
 			key: '_setHideTmt',
 			value: function _setHideTmt() {
-				var _this57 = this;
+				var _this58 = this;
 
 				clearTimeout(this._hideTmt);
 				this._hideTmt = setTimeout(function () {
-					return _this57.hideBtns();
+					return _this58.hideBtns();
 				}, 2e3);
 			}
 		}]);
@@ -16588,7 +16656,7 @@ true, true];
 		}, {
 			key: '_showFullImg',
 			value: function _showFullImg(data) {
-				var _this58 = this;
+				var _this59 = this;
 
 				var _data$computeFullSize3 = data.computeFullSize(),
 				    _data$computeFullSize4 = _slicedToArray(_data$computeFullSize3, 3),
@@ -16597,9 +16665,9 @@ true, true];
 				    minSize = _data$computeFullSize4[2];
 
 				this._fullEl = data.getFullImg(false, function (el) {
-					return _this58._resizeFullImg(el);
+					return _this59._resizeFullImg(el);
 				}, function (el) {
-					return _this58._rotateFullImg(el);
+					return _this59._rotateFullImg(el);
 				});
 				this._width = width;
 				this._height = height;
@@ -16691,16 +16759,16 @@ true, true];
 		}, {
 			key: 'checkForRedirect',
 			value: function checkForRedirect(fullEl) {
-				var _this59 = this;
+				var _this60 = this;
 
 				if (!aib.getImgRedirectSrc || this.redirected) {
 					return;
 				}
 				aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-					_this59.redirected = true;
-					Object.defineProperty(_this59, 'src', { value: newSrc });
-					$q('img, video', fullEl).src = _this59.el.src = _this59.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(_this59.el)).href = newSrc;
-					if (!_this59.isVideo) {
+					_this60.redirected = true;
+					Object.defineProperty(_this60, 'src', { value: newSrc });
+					$q('img, video', fullEl).src = _this60.el.src = _this60.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(_this60.el)).href = newSrc;
+					if (!_this60.isVideo) {
 						$q('a', fullEl).href = newSrc;
 					}
 				});
@@ -16783,7 +16851,7 @@ true, true];
 		}, {
 			key: 'expandImg',
 			value: function expandImg(inPost, e) {
-				var _this60 = this;
+				var _this61 = this;
 
 				if (e && !e.bubbles) {
 					return;
@@ -16813,7 +16881,7 @@ true, true];
 				(aib.hasPicWrap ? this._getImageParent : el.parentNode).insertAdjacentHTML('afterend', '<div class="de-fullimg-after"></div>');
 				this._fullEl = this.getFullImg(true, null, null);
 				this._fullEl.addEventListener('click', function (e) {
-					return _this60.collapseImg(e);
+					return _this61.collapseImg(e);
 				}, true);
 				this.srcBtnEvents(this);
 				$hide(el.parentNode);
@@ -16853,7 +16921,7 @@ true, true];
 		}, {
 			key: 'getFullImg',
 			value: function getFullImg(inPost, onsizechange, onrotate) {
-				var _this61 = this;
+				var _this62 = this;
 
 				var wrapEl = void 0,
 				    name = void 0,
@@ -16887,10 +16955,10 @@ true, true];
 						var newW = img.naturalWidth,
 						    newH = img.naturalHeight;
 
-						var ar = _this61._size ? _this61._size[1] / _this61._size[0] : newH / newW;
+						var ar = _this62._size ? _this62._size[1] / _this62._size[0] : newH / newW;
 						var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
-						if (!_this61._size || isRotated) {
-							_this61._size = isRotated ? [newH, newW] : [newW, newH];
+						if (!_this62._size || isRotated) {
+							_this62._size = isRotated ? [newH, newW] : [newW, newH];
 						}
 						var parentEl = img.parentNode.parentNode;
 						var waitEl = $q('.de-fullimg-load', parentEl);
@@ -16939,7 +17007,7 @@ true, true];
 					videoEl.addEventListener('loadedmetadata', function (_ref56) {
 						var el = _ref56.target;
 
-						_this61._size = [el.videoWidth, el.videoHeight];
+						_this62._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
 					});
 				}
@@ -16982,7 +17050,7 @@ true, true];
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
-						_this61.el.setAttribute('de-metatitle', loadedTitle);
+						_this62.el.setAttribute('de-metatitle', loadedTitle);
 						if (str) {
 							$q('.de-fullimg-link', wrapEl).textContent += ' - ' + (videoEl.title = loadedTitle.replace(/\./g, ' '));
 						}
@@ -17019,7 +17087,7 @@ true, true];
 		}, {
 			key: 'srcBtnEvents',
 			value: function srcBtnEvents(_ref58) {
-				var _this62 = this;
+				var _this63 = this;
 
 				var _fullEl = _ref58._fullEl;
 
@@ -17029,11 +17097,11 @@ true, true];
 				var srcBtnEl = $q('.de-btn-src', _fullEl);
 				srcBtnEl.addEventListener('mouseover', function () {
 					return srcBtnEl.odelay = setTimeout(function () {
-						var menuHtml = !_this62.isVideo ? Menu.getMenuImgSrc(srcBtnEl) : '<span class="de-menu-item">' + Lng.getFrameLinks[lang] + '</span>';
-						new Menu(srcBtnEl, menuHtml, !_this62.isVideo ? emptyFn : function (optiontEl) {
+						var menuHtml = !_this63.isVideo ? Menu.getMenuImgSrc(srcBtnEl) : '<span class="de-menu-item">' + Lng.getFrameLinks[lang] + '</span>';
+						new Menu(srcBtnEl, menuHtml, !_this63.isVideo ? emptyFn : function (optiontEl) {
 							ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
 								$popup('upload', Lng.sending[lang], true);
-								var name = _this62.name.substring(0, _this62.name.lastIndexOf('.')) + '.png';
+								var name = _this63.name.substring(0, _this63.name.lastIndexOf('.')) + '.png';
 								var blob = new Blob([arr], { type: 'image/png' });
 								var formData = void 0;
 								if (!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
@@ -17387,29 +17455,29 @@ true, true];
 		},
 		_getHashHelper: function () {
 			var _ref62 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(_ref61) {
-				var _this65 = this;
+				var _this66 = this;
 
 				var el = _ref61.el,
 				    src = _ref61.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
-				return regeneratorRuntime.wrap(function _callee19$(_context22) {
+				return regeneratorRuntime.wrap(function _callee19$(_context24) {
 					while (1) {
-						switch (_context22.prev = _context22.next) {
+						switch (_context24.prev = _context24.next) {
 							case 0:
 								if (!(src in this._storage)) {
-									_context22.next = 2;
+									_context24.next = 2;
 									break;
 								}
 
-								return _context22.abrupt('return', this._storage[src]);
+								return _context24.abrupt('return', this._storage[src]);
 
 							case 2:
 								if (el.complete) {
-									_context22.next = 5;
+									_context24.next = 5;
 									break;
 								}
 
-								_context22.next = 5;
+								_context24.next = 5;
 								return new Promise(function (resolve) {
 									return el.addEventListener('load', function () {
 										return resolve();
@@ -17418,31 +17486,31 @@ true, true];
 
 							case 5:
 								if (!(el.naturalWidth + el.naturalHeight === 0)) {
-									_context22.next = 7;
+									_context24.next = 7;
 									break;
 								}
 
-								return _context22.abrupt('return', -1);
+								return _context24.abrupt('return', -1);
 
 							case 7:
 								data = void 0, buffer = void 0, val = -1;
 								w = el.naturalWidth, h = el.naturalHeight;
 
 								if (!aib._4chan) {
-									_context22.next = 16;
+									_context24.next = 16;
 									break;
 								}
 
-								_context22.next = 12;
+								_context24.next = 12;
 								return ContentLoader.loadImgData(el.src);
 
 							case 12:
-								imgData = _context22.sent;
+								imgData = _context24.sent;
 
 								if (imgData) {
 									buffer = imgData.buffer;
 								}
-								_context22.next = 22;
+								_context24.next = 22;
 								break;
 
 							case 16:
@@ -17457,19 +17525,19 @@ true, true];
 
 							case 22:
 								if (!buffer) {
-									_context22.next = 27;
+									_context24.next = 27;
 									break;
 								}
 
-								_context22.next = 25;
+								_context24.next = 25;
 								return new Promise(function (resolve) {
-									return _this65._workers.runWorker([buffer, w, h], [buffer], function (val) {
+									return _this66._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
 
 							case 25:
-								data = _context22.sent;
+								data = _context24.sent;
 
 								if (data && 'hash' in data) {
 									val = data.hash;
@@ -17477,17 +17545,17 @@ true, true];
 
 							case 27:
 								this._storage[src] = val;
-								return _context22.abrupt('return', val);
+								return _context24.abrupt('return', val);
 
 							case 29:
 							case 'end':
-								return _context22.stop();
+								return _context24.stop();
 						}
 					}
 				}, _callee19, this);
 			}));
 
-			function _getHashHelper(_x62) {
+			function _getHashHelper(_x63) {
 				return _ref62.apply(this, arguments);
 			}
 
@@ -17507,9 +17575,9 @@ true, true];
 			if (parent instanceof AbstractPost) {
 				processPostImgInfoLinks(parent, addSrc, imgNames);
 			} else {
-				var _posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
-				for (var i = 0, len = _posts.length; i < len; ++i) {
-					processPostImgInfoLinks(pByEl.get(_posts[i]), addSrc, imgNames);
+				var posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+				for (var i = 0, len = posts.length; i < len; ++i) {
+					processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
 				}
 			}
 		}
@@ -17609,40 +17677,101 @@ true, true];
 				return aib.getPNum(this._posts[i]);
 			}
 		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+			}
+		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return aib.fixHTML(this._posts[i]);
+				return aib.fixHTML(doc.adoptNode(this._posts[i]));
 			}
+		}, {
+			key: 'getRefLinks',
+			value: regeneratorRuntime.mark(function getRefLinks(i, thrUrl) {
+				var msg, links, lNum, _i17, len, link, tc, _lNum, _url4;
+
+				return regeneratorRuntime.wrap(function getRefLinks$(_context25) {
+					while (1) {
+						switch (_context25.prev = _context25.next) {
+							case 0:
+								msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
+								links = $Q('a', msg);
+								_i17 = 0, len = links.length;
+
+							case 3:
+								if (!(_i17 < len)) {
+									_context25.next = 16;
+									break;
+								}
+
+								link = links[_i17];
+								tc = link.textContent;
+
+								if (!(tc[0] === '>' && tc[1] === '>')) {
+									_context25.next = 13;
+									break;
+								}
+
+								_lNum = parseInt(tc.substr(2), 10);
+
+								if (!_lNum) {
+									_context25.next = 13;
+									break;
+								}
+
+								_context25.next = 11;
+								return [link, _lNum];
+
+							case 11:
+								_url4 = link.getAttribute('href');
+
+								if (_url4[0] === '#') {
+									link.setAttribute('href', thrUrl + _url4);
+								}
+
+							case 13:
+								++_i17;
+								_context25.next = 3;
+								break;
+
+							case 16:
+							case 'end':
+								return _context25.stop();
+						}
+					}
+				}, getRefLinks, this);
+			})
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var banEls, i, len, banEl, postEl;
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context23) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
 					while (1) {
-						switch (_context23.prev = _context23.next) {
+						switch (_context26.prev = _context26.next) {
 							case 0:
 								banEls = $Q(aib.qBan, this._form);
 								i = 0, len = banEls.length;
 
 							case 2:
 								if (!(i < len)) {
-									_context23.next = 10;
+									_context26.next = 10;
 									break;
 								}
 
 								banEl = banEls[i];
 								postEl = aib.getPostElOfEl(banEl);
-								_context23.next = 7;
+								_context26.next = 7;
 								return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
 							case 7:
 								++i;
-								_context23.next = 2;
+								_context26.next = 2;
 								break;
 
 							case 10:
 							case 'end':
-								return _context23.stop();
+								return _context26.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17680,6 +17809,11 @@ true, true];
 			key: 'getPNum',
 			value: function getPNum(i) {
 				return this._posts[i + 1].no;
+			}
+		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
 			}
 		}, {
 			key: 'getPostEl',
@@ -17767,12 +17901,12 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context24) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context27) {
 					while (1) {
-						switch (_context24.prev = _context24.next) {
+						switch (_context27.prev = _context27.next) {
 							case 0:
 							case 'end':
-								return _context24.stop();
+								return _context27.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17823,9 +17957,18 @@ true, true];
 				return this._posts[i + 1].display_id;
 			}
 		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
+			}
+		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return $add(aib.fixHTML(this.getPostHTML(i))).firstChild.firstChild.lastElementChild;
+				var el = $add(aib.fixHTML(this.getPostHTML(i)));
+				if (i == -1) {
+					return el;
+				}
+				return el.firstElementChild.firstElementChild.lastElementChild;
 			}
 		}, {
 			key: 'getPostHTML',
@@ -17908,12 +18051,12 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context25) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context28) {
 					while (1) {
-						switch (_context25.prev = _context25.next) {
+						switch (_context28.prev = _context28.next) {
 							case 0:
 							case 'end':
-								return _context25.stop();
+								return _context28.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17951,6 +18094,11 @@ true, true];
 			key: 'getPNum',
 			value: function getPNum(i) {
 				return this._posts[i + 1].num;
+			}
+		}, {
+			key: 'getOpEl',
+			value: function getOpEl() {
+				return this.getPostEl(-1);
 			}
 		}, {
 			key: 'getPostEl',
@@ -18035,86 +18183,86 @@ true, true];
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref64, banned, num;
 
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context29) {
 					while (1) {
-						switch (_context26.prev = _context26.next) {
+						switch (_context29.prev = _context29.next) {
 							case 0:
 								p = this._isNew ? 'post__' : '';
 								_iteratorNormalCompletion29 = true;
 								_didIteratorError29 = false;
 								_iteratorError29 = undefined;
-								_context26.prev = 4;
+								_context29.prev = 4;
 								_iterator29 = this._posts[Symbol.iterator]();
 
 							case 6:
 								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
-									_context26.next = 22;
+									_context29.next = 22;
 									break;
 								}
 
 								_ref64 = _step29.value;
 								banned = _ref64.banned;
 								num = _ref64.num;
-								_context26.t0 = banned;
-								_context26.next = _context26.t0 === 1 ? 13 : _context26.t0 === 2 ? 16 : 19;
+								_context29.t0 = banned;
+								_context29.next = _context29.t0 === 1 ? 13 : _context29.t0 === 2 ? 16 : 19;
 								break;
 
 							case 13:
-								_context26.next = 15;
+								_context29.next = 15;
 								return [1, num, $add('<span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>')];
 
 							case 15:
-								return _context26.abrupt('break', 19);
+								return _context29.abrupt('break', 19);
 
 							case 16:
-								_context26.next = 18;
+								_context29.next = 18;
 								return [2, num, $add('<span class="' + p + 'pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
 
 							case 18:
-								return _context26.abrupt('break', 19);
+								return _context29.abrupt('break', 19);
 
 							case 19:
 								_iteratorNormalCompletion29 = true;
-								_context26.next = 6;
+								_context29.next = 6;
 								break;
 
 							case 22:
-								_context26.next = 28;
+								_context29.next = 28;
 								break;
 
 							case 24:
-								_context26.prev = 24;
-								_context26.t1 = _context26['catch'](4);
+								_context29.prev = 24;
+								_context29.t1 = _context29['catch'](4);
 								_didIteratorError29 = true;
-								_iteratorError29 = _context26.t1;
+								_iteratorError29 = _context29.t1;
 
 							case 28:
-								_context26.prev = 28;
-								_context26.prev = 29;
+								_context29.prev = 28;
+								_context29.prev = 29;
 
 								if (!_iteratorNormalCompletion29 && _iterator29.return) {
 									_iterator29.return();
 								}
 
 							case 31:
-								_context26.prev = 31;
+								_context29.prev = 31;
 
 								if (!_didIteratorError29) {
-									_context26.next = 34;
+									_context29.next = 34;
 									break;
 								}
 
 								throw _iteratorError29;
 
 							case 34:
-								return _context26.finish(31);
+								return _context29.finish(31);
 
 							case 35:
-								return _context26.finish(28);
+								return _context29.finish(28);
 
 							case 36:
 							case 'end':
-								return _context26.stop();
+								return _context29.stop();
 						}
 					}
 				}, bannedPostsData, this, [[4, 24, 28, 36], [29,, 31, 35]]);
@@ -18181,7 +18329,7 @@ true, true];
 				if (!this._set.has(num)) {
 					this._set.add(num);
 					this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-					if (Cfg.hideRefPsts && this._post.isHidden) {
+					if (Cfg.hideRefPsts && this._post.isHidden && post instanceof Post) {
 						post.setVisib(true, 'reference to >>' + num);
 						post.ref.hideRef();
 					}
@@ -18384,7 +18532,7 @@ true, true];
 			}
 		}], [{
 			key: 'gen',
-			value: function gen(posts, thrURL) {
+			value: function gen(posts) {
 				var tNums = DelForm.tNums;
 				var _iteratorNormalCompletion33 = true;
 				var _didIteratorError33 = false;
@@ -18398,40 +18546,52 @@ true, true];
 
 						var pNum = _ref66[0];
 						var post = _ref66[1];
+						var _iteratorNormalCompletion34 = true;
+						var _didIteratorError34 = false;
+						var _iteratorError34 = undefined;
 
-						var links = $Q('a', post.msg);
-						for (var lNum, i = 0, len = links.length; i < len; ++i) {
-							var link = links[i];
-							var tc = link.textContent;
-							if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
-								continue;
-							}
-							if (MyPosts.has(lNum)) {
-								link.classList.add('de-ref-you');
-								if (!MyPosts.has(pNum)) {
-									post.el.classList.add('de-mypost-reply');
+						try {
+							for (var _iterator34 = post.refLinks()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
+								var _ref67 = _step34.value;
+
+								var _ref68 = _slicedToArray(_ref67, 2);
+
+								var link = _ref68[0];
+								var lNum = _ref68[1];
+								if (MyPosts.has(lNum)) {
+									link.classList.add('de-ref-you');
+									if (!MyPosts.has(pNum) && post instanceof AbstractPost) {
+										post.el.classList.add('de-mypost-reply');
+									}
+								}
+								if (!aib.hasOPNum && tNums.has(lNum)) {
+									link.classList.add('de-ref-op');
+								}
+								if (!posts.has(lNum)) {
+									continue;
+								}
+
+								var _posts$get = posts.get(lNum),
+								    ref = _posts$get.ref;
+
+								if (ref._isInited) {
+									ref.addRefNum(post, pNum);
+								} else {
+									ref._set.add(pNum);
+									ref.hasMap = true;
 								}
 							}
-							if (!posts.has(lNum)) {
-								continue;
-							}
-
-							var _posts$get = posts.get(lNum),
-							    ref = _posts$get.ref;
-
-							if (ref._isInited) {
-								ref.addRefNum(post, pNum);
-							} else {
-								ref._set.add(pNum);
-								ref.hasMap = true;
-							}
-							if (!aib.hasOPNum && tNums.has(lNum)) {
-								link.classList.add('de-ref-op');
-							}
-							if (thrURL) {
-								var _url4 = link.getAttribute('href');
-								if (_url4[0] === '#') {
-									link.setAttribute('href', thrURL + _url4);
+						} catch (err) {
+							_didIteratorError34 = true;
+							_iteratorError34 = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion34 && _iterator34.return) {
+									_iterator34.return();
+								}
+							} finally {
+								if (_didIteratorError34) {
+									throw _iteratorError34;
 								}
 							}
 						}
@@ -18456,7 +18616,7 @@ true, true];
 			value: function initRefMap(form) {
 				var post = form.firstThr && form.firstThr.op;
 				if (post && Cfg.linksNavig) {
-					this.gen(pByNum, '');
+					this.gen(pByNum);
 					var strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 					for (; post; post = post.next) {
 						if (post.ref.hasMap) {
@@ -18552,11 +18712,11 @@ true, true];
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
-			var _ref67 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref69 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref67[0];
-			this.btnFav = _ref67[2];
-			this.btnUpd = _ref67[3];
+			this.btnHide = _ref69[0];
+			this.btnFav = _ref69[2];
+			this.btnUpd = _ref69[3];
 
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -18652,7 +18812,7 @@ true, true];
 		}, {
 			key: 'loadPosts',
 			value: function loadPosts(task) {
-				var _this66 = this;
+				var _this67 = this;
 
 				var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 				var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -18661,7 +18821,7 @@ true, true];
 					$popup('load-thr', Lng.loading[lang], true);
 				}
 				return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-					return _this66._loadFromBuilder(task, isSmartScroll, pBuilder);
+					return _this67._loadFromBuilder(task, isSmartScroll, pBuilder);
 				}, function (err) {
 					return $popup('load-thr', getErrorMessage(err));
 				});
@@ -18670,10 +18830,10 @@ true, true];
 		}, {
 			key: 'loadNewPosts',
 			value: function loadNewPosts() {
-				var _this67 = this;
+				var _this68 = this;
 
 				return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-					return pBuilder ? _this67._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
+					return pBuilder ? _this68._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false };
 				});
 			}
 		}, {
@@ -18772,19 +18932,19 @@ true, true];
 				if (!aib.qBan) {
 					return;
 				}
-				var _iteratorNormalCompletion34 = true;
-				var _didIteratorError34 = false;
-				var _iteratorError34 = undefined;
+				var _iteratorNormalCompletion35 = true;
+				var _didIteratorError35 = false;
+				var _iteratorError35 = undefined;
 
 				try {
-					for (var _iterator34 = pBuilder.bannedPostsData()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-						var _ref68 = _step34.value;
+					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
+						var _ref70 = _step35.value;
 
-						var _ref69 = _slicedToArray(_ref68, 3);
+						var _ref71 = _slicedToArray(_ref70, 3);
 
-						var banId = _ref69[0];
-						var bNum = _ref69[1];
-						var bEl = _ref69[2];
+						var banId = _ref71[0];
+						var bNum = _ref71[1];
+						var bEl = _ref71[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -18794,16 +18954,16 @@ true, true];
 						}
 					}
 				} catch (err) {
-					_didIteratorError34 = true;
-					_iteratorError34 = err;
+					_didIteratorError35 = true;
+					_iteratorError35 = err;
 				} finally {
 					try {
-						if (!_iteratorNormalCompletion34 && _iterator34.return) {
-							_iterator34.return();
+						if (!_iteratorNormalCompletion35 && _iterator35.return) {
+							_iterator35.return();
 						}
 					} finally {
-						if (_didIteratorError34) {
-							throw _iteratorError34;
+						if (_didIteratorError35) {
+							throw _iteratorError35;
 						}
 					}
 				}
@@ -18824,9 +18984,9 @@ true, true];
 					var temp = doc.createElement('template');
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
-					var _posts2 = $Q(aib.qRPost, fragm);
-					for (var _i17 = 0, _len11 = _posts2.length; _i17 < _len11; ++_i17) {
-						last = this._addPost(fragm, _posts2[_i17], begin + _i17 + 1, last, maybeVParser);
+					var posts = $Q(aib.qRPost, fragm);
+					for (var _i18 = 0, _len11 = posts.length; _i18 < _len11; ++_i18) {
+						last = this._addPost(fragm, posts[_i18], begin + _i18 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
 					}
@@ -19088,7 +19248,7 @@ true, true];
 		}, {
 			key: '_toggleReplies',
 			value: function _toggleReplies() {
-				var _this68 = this;
+				var _this69 = this;
 
 				var isHide = !this.last.isOmitted;
 				var post = this.op;
@@ -19099,7 +19259,7 @@ true, true];
 				}
 				this.btnReplies.firstElementChild.className = (isHide ? 'de-replies-show' : 'de-replies-hide') + ' de-abtn';
 				$each(this.btns.children, function (el) {
-					return el !== _this68.btnReplies && $toggle(el, !isHide);
+					return el !== _this69.btnReplies && $toggle(el, !isHide);
 				});
 				$del($q(aib.qOmitted + ', .de-omitted', this.el));
 				i = this.pcount - 1 - (isHide ? 0 : i);
@@ -19177,12 +19337,12 @@ true, true];
 			}
 		},
 		handleEvent: function handleEvent(e) {
-			var _this69 = this;
+			var _this70 = this;
 
 			switch (e.type) {
 				case 'scroll':
 					deWindow.requestAnimationFrame(function () {
-						return _this69._checkThreads();
+						return _this70._checkThreads();
 					});break;
 				case 'mouseover':
 					this._expandCollapse(true, fixEventEl(e.relatedTarget));break;
@@ -19228,27 +19388,27 @@ true, true];
 			}
 		},
 		_expandCollapse: function _expandCollapse(isExpand, rt) {
-			var _this70 = this;
+			var _this71 = this;
 
 			if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
 				clearTimeout(this._toggleTO);
 				this._toggleTO = setTimeout(function () {
-					return _this70._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+					return _this71._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
 				}, Cfg.linksOver);
 			}
 		},
 		_findCurrentThread: function _findCurrentThread() {
-			var _this71 = this;
+			var _this72 = this;
 
 			Object.defineProperty(this, '_findCurrentThread', {
 				value: 'elementsFromPoint' in doc ? function () {
 					return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-						return _this71._thrs.has(el);
+						return _this72._thrs.has(el);
 					});
 				} : function () {
 					var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 					while (el) {
-						if (_this71._thrs.has(el)) {
+						if (_this72._thrs.has(el)) {
 							return el;
 						}
 						el = el.parentElement;
@@ -19271,7 +19431,7 @@ true, true];
 		},
 		_toggleNavPanel: function _toggleNavPanel(isHide) {
 			this._el.style.display = isHide ? 'none' : 'initial';
-			this._visible = isHide;
+			this._visible = !isHide;
 		}
 	};
 
@@ -19299,7 +19459,7 @@ true, true];
 				}
 			},
 			playAudio: function playAudio() {
-				var _this72 = this;
+				var _this73 = this;
 
 				this.stopAudio();
 				if (this.repeatMS === 0) {
@@ -19307,7 +19467,7 @@ true, true];
 					return;
 				}
 				this._playInterval = setInterval(function () {
-					return _this72._el.play();
+					return _this73._el.play();
 				}, this.repeatMS);
 			},
 			stopAudio: function stopAudio() {
@@ -19329,11 +19489,11 @@ true, true];
 
 		var counter = {
 			count: function count(delayMS, useCounter, callback) {
-				var _this73 = this;
+				var _this74 = this;
 
 				if (!this._enabled || !useCounter) {
 					this._countingTO = setTimeout(function () {
-						_this73._countingTO = null;
+						_this74._countingTO = null;
 						callback();
 					}, delayMS);
 					return;
@@ -19343,10 +19503,10 @@ true, true];
 				this._countingIV = setInterval(function () {
 					seconds--;
 					if (seconds === 0) {
-						_this73._stopCounter();
+						_this74._stopCounter();
 						callback();
 					} else {
-						_this73._set(seconds);
+						_this74._set(seconds);
 					}
 				}, 1e3);
 			},
@@ -19398,7 +19558,7 @@ true, true];
 				return this._iconEl ? this._iconEl.href : null;
 			},
 			initIcons: function initIcons() {
-				var _this74 = this;
+				var _this75 = this;
 
 				if (this._isInited) {
 					return;
@@ -19407,7 +19567,7 @@ true, true];
 				var icon = new Image();
 				icon.onload = function (e) {
 					try {
-						_this74._initIconsHelper(e.target);
+						_this75._initIconsHelper(e.target);
 					} catch (err) {
 						console.warn('Icon error:', err);
 					}
@@ -19421,7 +19581,7 @@ true, true];
 				icon.src = this._iconEl.href;
 			},
 			startBlink: function startBlink(isError) {
-				var _this75 = this;
+				var _this76 = this;
 
 				var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 				if (this._blinkInterv) {
@@ -19432,7 +19592,7 @@ true, true];
 				}
 				this._currentIcon = iconUrl;
 				this._blinkInterv = setInterval(function () {
-					return _this75._setIcon((_this75._isOrigIcon = !_this75._isOrigIcon) ? _this75.originalIcon : _this75._currentIcon);
+					return _this76._setIcon((_this76._isOrigIcon = !_this76._isOrigIcon) ? _this76.originalIcon : _this76._currentIcon);
 				}, this._blinkMS);
 			},
 			stopBlink: function stopBlink() {
@@ -19511,7 +19671,7 @@ true, true];
 				return canvas.toDataURL('image/png');
 			},
 			_initIconsHelper: function _initIconsHelper(icon) {
-				var _this76 = this;
+				var _this77 = this;
 
 				var canvas = doc.createElement('canvas');
 				var ctx = canvas.getContext('2d');
@@ -19531,11 +19691,11 @@ true, true];
 				var iconYouCircle = ctx.getImageData(0, 0, wh, wh);
 				this._getIconNew = function (newPosts) {
 					var id = newPosts < 10 ? newPosts : 0;
-					return _this76._iconsNew[id] || (_this76._iconsNew[id] = _this76._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+					return _this77._iconsNew[id] || (_this77._iconsNew[id] = _this77._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
 				};
 				this._getIconYou = function (newPosts) {
 					var id = newPosts < 10 ? newPosts : 0;
-					return _this76._iconsYou[id] || (_this76._iconsYou[id] = _this76._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+					return _this77._iconsYou[id] || (_this77._iconsYou[id] = _this77._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
 				};
 				this._hasIcons = true;
 			},
@@ -19566,7 +19726,7 @@ true, true];
 				}
 			},
 			showNotif: function showNotif() {
-				var _this77 = this;
+				var _this78 = this;
 
 				var lngQuantity = function lngQuantity(num) {
 					var new10 = num % 10;
@@ -19581,7 +19741,7 @@ true, true];
 				});
 				notif.onshow = function () {
 					return setTimeout(function () {
-						return notif === _this77._notifEl && _this77.closeNotif();
+						return notif === _this78._notifEl && _this78.closeNotif();
 					}, 12e3);
 				};
 				notif.onclick = function () {
@@ -19589,7 +19749,7 @@ true, true];
 				};
 				notif.onerror = function () {
 					deWindow.focus();
-					_this77._requestPermission();
+					_this78._requestPermission();
 				};
 				this._notifEl = notif;
 			},
@@ -19599,14 +19759,14 @@ true, true];
 			_granted: true,
 			_notifEl: null,
 			_requestPermission: function _requestPermission() {
-				var _this78 = this;
+				var _this79 = this;
 
 				this._granted = false;
 				Notification.requestPermission(function (state) {
 					if (state.toLowerCase() === 'denied') {
 						saveCfg('desktNotif', 0);
 					} else {
-						_this78._granted = true;
+						_this79._granted = true;
 					}
 				});
 			}
@@ -19713,7 +19873,7 @@ true, true];
 				this._makeStep();
 			},
 			_makeStep: function _makeStep() {
-				var _this79 = this;
+				var _this80 = this;
 
 				var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -19723,19 +19883,19 @@ true, true];
 							if (needSleep) {
 								this._state = 1;
 								counter.count(this._delay, !doc.hidden, function () {
-									return _this79._makeStep();
+									return _this80._makeStep();
 								});
 								return;
 							}
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref70) {
-								var newCount = _ref70.newCount,
-								    locked = _ref70.locked;
-								return _this79._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref72) {
+								var newCount = _ref72.newCount,
+								    locked = _ref72.locked;
+								return _this80._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
-								return _this79._handleNewPosts(0, err);
+								return _this80._handleNewPosts(0, err);
 							});
 							return;
 						case 2:
@@ -20731,16 +20891,16 @@ true, true];
 			function Kusaba(prot, dm) {
 				_classCallCheck(this, Kusaba);
 
-				var _this80 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
+				var _this81 = _possibleConstructorReturn(this, (Kusaba.__proto__ || Object.getPrototypeOf(Kusaba)).call(this, prot, dm));
 
-				_this80.kusaba = true;
+				_this81.kusaba = true;
 
-				_this80.qError = 'h1, h2, div[style*="1.25em"]';
-				_this80.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+				_this81.qError = 'h1, h2, div[style*="1.25em"]';
+				_this81.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
-				_this80.formParent = 'replythread';
-				_this80.markupBB = true;
-				return _this80;
+				_this81.formParent = 'replythread';
+				_this81.markupBB = true;
+				return _this81;
 			}
 
 			_createClass(Kusaba, [{
@@ -20787,49 +20947,49 @@ true, true];
 			function Tinyboard(prot, dm) {
 				_classCallCheck(this, Tinyboard);
 
-				var _this81 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
+				var _this82 = _possibleConstructorReturn(this, (Tinyboard.__proto__ || Object.getPrototypeOf(Tinyboard)).call(this, prot, dm));
 
-				_this81.cReply = 'post reply';
-				_this81.qClosed = '.fa-lock';
-				_this81.qDForm = 'form[name*="postcontrols"]';
-				_this81.qForm = 'form[name="post"]';
-				_this81.qFormPassw = 'input[name="password"]:not([type="hidden"])';
-				_this81.qFormRedir = null;
-				_this81.qImgInfo = '.fileinfo';
-				_this81.qOmitted = '.omitted';
-				_this81.qPages = '.pages';
-				_this81.qPostHeader = '.intro';
-				_this81.qPostMsg = '.body';
-				_this81.qPostName = '.name';
-				_this81.qPostRef = '.post_no + a';
-				_this81.qPostSubj = '.subject';
-				_this81.qPostTrip = '.trip';
-				_this81.qTrunc = '.toolong';
-				_this81._origInputs = null;
-				_this81._qOPostEnd = '.post.reply';
+				_this82.cReply = 'post reply';
+				_this82.qClosed = '.fa-lock';
+				_this82.qDForm = 'form[name*="postcontrols"]';
+				_this82.qForm = 'form[name="post"]';
+				_this82.qFormPassw = 'input[name="password"]:not([type="hidden"])';
+				_this82.qFormRedir = null;
+				_this82.qImgInfo = '.fileinfo';
+				_this82.qOmitted = '.omitted';
+				_this82.qPages = '.pages';
+				_this82.qPostHeader = '.intro';
+				_this82.qPostMsg = '.body';
+				_this82.qPostName = '.name';
+				_this82.qPostRef = '.post_no + a';
+				_this82.qPostSubj = '.subject';
+				_this82.qPostTrip = '.trip';
+				_this82.qTrunc = '.toolong';
+				_this82._origInputs = null;
+				_this82._qOPostEnd = '.post.reply';
 
-				_this81.firstPage = 1;
-				_this81.formParent = 'thread';
-				_this81.hasCatalog = true;
-				_this81.hasRefererErr = true;
-				_this81.jsonSubmit = true;
-				_this81.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-				return _this81;
+				_this82.firstPage = 1;
+				_this82.formParent = 'thread';
+				_this82.hasCatalog = true;
+				_this82.hasRefererErr = true;
+				_this82.jsonSubmit = true;
+				_this82.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+				return _this82;
 			}
 
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref71 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
-						var _this82 = this;
+					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
+						var _this83 = this;
 
 						var pageInp, query, errFn;
-						return regeneratorRuntime.wrap(function _callee20$(_context27) {
+						return regeneratorRuntime.wrap(function _callee20$(_context30) {
 							while (1) {
-								switch (_context27.prev = _context27.next) {
+								switch (_context30.prev = _context30.next) {
 									case 0:
 										if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-											_context27.next = 5;
+											_context30.next = 5;
 											break;
 										}
 
@@ -20841,26 +21001,26 @@ true, true];
 										} else if (!pageInp) {
 											form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
 										}
-										return _context27.abrupt('return');
+										return _context30.abrupt('return');
 
 									case 5:
 										query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
 										if ($q('input[name="thread"]', form)) {
-											_context27.next = 11;
+											_context30.next = 11;
 											break;
 										}
 
 										this._origInputs = [doc.createElement('div'), pr.subm.value];
 										$each($Q(query, form), function (el) {
-											return _this82._origInputs[0].appendChild(el);
+											return _this83._origInputs[0].appendChild(el);
 										});
-										_context27.next = 17;
+										_context30.next = 17;
 										break;
 
 									case 11:
 										if (tNum) {
-											_context27.next = 17;
+											_context30.next = 17;
 											break;
 										}
 
@@ -20868,7 +21028,7 @@ true, true];
 										$delAll(query, form);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
-										return _context27.abrupt('return');
+										return _context30.abrupt('return');
 
 									case 17:
 										errFn = function errFn() {
@@ -20877,14 +21037,14 @@ true, true];
 										};
 
 										$popup('load-form', Lng.loading[lang], true);
-										_context27.next = 21;
+										_context30.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-											var loadedForm = $q(_this82.qForm, loadedDoc);
+											var loadedForm = $q(_this83.qForm, loadedDoc);
 											if (!loadedForm) {
 												errFn();
 												return;
 											}
-											pr.subm.value = $q(_this82.qFormSubm, loadedDoc).value;
+											pr.subm.value = $q(_this83.qFormSubm, loadedDoc).value;
 											$delAll(query, form);
 											$each($Q(query, loadedForm), function (el) {
 												return form.appendChild(doc.adoptNode(el));
@@ -20894,14 +21054,14 @@ true, true];
 
 									case 21:
 									case 'end':
-										return _context27.stop();
+										return _context30.stop();
 								}
 							}
 						}, _callee20, this);
 					}));
 
-					function changeReplyMode(_x79, _x80) {
-						return _ref71.apply(this, arguments);
+					function changeReplyMode(_x80, _x81) {
+						return _ref73.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -20922,10 +21082,10 @@ true, true];
 			}, {
 				key: 'fixVideo',
 				value: function fixVideo(isPost, data) {
-					var _this83 = this;
+					var _this84 = this;
 
 					return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-						var value = [isPost ? data : _this83.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+						var value = [isPost ? data : _this84.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
 						el.remove();
 						return value;
 					});
@@ -20943,9 +21103,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref72) {
-					var error = _ref72.error,
-					    id = _ref72.id;
+				value: function getSubmitData(_ref74) {
+					var error = _ref74.error,
+					    id = _ref74.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -21000,13 +21160,13 @@ true, true];
 			function Vichan(prot, dm) {
 				_classCallCheck(this, Vichan);
 
-				var _this84 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
+				var _this85 = _possibleConstructorReturn(this, (Vichan.__proto__ || Object.getPrototypeOf(Vichan)).call(this, prot, dm));
 
-				_this84.qDelPassw = '#password';
-				_this84.qPostImg = '.post-image[alt]:not(.deleted)';
+				_this85.qDelPassw = '#password';
+				_this85.qPostImg = '.post-image[alt]:not(.deleted)';
 
-				_this84.multiFile = true;
-				return _this84;
+				_this85.multiFile = true;
+				return _this85;
 			}
 
 			_createClass(Vichan, [{
@@ -21058,12 +21218,12 @@ true, true];
 			function TinyIB(prot, dm) {
 				_classCallCheck(this, TinyIB);
 
-				var _this85 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
+				var _this86 = _possibleConstructorReturn(this, (TinyIB.__proto__ || Object.getPrototypeOf(TinyIB)).call(this, prot, dm));
 
-				_this85.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-				_this85.qPostImg = 'img.thumb, video.thumb';
-				_this85.qPostMsg = '.message';
-				return _this85;
+				_this86.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+				_this86.qPostImg = 'img.thumb, video.thumb';
+				_this86.qPostMsg = '.message';
+				return _this86;
 			}
 
 			_createClass(TinyIB, [{
@@ -21120,36 +21280,36 @@ true, true];
 			function Lynxchan(prot, dm) {
 				_classCallCheck(this, Lynxchan);
 
-				var _this86 = _possibleConstructorReturn(this, (Lynxchan.__proto__ || Object.getPrototypeOf(Lynxchan)).call(this, prot, dm));
+				var _this87 = _possibleConstructorReturn(this, (Lynxchan.__proto__ || Object.getPrototypeOf(Lynxchan)).call(this, prot, dm));
 
-				_this86.cReply = 'innerPost';
-				_this86.qDForm = 'form[action$="contentActions.js"]';
-				_this86.qError = '#errorLabel, #labelMessage';
-				_this86.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
-				_this86.qFormPassw = 'input[name="password"]';
-				_this86.qFormRules = '.form-post > .small';
-				_this86.qFormSubm = '#formButton, #de-postform-submit';
-				_this86.qImgInfo = '.uploadDetails';
-				_this86.qOmitted = '.labelOmission';
-				_this86.qOPost = '.innerOP';
-				_this86.qPages = '#divPages';
-				_this86.qPostHeader = '.postInfo, .de-post-btns';
-				_this86.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-				_this86.qPostMsg = '.divMessage';
-				_this86.qPostRef = '.linkQuote';
-				_this86.qPostsParent = '.divPosts';
-				_this86.qRPost = '.innerPost';
-				_this86.qTrunc = '.contentOmissionIndicator';
-				_this86._qOPostEnd = '.divPosts';
+				_this87.cReply = 'innerPost';
+				_this87.qDForm = 'form[action$="contentActions.js"]';
+				_this87.qError = '#errorLabel, #labelMessage';
+				_this87.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
+				_this87.qFormPassw = 'input[name="password"]';
+				_this87.qFormRules = '.form-post > .small';
+				_this87.qFormSubm = '#formButton, #de-postform-submit';
+				_this87.qImgInfo = '.uploadDetails';
+				_this87.qOmitted = '.labelOmission';
+				_this87.qOPost = '.innerOP';
+				_this87.qPages = '#divPages';
+				_this87.qPostHeader = '.postInfo, .de-post-btns';
+				_this87.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+				_this87.qPostMsg = '.divMessage';
+				_this87.qPostRef = '.linkQuote';
+				_this87.qPostsParent = '.divPosts';
+				_this87.qRPost = '.innerPost';
+				_this87.qTrunc = '.contentOmissionIndicator';
+				_this87._qOPostEnd = '.divPosts';
 
-				_this86.firstPage = 1;
-				_this86.formParent = 'threadId';
-				_this86.hasCatalog = true;
-				_this86.jsonSubmit = true;
-				_this86.multiFile = true;
+				_this87.firstPage = 1;
+				_this87.formParent = 'threadId';
+				_this87.hasCatalog = true;
+				_this87.jsonSubmit = true;
+				_this87.multiFile = true;
 
-				_this86._hasNewAPI = false;
-				return _this86;
+				_this87._hasNewAPI = false;
+				return _this87;
 			}
 
 			_createClass(Lynxchan, [{
@@ -21203,9 +21363,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref73) {
-					var status = _ref73.status,
-					    data = _ref73.data;
+				value: function getSubmitData(_ref75) {
+					var status = _ref75.status,
+					    data = _ref75.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21244,34 +21404,34 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
-						var _this87 = this;
+					var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
+						var _this88 = this;
 
 						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len17, file, cookieObj, task, url;
 
-						return regeneratorRuntime.wrap(function _callee23$(_context30) {
+						return regeneratorRuntime.wrap(function _callee23$(_context33) {
 							while (1) {
-								switch (_context30.prev = _context30.next) {
+								switch (_context33.prev = _context33.next) {
 									case 0:
 										ajaxParams = void 0;
 
 										if (!this._hasNewAPI) {
-											_context30.next = 5;
+											_context33.next = 5;
 											break;
 										}
 
 										ajaxParams = { data: data, method: 'POST' };
-										_context30.next = 28;
+										_context33.next = 28;
 										break;
 
 									case 5:
 										getBase64 = function () {
-											var _ref75 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
-												return regeneratorRuntime.wrap(function _callee21$(_context28) {
+											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
+												return regeneratorRuntime.wrap(function _callee21$(_context31) {
 													while (1) {
-														switch (_context28.prev = _context28.next) {
+														switch (_context31.prev = _context31.next) {
 															case 0:
-																return _context28.abrupt('return', new Promise(function (resolve, reject) {
+																return _context31.abrupt('return', new Promise(function (resolve, reject) {
 																	var reader = new FileReader();
 																	reader.readAsDataURL(file);
 																	reader.onload = function () {
@@ -21284,14 +21444,14 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context28.stop();
+																return _context31.stop();
 														}
 													}
-												}, _callee21, _this87);
+												}, _callee21, _this88);
 											}));
 
-											return function getBase64(_x85) {
-												return _ref75.apply(this, arguments);
+											return function getBase64(_x86) {
+												return _ref77.apply(this, arguments);
 											};
 										}();
 
@@ -21309,10 +21469,10 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
-												return regeneratorRuntime.wrap(function _callee22$(_context29) {
+											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
+												return regeneratorRuntime.wrap(function _callee22$(_context32) {
 													while (1) {
-														switch (_context29.prev = _context29.next) {
+														switch (_context32.prev = _context32.next) {
 															case 0:
 																if (key !== 'files') {
 																	dataObj[key] = value;
@@ -21322,53 +21482,53 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context29.stop();
+																return _context32.stop();
 														}
 													}
-												}, _callee22, _this87);
+												}, _callee22, _this88);
 											}));
 
-											return function (_x86, _x87) {
-												return _ref76.apply(this, arguments);
+											return function (_x87, _x88) {
+												return _ref78.apply(this, arguments);
 											};
 										}());
 										i = 0, _len17 = files.length;
 
 									case 11:
 										if (!(i < _len17)) {
-											_context30.next = 26;
+											_context33.next = 26;
 											break;
 										}
 
 										file = files[i];
 
 										if (!file.type) {
-											_context30.next = 23;
+											_context33.next = 23;
 											break;
 										}
 
-										_context30.t0 = dataObj.files;
-										_context30.t1 = 'data:' + file.type + ';base64,';
-										_context30.next = 18;
+										_context33.t0 = dataObj.files;
+										_context33.t1 = 'data:' + file.type + ';base64,';
+										_context33.next = 18;
 										return getBase64(file).then(function (data) {
 											return data.split(',')[1];
 										});
 
 									case 18:
-										_context30.t2 = _context30.sent;
-										_context30.t3 = _context30.t1 + _context30.t2;
-										_context30.t4 = file.name;
-										_context30.t5 = {
-											content: _context30.t3,
-											name: _context30.t4,
+										_context33.t2 = _context33.sent;
+										_context33.t3 = _context33.t1 + _context33.t2;
+										_context33.t4 = file.name;
+										_context33.t5 = {
+											content: _context33.t3,
+											name: _context33.t4,
 											spoiler: false
 										};
 
-										_context30.t0.push.call(_context30.t0, _context30.t5);
+										_context33.t0.push.call(_context33.t0, _context33.t5);
 
 									case 23:
 										++i;
-										_context30.next = 11;
+										_context33.next = 11;
 										break;
 
 									case 26:
@@ -21391,7 +21551,7 @@ true, true];
 										}
 										task = form.action.split('/').pop();
 										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
-										return _context30.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
+										return _context33.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;
 										}).catch(function (err) {
 											return Promise.reject(err);
@@ -21399,14 +21559,14 @@ true, true];
 
 									case 32:
 									case 'end':
-										return _context30.stop();
+										return _context33.stop();
 								}
 							}
 						}, _callee23, this);
 					}));
 
-					function sendHTML5Post(_x81, _x82, _x83, _x84) {
-						return _ref74.apply(this, arguments);
+					function sendHTML5Post(_x82, _x83, _x84, _x85) {
+						return _ref76.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -21455,26 +21615,26 @@ true, true];
 			function FoolFuuka(prot, dm) {
 				_classCallCheck(this, FoolFuuka);
 
-				var _this88 = _possibleConstructorReturn(this, (FoolFuuka.__proto__ || Object.getPrototypeOf(FoolFuuka)).call(this, prot, dm));
+				var _this89 = _possibleConstructorReturn(this, (FoolFuuka.__proto__ || Object.getPrototypeOf(FoolFuuka)).call(this, prot, dm));
 
-				_this88.cReply = 'post_wrapper';
-				_this88.qDForm = '#main';
-				_this88.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
-				_this88.qOmitted = '.omitted_text';
-				_this88.qPages = '.paginate > ul > li:nth-last-child(3)';
-				_this88.qPostHeader = 'header';
-				_this88.qPostImg = '.post_image, .thread_image';
-				_this88.qPostMsg = '.text';
-				_this88.qPostRef = '.post_data > a[data-function="quote"]';
-				_this88.qPostSubj = '.post_title';
-				_this88.qPostsParent = '.posts';
-				_this88.qRPost = '.post[id]';
-				_this88._qOPostEnd = '.posts';
+				_this89.cReply = 'post_wrapper';
+				_this89.qDForm = '#main';
+				_this89.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+				_this89.qOmitted = '.omitted_text';
+				_this89.qPages = '.paginate > ul > li:nth-last-child(3)';
+				_this89.qPostHeader = 'header';
+				_this89.qPostImg = '.post_image, .thread_image';
+				_this89.qPostMsg = '.text';
+				_this89.qPostRef = '.post_data > a[data-function="quote"]';
+				_this89.qPostSubj = '.post_title';
+				_this89.qPostsParent = '.posts';
+				_this89.qRPost = '.post[id]';
+				_this89._qOPostEnd = '.posts';
 
-				_this88.docExt = '';
-				_this88.firstPage = 1;
-				_this88.res = 'thread/';
-				return _this88;
+				_this89.docExt = '';
+				_this89.firstPage = 1;
+				_this89.res = 'thread/';
+				return _this89;
 			}
 
 			_createClass(FoolFuuka, [{
@@ -21548,13 +21708,13 @@ true, true];
 			function _02ch(prot, dm) {
 				_classCallCheck(this, _02ch);
 
-				var _this89 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
+				var _this90 = _possibleConstructorReturn(this, (_02ch.__proto__ || Object.getPrototypeOf(_02ch)).call(this, prot, dm));
 
-				_this89._02ch = true;
+				_this90._02ch = true;
 
-				_this89.hasCatalog = true;
-				_this89._capUpdPromise = null;
-				return _this89;
+				_this90.hasCatalog = true;
+				_this90._capUpdPromise = null;
+				return _this90;
 			}
 
 			_createClass(_02ch, [{
@@ -21580,19 +21740,19 @@ true, true];
 			function _2__ch(prot, dm) {
 				_classCallCheck(this, _2__ch);
 
-				var _this90 = _possibleConstructorReturn(this, (_2__ch.__proto__ || Object.getPrototypeOf(_2__ch)).call(this, prot, dm));
+				var _this91 = _possibleConstructorReturn(this, (_2__ch.__proto__ || Object.getPrototypeOf(_2__ch)).call(this, prot, dm));
 
-				_this90.qPages = 'table[border="1"] td > a:last-of-type';
-				_this90.qPostImg = 'img.thumb';
-				_this90._qOPostEnd = 'table:not(.postfiles)';
+				_this91.qPages = 'table[border="1"] td > a:last-of-type';
+				_this91.qPostImg = 'img.thumb';
+				_this91._qOPostEnd = 'table:not(.postfiles)';
 
-				_this90.docExt = '.html';
-				_this90.hasPicWrap = true;
-				_this90.jsonSubmit = true;
-				_this90.markupBB = true;
-				_this90.multiFile = true;
-				_this90.ru = true;
-				return _this90;
+				_this91.docExt = '.html';
+				_this91.hasPicWrap = true;
+				_this91.jsonSubmit = true;
+				_this91.markupBB = true;
+				_this91.multiFile = true;
+				_this91.ru = true;
+				return _this91;
 			}
 
 			_createClass(_2__ch, [{
@@ -21684,45 +21844,45 @@ true, true];
 			function Makaba(prot, dm) {
 				_classCallCheck(this, Makaba);
 
-				var _this91 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
+				var _this92 = _possibleConstructorReturn(this, (Makaba.__proto__ || Object.getPrototypeOf(Makaba)).call(this, prot, dm));
 
-				_this91.makaba = true;
+				_this92.makaba = true;
 
-				_this91.cReply = 'de-reply-class';
-				_this91.qBan = '.post__pomyanem';
-				_this91.qClosed = '.sticky-img[src$="locked.png"]';
-				_this91.qDForm = '#posts-form';
-				_this91.qFormFile = '.postform__raw.filer input[type="file"]';
-				_this91.qFormRedir = null;
-				_this91.qFormRules = '.rules';
-				_this91.qFormSubm = '#submit';
-				_this91.qFormTd = '.postform__raw';
-				_this91.qFormTr = '.postform__raw';
-				_this91.qFormTxta = '#shampoo';
-				_this91.qImgInfo = '.post__file-attr';
-				_this91.qOmitted = '.thread__missed';
-				_this91.qOPost = '.post_type_oppost';
-				_this91.qPostHeader = '.post__details';
-				_this91.qPostImg = '.post__file-preview';
-				_this91.qPostMsg = '.post__message';
-				_this91.qPostName = '.post__anon, .post__email';
-				_this91.qPostRef = '.post__reflink:nth-child(2)';
-				_this91.qPostSubj = '.post__title';
-				_this91.qRPost = '.post_type_reply[data-num]';
-				_this91.qTrunc = null;
+				_this92.cReply = 'de-reply-class';
+				_this92.qBan = '.post__pomyanem';
+				_this92.qClosed = '.sticky-img[src$="locked.png"]';
+				_this92.qDForm = '#posts-form';
+				_this92.qFormFile = '.postform__raw.filer input[type="file"]';
+				_this92.qFormRedir = null;
+				_this92.qFormRules = '.rules';
+				_this92.qFormSubm = '#submit';
+				_this92.qFormTd = '.postform__raw';
+				_this92.qFormTr = '.postform__raw';
+				_this92.qFormTxta = '#shampoo';
+				_this92.qImgInfo = '.post__file-attr';
+				_this92.qOmitted = '.thread__missed';
+				_this92.qOPost = '.post_type_oppost';
+				_this92.qPostHeader = '.post__details';
+				_this92.qPostImg = '.post__file-preview';
+				_this92.qPostMsg = '.post__message';
+				_this92.qPostName = '.post__anon, .post__email';
+				_this92.qPostRef = '.post__reflink:nth-child(2)';
+				_this92.qPostSubj = '.post__title';
+				_this92.qRPost = '.post_type_reply[data-num]';
+				_this92.qTrunc = null;
 
-				_this91.formParent = 'thread';
-				_this91.hasAltCaptcha = true;
-				_this91.hasCatalog = true;
-				_this91.hasOPNum = true;
-				_this91.hasPicWrap = true;
-				_this91.JsonBuilder = MakabaPostsBuilder;
-				_this91.jsonSubmit = true;
-				_this91.markupBB = true;
-				_this91.multiFile = true;
-				_this91.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-				_this91._capUpdPromise = null;
-				return _this91;
+				_this92.formParent = 'thread';
+				_this92.hasAltCaptcha = true;
+				_this92.hasCatalog = true;
+				_this92.hasOPNum = true;
+				_this92.hasPicWrap = true;
+				_this92.JsonBuilder = MakabaPostsBuilder;
+				_this92.jsonSubmit = true;
+				_this92.markupBB = true;
+				_this92.multiFile = true;
+				_this92.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+				_this92._capUpdPromise = null;
+				return _this92;
 			}
 
 			_createClass(Makaba, [{
@@ -21840,7 +22000,7 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var _this92 = this;
+					var _this93 = this;
 
 					var box = $q('.captcha-box, .captcha');
 					if (!Cfg.altCaptcha) {
@@ -21851,12 +22011,12 @@ true, true];
 					if (!img || img.tagName !== 'IMG') {
 						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
 
-						var _ref77 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref77[0],
-						    inp = _ref77[1];
+						var _ref79 = [].concat(_toConsumableArray(box.children)),
+						    _img2 = _ref79[0],
+						    inp = _ref79[1];
 
 						_img2.onclick = function () {
-							return _this92.updateCaptcha(cap);
+							return _this93.updateCaptcha(cap);
 						};
 						inp.tabIndex = 999;
 						cap.textEl = inp;
@@ -21968,7 +22128,7 @@ true, true];
 			}, {
 				key: 'reportForm',
 				get: function get() {
-					var _this93 = this;
+					var _this94 = this;
 
 					var value = function value(pNum, tNum) {
 						return $q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
@@ -21979,7 +22139,7 @@ true, true];
 							}
 							var formData = new FormData();
 							formData.append('task', 'report');
-							formData.append('board', _this93.b);
+							formData.append('board', _this94.b);
 							formData.append('thread', tNum);
 							formData.append('posts', pNum);
 							formData.append('comment', inpEl.value);
@@ -22017,20 +22177,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this94 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this94.qDForm = 'form:not([enctype])';
-				_this94.qForm = '#fm';
-				_this94.qFormRedir = null;
-				_this94.qFormRules = '.chui';
-				_this94.qOmitted = 'font[color="#707070"]';
-				_this94.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this94.qPostRef = '.del';
-				_this94.qRPost = 'td:nth-child(2)';
+				_this95.qDForm = 'form:not([enctype])';
+				_this95.qForm = '#fm';
+				_this95.qFormRedir = null;
+				_this95.qFormRules = '.chui';
+				_this95.qOmitted = 'font[color="#707070"]';
+				_this95.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this95.qPostRef = '.del';
+				_this95.qRPost = 'td:nth-child(2)';
 
-				_this94.docExt = '.htm';
-				_this94.formParent = 'resto';
-				return _this94;
+				_this95.docExt = '.htm';
+				_this95.formParent = 'resto';
+				return _this95;
 			}
 
 			_createClass(_2chan, [{
@@ -22090,12 +22250,12 @@ true, true];
 			function _2channel(prot, dm) {
 				_classCallCheck(this, _2channel);
 
-				var _this95 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
 
-				_this95._2channel = true;
+				_this96._2channel = true;
 
-				_this95.hasAltCaptcha = false;
-				return _this95;
+				_this96.hasAltCaptcha = false;
+				return _this96;
 			}
 
 			_createClass(_2channel, [{
@@ -22179,13 +22339,13 @@ true, true];
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this96 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this96.jsonSubmit = true;
-				_this96.ru = true;
+				_this97.jsonSubmit = true;
+				_this97.ru = true;
 
-				_this96._capUpdPromise = null;
-				return _this96;
+				_this97._capUpdPromise = null;
+				return _this97;
 			}
 
 			_createClass(_2chRip, [{
@@ -22209,8 +22369,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref78) {
-						var id = _ref78.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
+						var id = _ref80.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -22235,17 +22395,17 @@ true, true];
 			function _410chan(prot, dm) {
 				_classCallCheck(this, _410chan);
 
-				var _this97 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
 
-				_this97.qFormRedir = 'input#noko';
-				_this97.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this98.qFormRedir = 'input#noko';
+				_this98.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this97.ru = true;
-				_this97.hasCatalog = true;
-				_this97.markupBB = false;
-				_this97.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-				_this97._capUpdPromise = null;
-				return _this97;
+				_this98.ru = true;
+				_this98.hasCatalog = true;
+				_this98.markupBB = false;
+				_this98.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this98._capUpdPromise = null;
+				return _this98;
 			}
 
 			_createClass(_410chan, [{
@@ -22269,7 +22429,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this98 = this;
+					var _this99 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -22284,7 +22444,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this98.getCaptchaSrc(src);
+						img.src = _this99.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -22315,39 +22475,39 @@ true, true];
 			function _4chan(prot, dm) {
 				_classCallCheck(this, _4chan);
 
-				var _this99 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
 
-				_this99._4chan = true;
+				_this100._4chan = true;
 
-				_this99.cReply = 'post reply';
-				_this99.qBan = 'strong[style="color: red;"]';
-				_this99.qClosed = '.archivedIcon';
-				_this99.qDelBut = '.deleteform > input[type="submit"]';
-				_this99.qError = '#errmsg';
-				_this99.qForm = 'form[name="post"]';
-				_this99.qFormRedir = null;
-				_this99.qImgInfo = '.fileText';
-				_this99.qOmitted = '.summary.desktop';
-				_this99.qOPost = '.op';
-				_this99.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this99.qPostHeader = '.postInfo';
-				_this99.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this99.qPostName = '.name';
-				_this99.qPostRef = '.postInfo > .postNum';
-				_this99.qPostSubj = '.subject';
-				_this99._qOPostEnd = '.replyContainer';
+				_this100.cReply = 'post reply';
+				_this100.qBan = 'strong[style="color: red;"]';
+				_this100.qClosed = '.archivedIcon';
+				_this100.qDelBut = '.deleteform > input[type="submit"]';
+				_this100.qError = '#errmsg';
+				_this100.qForm = 'form[name="post"]';
+				_this100.qFormRedir = null;
+				_this100.qImgInfo = '.fileText';
+				_this100.qOmitted = '.summary.desktop';
+				_this100.qOPost = '.op';
+				_this100.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this100.qPostHeader = '.postInfo';
+				_this100.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this100.qPostName = '.name';
+				_this100.qPostRef = '.postInfo > .postNum';
+				_this100.qPostSubj = '.subject';
+				_this100._qOPostEnd = '.replyContainer';
 
-				_this99.anchor = '#p';
-				_this99.docExt = '';
-				_this99.firstPage = 1;
-				_this99.formParent = 'resto';
-				_this99.hasAltCaptcha = true;
-				_this99.hasCatalog = true;
-				_this99.hasTextLinks = true;
-				_this99.JsonBuilder = _4chanPostsBuilder;
-				_this99.res = 'thread/';
-				_this99.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-				return _this99;
+				_this100.anchor = '#p';
+				_this100.docExt = '';
+				_this100.firstPage = 1;
+				_this100.formParent = 'resto';
+				_this100.hasAltCaptcha = true;
+				_this100.hasCatalog = true;
+				_this100.hasTextLinks = true;
+				_this100.JsonBuilder = _4chanPostsBuilder;
+				_this100.res = 'thread/';
+				_this100.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				return _this100;
 			}
 
 			_createClass(_4chan, [{
@@ -22487,12 +22647,12 @@ true, true];
 			function _8ch(prot, dm) {
 				_classCallCheck(this, _8ch);
 
-				var _this100 = _possibleConstructorReturn(this, (_8ch.__proto__ || Object.getPrototypeOf(_8ch)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (_8ch.__proto__ || Object.getPrototypeOf(_8ch)).call(this, prot, dm));
 
-				_this100._8ch = true;
+				_this101._8ch = true;
 
-				_this100._capUpdPromise = null;
-				return _this100;
+				_this101._capUpdPromise = null;
+				return _this101;
 			}
 
 			_createClass(_8ch, [{
@@ -22534,12 +22694,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this101 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this102 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this101._8ch = null;
+				_this102._8ch = null;
 
-				_this101.qFormRules = '.regras';
-				return _this101;
+				_this102.qFormRules = '.regras';
+				return _this102;
 			}
 
 			_createClass(_55chan, [{
@@ -22588,23 +22748,23 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this103 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this104 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this103.cReply = 'post';
-				_this103.qDelBut = null;
-				_this103.qDelPassw = null;
-				_this103.qDForm = 'body > .container-fluid';
-				_this103.qPostHeader = '.post_head';
-				_this103.qPostImg = '.post_image > img';
-				_this103.qPostMsg = '.post_comment_body';
-				_this103.qPostRef = '.post_id, .post_head > b';
-				_this103.qPostSubj = '.post_subject';
-				_this103.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this104.cReply = 'post';
+				_this104.qDelBut = null;
+				_this104.qDelPassw = null;
+				_this104.qDForm = 'body > .container-fluid';
+				_this104.qPostHeader = '.post_head';
+				_this104.qPostImg = '.post_image > img';
+				_this104.qPostMsg = '.post_comment_body';
+				_this104.qPostRef = '.post_id, .post_head > b';
+				_this104.qPostSubj = '.post_subject';
+				_this104.qRPost = '.post:not(:first-child):not([postid=""])';
 
-				_this103.docExt = '';
-				_this103.hasOPNum = true;
-				_this103.res = 'thread/';
-				return _this103;
+				_this104.docExt = '';
+				_this104.hasOPNum = true;
+				_this104.res = 'thread/';
+				return _this104;
 			}
 
 			_createClass(Arhivach, [{
@@ -22657,13 +22817,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var _this104 = this;
+					var _this105 = this;
 
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
 						for (var i = 0, _len19 = delPosts.length; i < _len19; ++i) {
-							var post = pByNum.get(_this104.getPNum(delPosts[i]));
+							var post = pByNum.get(_this105.getPNum(delPosts[i]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
 							}
@@ -22709,10 +22869,10 @@ true, true];
 			function Brchan(prot, dm) {
 				_classCallCheck(this, Brchan);
 
-				var _this105 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (Brchan.__proto__ || Object.getPrototypeOf(Brchan)).call(this, prot, dm));
 
-				_this105.markupBB = true;
-				return _this105;
+				_this106.markupBB = true;
+				return _this106;
 			}
 
 			_createClass(Brchan, [{
@@ -22733,10 +22893,10 @@ true, true];
 			function Animach(prot, dm) {
 				_classCallCheck(this, Animach);
 
-				var _this106 = _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).call(this, prot, dm));
 
-				_this106.hasRefererErr = false;
-				return _this106;
+				_this107.hasRefererErr = false;
+				return _this107;
 			}
 
 			_createClass(Animach, [{
@@ -22773,10 +22933,10 @@ true, true];
 			function CrystalCafe(prot, dm) {
 				_classCallCheck(this, CrystalCafe);
 
-				var _this107 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
 
-				_this107.qRPost = '.post.reply';
-				return _this107;
+				_this108.qRPost = '.post.reply';
+				return _this108;
 			}
 
 			_createClass(CrystalCafe, [{
@@ -22807,12 +22967,12 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this108 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this108.qImgInfo = '.filesize, .fileinfo';
+				_this109.qImgInfo = '.filesize, .fileinfo';
 
-				_this108.multiFile = true;
-				return _this108;
+				_this109.multiFile = true;
+				return _this109;
 			}
 
 			_createClass(Diochan, [{
@@ -22845,29 +23005,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this109 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this109.dobrochan = true;
+				_this110.dobrochan = true;
 
-				_this109.qClosed = 'img[src="/images/locked.png"]';
-				_this109.qDForm = 'form[action*="delete"]';
-				_this109.qError = '.post-error, h2';
-				_this109.qFormRedir = 'select[name="goto"]';
-				_this109.qImgInfo = '.fileinfo';
-				_this109.qOmitted = '.abbrev > span:last-of-type';
-				_this109.qPages = '.pages > tbody > tr > td';
-				_this109.qPostMsg = '.postbody';
-				_this109.qPostSubj = '.replytitle';
-				_this109.qTrunc = '.abbrev > span:first-of-type';
+				_this110.qClosed = 'img[src="/images/locked.png"]';
+				_this110.qDForm = 'form[action*="delete"]';
+				_this110.qError = '.post-error, h2';
+				_this110.qFormRedir = 'select[name="goto"]';
+				_this110.qImgInfo = '.fileinfo';
+				_this110.qOmitted = '.abbrev > span:last-of-type';
+				_this110.qPages = '.pages > tbody > tr > td';
+				_this110.qPostMsg = '.postbody';
+				_this110.qPostSubj = '.replytitle';
+				_this110.qTrunc = '.abbrev > span:first-of-type';
 
-				_this109.anchor = '#i';
-				_this109.formParent = 'thread_id';
-				_this109.hasPicWrap = true;
-				_this109.JsonBuilder = DobrochanPostsBuilder;
-				_this109.multiFile = true;
-				_this109.ru = true;
-				_this109.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this109;
+				_this110.anchor = '#i';
+				_this110.formParent = 'thread_id';
+				_this110.hasPicWrap = true;
+				_this110.JsonBuilder = DobrochanPostsBuilder;
+				_this110.multiFile = true;
+				_this110.ru = true;
+				_this110.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this110;
 			}
 
 			_createClass(Dobrochan, [{
@@ -23013,12 +23173,12 @@ true, true];
 			function Dscript(prot, dm) {
 				_classCallCheck(this, Dscript);
 
-				var _this110 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Dscript.__proto__ || Object.getPrototypeOf(Dscript)).call(this, prot, dm));
 
-				_this110.markupBB = true;
-				_this110.multiFile = true;
-				_this110.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-				return _this110;
+				_this111.markupBB = true;
+				_this111.multiFile = true;
+				_this111.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+				return _this111;
 			}
 
 			_createClass(Dscript, [{
@@ -23055,10 +23215,10 @@ true, true];
 			function Endchan(prot, dm) {
 				_classCallCheck(this, Endchan);
 
-				var _this111 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
 
-				_this111.qTrunc = '.contentOmissionIndicator > p';
-				return _this111;
+				_this112.qTrunc = '.contentOmissionIndicator > p';
+				return _this112;
 			}
 
 			_createClass(Endchan, [{
@@ -23093,26 +23253,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this112 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this112.cReply = 'post';
-				_this112.qError = '.error > .info';
-				_this112.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this112.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-				_this112.qOPost = '.thread_OP';
-				_this112.qPages = '.pagelist > li:nth-last-child(2)';
-				_this112.qPostHeader = '.post_head';
-				_this112.qPostMsg = '.text';
-				_this112.qPostSubj = '.subject';
-				_this112.qPostTrip = '.tripcode';
-				_this112.qRPost = '.thread_reply';
-				_this112.qTrunc = '.tldr';
-				_this112.docExt = '';
-				_this112.firstPage = 1;
-				_this112.markupBB = true;
-				_this112.multiFile = true;
-				_this112.res = 'thread/';
-				return _this112;
+				_this113.cReply = 'post';
+				_this113.qError = '.error > .info';
+				_this113.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this113.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+				_this113.qOPost = '.thread_OP';
+				_this113.qPages = '.pagelist > li:nth-last-child(2)';
+				_this113.qPostHeader = '.post_head';
+				_this113.qPostMsg = '.text';
+				_this113.qPostSubj = '.subject';
+				_this113.qPostTrip = '.tripcode';
+				_this113.qRPost = '.thread_reply';
+				_this113.qTrunc = '.tldr';
+				_this113.docExt = '';
+				_this113.firstPage = 1;
+				_this113.markupBB = true;
+				_this113.multiFile = true;
+				_this113.res = 'thread/';
+				return _this113;
 			}
 
 			_createClass(Ernstchan, [{
@@ -23162,12 +23322,12 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this113 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this114 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this113.iichan = true;
+				_this114.iichan = true;
 
-				_this113.hasCatalog = true;
-				return _this113;
+				_this114.hasCatalog = true;
+				return _this114;
 			}
 
 			_createClass(Iichan, [{
@@ -23230,12 +23390,12 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this114 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this115 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this114.qFormRules = '#rules_row';
+				_this115.qFormRules = '#rules_row';
 
-				_this114.hasTextLinks = true;
-				return _this114;
+				_this115.hasTextLinks = true;
+				return _this115;
 			}
 
 			_createClass(Kohlchan, [{
@@ -23261,10 +23421,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this115 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this116 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this115.markupBB = true;
-				return _this115;
+				_this116.markupBB = true;
+				return _this116;
 			}
 
 			_createClass(Kropyvach, [{
@@ -23290,10 +23450,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this116 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this117 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this116.qOPost = '.op';
-				return _this116;
+				_this117.qOPost = '.op';
+				return _this117;
 			}
 
 			_createClass(Lainchan, [{
@@ -23376,15 +23536,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this119 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this120 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this119.qBan = 'font[color="#FF0000"]';
-				_this119.qImgInfo = '.filesize[style="display: inline;"]';
+				_this120.qBan = 'font[color="#FF0000"]';
+				_this120.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this119.formParent = 'replythread';
-				_this119.jsonSubmit = true;
-				_this119.multiFile = true;
-				return _this119;
+				_this120.formParent = 'replythread';
+				_this120.jsonSubmit = true;
+				_this120.multiFile = true;
+				return _this120;
 			}
 
 			_createClass(Ponyach, [{
@@ -23409,9 +23569,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref79) {
-					var error = _ref79.error,
-					    id = _ref79.id;
+				value: function getSubmitData(_ref81) {
+					var error = _ref81.error,
+					    id = _ref81.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23447,12 +23607,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this120 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this121 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this120.qOPost = '.opContainer';
+				_this121.qOPost = '.opContainer';
 
-				_this120.jsonSubmit = false;
-				return _this120;
+				_this121.jsonSubmit = false;
+				return _this121;
 			}
 
 			_createClass(Ponychan, [{
@@ -23487,13 +23647,13 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this121 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this122 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this121.qImgInfo = '.unimportant';
-				_this121.qPages = '.pagination';
+				_this122.qImgInfo = '.unimportant';
+				_this122.qPages = '.pagination';
 
-				_this121.markupBB = true;
-				return _this121;
+				_this122.markupBB = true;
+				return _this122;
 			}
 
 			_createClass(Synch, [{
@@ -23551,16 +23711,16 @@ true, true];
 			function Warosu(prot, dm) {
 				_classCallCheck(this, Warosu);
 
-				var _this122 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+				var _this123 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
 
-				_this122.qDForm = '.content';
-				_this122.qForm = '.subreply';
-				_this122.qPostRef = '.js';
-				_this122.qImgInfo = 'span';
-				_this122.qOPost = 'div[itemscope]';
+				_this123.qDForm = '.content';
+				_this123.qForm = '.subreply';
+				_this123.qPostRef = '.js';
+				_this123.qImgInfo = 'span';
+				_this123.qOPost = 'div[itemscope]';
 
-				_this122.res = 'thread/';
-				return _this122;
+				_this123.res = 'thread/';
+				return _this123;
 			}
 
 			_createClass(Warosu, [{
@@ -23610,8 +23770,8 @@ true, true];
 			return null;
 		}
 		dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-		for (var _i18 = ibEngines.length - 1; _i18 >= 0; --_i18) {
-			var _ibEngines$_i = _slicedToArray(ibEngines[_i18], 2),
+		for (var _i19 = ibEngines.length - 1; _i19 >= 0; --_i19) {
+			var _ibEngines$_i = _slicedToArray(ibEngines[_i19], 2),
 			    path = _ibEngines$_i[0],
 			    Ctor = _ibEngines$_i[1];
 
@@ -23625,7 +23785,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this123 = this;
+			var _this124 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -23638,7 +23798,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this123.hasListeners = true;
+					_this124.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -23652,8 +23812,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref80) {
-			var arg = _ref80.data;
+		_handleMessage: function _handleMessage(_ref82) {
+			var arg = _ref82.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23666,27 +23826,27 @@ true, true];
 				case 'registerapi':
 					if (data) {
 						rv = {};
-						var _iteratorNormalCompletion35 = true;
-						var _didIteratorError35 = false;
-						var _iteratorError35 = undefined;
+						var _iteratorNormalCompletion36 = true;
+						var _didIteratorError36 = false;
+						var _iteratorError36 = undefined;
 
 						try {
-							for (var _iterator35 = data[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-								var aName = _step35.value;
+							for (var _iterator36 = data[Symbol.iterator](), _step36; !(_iteratorNormalCompletion36 = (_step36 = _iterator36.next()).done); _iteratorNormalCompletion36 = true) {
+								var aName = _step36.value;
 
 								rv[aName] = DollchanAPI._register(aName.toLowerCase());
 							}
 						} catch (err) {
-							_didIteratorError35 = true;
-							_iteratorError35 = err;
+							_didIteratorError36 = true;
+							_iteratorError36 = err;
 						} finally {
 							try {
-								if (!_iteratorNormalCompletion35 && _iterator35.return) {
-									_iterator35.return();
+								if (!_iteratorNormalCompletion36 && _iterator36.return) {
+									_iterator36.return();
 								}
 							} finally {
-								if (_didIteratorError35) {
-									throw _iteratorError35;
+								if (_didIteratorError36) {
+									throw _iteratorError36;
 								}
 							}
 						}
@@ -23716,8 +23876,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref81) {
-			var responseText = _ref81.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref83) {
+			var responseText = _ref83.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;
