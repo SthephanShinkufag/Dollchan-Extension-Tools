@@ -228,6 +228,9 @@ const AjaxCache = {
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
 		for(const idx in headers) {
+			if(!headers.hasOwnProperty(idx)) {
+				continue;
+			}
 			let header = headers[idx];
 			if(typeof header === 'string') { // usual xhr
 				const сIdx = header.indexOf(':');

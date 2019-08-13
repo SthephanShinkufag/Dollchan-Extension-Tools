@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'b3ee3eb';
+const commit = 'a4c5ce0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6886,6 +6886,9 @@ const AjaxCache = {
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
 		for(const idx in headers) {
+			if(!headers.hasOwnProperty(idx)) {
+				continue;
+			}
 			let header = headers[idx];
 			if(typeof header === 'string') { // usual xhr
 				const сIdx = header.indexOf(':');

@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'b3ee3eb';
+	var commit = 'a4c5ce0';
 
 
 	var defaultCfg = {
@@ -10031,6 +10031,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 			headers = headers ? headers.split('\r\n') : xhr.headers;
 			for (var idx in headers) {
+				if (!headers.hasOwnProperty(idx)) {
+					continue;
+				}
 				var header = headers[idx];
 				if (typeof header === 'string') {
 					var сIdx = header.indexOf(':');
