@@ -231,7 +231,7 @@ const AjaxCache = {
 			let header = headers[idx];
 			if(typeof header === 'string') { // usual xhr
 				const сIdx = header.indexOf(':');
-				if (сIdx === -1) {
+				if(сIdx === -1) {
 					continue;
 				}
 				const name = header.substring(0, сIdx);

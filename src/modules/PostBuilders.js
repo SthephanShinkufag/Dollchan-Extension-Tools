@@ -25,15 +25,15 @@ class DOMPostsBuilder {
 	getPostEl(i) {
 		return aib.fixHTML(doc.adoptNode(this._posts[i]));
 	}
-	*getRefLinks(i, thrUrl) { // i === 0 - OP-post
+	* getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
 		const links = $Q('a', msg);
-		for(let lNum, i = 0, len = links.length; i < len; ++i) {
+		for(let i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];
 			const tc = link.textContent;
 			if(tc[0] === '>' && tc[1] === '>') {
-				let lNum = parseInt(tc.substr(2), 10);
-				if (lNum) {
+				const lNum = parseInt(tc.substr(2), 10);
+				if(lNum) {
 					yield [link, lNum];
 					const url = link.getAttribute('href');
 					if(url[0] === '#') {
@@ -237,7 +237,7 @@ class DobrochanPostsBuilder {
 	}
 	getPostEl(i) {
 		const el = $add(aib.fixHTML(this.getPostHTML(i)));
-		if (i == -1) {
+		if(i === -1) {
 			return el;
 		}
 		return el.firstElementChild.firstElementChild.lastElementChild;

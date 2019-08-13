@@ -13,7 +13,7 @@ class RefMap {
 	static gen(posts) {
 		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
-			for (const [link, lNum] of post.refLinks()) { // link might be from another document
+			for(const [link, lNum] of post.refLinks()) { // link might be from another document
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-you');
 					if(!MyPosts.has(pNum) && (post instanceof AbstractPost)) {

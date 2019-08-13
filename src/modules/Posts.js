@@ -34,7 +34,7 @@ class AbstractPost {
 		Object.defineProperty(this, 'mp3Obj', { value });
 		return value;
 	}
-	*refLinks() {
+	* refLinks() {
 		const links = $Q('a', this.msg);
 		for(let lNum, i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];

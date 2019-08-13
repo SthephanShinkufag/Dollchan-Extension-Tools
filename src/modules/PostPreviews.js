@@ -37,7 +37,8 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Always use DOM parsing.
-		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false).then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false)
+			.then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -397,8 +398,8 @@ class CacheItem {
 		this.isOp = count === 0;
 		this.isViewed = false;
 	}
-	*refLinks() {
-		yield* this._pBuilder.getRefLinks(this.count, this._thrUrl);
+	* refLinks() {
+		yield * this._pBuilder.getRefLinks(this.count, this._thrUrl);
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -419,13 +420,13 @@ class CacheItem {
 		return new Post.Сontent(this).title;
 	}
 	get el() {
-		let value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
+		const value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
 		Object.defineProperty(this, 'el', { value });
 		return value;
 	}
 	get thr() {
 		let value = null;
-		if (this.isOp) {
+		if(this.isOp) {
 			const pcount = this._pBuilder.length;
 			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
 			Object.defineProperty(value, 'title', { get: () => this.title });
@@ -448,7 +449,7 @@ class PviewsCache extends TemporaryContent {
 		for(let i = 0; i < pBuilder.length; ++i) {
 			lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 		}
-		DelForm.tNums.add(tNum)
+		DelForm.tNums.add(tNum);
 		this._b = b;
 		this._posts = lPByNum;
 		if(Cfg.linksNavig) {
@@ -457,12 +458,13 @@ class PviewsCache extends TemporaryContent {
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if (post && !post.isInited) {
+		if(post && !post.isInited) {
 			if(this._b === aib.b && pByNum.has(num)) {
 				post.ref.makeUnion(pByNum.get(num).ref);
 			}
 			if(post.ref.hasMap) {
-				post.ref.initPostRef(post._thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+				post.ref.initPostRef(post._thrUrl,
+					Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
 			}
 			post.isInited = true;
 		}

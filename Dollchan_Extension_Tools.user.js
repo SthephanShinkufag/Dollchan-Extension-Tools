@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'e726631';
+	var commit = 'b3ee3eb';
 
 
 	var defaultCfg = {
@@ -17689,7 +17689,7 @@ true, true];
 		}, {
 			key: 'getRefLinks',
 			value: regeneratorRuntime.mark(function getRefLinks(i, thrUrl) {
-				var msg, links, lNum, _i17, len, link, tc, _lNum, _url4;
+				var msg, links, _i17, len, link, tc, lNum, _url4;
 
 				return regeneratorRuntime.wrap(function getRefLinks$(_context25) {
 					while (1) {
@@ -17713,15 +17713,15 @@ true, true];
 									break;
 								}
 
-								_lNum = parseInt(tc.substr(2), 10);
+								lNum = parseInt(tc.substr(2), 10);
 
-								if (!_lNum) {
+								if (!lNum) {
 									_context25.next = 13;
 									break;
 								}
 
 								_context25.next = 11;
-								return [link, _lNum];
+								return [link, lNum];
 
 							case 11:
 								_url4 = link.getAttribute('href');
@@ -17965,7 +17965,7 @@ true, true];
 			key: 'getPostEl',
 			value: function getPostEl(i) {
 				var el = $add(aib.fixHTML(this.getPostHTML(i)));
-				if (i == -1) {
+				if (i === -1) {
 					return el;
 				}
 				return el.firstElementChild.firstElementChild.lastElementChild;
