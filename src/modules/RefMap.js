@@ -16,7 +16,7 @@ class RefMap {
 			for (const [link, lNum] of post.refLinks()) { // link might be from another document
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-you');
-					if(!MyPosts.has(pNum) && ('el' in post)) {
+					if(!MyPosts.has(pNum) && (post instanceof AbstractPost)) {
 						post.el.classList.add('de-mypost-reply');
 					}
 				}
@@ -97,7 +97,7 @@ class RefMap {
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.isHidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden && (post instanceof Post)) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '661991e';
+const commit = 'e726631';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11654,17 +11654,16 @@ Pview._delTO = null;
 
 class CacheItem {
 	constructor(pBuilder, thrUrl, count) {
-		this.thrUrl = thrUrl;
+		this._pBuilder = pBuilder;
+		this._thrUrl = thrUrl;
 		this.count = count;
-		this.pBuilder = pBuilder;
-		this.el = null;
 		this.isDeleted = false;
 		this.isInited = false;
 		this.isOp = count === 0;
 		this.isViewed = false;
 	}
 	*refLinks() {
-		yield* this.pBuilder.getRefLinks(this.count, this._thrUrl);
+		yield* this._pBuilder.getRefLinks(this.count, this._thrUrl);
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -11684,6 +11683,21 @@ class CacheItem {
 	get title() {
 		return new Post.Сontent(this).title;
 	}
+	get el() {
+		let value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
+		Object.defineProperty(this, 'el', { value });
+		return value;
+	}
+	get thr() {
+		let value = null;
+		if (this.isOp) {
+			const pcount = this._pBuilder.length;
+			value = { lastNum: this._pBuilder.getPNum(pcount - 1), pcount };
+			Object.defineProperty(value, 'title', { get: () => this.title });
+		}
+		Object.defineProperty(this, 'thr', { value });
+		return value;
+	}
 }
 
 class PviewsCache extends TemporaryContent {
@@ -11694,17 +11708,13 @@ class PviewsCache extends TemporaryContent {
 		}
 		this._isInited = true;
 		const lPByNum = new Map();
-		const pcount = pBuilder.length;
 		const thrUrl = aib.getThrUrl(b, tNum);
-		for(let i = 0; i < pcount; ++i) {
+		lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
+		for(let i = 0; i < pBuilder.length; ++i) {
 			lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 		}
-		this._opObj = new CacheItem(pBuilder, thrUrl, 0);
-		this._opObj.thr = { lastNum: pBuilder.getPNum(pBuilder.length - 1), pcount, title: '' };
-		lPByNum.set(tNum, this._opObj);
-		this._b = b;
-		this._tNum = tNum;
 		DelForm.tNums.add(tNum)
+		this._b = b;
 		this._posts = lPByNum;
 		if(Cfg.linksNavig) {
 			RefMap.gen(lPByNum);
@@ -11712,21 +11722,15 @@ class PviewsCache extends TemporaryContent {
 	}
 	getPost(num) {
 		const post = this._posts.get(num);
-		if(!post || post.isInited) {
-			return post;
+		if (post && !post.isInited) {
+			if(this._b === aib.b && pByNum.has(num)) {
+				post.ref.makeUnion(pByNum.get(num).ref);
+			}
+			if(post.ref.hasMap) {
+				post.ref.initPostRef(post._thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
+			}
+			post.isInited = true;
 		}
-		if(num === this._tNum && this._b === aib.b && pByNum.has(this._tNum)) {
-			post.ref.makeUnion(pByNum.get(this._tNum).ref);
-		}
-		if (post.count == 0) {
-			post.el = post.pBuilder.getOpEl();
-		} else {
-			post.el = post.pBuilder.getPostEl(post.count - 1);
-		}
-		if(post.ref.hasMap) {
-			post.ref.initPostRef(post.thrUrl, Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null);
-		}
-		post.isInited = true;
 		return post;
 	}
 }
@@ -13320,7 +13324,7 @@ class RefMap {
 			for (const [link, lNum] of post.refLinks()) { // link might be from another document
 				if(MyPosts.has(lNum)) {
 					link.classList.add('de-ref-you');
-					if(!MyPosts.has(pNum) && ('el' in post)) {
+					if(!MyPosts.has(pNum) && (post instanceof AbstractPost)) {
 						post.el.classList.add('de-mypost-reply');
 					}
 				}
@@ -13401,7 +13405,7 @@ class RefMap {
 		if(!this._set.has(num)) {
 			this._set.add(num);
 			this._el.insertAdjacentHTML('beforeend', this._getHTML(num, '', isHidden));
-			if(Cfg.hideRefPsts && this._post.isHidden) {
+			if(Cfg.hideRefPsts && this._post.isHidden && (post instanceof Post)) {
 				post.setVisib(true, 'reference to >>' + num);
 				post.ref.hideRef();
 			}
