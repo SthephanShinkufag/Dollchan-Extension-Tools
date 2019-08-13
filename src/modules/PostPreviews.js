@@ -36,8 +36,8 @@ class Pview extends AbstractPost {
 		this._showPview(this.el = $add(`<div class="${ aib.cReply } de-pview-info de-pview">
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
-		// Get post preview via ajax. Uses json if available.
-		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false).then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
+		// Get post preview via ajax. Always use DOM parsing.
+		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false).then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
 	}
 	static get topParent() {
 		return Pview.top ? Pview.top.parent : null;
@@ -399,7 +399,7 @@ class CacheItem {
 		this.isViewed = false;
 	}
 	*refLinks() {
-		yield* this.pBuilder.getRefLinksNum(this.count, this._thrUrl);
+		yield* this.pBuilder.getRefLinks(this.count, this._thrUrl);
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);

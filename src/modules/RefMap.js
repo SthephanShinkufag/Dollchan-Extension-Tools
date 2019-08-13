@@ -13,17 +13,15 @@ class RefMap {
 	static gen(posts) {
 		const { tNums } = DelForm;
 		for(const [pNum, post] of posts) {
-			for (const [link, lNum] of post.refLinks()) {
-				if (link !== null) {
-					if(MyPosts.has(lNum)) {
-						link.classList.add('de-ref-you');
-						if(!MyPosts.has(pNum)) {
-							post.el.classList.add('de-mypost-reply');
-						}
+			for (const [link, lNum] of post.refLinks()) { // link might be from another document
+				if(MyPosts.has(lNum)) {
+					link.classList.add('de-ref-you');
+					if(!MyPosts.has(pNum) && ('el' in post)) {
+						post.el.classList.add('de-mypost-reply');
 					}
-					if(!aib.hasOPNum && tNums.has(lNum)) {
-						link.classList.add('de-ref-op');
-					}
+				}
+				if(!aib.hasOPNum && tNums.has(lNum)) {
+					link.classList.add('de-ref-op');
 				}
 				if(!posts.has(lNum)) {
 					continue;

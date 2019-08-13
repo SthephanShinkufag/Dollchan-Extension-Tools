@@ -3474,7 +3474,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee16, this);
 		}));
 
-		return function checkDelete(_x46) {
+		return function checkDelete(_x47) {
 			return _ref41.apply(this, arguments);
 		};
 	}();
@@ -3633,7 +3633,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}, _callee17, this, [[5, 41, 45, 53], [46,, 48, 52]]);
 		}));
 
-		return function html5Submit(_x48, _x49) {
+		return function html5Submit(_x49, _x50) {
 			return _ref44.apply(this, arguments);
 		};
 	}();
@@ -3642,71 +3642,71 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref84 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
 			var formEl, _ref85, _ref86, favObj, storageName, firstThr;
 
-			return regeneratorRuntime.wrap(function _callee24$(_context33) {
+			return regeneratorRuntime.wrap(function _callee24$(_context34) {
 				while (1) {
-					switch (_context33.prev = _context33.next) {
+					switch (_context34.prev = _context34.next) {
 						case 0:
 							Logger.initLogger();
 
 							if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-								_context33.next = 3;
+								_context34.next = 3;
 								break;
 							}
 
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 3:
 							formEl = $q(aib.qDForm + ', form[de-form]');
 
 							if (formEl) {
-								_context33.next = 7;
+								_context34.next = 7;
 								break;
 							}
 
 							runFrames();
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 7:
 							if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-								_context33.next = 9;
+								_context34.next = 9;
 								break;
 							}
 
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 9:
 							Logger.log('Imageboard check');
 
 							if (locStorage) {
-								_context33.next = 14;
+								_context34.next = 14;
 								break;
 							}
 
 							if (checkStorage()) {
-								_context33.next = 13;
+								_context34.next = 13;
 								break;
 							}
 
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 13:
 							initNavFuncs();
 
 						case 14:
-							_context33.next = 16;
+							_context34.next = 16;
 							return dataPromise || readData();
 
 						case 16:
-							_ref85 = _context33.sent;
+							_ref85 = _context34.sent;
 							_ref86 = _slicedToArray(_ref85, 1);
 							favObj = _ref86[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
-								_context33.next = 21;
+								_context34.next = 21;
 								break;
 							}
 
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 21:
 							docBody.classList.add('de-runned');
@@ -3714,13 +3714,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							addSVGIcons();
 
 							if (!Cfg.disabled) {
-								_context33.next = 28;
+								_context34.next = 28;
 								break;
 							}
 
 							Panel.initPanel(formEl);
 							scriptCSS();
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 28:
 							if ('toJSON' in aProto) {
@@ -3757,22 +3757,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							Logger.log('Replace delform');
 							pByEl = new Map();
 							pByNum = new Map();
-							_context33.prev = 43;
+							_context34.prev = 43;
 
 							DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 							if (!Thread.first) {
 								console.error('No threads detected!');
 							}
-							_context33.next = 53;
+							_context34.next = 53;
 							break;
 
 						case 48:
-							_context33.prev = 48;
-							_context33.t0 = _context33['catch'](43);
+							_context34.prev = 48;
+							_context34.t0 = _context34['catch'](43);
 
-							console.error('Delform parsing error:', getErrorMessage(_context33.t0));
+							console.error('Delform parsing error:', getErrorMessage(_context34.t0));
 							$show(docBody);
-							return _context33.abrupt('return');
+							return _context34.abrupt('return');
 
 						case 53:
 							Logger.log('Parse delform');
@@ -3823,13 +3823,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 80:
 						case 'end':
-							return _context33.stop();
+							return _context34.stop();
 					}
 				}
 			}, _callee24, this, [[43, 48]]);
 		}));
 
-		return function runMain(_x88, _x89) {
+		return function runMain(_x89, _x90) {
 			return _ref84.apply(this, arguments);
 		};
 	}();
@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'ea0c6c8';
+	var commit = '661991e';
 
 
 	var defaultCfg = {
@@ -8157,8 +8157,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (typeof data === 'string') {
 					p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 				} else {
-					var _link = data.nextSibling;
-					p = encodeURIComponent(data.getAttribute('de-href') || _link.getAttribute('de-href') || _link.href) + '" target="_blank">' + Lng.searchIn[lang];
+					var link = data.nextSibling;
+					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
 				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-tracemoe" href="https://trace.moe/?auto&url=' + p + 'TraceMoe'], '<a class="de-menu-item ', '</a>');
 			}
@@ -9439,12 +9439,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var j = 0;
 				for (var i = 0, len = newLinks.length; i < len; ++i) {
 					var _el8 = newLinks[i];
-					var _link2 = oldLinks[j];
-					if (_link2 && _link2.classList.contains('de-current')) {
+					var link = oldLinks[j];
+					if (link && link.classList.contains('de-current')) {
 						this.currentLink = _el8;
 					}
 					if (cloned) {
-						_el8.videoInfo = _link2.videoInfo;
+						_el8.videoInfo = link.videoInfo;
 						j++;
 					} else {
 						var m = _el8.href.match(Videos.ytReg);
@@ -9681,12 +9681,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _parserHelper(qPath, data, loader, isPost, isYtube, reg) {
 				var links = $Q(qPath, isPost ? data.el : data);
 				for (var i = 0, len = links.length; i < len; ++i) {
-					var _link3 = links[i];
-					var m = _link3.href.match(reg);
+					var link = links[i];
+					var m = link.href.match(reg);
 					if (m) {
-						var mPost = isPost ? data : aib.getPostOfEl(_link3);
+						var mPost = isPost ? data : aib.getPostOfEl(link);
 						if (mPost) {
-							mPost.videos.addLink(m, loader, _link3, isYtube);
+							mPost.videos.addLink(m, loader, link, isYtube);
 						}
 					}
 				}
@@ -9703,12 +9703,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.addMP3) {
 			var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var _link4 = els[i];
-				if (_link4.target !== '_blank' && _link4.rel !== 'nofollow' || !_link4.pathname.includes('.mp3')) {
+				var link = els[i];
+				if (link.target !== '_blank' && link.rel !== 'nofollow' || !link.pathname.includes('.mp3')) {
 					continue;
 				}
-				var src = _link4.href;
-				var _el9 = (isPost ? data : aib.getPostOfEl(_link4)).mp3Obj;
+				var src = link.href;
+				var _el9 = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
 				if (nav.canPlayMP3) {
 					if (!$q('audio[src="' + src + '"]', _el9)) {
 						_el9.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
@@ -9721,10 +9721,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (Cfg.addVocaroo) {
 			var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i8 = 0, _len7 = _els2.length; _i8 < _len7; ++_i8) {
-				var _link5 = _els2[_i8];
-				var _el10 = _link5.previousSibling;
+				var _link = _els2[_i8];
+				var _el10 = _link.previousSibling;
 				if (!_el10 || _el10.className !== 'de-vocaroo') {
-					_link5.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link5.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
+					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -10097,7 +10097,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	function ajaxPostsLoad(brd, tNum, useCache) {
-		if (aib.JsonBuilder) {
+		var useJson = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+		if (useJson && aib.JsonBuilder) {
 			return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(function (xhr) {
 				try {
 					return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
@@ -10218,7 +10220,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}, _callee12, _this23);
 				}));
 
-				return function (_x37) {
+				return function (_x38) {
 					return _ref25.apply(this, arguments);
 				};
 			}()).then(function () {
@@ -10380,7 +10382,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee13, this, [[13, 27, 31, 39], [32,, 34, 38], [42, 51]]);
 			}));
 
-			function loadPages(_x38) {
+			function loadPages(_x39) {
 				return _ref26.apply(this, arguments);
 			}
 
@@ -10439,7 +10441,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}, _callee14, this);
 			}));
 
-			function _updateForms(_x39) {
+			function _updateForms(_x40) {
 				return _ref27.apply(this, arguments);
 			}
 
@@ -11894,7 +11896,7 @@ true, true];
 					}, _callee15, this, [[3, 21, 25, 33], [26,, 28, 32]]);
 				}));
 
-				function _ihash(_x41) {
+				function _ihash(_x42) {
 					return _ref36.apply(this, arguments);
 				}
 
@@ -14434,8 +14436,7 @@ true, true];
 		_createClass(AbstractPost, [{
 			key: 'refLinks',
 			value: regeneratorRuntime.mark(function refLinks() {
-				var links, lNum, i, len, _link6, tc;
-
+				var links, lNum, i, len, link, tc;
 				return regeneratorRuntime.wrap(function refLinks$(_context21) {
 					while (1) {
 						switch (_context21.prev = _context21.next) {
@@ -14449,8 +14450,8 @@ true, true];
 									break;
 								}
 
-								_link6 = links[i];
-								tc = _link6.textContent;
+								link = links[i];
+								tc = link.textContent;
 
 								if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
 									_context21.next = 7;
@@ -14461,7 +14462,7 @@ true, true];
 
 							case 7:
 								_context21.next = 9;
-								return [_link6, lNum];
+								return [link, lNum];
 
 							case 9:
 								++i;
@@ -15703,7 +15704,7 @@ true, true];
 			}
 			_this53._showPview(_this53.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">\n\t\t\t<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>' + Lng.loading[lang] + '</div>'));
 
-			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false).then(function (pBuilder) {
+			_this53._loadPromise = ajaxPostsLoad(_this53.brd, tNum, false, false).then(function (pBuilder) {
 				return _this53._onload(pBuilder);
 			}, function (err) {
 				return _this53._onerror(err);
@@ -15835,8 +15836,7 @@ true, true];
 			key: '_buildPview',
 			value: function () {
 				var _ref52 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(post) {
-					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, _link7;
-
+					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
 					return regeneratorRuntime.wrap(function _callee18$(_context22) {
 						while (1) {
 							switch (_context22.prev = _context22.next) {
@@ -15933,10 +15933,10 @@ true, true];
 										$each($Q(aib.qPostImg, pv), function (el) {
 											return $show(el.parentNode);
 										});
-										_link7 = $q('.de-link-parent', pv);
+										link = $q('.de-link-parent', pv);
 
-										if (_link7) {
-											_link7.classList.remove('de-link-parent');
+										if (link) {
+											link.classList.remove('de-link-parent');
 										}
 										if (Cfg.embedYTube && post.videos.hasLinks) {
 											if (post.videos.playerInfo !== null) {
@@ -15970,7 +15970,7 @@ true, true];
 					}, _callee18, this);
 				}));
 
-				function _buildPview(_x60) {
+				function _buildPview(_x61) {
 					return _ref52.apply(this, arguments);
 				}
 
@@ -16190,7 +16190,7 @@ true, true];
 					while (1) {
 						switch (_context23.prev = _context23.next) {
 							case 0:
-								return _context23.delegateYield(this.pBuilder.getRefLinksNum(this.count, this._thrUrl), 't0', 1);
+								return _context23.delegateYield(this.pBuilder.getRefLinks(this.count, this._thrUrl), 't0', 1);
 
 							case 1:
 							case 'end':
@@ -17543,7 +17543,7 @@ true, true];
 				}, _callee19, this);
 			}));
 
-			function _getHashHelper(_x62) {
+			function _getHashHelper(_x63) {
 				return _ref62.apply(this, arguments);
 			}
 
@@ -17583,29 +17583,29 @@ true, true];
 			for (var _iterator26 = post.images[Symbol.iterator](), _step26; !(_iteratorNormalCompletion26 = (_step26 = _iterator26.next()).done); _iteratorNormalCompletion26 = true) {
 				var image = _step26.value;
 
-				var _link8 = image.nameLink;
-				if (!_link8) {
+				var link = image.nameLink;
+				if (!link) {
 					return;
 				}
 				if (addSrc) {
-					addImgSrcButtons(_link8, image.isVideo ? image.el.src : null);
+					addImgSrcButtons(link, image.isVideo ? image.el.src : null);
 				}
 				var name = image.name;
 
-				if (!_link8.classList.contains('de-img-name')) {
-					_link8.classList.add('de-img-name');
-					_link8.title = name;
-					_link8.setAttribute('download', name);
-					_link8.setAttribute('de-href', _link8.href);
+				if (!link.classList.contains('de-img-name')) {
+					link.classList.add('de-img-name');
+					link.title = name;
+					link.setAttribute('download', name);
+					link.setAttribute('de-href', link.href);
 				}
 				if (imgNames) {
 					var ext = void 0;
-					if (!(ext = _link8.getAttribute('de-img-ext'))) {
-						ext = name.split('.').pop() || _link8.href.split('/').pop().split('.').pop();
-						_link8.setAttribute('de-img-ext', ext);
-						_link8.setAttribute('de-img-name-old', _link8.textContent);
+					if (!(ext = link.getAttribute('de-img-ext'))) {
+						ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+						link.setAttribute('de-img-ext', ext);
+						link.setAttribute('de-img-name-old', link.textContent);
 					}
-					_link8.textContent = imgNames === 2 ? ext : name;
+					link.textContent = imgNames === 2 ? ext : name;
 				}
 			}
 		} catch (err) {
@@ -17630,14 +17630,14 @@ true, true];
 		}
 		var els = $Q(aib.qMsgImgLink, el);
 		for (var i = 0, len = els.length; i < len; ++i) {
-			var _link9 = els[i];
-			var _url3 = _link9.href;
-			if (_url3.includes('?') || aib.getPostOfEl(_link9).hidden) {
+			var link = els[i];
+			var _url3 = link.href;
+			if (_url3.includes('?') || aib.getPostOfEl(link).hidden) {
 				continue;
 			}
-			$bBegin(_link9, '<a href="' + _link9.href + '" target="_blank"><img class="de-img-embed" src="' + _url3 + '"></a><br>');
+			$bBegin(link, '<a href="' + link.href + '" target="_blank"><img class="de-img-embed" src="' + _url3 + '"></a><br>');
 			if (Cfg.imgSrcBtns) {
-				addImgSrcButtons(_link9);
+				addImgSrcButtons(link);
 			}
 		}
 	}
@@ -17675,63 +17675,91 @@ true, true];
 				return aib.fixHTML(doc.adoptNode(this._posts[i]));
 			}
 		}, {
-			key: 'getRefLinksNum',
-			value: function getRefLinksNum(i, thrUrl) {
-				var msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
-				var links = $Q('a', msg);
-				var rv = [];
-				for (var lNum, _i17 = 0, len = links.length; _i17 < len; ++_i17) {
-					var _link10 = links[_i17];
-					var tc = _link10.textContent;
-					if (tc[0] === '>' && tc[1] === '>') {
-						var _lNum = parseInt(tc.substr(2), 10);
-						if (_lNum) {
-							rv.push([null, _lNum]);
-							var _url4 = _link10.getAttribute('href');
-							if (_url4[0] === '#') {
-								_link10.setAttribute('href', thrURL + _url4);
-							}
-							if (!aib.hasOPNum && DelForm.tNums.has(_lNum)) {
-								_link10.classList.add('de-ref-op');
-							}
-							if (MyPosts.has(_lNum)) {
-								_link10.classList.add('de-ref-you');
-							}
+			key: 'getRefLinks',
+			value: regeneratorRuntime.mark(function getRefLinks(i, thrUrl) {
+				var msg, links, lNum, _i17, len, link, tc, _lNum, _url4;
+
+				return regeneratorRuntime.wrap(function getRefLinks$(_context25) {
+					while (1) {
+						switch (_context25.prev = _context25.next) {
+							case 0:
+								msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
+								links = $Q('a', msg);
+								_i17 = 0, len = links.length;
+
+							case 3:
+								if (!(_i17 < len)) {
+									_context25.next = 16;
+									break;
+								}
+
+								link = links[_i17];
+								tc = link.textContent;
+
+								if (!(tc[0] === '>' && tc[1] === '>')) {
+									_context25.next = 13;
+									break;
+								}
+
+								_lNum = parseInt(tc.substr(2), 10);
+
+								if (!_lNum) {
+									_context25.next = 13;
+									break;
+								}
+
+								_context25.next = 11;
+								return [link, _lNum];
+
+							case 11:
+								_url4 = link.getAttribute('href');
+
+								if (_url4[0] === '#') {
+									link.setAttribute('href', thrUrl + _url4);
+								}
+
+							case 13:
+								++_i17;
+								_context25.next = 3;
+								break;
+
+							case 16:
+							case 'end':
+								return _context25.stop();
 						}
 					}
-				}
-				return rv;
-			}
+				}, getRefLinks, this);
+			})
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var banEls, i, len, banEl, postEl;
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context25) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
 					while (1) {
-						switch (_context25.prev = _context25.next) {
+						switch (_context26.prev = _context26.next) {
 							case 0:
 								banEls = $Q(aib.qBan, this._form);
 								i = 0, len = banEls.length;
 
 							case 2:
 								if (!(i < len)) {
-									_context25.next = 10;
+									_context26.next = 10;
 									break;
 								}
 
 								banEl = banEls[i];
 								postEl = aib.getPostElOfEl(banEl);
-								_context25.next = 7;
+								_context26.next = 7;
 								return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
 							case 7:
 								++i;
-								_context25.next = 2;
+								_context26.next = 2;
 								break;
 
 							case 10:
 							case 'end':
-								return _context25.stop();
+								return _context26.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -17859,53 +17887,14 @@ true, true];
 				return '<div class="postContainer replyContainer" id="pc' + num + '">\n\t\t\t<div class="sideArrows" id="sa' + num + '">&gt;&gt;</div>\n\t\t\t<div id="p' + num + '" class="post ' + (i === -1 ? 'op' : 'reply') + ' ' + highlight + '">\n\t\t\t\t<div class="postInfoM mobile" id="pim' + num + '">\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + mobNameEl + '\n\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '<br>\n\t\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime postNum" data-utc="' + data.time + '">' + data.now + ' ' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="postInfo desktop" id="pi' + num + '">\n\t\t\t\t\t<input name="' + num + '" value="delete" type="checkbox">\n\t\t\t\t\t' + subjEl + '\n\t\t\t\t\t<span class="nameBlock ' + ccClass + '">\n\t\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t\t\t' + nameEl + '\n\t\t\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t\t\t' + ccText + '\n\t\t\t\t\t\t' + (data.email ? '</a>' : '') + '\n\t\t\t\t\t\t' + ccImg + '\n\t\t\t\t\t\t' + posteruidEl + '\n\t\t\t\t\t\t' + flagEl + '\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class="dateTime" data-utc="' + data.time + '">' + data.now + '</span>\n\t\t\t\t\t<span class="postNum desktop">' + replyEl + '</span>\n\t\t\t\t</div>\n\t\t\t\t' + fileHTML + '\n\t\t\t\t<blockquote class="postMessage" id="m' + num + '"> ' + (data.com || '') + '</blockquote>\n\t\t\t</div>\n\t\t</div>';
 			}
 		}, {
-			key: 'getRefLinksNum',
-			value: function getRefLinksNum(i, thrUrl) {
-				var msg = this._posts[i].com || '';
-				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*?) href="([^"]+)"([^>]*?)(?: class="([^"]+)")?([^>]*?)>&gt;&gt;(\d+)/g;
-				var rv = [];
-				this._posts[i].com = msg.replace(regex, function (full, part1, classes1, part2, url, part3, classes2, part4, num) {
-					var lNum = +num;
-					rv.push([null, lNum]);
-					var isOpLink = DelForm.tNums.has(lNum);
-					var isYouLink = MyPosts.has(lNum);
-					var fixedUrl = url[0] == '#' ? thrUrl + url : url;
-					if (isOpLink || isYouLink) {
-						var classes = [];
-						if (isOpLink) {
-							classes.push('de-ref-op');
-						}
-						if (isYouLink) {
-							classes.push('de-ref-you');
-						}
-						classes = classes.join(' ');
-						if (classes1 !== undefined) {
-							return part1 + ' class="' + classes + ' ' + classes1 + '"' + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
-						}
-						if (classes2 !== undefined) {
-							return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + ' class="' + classes + ' ' + classes2 + '"' + part4 + '>&gt;&gt;' + num;
-						}
-						return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + ' class="' + classes + '">&gt;&gt;' + num;
-					}
-					if (classes1 !== undefined) {
-						return part1 + ' class="' + classes1 + '"' + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
-					}
-					if (classes2 !== undefined) {
-						return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + ' class="' + classes2 + '"' + part4 + '>&gt;&gt;' + num;
-					}
-					return '' + part1 + part2 + ' href="' + fixedUrl + '"' + part3 + part4 + '>&gt;&gt;' + num;
-				});
-				return rv;
-			}
-		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context26) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context27) {
 					while (1) {
-						switch (_context26.prev = _context26.next) {
+						switch (_context27.prev = _context27.next) {
 							case 0:
 							case 'end':
-								return _context26.stop();
+								return _context27.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -18048,43 +18037,14 @@ true, true];
 				return (isOp ? '<div id="post_' + num + '" class="oppost post">' : '<table id="post_' + num + '" class="replypost post"><tbody><tr>\n\t\t\t<td class="doubledash">&gt;&gt;</td>\n\t\t\t<td class="reply" id="reply' + num + '">') + '\n\t\t\t\t<a name="i' + num + '"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name="' + num + '" value="' + data.thread_id + '" ' + ('class="delete_checkbox" id="delbox_' + num + '" type="checkbox">\n\t\t\t\t\t' + (data.subject ? '<span class="replytitle">' + data.subject + '</span>' : '') + '\n\t\t\t\t\t<span class="postername">' + (data.name || 'Анонимус') + '</span> ' + date + '\n\t\t\t\t</label>\n\t\t\t\t<span class="reflink">\n\t\t\t\t\t<a href="/' + brd + '/res/' + data.thread_id + '.xhtml#i' + num + '"> No.' + num + '</a>\n\t\t\t\t</span><br>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + (multiFile ? '<div style="clear: both;"></div>' : '') + '\n\t\t\t\t<div class="postbody"> ' + data.message_html + '</div>\n\t\t\t' + (isOp ? '</div>' : '</td></tr></tbody></table>'));
 			}
 		}, {
-			key: 'getRefLinksNum',
-			value: function getRefLinksNum(i, thrUrl) {
-				var msg = this._posts[i].message_html || '';
-				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>&gt;&gt;(\d+)/g;
-				var rv = [];
-				this._posts[i].message_html = msg.replace(regex, function (full, part1, classes, end, num) {
-					var lNum = +num;
-					rv.push([null, lNum]);
-					var isOpLink = DelForm.tNums.has(lNum);
-					var isYouLink = MyPosts.has(lNum);
-					if (isOpLink || isYouLink) {
-						var eClasses = [];
-						if (isOpLink) {
-							eClasses.push('de-ref-op');
-						}
-						if (isYouLink) {
-							eClasses.push('de-ref-you');
-						}
-						eClasses = eClasses.join(' ');
-						if (classes === undefined) {
-							return '' + part1 + end + ' class="' + eClasses + '">&gt;&gt;' + num;
-						}
-						return part1 + ' class="' + eClasses + ' ' + classes + '"' + end + '>&gt;&gt;' + num;
-					}
-					return full;
-				});
-				return rv;
-			}
-		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context27) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context28) {
 					while (1) {
-						switch (_context27.prev = _context27.next) {
+						switch (_context28.prev = _context28.next) {
 							case 0:
 							case 'end':
-								return _context27.stop();
+								return _context28.stop();
 						}
 					}
 				}, bannedPostsData, this);
@@ -18207,110 +18167,90 @@ true, true];
 				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {
-			key: 'getRefLinksNum',
-			value: function getRefLinksNum(i, thrUrl) {
-				var msg = this._posts[i].comment || '';
-				var regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>>>(\d+)/g;
-				var rv = [];
-				this._posts[i].comment = msg.replace(regex, function (full, part1, classes, end, num) {
-					var lNum = +num;
-					rv.push([null, lNum]);
-					if (MyPosts.has(lNum)) {
-						link.classList.add('de-ref-you');
-						if (classes === undefined) {
-							return '' + part1 + end + ' class="de-ref-you">&gt;&gt;' + num;
-						}
-						return part1 + ' class="de-ref-you ' + classes + '"' + end + '>&gt;&gt;' + num;
-					}
-					return full;
-				});
-				return rv;
-			}
-		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
 				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref64, banned, num;
 
-				return regeneratorRuntime.wrap(function bannedPostsData$(_context28) {
+				return regeneratorRuntime.wrap(function bannedPostsData$(_context29) {
 					while (1) {
-						switch (_context28.prev = _context28.next) {
+						switch (_context29.prev = _context29.next) {
 							case 0:
 								p = this._isNew ? 'post__' : '';
 								_iteratorNormalCompletion29 = true;
 								_didIteratorError29 = false;
 								_iteratorError29 = undefined;
-								_context28.prev = 4;
+								_context29.prev = 4;
 								_iterator29 = this._posts[Symbol.iterator]();
 
 							case 6:
 								if (_iteratorNormalCompletion29 = (_step29 = _iterator29.next()).done) {
-									_context28.next = 22;
+									_context29.next = 22;
 									break;
 								}
 
 								_ref64 = _step29.value;
 								banned = _ref64.banned;
 								num = _ref64.num;
-								_context28.t0 = banned;
-								_context28.next = _context28.t0 === 1 ? 13 : _context28.t0 === 2 ? 16 : 19;
+								_context29.t0 = banned;
+								_context29.next = _context29.t0 === 1 ? 13 : _context29.t0 === 2 ? 16 : 19;
 								break;
 
 							case 13:
-								_context28.next = 15;
+								_context29.next = 15;
 								return [1, num, $add('<span class="' + p + 'pomyanem">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>')];
 
 							case 15:
-								return _context28.abrupt('break', 19);
+								return _context29.abrupt('break', 19);
 
 							case 16:
-								_context28.next = 18;
+								_context29.next = 18;
 								return [2, num, $add('<span class="' + p + 'pomyanem">' + '(Автор этого поста был предупрежден.)</span>')];
 
 							case 18:
-								return _context28.abrupt('break', 19);
+								return _context29.abrupt('break', 19);
 
 							case 19:
 								_iteratorNormalCompletion29 = true;
-								_context28.next = 6;
+								_context29.next = 6;
 								break;
 
 							case 22:
-								_context28.next = 28;
+								_context29.next = 28;
 								break;
 
 							case 24:
-								_context28.prev = 24;
-								_context28.t1 = _context28['catch'](4);
+								_context29.prev = 24;
+								_context29.t1 = _context29['catch'](4);
 								_didIteratorError29 = true;
-								_iteratorError29 = _context28.t1;
+								_iteratorError29 = _context29.t1;
 
 							case 28:
-								_context28.prev = 28;
-								_context28.prev = 29;
+								_context29.prev = 28;
+								_context29.prev = 29;
 
 								if (!_iteratorNormalCompletion29 && _iterator29.return) {
 									_iterator29.return();
 								}
 
 							case 31:
-								_context28.prev = 31;
+								_context29.prev = 31;
 
 								if (!_didIteratorError29) {
-									_context28.next = 34;
+									_context29.next = 34;
 									break;
 								}
 
 								throw _iteratorError29;
 
 							case 34:
-								return _context28.finish(31);
+								return _context29.finish(31);
 
 							case 35:
-								return _context28.finish(28);
+								return _context29.finish(28);
 
 							case 36:
 							case 'end':
-								return _context28.stop();
+								return _context29.stop();
 						}
 					}
 				}, bannedPostsData, this, [[4, 24, 28, 36], [29,, 31, 35]]);
@@ -18604,19 +18544,16 @@ true, true];
 
 								var _ref68 = _slicedToArray(_ref67, 2);
 
-								var _link11 = _ref68[0];
+								var link = _ref68[0];
 								var lNum = _ref68[1];
-
-								if (_link11 !== null) {
-									if (MyPosts.has(lNum)) {
-										_link11.classList.add('de-ref-you');
-										if (!MyPosts.has(pNum)) {
-											post.el.classList.add('de-mypost-reply');
-										}
+								if (MyPosts.has(lNum)) {
+									link.classList.add('de-ref-you');
+									if (!MyPosts.has(pNum) && 'el' in post) {
+										post.el.classList.add('de-mypost-reply');
 									}
-									if (!aib.hasOPNum && tNums.has(lNum)) {
-										_link11.classList.add('de-ref-op');
-									}
+								}
+								if (!aib.hasOPNum && tNums.has(lNum)) {
+									link.classList.add('de-ref-op');
 								}
 								if (!posts.has(lNum)) {
 									continue;
@@ -18683,13 +18620,13 @@ true, true];
 				var strNums = isAdd && Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
 				var links = $Q('a', post.msg);
 				for (var lNum, i = 0, len = links.length; i < len; ++i) {
-					var _link12 = links[i];
-					var tc = _link12.textContent;
+					var link = links[i];
+					var tc = link.textContent;
 					if (tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10))) {
 						continue;
 					}
 					if (isAdd && MyPosts.has(lNum)) {
-						_link12.classList.add('de-ref-you');
+						link.classList.add('de-ref-you');
 						if (!MyPosts.has(pNum)) {
 							var postClass = post.el.classList;
 							if (!postClass.contains('de-mypost-reply')) {
@@ -18703,17 +18640,17 @@ true, true];
 					}
 					var lPost = pByNum.get(lNum);
 					if (!aib.t) {
-						_link12.href = '#' + (aib._4chan ? 'p' : '') + lNum;
+						link.href = '#' + (aib._4chan ? 'p' : '') + lNum;
 					}
 					if (!isAdd) {
 						lPost.ref.removeLink(pNum);
 						return;
 					}
 					if (strNums && strNums.has(lNum)) {
-						_link12.classList.add('de-link-hid');
+						link.classList.add('de-link-hid');
 					}
 					if (!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-						_link12.classList.add('de-ref-op');
+						link.classList.add('de-ref-op');
 					}
 					lPost.ref.hasMap = true;
 					lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
@@ -21035,12 +20972,12 @@ true, true];
 						var _this82 = this;
 
 						var pageInp, query, errFn;
-						return regeneratorRuntime.wrap(function _callee20$(_context29) {
+						return regeneratorRuntime.wrap(function _callee20$(_context30) {
 							while (1) {
-								switch (_context29.prev = _context29.next) {
+								switch (_context30.prev = _context30.next) {
 									case 0:
 										if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-											_context29.next = 5;
+											_context30.next = 5;
 											break;
 										}
 
@@ -21052,13 +20989,13 @@ true, true];
 										} else if (!pageInp) {
 											form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
 										}
-										return _context29.abrupt('return');
+										return _context30.abrupt('return');
 
 									case 5:
 										query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
 										if ($q('input[name="thread"]', form)) {
-											_context29.next = 11;
+											_context30.next = 11;
 											break;
 										}
 
@@ -21066,12 +21003,12 @@ true, true];
 										$each($Q(query, form), function (el) {
 											return _this82._origInputs[0].appendChild(el);
 										});
-										_context29.next = 17;
+										_context30.next = 17;
 										break;
 
 									case 11:
 										if (tNum) {
-											_context29.next = 17;
+											_context30.next = 17;
 											break;
 										}
 
@@ -21079,7 +21016,7 @@ true, true];
 										$delAll(query, form);
 										form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 										this._origInputs = null;
-										return _context29.abrupt('return');
+										return _context30.abrupt('return');
 
 									case 17:
 										errFn = function errFn() {
@@ -21088,7 +21025,7 @@ true, true];
 										};
 
 										$popup('load-form', Lng.loading[lang], true);
-										_context29.next = 21;
+										_context30.next = 21;
 										return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
 											var loadedForm = $q(_this82.qForm, loadedDoc);
 											if (!loadedForm) {
@@ -21105,13 +21042,13 @@ true, true];
 
 									case 21:
 									case 'end':
-										return _context29.stop();
+										return _context30.stop();
 								}
 							}
 						}, _callee20, this);
 					}));
 
-					function changeReplyMode(_x79, _x80) {
+					function changeReplyMode(_x80, _x81) {
 						return _ref73.apply(this, arguments);
 					}
 
@@ -21460,29 +21397,29 @@ true, true];
 
 						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len17, file, cookieObj, task, url;
 
-						return regeneratorRuntime.wrap(function _callee23$(_context32) {
+						return regeneratorRuntime.wrap(function _callee23$(_context33) {
 							while (1) {
-								switch (_context32.prev = _context32.next) {
+								switch (_context33.prev = _context33.next) {
 									case 0:
 										ajaxParams = void 0;
 
 										if (!this._hasNewAPI) {
-											_context32.next = 5;
+											_context33.next = 5;
 											break;
 										}
 
 										ajaxParams = { data: data, method: 'POST' };
-										_context32.next = 28;
+										_context33.next = 28;
 										break;
 
 									case 5:
 										getBase64 = function () {
 											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
-												return regeneratorRuntime.wrap(function _callee21$(_context30) {
+												return regeneratorRuntime.wrap(function _callee21$(_context31) {
 													while (1) {
-														switch (_context30.prev = _context30.next) {
+														switch (_context31.prev = _context31.next) {
 															case 0:
-																return _context30.abrupt('return', new Promise(function (resolve, reject) {
+																return _context31.abrupt('return', new Promise(function (resolve, reject) {
 																	var reader = new FileReader();
 																	reader.readAsDataURL(file);
 																	reader.onload = function () {
@@ -21495,13 +21432,13 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context30.stop();
+																return _context31.stop();
 														}
 													}
 												}, _callee21, _this87);
 											}));
 
-											return function getBase64(_x85) {
+											return function getBase64(_x86) {
 												return _ref77.apply(this, arguments);
 											};
 										}();
@@ -21521,9 +21458,9 @@ true, true];
 
 										data.forEach(function () {
 											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
-												return regeneratorRuntime.wrap(function _callee22$(_context31) {
+												return regeneratorRuntime.wrap(function _callee22$(_context32) {
 													while (1) {
-														switch (_context31.prev = _context31.next) {
+														switch (_context32.prev = _context32.next) {
 															case 0:
 																if (key !== 'files') {
 																	dataObj[key] = value;
@@ -21533,13 +21470,13 @@ true, true];
 
 															case 1:
 															case 'end':
-																return _context31.stop();
+																return _context32.stop();
 														}
 													}
 												}, _callee22, _this87);
 											}));
 
-											return function (_x86, _x87) {
+											return function (_x87, _x88) {
 												return _ref78.apply(this, arguments);
 											};
 										}());
@@ -21547,39 +21484,39 @@ true, true];
 
 									case 11:
 										if (!(i < _len17)) {
-											_context32.next = 26;
+											_context33.next = 26;
 											break;
 										}
 
 										file = files[i];
 
 										if (!file.type) {
-											_context32.next = 23;
+											_context33.next = 23;
 											break;
 										}
 
-										_context32.t0 = dataObj.files;
-										_context32.t1 = 'data:' + file.type + ';base64,';
-										_context32.next = 18;
+										_context33.t0 = dataObj.files;
+										_context33.t1 = 'data:' + file.type + ';base64,';
+										_context33.next = 18;
 										return getBase64(file).then(function (data) {
 											return data.split(',')[1];
 										});
 
 									case 18:
-										_context32.t2 = _context32.sent;
-										_context32.t3 = _context32.t1 + _context32.t2;
-										_context32.t4 = file.name;
-										_context32.t5 = {
-											content: _context32.t3,
-											name: _context32.t4,
+										_context33.t2 = _context33.sent;
+										_context33.t3 = _context33.t1 + _context33.t2;
+										_context33.t4 = file.name;
+										_context33.t5 = {
+											content: _context33.t3,
+											name: _context33.t4,
 											spoiler: false
 										};
 
-										_context32.t0.push.call(_context32.t0, _context32.t5);
+										_context33.t0.push.call(_context33.t0, _context33.t5);
 
 									case 23:
 										++i;
-										_context32.next = 11;
+										_context33.next = 11;
 										break;
 
 									case 26:
@@ -21602,7 +21539,7 @@ true, true];
 										}
 										task = form.action.split('/').pop();
 										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
-										return _context32.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
+										return _context33.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;
 										}).catch(function (err) {
 											return Promise.reject(err);
@@ -21610,13 +21547,13 @@ true, true];
 
 									case 32:
 									case 'end':
-										return _context32.stop();
+										return _context33.stop();
 								}
 							}
 						}, _callee23, this);
 					}));
 
-					function sendHTML5Post(_x81, _x82, _x83, _x84) {
+					function sendHTML5Post(_x82, _x83, _x84, _x85) {
 						return _ref76.apply(this, arguments);
 					}
 
@@ -22824,9 +22761,9 @@ true, true];
 					var formEl = _get(Arhivach.prototype.__proto__ || Object.getPrototypeOf(Arhivach.prototype), 'fixHTML', this).call(this, data, isForm);
 					var links = $Q('.expand_image', formEl);
 					for (var i = 0, _len18 = links.length; i < _len18; ++i) {
-						var _link13 = links[i];
-						_link13.href = _link13.getAttribute('onclick').match(/https?:\/[^']+/)[0];
-						_link13.removeAttribute('onclick');
+						var link = links[i];
+						link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
+						link.removeAttribute('onclick');
 					}
 					return formEl;
 				}

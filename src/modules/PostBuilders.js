@@ -25,31 +25,23 @@ class DOMPostsBuilder {
 	getPostEl(i) {
 		return aib.fixHTML(doc.adoptNode(this._posts[i]));
 	}
-	getRefLinksNum(i, thrUrl) { // i === 0 - OP-post
+	*getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
 		const links = $Q('a', msg);
-		const rv = [];
 		for(let lNum, i = 0, len = links.length; i < len; ++i) {
 			const link = links[i];
 			const tc = link.textContent;
 			if(tc[0] === '>' && tc[1] === '>') {
-				let lNum =  parseInt(tc.substr(2), 10);
+				let lNum = parseInt(tc.substr(2), 10);
 				if (lNum) {
-					rv.push([null, lNum]);
+					yield [link, lNum];
 					const url = link.getAttribute('href');
 					if(url[0] === '#') {
-						link.setAttribute('href', thrURL + url);
-					}
-					if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
-						link.classList.add('de-ref-op');
-					}
-					if(MyPosts.has(lNum)) {
-						link.classList.add('de-ref-you');
+						link.setAttribute('href', thrUrl + url);
 					}
 				}
 			}
 		}
-		return rv;
 	}
 	* bannedPostsData() {
 		const banEls = $Q(aib.qBan, this._form);
@@ -216,43 +208,6 @@ class _4chanPostsBuilder {
 			</div>
 		</div>`;
 	}
-	getRefLinksNum(i, thrUrl) { // i === 0 - OP-post
-		const msg = this._posts[i].com || '';
-		const regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*?) href="([^"]+)"([^>]*?)(?: class="([^"]+)")?([^>]*?)>&gt;&gt;(\d+)/g;
-		const rv = [];
-		this._posts[i].com = msg.replace(regex, (full, part1, classes1, part2, url, part3, classes2, part4, num) => {
-			const lNum = +num;
-			rv.push([null, lNum]);
-			const isOpLink = DelForm.tNums.has(lNum);
-			const isYouLink = MyPosts.has(lNum);
-			const fixedUrl = url[0] == '#' ? thrUrl + url : url;
-			if (isOpLink || isYouLink) {
-				let classes = [];
-				if (isOpLink) {
-					classes.push('de-ref-op');
-				}
-				if (isYouLink) {
-					classes.push('de-ref-you');
-				}
-				classes = classes.join(' ');
-				if (classes1 !== undefined) {
-					return `${part1} class="${classes} ${classes1}"${part2} href="${fixedUrl}"${part3}${part4}>&gt;&gt;${num}`
-				}
-				if (classes2 !== undefined) {
-					return `${part1}${part2} href="${fixedUrl}"${part3} class="${classes} ${classes2}"${part4}>&gt;&gt;${num}`
-				}
-				return `${part1}${part2} href="${fixedUrl}"${part3}${part4} class="${classes}">&gt;&gt;${num}`
-			}
-			if (classes1 !== undefined) {
-				return `${part1} class="${classes1}"${part2} href="${fixedUrl}"${part3}${part4}>&gt;&gt;${num}`
-			}
-			if (classes2 !== undefined) {
-				return `${part1}${part2} href="${fixedUrl}"${part3} class="${classes2}"${part4}>&gt;&gt;${num}`
-			}
-			return `${part1}${part2} href="${fixedUrl}"${part3}${part4}>&gt;&gt;${num}`
-		});
-		return rv;
-	}
 	* bannedPostsData() {}
 }
 _4chanPostsBuilder._customSpoiler = new Map();
@@ -363,33 +318,6 @@ class DobrochanPostsBuilder {
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
 				<div class="postbody"> ${ data.message_html }</div>
 			${ isOp ? '</div>' : '</td></tr></tbody></table>' }`;
-	}
-	getRefLinksNum(i, thrUrl) { // i === 0 - OP-post
-		const msg = this._posts[i].message_html || '';
-		const regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>&gt;&gt;(\d+)/g;
-		const rv = [];
-		this._posts[i].message_html = msg.replace(regex, (full, part1, classes, end, num) => {
-			const lNum = +num;
-			rv.push([null, lNum]);
-			const isOpLink = DelForm.tNums.has(lNum);
-			const isYouLink = MyPosts.has(lNum);
-			if (isOpLink || isYouLink) {
-				let eClasses = [];
-				if (isOpLink) {
-					eClasses.push('de-ref-op');
-				}
-				if (isYouLink) {
-					eClasses.push('de-ref-you');
-				}
-				eClasses = eClasses.join(' ');
-				if (classes === undefined) {
-					return `${part1}${end} class="${eClasses}">&gt;&gt;${num}`;
-				}
-				return `${part1} class="${eClasses} ${classes}"${end}>&gt;&gt;${num}`;
-			}
-			return full;
-		});
-		return rv;
 	}
 	* bannedPostsData() {}
 }
@@ -516,24 +444,6 @@ class MakabaPostsBuilder {
 				${ this._getPostMsg(data) }
 			</div>
 		</div>`;
-	}
-	getRefLinksNum(i, thrUrl) { // i === 0 - OP-post
-		const msg = this._posts[i].comment || '';
-		const regex = /(<a[^>]*?)(?: class="([^"]+)")?([^>]*)>>>(\d+)/g;
-		const rv = [];
-		this._posts[i].comment = msg.replace(regex, (full, part1, classes, end, num) => {
-			const lNum = +num;
-			rv.push([null, lNum]);
-			if(MyPosts.has(lNum)) {
-				link.classList.add('de-ref-you');
-				if (classes === undefined) {
-					return `${part1}${end} class="de-ref-you">&gt;&gt;${num}`;
-				}
-				return `${part1} class="de-ref-you ${classes}"${end}>&gt;&gt;${num}`;
-			}
-			return full;
-		});
-		return rv;
 	}
 	* bannedPostsData() {
 		const p = this._isNew ? 'post__' : '';

@@ -283,8 +283,8 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
-function ajaxPostsLoad(brd, tNum, useCache) {
-	if(aib.JsonBuilder) {
+function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
+	if(useJson && aib.JsonBuilder) {
 		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
 			try {
 				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
