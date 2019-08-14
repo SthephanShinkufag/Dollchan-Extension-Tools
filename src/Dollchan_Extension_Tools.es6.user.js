@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '0ac9721';
+const commit = 'b6efe29';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4702,6 +4702,9 @@ const CfgWindow = {
 					break;
 				case 'de-btn-spell-clear':
 					$pd(e);
+					if(!confirm(Lng.clear[lang] + '?')) {
+						return;
+					}
 					$id('de-spell-txt').value = '';
 					Spells.toggle();
 				}

@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '0ac9721';
+	var commit = 'b6efe29';
 
 
 	var defaultCfg = {
@@ -7823,6 +7823,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							break;
 						case 'de-btn-spell-clear':
 							$pd(e);
+							if (!confirm(Lng.clear[lang] + '?')) {
+								return;
+							}
 							$id('de-spell-txt').value = '';
 							Spells.toggle();
 					}

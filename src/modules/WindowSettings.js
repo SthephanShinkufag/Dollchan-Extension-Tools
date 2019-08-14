@@ -509,6 +509,9 @@ const CfgWindow = {
 					break;
 				case 'de-btn-spell-clear':
 					$pd(e);
+					if(!confirm(Lng.clear[lang] + '?')) {
+						return;
+					}
 					$id('de-spell-txt').value = '';
 					Spells.toggle();
 				}
