@@ -20,10 +20,10 @@ class DOMPostsBuilder {
 		return aib.getPNum(this._posts[i]);
 	}
 	getOpEl() {
-		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+		return aib.fixHTML(aib.getOp($q(aib.qThread, this._form) || this._form));
 	}
 	getPostEl(i) {
-		return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
+		return aib.fixHTML(this._posts[i]);
 	}
 	* getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
