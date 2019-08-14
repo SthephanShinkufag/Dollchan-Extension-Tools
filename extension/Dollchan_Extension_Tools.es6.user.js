@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'a4c5ce0';
+const commit = '98eb1fb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12850,7 +12850,7 @@ class DOMPostsBuilder {
 		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
 	}
 	getPostEl(i) {
-		return aib.fixHTML(doc.adoptNode(this._posts[i]));
+		return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
 	}
 	* getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
@@ -13761,8 +13761,8 @@ class Thread {
 
 	_addPost(parent, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
-		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
-		const post = new Post(el, this, num, i, false, prev);
+		const wrap = doc.adoptNode(el);
+		const post = new Post($q(aib.qRPost, el) || el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');

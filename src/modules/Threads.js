@@ -237,8 +237,8 @@ class Thread {
 
 	_addPost(parent, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
-		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
-		const post = new Post(el, this, num, i, false, prev);
+		const wrap = doc.adoptNode(el);
+		const post = new Post($q(aib.qRPost, el) || el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');

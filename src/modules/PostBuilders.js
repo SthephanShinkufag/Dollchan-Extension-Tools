@@ -23,7 +23,7 @@ class DOMPostsBuilder {
 		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
 	}
 	getPostEl(i) {
-		return aib.fixHTML(doc.adoptNode(this._posts[i]));
+		return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
 	}
 	* getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);

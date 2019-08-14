@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'a4c5ce0';
+	var commit = '98eb1fb';
 
 
 	var defaultCfg = {
@@ -17687,7 +17687,7 @@ true, true];
 		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return aib.fixHTML(doc.adoptNode(this._posts[i]));
+				return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
 			}
 		}, {
 			key: 'getRefLinks',
@@ -18906,8 +18906,8 @@ true, true];
 			key: '_addPost',
 			value: function _addPost(parent, el, i, prev, maybeVParser) {
 				var num = aib.getPNum(el);
-				var wrap = doc.adoptNode(aib.getPostWrap(el, false));
-				var post = new Post(el, this, num, i, false, prev);
+				var wrap = doc.adoptNode(el);
+				var post = new Post($q(aib.qRPost, el) || el, this, num, i, false, prev);
 				parent.appendChild(wrap);
 				if (aib.t && !doc.hidden && Cfg.animation) {
 					$animate(el, 'de-post-new');
