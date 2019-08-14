@@ -421,7 +421,7 @@ class CacheItem {
 	}
 	get el() {
 		const value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
-		Object.defineProperty(this, 'el', { value });
+		Object.defineProperty(this, 'el', { value: doc.adoptNode(value) });
 		return value;
 	}
 	get thr() {

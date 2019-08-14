@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '98eb1fb';
+	var commit = '0ac9721';
 
 
 	var defaultCfg = {
@@ -16231,7 +16231,7 @@ true, true];
 			key: 'el',
 			get: function get() {
 				var value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
-				Object.defineProperty(this, 'el', { value: value });
+				Object.defineProperty(this, 'el', { value: doc.adoptNode(value) });
 				return value;
 			}
 		}, {
@@ -17682,12 +17682,12 @@ true, true];
 		}, {
 			key: 'getOpEl',
 			value: function getOpEl() {
-				return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+				return aib.fixHTML(aib.getOp($q(aib.qThread, this._form) || this._form));
 			}
 		}, {
 			key: 'getPostEl',
 			value: function getPostEl(i) {
-				return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
+				return aib.fixHTML(this._posts[i]);
 			}
 		}, {
 			key: 'getRefLinks',
@@ -18906,8 +18906,8 @@ true, true];
 			key: '_addPost',
 			value: function _addPost(parent, el, i, prev, maybeVParser) {
 				var num = aib.getPNum(el);
-				var wrap = doc.adoptNode(el);
-				var post = new Post($q(aib.qRPost, el) || el, this, num, i, false, prev);
+				var wrap = doc.adoptNode(aib.getPostWrap(el, false));
+				var post = new Post(el, this, num, i, false, prev);
 				parent.appendChild(wrap);
 				if (aib.t && !doc.hidden && Cfg.animation) {
 					$animate(el, 'de-post-new');

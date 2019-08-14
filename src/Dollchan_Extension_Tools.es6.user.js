@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '98eb1fb';
+const commit = '0ac9721';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11689,7 +11689,7 @@ class CacheItem {
 	}
 	get el() {
 		const value = this.isOp ? this._pBuilder.getOpEl() : this._pBuilder.getPostEl(this.count - 1);
-		Object.defineProperty(this, 'el', { value });
+		Object.defineProperty(this, 'el', { value: doc.adoptNode(value) });
 		return value;
 	}
 	get thr() {
@@ -12847,10 +12847,10 @@ class DOMPostsBuilder {
 		return aib.getPNum(this._posts[i]);
 	}
 	getOpEl() {
-		return aib.fixHTML(doc.adoptNode(aib.getOp($q(aib.qThread, this._form) || this._form)));
+		return aib.fixHTML(aib.getOp($q(aib.qThread, this._form) || this._form));
 	}
 	getPostEl(i) {
-		return aib.fixHTML(doc.adoptNode(aib.getPostWrap(this._posts[i], false)));
+		return aib.fixHTML(this._posts[i]);
 	}
 	* getRefLinks(i, thrUrl) { // i === 0 - OP-post
 		const msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
@@ -13761,8 +13761,8 @@ class Thread {
 
 	_addPost(parent, el, i, prev, maybeVParser) {
 		const num = aib.getPNum(el);
-		const wrap = doc.adoptNode(el);
-		const post = new Post($q(aib.qRPost, el) || el, this, num, i, false, prev);
+		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
+		const post = new Post(el, this, num, i, false, prev);
 		parent.appendChild(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
