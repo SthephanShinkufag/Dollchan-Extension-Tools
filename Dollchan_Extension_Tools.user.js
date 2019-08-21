@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = 'b6efe29';
+	var commit = '30f534e';
 
 
 	var defaultCfg = {
@@ -5293,19 +5293,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function getFileType(url) {
 		var dotIdx = url.lastIndexOf('.') + 1;
 		switch (dotIdx && url.substr(dotIdx).toLowerCase()) {
-			case 'jpg':
-			case 'jpeg':
-				return 'image/jpeg';
-			case 'png':
-				return 'image/png';
 			case 'gif':
 				return 'image/gif';
-			case 'webm':
-				return 'video/webm';
+			case 'jpeg':
+			case 'jpg':
+				return 'image/jpeg';
 			case 'mp4':
 				return 'video/mp4';
 			case 'ogv':
 				return 'video/ogv';
+			case 'png':
+				return 'image/png';
+			case 'webm':
+				return 'video/webm';
+			case 'webp':
+				return 'image/webp';
 			default:
 				return '';
 		}
@@ -17154,7 +17156,7 @@ true, true];
 		}, {
 			key: 'isImage',
 			get: function get() {
-				var value = /(jpe?g|png|gif)$/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
+				var value = /(jpe?g|png|gif|webp)$/i.test(this.src) || this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isImage', { value: value });
 				return value;
 			}
@@ -20758,7 +20760,7 @@ true, true];
 		}, {
 			key: 'qImgNameLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+				var value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}

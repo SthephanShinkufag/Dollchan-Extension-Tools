@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'b6efe29';
+const commit = '30f534e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2366,13 +2366,14 @@ const prettifySize = val =>
 function getFileType(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
 	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
-	case 'jpg':
-	case 'jpeg': return 'image/jpeg';
-	case 'png': return 'image/png';
 	case 'gif': return 'image/gif';
-	case 'webm': return 'video/webm';
+	case 'jpeg':
+	case 'jpg': return 'image/jpeg';
 	case 'mp4': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
+	case 'png': return 'image/png';
+	case 'webm': return 'video/webm';
+	case 'webp': return 'image/webp';
 	default: return '';
 	}
 }
@@ -12130,7 +12131,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isImage() {
-		const value = /(jpe?g|png|gif)$/i.test(this.src) ||
+		const value = /(jpe?g|png|gif|webp)$/i.test(this.src) ||
 			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
@@ -12322,7 +12323,7 @@ class ExpandableImage {
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
 			this._size ? '' : ' de-fullimg-wrap-nosize' }` }${
 			this.isVideo ? ' de-fullimg-video' : '' }`;
-		// Expand images: JPG, PNG, GIF
+		// Expand images: JPG, PNG, GIF, WEBP
 		if(!this.isVideo) {
 			const waitEl = !aib.getImgRedirectSrc && this._size ? '' :
 				'<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
@@ -15189,8 +15190,8 @@ class BaseBoard {
 	}
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]',
-			'[href$=".webm"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}

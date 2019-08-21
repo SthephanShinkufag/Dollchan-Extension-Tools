@@ -702,13 +702,14 @@ const prettifySize = val =>
 function getFileType(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
 	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
-	case 'jpg':
-	case 'jpeg': return 'image/jpeg';
-	case 'png': return 'image/png';
 	case 'gif': return 'image/gif';
-	case 'webm': return 'video/webm';
+	case 'jpeg':
+	case 'jpg': return 'image/jpeg';
 	case 'mp4': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
+	case 'png': return 'image/png';
+	case 'webm': return 'video/webm';
+	case 'webp': return 'image/webp';
 	default: return '';
 	}
 }
