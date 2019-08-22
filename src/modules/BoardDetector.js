@@ -364,7 +364,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			const submEl = $id('formButton');
-			if(submEl.type === 'button') {
+			if(submEl && submEl.type === 'button') {
 				this._hasNewAPI = true;
 				$replace(submEl, `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);

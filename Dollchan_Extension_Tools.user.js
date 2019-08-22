@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.6.16.0';
-	var commit = '30f534e';
+	var commit = 'cc9398d';
 
 
 	var defaultCfg = {
@@ -21389,7 +21389,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					var submEl = $id('formButton');
-					if (submEl.type === 'button') {
+					if (submEl && submEl.type === 'button') {
 						this._hasNewAPI = true;
 						$replace(submEl, '<button id="de-postform-submit" type="submit">' + submEl.innerHTML + '</button>');
 					}

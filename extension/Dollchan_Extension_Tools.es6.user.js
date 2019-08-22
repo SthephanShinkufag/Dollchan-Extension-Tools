@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = '30f534e';
+const commit = 'cc9398d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15829,7 +15829,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			const submEl = $id('formButton');
-			if(submEl.type === 'button') {
+			if(submEl && submEl.type === 'button') {
 				this._hasNewAPI = true;
 				$replace(submEl, `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);
