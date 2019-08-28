@@ -3,7 +3,8 @@
 	"homepage_url": "https://dscript.me/",
 	"manifest_version": 2,
 	"name": "Dollchan Extension Tools",
-	"version": "19.6.16.0",
+	"short_name": "Dollchan Ext",
+	"version": "19.8.28.0",
 
 	"applications": {
 		"gecko": {
