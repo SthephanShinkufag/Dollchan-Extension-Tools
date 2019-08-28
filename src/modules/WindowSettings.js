@@ -753,7 +753,8 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
-			${ this._getSel('favThrOrder') }
+			${ this._getSel('favThrOrder') }<br>
+			${ this._getBox('favWinOn') }
 		</div>`;
 	},
 

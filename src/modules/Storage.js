@@ -291,9 +291,12 @@ function readPostsData(firstPost, favObj) {
 		sendStorageEvent('__de-favorites', updateFav);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
-	if(sesStorage['de-fav-win'] === '1') {
+	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
+	if(hasFavWinKey || Cfg.favWinOn) {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-fav-win');
+		if(hasFavWinKey) {
+			sesStorage.removeItem('de-fav-win');
+		}
 	}
 	let data = sesStorage['de-fav-newthr'];
 	if(data) { // Detecting the created new thread and adding it to Favorites.

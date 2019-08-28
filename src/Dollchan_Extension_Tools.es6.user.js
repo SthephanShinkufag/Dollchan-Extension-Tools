@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.6.16.0';
-const commit = 'cc9398d';
+const commit = '8ee3711';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -148,8 +148,9 @@ const defaultCfg = {
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
-	favThrOrder  : 0,     /* threads sorting order in the Favorites window
+	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
+	favWinOn     : 0,    // Always open the Favorites window
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
@@ -717,6 +718,10 @@ const Lng = {
 				'Sorting in Favorites',
 				'Сортування в Вибраному']
 		},
+		favWinOn: [
+			'Вегда открывать окно Избранное',
+			'Always open the Favorites window',
+			'Завжди відкривати вікно Вибране'],
 		updDollchan: {
 			sel: [
 				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -2681,9 +2686,12 @@ function readPostsData(firstPost, favObj) {
 		sendStorageEvent('__de-favorites', updateFav);
 	}
 	// After following a link from Favorites, we need to open Favorites again.
-	if(sesStorage['de-fav-win'] === '1') {
+	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
+	if(hasFavWinKey || Cfg.favWinOn) {
 		toggleWindow('fav', false, null, true);
-		sesStorage.removeItem('de-fav-win');
+		if(hasFavWinKey) {
+			sesStorage.removeItem('de-fav-win');
+		}
 	}
 	let data = sesStorage['de-fav-newthr'];
 	if(data) { // Detecting the created new thread and adding it to Favorites.
@@ -4947,7 +4955,8 @@ const CfgWindow = {
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
-			${ this._getSel('favThrOrder') }
+			${ this._getSel('favThrOrder') }<br>
+			${ this._getBox('favWinOn') }
 		</div>`;
 	},
 
