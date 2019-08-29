@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '5d0bb84';
+	var commit = 'bae1395';
 
 
 	var defaultCfg = {
@@ -21310,6 +21310,7 @@ true, true];
 				_this87.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 				_this87.qPostMsg = '.divMessage';
 				_this87.qPostRef = '.linkQuote';
+				_this87.qPostSubj = '.labelSubject';
 				_this87.qPostsParent = '.divPosts';
 				_this87.qRPost = '.innerPost';
 				_this87.qTrunc = '.contentOmissionIndicator';

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '5d0bb84';
+const commit = 'bae1395';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15764,6 +15764,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 			this.qPostMsg = '.divMessage';
 			this.qPostRef = '.linkQuote';
+			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
 			this.qRPost = '.innerPost';
 			this.qTrunc = '.contentOmissionIndicator';
