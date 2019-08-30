@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'b9aa725';
+const commit = 'fe584e6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17307,7 +17307,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
-			return $q('.details > a', wrap).textContent;
+			return $q('.details > a, .postfilename', wrap).textContent;
 		}
 		init() {
 			super.init();

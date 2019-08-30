@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'b9aa725';
+	var commit = 'fe584e6';
 
 
 	var defaultCfg = {
@@ -23467,7 +23467,7 @@ true, true];
 			_createClass(Lainchan, [{
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
-					return $q('.details > a', wrap).textContent;
+					return $q('.details > a, .postfilename', wrap).textContent;
 				}
 			}, {
 				key: 'init',

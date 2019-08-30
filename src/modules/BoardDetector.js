@@ -1833,7 +1833,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				${ Cfg.imgNames ? '.details > a { display: none; }' : '' }`;
 		}
 		getImgRealName(wrap) {
-			return $q('.details > a', wrap).textContent;
+			return $q('.details > a, .postfilename', wrap).textContent;
 		}
 		init() {
 			super.init();
