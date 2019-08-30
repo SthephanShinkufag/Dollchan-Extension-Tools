@@ -17,7 +17,7 @@ class BaseBoard {
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Ernstchan
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Sets here only
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
