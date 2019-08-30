@@ -683,6 +683,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
 				.oekaki-height, .oekaki-width { width: 36px !important; }
+				.post_type_reply { max-width: 100%; }
 				.postform { width: auto; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
 					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
