@@ -1677,6 +1677,57 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['endchan.net'] = Endchan;
 	ibDomains['endchan.xyz'] = Endchan;
 
+	class Ernstchan extends BaseBoard {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.cReply = 'post';
+			this.qError = '.error > .info';
+			this.qFormRedir = 'input[name="gb2"][value="thread"]';
+			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+			this.qOPost = '.thread_OP';
+			this.qPages = '.pagelist > li:nth-last-child(2)';
+			this.qPostHeader = '.post_head';
+			this.qPostMsg = '.text';
+			this.qPostSubj = '.subject';
+			this.qPostTrip = '.tripcode';
+			this.qRPost = '.thread_reply';
+			this.qTrunc = '.tldr';
+			this.docExt = '';
+			this.firstPage = 1;
+			this.markupBB = true;
+			this.multiFile = true;
+			this.res = 'thread/';
+		}
+		get qImgNameLink() {
+			return '.filename > a';
+		}
+		get css() {
+			return `.content > hr, .de-parea > hr, .de-pview > .doubledash, .sage { display: none !important }
+				.de-pview > .post { margin-left: 0; border: none; }
+				#de-win-reply { float:left; margin-left:2em }`;
+		}
+		fixFileInputs(el) {
+			const str = `><input name="file" type="file">
+				<input type="hidden" name="spoilered" value="0">
+				<input type="checkbox" name="spoilered" value="1"></div>`;
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getImgWrap(img) {
+			return img.parentNode.parentNode.parentNode;
+		}
+		getPageUrl(b, p) {
+			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+		}
+		getPostElOfEl(el) {
+			while(el && !nav.matchesSelector(el, '.post')) {
+				el = el.parentElement;
+			}
+			return el.parentNode;
+		}
+	}
+	ibDomains['ernstchan.xyz'] = Ernstchan;
+
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
