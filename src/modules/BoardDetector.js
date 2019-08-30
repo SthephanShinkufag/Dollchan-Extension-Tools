@@ -1005,6 +1005,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get reportForm() {
 			return null;
 		}
+		fixHTMLHelper(str) {
+			return str.replace(/src="[^>]+" data-src="/g, 'src="');
+		}
 		init() {
 			super.init();
 			this.qFormFile = '.postform__field input[type="file"]';
@@ -1023,7 +1026,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(el) {
 				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}
-			$each($Q('.preview.lazy'), el => el.setAttribute('src', el.getAttribute('data-src')));
 			return false;
 		}
 		initCaptcha(cap) {
@@ -1462,12 +1464,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
-		}
-		init() {
-			super.init();
-			defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-			defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-			return false;
 		}
 	}
 	ibDomains['animach.pw'] = Animach;

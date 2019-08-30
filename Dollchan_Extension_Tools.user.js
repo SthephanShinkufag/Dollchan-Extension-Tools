@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'bae1395';
+	var commit = 'b9aa725';
 
 
 	var defaultCfg = {
@@ -22273,6 +22273,11 @@ true, true];
 			}
 
 			_createClass(_2channel, [{
+				key: 'fixHTMLHelper',
+				value: function fixHTMLHelper(str) {
+					return str.replace(/src="[^>]+" data-src="/g, 'src="');
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					_get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'init', this).call(this);
@@ -22291,9 +22296,6 @@ true, true];
 					if (el) {
 						el.setAttribute('action', el.getAttribute('action') + '?json=1');
 					}
-					$each($Q('.preview.lazy'), function (el) {
-						return el.setAttribute('src', el.getAttribute('data-src'));
-					});
 					return false;
 				}
 			}, {
@@ -22917,14 +22919,6 @@ true, true];
 				key: 'getImgWrap',
 				value: function getImgWrap(img) {
 					return img.parentNode.parentNode;
-				}
-			}, {
-				key: 'init',
-				value: function init() {
-					_get(Animach.prototype.__proto__ || Object.getPrototypeOf(Animach.prototype), 'init', this).call(this);
-					defaultCfg.timePattern = 'dd+nn+yy+++++hh+ii+ss';
-					defaultCfg.timeRPattern = '_d/_n/_y(_w)_h:_i:_s';
-					return false;
 				}
 			}, {
 				key: 'css',
