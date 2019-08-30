@@ -18,33 +18,6 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
-			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
-				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup('upload', xhr.responseText).style.cssText = 'width: 350px; text-align: center;';
-					$id('captcha_pop_submit').onclick = () => {
-						$id('captcha_message_box').innerHTML =
-							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
-						const formData = new FormData();
-						formData.append('captcha_text', $q('.captcha_text').value);
-						formData.append('captcha_cookie', $q('.captcha_cookie').value);
-						$ajax('/dnsbls_bypass_popup.php', { method: 'POST', data: formData }).then(xhr => {
-							const data = JSON.parse(xhr.responseText);
-							if(data.status === 1) {
-								$popup('upload', data.message);
-							} else {
-								$id('captcha_message_box').innerHTML = data.message;
-								$id('captcha_objects').innerHTML = data.new_captcha;
-							}
-						});
-					};
-					if(pr.isQuick) {
-						pr.setReply(true, false);
-					}
-					updater.sendErrNotif();
-					updater.continueUpdater();
-				});
-				return;
-			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);
@@ -65,7 +38,7 @@ function checkUpload(data) {
 		if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
 			pr.refreshCap(true);
 		}
-		$popup('upload', error);
+		$popup('upload', error.toString());
 		updater.sendErrNotif();
 		updater.continueUpdater();
 		DollchanAPI.notify('submitform', { success: false, error });

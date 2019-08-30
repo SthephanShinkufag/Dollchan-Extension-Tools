@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'fe584e6';
+const commit = 'feb1a0e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9079,33 +9079,6 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
-			if(aib._8ch && data.substring(0, 16) === '{"captcha":true|') {
-				$ajax('/dnsbls_bypass_popup.php').then(xhr => {
-					$popup('upload', xhr.responseText).style.cssText = 'width: 350px; text-align: center;';
-					$id('captcha_pop_submit').onclick = () => {
-						$id('captcha_message_box').innerHTML =
-							'<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>';
-						const formData = new FormData();
-						formData.append('captcha_text', $q('.captcha_text').value);
-						formData.append('captcha_cookie', $q('.captcha_cookie').value);
-						$ajax('/dnsbls_bypass_popup.php', { method: 'POST', data: formData }).then(xhr => {
-							const data = JSON.parse(xhr.responseText);
-							if(data.status === 1) {
-								$popup('upload', data.message);
-							} else {
-								$id('captcha_message_box').innerHTML = data.message;
-								$id('captcha_objects').innerHTML = data.new_captcha;
-							}
-						});
-					};
-					if(pr.isQuick) {
-						pr.setReply(true, false);
-					}
-					updater.sendErrNotif();
-					updater.continueUpdater();
-				});
-				return;
-			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);
@@ -9126,7 +9099,7 @@ function checkUpload(data) {
 		if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
 			pr.refreshCap(true);
 		}
-		$popup('upload', error);
+		$popup('upload', error.toString());
 		updater.sendErrNotif();
 		updater.continueUpdater();
 		DollchanAPI.notify('submitform', { success: false, error });
@@ -15180,7 +15153,6 @@ class BaseBoard {
 		this._02ch = false;
 		this._2channel = false;
 		this._4chan = false;
-		this._8ch = false;
 		this.dobrochan = false;
 		this.iichan = false;
 		this.makaba = false;
@@ -16764,12 +16736,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['4chan.org'] = _4chan;
 	ibDomains['4channel.org'] = _4chan;
 
-	class _8ch extends Vichan {
+	class _55chan extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._8ch = true;
+
+			this.qFormRules = '.regras';
 
 			this._capUpdPromise = null;
+		}
+		get qImgNameLink() {
+			return '.fileinfo > a:last-of-type';
+		}
+		get qThread() {
+			return 'div[data-board]';
 		}
 		get css() {
 			return `${ super.css }
@@ -16795,23 +16774,6 @@ function getImageBoard(checkDomains, checkEngines) {
 						cap.initImage(img);
 					}
 				});
-		}
-	}
-	ibDomains['8ch.net'] = _8ch;
-	ibDomains['oxwugzccvk3dk6tj.onion'] = _8ch;
-
-	class _55chan extends _8ch {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this._8ch = null;
-
-			this.qFormRules = '.regras';
-		}
-		get qImgNameLink() {
-			return '.fileinfo > a:last-of-type';
-		}
-		get qThread() {
-			return 'div[data-board]';
 		}
 	}
 	ibDomains['55chan.org'] = _55chan;

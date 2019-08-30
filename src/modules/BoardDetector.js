@@ -1290,12 +1290,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['4chan.org'] = _4chan;
 	ibDomains['4channel.org'] = _4chan;
 
-	class _8ch extends Vichan {
+	class _55chan extends Vichan {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._8ch = true;
+
+			this.qFormRules = '.regras';
 
 			this._capUpdPromise = null;
+		}
+		get qImgNameLink() {
+			return '.fileinfo > a:last-of-type';
+		}
+		get qThread() {
+			return 'div[data-board]';
 		}
 		get css() {
 			return `${ super.css }
@@ -1321,23 +1328,6 @@ function getImageBoard(checkDomains, checkEngines) {
 						cap.initImage(img);
 					}
 				});
-		}
-	}
-	ibDomains['8ch.net'] = _8ch;
-	ibDomains['oxwugzccvk3dk6tj.onion'] = _8ch;
-
-	class _55chan extends _8ch {
-		constructor(prot, dm) {
-			super(prot, dm);
-			this._8ch = null;
-
-			this.qFormRules = '.regras';
-		}
-		get qImgNameLink() {
-			return '.fileinfo > a:last-of-type';
-		}
-		get qThread() {
-			return 'div[data-board]';
 		}
 	}
 	ibDomains['55chan.org'] = _55chan;
