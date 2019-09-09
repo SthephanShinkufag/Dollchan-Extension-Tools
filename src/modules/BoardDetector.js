@@ -786,7 +786,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return { error, postNum };
 		}
 		init() {
-			if($q('section.posts')) {
+			if($q('section.posts')) { // Old Makaba engine
 				this.cReply = 'post reply';
 				this.qBan = '.pomyanem';
 				this.qFormFile = 'tr input[type="file"]';
@@ -847,7 +847,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			if((el = $id('shampoo'))) {
 				el.tabIndex = 1;
 			}
-			$del($id('favorites-box'));
 			return false;
 		}
 		initCaptcha(cap) {
@@ -1782,6 +1781,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get css() {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
+		}
+		getImgRealName(wrap) {
+			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();

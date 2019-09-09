@@ -245,7 +245,6 @@ function scriptCSS() {
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
 	#de-img-btn-rotate { right: 0; margin-top: 20px; }
-	.de-img-name { text-decoration: none !important; }
 
 	/* Embedders */
 	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }
@@ -417,7 +416,7 @@ function updateCSS() {
 	${ Cfg.imgNames === 1 ? '.de-img-name { max-width: 165px; overflow: hidden; }' : '' }
 	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
 		'.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' :
-		Cfg.imgNames === 2 ? '.de-img-name { text-transform: capitalize; }' : '' }
+		Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
