@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '6a10d23';
+const commit = '7a94f33';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15717,6 +15717,30 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
+	class newTinyIB extends TinyIB {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.markupBB = true;
+			this.multiFile = true;
+			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+		}
+		get fixHTMLHelper() {
+			return null;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
+		init() {
+			return false;
+		}
+	}
+	ibEngines.push(['body.tinyib', newTinyIB]);
+
 	class Lynxchan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -17072,30 +17096,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['dobrochan.net'] = Dobrochan;
 	ibDomains['dobrochan.org'] = Dobrochan;
 	ibDomains['dobrochan.ru'] = Dobrochan;
-
-	class Dscript extends TinyIB {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.markupBB = true;
-			this.multiFile = true;
-			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-		}
-		get fixHTMLHelper() {
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = '><input type="file" name="file[]"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		init() {
-			return false;
-		}
-	}
-	ibDomains['dscript.me'] = Dscript;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
