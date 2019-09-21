@@ -1788,6 +1788,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		init() {
+			if(!this.host.includes('nocsp.')) {
+				deWindow.location.assign(deWindow.location.href
+					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
+				return true;
+			}
+			return super.init();
+		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
 

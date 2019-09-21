@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '7a94f33';
+const commit = '6c4b8b0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17233,6 +17233,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
+		}
+		init() {
+			if(!this.host.includes('nocsp.')) {
+				deWindow.location.assign(deWindow.location.href
+					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
+				return true;
+			}
+			return super.init();
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;

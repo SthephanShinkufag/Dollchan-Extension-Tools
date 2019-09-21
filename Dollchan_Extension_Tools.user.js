@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '7a94f33';
+	var commit = '6c4b8b0';
 
 
 	var defaultCfg = {
@@ -23347,6 +23347,15 @@ true, true];
 				key: 'getSage',
 				value: function getSage(post) {
 					return !!$q('.sage', post).hasChildNodes();
+				}
+			}, {
+				key: 'init',
+				value: function init() {
+					if (!this.host.includes('nocsp.')) {
+						deWindow.location.assign(deWindow.location.href.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
+						return true;
+					}
+					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'init', this).call(this);
 				}
 			}, {
 				key: 'css',
