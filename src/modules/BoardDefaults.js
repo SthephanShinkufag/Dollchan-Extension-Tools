@@ -337,6 +337,9 @@ class BaseBoard {
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
+	isIgnoreError(txt) { // Lynxchan
+		return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
+	}
 	parseURL() {
 		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 		if(url.match(this.res)) { // We are in thread

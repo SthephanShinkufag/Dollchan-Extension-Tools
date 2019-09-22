@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '6c4b8b0';
+const commit = '1553eac';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9069,8 +9069,8 @@ function getSubmitError(dc) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
-		.replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-	return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err;
+		.replace(/<a [^>]+>Назад.+|<br.+/, '') || dc.body.innerHTML;
+	return aib.isIgnoreError(err) ? null : err;
 }
 
 function checkUpload(data) {
@@ -15423,6 +15423,9 @@ class BaseBoard {
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
+	isIgnoreError(txt) { // Lynxchan
+		return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
+	}
 	parseURL() {
 		const url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
 		if(url.match(this.res)) { // We are in thread
@@ -15747,6 +15750,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'innerPost';
 			this.qDForm = 'form[action$="contentActions.js"]';
+			this.qDelBut = '#deleteFormButton';
 			this.qError = '#errorLabel, #labelMessage';
 			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
@@ -15861,6 +15865,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400 || status === 500;
+		}
+		isIgnoreError(txt) {
+			try {
+				const obj = JSON.parse(txt);
+				if(obj.status === 'ok' && obj.data && (obj.data.removedThreads || obj.data.removedPosts)) {
+					return true;
+				}
+			} catch(err) {}
+			return false;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
 			let ajaxParams;
@@ -16069,7 +16082,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				error = Lng.error[lang];
 				if(json.error) {
-					error += ':\n' + json.error.text;
+					error += ': ' + json.error.text;
 				}
 			}
 			return { error, postNum };
@@ -16251,7 +16264,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(json.Status === 'Redirect') {
 				postNum = +json.Target;
 			} else {
-				error = Lng.error[lang] + ':\n' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.Reason;
 			}
 			return { error, postNum };
 		}

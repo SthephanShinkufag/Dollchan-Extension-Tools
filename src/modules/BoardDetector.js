@@ -301,6 +301,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'innerPost';
 			this.qDForm = 'form[action$="contentActions.js"]';
+			this.qDelBut = '#deleteFormButton';
 			this.qError = '#errorLabel, #labelMessage';
 			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
@@ -415,6 +416,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		isAjaxStatusOK(status) {
 			return status === 200 || status === 206 || status === 400 || status === 500;
+		}
+		isIgnoreError(txt) {
+			try {
+				const obj = JSON.parse(txt);
+				if(obj.status === 'ok' && obj.data && (obj.data.removedThreads || obj.data.removedPosts)) {
+					return true;
+				}
+			} catch(err) {}
+			return false;
 		}
 		async sendHTML5Post(form, data, needProgress, hasFiles) {
 			let ajaxParams;
@@ -623,7 +633,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else {
 				error = Lng.error[lang];
 				if(json.error) {
-					error += ':\n' + json.error.text;
+					error += ': ' + json.error.text;
 				}
 			}
 			return { error, postNum };
@@ -805,7 +815,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(json.Status === 'Redirect') {
 				postNum = +json.Target;
 			} else {
-				error = Lng.error[lang] + ':\n' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.Reason;
 			}
 			return { error, postNum };
 		}

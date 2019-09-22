@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '6c4b8b0';
+	var commit = '1553eac';
 
 
 	var defaultCfg = {
@@ -13037,9 +13037,8 @@ true, true];
 		}
 		var err = [].concat(_toConsumableArray($Q(aib.qError, dc))).map(function (str) {
 			return str.innerHTML + '\n';
-		}).join('').replace(/<a [^>]+>Назад.+|<br.+/, '') || Lng.error[lang] + ':\n' + dc.body.innerHTML;
-		return (/successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(err) ? null : err
-		);
+		}).join('').replace(/<a [^>]+>Назад.+|<br.+/, '') || dc.body.innerHTML;
+		return aib.isIgnoreError(err) ? null : err;
 	}
 
 	function checkUpload(data) {
@@ -20698,6 +20697,12 @@ true, true];
 				return status === 200 || status === 206;
 			}
 		}, {
+			key: 'isIgnoreError',
+			value: function isIgnoreError(txt) {
+				return (/successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt)
+				);
+			}
+		}, {
 			key: 'parseURL',
 			value: function parseURL() {
 				var url = (deWindow.location.pathname || '').replace(/^[/]+/, '').replace(/[/]+/g, '/');
@@ -21312,6 +21317,7 @@ true, true];
 
 				_this88.cReply = 'innerPost';
 				_this88.qDForm = 'form[action$="contentActions.js"]';
+				_this88.qDelBut = '#deleteFormButton';
 				_this88.qError = '#errorLabel, #labelMessage';
 				_this88.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 				_this88.qFormPassw = 'input[name="password"]';
@@ -21429,6 +21435,17 @@ true, true];
 				key: 'isAjaxStatusOK',
 				value: function isAjaxStatusOK(status) {
 					return status === 200 || status === 206 || status === 400 || status === 500;
+				}
+			}, {
+				key: 'isIgnoreError',
+				value: function isIgnoreError(txt) {
+					try {
+						var obj = JSON.parse(txt);
+						if (obj.status === 'ok' && obj.data && (obj.data.removedThreads || obj.data.removedPosts)) {
+							return true;
+						}
+					} catch (err) {}
+					return false;
 				}
 			}, {
 				key: 'sendHTML5Post',
@@ -21826,7 +21843,7 @@ true, true];
 					} else {
 						error = Lng.error[lang];
 						if (json.error) {
-							error += ':\n' + json.error.text;
+							error += ': ' + json.error.text;
 						}
 					}
 					return { error: error, postNum: postNum };
@@ -21972,7 +21989,7 @@ true, true];
 					} else if (json.Status === 'Redirect') {
 						postNum = +json.Target;
 					} else {
-						error = Lng.error[lang] + ':\n' + json.Reason;
+						error = Lng.error[lang] + ': ' + json.Reason;
 					}
 					return { error: error, postNum: postNum };
 				}
