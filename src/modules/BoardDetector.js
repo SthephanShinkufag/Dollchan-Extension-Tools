@@ -275,6 +275,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.hasCatalog = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '1553eac';
+const commit = '8421e69';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15724,6 +15724,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.hasCatalog = true;
 			this.markupBB = true;
 			this.multiFile = true;
 			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';

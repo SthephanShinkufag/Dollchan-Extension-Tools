@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '1553eac';
+	var commit = '8421e69';
 
 
 	var defaultCfg = {
@@ -21273,6 +21273,7 @@ true, true];
 
 				var _this87 = _possibleConstructorReturn(this, (newTinyIB.__proto__ || Object.getPrototypeOf(newTinyIB)).call(this, prot, dm));
 
+				_this87.hasCatalog = true;
 				_this87.markupBB = true;
 				_this87.multiFile = true;
 				_this87.timePattern = 'yy+nn+dd+w+hh+ii+ss';
