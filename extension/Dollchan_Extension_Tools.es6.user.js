@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '0aa5282';
+const commit = '5060b7f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2687,8 +2687,8 @@ function readPostsData(firstPost, favObj) {
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
-	if(!$q('#de-win-fav.de-win-active') && (hasFavWinKey || Cfg.favWinOn)) {
-		toggleWindow('fav', false, null, true);
+	if(hasFavWinKey || Cfg.favWinOn) {
+		toggleWindow('fav', !!$q('#de-win-fav.de-win-active'), null, true);
 		if(hasFavWinKey) {
 			sesStorage.removeItem('de-fav-win');
 		}
