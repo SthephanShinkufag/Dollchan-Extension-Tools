@@ -292,7 +292,7 @@ function readPostsData(firstPost, favObj) {
 	}
 	// After following a link from Favorites, we need to open Favorites again.
 	const hasFavWinKey = sesStorage['de-fav-win'] === '1';
-	if(hasFavWinKey || Cfg.favWinOn) {
+	if(!$q('#de-win-fav.de-win-active') && (hasFavWinKey || Cfg.favWinOn)) {
 		toggleWindow('fav', false, null, true);
 		if(hasFavWinKey) {
 			sesStorage.removeItem('de-fav-win');

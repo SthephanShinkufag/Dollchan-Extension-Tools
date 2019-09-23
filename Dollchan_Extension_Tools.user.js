@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '8421e69';
+	var commit = '0aa5282';
 
 
 	var defaultCfg = {
@@ -5468,7 +5468,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			sendStorageEvent('__de-favorites', updateFav);
 		}
 		var hasFavWinKey = sesStorage['de-fav-win'] === '1';
-		if (hasFavWinKey || Cfg.favWinOn) {
+		if (!$q('#de-win-fav.de-win-active') && (hasFavWinKey || Cfg.favWinOn)) {
 			toggleWindow('fav', false, null, true);
 			if (hasFavWinKey) {
 				sesStorage.removeItem('de-fav-win');
