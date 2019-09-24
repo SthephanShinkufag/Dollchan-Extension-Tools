@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'b68dfdc';
+const commit = 'f93385a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -145,6 +145,7 @@ const defaultCfg = {
 	animation    : 1,    // CSS3 animation
 	closePopups  : 0,    // close popups automatically
 	inftyScroll  : 1,    // infinite scrolling for pages
+	saveScroll   : 1,    // remember the scroll position in threads
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
@@ -704,6 +705,10 @@ const Lng = {
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
+		saveScroll: [
+			'Запоминать позицию скролла в тредах',
+			'Remember the scroll position in threads',
+			'Пам`ятати позицію скролла в тредах'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
@@ -719,7 +724,7 @@ const Lng = {
 				'Сортування в Вибраному']
 		},
 		favWinOn: [
-			'Вегда открывать окно Избранное',
+			'Всегда открывать окно Избранное',
 			'Always open the Favorites window',
 			'Завжди відкривати вікно Вибране'],
 		updDollchan: {
@@ -4952,6 +4957,7 @@ const CfgWindow = {
 			${ this._getBox('closePopups') }<br>
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
+			${ this._getBox('saveScroll') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
@@ -17612,7 +17618,7 @@ function scrollPage() {
 		scrollTo(0, 1);
 		return;
 	}
-	if(!needScroll) {
+	if(!needScroll || !Cfg.saveScroll) {
 		return;
 	}
 	setTimeout(() => {

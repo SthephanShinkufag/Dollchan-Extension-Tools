@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'b68dfdc';
+	var commit = 'f93385a';
 
 
 	var defaultCfg = {
@@ -3947,6 +3947,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		animation: 1, 
 		closePopups: 0, 
 		inftyScroll: 1, 
+		saveScroll: 1, 
 		scrollToTop: 0, 
 		hotKeys: 1, 
 		loadPages: 1, 
@@ -4149,12 +4150,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			animation: ['CSS3 анимация', 'CSS3 animation', 'CSS3 анімація'],
 			closePopups: ['Автоматически закрывать уведомления', 'Close popups automatically', 'Автоматично закривати сповіщення'],
 			inftyScroll: ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages', 'Нескінченна прокрутка сторінок'],
+			saveScroll: ['Запоминать позицию скролла в тредах', 'Remember the scroll position in threads', 'Пам`ятати позицію скролла в тредах'],
 			scrollToTop: ['Всегда перемещаться вверх в списке тредов', 'Always scroll to top in the threads list', 'Завжди гортати догори в списку тредів'],
 			favThrOrder: {
 				sel: [['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'], ['By number', 'By number (desc)', 'By adding', 'By adding (desc)'], ['За номером', 'За номером (зменш)', 'По додаванню', 'По додаванню (зменш)']],
 				txt: ['Сортировка в Избранном', 'Sorting in Favorites', 'Сортування в Вибраному']
 			},
-			favWinOn: ['Вегда открывать окно Избранное', 'Always open the Favorites window', 'Завжди відкривати вікно Вибране'],
+			favWinOn: ['Всегда открывать окно Избранное', 'Always open the Favorites window', 'Завжди відкривати вікно Вибране'],
 			updDollchan: {
 				sel: [['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Disable', 'Every day', 'Every 2 days', 'Every week', 'Every 2 weeks', 'Every month'], ['Вимкн.', 'Щодня', 'Кожні 2 дні', 'Щотижня', 'Кожні 2 тижні', 'Щомісяця']],
 				txt: ['Проверять обновления Dollchan', 'Check for Dollchan updates', 'Перевіряти оновлення Dollchan']
@@ -7922,7 +7924,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 		_getCfgCommon: function _getCfgCommon() {
-			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + (!localData ? this._getBox('inftyScroll') + '<br>\n\t\t\t\t' + this._getBox('scrollToTop') + '<br>' : '') + '\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-depend">' + this._getInp('loadPages') + '</div>\n\t\t\t' + this._getSel('favThrOrder') + '<br>\n\t\t\t' + this._getBox('favWinOn') + '\n\t\t</div>';
+			return '<div id="de-cfg-common" class="de-cfg-unvis">\n\t\t\t' + this._getSel('scriptStyle') + '<br>\n\t\t\t' + this._getBox('userCSS') + '\n\t\t\t<a href="' + gitWiki + 'css-tricks" class="de-abtn" target="_blank">[?]</a><br>\n\t\t\t' + this._getSel('panelCounter') + '<br>\n\t\t\t' + this._getBox('rePageTitle') + '<br>\n\t\t\t' + ('animation' in docBody.style ? this._getBox('animation') + '<br>' : '') + '\n\t\t\t' + this._getBox('closePopups') + '<br>\n\t\t\t' + (!localData ? this._getBox('inftyScroll') + '<br>\n\t\t\t\t' + this._getBox('scrollToTop') + '<br>' : '') + '\n\t\t\t' + this._getBox('saveScroll') + '<br>\n\t\t\t' + this._getBox('hotKeys') + '\n\t\t\t<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="' + Lng.edit[lang] + '">\n\t\t\t<div class="de-depend">' + this._getInp('loadPages') + '</div>\n\t\t\t' + this._getSel('favThrOrder') + '<br>\n\t\t\t' + this._getBox('favWinOn') + '\n\t\t</div>';
 		},
 
 
@@ -23898,7 +23900,7 @@ true, true];
 			scrollTo(0, 1);
 			return;
 		}
-		if (!needScroll) {
+		if (!needScroll || !Cfg.saveScroll) {
 			return;
 		}
 		setTimeout(function () {

@@ -750,6 +750,7 @@ const CfgWindow = {
 			${ this._getBox('closePopups') }<br>
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
+			${ this._getBox('saveScroll') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>

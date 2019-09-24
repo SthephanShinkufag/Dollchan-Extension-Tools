@@ -111,6 +111,7 @@ const defaultCfg = {
 	animation    : 1,    // CSS3 animation
 	closePopups  : 0,    // close popups automatically
 	inftyScroll  : 1,    // infinite scrolling for pages
+	saveScroll   : 1,    // remember the scroll position in threads
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5

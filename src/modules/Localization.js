@@ -529,6 +529,10 @@ const Lng = {
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
+		saveScroll: [
+			'Запоминать позицию скролла в тредах',
+			'Remember the scroll position in threads',
+			'Пам`ятати позицію скролла в тредах'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
@@ -544,7 +548,7 @@ const Lng = {
 				'Сортування в Вибраному']
 		},
 		favWinOn: [
-			'Вегда открывать окно Избранное',
+			'Всегда открывать окно Избранное',
 			'Always open the Favorites window',
 			'Завжди відкривати вікно Вибране'],
 		updDollchan: {

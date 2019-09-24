@@ -124,7 +124,7 @@ function scrollPage() {
 		scrollTo(0, 1);
 		return;
 	}
-	if(!needScroll) {
+	if(!needScroll || !Cfg.saveScroll) {
 		return;
 	}
 	setTimeout(() => {
