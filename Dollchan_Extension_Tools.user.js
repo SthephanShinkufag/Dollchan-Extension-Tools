@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '5060b7f';
+	var commit = 'b68dfdc';
 
 
 	var defaultCfg = {
@@ -22407,10 +22407,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var el = $id('submit_button') || $id('submit');
-					if (el) {
-						$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-					}
+					$script('postFormSubmit = Function.prototype;');
 					$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 					return false;
 				}
@@ -23106,7 +23103,7 @@ true, true];
 						});
 						return true;
 					}
-					$script('window.UploadProgress = Function.prototype');
+					$script('UploadProgress = Function.prototype;');
 					var el = $id('postform');
 					if (el) {
 						el.appendChild($q('.rules'));
@@ -23297,7 +23294,7 @@ true, true];
 				key: 'init',
 				value: function init() {
 					defaultCfg.addSageBtn = 0;
-					$script('highlight = Function.prototype');
+					$script('highlight = Function.prototype;');
 					var el = $q(this.qFormSpoiler);
 					if (el) {
 						$hide(el = el.parentNode);
@@ -23487,7 +23484,7 @@ true, true];
 			_createClass(Nowere, [{
 				key: 'init',
 				value: function init() {
-					$script('highlight = Function.prototype');
+					$script('highlight = Function.prototype;');
 					return false;
 				}
 			}, {

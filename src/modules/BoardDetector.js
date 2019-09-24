@@ -1117,10 +1117,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		init() {
-			const el = $id('submit_button') || $id('submit');
-			if(el) {
-				$replace(el, '<input type="submit" id="submit" name="submit" value="Ответ">');
-			}
+			$script('postFormSubmit = Function.prototype;');
 			$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 			return false;
 		}
@@ -1614,7 +1611,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
 				return true;
 			}
-			$script('window.UploadProgress = Function.prototype');
+			$script('UploadProgress = Function.prototype;');
 			const el = $id('postform');
 			if(el) {
 				el.appendChild($q('.rules'));
@@ -1770,7 +1767,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addSageBtn = 0;
-			$script('highlight = Function.prototype');
+			$script('highlight = Function.prototype;');
 			let el = $q(this.qFormSpoiler);
 			if(el) {
 				$hide(el = el.parentNode);
@@ -1861,7 +1858,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['**', '***', '', '^H', '', ''];
 		}
 		init() {
-			$script('highlight = Function.prototype');
+			$script('highlight = Function.prototype;');
 			return false;
 		}
 	}
