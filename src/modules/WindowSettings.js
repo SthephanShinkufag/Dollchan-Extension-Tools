@@ -309,8 +309,8 @@ const CfgWindow = {
 			case 'expandTrunc':
 			case 'showHideBtn':
 			case 'showRepBtn':
-			case 'noPostNames':
 			case 'widePosts':
+			case 'noPostNames':
 			case 'imgNavBtns':
 			case 'strikeHidd':
 			case 'removeHidd':
@@ -468,6 +468,10 @@ const CfgWindow = {
 				}
 				break;
 			}
+			case 'limitPostMsg':
+				saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				updateCSS();
+				break;
 			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
 			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
@@ -621,16 +625,16 @@ const CfgWindow = {
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
-			${ !localData ? `${ this._getBox('hideReplies') }<br>
-				${ this._getBox('expandTrunc') }<br>` : '' }
+			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getSel('showHideBtn') }<br>
 			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
-			${ this._getBox('noPostNames') }<br>
+			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getBox('widePosts') }<br>
+			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
@@ -744,18 +748,19 @@ const CfgWindow = {
 			${ this._getSel('scriptStyle') }<br>
 			${ this._getBox('userCSS') }
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
-			${ this._getSel('panelCounter') }<br>
-			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
-			${ this._getBox('closePopups') }<br>
-			${ !localData ? `${ this._getBox('inftyScroll') }<br>
-				${ this._getBox('scrollToTop') }<br>` : '' }
-			${ this._getBox('saveScroll') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
+			${ this._getSel('panelCounter') }<br>
+			${ this._getBox('rePageTitle') }<br>
+			${ !localData ? `${ this._getBox('inftyScroll') }<br>
+				${ this._getBox('hideReplies') }<br>
+				${ this._getBox('scrollToTop') }<br>` : '' }
+			${ this._getBox('saveScroll') }<br>
 			${ this._getSel('favThrOrder') }<br>
-			${ this._getBox('favWinOn') }
+			${ this._getBox('favWinOn') }<br>
+			${ this._getBox('closePopups') }
 		</div>`;
 	},
 

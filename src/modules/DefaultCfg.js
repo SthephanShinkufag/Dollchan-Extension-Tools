@@ -20,7 +20,6 @@ const defaultCfg = {
 	markNewPosts : 1,    //    highlight new posts with color
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
-	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
@@ -29,8 +28,9 @@ const defaultCfg = {
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
-	noPostNames  : 0,    // hide poster names
+	limitPostMsg : 2000, // limit text width in posts nessages
 	widePosts    : 0,    // stretch posts to screen width
+	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
 	timePattern  : '',   //    search pattern
@@ -106,18 +106,19 @@ const defaultCfg = {
 	userCSS      : 0,    // user CSS
 	userCSSTxt   : '',   //    css text
 	expandPanel  : 0,    // show full main panel
-	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
-	rePageTitle  : 1,    // show thread title in the page tab
 	animation    : 1,    // CSS3 animation
-	closePopups  : 0,    // close popups automatically
-	inftyScroll  : 1,    // infinite scrolling for pages
-	saveScroll   : 1,    // remember the scroll position in threads
-	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
+	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
+	hideReplies  : 0,    // show only op-posts in threads list
+	rePageTitle  : 1,    // show thread title in the page tab
+	inftyScroll  : 1,    // infinite scrolling for pages
+	scrollToTop  : 0,    // always scroll to top in the threads list
+	saveScroll   : 1,    // remember the scroll position in threads
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	favWinOn     : 0,    // Always open the Favorites window
+	closePopups  : 0,    // close popups automatically
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)

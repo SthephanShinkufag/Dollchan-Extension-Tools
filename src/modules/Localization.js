@@ -85,10 +85,6 @@ const Lng = {
 			'Выделять цветом мои посты',
 			'Highlight my own posts',
 			'Виділяти кольором мої пости'],
-		hideReplies: [
-			'Показывать только OP в списке тредов*',
-			'Show only OP in threads list*',
-			'Показувати лише OP в списку тредів*'],
 		expandTrunc: [
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
@@ -143,22 +139,19 @@ const Lng = {
 				'Text spoilers expansion',
 				'Розкриття текстових спойлерів']
 		},
-		noPostNames: [
-			'Скрывать имена в постах',
-			'Hide poster names',
-			'Ховати імена в постах'],
+		limitPostMsg: [
+			'Ограничение ширины текста в постах (px)',
+			'Limit text width in posts messages (px)',
+			'Обмеження ширини тексту в постах (px)'
+		],
 		widePosts: [
 			'Растягивать посты по ширине экрана',
 			'Stretch posts to page width',
 			'Розтягувати пости на ширину екрану'],
-		hotKeys: [
-			'Горячие клавиши',
-			'Hotkeys',
-			'Гарячі клавіші'],
-		loadPages: [
-			'Количество страниц, загружаемых по F5',
-			'Number of pages that are loaded on F5 ',
-			'Кількість сторінок, що завантажуються по F5'],
+		noPostNames: [
+			'Скрывать имена в постах',
+			'Hide poster names',
+			'Ховати імена в постах'],
 		correctTime: [
 			'Коррекция времени в постах* ',
 			'Time correction in posts* ',
@@ -503,6 +496,18 @@ const Lng = {
 			'Пользовательский CSS',
 			'User CSS',
 			'Користувацький CSS'],
+		animation: [
+			'CSS3 анимация',
+			'CSS3 animation',
+			'CSS3 анімація'],
+		hotKeys: [
+			'Горячие клавиши',
+			'Hotkeys',
+			'Гарячі клавіші'],
+		loadPages: [
+			'Количество страниц, загружаемых по F5',
+			'Number of pages that are loaded on F5 ',
+			'Кількість сторінок, що завантажуються по F5'],
 		panelCounter: {
 			sel: [
 				['Откл.', 'Все посты', 'Без скрытых'],
@@ -517,26 +522,22 @@ const Lng = {
 			'Название треда в заголовке вкладки*',
 			'Show thread title in the page tab*',
 			'Назва треду в заголовку вкладки*'],
-		animation: [
-			'CSS3 анимация',
-			'CSS3 animation',
-			'CSS3 анімація'],
-		closePopups: [
-			'Автоматически закрывать уведомления',
-			'Close popups automatically',
-			'Автоматично закривати сповіщення'],
 		inftyScroll: [
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
-		saveScroll: [
-			'Запоминать позицию скролла в тредах',
-			'Remember the scroll position in threads',
-			'Пам`ятати позицію скролла в тредах'],
+		hideReplies: [
+			'Показывать только OP в списке тредов*',
+			'Show only OP in threads list*',
+			'Показувати лише OP в списку тредів*'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
+		saveScroll: [
+			'Запоминать позицию скролла в тредах',
+			'Remember the scroll position in threads',
+			'Пам`ятати позицію скролла в тредах'],
 		favThrOrder: {
 			sel: [
 				['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'],
@@ -551,6 +552,10 @@ const Lng = {
 			'Всегда открывать окно Избранное',
 			'Always open the Favorites window',
 			'Завжди відкривати вікно Вибране'],
+		closePopups: [
+			'Автоматически закрывать уведомления',
+			'Close popups automatically',
+			'Автоматично закривати сповіщення'],
 		updDollchan: {
 			sel: [
 				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],

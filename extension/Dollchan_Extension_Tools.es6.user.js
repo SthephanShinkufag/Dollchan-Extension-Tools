@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'f93385a';
+const commit = '86a0eb6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -54,7 +54,6 @@ const defaultCfg = {
 	markNewPosts : 1,    //    highlight new posts with color
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
-	hideReplies  : 0,    // show only op-posts in threads list
 	expandTrunc  : 0,    // auto-expand truncated posts
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
@@ -63,8 +62,9 @@ const defaultCfg = {
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
-	noPostNames  : 0,    // hide poster names
+	limitPostMsg : 2000, // limit text width in posts nessages
 	widePosts    : 0,    // stretch posts to screen width
+	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
 	timePattern  : '',   //    search pattern
@@ -140,18 +140,19 @@ const defaultCfg = {
 	userCSS      : 0,    // user CSS
 	userCSSTxt   : '',   //    css text
 	expandPanel  : 0,    // show full main panel
-	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
-	rePageTitle  : 1,    // show thread title in the page tab
 	animation    : 1,    // CSS3 animation
-	closePopups  : 0,    // close popups automatically
-	inftyScroll  : 1,    // infinite scrolling for pages
-	saveScroll   : 1,    // remember the scroll position in threads
-	scrollToTop  : 0,    // always scroll to top in the threads list
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
+	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
+	hideReplies  : 0,    // show only op-posts in threads list
+	rePageTitle  : 1,    // show thread title in the page tab
+	inftyScroll  : 1,    // infinite scrolling for pages
+	scrollToTop  : 0,    // always scroll to top in the threads list
+	saveScroll   : 1,    // remember the scroll position in threads
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
 	favWinOn     : 0,    // Always open the Favorites window
+	closePopups  : 0,    // close popups automatically
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
@@ -261,10 +262,6 @@ const Lng = {
 			'Выделять цветом мои посты',
 			'Highlight my own posts',
 			'Виділяти кольором мої пости'],
-		hideReplies: [
-			'Показывать только OP в списке тредов*',
-			'Show only OP in threads list*',
-			'Показувати лише OP в списку тредів*'],
 		expandTrunc: [
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
@@ -319,22 +316,19 @@ const Lng = {
 				'Text spoilers expansion',
 				'Розкриття текстових спойлерів']
 		},
-		noPostNames: [
-			'Скрывать имена в постах',
-			'Hide poster names',
-			'Ховати імена в постах'],
+		limitPostMsg: [
+			'Ограничение ширины текста в постах (px)',
+			'Limit text width in posts messages (px)',
+			'Обмеження ширини тексту в постах (px)'
+		],
 		widePosts: [
 			'Растягивать посты по ширине экрана',
 			'Stretch posts to page width',
 			'Розтягувати пости на ширину екрану'],
-		hotKeys: [
-			'Горячие клавиши',
-			'Hotkeys',
-			'Гарячі клавіші'],
-		loadPages: [
-			'Количество страниц, загружаемых по F5',
-			'Number of pages that are loaded on F5 ',
-			'Кількість сторінок, що завантажуються по F5'],
+		noPostNames: [
+			'Скрывать имена в постах',
+			'Hide poster names',
+			'Ховати імена в постах'],
 		correctTime: [
 			'Коррекция времени в постах* ',
 			'Time correction in posts* ',
@@ -679,6 +673,18 @@ const Lng = {
 			'Пользовательский CSS',
 			'User CSS',
 			'Користувацький CSS'],
+		animation: [
+			'CSS3 анимация',
+			'CSS3 animation',
+			'CSS3 анімація'],
+		hotKeys: [
+			'Горячие клавиши',
+			'Hotkeys',
+			'Гарячі клавіші'],
+		loadPages: [
+			'Количество страниц, загружаемых по F5',
+			'Number of pages that are loaded on F5 ',
+			'Кількість сторінок, що завантажуються по F5'],
 		panelCounter: {
 			sel: [
 				['Откл.', 'Все посты', 'Без скрытых'],
@@ -693,26 +699,22 @@ const Lng = {
 			'Название треда в заголовке вкладки*',
 			'Show thread title in the page tab*',
 			'Назва треду в заголовку вкладки*'],
-		animation: [
-			'CSS3 анимация',
-			'CSS3 animation',
-			'CSS3 анімація'],
-		closePopups: [
-			'Автоматически закрывать уведомления',
-			'Close popups automatically',
-			'Автоматично закривати сповіщення'],
 		inftyScroll: [
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
-		saveScroll: [
-			'Запоминать позицию скролла в тредах',
-			'Remember the scroll position in threads',
-			'Пам`ятати позицію скролла в тредах'],
+		hideReplies: [
+			'Показывать только OP в списке тредов*',
+			'Show only OP in threads list*',
+			'Показувати лише OP в списку тредів*'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
 			'Завжди гортати догори в списку тредів'],
+		saveScroll: [
+			'Запоминать позицию скролла в тредах',
+			'Remember the scroll position in threads',
+			'Пам`ятати позицію скролла в тредах'],
 		favThrOrder: {
 			sel: [
 				['По номеру', 'По номеру (убыв)', 'По добавлению', 'По добавлению (убыв)'],
@@ -727,6 +729,10 @@ const Lng = {
 			'Всегда открывать окно Избранное',
 			'Always open the Favorites window',
 			'Завжди відкривати вікно Вибране'],
+		closePopups: [
+			'Автоматически закрывать уведомления',
+			'Close popups automatically',
+			'Автоматично закривати сповіщення'],
 		updDollchan: {
 			sel: [
 				['Откл.', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -4516,8 +4522,8 @@ const CfgWindow = {
 			case 'expandTrunc':
 			case 'showHideBtn':
 			case 'showRepBtn':
-			case 'noPostNames':
 			case 'widePosts':
+			case 'noPostNames':
 			case 'imgNavBtns':
 			case 'strikeHidd':
 			case 'removeHidd':
@@ -4675,6 +4681,10 @@ const CfgWindow = {
 				}
 				break;
 			}
+			case 'limitPostMsg':
+				saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				updateCSS();
+				break;
 			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
 			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
@@ -4828,16 +4838,16 @@ const CfgWindow = {
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
-			${ !localData ? `${ this._getBox('hideReplies') }<br>
-				${ this._getBox('expandTrunc') }<br>` : '' }
+			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
 			${ this._getSel('showHideBtn') }<br>
 			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
-			${ this._getBox('noPostNames') }<br>
+			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getBox('widePosts') }<br>
+			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
@@ -4951,18 +4961,19 @@ const CfgWindow = {
 			${ this._getSel('scriptStyle') }<br>
 			${ this._getBox('userCSS') }
 			<a href="${ gitWiki }css-tricks" class="de-abtn" target="_blank">[?]</a><br>
-			${ this._getSel('panelCounter') }<br>
-			${ this._getBox('rePageTitle') }<br>
 			${ 'animation' in docBody.style ? this._getBox('animation') + '<br>' : '' }
-			${ this._getBox('closePopups') }<br>
-			${ !localData ? `${ this._getBox('inftyScroll') }<br>
-				${ this._getBox('scrollToTop') }<br>` : '' }
-			${ this._getBox('saveScroll') }<br>
 			${ this._getBox('hotKeys') }
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
+			${ this._getSel('panelCounter') }<br>
+			${ this._getBox('rePageTitle') }<br>
+			${ !localData ? `${ this._getBox('inftyScroll') }<br>
+				${ this._getBox('hideReplies') }<br>
+				${ this._getBox('scrollToTop') }<br>` : '' }
+			${ this._getBox('saveScroll') }<br>
 			${ this._getSel('favThrOrder') }<br>
-			${ this._getBox('favWinOn') }
+			${ this._getBox('favWinOn') }<br>
+			${ this._getBox('closePopups') }
 		</div>`;
 	},
 
@@ -17985,7 +17996,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 351px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 353px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -18320,6 +18331,7 @@ function updateCSS() {
 		'.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' :
 		Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
+	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
 		`.spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }
