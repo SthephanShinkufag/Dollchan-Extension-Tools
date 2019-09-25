@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '86a0eb6';
+	var commit = 'bde52e9';
 
 
 	var defaultCfg = {
@@ -23906,23 +23906,20 @@ true, true];
 			scrollTo(0, 1);
 			return;
 		}
-		if (!needScroll || !Cfg.saveScroll) {
-			return;
-		}
 		setTimeout(function () {
-			var id = 'de-scroll-' + aib.b + (aib.t || '');
-			var val = +sesStorage[id];
-			if (val) {
-				scrollTo(0, val);
-				sesStorage.removeItem(id);
-				return;
-			}
 			var post = void 0,
 			    num = void 0;
 			var hash = deWindow.location.hash;
 
 			if (hash && (num = hash.match(/#[ip]?(\d+)$/)) && (num = +num[1]) && (post = pByNum.get(num)) && !post.isOp) {
 				post.selectAndScrollTo();
+				return;
+			}
+			var id = 'de-scroll-' + aib.b + (aib.t || '');
+			var val = +sesStorage[id];
+			if (val && needScroll && Cfg.saveScroll) {
+				scrollTo(0, val);
+				sesStorage.removeItem(id);
 			}
 		}, 0);
 	}

@@ -124,23 +124,20 @@ function scrollPage() {
 		scrollTo(0, 1);
 		return;
 	}
-	if(!needScroll || !Cfg.saveScroll) {
-		return;
-	}
 	setTimeout(() => {
-		const id = 'de-scroll-' + aib.b + (aib.t || '');
-		const val = +sesStorage[id];
-		if(val) {
-			scrollTo(0, val);
-			sesStorage.removeItem(id);
-			return;
-		}
 		let post, num;
 		const { hash } = deWindow.location;
 		if(hash && (num = hash.match(/#[ip]?(\d+)$/)) &&
 			(num = +num[1]) && (post = pByNum.get(num)) && !post.isOp
 		) {
 			post.selectAndScrollTo();
+			return;
+		}
+		const id = 'de-scroll-' + aib.b + (aib.t || '');
+		const val = +sesStorage[id];
+		if(val && needScroll && Cfg.saveScroll) {
+			scrollTo(0, val);
+			sesStorage.removeItem(id);
 		}
 	}, 0);
 }
