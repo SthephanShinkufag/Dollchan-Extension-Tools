@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'bde52e9';
+const commit = '308148b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17251,6 +17251,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRules = '#rules_row';
 
 			this.hasTextLinks = true;
+			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
 			return `${ super.css }

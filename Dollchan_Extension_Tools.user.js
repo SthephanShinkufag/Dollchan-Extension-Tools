@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'bde52e9';
+	var commit = '308148b';
 
 
 	var defaultCfg = {
@@ -23358,6 +23358,7 @@ true, true];
 				_this113.qFormRules = '#rules_row';
 
 				_this113.hasTextLinks = true;
+				_this113.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 				return _this113;
 			}
 

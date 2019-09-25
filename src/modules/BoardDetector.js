@@ -1785,6 +1785,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRules = '#rules_row';
 
 			this.hasTextLinks = true;
+			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
 			return `${ super.css }
