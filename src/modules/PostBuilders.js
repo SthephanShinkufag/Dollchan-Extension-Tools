@@ -425,7 +425,7 @@ class MakabaPostsBuilder {
 			</span>`;
 		return `<div id="post-${ num }" class="${ wrapClass }">
 			<div class="post ${ isNew ? 'post_type_' : '' }${ isOp ? 'oppost' : 'reply' }` +
-				`${ filesHTML ? ' withimg' : '' }" id="post-body-${ num }" data-num="${ num }">
+				`${ filesHTML ? ' post_withimg' : '' }" id="post-body-${ num }" data-num="${ num }">
 				<div id="post-details-${ num }" class="${ isNew ? 'post__details' : 'post-details' }">
 					<input type="checkbox" name="delete" value="${ num }">
 					${ !data.subject ? '' : `<span class="${ isNew ? 'post__' : 'post-' }title">` +

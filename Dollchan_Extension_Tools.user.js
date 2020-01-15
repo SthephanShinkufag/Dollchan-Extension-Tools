@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '308148b';
+	var commit = '604ad98';
 
 
 	var defaultCfg = {
@@ -18170,7 +18170,7 @@ true, true];
 				var isOp = i === -1;
 				var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
 				var timeReflink = '<span class="' + (isNew ? 'post__time' : 'posttime') + '">' + data.date + '</span>\n\t\t\t<span class="' + (isNew ? 'post__detailpart' : 'reflink') + '">' + ('<a id="' + num + '" ' + (isNew ? 'class="post__reflink" ' : '') + 'href="' + refHref + '">') + ((aib._2channel ? 'No.' : '№') + '</a>') + ('<a class="' + (isNew ? 'post__reflink ' : '') + 'postbtn-reply-href" href="' + refHref + '"') + (' name="' + num + '">' + num + '</a>\n\t\t\t</span>');
-				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
+				return '<div id="post-' + num + '" class="' + wrapClass + '">\n\t\t\t<div class="post ' + (isNew ? 'post_type_' : '') + (isOp ? 'oppost' : 'reply') + ((filesHTML ? ' post_withimg' : '') + '" id="post-body-' + num + '" data-num="' + num + '">\n\t\t\t\t<div id="post-details-' + num + '" class="' + (isNew ? 'post__details' : 'post-details') + '">\n\t\t\t\t\t<input type="checkbox" name="delete" value="' + num + '">\n\t\t\t\t\t' + (!data.subject ? '' : '<span class="' + (isNew ? 'post__' : 'post-') + 'title">' + (data.subject + (data.tags ? ' /' + data.tags + '/' : '') + '</span>')) + '\n\t\t\t\t\t' + emailEl + '\n\t\t\t\t\t' + (data.icon ? '<span class="' + (isNew ? 'post__' : 'post-') + 'icon">' + (data.icon + '</span>') : '') + '\n\t\t\t\t\t' + tripEl + '\n\t\t\t\t\t' + (data.op === 1 ? '<span class="' + p + 'ophui"># OP</span>&nbsp;' : '') + '\n\t\t\t\t\t' + (isNew ? timeReflink : '<span class="posttime-reflink">\n\t\t\t\t\t\t' + timeReflink + '\n\t\t\t\t\t</span>') + '\n\t\t\t\t\t' + rate + '\n\t\t\t\t</div>\n\t\t\t\t' + filesHTML + '\n\t\t\t\t' + this._getPostMsg(data) + '\n\t\t\t</div>\n\t\t</div>');
 			}
 		}, {
 			key: 'bannedPostsData',
