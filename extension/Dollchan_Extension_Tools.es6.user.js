@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = 'e02c783';
+const commit = 'a74dcea';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16618,6 +16618,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				#resizer { display: none; }
 				form > span { margin-top: 5px; }
 				.de-thr-hid { display: inherit; }
+				.reflink::after { content: none !important; }
+				.spoiler-image:hover::after { content: none !important; }
 				.topmenu { z-index: 1; }`;
 		}
 		get markupTags() {
@@ -16629,12 +16631,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			const el = $q('.filetitle', post);
 			return !!el && el.textContent.includes('\u21E9');
-		}
-		init() {
-			super.init();
-			// Workaround for "OK bug" #921
-			$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-			return false;
 		}
 		updateCaptcha(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {

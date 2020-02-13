@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'e02c783';
+	var commit = 'a74dcea';
 
 
 	var defaultCfg = {
@@ -22473,13 +22473,6 @@ true, true];
 					return !!el && el.textContent.includes('\u21E9');
 				}
 			}, {
-				key: 'init',
-				value: function init() {
-					_get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'init', this).call(this);
-					$bEnd(docBody, '<span id="faptcha_input" style="display: none"></span>');
-					return false;
-				}
-			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
 					var _this100 = this;
@@ -22508,7 +22501,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.topmenu { z-index: 1; }';
+					return _get(_410chan.prototype.__proto__ || Object.getPrototypeOf(_410chan.prototype), 'css', this) + '\n\t\t\t\t#resizer { display: none; }\n\t\t\t\tform > span { margin-top: 5px; }\n\t\t\t\t.de-thr-hid { display: inherit; }\n\t\t\t\t.reflink::after { content: none !important; }\n\t\t\t\t.spoiler-image:hover::after { content: none !important; }\n\t\t\t\t.topmenu { z-index: 1; }';
 				}
 			}, {
 				key: 'markupTags',
