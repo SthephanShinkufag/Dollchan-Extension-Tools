@@ -1735,6 +1735,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['ernstchan.xyz'] = Ernstchan;
 
+	class Gensokyo extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasRefererErr = true;
+		}
+	}
+	ibDomains['gensokyo.4otaku.org'] = Gensokyo;
+
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);

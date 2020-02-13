@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '604ad98';
+const commit = 'e02c783';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17200,6 +17200,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ernstchan.xyz'] = Ernstchan;
+
+	class Gensokyo extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasRefererErr = true;
+		}
+	}
+	ibDomains['gensokyo.4otaku.org'] = Gensokyo;
 
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
