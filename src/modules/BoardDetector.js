@@ -1040,14 +1040,22 @@ function getImageBoard(checkDomains, checkEngines) {
 		get reportForm() {
 			return null;
 		}
+		fixFileInputs(el) {
+			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+			).join('');
+		}
 		fixHTMLHelper(str) {
 			return str.replace(/src="[^>]+" data-src="/g, 'src="');
 		}
+		getCapParent(el) {
+			return $q('.captcha');
+		}
 		init() {
 			super.init();
-			this.qFormFile = '.postform__field input[type="file"]';
-			this.qFormTd = '.postform__field';
-			this.qFormTr = '.postform__field';
+			this.qFormFile = 'input[name="formimages[]"]';
+			this.qFormTd = 'div[class^="freply__"]';
+			this.qFormTr = 'div[class^="freply__"]';
 			const { css } = this;
 			Object.defineProperty(this, 'css', {
 				configurable : true,
@@ -1057,7 +1065,11 @@ function getImageBoard(checkDomains, checkEngines) {
 					.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }
 					.preview.lazy { opacity: 1; }`
 			});
-			const el = $id('postform');
+			let el = $q('.captcha');
+			if(el) {
+				$before($q('.freply__files-and-captcha'), el);
+			}
+			el = $id('postform');
 			if(el) {
 				el.setAttribute('action', el.getAttribute('action') + '?json=1');
 			}

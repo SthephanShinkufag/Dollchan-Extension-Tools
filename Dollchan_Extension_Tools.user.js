@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = 'a74dcea';
+	var commit = '359f173';
 
 
 	var defaultCfg = {
@@ -18075,7 +18075,7 @@ true, true];
 			this._json = json;
 			this._brd = brd;
 			this._posts = json.threads[0].posts;
-			this.length = json.posts_count - +!!aib._2channel;
+			this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
 			this.postersCount = json.unique_posters;
 		}
 
@@ -22313,17 +22313,29 @@ true, true];
 			}
 
 			_createClass(_2channel, [{
+				key: 'fixFileInputs',
+				value: function fixFileInputs(el) {
+					el.innerHTML = Array.from({ length: 4 }, function (val, i) {
+						return '<div' + (i ? ' style="display: none;"' : '') + '><input type="file" name="formimages[]"></div>';
+					}).join('');
+				}
+			}, {
 				key: 'fixHTMLHelper',
 				value: function fixHTMLHelper(str) {
 					return str.replace(/src="[^>]+" data-src="/g, 'src="');
 				}
 			}, {
+				key: 'getCapParent',
+				value: function getCapParent(el) {
+					return $q('.captcha');
+				}
+			}, {
 				key: 'init',
 				value: function init() {
 					_get(_2channel.prototype.__proto__ || Object.getPrototypeOf(_2channel.prototype), 'init', this).call(this);
-					this.qFormFile = '.postform__field input[type="file"]';
-					this.qFormTd = '.postform__field';
-					this.qFormTr = '.postform__field';
+					this.qFormFile = 'input[name="formimages[]"]';
+					this.qFormTd = 'div[class^="freply__"]';
+					this.qFormTr = 'div[class^="freply__"]';
 					var css = this.css;
 
 					Object.defineProperty(this, 'css', {
@@ -22332,7 +22344,11 @@ true, true];
 							return css + '\n\t\t\t\t\t#AlertBox, .postform__checkbox.first, .postform__header, .refmap, #youtube-thumb-float\n\t\t\t\t\t\t{ display: none !important; }\n\t\t\t\t\t.de-win-open:not(#de-win-cfg) > .de-win-body { background-color: #eee !important; }\n\t\t\t\t\t.preview.lazy { opacity: 1; }';
 						}
 					});
-					var el = $id('postform');
+					var el = $q('.captcha');
+					if (el) {
+						$before($q('.freply__files-and-captcha'), el);
+					}
+					el = $id('postform');
 					if (el) {
 						el.setAttribute('action', el.getAttribute('action') + '?json=1');
 					}
