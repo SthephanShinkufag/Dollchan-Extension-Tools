@@ -13,10 +13,10 @@ function scriptCSS() {
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }
+	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	a.de-panel-button, a.de-panel-button:hover { color: inherit !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
-	.de-panel-expimg-enabled, .de-panel-maskimg-enabled, .de-panel-preimg-enabled { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	#de-panel-goback { transform: rotate(180deg); will-change: transform; }
 	#de-panel-godown { transform: rotate(90deg); will-change: transform; }
 	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }

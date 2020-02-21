@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '8adf21b';
+	var commit = '13726da';
 
 
 	var defaultCfg = {
@@ -5919,7 +5919,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						case 'de-panel-godown':
 							scrollTo(0, docBody.scrollHeight || docBody.offsetHeight);break;
 						case 'de-panel-expimg':
-							el.classList.toggle('de-panel-expimg-enabled');
+							el.classList.toggle('de-panel-button-active');
 							isExpImg = !isExpImg;
 							$del($q('.de-fullimg-center'));
 							for (var post = Thread.first.op; post; post = post.next) {
@@ -5927,7 +5927,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							break;
 						case 'de-panel-preimg':
-							el.classList.toggle('de-panel-preimg-enabled');
+							el.classList.toggle('de-panel-button-active');
 							isPreImg = !isPreImg;
 							if (!e.ctrlKey) {
 								var _iteratorNormalCompletion2 = true;
@@ -5958,7 +5958,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							break;
 						case 'de-panel-maskimg':
-							el.classList.toggle('de-panel-maskimg-enabled');
+							el.classList.toggle('de-panel-button-active');
 							toggleCfg('maskImgs');
 							updateCSS();
 							break;
@@ -23968,7 +23968,7 @@ true, true];
 			return id + '::before { content: ""; display: inline-block; vertical-align: -3px; padding: 16px 16px 0 0; margin-right: 4px; background: url(' + src + ') no-repeat center; background-size: contain; }';
 		};
 
-		var x = '\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\n\ta.de-panel-button, a.de-panel-button:hover { color: inherit !important; }\n\t.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t.de-panel-expimg-enabled, .de-panel-maskimg-enabled, .de-panel-preimg-enabled { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\n\t#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ' + [
+		var x = '\n\t/* Main panel */\n\t#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }\n\t#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }\n\t#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }\n\t.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }\n\t.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }\n\ta.de-panel-button, a.de-panel-button:hover { color: inherit !important; }\n\t.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }\n\t#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }\n\t#de-panel-goback { transform: rotate(180deg); will-change: transform; }\n\t#de-panel-godown { transform: rotate(90deg); will-change: transform; }\n\t#de-panel-goup { transform: rotate(-90deg); will-change: transform; }\n\t#de-panel-upd-on { fill: #32ff32; }\n\t#de-panel-upd-warn { fill: #fff441; }\n\t#de-panel-upd-off { fill: #ff3232; }\n\t#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }\n\t#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }\n\t#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }\n\t#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }\n\t.de-svg-fill { stroke: none; fill: currentColor; }\n\t.de-svg-stroke { stroke: currentColor; fill: none; }\n\tuse { fill: inherit; pointer-events: none; }\n\n\t/* Panel theme */\n\t.de-img-btn, #de-panel, .de-win-head ' + [
 		'{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
 		'{ background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }\n\t\t#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }',
 		'{ background-color: #777; }\n\t\t#de-panel-buttons, #de-panel-info { border-color: #ccc; }\n\t\t.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }',
