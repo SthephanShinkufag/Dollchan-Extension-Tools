@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '359f173';
+const commit = '8adf21b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3095,6 +3095,7 @@ const Panel = Object.create({
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
+				el.classList.toggle('de-panel-expimg-enabled');
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
 				for(let post = Thread.first.op; post; post = post.next) {
@@ -3102,6 +3103,7 @@ const Panel = Object.create({
 				}
 				break;
 			case 'de-panel-preimg':
+				el.classList.toggle('de-panel-preimg-enabled');
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
@@ -3110,6 +3112,7 @@ const Panel = Object.create({
 				}
 				break;
 			case 'de-panel-maskimg':
+				el.classList.toggle('de-panel-maskimg-enabled');
 				toggleCfg('maskImgs');
 				updateCSS();
 				break;
@@ -17820,17 +17823,17 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>
-		<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>
+		<path stroke-width="3" d="M8 12.5h9"/>
+		<path d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>
+		<path d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>
-		<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>
+		<path stroke-width="3" d="M12.5 17V9"/>
+		<path d="M8 15h9l-4.5 5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">
 		<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>
@@ -17943,6 +17946,8 @@ function scriptCSS() {
 	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; }
 	a.de-panel-button, a.de-panel-button:hover { color: inherit !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
+	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
+	.de-panel-expimg-enabled, .de-panel-maskimg-enabled, .de-panel-preimg-enabled { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	#de-panel-goback { transform: rotate(180deg); will-change: transform; }
 	#de-panel-godown { transform: rotate(90deg); will-change: transform; }
 	#de-panel-goup { transform: rotate(-90deg); will-change: transform; }

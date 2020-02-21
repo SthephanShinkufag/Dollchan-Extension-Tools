@@ -153,17 +153,17 @@ function addSVGIcons() {
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-expimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M8 12.5h9"/>
-		<path class="de-svg-fill" d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>
+		<path stroke-width="3" d="M8 12.5h9"/>
+		<path d="M10 8v9l-5-4.5M15 17V8l5 4.5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-maskimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>
+		<path d="M5 20L20 5M5 15.5L15.5 5M5 11l6-6M20 9.5L9.5 20M20 14l-6 6"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-preimg">
 		<path class="de-svg-stroke" stroke-width="2" d="M20 18c0 1-1 2-2 2H7c-1 0-2-1-2-2V7c0-1 1-2 2-2h11c1 0 2 1 2 2v11z"/>
-		<path class="de-svg-stroke" stroke-width="3" d="M12.5 17V9"/>
-		<path class="de-svg-fill" d="M8 15h9l-4.5 5"/>
+		<path stroke-width="3" d="M12.5 17V9"/>
+		<path d="M8 15h9l-4.5 5"/>
 	</symbol>
 	<symbol viewBox="0 0 25 25" id="de-symbol-panel-savethr">
 		<path class="de-svg-fill" d="M18 4h-1v6H8V4H6C5 4 4 5 4 6v13c0 1 1 2 2 2h13c1 0 2-1 2-2V7l-3-3zM6 20v-8h13v8H6z"/>

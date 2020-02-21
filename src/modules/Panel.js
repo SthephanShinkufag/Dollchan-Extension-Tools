@@ -88,6 +88,7 @@ const Panel = Object.create({
 			case 'de-panel-goup': scrollTo(0, 0); break;
 			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
 			case 'de-panel-expimg':
+				el.classList.toggle('de-panel-expimg-enabled');
 				isExpImg = !isExpImg;
 				$del($q('.de-fullimg-center'));
 				for(let post = Thread.first.op; post; post = post.next) {
@@ -95,6 +96,7 @@ const Panel = Object.create({
 				}
 				break;
 			case 'de-panel-preimg':
+				el.classList.toggle('de-panel-preimg-enabled');
 				isPreImg = !isPreImg;
 				if(!e.ctrlKey) {
 					for(const { el } of DelForm) {
@@ -103,6 +105,7 @@ const Panel = Object.create({
 				}
 				break;
 			case 'de-panel-maskimg':
+				el.classList.toggle('de-panel-maskimg-enabled');
 				toggleCfg('maskImgs');
 				updateCSS();
 				break;
