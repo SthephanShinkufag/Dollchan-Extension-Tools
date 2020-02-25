@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '1a4daf0';
+const commit = '7faeaeb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16589,7 +16589,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			this._capUpdPromise = null;
 		}
 		get css() {
-			return `small[id^="rfmap_"], .qreply_btn { display: none; }
+			return `small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }
+				#subject + div { display: inline !important; }
 				.replypage .reply .reflink::before { content: "" }`;
 		}
 		getSubmitData(json) {

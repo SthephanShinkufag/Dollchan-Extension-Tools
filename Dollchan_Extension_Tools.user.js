@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '1a4daf0';
+	var commit = '7faeaeb';
 
 
 	var defaultCfg = {
@@ -22452,7 +22452,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return 'small[id^="rfmap_"], .qreply_btn { display: none; }\n\t\t\t\t.replypage .reply .reflink::before { content: "" }';
+					return 'small[id^="rfmap_"], #submit_button, .qreply_btn { display: none; }\n\t\t\t\t#subject + div { display: inline !important; }\n\t\t\t\t.replypage .reply .reflink::before { content: "" }';
 				}
 			}]);
 
