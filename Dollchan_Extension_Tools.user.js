@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '13726da';
+	var commit = '1a4daf0';
 
 
 	var defaultCfg = {
@@ -16078,7 +16078,8 @@ true, true];
 			key: 'showPview',
 			value: function showPview(parent, link) {
 				var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-				var pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
+				var pNum = link.textContent.match(/\d+/g);
+				pNum = pNum ? +pNum.pop() : tNum;
 				var isTop = !(parent instanceof Pview);
 				var pv = isTop ? Pview.top : parent.kid;
 				clearTimeout(Pview._delTO);

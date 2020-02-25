@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '13726da';
+const commit = '1a4daf0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -11319,7 +11319,8 @@ class Pview extends AbstractPost {
 	}
 	static showPview(parent, link) {
 		const tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [0, aib.getPostOfEl(link).tNum])[1];
-		const pNum = +(link.textContent.trim().match(/\d+$/) || [tNum]);
+		let pNum = link.textContent.match(/\d+/g);
+		pNum = pNum ? +pNum.pop() : tNum;
 		const isTop = !(parent instanceof Pview);
 		let pv = isTop ? Pview.top : parent.kid;
 		clearTimeout(Pview._delTO);
