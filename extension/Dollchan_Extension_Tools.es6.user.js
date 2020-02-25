@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '19.8.28.0';
-const commit = '7faeaeb';
+const commit = '05747c3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16179,8 +16179,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
 					.de-btn-src + a + a, #de-win-reply #tags, #down-nav-arrow, .media-expand-button,
 					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__message .icon,
-					.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr, .thread-nav,
-					#up-nav-arrow { display: none !important; }
+					.post__number, .post__panel, .post__refmap, .postform__len, .postform-hr,
+					.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-flex; }
@@ -16314,8 +16314,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					get          : () => `${ css }
 						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
 						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
-						.toolbar-area { display: none !important; }
+						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before,
+						.thread-nav > :not(.search), .toolbar-area { display: none !important; }
 						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
 							display: none !important; }` : '' }
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
@@ -16342,14 +16342,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				el.remove();
 			});
-			let el = $q('.search');
+			const el = $id('shampoo');
 			if(el) {
-				let node = $q('.adminbar__menu, .menu');
-				if(node && (node = node.firstChild)) {
-					$before(node, el);
-				}
-			}
-			if((el = $id('shampoo'))) {
 				el.tabIndex = 1;
 			}
 			return false;
