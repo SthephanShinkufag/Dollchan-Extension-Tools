@@ -1387,7 +1387,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qPostSubj = '.post_subject';
-			this.qRPost = '.post:not(:first-child):not([postid=""])';
+			this.qRPost = '.post[postid]:not([postid=""])';
 
 			this.docExt = '';
 			this.hasOPNum = true;
@@ -1455,10 +1455,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.cf'] = Arhivach;
-	ibDomains['arhivach.gq'] = Arhivach;
 	ibDomains['arhivach.ng'] = Arhivach;
-	ibDomains['arhivach.tk'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class Animach extends Vichan {

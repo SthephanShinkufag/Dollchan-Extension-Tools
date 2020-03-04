@@ -3837,7 +3837,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '19.8.28.0';
-	var commit = '05747c3';
+	var commit = '412cd96';
 
 
 	var defaultCfg = {
@@ -22797,7 +22797,7 @@ true, true];
 				_this104.qPostMsg = '.post_comment_body';
 				_this104.qPostRef = '.post_id, .post_head > b';
 				_this104.qPostSubj = '.post_subject';
-				_this104.qRPost = '.post:not(:first-child):not([postid=""])';
+				_this104.qRPost = '.post[postid]:not([postid=""])';
 
 				_this104.docExt = '';
 				_this104.hasOPNum = true;
@@ -22895,10 +22895,7 @@ true, true];
 			return Arhivach;
 		}(BaseBoard);
 
-		ibDomains['arhivach.cf'] = Arhivach;
-		ibDomains['arhivach.gq'] = Arhivach;
 		ibDomains['arhivach.ng'] = Arhivach;
-		ibDomains['arhivach.tk'] = Arhivach;
 		ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 		var Animach = function (_Vichan2) {
