@@ -4,7 +4,7 @@
 	"manifest_version": 2,
 	"name": "Dollchan Extension Tools",
 	"short_name": "Dollchan Ext",
-	"version": "19.8.28.0",
+	"version": "20.3.17.0",
 
 	"applications": {
 		"gecko": {
