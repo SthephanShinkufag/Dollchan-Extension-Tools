@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'd4bfe2e';
+	var commit = '772b6eb';
 
 
 	var defaultCfg = {
@@ -22256,11 +22256,7 @@ true, true];
 		ibDomains['2ch.hk'] = Makaba;
 		ibDomains['2ch.pm'] = Makaba;
 		ibDomains['2ch.re'] = Makaba;
-		ibDomains['2ch.tf'] = Makaba;
 		ibDomains['2ch.wf'] = Makaba;
-		ibDomains['2ch.yt'] = Makaba;
-		ibDomains['2-ch.so'] = Makaba;
-		ibDomains['5.61.239.35'] = Makaba;
 
 		var _2chan = function (_BaseBoard8) {
 			_inherits(_2chan, _BaseBoard8);
@@ -22438,7 +22434,6 @@ true, true];
 			return _2channel;
 		}(Makaba);
 
-		ibDomains['2channel.ga'] = _2channel;
 		ibDomains['2channel.moe'] = _2channel;
 		ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
@@ -23251,7 +23246,6 @@ true, true];
 		}(Lynxchan);
 
 		ibDomains['endchan.net'] = Endchan;
-		ibDomains['endchan.xyz'] = Endchan;
 
 		var Ernstchan = function (_BaseBoard13) {
 			_inherits(Ernstchan, _BaseBoard13);
@@ -23634,10 +23628,7 @@ true, true];
 			return Ponyach;
 		}(BaseBoard);
 
-		ibDomains['ponyach.ga'] = Ponyach;
-		ibDomains['ponyach.gq'] = Ponyach;
 		ibDomains['ponyach.ru'] = Ponyach;
-		ibDomains['ponyach.tk'] = Ponyach;
 
 		var Ponychan = function (_Tinyboard3) {
 			_inherits(Ponychan, _Tinyboard3);

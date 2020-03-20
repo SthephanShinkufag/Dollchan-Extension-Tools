@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'd4bfe2e';
+const commit = '772b6eb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16439,11 +16439,7 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.hk'] = Makaba;
 	ibDomains['2ch.pm'] = Makaba;
 	ibDomains['2ch.re'] = Makaba;
-	ibDomains['2ch.tf'] = Makaba;
 	ibDomains['2ch.wf'] = Makaba;
-	ibDomains['2ch.yt'] = Makaba;
-	ibDomains['2-ch.so'] = Makaba;
-	ibDomains['5.61.239.35'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16569,7 +16565,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 		}
 	}
-	ibDomains['2channel.ga'] = _2channel;
 	ibDomains['2channel.moe'] = _2channel;
 	ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
@@ -17152,7 +17147,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['endchan.net'] = Endchan;
-	ibDomains['endchan.xyz'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
 		constructor(prot, dm) {
@@ -17383,10 +17377,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['ponyach.ga'] = Ponyach;
-	ibDomains['ponyach.gq'] = Ponyach;
 	ibDomains['ponyach.ru'] = Ponyach;
-	ibDomains['ponyach.tk'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
 		constructor(prot, dm) {
