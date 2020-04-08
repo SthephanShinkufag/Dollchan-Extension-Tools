@@ -162,7 +162,7 @@ class AbstractPost {
 				) {
 					const task = temp.id.split('-')[0];
 					const num = +temp.id.match(/\d+/);
-					$ajax(`/makaba/likes.fcgi?task=${ task }&board=${ aib.b }&num=${ num }`).then(xhr => {
+					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 						const data = JSON.parse(xhr.responseText);
 						if(data.Status !== 'OK') {
 							$popup('err-2chlike', data.Reason);

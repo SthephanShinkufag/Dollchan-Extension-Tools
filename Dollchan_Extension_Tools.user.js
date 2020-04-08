@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'dcf5bcc';
+	var commit = '5b45e91';
 
 
 	var defaultCfg = {
@@ -14610,7 +14610,7 @@ true, true];
 						if (c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' || (temp = el.parentNode) && ((c = temp.classList).contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div') || (temp = temp.parentNode) && ((c = temp.className) === 'like-div' || c === 'dislike-div')) {
 							var task = temp.id.split('-')[0];
 							var num = +temp.id.match(/\d+/);
-							$ajax('/makaba/likes.fcgi?task=' + task + '&board=' + aib.b + '&num=' + num).then(function (xhr) {
+							$ajax('/api/' + task + '?board=' + aib.b + '&num=' + num).then(function (xhr) {
 								var data = JSON.parse(xhr.responseText);
 								if (data.Status !== 'OK') {
 									$popup('err-2chlike', data.Reason);
