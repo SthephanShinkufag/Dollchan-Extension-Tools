@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '772b6eb';
+	var commit = 'dcf5bcc';
 
 
 	var defaultCfg = {
@@ -6841,7 +6841,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
-			var favObj, isUpdate, last404, myposts, els, _i, _len, el, host, _b3, num, _f, _ref9, titleEl, youEl, countEl, iconEl, form, isArchived, _ref10, _ref11, arch, fo, posts, cnt, j, links, a, _len2, tc;
+			var favObj, isUpdate, last404, myposts, els, _i, _len, el, host, _b3, num, _f, _ref9, titleEl, youEl, countEl, iconEl, form, isArchived, _ref10, _ref11, posts, cnt, j, links, a, _len2, tc;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context7) {
 				while (1) {
@@ -6895,7 +6895,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							form = void 0, isArchived = void 0;
 							_context7.prev = 23;
 
-							if (aib.iichan) {
+							if (aib.hasArchive) {
 								_context7.next = 30;
 								break;
 							}
@@ -6965,11 +6965,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 								titleEl.title = Lng.thrArchived[lang];
 								_f.err = 'Archived';
-								arch = _b3 + '/arch';
-								fo = favObj[host];
-
-								(fo[arch] || (fo[arch] = { url: favObj[host][_b3].url + 'arch/' }))[num] = Object.assign({}, _f);
-								removeFavEntry(favObj, host, _b3, num);
 								isUpdate = true;
 							} else {
 								iconEl.setAttribute('class', 'de-fav-inf-icon');
@@ -7171,7 +7166,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 												iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 												titleEl.title = Lng.updating[lang];
 												_context9.next = 7;
-												return $ajax(el.getAttribute('de-url'), null, true).then(function () {
+												return $ajax(el.getAttribute('de-url'), null, true).then(function (xhr) {
+													switch (el.getAttribute('de-host')) {
+														case '2ch.hk':
+														case '2ch.pm':
+															{
+																var dc = $DOM(xhr.responseText);
+																if (dc && $q('.message-title', dc)) {
+																	throw new AjaxError(404, 'Error');
+																}
+															}
+													}
 													iconEl.setAttribute('class', 'de-fav-inf-icon');
 													titleEl.removeAttribute('title');
 													last404 = false;
@@ -10178,7 +10183,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return err.code === 304 ? null : CancelablePromise.reject(err);
 			});
 		}
-		return aib.iichan ? ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true).then(function (data) {
+		return aib.hasArchive ? ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true).then(function (data) {
 			return data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
 		}) : ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache).then(function (form) {
 			return form ? new DOMPostsBuilder(form) : null;
@@ -19866,7 +19871,7 @@ true, true];
 						favicon.startBlink(true);
 					}
 					if (eCode === -1 || eCode === 404 && lastECode === 404) {
-						Thread.removeSavedData(aib.b, aib.t);
+						Thread.removeSavedData(aib.b, aib.t); 
 						updateTitle(eCode);
 						_disableUpdater();
 					} else {
@@ -20499,6 +20504,7 @@ true, true];
 			this.firstPage = 0;
 			this.formParent = 'parent';
 			this.hasAltCaptcha = false;
+			this.hasArchive = false;
 			this.hasCatalog = false;
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
@@ -20520,7 +20526,6 @@ true, true];
 			this._2channel = false;
 			this._4chan = false;
 			this.dobrochan = false;
-			this.iichan = false;
 			this.makaba = false;
 		}
 
@@ -21971,6 +21976,7 @@ true, true];
 
 				_this93.formParent = 'thread';
 				_this93.hasAltCaptcha = true;
+				_this93.hasArchive = true;
 				_this93.hasCatalog = true;
 				_this93.hasOPNum = true;
 				_this93.hasPicWrap = true;
@@ -22065,6 +22071,7 @@ true, true];
 						this.qPostRef = '.reflink';
 						this.qPostSubj = '.post-title';
 						this.qRPost = '.post.reply[data-num]';
+						this.hasArchive = false;
 						var css = this.css;
 
 						Object.defineProperty(this, 'css', {
@@ -23341,8 +23348,7 @@ true, true];
 
 				var _this113 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this113.iichan = true;
-
+				_this113.hasArchive = true;
 				_this113.hasCatalog = true;
 				return _this113;
 			}

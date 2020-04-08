@@ -46,6 +46,7 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.formParent = 'parent';
 		this.hasAltCaptcha = false;
+		this.hasArchive = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -68,7 +69,6 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
-		this.iichan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {

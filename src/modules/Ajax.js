@@ -301,7 +301,7 @@ function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
-	return aib.iichan ?
+	return aib.hasArchive ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
 			.then(data => data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)

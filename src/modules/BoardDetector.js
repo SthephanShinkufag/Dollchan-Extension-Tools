@@ -683,6 +683,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.formParent = 'thread';
 			this.hasAltCaptcha = true;
+			this.hasArchive = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -838,6 +839,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qPostRef = '.reflink';
 				this.qPostSubj = '.post-title';
 				this.qRPost = '.post.reply[data-num]';
+				this.hasArchive = false;
 				const { css } = this;
 				Object.defineProperty(this, 'css', {
 					configurable : true,
@@ -1741,8 +1743,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.iichan = true;
 
+			this.hasArchive = true;
 			this.hasCatalog = true;
 		}
 		get qFormMail() {

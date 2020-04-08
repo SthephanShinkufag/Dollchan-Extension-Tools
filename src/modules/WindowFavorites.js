@@ -268,7 +268,7 @@ function showFavoritesWindow(body, favObj) {
 			titleEl.title = Lng.updating[lang];
 			let form, isArchived;
 			try {
-				if(!aib.iichan) {
+				if(!aib.hasArchive) {
 					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
 					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
@@ -277,7 +277,7 @@ function showFavoritesWindow(body, favObj) {
 			} catch(err) {
 				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
+						Thread.removeSavedData(b, num); // Not working yet
 					} else {
 						last404 = true;
 						--i; // Repeat this cycle again
@@ -297,14 +297,10 @@ function showFavoritesWindow(body, favObj) {
 				titleEl.title = Lng.thrClosed[lang];
 				f.err = 'Closed';
 				isUpdate = true;
-			} else if(isArchived) { // Moves archived threads into b/arch (iichan only)
+			} else if(isArchived) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
-				const arch = b + '/arch';
-				const fo = favObj[host];
-				(fo[arch] || (fo[arch] = { url: favObj[host][b].url + 'arch/' }))[num] = Object.assign({}, f);
-				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -434,7 +430,16 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, true).then(() => {
+			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
+				switch(el.getAttribute('de-host')) { // Makaba doesn't return 404
+				case '2ch.hk':
+				case '2ch.pm': {
+					const dc = $DOM(xhr.responseText);
+					if(dc && $q('.message-title', dc)) {
+						throw new AjaxError(404, 'Error');
+					}
+				}
+				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 				last404 = false;
@@ -445,7 +450,7 @@ function showFavoritesWindow(body, favObj) {
 						--i; // Repeat this cycle again
 						return;
 					}
-					Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
+					Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
 						+el.getAttribute('de-num'));
 					el.setAttribute('de-removed', ''); // Mark an entry as deleted
 				}

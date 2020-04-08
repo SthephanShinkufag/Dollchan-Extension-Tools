@@ -371,7 +371,7 @@ function initThreadUpdater(title, enableUpdate) {
 					favicon.startBlink(true);
 				}
 				if(eCode === -1 || (eCode === 404 && lastECode === 404)) {
-					Thread.removeSavedData(aib.b, aib.t);
+					Thread.removeSavedData(aib.b, aib.t); // Not working yet
 					updateTitle(eCode);
 					disableUpdater();
 				} else {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '772b6eb';
+const commit = 'dcf5bcc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4008,7 +4008,7 @@ function showFavoritesWindow(body, favObj) {
 			titleEl.title = Lng.updating[lang];
 			let form, isArchived;
 			try {
-				if(!aib.iichan) {
+				if(!aib.hasArchive) {
 					form = await ajaxLoad(aib.getThrUrl(b, num));
 				} else {
 					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
@@ -4017,7 +4017,7 @@ function showFavoritesWindow(body, favObj) {
 			} catch(err) {
 				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(b, num); // Doesn't work. Not done now.
+						Thread.removeSavedData(b, num); // Not working yet
 					} else {
 						last404 = true;
 						--i; // Repeat this cycle again
@@ -4037,14 +4037,10 @@ function showFavoritesWindow(body, favObj) {
 				titleEl.title = Lng.thrClosed[lang];
 				f.err = 'Closed';
 				isUpdate = true;
-			} else if(isArchived) { // Moves archived threads into b/arch (iichan only)
+			} else if(isArchived) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
 				f.err = 'Archived';
-				const arch = b + '/arch';
-				const fo = favObj[host];
-				(fo[arch] || (fo[arch] = { url: favObj[host][b].url + 'arch/' }))[num] = Object.assign({}, f);
-				removeFavEntry(favObj, host, b, num);
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
@@ -4174,7 +4170,16 @@ function showFavoritesWindow(body, favObj) {
 			const titleEl = iconEl.parentNode;
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, true).then(() => {
+			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
+				switch(el.getAttribute('de-host')) { // Makaba doesn't return 404
+				case '2ch.hk':
+				case '2ch.pm': {
+					const dc = $DOM(xhr.responseText);
+					if(dc && $q('.message-title', dc)) {
+						throw new AjaxError(404, 'Error');
+					}
+				}
+				}
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
 				last404 = false;
@@ -4185,7 +4190,7 @@ function showFavoritesWindow(body, favObj) {
 						--i; // Repeat this cycle again
 						return;
 					}
-					Thread.removeSavedData(el.getAttribute('de-board'), // Doesn't work. Not done now.
+					Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
 						+el.getAttribute('de-num'));
 					el.setAttribute('de-removed', ''); // Mark an entry as deleted
 				}
@@ -6992,7 +6997,7 @@ function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
-	return aib.iichan ?
+	return aib.hasArchive ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
 			.then(data => data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)
@@ -14557,7 +14562,7 @@ function initThreadUpdater(title, enableUpdate) {
 					favicon.startBlink(true);
 				}
 				if(eCode === -1 || (eCode === 404 && lastECode === 404)) {
-					Thread.removeSavedData(aib.b, aib.t);
+					Thread.removeSavedData(aib.b, aib.t); // Not working yet
 					updateTitle(eCode);
 					disableUpdater();
 				} else {
@@ -15153,6 +15158,7 @@ class BaseBoard {
 		this.firstPage = 0;
 		this.formParent = 'parent';
 		this.hasAltCaptcha = false;
+		this.hasArchive = false;
 		this.hasCatalog = false;
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
@@ -15175,7 +15181,6 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
-		this.iichan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {
@@ -16153,6 +16158,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.formParent = 'thread';
 			this.hasAltCaptcha = true;
+			this.hasArchive = true;
 			this.hasCatalog = true;
 			this.hasOPNum = true;
 			this.hasPicWrap = true;
@@ -16308,6 +16314,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qPostRef = '.reflink';
 				this.qPostSubj = '.post-title';
 				this.qRPost = '.post.reply[data-num]';
+				this.hasArchive = false;
 				const { css } = this;
 				Object.defineProperty(this, 'css', {
 					configurable : true,
@@ -17211,8 +17218,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Iichan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.iichan = true;
 
+			this.hasArchive = true;
 			this.hasCatalog = true;
 		}
 		get qFormMail() {
