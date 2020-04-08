@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '5b45e91';
+const commit = '4034259';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18058,7 +18058,7 @@ function scriptCSS() {
 	/* Favorites window */
 	.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }
 	.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	#de-fav-buttons, #de-hid-buttons { padding-top:6px; }
+	#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }
 	.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }
 	.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }
 	.de-fav-del-btn { margin-left: 2px; cursor: pointer; }
