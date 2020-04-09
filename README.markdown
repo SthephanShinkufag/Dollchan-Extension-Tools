@@ -10,7 +10,7 @@
 ---
 - **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
 - **[Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
-- **Home: [https://dscript.me/](https://dscript.me/)**
+- **Home: [https://dollchan.net/](https://dollchan.net/)**
 - **License:** © 2017 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
 ---
