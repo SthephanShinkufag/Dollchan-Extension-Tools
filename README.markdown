@@ -4,7 +4,6 @@
 
 - **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; `for old browsers`
 - **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 52+ / Chrome 55+ / Opera 42+`
-- **[ [CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad) ]**<br>![Web Store rating](https://img.shields.io/chrome-web-store/rating/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)&nbsp;![Chrome rating](https://img.shields.io/chrome-web-store/users/ipnoalfffblkaodfmipjjgkfbgcfadad.svg)
 - **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan-extension/) ]**<br>![Mozilla rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
 
 ---
