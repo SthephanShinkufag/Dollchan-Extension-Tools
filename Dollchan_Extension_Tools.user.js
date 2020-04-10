@@ -3468,7 +3468,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return _context18.abrupt('return');
 
 						case 5:
-							els = $Q('[de-form] ' + aib.qRPost + ' input:checked');
+							els = $Q('[de-form] ' + aib.qRPost.split(', ').join(' input:checked, [de-form] ') + ' input:checked');
 							threads = new Set();
 							isThr = aib.t;
 
@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'b6229c5';
+	var commit = '1138c0c';
 
 
 	var defaultCfg = {
@@ -21390,7 +21390,7 @@ true, true];
 				_this88.qPostRef = '.linkQuote';
 				_this88.qPostSubj = '.labelSubject';
 				_this88.qPostsParent = '.divPosts';
-				_this88.qRPost = '.innerPost';
+				_this88.qRPost = '.innerPost, .markedPost';
 				_this88.qTrunc = '.contentOmissionIndicator';
 				_this88._qOPostEnd = '.divPosts';
 
@@ -21472,14 +21472,14 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
+					$script('if("autoRefresh" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif("thread" in window && thread.refreshTimer) {\n\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\tObject.defineProperty(thread, "startTimer",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}');
 					var submEl = $id('formButton');
 					if (submEl && submEl.type === 'button') {
 						this._hasNewAPI = true;
 						$replace(submEl, '<button id="de-postform-submit" type="submit">' + submEl.innerHTML + '</button>');
 					}
-					$script('if("autoRefresh" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif("thread" in window && thread.refreshTimer) {\n\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\tObject.defineProperty(thread, "startTimer",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}');
-					var el = $q(this.qForm);
-					if (el && !$q('td', el)) {
+					var formEl = $q(this.qForm);
+					if (formEl && !$q('td', formEl)) {
 						var table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 						var _els4 = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' + ' #fieldPostingPassword, #fieldSubject');
 						for (var i = 0, _len15 = _els4.length; i < _len15; ++i) {
@@ -23437,6 +23437,11 @@ true, true];
 				value: function init() {
 					if (!this.host.includes('nocsp.')) {
 						deWindow.location.assign(deWindow.location.href.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
+						return true;
+					}
+					if (locStorage.autoRefreshMode !== 'false') {
+						locStorage.autoRefreshMode = false;
+						deWindow.location.reload();
 						return true;
 					}
 					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'init', this).call(this);

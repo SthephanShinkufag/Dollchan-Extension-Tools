@@ -97,7 +97,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q(`[de-form] ${ aib.qRPost } input:checked`);
+	const els = $Q(`[de-form] ${ aib.qRPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {

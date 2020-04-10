@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'b6229c5';
+const commit = '1138c0c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9183,7 +9183,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q(`[de-form] ${ aib.qRPost } input:checked`);
+	const els = $Q(`[de-form] ${ aib.qRPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {
@@ -15793,7 +15793,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostRef = '.linkQuote';
 			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
-			this.qRPost = '.innerPost';
+			this.qRPost = '.innerPost, .markedPost';
 			this.qTrunc = '.contentOmissionIndicator';
 			this._qOPostEnd = '.divPosts';
 
@@ -15865,12 +15865,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
-			const submEl = $id('formButton');
-			if(submEl && submEl.type === 'button') {
-				this._hasNewAPI = true;
-				$replace(submEl, `<button id="de-postform-submit" type="submit">${
-					submEl.innerHTML }</button>`);
-			}
 			$script(`if("autoRefresh" in window) {
 					clearInterval(refreshTimer);
 				}
@@ -15879,8 +15873,14 @@ function getImageBoard(checkDomains, checkEngines) {
 					Object.defineProperty(thread, "startTimer",
 						{ value: Function.prototype, writable: false, configurable: false });
 				}`);
-			const el = $q(this.qForm);
-			if(el && !$q('td', el)) {
+			const submEl = $id('formButton');
+			if(submEl && submEl.type === 'button') {
+				this._hasNewAPI = true;
+				$replace(submEl, `<button id="de-postform-submit" type="submit">${
+					submEl.innerHTML }</button>`);
+			}
+			const formEl = $q(this.qForm);
+			if(formEl && !$q('td', formEl)) {
 				const table = $aBegin($q(this.qForm), '<table><tbody></tbody></table>').firstChild;
 				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
 					' #fieldPostingPassword, #fieldSubject');
@@ -17281,6 +17281,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!this.host.includes('nocsp.')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
+				return true;
+			}
+			if(locStorage.autoRefreshMode !== 'false') {
+				locStorage.autoRefreshMode = false;
+				deWindow.location.reload();
 				return true;
 			}
 			return super.init();
