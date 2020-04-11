@@ -3876,7 +3876,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '232c1e7';
+	var commit = '71cd57c';
 
 
 	var defaultCfg = {
@@ -12482,6 +12482,7 @@ true, true];
 					this.lastQuickPNum = -1;
 					if (!aib.t) {
 						this._toggleQuickReply(false);
+						this.tNum = false;
 					}
 					this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				}

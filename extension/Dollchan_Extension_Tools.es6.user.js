@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '232c1e7';
+const commit = '71cd57c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8647,6 +8647,7 @@ class PostForm {
 			this.lastQuickPNum = -1;
 			if(!aib.t) {
 				this._toggleQuickReply(false);
+				this.tNum = false;
 			}
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}

@@ -177,6 +177,7 @@ class PostForm {
 			this.lastQuickPNum = -1;
 			if(!aib.t) {
 				this._toggleQuickReply(false);
+				this.tNum = false;
 			}
 			this.setReply(false, !aib.t || Cfg.addPostForm > 1);
 		}
