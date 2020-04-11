@@ -3678,8 +3678,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref84 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref85, _ref86, favObj, storageName, firstThr;
+		var _ref83 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref84, _ref85, favObj, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee24$(_context34) {
 				while (1) {
@@ -3736,9 +3736,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 16:
-							_ref85 = _context34.sent;
-							_ref86 = _slicedToArray(_ref85, 1);
-							favObj = _ref86[0];
+							_ref84 = _context34.sent;
+							_ref85 = _slicedToArray(_ref84, 1);
+							favObj = _ref85[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context34.next = 21;
@@ -3869,14 +3869,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x89, _x90) {
-			return _ref84.apply(this, arguments);
+			return _ref83.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '1138c0c';
+	var commit = '232c1e7';
 
 
 	var defaultCfg = {
@@ -22098,27 +22098,8 @@ true, true];
 			}, {
 				key: 'initCaptcha',
 				value: function initCaptcha(cap) {
-					var _this94 = this;
-
-					var box = $q('.captcha-box, .captcha');
-					if (!Cfg.altCaptcha) {
-						box.innerHTML = '<div id="captcha-widget-main"></div>\n\t\t\t\t\t<input name="captcha_type" value="invisible_recaptcha" type="hidden">';
-						return null;
-					}
-					var img = box.firstChild;
-					if (!img || img.tagName !== 'IMG') {
-						box.innerHTML = '<img>\n\t\t\t\t\t<input name="2chaptcha_value" maxlength="6" type="text">\n\t\t\t\t\t<input name="captcha_type" value="2chaptcha" type="hidden">\n\t\t\t\t\t<input name="2chaptcha_id" type="hidden">';
-
-						var _ref79 = [].concat(_toConsumableArray(box.children)),
-						    _img2 = _ref79[0],
-						    inp = _ref79[1];
-
-						_img2.onclick = function () {
-							return _this94.updateCaptcha(cap);
-						};
-						inp.tabIndex = 999;
-						cap.textEl = inp;
-					}
+					var value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
+					$q('.captcha-box, .captcha').innerHTML = '<div id="captcha-widget-main"></div>\n\t\t\t\t<input name="captcha_type" value="' + value + '" type="hidden">';
 					return null;
 				}
 			}, {
@@ -22143,7 +22124,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var url = Cfg.altCaptcha ? '/api/captcha/2chaptcha/id?board=' + this.b + '&thread=' + pr.tNum : '/api/captcha/invisible_recaptcha/id';
+					var url = '/api/captcha/' + (Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha') + '/id';
 					return cap.updateHelper(url, function (xhr) {
 						var box = $q('.captcha-box, .captcha');
 						var data = xhr.responseText;
@@ -22168,11 +22149,13 @@ true, true];
 									$q('.captcha__key').value = data.id;
 									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									break;
-								} else if (data.type === '2chaptcha') {
-									var img = box.firstChild;
-									img.src = '';
-									img.src = '/api/captcha/2chaptcha/image/' + data.id;
-									box.lastChild.value = data.id;
+								}if (data.type === 'recaptcha') {
+									$q('.captcha__key').value = data.id;
+									if (!$id('captcha-widget-main').hasChildNodes()) {
+										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+									} else {
+										grecaptcha.reset(cap._2chWidget);
+									}
 									break;
 								}
 							default:
@@ -22226,7 +22209,7 @@ true, true];
 			}, {
 				key: 'reportForm',
 				get: function get() {
-					var _this95 = this;
+					var _this94 = this;
 
 					var value = function value(pNum, tNum) {
 						return $q('input[type="button"]', $popup('edit-report', '<input name="comment" value="" placeholder="' + (pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang]) + '" type="text"> <input value="OK" type="button">')).onclick = function (e) {
@@ -22237,7 +22220,7 @@ true, true];
 							}
 							var formData = new FormData();
 							formData.append('task', 'report');
-							formData.append('board', _this95.b);
+							formData.append('board', _this94.b);
 							formData.append('thread', tNum);
 							formData.append('posts', pNum);
 							formData.append('comment', inpEl.value);
@@ -22271,20 +22254,20 @@ true, true];
 			function _2chan(prot, dm) {
 				_classCallCheck(this, _2chan);
 
-				var _this96 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
+				var _this95 = _possibleConstructorReturn(this, (_2chan.__proto__ || Object.getPrototypeOf(_2chan)).call(this, prot, dm));
 
-				_this96.qDForm = 'form:not([enctype])';
-				_this96.qForm = '#fm';
-				_this96.qFormRedir = null;
-				_this96.qFormRules = '.chui';
-				_this96.qOmitted = 'font[color="#707070"]';
-				_this96.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-				_this96.qPostRef = '.del';
-				_this96.qRPost = 'td:nth-child(2)';
+				_this95.qDForm = 'form:not([enctype])';
+				_this95.qForm = '#fm';
+				_this95.qFormRedir = null;
+				_this95.qFormRules = '.chui';
+				_this95.qOmitted = 'font[color="#707070"]';
+				_this95.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+				_this95.qPostRef = '.del';
+				_this95.qRPost = 'td:nth-child(2)';
 
-				_this96.docExt = '.htm';
-				_this96.formParent = 'resto';
-				return _this96;
+				_this95.docExt = '.htm';
+				_this95.formParent = 'resto';
+				return _this95;
 			}
 
 			_createClass(_2chan, [{
@@ -22344,12 +22327,12 @@ true, true];
 			function _2channel(prot, dm) {
 				_classCallCheck(this, _2channel);
 
-				var _this97 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
+				var _this96 = _possibleConstructorReturn(this, (_2channel.__proto__ || Object.getPrototypeOf(_2channel)).call(this, prot, dm));
 
-				_this97._2channel = true;
+				_this96._2channel = true;
 
-				_this97.hasAltCaptcha = false;
-				return _this97;
+				_this96.hasAltCaptcha = false;
+				return _this96;
 			}
 
 			_createClass(_2channel, [{
@@ -22450,13 +22433,13 @@ true, true];
 			function _2chRip(prot, dm) {
 				_classCallCheck(this, _2chRip);
 
-				var _this98 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
+				var _this97 = _possibleConstructorReturn(this, (_2chRip.__proto__ || Object.getPrototypeOf(_2chRip)).call(this, prot, dm));
 
-				_this98.jsonSubmit = true;
-				_this98.ru = true;
+				_this97.jsonSubmit = true;
+				_this97.ru = true;
 
-				_this98._capUpdPromise = null;
-				return _this98;
+				_this97._capUpdPromise = null;
+				return _this97;
 			}
 
 			_createClass(_2chRip, [{
@@ -22477,8 +22460,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
-						var id = _ref80.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref79) {
+						var id = _ref79.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -22503,17 +22486,17 @@ true, true];
 			function _410chan(prot, dm) {
 				_classCallCheck(this, _410chan);
 
-				var _this99 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
+				var _this98 = _possibleConstructorReturn(this, (_410chan.__proto__ || Object.getPrototypeOf(_410chan)).call(this, prot, dm));
 
-				_this99.qFormRedir = 'input#noko';
-				_this99.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+				_this98.qFormRedir = 'input#noko';
+				_this98.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-				_this99.ru = true;
-				_this99.hasCatalog = true;
-				_this99.markupBB = false;
-				_this99.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-				_this99._capUpdPromise = null;
-				return _this99;
+				_this98.ru = true;
+				_this98.hasCatalog = true;
+				_this98.markupBB = false;
+				_this98.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+				_this98._capUpdPromise = null;
+				return _this98;
 			}
 
 			_createClass(_410chan, [{
@@ -22530,7 +22513,7 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					var _this100 = this;
+					var _this99 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
 						if (xhr.responseText === '1') {
@@ -22545,7 +22528,7 @@ true, true];
 						var img = $q('img', cap.parentEl);
 						var src = img.getAttribute('src');
 						img.src = '';
-						img.src = _this100.getCaptchaSrc(src);
+						img.src = _this99.getCaptchaSrc(src);
 					});
 				}
 			}, {
@@ -22576,39 +22559,39 @@ true, true];
 			function _4chan(prot, dm) {
 				_classCallCheck(this, _4chan);
 
-				var _this101 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
+				var _this100 = _possibleConstructorReturn(this, (_4chan.__proto__ || Object.getPrototypeOf(_4chan)).call(this, prot, dm));
 
-				_this101._4chan = true;
+				_this100._4chan = true;
 
-				_this101.cReply = 'post reply';
-				_this101.qBan = 'strong[style="color: red;"]';
-				_this101.qClosed = '.archivedIcon';
-				_this101.qDelBut = '.deleteform > input[type="submit"]';
-				_this101.qError = '#errmsg';
-				_this101.qForm = 'form[name="post"]';
-				_this101.qFormRedir = null;
-				_this101.qImgInfo = '.fileText';
-				_this101.qOmitted = '.summary.desktop';
-				_this101.qOPost = '.op';
-				_this101.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-				_this101.qPostHeader = '.postInfo';
-				_this101.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-				_this101.qPostName = '.name';
-				_this101.qPostRef = '.postInfo > .postNum';
-				_this101.qPostSubj = '.subject';
-				_this101._qOPostEnd = '.replyContainer';
+				_this100.cReply = 'post reply';
+				_this100.qBan = 'strong[style="color: red;"]';
+				_this100.qClosed = '.archivedIcon';
+				_this100.qDelBut = '.deleteform > input[type="submit"]';
+				_this100.qError = '#errmsg';
+				_this100.qForm = 'form[name="post"]';
+				_this100.qFormRedir = null;
+				_this100.qImgInfo = '.fileText';
+				_this100.qOmitted = '.summary.desktop';
+				_this100.qOPost = '.op';
+				_this100.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+				_this100.qPostHeader = '.postInfo';
+				_this100.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+				_this100.qPostName = '.name';
+				_this100.qPostRef = '.postInfo > .postNum';
+				_this100.qPostSubj = '.subject';
+				_this100._qOPostEnd = '.replyContainer';
 
-				_this101.anchor = '#p';
-				_this101.docExt = '';
-				_this101.firstPage = 1;
-				_this101.formParent = 'resto';
-				_this101.hasAltCaptcha = true;
-				_this101.hasCatalog = true;
-				_this101.hasTextLinks = true;
-				_this101.JsonBuilder = _4chanPostsBuilder;
-				_this101.res = 'thread/';
-				_this101.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-				return _this101;
+				_this100.anchor = '#p';
+				_this100.docExt = '';
+				_this100.firstPage = 1;
+				_this100.formParent = 'resto';
+				_this100.hasAltCaptcha = true;
+				_this100.hasCatalog = true;
+				_this100.hasTextLinks = true;
+				_this100.JsonBuilder = _4chanPostsBuilder;
+				_this100.res = 'thread/';
+				_this100.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+				return _this100;
 			}
 
 			_createClass(_4chan, [{
@@ -22748,12 +22731,12 @@ true, true];
 			function _55chan(prot, dm) {
 				_classCallCheck(this, _55chan);
 
-				var _this102 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
+				var _this101 = _possibleConstructorReturn(this, (_55chan.__proto__ || Object.getPrototypeOf(_55chan)).call(this, prot, dm));
 
-				_this102.qFormRules = '.regras';
+				_this101.qFormRules = '.regras';
 
-				_this102._capUpdPromise = null;
-				return _this102;
+				_this101._capUpdPromise = null;
+				return _this101;
 			}
 
 			_createClass(_55chan, [{
@@ -22827,23 +22810,23 @@ true, true];
 			function Arhivach(prot, dm) {
 				_classCallCheck(this, Arhivach);
 
-				var _this104 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
+				var _this103 = _possibleConstructorReturn(this, (Arhivach.__proto__ || Object.getPrototypeOf(Arhivach)).call(this, prot, dm));
 
-				_this104.cReply = 'post';
-				_this104.qDelBut = null;
-				_this104.qDelPassw = null;
-				_this104.qDForm = 'body > .container-fluid';
-				_this104.qPostHeader = '.post_head';
-				_this104.qPostImg = '.post_image > img';
-				_this104.qPostMsg = '.post_comment_body';
-				_this104.qPostRef = '.post_id, .post_head > b';
-				_this104.qPostSubj = '.post_subject';
-				_this104.qRPost = '.post[postid]:not([postid=""])';
+				_this103.cReply = 'post';
+				_this103.qDelBut = null;
+				_this103.qDelPassw = null;
+				_this103.qDForm = 'body > .container-fluid';
+				_this103.qPostHeader = '.post_head';
+				_this103.qPostImg = '.post_image > img';
+				_this103.qPostMsg = '.post_comment_body';
+				_this103.qPostRef = '.post_id, .post_head > b';
+				_this103.qPostSubj = '.post_subject';
+				_this103.qRPost = '.post[postid]:not([postid=""])';
 
-				_this104.docExt = '';
-				_this104.hasOPNum = true;
-				_this104.res = 'thread/';
-				return _this104;
+				_this103.docExt = '';
+				_this103.hasOPNum = true;
+				_this103.res = 'thread/';
+				return _this103;
 			}
 
 			_createClass(Arhivach, [{
@@ -22896,13 +22879,13 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					var _this105 = this;
+					var _this104 = this;
 
 					defaultCfg.ajaxUpdThr = 0;
 					setTimeout(function () {
 						var delPosts = $Q('.post_deleted');
 						for (var i = 0, _len19 = delPosts.length; i < _len19; ++i) {
-							var post = pByNum.get(_this105.getPNum(delPosts[i]));
+							var post = pByNum.get(_this104.getPNum(delPosts[i]));
 							if (post) {
 								post.thr.deletePosts(post, false, false);
 							}
@@ -22945,11 +22928,11 @@ true, true];
 			function Animach(prot, dm) {
 				_classCallCheck(this, Animach);
 
-				var _this106 = _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).call(this, prot, dm));
+				var _this105 = _possibleConstructorReturn(this, (Animach.__proto__ || Object.getPrototypeOf(Animach)).call(this, prot, dm));
 
-				_this106.hasRefererErr = false;
-				_this106.markupBB = true;
-				return _this106;
+				_this105.hasRefererErr = false;
+				_this105.markupBB = true;
+				return _this105;
 			}
 
 			_createClass(Animach, [{
@@ -22983,10 +22966,10 @@ true, true];
 			function CrystalCafe(prot, dm) {
 				_classCallCheck(this, CrystalCafe);
 
-				var _this107 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
+				var _this106 = _possibleConstructorReturn(this, (CrystalCafe.__proto__ || Object.getPrototypeOf(CrystalCafe)).call(this, prot, dm));
 
-				_this107.qRPost = '.post.reply';
-				return _this107;
+				_this106.qRPost = '.post.reply';
+				return _this106;
 			}
 
 			_createClass(CrystalCafe, [{
@@ -23017,12 +23000,12 @@ true, true];
 			function Diochan(prot, dm) {
 				_classCallCheck(this, Diochan);
 
-				var _this108 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
+				var _this107 = _possibleConstructorReturn(this, (Diochan.__proto__ || Object.getPrototypeOf(Diochan)).call(this, prot, dm));
 
-				_this108.qImgInfo = '.filesize, .fileinfo';
+				_this107.qImgInfo = '.filesize, .fileinfo';
 
-				_this108.multiFile = true;
-				return _this108;
+				_this107.multiFile = true;
+				return _this107;
 			}
 
 			_createClass(Diochan, [{
@@ -23055,29 +23038,29 @@ true, true];
 			function Dobrochan(prot, dm) {
 				_classCallCheck(this, Dobrochan);
 
-				var _this109 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
+				var _this108 = _possibleConstructorReturn(this, (Dobrochan.__proto__ || Object.getPrototypeOf(Dobrochan)).call(this, prot, dm));
 
-				_this109.dobrochan = true;
+				_this108.dobrochan = true;
 
-				_this109.qClosed = 'img[src="/images/locked.png"]';
-				_this109.qDForm = 'form[action*="delete"]';
-				_this109.qError = '.post-error, h2';
-				_this109.qFormRedir = 'select[name="goto"]';
-				_this109.qImgInfo = '.fileinfo';
-				_this109.qOmitted = '.abbrev > span:last-of-type';
-				_this109.qPages = '.pages > tbody > tr > td';
-				_this109.qPostMsg = '.postbody';
-				_this109.qPostSubj = '.replytitle';
-				_this109.qTrunc = '.abbrev > span:first-of-type';
+				_this108.qClosed = 'img[src="/images/locked.png"]';
+				_this108.qDForm = 'form[action*="delete"]';
+				_this108.qError = '.post-error, h2';
+				_this108.qFormRedir = 'select[name="goto"]';
+				_this108.qImgInfo = '.fileinfo';
+				_this108.qOmitted = '.abbrev > span:last-of-type';
+				_this108.qPages = '.pages > tbody > tr > td';
+				_this108.qPostMsg = '.postbody';
+				_this108.qPostSubj = '.replytitle';
+				_this108.qTrunc = '.abbrev > span:first-of-type';
 
-				_this109.anchor = '#i';
-				_this109.formParent = 'thread_id';
-				_this109.hasPicWrap = true;
-				_this109.JsonBuilder = DobrochanPostsBuilder;
-				_this109.multiFile = true;
-				_this109.ru = true;
-				_this109.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-				return _this109;
+				_this108.anchor = '#i';
+				_this108.formParent = 'thread_id';
+				_this108.hasPicWrap = true;
+				_this108.JsonBuilder = DobrochanPostsBuilder;
+				_this108.multiFile = true;
+				_this108.ru = true;
+				_this108.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+				return _this108;
 			}
 
 			_createClass(Dobrochan, [{
@@ -23223,10 +23206,10 @@ true, true];
 			function Endchan(prot, dm) {
 				_classCallCheck(this, Endchan);
 
-				var _this110 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
+				var _this109 = _possibleConstructorReturn(this, (Endchan.__proto__ || Object.getPrototypeOf(Endchan)).call(this, prot, dm));
 
-				_this110.qTrunc = '.contentOmissionIndicator > p';
-				return _this110;
+				_this109.qTrunc = '.contentOmissionIndicator > p';
+				return _this109;
 			}
 
 			_createClass(Endchan, [{
@@ -23260,26 +23243,26 @@ true, true];
 			function Ernstchan(prot, dm) {
 				_classCallCheck(this, Ernstchan);
 
-				var _this111 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
+				var _this110 = _possibleConstructorReturn(this, (Ernstchan.__proto__ || Object.getPrototypeOf(Ernstchan)).call(this, prot, dm));
 
-				_this111.cReply = 'post';
-				_this111.qError = '.error > .info';
-				_this111.qFormRedir = 'input[name="gb2"][value="thread"]';
-				_this111.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-				_this111.qOPost = '.thread_OP';
-				_this111.qPages = '.pagelist > li:nth-last-child(2)';
-				_this111.qPostHeader = '.post_head';
-				_this111.qPostMsg = '.text';
-				_this111.qPostSubj = '.subject';
-				_this111.qPostTrip = '.tripcode';
-				_this111.qRPost = '.thread_reply';
-				_this111.qTrunc = '.tldr';
-				_this111.docExt = '';
-				_this111.firstPage = 1;
-				_this111.markupBB = true;
-				_this111.multiFile = true;
-				_this111.res = 'thread/';
-				return _this111;
+				_this110.cReply = 'post';
+				_this110.qError = '.error > .info';
+				_this110.qFormRedir = 'input[name="gb2"][value="thread"]';
+				_this110.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+				_this110.qOPost = '.thread_OP';
+				_this110.qPages = '.pagelist > li:nth-last-child(2)';
+				_this110.qPostHeader = '.post_head';
+				_this110.qPostMsg = '.text';
+				_this110.qPostSubj = '.subject';
+				_this110.qPostTrip = '.tripcode';
+				_this110.qRPost = '.thread_reply';
+				_this110.qTrunc = '.tldr';
+				_this110.docExt = '';
+				_this110.firstPage = 1;
+				_this110.markupBB = true;
+				_this110.multiFile = true;
+				_this110.res = 'thread/';
+				return _this110;
 			}
 
 			_createClass(Ernstchan, [{
@@ -23329,10 +23312,10 @@ true, true];
 			function Gensokyo(prot, dm) {
 				_classCallCheck(this, Gensokyo);
 
-				var _this112 = _possibleConstructorReturn(this, (Gensokyo.__proto__ || Object.getPrototypeOf(Gensokyo)).call(this, prot, dm));
+				var _this111 = _possibleConstructorReturn(this, (Gensokyo.__proto__ || Object.getPrototypeOf(Gensokyo)).call(this, prot, dm));
 
-				_this112.hasRefererErr = true;
-				return _this112;
+				_this111.hasRefererErr = true;
+				return _this111;
 			}
 
 			return Gensokyo;
@@ -23346,11 +23329,11 @@ true, true];
 			function Iichan(prot, dm) {
 				_classCallCheck(this, Iichan);
 
-				var _this113 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Iichan.__proto__ || Object.getPrototypeOf(Iichan)).call(this, prot, dm));
 
-				_this113.hasArchive = true;
-				_this113.hasCatalog = true;
-				return _this113;
+				_this112.hasArchive = true;
+				_this112.hasCatalog = true;
+				return _this112;
 			}
 
 			_createClass(Iichan, [{
@@ -23413,13 +23396,13 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this114 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this114.qFormRules = '#rules_row';
+				_this113.qFormRules = '#rules_row';
 
-				_this114.hasTextLinks = true;
-				_this114.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-				return _this114;
+				_this113.hasTextLinks = true;
+				_this113.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+				return _this113;
 			}
 
 			_createClass(Kohlchan, [{
@@ -23464,10 +23447,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this115 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this114 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this115.markupBB = true;
-				return _this115;
+				_this114.markupBB = true;
+				return _this114;
 			}
 
 			_createClass(Kropyvach, [{
@@ -23493,10 +23476,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this116 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this115 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this116.qOPost = '.op';
-				return _this116;
+				_this115.qOPost = '.op';
+				return _this115;
 			}
 
 			_createClass(Lainchan, [{
@@ -23579,15 +23562,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this119 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this118 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this119.qBan = 'font[color="#FF0000"]';
-				_this119.qImgInfo = '.filesize[style="display: inline;"]';
+				_this118.qBan = 'font[color="#FF0000"]';
+				_this118.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this119.formParent = 'replythread';
-				_this119.jsonSubmit = true;
-				_this119.multiFile = true;
-				return _this119;
+				_this118.formParent = 'replythread';
+				_this118.jsonSubmit = true;
+				_this118.multiFile = true;
+				return _this118;
 			}
 
 			_createClass(Ponyach, [{
@@ -23612,9 +23595,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref81) {
-					var error = _ref81.error,
-					    id = _ref81.id;
+				value: function getSubmitData(_ref80) {
+					var error = _ref80.error,
+					    id = _ref80.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23647,12 +23630,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this120 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this119 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this120.qOPost = '.opContainer';
+				_this119.qOPost = '.opContainer';
 
-				_this120.jsonSubmit = false;
-				return _this120;
+				_this119.jsonSubmit = false;
+				return _this119;
 			}
 
 			_createClass(Ponychan, [{
@@ -23687,13 +23670,13 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this121 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this120 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this121.qImgInfo = '.unimportant';
-				_this121.qPages = '.pagination';
+				_this120.qImgInfo = '.unimportant';
+				_this120.qPages = '.pagination';
 
-				_this121.markupBB = true;
-				return _this121;
+				_this120.markupBB = true;
+				return _this120;
 			}
 
 			_createClass(Synch, [{
@@ -23751,16 +23734,16 @@ true, true];
 			function Warosu(prot, dm) {
 				_classCallCheck(this, Warosu);
 
-				var _this122 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+				var _this121 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
 
-				_this122.qDForm = '.content';
-				_this122.qForm = '.subreply';
-				_this122.qPostRef = '.js';
-				_this122.qImgInfo = 'span';
-				_this122.qOPost = 'div[itemscope]';
+				_this121.qDForm = '.content';
+				_this121.qForm = '.subreply';
+				_this121.qPostRef = '.js';
+				_this121.qImgInfo = 'span';
+				_this121.qOPost = 'div[itemscope]';
 
-				_this122.res = 'thread/';
-				return _this122;
+				_this121.res = 'thread/';
+				return _this121;
 			}
 
 			_createClass(Warosu, [{
@@ -23825,7 +23808,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this123 = this;
+			var _this122 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -23838,7 +23821,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this123.hasListeners = true;
+					_this122.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -23852,8 +23835,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref82) {
-			var arg = _ref82.data;
+		_handleMessage: function _handleMessage(_ref81) {
+			var arg = _ref81.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23916,8 +23899,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref83) {
-			var responseText = _ref83.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref82) {
+			var responseText = _ref82.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;

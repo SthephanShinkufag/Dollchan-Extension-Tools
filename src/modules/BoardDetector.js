@@ -881,23 +881,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		initCaptcha(cap) {
-			const box = $q('.captcha-box, .captcha');
-			if(!Cfg.altCaptcha) {
-				box.innerHTML = `<div id="captcha-widget-main"></div>
-					<input name="captcha_type" value="invisible_recaptcha" type="hidden">`;
-				return null;
-			}
-			const img = box.firstChild;
-			if(!img || img.tagName !== 'IMG') {
-				box.innerHTML = `<img>
-					<input name="2chaptcha_value" maxlength="6" type="text">
-					<input name="captcha_type" value="2chaptcha" type="hidden">
-					<input name="2chaptcha_id" type="hidden">`;
-				const [img, inp] = [...box.children];
-				img.onclick = () => this.updateCaptcha(cap);
-				inp.tabIndex = 999;
-				cap.textEl = inp;
-			}
+			const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
+			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
+				<input name="captcha_type" value="${ value }" type="hidden">`;
 			return null;
 		}
 		observeContent(checkDomains, dataPromise) {
@@ -918,8 +904,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		updateCaptcha(cap) {
-			const url = Cfg.altCaptcha ? `/api/captcha/2chaptcha/id?board=${ this.b }&thread=` + pr.tNum :
-				'/api/captcha/invisible_recaptcha/id';
+			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box, .captcha');
 				let data = xhr.responseText;
@@ -955,11 +940,14 @@ function getImageBoard(checkDomains, checkEngines) {
 							});
 							grecaptcha.execute(deCapWidget);`);
 						break;
-					} else if(data.type === '2chaptcha') {
-						const img = box.firstChild;
-						img.src = '';
-						img.src = `/api/captcha/2chaptcha/image/${ data.id }`;
-						box.lastChild.value = data.id;
+					} if(data.type === 'recaptcha') {
+						$q('.captcha__key').value = data.id;
+						/* global grecaptcha */
+						if(!$id('captcha-widget-main').hasChildNodes()) {
+							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+						} else {
+							grecaptcha.reset(cap._2chWidget);
+						}
 						break;
 					}
 					/* falls through */
