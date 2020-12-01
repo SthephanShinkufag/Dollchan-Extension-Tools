@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '3273518';
+	var commit = 'f0d3c76';
 
 
 	var defaultCfg = {
@@ -22089,6 +22089,12 @@ true, true];
 								return css + '\n\t\t\t\t\t\t#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,\n\t\t\t\t\t\t.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,\n\t\t\t\t\t\t.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before,\n\t\t\t\t\t\t.thread-nav > :not(.search), .toolbar-area { display: none !important; }\n\t\t\t\t\t\t' + (Cfg.addSageBtn ? '.box[onclick="ToggleSage()"] {\n\t\t\t\t\t\t\tdisplay: none !important; }' : '') + '\n\t\t\t\t\t\t' + (Cfg.imgNames === 2 ? '.filesize { display: inline !important; }\n\t\t\t\t\t\t\t.file-attr { margin-bottom: 1px; }' : '');
 							}
 						});
+					} else {
+						var infEl = $q('.postform .filer__limits');
+						var optEl = $q('.postform .options');
+						if (infEl && optEl) {
+							optEl.appendChild(infEl);
+						}
 					}
 					$script('(function() {\n\t\t\t\tfunction fixGlobalFunc(name) {\n\t\t\t\t\tObject.defineProperty(window, name,\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}\n\t\t\t\tfixGlobalFunc("$alert");\n\t\t\t\tfixGlobalFunc("autorefresh_start"); // Old makaba only\n\t\t\t\tfixGlobalFunc("linkremover");\n\t\t\t\tfixGlobalFunc("Media");\n\t\t\t\tfixGlobalFunc("MExpandMedia");\n\t\t\t\twindow.FormData = void 0;\n\t\t\t\t$(function() { $(window).off(); });\n\t\t\t})();');
 					$each($Q('.autorefresh'), function (el) {
@@ -22195,7 +22201,7 @@ true, true];
 			}, {
 				key: 'css',
 				get: function get() {
-					return '#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,\n\t\t\t\t\t.de-btn-src + a + a, #de-win-reply #tags, #down-nav-arrow, .js-post-findimg,\n\t\t\t\t\t.media-expand-button, .media-thumbnail, .newpost, .post__btn:not(.icon_type_active),\n\t\t\t\t\t.post__message .icon, .post__number, .post__panel, .post__refmap, .postform__len,\n\t\t\t\t\t.postform-hr, .thread-nav > :not(.search), #up-nav-arrow { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-btn-src + a { display: inline-flex; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.options__box[onclick="ToggleSage()"]\n\t\t\t\t\t{ display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
+					return '#down-nav-arrow, .js-post-findimg, .js-postform-mu, .media-expand-button,\n\t\t\t\t\t.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,\n\t\t\t\t\t.post__refmap, .postform-hr, .thread-nav > :not(.search), #up-nav-arrow\n\t\t\t\t\t{ display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-btn-src + a { display: inline-flex; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: ' + ((!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25) + 'px !important; }\n\t\t\t\t' + (Cfg.addSageBtn ? '.options__box[onclick="ToggleSage()"]\n\t\t\t\t\t{ display: none !important; }' : '') + '\n\t\t\t\t' + (Cfg.expandTrunc ? '.expand-large-comment,\n\t\t\t\t\tdiv[id^="shrinked-post"] { display: none !important; }\n\t\t\t\t\tdiv[id^="original-post"] { display: block !important; }' : '') + '\n\t\t\t\t' + (Cfg.imgNames === 2 ? '.post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }' : '') + '\n\t\t\t\t' + (Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : ''));
 				}
 			}, {
 				key: 'isArchived',

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '3273518';
+const commit = 'f0d3c76';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16183,11 +16183,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#alert-undefined, .cntnt__header > hr, .cntnt__right > hr, #CommentToolbar,
-					.de-btn-src + a + a, #de-win-reply #tags, #down-nav-arrow, .js-post-findimg,
-					.media-expand-button, .media-thumbnail, .newpost, .post__btn:not(.icon_type_active),
-					.post__message .icon, .post__number, .post__panel, .post__refmap, .postform__len,
-					.postform-hr, .thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
+			return `#down-nav-arrow, .js-post-findimg, .js-postform-mu, .media-expand-button,
+					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,
+					.post__refmap, .postform-hr, .thread-nav > :not(.search), #up-nav-arrow
+					{ display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-flex; }
@@ -16329,6 +16328,12 @@ function getImageBoard(checkDomains, checkEngines) {
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
 							.file-attr { margin-bottom: 1px; }` : '' }`
 				});
+			} else {
+				const infEl = $q('.postform .filer__limits');
+				const optEl = $q('.postform .options');
+				if(infEl && optEl) {
+					optEl.appendChild(infEl);
+				}
 			}
 			$script(`(function() {
 				function fixGlobalFunc(name) {
