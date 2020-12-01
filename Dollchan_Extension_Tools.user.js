@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '082abae';
+	var commit = '3273518';
 
 
 	var defaultCfg = {
@@ -8233,7 +8233,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var link = data.nextSibling;
 					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
-				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&img_url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-tracemoe" href="https://trace.moe/?auto&url=' + p + 'TraceMoe'], '<a class="de-menu-item ', '</a>');
+				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-tracemoe" href="https://trace.moe/?auto&url=' + p + 'TraceMoe'], '<a class="de-menu-item ', '</a>');
 			}
 		}]);
 

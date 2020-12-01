@@ -105,7 +105,7 @@ class Menu {
 		}
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
-			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&img_url=${ p }Yandex`,
+			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
 			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="https://iqdb.org/?url=${ p }IQDB`,
