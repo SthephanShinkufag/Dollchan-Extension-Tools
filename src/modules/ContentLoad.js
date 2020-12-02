@@ -218,6 +218,8 @@ const ContentLoader = {
 			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
+			} else if($q('img[src*="/spoiler"]', imgLink)) {
+				isRepToOrig = false;
 			} else if(type === 'image/gif') {
 				isRepToOrig &= Cfg.openImgs !== 3;
 			} else {

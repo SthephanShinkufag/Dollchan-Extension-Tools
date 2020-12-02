@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'f0d3c76';
+const commit = '7bbb73a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -423,7 +423,7 @@ const Lng = {
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
 				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
-				'Заменять картинки на оригиналы*',
+				'Заменять тамбнейлы на оригиналы*',
 				'Replace thumbnails with original images*',
 				'Замінювати зображення на оригінали*']
 		},
@@ -6107,6 +6107,8 @@ const ContentLoader = {
 			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
+			} else if($q('img[src*="/spoiler"]', imgLink)) {
+				isRepToOrig = false;
 			} else if(type === 'image/gif') {
 				isRepToOrig &= Cfg.openImgs !== 3;
 			} else {

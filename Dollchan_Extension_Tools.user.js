@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'f0d3c76';
+	var commit = '7bbb73a';
 
 
 	var defaultCfg = {
@@ -4111,7 +4111,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			findImgFile: ['Распознавать файлы, встроенные в картинках*', 'Detect embedded files in images*', 'Розпізнавати файли, що вбудовані в зображення*'],
 			openImgs: {
 				sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF'], ['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
-				txt: ['Заменять картинки на оригиналы*', 'Replace thumbnails with original images*', 'Замінювати зображення на оригінали*']
+				txt: ['Заменять тамбнейлы на оригиналы*', 'Replace thumbnails with original images*', 'Замінювати зображення на оригінали*']
 			},
 			imgSrcBtns: ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки "Пошук" для зображень'],
 			imgNames: {
@@ -9154,6 +9154,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 				if (!type || isVideo && Cfg.preLoadImgs === 2) {
 					continue;
+				} else if ($q('img[src*="/spoiler"]', imgLink)) {
+					isRepToOrig = false;
 				} else if (type === 'image/gif') {
 					isRepToOrig &= Cfg.openImgs !== 3;
 				} else {

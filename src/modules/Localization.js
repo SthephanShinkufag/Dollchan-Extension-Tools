@@ -246,7 +246,7 @@ const Lng = {
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
 				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
-				'Заменять картинки на оригиналы*',
+				'Заменять тамбнейлы на оригиналы*',
 				'Replace thumbnails with original images*',
 				'Замінювати зображення на оригінали*']
 		},
