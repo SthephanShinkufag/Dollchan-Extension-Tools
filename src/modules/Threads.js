@@ -314,7 +314,6 @@ class Thread {
 				smartScroll = false;
 			}
 		}
-		pr.closeReply();
 		const { op, el: thrEl } = this;
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {

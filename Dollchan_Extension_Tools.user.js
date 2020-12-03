@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '7bbb73a';
+	var commit = 'ad756bc';
 
 
 	var defaultCfg = {
@@ -19066,7 +19066,6 @@ true, true];
 						smartScroll = false;
 					}
 				}
-				pr.closeReply();
 				var op = this.op,
 				    thrEl = this.el;
 

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '7bbb73a';
+const commit = 'ad756bc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13853,7 +13853,6 @@ class Thread {
 				smartScroll = false;
 			}
 		}
-		pr.closeReply();
 		const { op, el: thrEl } = this;
 		$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 		if(this.loadCount === 0) {
