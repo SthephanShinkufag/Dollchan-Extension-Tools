@@ -1445,6 +1445,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['arhivach.net'] = Arhivach;
 	ibDomains['arhivach.ng'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 

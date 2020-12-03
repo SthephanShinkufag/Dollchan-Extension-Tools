@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'ad756bc';
+	var commit = '13aab54';
 
 
 	var defaultCfg = {
@@ -22935,6 +22935,7 @@ true, true];
 			return Arhivach;
 		}(BaseBoard);
 
+		ibDomains['arhivach.net'] = Arhivach;
 		ibDomains['arhivach.ng'] = Arhivach;
 		ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'ad756bc';
+const commit = '13aab54';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16922,6 +16922,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
+	ibDomains['arhivach.net'] = Arhivach;
 	ibDomains['arhivach.ng'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
