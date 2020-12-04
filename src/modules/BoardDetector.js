@@ -1449,30 +1449,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.ng'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
-	class Animach extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.hasRefererErr = false;
-			this.markupBB = true;
-		}
-		get css() {
-			return `${ super.css }\r\n\t${
-				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-					'color: inherit !important' }; transition: none !important; }` : '' }
-				#thread-interactions { display: none; }
-				.reflink::after { content: "" !important; }`;
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', ''];
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-	}
-	ibDomains['animach.pw'] = Animach;
-
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
 

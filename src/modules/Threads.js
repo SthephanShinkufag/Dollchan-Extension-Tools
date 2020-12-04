@@ -327,11 +327,12 @@ class Thread {
 		let needToHide, needToOmit, needToShow;
 		let post = op.next;
 		let needRMUpdate = false;
-		let existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+		const hasPosts = post && this.pcount > 1;
+		let existed = hasPosts ? this.pcount - post.count : 0;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
-			needToOmit = needToHide + post.count - 1;
+			needToOmit = hasPosts ? needToHide + post.count - 1 : 0;
 			needToShow = pBuilder.length - needToOmit;
 			break;
 		case 'all': // get all posts
@@ -340,7 +341,7 @@ class Thread {
 			break;
 		case 'more': // show 10 omitted posts + get new posts
 			needToHide = $Q('.de-hidden', thrEl).length - 10;
-			needToOmit = Math.max(needToHide + post.count - 1, 0);
+			needToOmit = Math.max(hasPosts ? needToHide + post.count - 1 : 0, 0);
 			needToHide = Math.max(needToHide, 0);
 			needToShow = pBuilder.length - needToOmit;
 			break;

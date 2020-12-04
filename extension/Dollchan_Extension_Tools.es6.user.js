@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '13aab54';
+const commit = '695d232';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13866,11 +13866,12 @@ class Thread {
 		let needToHide, needToOmit, needToShow;
 		let post = op.next;
 		let needRMUpdate = false;
-		let existed = this.pcount === 1 ? 0 : this.pcount - post.count;
+		const hasPosts = post && this.pcount > 1;
+		let existed = hasPosts ? this.pcount - post.count : 0;
 		switch(last) {
 		case 'new': // get new posts
 			needToHide = $Q('.de-hidden', thrEl).length;
-			needToOmit = needToHide + post.count - 1;
+			needToOmit = hasPosts ? needToHide + post.count - 1 : 0;
 			needToShow = pBuilder.length - needToOmit;
 			break;
 		case 'all': // get all posts
@@ -13879,7 +13880,7 @@ class Thread {
 			break;
 		case 'more': // show 10 omitted posts + get new posts
 			needToHide = $Q('.de-hidden', thrEl).length - 10;
-			needToOmit = Math.max(needToHide + post.count - 1, 0);
+			needToOmit = Math.max(hasPosts ? needToHide + post.count - 1 : 0, 0);
 			needToHide = Math.max(needToHide, 0);
 			needToShow = pBuilder.length - needToOmit;
 			break;
@@ -16925,30 +16926,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.net'] = Arhivach;
 	ibDomains['arhivach.ng'] = Arhivach;
 	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
-
-	class Animach extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.hasRefererErr = false;
-			this.markupBB = true;
-		}
-		get css() {
-			return `${ super.css }\r\n\t${
-				Cfg.noSpoilers ? `span.spoiler, span.spoiler:hover { ${
-					Cfg.noSpoilers === 1 ? 'color: #F5F5F5 !important; background-color: #888 !important' :
-					'color: inherit !important' }; transition: none !important; }` : '' }
-				#thread-interactions { display: none; }
-				.reflink::after { content: "" !important; }`;
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', ''];
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode;
-		}
-	}
-	ibDomains['animach.pw'] = Animach;
 
 	ibDomains['desuchan.moe'] = BaseBoard;
 	ibDomains['desuchan.net'] = BaseBoard;
