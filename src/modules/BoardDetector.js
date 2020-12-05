@@ -1470,30 +1470,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['crystal.cafe'] = CrystalCafe;
 
-	class Diochan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qImgInfo = '.filesize, .fileinfo';
-
-			this.multiFile = true;
-		}
-		get qImgNameLink() {
-			return '.filesize > a, .file_reply > a';
-		}
-		get css() {
-			return `${ super.css }
-				.resize, .backlink, .postblock, .sage { display: none; }`;
-		}
-		fixFileInputs(el) {
-			const str = `><input type="file" name="imagefile[]">${ $q('#spoiler') ?
-				'<input type="checkbox" name="spoiler" style="display: none;">' : '' }</div>`;
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(2);
-			$delAll('.file2, .file3, .fileurl1, .fileurl2, .fileurl3');
-		}
-	}
-	ibDomains['diochan.com'] = Diochan;
-
 	class Dobrochan extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -1802,6 +1778,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kropyva.ch'] = Kropyvach;
+
+	class Kurisach extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasCatalog = true;
+			this.ru = true;
+		}
+	}
+	ibDomains['kurisa.ch'] = Kurisach;
 
 	class Lainchan extends Vichan {
 		constructor(prot, dm) {
