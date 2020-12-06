@@ -184,7 +184,7 @@ function scriptCSS() {
 	.de-markup-back { fill: #f0f0f0; stroke: #808080; }
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
 	#de-txt-panel > div { display: inline-block; }
-	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\r\n`;
+	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
 	if('animation' in docBody.style) {
 		x += `
@@ -302,7 +302,6 @@ function scriptCSS() {
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
-	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
 	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }
 	.de-win-inpost > .de-resizer { display: none; }

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '6ac9f1c';
+const commit = '87cc6d4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -57,7 +57,7 @@ const defaultCfg = {
 	expandTrunc  : 0,    // auto-expand truncated posts
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
-	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
+	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
@@ -16185,10 +16185,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#down-nav-arrow, .js-post-findimg, .js-postform-mu, .media-expand-button,
-					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,
-					.post__refmap, .postform-hr, .thread-nav > :not(.search), #up-nav-arrow
-					{ display: none !important; }
+			return `#down-nav-arrow, .js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,
+					.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,
+					.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-flex; }
@@ -16203,6 +16202,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
 				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
 					{ display: none !important; }` : '' }
+				${ Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -16347,6 +16347,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				fixGlobalFunc("MExpandMedia");
+				MExpandMedia.close = Function.prototype;
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
@@ -18070,7 +18071,7 @@ function scriptCSS() {
 	.de-markup-back { fill: #f0f0f0; stroke: #808080; }
 	#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }
 	#de-txt-panel > div { display: inline-block; }
-	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 2px; }\r\n`;
+	#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n`;
 
 	if('animation' in docBody.style) {
 		x += `
@@ -18188,7 +18189,6 @@ function scriptCSS() {
 	.de-parea-btn-thr::after { content: "${ Lng.makeThr[lang] }"; }
 	.de-parea-btn-reply::after { content: "${ Lng.makeReply[lang] }"; }
 	#de-pform > form { padding: 0; margin: 0; border: none; }
-	#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }
 	#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ${ nav.isPresto ? '-2px -10px' : '0 0 -2px -10px' }; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }
 	.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }
 	.de-win-inpost > .de-resizer { display: none; }

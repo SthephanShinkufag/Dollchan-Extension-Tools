@@ -707,10 +707,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `#down-nav-arrow, .js-post-findimg, .js-postform-mu, .media-expand-button,
-					.media-thumbnail, .newpost, .post__btn:not(.icon_type_active), .post__number,
-					.post__refmap, .postform-hr, .thread-nav > :not(.search), #up-nav-arrow
-					{ display: none !important; }
+			return `#down-nav-arrow, .js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,
+					.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,
+					.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
 				.de-btn-src + a { display: inline-flex; }
@@ -725,6 +724,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
 				${ Cfg.addSageBtn ? `.options__box[onclick="ToggleSage()"]
 					{ display: none !important; }` : '' }
+				${ Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '' }
 				${ Cfg.expandTrunc ? `.expand-large-comment,
 					div[id^="shrinked-post"] { display: none !important; }
 					div[id^="original-post"] { display: block !important; }` : '' }
@@ -869,6 +869,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				fixGlobalFunc("linkremover");
 				fixGlobalFunc("Media");
 				fixGlobalFunc("MExpandMedia");
+				MExpandMedia.close = Function.prototype;
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);

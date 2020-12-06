@@ -23,7 +23,7 @@ const defaultCfg = {
 	expandTrunc  : 0,    // auto-expand truncated posts
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
-	postBtnsCSS  : 1,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
+	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
