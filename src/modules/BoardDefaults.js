@@ -51,6 +51,7 @@ class BaseBoard {
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
+		this.hasStormWall = false; // Iichan
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;

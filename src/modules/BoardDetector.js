@@ -1693,6 +1693,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.hasArchive = true;
 			this.hasCatalog = true;
+			this.hasStormWall = true;
 		}
 		get qFormMail() {
 			return 'input[name="nya2"]';

@@ -3884,7 +3884,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '87cc6d4';
+	var commit = 'a7d6d54';
 
 
 	var defaultCfg = {
@@ -4409,6 +4409,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		thrNotFound: ['Тред недоступен', 'Thread is unavailable', 'Тред недоступний'],
 		thrClosed: ['Тред закрыт', 'Thread is closed', 'Тред закрито'],
 		thrArchived: ['Тред в архиве', 'Thread is archived', 'Тред заархівовано'],
+		stormWallCheck: ['Проверка StormWall защиты от DDoS атак...', 'Checking for the StormWall DDoS protection...', 'Перевірка StormWall захисту від DDoS атак...'],
+		stormWallErr: ['Пожалуйста, решите капчу StormWall защиты', 'Please resolve the StormWall protection captcha', 'Будь ласка, вирішіть капчу StormWall захисту'],
 
 		internalError: ['Внутренняя ошибка:\n', 'Internal error:\n', 'Внутрішня помилка:\n'],
 		postNotFound: ['Пост не найден', 'Post not found', 'Пост не знайдено'],
@@ -10157,6 +10159,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_data: new Map()
 	};
 
+	function checkAjax(el, xhr, checkArch) {
+		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
+	}
+
 	function ajaxLoad(url) {
 		var returnForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 		var useCache = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -10168,7 +10174,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (text.includes('</html>')) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
-			return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
+			if (aib.hasStormWall) {
+				return checkStormWall(url, xhr, el, text, returnForm, checkArch);
+			}
+			return checkAjax(el, xhr, checkArch);
 		}, function (err) {
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
@@ -10215,6 +10224,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				doc.title = '{' + eCode + '} ' + doc.title;
 			}
 		}
+	}
+
+	function checkStormWall(url, xhr, el, text, returnForm, checkArch) {
+		var stormWallTxt = '<script src="https://static.stormwall.pro/';
+		if (el || !text.includes(stormWallTxt)) {
+			return checkAjax(el, xhr, checkArch);
+		}
+		return new Promise(function (resolve, reject) {
+			var loadCounter = 0;
+			$popup('err-stormwall', '<div>' + Lng.stormWallCheck[lang] + '</div><iframe id="de-stormwall" name="de-prohibited" src="' + url + '" width="500" height="500" style="display: none;"></iframe>');
+			var frEl = $id('de-stormwall');
+			frEl.onload = function () {
+				if (loadCounter++ < 1) {
+					return;
+				}
+				var frText = frEl.contentWindow.document.documentElement.outerHTML;
+				if (frText.includes(stormWallTxt)) {
+					$show(frEl);
+					reject(new AjaxError(0, Lng.stormWallErr[lang]));
+					return;
+				}
+				closePopup('err-stormwall');
+				var frDom = $DOM(frText);
+				resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom, xhr, checkArch));
+			};
+		});
 	}
 
 
@@ -20520,6 +20555,7 @@ true, true];
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasRefererErr = false;
+			this.hasStormWall = false; 
 			this.hasTextLinks = false;
 			this.host = deWindow.location.hostname;
 			this.JsonBuilder = null;
@@ -23278,6 +23314,7 @@ true, true];
 
 				_this110.hasArchive = true;
 				_this110.hasCatalog = true;
+				_this110.hasStormWall = true;
 				return _this110;
 			}
 
@@ -24036,6 +24073,9 @@ true, true];
 	}
 
 	function initMain() {
+		if (window.name === 'de-prohibited') {
+			return;
+		}
 		if (doc.readyState !== 'loading') {
 			needScroll = false;
 			runMain(true, null);

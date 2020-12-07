@@ -166,6 +166,9 @@ async function runMain(checkDomains, dataPromise) {
 }
 
 function initMain() {
+	if(window.name === 'de-prohibited') {
+		return;
+	}
 	if(doc.readyState !== 'loading') {
 		needScroll = false;
 		runMain(true, null);
