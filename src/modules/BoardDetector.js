@@ -1693,7 +1693,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.hasArchive = true;
 			this.hasCatalog = true;
-			this.hasStormWall = true;
 		}
 		get qFormMail() {
 			return 'input[name="nya2"]';
@@ -1714,6 +1713,34 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
+		}
+		checkStormWall(el, xhr, text, url, returnForm, checkArch) {
+			const stormWallTxt = '<script src="https://static.stormwall.pro/';
+			if(el || !text.includes(stormWallTxt)) {
+				return checkAjax(el, xhr, checkArch);
+			}
+			return new Promise((resolve, reject) => {
+				let loadCounter = 0;
+				$popup('err-stormwall', `<div>${ Lng.stormWallCheck[lang] }</div>` +
+					`<iframe id="de-stormwall" name="de-prohibited" src="${
+						url }" width="500" height="500" style="display: none;"></iframe>`);
+				const frEl = $id('de-stormwall');
+				frEl.onload = () => {
+					if(loadCounter++ < 1) {
+						return;
+					}
+					const frText = frEl.contentWindow.document.documentElement.outerHTML;
+					if(frText.includes(stormWallTxt)) {
+						$show(frEl);
+						reject(new AjaxError(0, Lng.stormWallErr[lang]));
+						return;
+					}
+					closePopup('err-stormwall');
+					const frDom = $DOM(frText);
+					resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
+						xhr, checkArch));
+				};
+			});
 		}
 		getImgRealName(wrap) {
 			return $q('.filesize > em', wrap).textContent.split(',')[2] || super.getImgRealName(wrap);

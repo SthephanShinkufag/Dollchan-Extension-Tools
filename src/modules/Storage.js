@@ -11,14 +11,13 @@ async function getStored(id) {
 		return GM_getValue(id);
 	} else if(nav.hasWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
+		return new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
 				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
-		return value;
 	} else if(nav.hasPrestoStorage) {
 		return prestoStorage.getItem(id);
 	}

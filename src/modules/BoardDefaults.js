@@ -51,7 +51,6 @@ class BaseBoard {
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
-		this.hasStormWall = false; // Iichan
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
@@ -109,6 +108,9 @@ class BaseBoard {
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
+		return null;
+	}
+	get checkStormWall() { // Iichan
 		return null;
 	}
 	get css() {

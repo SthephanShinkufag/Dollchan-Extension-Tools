@@ -3212,8 +3212,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var getStored = function () {
 		var _ref2 = _asyncToGenerator( regeneratorRuntime.mark(function _callee2(id) {
-			var value, _value;
-
+			var value;
 			return regeneratorRuntime.wrap(function _callee2$(_context2) {
 				while (1) {
 					switch (_context2.prev = _context2.next) {
@@ -3240,12 +3239,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 11:
 							if (!nav.hasWebStorage) {
-								_context2.next = 18;
+								_context2.next = 15;
 								break;
 							}
 
-							_context2.next = 14;
-							return new Promise(function (resolve) {
+							return _context2.abrupt('return', new Promise(function (resolve) {
 								return chrome.storage.local.get(id, function (obj) {
 									if (Object.keys(obj).length) {
 										resolve(obj[id]);
@@ -3255,24 +3253,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 										});
 									}
 								});
-							});
+							}));
 
-						case 14:
-							_value = _context2.sent;
-							return _context2.abrupt('return', _value);
-
-						case 18:
+						case 15:
 							if (!nav.hasPrestoStorage) {
-								_context2.next = 20;
+								_context2.next = 17;
 								break;
 							}
 
 							return _context2.abrupt('return', prestoStorage.getItem(id));
 
-						case 20:
+						case 17:
 							return _context2.abrupt('return', locStorage[id]);
 
-						case 21:
+						case 18:
 						case 'end':
 							return _context2.stop();
 					}
@@ -3884,7 +3878,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'a7d6d54';
+	var commit = '05bba1b';
 
 
 	var defaultCfg = {
@@ -10169,15 +10163,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var checkArch = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
 		return AjaxCache.runCachedAjax(url, useCache).then(function (xhr) {
-			var el = void 0;
 			var text = xhr.responseText;
-			if (text.includes('</html>')) {
-				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-			}
-			if (aib.hasStormWall) {
-				return checkStormWall(url, xhr, el, text, returnForm, checkArch);
-			}
-			return checkAjax(el, xhr, checkArch);
+			var el = !text.includes('</html>') ? null : returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+			return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) : aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
 		}, function (err) {
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
@@ -10224,32 +10212,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				doc.title = '{' + eCode + '} ' + doc.title;
 			}
 		}
-	}
-
-	function checkStormWall(url, xhr, el, text, returnForm, checkArch) {
-		var stormWallTxt = '<script src="https://static.stormwall.pro/';
-		if (el || !text.includes(stormWallTxt)) {
-			return checkAjax(el, xhr, checkArch);
-		}
-		return new Promise(function (resolve, reject) {
-			var loadCounter = 0;
-			$popup('err-stormwall', '<div>' + Lng.stormWallCheck[lang] + '</div><iframe id="de-stormwall" name="de-prohibited" src="' + url + '" width="500" height="500" style="display: none;"></iframe>');
-			var frEl = $id('de-stormwall');
-			frEl.onload = function () {
-				if (loadCounter++ < 1) {
-					return;
-				}
-				var frText = frEl.contentWindow.document.documentElement.outerHTML;
-				if (frText.includes(stormWallTxt)) {
-					$show(frEl);
-					reject(new AjaxError(0, Lng.stormWallErr[lang]));
-					return;
-				}
-				closePopup('err-stormwall');
-				var frDom = $DOM(frText);
-				resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom, xhr, checkArch));
-			};
-		});
 	}
 
 
@@ -20555,7 +20517,6 @@ true, true];
 			this.hasOPNum = false;
 			this.hasPicWrap = false;
 			this.hasRefererErr = false;
-			this.hasStormWall = false; 
 			this.hasTextLinks = false;
 			this.host = deWindow.location.hostname;
 			this.JsonBuilder = null;
@@ -20876,6 +20837,11 @@ true, true];
 			}
 		}, {
 			key: 'changeReplyMode',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'checkStormWall',
 			get: function get() {
 				return null;
 			}
@@ -23314,11 +23280,37 @@ true, true];
 
 				_this110.hasArchive = true;
 				_this110.hasCatalog = true;
-				_this110.hasStormWall = true;
 				return _this110;
 			}
 
 			_createClass(Iichan, [{
+				key: 'checkStormWall',
+				value: function checkStormWall(el, xhr, text, url, returnForm, checkArch) {
+					var stormWallTxt = '<script src="https://static.stormwall.pro/';
+					if (el || !text.includes(stormWallTxt)) {
+						return checkAjax(el, xhr, checkArch);
+					}
+					return new Promise(function (resolve, reject) {
+						var loadCounter = 0;
+						$popup('err-stormwall', '<div>' + Lng.stormWallCheck[lang] + '</div>' + ('<iframe id="de-stormwall" name="de-prohibited" src="' + url + '" width="500" height="500" style="display: none;"></iframe>'));
+						var frEl = $id('de-stormwall');
+						frEl.onload = function () {
+							if (loadCounter++ < 1) {
+								return;
+							}
+							var frText = frEl.contentWindow.document.documentElement.outerHTML;
+							if (frText.includes(stormWallTxt)) {
+								$show(frEl);
+								reject(new AjaxError(0, Lng.stormWallErr[lang]));
+								return;
+							}
+							closePopup('err-stormwall');
+							var frDom = $DOM(frText);
+							resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom, xhr, checkArch));
+						};
+					});
+				}
+			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
 					return $q('.filesize > em', wrap).textContent.split(',')[2] || _get(Iichan.prototype.__proto__ || Object.getPrototypeOf(Iichan.prototype), 'getImgRealName', this).call(this, wrap);

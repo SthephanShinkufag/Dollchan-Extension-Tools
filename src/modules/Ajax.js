@@ -281,15 +281,11 @@ function checkAjax(el, xhr, checkArch) {
 
 function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		let el;
 		const text = xhr.responseText;
-		if(text.includes('</html>')) {
-			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-		}
-		if(aib.hasStormWall) {
-			return checkStormWall(url, xhr, el, text, returnForm, checkArch);
-		}
-		return checkAjax(el, xhr, checkArch);
+		const el = !text.includes('</html>') ? null :
+			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text)
+		return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) :
+			aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -329,33 +325,4 @@ function infoLoadErrors(err, showError = true) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
 	}
-}
-
-function checkStormWall(url, xhr, el, text, returnForm, checkArch) {
-	const stormWallTxt = '<script src="https://static.stormwall.pro/';
-	if(el || !text.includes(stormWallTxt)) {
-		return checkAjax(el, xhr, checkArch);
-	}
-	return new Promise((resolve, reject) => {
-		let loadCounter = 0;
-		$popup('err-stormwall',
-			`<div>${ Lng.stormWallCheck[lang] }</div><iframe id="de-stormwall" name="de-prohibited" src="${
-				url }" width="500" height="500" style="display: none;"></iframe>`);
-		const frEl = $id('de-stormwall');
-		frEl.onload = () => {
-			if(loadCounter++ < 1) {
-				return;
-			}
-			const frText = frEl.contentWindow.document.documentElement.outerHTML;
-			if(frText.includes(stormWallTxt)) {
-				$show(frEl);
-				reject(new AjaxError(0, Lng.stormWallErr[lang]));
-				return;
-			}
-			closePopup('err-stormwall');
-			const frDom = $DOM(frText);
-			resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
-				xhr, checkArch));
-		};
-	});
 }

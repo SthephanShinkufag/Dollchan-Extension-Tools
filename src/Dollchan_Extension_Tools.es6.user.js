@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'a7d6d54';
+const commit = '05bba1b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2425,14 +2425,13 @@ async function getStored(id) {
 		return GM_getValue(id);
 	} else if(nav.hasWebStorage) {
 		// Read storage.local first. If it not existed then read storage.sync
-		const value = await new Promise(resolve => chrome.storage.local.get(id, obj => {
+		return new Promise(resolve => chrome.storage.local.get(id, obj => {
 			if(Object.keys(obj).length) {
 				resolve(obj[id]);
 			} else {
 				chrome.storage.sync.get(id, obj => resolve(obj[id]));
 			}
 		}));
-		return value;
 	} else if(nav.hasPrestoStorage) {
 		return prestoStorage.getItem(id);
 	}
@@ -6987,15 +6986,11 @@ function checkAjax(el, xhr, checkArch) {
 
 function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
-		let el;
 		const text = xhr.responseText;
-		if(text.includes('</html>')) {
-			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-		}
-		if(aib.hasStormWall) {
-			return checkStormWall(url, xhr, el, text, returnForm, checkArch);
-		}
-		return checkAjax(el, xhr, checkArch);
+		const el = !text.includes('</html>') ? null :
+			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text)
+		return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) :
+			aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -7035,35 +7030,6 @@ function infoLoadErrors(err, showError = true) {
 			doc.title = `{${ eCode }} ${ doc.title }`;
 		}
 	}
-}
-
-function checkStormWall(url, xhr, el, text, returnForm, checkArch) {
-	const stormWallTxt = '<script src="https://static.stormwall.pro/';
-	if(el || !text.includes(stormWallTxt)) {
-		return checkAjax(el, xhr, checkArch);
-	}
-	return new Promise((resolve, reject) => {
-		let loadCounter = 0;
-		$popup('err-stormwall',
-			`<div>${ Lng.stormWallCheck[lang] }</div><iframe id="de-stormwall" name="de-prohibited" src="${
-				url }" width="500" height="500" style="display: none;"></iframe>`);
-		const frEl = $id('de-stormwall');
-		frEl.onload = () => {
-			if(loadCounter++ < 1) {
-				return;
-			}
-			const frText = frEl.contentWindow.document.documentElement.outerHTML;
-			if(frText.includes(stormWallTxt)) {
-				$show(frEl);
-				reject(new AjaxError(0, Lng.stormWallErr[lang]));
-				return;
-			}
-			closePopup('err-stormwall');
-			const frDom = $DOM(frText);
-			resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
-				xhr, checkArch));
-		};
-	});
 }
 
 /* ==[ Pages.js ]=============================================================================================
@@ -15210,7 +15176,6 @@ class BaseBoard {
 		this.hasOPNum = false;
 		this.hasPicWrap = false;
 		this.hasRefererErr = false;
-		this.hasStormWall = false; // Iichan
 		this.hasTextLinks = false;
 		this.host = deWindow.location.hostname;
 		this.JsonBuilder = null;
@@ -15268,6 +15233,9 @@ class BaseBoard {
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
+		return null;
+	}
+	get checkStormWall() { // Iichan
 		return null;
 	}
 	get css() {
@@ -17216,7 +17184,6 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.hasArchive = true;
 			this.hasCatalog = true;
-			this.hasStormWall = true;
 		}
 		get qFormMail() {
 			return 'input[name="nya2"]';
@@ -17237,6 +17204,34 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get isArchived() {
 			return this.b.includes('/arch');
+		}
+		checkStormWall(el, xhr, text, url, returnForm, checkArch) {
+			const stormWallTxt = '<script src="https://static.stormwall.pro/';
+			if(el || !text.includes(stormWallTxt)) {
+				return checkAjax(el, xhr, checkArch);
+			}
+			return new Promise((resolve, reject) => {
+				let loadCounter = 0;
+				$popup('err-stormwall', `<div>${ Lng.stormWallCheck[lang] }</div>` +
+					`<iframe id="de-stormwall" name="de-prohibited" src="${
+						url }" width="500" height="500" style="display: none;"></iframe>`);
+				const frEl = $id('de-stormwall');
+				frEl.onload = () => {
+					if(loadCounter++ < 1) {
+						return;
+					}
+					const frText = frEl.contentWindow.document.documentElement.outerHTML;
+					if(frText.includes(stormWallTxt)) {
+						$show(frEl);
+						reject(new AjaxError(0, Lng.stormWallErr[lang]));
+						return;
+					}
+					closePopup('err-stormwall');
+					const frDom = $DOM(frText);
+					resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
+						xhr, checkArch));
+				};
+			});
 		}
 		getImgRealName(wrap) {
 			return $q('.filesize > em', wrap).textContent.split(',')[2] || super.getImgRealName(wrap);
