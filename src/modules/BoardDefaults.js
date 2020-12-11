@@ -110,9 +110,6 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
-	get checkStormWall() { // Iichan
-		return null;
-	}
 	get css() {
 		return '';
 	}
@@ -165,6 +162,18 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() { // Lynxchan
+		return null;
+	}
+	get stormWallFixAjax() { // Iichan
+		return null;
+	}
+	get stormWallFixCaptcha() { // Iichan
+		return null;
+	}
+	get stormWallFixSubmit() { // Iichan
+		return null;
+	}
+	get stormWallHelper() { // Iichan
 		return null;
 	}
 	get updateCaptcha() {

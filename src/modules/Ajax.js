@@ -283,9 +283,9 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
 		const text = xhr.responseText;
 		const el = !text.includes('</html>') ? null :
-			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text)
-		return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) :
-			aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
+			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+		return !el && aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) :
+			checkAjax(el, xhr, checkArch);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 

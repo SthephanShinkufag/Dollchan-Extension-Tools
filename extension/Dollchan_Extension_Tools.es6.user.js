@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '05bba1b';
+const commit = '09cf0e0';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6988,9 +6988,9 @@ function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
 		const text = xhr.responseText;
 		const el = !text.includes('</html>') ? null :
-			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text)
-		return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) :
-			aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
+			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+		return !el && aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) :
+			checkAjax(el, xhr, checkArch);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
@@ -9383,9 +9383,10 @@ async function html5Submit(form, submitter, needProgress = false) {
 	if(needProgress && hasFiles) {
 		ajaxParams.onprogress = getUploadFunc();
 	}
-	return $ajax(form.action, ajaxParams)
-		.then(xhr => aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText))
-		.catch(err => Promise.reject(err));
+	const url = form.action;
+	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
+		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text)
+	).catch(err => Promise.reject(err));
 }
 
 function cleanFile(data, extraData) {
@@ -10201,14 +10202,19 @@ class Captcha {
 			if(!img) {
 				return;
 			}
-			if(aib.getCaptchaSrc) {
-				const src = img.getAttribute('src');
-				if(src) {
-					img.src = '';
-					img.src = aib.getCaptchaSrc(src, tNum);
-				}
-			} else {
+			if(!aib.getCaptchaSrc) {
 				img.click();
+				return;
+			}
+			const src = img.getAttribute('src');
+			if(!src) {
+				return;
+			}
+			const newSrc = aib.getCaptchaSrc(src, tNum);
+			img.src = '';
+			img.src = newSrc;
+			if(aib.stormWallFixCaptcha) {
+				aib.stormWallFixCaptcha(newSrc, img);
 			}
 		}
 	}
@@ -15235,9 +15241,6 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
-	get checkStormWall() { // Iichan
-		return null;
-	}
 	get css() {
 		return '';
 	}
@@ -15290,6 +15293,18 @@ class BaseBoard {
 		return null;
 	}
 	get sendHTML5Post() { // Lynxchan
+		return null;
+	}
+	get stormWallFixAjax() { // Iichan
+		return null;
+	}
+	get stormWallFixCaptcha() { // Iichan
+		return null;
+	}
+	get stormWallFixSubmit() { // Iichan
+		return null;
+	}
+	get stormWallHelper() { // Iichan
 		return null;
 	}
 	get updateCaptcha() {
@@ -15712,7 +15727,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$script('highlightReply = Function.prototype');
+			$script('highlightReply = Function.prototype;');
 			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
@@ -17205,10 +17220,29 @@ function getImageBoard(checkDomains, checkEngines) {
 		get isArchived() {
 			return this.b.includes('/arch');
 		}
-		checkStormWall(el, xhr, text, url, returnForm, checkArch) {
+		stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) {
+			return this.stormWallHelper(url, text, () => checkAjax(el, xhr, checkArch),
+				frText => checkAjax(returnForm ?
+					$q(aib.qDForm + ', form[de-form]', $DOM(frText)) : $DOM(frText), xhr, checkArch));
+		}
+		stormWallFixCaptcha(url, img) {
+			img.onload = img.onerror = () => {
+				if(!(img.naturalHeight + img.naturalWidth)) {
+					this.stormWallHelper(url, null, emptyFn, () => {
+						img.src = '';
+						img.src = url;
+					});
+				}
+			};
+		}
+		stormWallFixSubmit(url, text, ajaxParams) {
+			return this.stormWallHelper(url, text, () => $DOM(text),
+				() => $ajax(url, ajaxParams).then(xhr => $DOM(xhr.responseText)));
+		}
+		stormWallHelper(url, text, fnOK, fnRes) {
 			const stormWallTxt = '<script src="https://static.stormwall.pro/';
-			if(el || !text.includes(stormWallTxt)) {
-				return checkAjax(el, xhr, checkArch);
+			if(text !== null && !text.includes(stormWallTxt)) {
+				return fnOK();
 			}
 			return new Promise((resolve, reject) => {
 				let loadCounter = 0;
@@ -17227,9 +17261,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						return;
 					}
 					closePopup('err-stormwall');
-					const frDom = $DOM(frText);
-					resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
-						xhr, checkArch));
+					resolve(fnRes(frText));
 				};
 			});
 		}

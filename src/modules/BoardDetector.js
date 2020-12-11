@@ -221,7 +221,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$script('highlightReply = Function.prototype');
+			$script('highlightReply = Function.prototype;');
 			setTimeout(() => $del($id('updater')), 0);
 			const textarea = $id('body');
 			if(textarea) {
@@ -1714,10 +1714,29 @@ function getImageBoard(checkDomains, checkEngines) {
 		get isArchived() {
 			return this.b.includes('/arch');
 		}
-		checkStormWall(el, xhr, text, url, returnForm, checkArch) {
+		stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) {
+			return this.stormWallHelper(url, text, () => checkAjax(el, xhr, checkArch),
+				frText => checkAjax(returnForm ?
+					$q(aib.qDForm + ', form[de-form]', $DOM(frText)) : $DOM(frText), xhr, checkArch));
+		}
+		stormWallFixCaptcha(url, img) {
+			img.onload = img.onerror = () => {
+				if(!(img.naturalHeight + img.naturalWidth)) {
+					this.stormWallHelper(url, null, emptyFn, () => {
+						img.src = '';
+						img.src = url;
+					});
+				}
+			};
+		}
+		stormWallFixSubmit(url, text, ajaxParams) {
+			return this.stormWallHelper(url, text, () => $DOM(text),
+				() => $ajax(url, ajaxParams).then(xhr => $DOM(xhr.responseText)));
+		}
+		stormWallHelper(url, text, fnOK, fnRes) {
 			const stormWallTxt = '<script src="https://static.stormwall.pro/';
-			if(el || !text.includes(stormWallTxt)) {
-				return checkAjax(el, xhr, checkArch);
+			if(text !== null && !text.includes(stormWallTxt)) {
+				return fnOK();
 			}
 			return new Promise((resolve, reject) => {
 				let loadCounter = 0;
@@ -1736,9 +1755,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						return;
 					}
 					closePopup('err-stormwall');
-					const frDom = $DOM(frText);
-					resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom,
-						xhr, checkArch));
+					resolve(fnRes(frText));
 				};
 			});
 		}

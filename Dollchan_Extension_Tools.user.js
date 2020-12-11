@@ -3526,7 +3526,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el13, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams;
+			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el13, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams, url;
 
 			return regeneratorRuntime.wrap(function _callee17$(_context20) {
 				while (1) {
@@ -3660,13 +3660,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							if (needProgress && hasFiles) {
 								ajaxParams.onprogress = getUploadFunc();
 							}
-							return _context20.abrupt('return', $ajax(form.action, ajaxParams).then(function (xhr) {
-								return aib.jsonSubmit ? xhr.responseText : $DOM(xhr.responseText);
+							url = form.action;
+							return _context20.abrupt('return', $ajax(url, ajaxParams).then(function (_ref46) {
+								var text = _ref46.responseText;
+								return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text);
 							}).catch(function (err) {
 								return Promise.reject(err);
 							}));
 
-						case 58:
+						case 59:
 						case 'end':
 							return _context20.stop();
 					}
@@ -3680,8 +3682,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}();
 
 	var runMain = function () {
-		var _ref83 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
-			var formEl, _ref84, _ref85, favObj, storageName, firstThr;
+		var _ref84 = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+			var formEl, _ref85, _ref86, favObj, storageName, firstThr;
 
 			return regeneratorRuntime.wrap(function _callee24$(_context34) {
 				while (1) {
@@ -3738,9 +3740,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return dataPromise || readData();
 
 						case 16:
-							_ref84 = _context34.sent;
-							_ref85 = _slicedToArray(_ref84, 1);
-							favObj = _ref85[0];
+							_ref85 = _context34.sent;
+							_ref86 = _slicedToArray(_ref85, 1);
+							favObj = _ref86[0];
 
 							if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
 								_context34.next = 21;
@@ -3871,14 +3873,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		return function runMain(_x89, _x90) {
-			return _ref83.apply(this, arguments);
+			return _ref84.apply(this, arguments);
 		};
 	}();
 
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '05bba1b';
+	var commit = '09cf0e0';
 
 
 	var defaultCfg = {
@@ -10165,7 +10167,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return AjaxCache.runCachedAjax(url, useCache).then(function (xhr) {
 			var text = xhr.responseText;
 			var el = !text.includes('</html>') ? null : returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-			return !aib.checkStormWall ? checkAjax(el, xhr, checkArch) : aib.checkStormWall(el, xhr, text, url, returnForm, checkArch);
+			return !el && aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) : checkAjax(el, xhr, checkArch);
 		}, function (err) {
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
@@ -13693,21 +13695,21 @@ true, true];
 			this._thumb = null;
 			this._utils = $add('<div class="de-file-utils">\n\t\t\t<span class="de-file-btn-rar" title="' + Lng.helpAddFile[lang] + '" style="display: none;">\n\t\t\t\t<svg><use xlink:href="#de-symbol-file-rar"/></svg></span>\n\t\t\t<input class="de-file-spoil" type="checkbox" title="' + (Lng.spoilFile[lang] + '" style="display: none;">\n\t\t\t<span class="de-file-btn-txt" title="' + Lng.addManually[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-file-txt"/></svg></span>\n\t\t\t<span class="de-file-btn-ren" title="' + Lng.renameFile[lang] + '" style="display: none;">\n\t\t\t\t<svg><use xlink:href="#de-symbol-file-ren"/></svg></span>\n\t\t\t<span class="de-file-btn-del" title="' + Lng.removeFile[lang] + '" style="display: none;">\n\t\t\t\t<svg><use xlink:href="#de-symbol-file-del"/></svg></span>\n\t\t</div>'));
 
-			var _ref46 = [].concat(_toConsumableArray(this._utils.children));
+			var _ref47 = [].concat(_toConsumableArray(this._utils.children));
 
-			this._btnRar = _ref46[0];
-			this._btnSpoil = _ref46[1];
-			this._btnTxt = _ref46[2];
-			this._btnRen = _ref46[3];
-			this._btnDel = _ref46[4];
+			this._btnRar = _ref47[0];
+			this._btnSpoil = _ref47[1];
+			this._btnTxt = _ref47[2];
+			this._btnRen = _ref47[3];
+			this._btnDel = _ref47[4];
 
 			this._utils.addEventListener('click', this);
 			this._txtWrap = $add('<span class="de-file-txt-wrap">\n\t\t\t<input type="text" name="de-file-txt" class="de-file-txt-input de-file-txt-noedit" title="' + (Lng.youCanDrag[lang] + '" placeholder="' + Lng.dropFileHere[lang] + '">\n\t\t\t<input type="button" class="de-file-txt-add" value="+" title="') + (Lng.add[lang] + '" style="display: none;"></span>'));
 
-			var _ref47 = [].concat(_toConsumableArray(this._txtWrap.children));
+			var _ref48 = [].concat(_toConsumableArray(this._txtWrap.children));
 
-			this._txtInput = _ref47[0];
-			this._txtAddBtn = _ref47[1];
+			this._txtInput = _ref48[0];
+			this._txtAddBtn = _ref48[1];
 
 			this._txtWrap.addEventListener('click', this);
 			this._toggleDragEvents(this._txtWrap, true);
@@ -13887,8 +13889,8 @@ true, true];
 										return;
 									}
 									var file = this._input.files[0];
-									readFile(file).then(function (_ref48) {
-										var data = _ref48.data;
+									readFile(file).then(function (_ref49) {
+										var data = _ref49.data;
 
 										_this36.imgFile = { data: data, name: newName, type: file.type, isConstName: true };
 										_this36._removeFileHelper(); 
@@ -13988,8 +13990,8 @@ true, true];
 					$hide(_this37._btnRar);
 					var myBtn = _this37._rarMsg = $aBegin(_this37._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
 					var file = e.target.files[0];
-					readFile(file).then(function (_ref49) {
-						var data = _ref49.data;
+					readFile(file).then(function (_ref50) {
+						var data = _ref50.data;
 
 						if (_this37._rarMsg === myBtn) {
 							myBtn.className = 'de-file-rarmsg';
@@ -14157,8 +14159,8 @@ true, true];
 				}
 				var file = this._input.files[0];
 				if (file) {
-					readFile(file).then(function (_ref50) {
-						var data = _ref50.data;
+					readFile(file).then(function (_ref51) {
+						var data = _ref51.data;
 
 						if (_this39._input.files[0] === file) {
 							_this39._addNewThumb(data, file.name, file.type, file.size);
@@ -14190,8 +14192,8 @@ true, true];
 		}], [{
 			key: '_readDroppedFile',
 			value: function _readDroppedFile(inputObj, file) {
-				return readFile(file).then(function (_ref51) {
-					var data = _ref51.data;
+				return readFile(file).then(function (_ref52) {
+					var data = _ref52.data;
 
 					inputObj.imgFile = { data: data, name: file.name, type: file.type };
 					inputObj.showInp();
@@ -14391,14 +14393,19 @@ true, true];
 					if (!img) {
 						return;
 					}
-					if (aib.getCaptchaSrc) {
-						var src = img.getAttribute('src');
-						if (src) {
-							img.src = '';
-							img.src = aib.getCaptchaSrc(src, tNum);
-						}
-					} else {
+					if (!aib.getCaptchaSrc) {
 						img.click();
+						return;
+					}
+					var src = img.getAttribute('src');
+					if (!src) {
+						return;
+					}
+					var newSrc = aib.getCaptchaSrc(src, tNum);
+					img.src = '';
+					img.src = newSrc;
+					if (aib.stormWallFixCaptcha) {
+						aib.stormWallFixCaptcha(newSrc, img);
 					}
 				}
 			}
@@ -15884,7 +15891,7 @@ true, true];
 		}, {
 			key: '_buildPview',
 			value: function () {
-				var _ref52 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(post) {
+				var _ref53 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(post) {
 					var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
 					return regeneratorRuntime.wrap(function _callee18$(_context22) {
 						while (1) {
@@ -16020,7 +16027,7 @@ true, true];
 				}));
 
 				function _buildPview(_x61) {
-					return _ref52.apply(this, arguments);
+					return _ref53.apply(this, arguments);
 				}
 
 				return _buildPview;
@@ -16359,11 +16366,11 @@ true, true];
 
 			var btns = $bEnd(docBody, '<div style="display: none;">\n\t\t\t<div id="de-img-btn-prev" class="de-img-btn" de-title="' + Lng.prevImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-next" class="de-img-btn" de-title="' + Lng.nextImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-arrow"/></svg></div>\n\t\t\t<div id="de-img-btn-auto" class="de-img-btn de-img-btn-none" title="' + Lng.autoPlayOn[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-auto"/></svg></div>\n\t\t\t<div id="de-img-btn-rotate" class="de-img-btn" title="' + Lng.rotateImg[lang] + '">\n\t\t\t\t<svg><use xlink:href="#de-symbol-img-btn-rotate"/></svg></div></div>');
 
-			var _ref53 = [].concat(_toConsumableArray(btns.children));
+			var _ref54 = [].concat(_toConsumableArray(btns.children));
 
-			this.prevBtn = _ref53[0];
-			this.nextBtn = _ref53[1];
-			this.autoBtn = _ref53[2];
+			this.prevBtn = _ref54[0];
+			this.nextBtn = _ref54[1];
+			this.autoBtn = _ref54[2];
 
 			this._btns = btns;
 			this._btnsStyle = btns.style;
@@ -16992,8 +16999,8 @@ true, true];
 					var waitEl = !aib.getImgRedirectSrc && this._size ? '' : '<svg class="de-fullimg-load"><use xlink:href="#de-symbol-wait"/></svg>';
 					wrapEl = $add('<div class="de-fullimg-wrap' + wrapClass + '">\n\t\t\t\t' + waitEl + '\n\t\t\t\t<img class="de-fullimg" src="' + src + '" alt="' + src + '">\n\t\t\t\t<div class="de-fullimg-info">' + imgNameEl + '</a></div>\n\t\t\t</div>');
 					var imgEl = $q('.de-fullimg', wrapEl);
-					imgEl.onload = imgEl.onerror = function (_ref54) {
-						var img = _ref54.target;
+					imgEl.onload = imgEl.onerror = function (_ref55) {
+						var img = _ref55.target;
 
 						if (!(img.naturalHeight + img.naturalWidth)) {
 							if (!img.onceLoaded) {
@@ -17045,8 +17052,8 @@ true, true];
 				videoEl.addEventListener('ended', function () {
 					return AttachedImage.viewer.navigate(true, true);
 				});
-				videoEl.addEventListener('error', function (_ref55) {
-					var el = _ref55.target;
+				videoEl.addEventListener('error', function (_ref56) {
+					var el = _ref56.target;
 
 					if (!el.onceLoaded) {
 						el.load();
@@ -17054,8 +17061,8 @@ true, true];
 					}
 				});
 				if (!this._size) {
-					videoEl.addEventListener('loadedmetadata', function (_ref56) {
-						var el = _ref56.target;
+					videoEl.addEventListener('loadedmetadata', function (_ref57) {
+						var el = _ref57.target;
 
 						_this62._size = [el.videoWidth, el.videoHeight];
 						onsizechange(wrapEl);
@@ -17064,9 +17071,9 @@ true, true];
 				setTimeout(function () {
 					return videoEl.dispatchEvent(new CustomEvent('volumechange'));
 				}, 150);
-				videoEl.addEventListener('volumechange', function (_ref57) {
-					var el = _ref57.target,
-					    isTrusted = _ref57.isTrusted;
+				videoEl.addEventListener('volumechange', function (_ref58) {
+					var el = _ref58.target,
+					    isTrusted = _ref58.isTrusted;
 
 					var val = el.muted ? 0 : Math.round(el.volume * 100);
 					if (isTrusted && val !== Cfg.webmVolume) {
@@ -17136,10 +17143,10 @@ true, true];
 			}
 		}, {
 			key: 'srcBtnEvents',
-			value: function srcBtnEvents(_ref58) {
+			value: function srcBtnEvents(_ref59) {
 				var _this63 = this;
 
-				var _fullEl = _ref58._fullEl;
+				var _fullEl = _ref59._fullEl;
 
 				if (!Cfg.imgSrcBtns) {
 					return;
@@ -17468,11 +17475,11 @@ true, true];
 			Object.defineProperty(this, '_workers', { value: value, configurable: true });
 			return value;
 		},
-		_genImgHash: function _genImgHash(_ref59) {
-			var _ref60 = _slicedToArray(_ref59, 3),
-			    arrBuf = _ref60[0],
-			    oldw = _ref60[1],
-			    oldh = _ref60[2];
+		_genImgHash: function _genImgHash(_ref60) {
+			var _ref61 = _slicedToArray(_ref60, 3),
+			    arrBuf = _ref61[0],
+			    oldw = _ref61[1],
+			    oldh = _ref61[2];
 
 			var buf = new Uint8Array(arrBuf);
 			var size = oldw * oldh;
@@ -17504,11 +17511,11 @@ true, true];
 			return { hash: hash };
 		},
 		_getHashHelper: function () {
-			var _ref62 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(_ref61) {
+			var _ref63 = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(_ref62) {
 				var _this66 = this;
 
-				var el = _ref61.el,
-				    src = _ref61.src;
+				var el = _ref62.el,
+				    src = _ref62.src;
 				var data, buffer, val, w, h, imgData, cnv, ctx;
 				return regeneratorRuntime.wrap(function _callee19$(_context24) {
 					while (1) {
@@ -17606,7 +17613,7 @@ true, true];
 			}));
 
 			function _getHashHelper(_x63) {
-				return _ref62.apply(this, arguments);
+				return _ref63.apply(this, arguments);
 			}
 
 			return _getHashHelper;
@@ -18035,15 +18042,15 @@ true, true];
 
 				try {
 					for (var _iterator27 = data.files[Symbol.iterator](), _step27; !(_iteratorNormalCompletion27 = (_step27 = _iterator27.next()).done); _iteratorNormalCompletion27 = true) {
-						var _ref63 = _step27.value;
-						var file_id = _ref63.file_id;
-						var metadata = _ref63.metadata;
-						var rating = _ref63.rating;
-						var size = _ref63.size;
-						var src = _ref63.src;
-						var thumb = _ref63.thumb;
-						var thumb_height = _ref63.thumb_height;
-						var thumb_width = _ref63.thumb_width;
+						var _ref64 = _step27.value;
+						var file_id = _ref64.file_id;
+						var metadata = _ref64.metadata;
+						var rating = _ref64.rating;
+						var size = _ref64.size;
+						var src = _ref64.src;
+						var thumb = _ref64.thumb;
+						var thumb_height = _ref64.thumb_height;
+						var thumb_width = _ref64.thumb_width;
 
 						var fileName = void 0,
 						    fullFileName = void 0,
@@ -18231,7 +18238,7 @@ true, true];
 		}, {
 			key: 'bannedPostsData',
 			value: regeneratorRuntime.mark(function bannedPostsData() {
-				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref64, banned, num;
+				var p, _iteratorNormalCompletion29, _didIteratorError29, _iteratorError29, _iterator29, _step29, _ref65, banned, num;
 
 				return regeneratorRuntime.wrap(function bannedPostsData$(_context29) {
 					while (1) {
@@ -18250,9 +18257,9 @@ true, true];
 									break;
 								}
 
-								_ref64 = _step29.value;
-								banned = _ref64.banned;
-								num = _ref64.num;
+								_ref65 = _step29.value;
+								banned = _ref65.banned;
+								num = _ref65.num;
 								_context29.t0 = banned;
 								_context29.next = _context29.t0 === 1 ? 13 : _context29.t0 === 2 ? 16 : 19;
 								break;
@@ -18590,24 +18597,24 @@ true, true];
 
 				try {
 					for (var _iterator33 = posts[Symbol.iterator](), _step33; !(_iteratorNormalCompletion33 = (_step33 = _iterator33.next()).done); _iteratorNormalCompletion33 = true) {
-						var _ref65 = _step33.value;
+						var _ref66 = _step33.value;
 
-						var _ref66 = _slicedToArray(_ref65, 2);
+						var _ref67 = _slicedToArray(_ref66, 2);
 
-						var pNum = _ref66[0];
-						var post = _ref66[1];
+						var pNum = _ref67[0];
+						var post = _ref67[1];
 						var _iteratorNormalCompletion34 = true;
 						var _didIteratorError34 = false;
 						var _iteratorError34 = undefined;
 
 						try {
 							for (var _iterator34 = post.refLinks()[Symbol.iterator](), _step34; !(_iteratorNormalCompletion34 = (_step34 = _iterator34.next()).done); _iteratorNormalCompletion34 = true) {
-								var _ref67 = _step34.value;
+								var _ref68 = _step34.value;
 
-								var _ref68 = _slicedToArray(_ref67, 2);
+								var _ref69 = _slicedToArray(_ref68, 2);
 
-								var link = _ref68[0];
-								var lNum = _ref68[1];
+								var link = _ref69[0];
+								var lNum = _ref69[1];
 								if (MyPosts.has(lNum)) {
 									link.classList.add('de-ref-you');
 									if (!MyPosts.has(pNum) && post instanceof AbstractPost) {
@@ -18762,11 +18769,11 @@ true, true];
 			this.btns.addEventListener('click', this);
 			this.btns.addEventListener('mouseover', this);
 
-			var _ref69 = [].concat(_toConsumableArray(this.btns.children));
+			var _ref70 = [].concat(_toConsumableArray(this.btns.children));
 
-			this.btnHide = _ref69[0];
-			this.btnFav = _ref69[2];
-			this.btnUpd = _ref69[3];
+			this.btnHide = _ref70[0];
+			this.btnFav = _ref70[2];
+			this.btnUpd = _ref70[3];
 
 			if (!aib.t && Cfg.hideReplies) {
 				this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -18988,13 +18995,13 @@ true, true];
 
 				try {
 					for (var _iterator35 = pBuilder.bannedPostsData()[Symbol.iterator](), _step35; !(_iteratorNormalCompletion35 = (_step35 = _iterator35.next()).done); _iteratorNormalCompletion35 = true) {
-						var _ref70 = _step35.value;
+						var _ref71 = _step35.value;
 
-						var _ref71 = _slicedToArray(_ref70, 3);
+						var _ref72 = _slicedToArray(_ref71, 3);
 
-						var banId = _ref71[0];
-						var bNum = _ref71[1];
-						var bEl = _ref71[2];
+						var banId = _ref72[0];
+						var bNum = _ref72[1];
+						var bEl = _ref72[2];
 
 						var post = bNum ? pByNum.get(bNum) : this.op;
 						if (post && post.banned !== banId) {
@@ -19940,9 +19947,9 @@ true, true];
 						case 1:
 							counter.setWait();
 							this._state = 2;
-							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref72) {
-								var newCount = _ref72.newCount,
-								    locked = _ref72.locked;
+							this._loadPromise = Thread.first.loadNewPosts().then(function (_ref73) {
+								var newCount = _ref73.newCount,
+								    locked = _ref73.locked;
 								return _this80._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
 							}, function (err) {
 								return _this80._handleNewPosts(0, err);
@@ -20841,11 +20848,6 @@ true, true];
 				return null;
 			}
 		}, {
-			key: 'checkStormWall',
-			get: function get() {
-				return null;
-			}
-		}, {
 			key: 'css',
 			get: function get() {
 				return '';
@@ -20925,6 +20927,26 @@ true, true];
 			}
 		}, {
 			key: 'sendHTML5Post',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'stormWallFixAjax',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'stormWallFixCaptcha',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'stormWallFixSubmit',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'stormWallHelper',
 			get: function get() {
 				return null;
 			}
@@ -21040,7 +21062,7 @@ true, true];
 			_createClass(Tinyboard, [{
 				key: 'changeReplyMode',
 				value: function () {
-					var _ref73 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
+					var _ref74 = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(form, tNum) {
 						var _this83 = this;
 
 						var pageInp, query, errFn;
@@ -21121,7 +21143,7 @@ true, true];
 					}));
 
 					function changeReplyMode(_x80, _x81) {
-						return _ref73.apply(this, arguments);
+						return _ref74.apply(this, arguments);
 					}
 
 					return changeReplyMode;
@@ -21163,9 +21185,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref74) {
-					var error = _ref74.error,
-					    id = _ref74.id;
+				value: function getSubmitData(_ref75) {
+					var error = _ref75.error,
+					    id = _ref75.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -21250,7 +21272,7 @@ true, true];
 						deWindow.location.reload();
 						return true;
 					}
-					$script('highlightReply = Function.prototype');
+					$script('highlightReply = Function.prototype;');
 					setTimeout(function () {
 						return $del($id('updater'));
 					}, 0);
@@ -21468,9 +21490,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref75) {
-					var status = _ref75.status,
-					    data = _ref75.data;
+				value: function getSubmitData(_ref76) {
+					var status = _ref76.status,
+					    data = _ref76.data;
 
 					return {
 						error: status === 'error' ? data : null,
@@ -21520,7 +21542,7 @@ true, true];
 			}, {
 				key: 'sendHTML5Post',
 				value: function () {
-					var _ref76 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
+					var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, data, needProgress, hasFiles) {
 						var _this89 = this;
 
 						var ajaxParams, getBase64, getCookies, dataObj, files, i, _len17, file, cookieObj, task, url;
@@ -21542,7 +21564,7 @@ true, true];
 
 									case 5:
 										getBase64 = function () {
-											var _ref77 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
+											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(file) {
 												return regeneratorRuntime.wrap(function _callee21$(_context31) {
 													while (1) {
 														switch (_context31.prev = _context31.next) {
@@ -21567,7 +21589,7 @@ true, true];
 											}));
 
 											return function getBase64(_x86) {
-												return _ref77.apply(this, arguments);
+												return _ref78.apply(this, arguments);
 											};
 										}();
 
@@ -21585,7 +21607,7 @@ true, true];
 										files = [];
 
 										data.forEach(function () {
-											var _ref78 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
+											var _ref79 = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(value, key) {
 												return regeneratorRuntime.wrap(function _callee22$(_context32) {
 													while (1) {
 														switch (_context32.prev = _context32.next) {
@@ -21605,7 +21627,7 @@ true, true];
 											}));
 
 											return function (_x87, _x88) {
-												return _ref78.apply(this, arguments);
+												return _ref79.apply(this, arguments);
 											};
 										}());
 										i = 0, _len17 = files.length;
@@ -21682,7 +21704,7 @@ true, true];
 					}));
 
 					function sendHTML5Post(_x82, _x83, _x84, _x85) {
-						return _ref76.apply(this, arguments);
+						return _ref77.apply(this, arguments);
 					}
 
 					return sendHTML5Post;
@@ -22479,8 +22501,8 @@ true, true];
 			}, {
 				key: 'updateCaptcha',
 				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref79) {
-						var id = _ref79.responseText;
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
+						var id = _ref80.responseText;
 
 						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
 						$id('captchaid').value = id;
@@ -23284,11 +23306,45 @@ true, true];
 			}
 
 			_createClass(Iichan, [{
-				key: 'checkStormWall',
-				value: function checkStormWall(el, xhr, text, url, returnForm, checkArch) {
-					var stormWallTxt = '<script src="https://static.stormwall.pro/';
-					if (el || !text.includes(stormWallTxt)) {
+				key: 'stormWallFixAjax',
+				value: function stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) {
+					return this.stormWallHelper(url, text, function () {
 						return checkAjax(el, xhr, checkArch);
+					}, function (frText) {
+						return checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', $DOM(frText)) : $DOM(frText), xhr, checkArch);
+					});
+				}
+			}, {
+				key: 'stormWallFixCaptcha',
+				value: function stormWallFixCaptcha(url, img) {
+					var _this111 = this;
+
+					img.onload = img.onerror = function () {
+						if (!(img.naturalHeight + img.naturalWidth)) {
+							_this111.stormWallHelper(url, null, emptyFn, function () {
+								img.src = '';
+								img.src = url;
+							});
+						}
+					};
+				}
+			}, {
+				key: 'stormWallFixSubmit',
+				value: function stormWallFixSubmit(url, text, ajaxParams) {
+					return this.stormWallHelper(url, text, function () {
+						return $DOM(text);
+					}, function () {
+						return $ajax(url, ajaxParams).then(function (xhr) {
+							return $DOM(xhr.responseText);
+						});
+					});
+				}
+			}, {
+				key: 'stormWallHelper',
+				value: function stormWallHelper(url, text, fnOK, fnRes) {
+					var stormWallTxt = '<script src="https://static.stormwall.pro/';
+					if (text !== null && !text.includes(stormWallTxt)) {
+						return fnOK();
 					}
 					return new Promise(function (resolve, reject) {
 						var loadCounter = 0;
@@ -23305,8 +23361,7 @@ true, true];
 								return;
 							}
 							closePopup('err-stormwall');
-							var frDom = $DOM(frText);
-							resolve(checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', frDom) : frDom, xhr, checkArch));
+							resolve(fnRes(frText));
 						};
 					});
 				}
@@ -23370,13 +23425,13 @@ true, true];
 			function Kohlchan(prot, dm) {
 				_classCallCheck(this, Kohlchan);
 
-				var _this111 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
+				var _this112 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
-				_this111.qFormRules = '#rules_row';
+				_this112.qFormRules = '#rules_row';
 
-				_this111.hasTextLinks = true;
-				_this111.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-				return _this111;
+				_this112.hasTextLinks = true;
+				_this112.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+				return _this112;
 			}
 
 			_createClass(Kohlchan, [{
@@ -23421,10 +23476,10 @@ true, true];
 			function Kropyvach(prot, dm) {
 				_classCallCheck(this, Kropyvach);
 
-				var _this112 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
+				var _this113 = _possibleConstructorReturn(this, (Kropyvach.__proto__ || Object.getPrototypeOf(Kropyvach)).call(this, prot, dm));
 
-				_this112.markupBB = true;
-				return _this112;
+				_this113.markupBB = true;
+				return _this113;
 			}
 
 			_createClass(Kropyvach, [{
@@ -23450,11 +23505,11 @@ true, true];
 			function Kurisach(prot, dm) {
 				_classCallCheck(this, Kurisach);
 
-				var _this113 = _possibleConstructorReturn(this, (Kurisach.__proto__ || Object.getPrototypeOf(Kurisach)).call(this, prot, dm));
+				var _this114 = _possibleConstructorReturn(this, (Kurisach.__proto__ || Object.getPrototypeOf(Kurisach)).call(this, prot, dm));
 
-				_this113.hasCatalog = true;
-				_this113.ru = true;
-				return _this113;
+				_this114.hasCatalog = true;
+				_this114.ru = true;
+				return _this114;
 			}
 
 			return Kurisach;
@@ -23468,10 +23523,10 @@ true, true];
 			function Lainchan(prot, dm) {
 				_classCallCheck(this, Lainchan);
 
-				var _this114 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
+				var _this115 = _possibleConstructorReturn(this, (Lainchan.__proto__ || Object.getPrototypeOf(Lainchan)).call(this, prot, dm));
 
-				_this114.qOPost = '.op';
-				return _this114;
+				_this115.qOPost = '.op';
+				return _this115;
 			}
 
 			_createClass(Lainchan, [{
@@ -23554,15 +23609,15 @@ true, true];
 			function Ponyach(prot, dm) {
 				_classCallCheck(this, Ponyach);
 
-				var _this117 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
+				var _this118 = _possibleConstructorReturn(this, (Ponyach.__proto__ || Object.getPrototypeOf(Ponyach)).call(this, prot, dm));
 
-				_this117.qBan = 'font[color="#FF0000"]';
-				_this117.qImgInfo = '.filesize[style="display: inline;"]';
+				_this118.qBan = 'font[color="#FF0000"]';
+				_this118.qImgInfo = '.filesize[style="display: inline;"]';
 
-				_this117.formParent = 'replythread';
-				_this117.jsonSubmit = true;
-				_this117.multiFile = true;
-				return _this117;
+				_this118.formParent = 'replythread';
+				_this118.jsonSubmit = true;
+				_this118.multiFile = true;
+				return _this118;
 			}
 
 			_createClass(Ponyach, [{
@@ -23587,9 +23642,9 @@ true, true];
 				}
 			}, {
 				key: 'getSubmitData',
-				value: function getSubmitData(_ref80) {
-					var error = _ref80.error,
-					    id = _ref80.id;
+				value: function getSubmitData(_ref81) {
+					var error = _ref81.error,
+					    id = _ref81.id;
 
 					return { error: error, postNum: id && +id };
 				}
@@ -23622,12 +23677,12 @@ true, true];
 			function Ponychan(prot, dm) {
 				_classCallCheck(this, Ponychan);
 
-				var _this118 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
+				var _this119 = _possibleConstructorReturn(this, (Ponychan.__proto__ || Object.getPrototypeOf(Ponychan)).call(this, prot, dm));
 
-				_this118.qOPost = '.opContainer';
+				_this119.qOPost = '.opContainer';
 
-				_this118.jsonSubmit = false;
-				return _this118;
+				_this119.jsonSubmit = false;
+				return _this119;
 			}
 
 			_createClass(Ponychan, [{
@@ -23662,13 +23717,13 @@ true, true];
 			function Synch(prot, dm) {
 				_classCallCheck(this, Synch);
 
-				var _this119 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
+				var _this120 = _possibleConstructorReturn(this, (Synch.__proto__ || Object.getPrototypeOf(Synch)).call(this, prot, dm));
 
-				_this119.qImgInfo = '.unimportant';
-				_this119.qPages = '.pagination';
+				_this120.qImgInfo = '.unimportant';
+				_this120.qPages = '.pagination';
 
-				_this119.markupBB = true;
-				return _this119;
+				_this120.markupBB = true;
+				return _this120;
 			}
 
 			_createClass(Synch, [{
@@ -23726,16 +23781,16 @@ true, true];
 			function Warosu(prot, dm) {
 				_classCallCheck(this, Warosu);
 
-				var _this120 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
+				var _this121 = _possibleConstructorReturn(this, (Warosu.__proto__ || Object.getPrototypeOf(Warosu)).call(this, prot, dm));
 
-				_this120.qDForm = '.content';
-				_this120.qForm = '.subreply';
-				_this120.qPostRef = '.js';
-				_this120.qImgInfo = 'span';
-				_this120.qOPost = 'div[itemscope]';
+				_this121.qDForm = '.content';
+				_this121.qForm = '.subreply';
+				_this121.qPostRef = '.js';
+				_this121.qImgInfo = 'span';
+				_this121.qOPost = 'div[itemscope]';
 
-				_this120.res = 'thread/';
-				return _this120;
+				_this121.res = 'thread/';
+				return _this121;
 			}
 
 			_createClass(Warosu, [{
@@ -23800,7 +23855,7 @@ true, true];
 
 	var DollchanAPI = {
 		initAPI: function initAPI() {
-			var _this121 = this;
+			var _this122 = this;
 
 			this.hasListeners = false;
 			if (!('MessageChannel' in deWindow)) {
@@ -23813,7 +23868,7 @@ true, true];
 			var port = channel.port2;
 			doc.defaultView.addEventListener('message', function (e) {
 				if (e.data === 'de-request-api-message') {
-					_this121.hasListeners = true;
+					_this122.hasListeners = true;
 					doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
 				}
 			});
@@ -23827,8 +23882,8 @@ true, true];
 				this.port.postMessage({ name: name, data: data });
 			}
 		},
-		_handleMessage: function _handleMessage(_ref81) {
-			var arg = _ref81.data;
+		_handleMessage: function _handleMessage(_ref82) {
+			var arg = _ref82.data;
 
 			if (!arg || !arg.name) {
 				return;
@@ -23891,8 +23946,8 @@ true, true];
 				return Promise.reject();
 			}
 		}
-		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref82) {
-			var responseText = _ref82.responseText;
+		return $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true).then(function (_ref83) {
+			var responseText = _ref83.responseText;
 
 			var v = responseText.match(/const version = '([0-9.]+)';/);
 			var remoteVer = v && v[1] ? v[1].split('.') : null;

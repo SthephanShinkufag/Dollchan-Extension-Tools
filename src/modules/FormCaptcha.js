@@ -146,14 +146,19 @@ class Captcha {
 			if(!img) {
 				return;
 			}
-			if(aib.getCaptchaSrc) {
-				const src = img.getAttribute('src');
-				if(src) {
-					img.src = '';
-					img.src = aib.getCaptchaSrc(src, tNum);
-				}
-			} else {
+			if(!aib.getCaptchaSrc) {
 				img.click();
+				return;
+			}
+			const src = img.getAttribute('src');
+			if(!src) {
+				return;
+			}
+			const newSrc = aib.getCaptchaSrc(src, tNum);
+			img.src = '';
+			img.src = newSrc;
+			if(aib.stormWallFixCaptcha) {
+				aib.stormWallFixCaptcha(newSrc, img);
 			}
 		}
 	}
