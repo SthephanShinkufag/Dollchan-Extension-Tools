@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '09cf0e0';
+	var commit = 'dd8a83a';
 
 
 	var defaultCfg = {
@@ -10155,19 +10155,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_data: new Map()
 	};
 
-	function checkAjax(el, xhr, checkArch) {
-		return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
+	function getAjaxResponseEl(text, needForm) {
+		return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 	}
 
 	function ajaxLoad(url) {
-		var returnForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+		var needForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 		var useCache = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 		var checkArch = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
 		return AjaxCache.runCachedAjax(url, useCache).then(function (xhr) {
+			var fnResult = function fnResult(el) {
+				return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) : checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
+			};
 			var text = xhr.responseText;
-			var el = !text.includes('</html>') ? null : returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-			return !el && aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) : checkAjax(el, xhr, checkArch);
+			var el = getAjaxResponseEl(text, needForm);
+			return aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, needForm, fnResult) : fnResult(el);
 		}, function (err) {
 			return err.code === 304 ? null : CancelablePromise.reject(err);
 		});
@@ -23307,11 +23310,11 @@ true, true];
 
 			_createClass(Iichan, [{
 				key: 'stormWallFixAjax',
-				value: function stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) {
+				value: function stormWallFixAjax(url, text, el, needForm, fnResult) {
 					return this.stormWallHelper(url, text, function () {
-						return checkAjax(el, xhr, checkArch);
+						return fnResult(el);
 					}, function (frText) {
-						return checkAjax(returnForm ? $q(aib.qDForm + ', form[de-form]', $DOM(frText)) : $DOM(frText), xhr, checkArch);
+						return fnResult(getAjaxResponseEl(frText, needForm));
 					});
 				}
 			}, {

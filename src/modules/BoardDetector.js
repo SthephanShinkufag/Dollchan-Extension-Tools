@@ -1714,10 +1714,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		get isArchived() {
 			return this.b.includes('/arch');
 		}
-		stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) {
-			return this.stormWallHelper(url, text, () => checkAjax(el, xhr, checkArch),
-				frText => checkAjax(returnForm ?
-					$q(aib.qDForm + ', form[de-form]', $DOM(frText)) : $DOM(frText), xhr, checkArch));
+		stormWallFixAjax(url, text, el, needForm, fnResult) {
+			return this.stormWallHelper(url, text, () => fnResult(el),
+				frText => fnResult(getAjaxResponseEl(frText, needForm)));
 		}
 		stormWallFixCaptcha(url, img) {
 			img.onload = img.onerror = () => {

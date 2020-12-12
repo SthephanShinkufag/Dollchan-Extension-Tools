@@ -274,18 +274,17 @@ const AjaxCache = {
 	_data: new Map()
 };
 
-function checkAjax(el, xhr, checkArch) {
-	return !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
-		checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
+function getAjaxResponseEl(text, needForm) {
+	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 }
 
-function ajaxLoad(url, returnForm = true, useCache = false, checkArch = false) {
+function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
 	return AjaxCache.runCachedAjax(url, useCache).then(xhr => {
+		const fnResult = el => !el ? CancelablePromise.reject(new AjaxError(0, Lng.errCorruptData[lang])) :
+			checkArch ? [el, (xhr.responseURL || '').includes('/arch/')] : el;
 		const text = xhr.responseText;
-		const el = !text.includes('</html>') ? null :
-			returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-		return !el && aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, xhr, returnForm, checkArch) :
-			checkAjax(el, xhr, checkArch);
+		const el = getAjaxResponseEl(text, needForm);
+		return aib.stormWallFixAjax ? aib.stormWallFixAjax(url, text, el, needForm, fnResult) : fnResult(el);
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
