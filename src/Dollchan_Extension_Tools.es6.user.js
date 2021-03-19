@@ -17322,6 +17322,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
+	ibDomains['kohlkanal.net'] = Kohlchan;
+	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
+	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {
