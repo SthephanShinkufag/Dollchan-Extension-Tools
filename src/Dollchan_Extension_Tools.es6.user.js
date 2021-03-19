@@ -2393,7 +2393,8 @@ function getFileType(url) {
 	case 'gif': return 'image/gif';
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
-	case 'mp4': return 'video/mp4';
+	case 'mp4':
+	case 'm4v': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
 	case 'png': return 'image/png';
 	case 'webm': return 'video/webm';
@@ -12168,7 +12169,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -15221,7 +15222,7 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
