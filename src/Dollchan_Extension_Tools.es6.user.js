@@ -15993,7 +15993,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			const task = form.action.split('/').pop();
+			const task = form.attributes.action.value.split('/').pop();  //form.action.split('/').pop(); // KC fix
 			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
 			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
