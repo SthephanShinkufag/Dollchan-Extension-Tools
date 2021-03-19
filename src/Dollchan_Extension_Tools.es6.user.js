@@ -15901,14 +15901,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
-			$script(`if("autoRefresh" in window) {
+			$script(`
+				if("autoRefresh" in window) {
 					clearInterval(refreshTimer);
 				}
-				if("thread" in window && thread.refreshTimer) {
-					clearInterval(thread.refreshTimer);
-					Object.defineProperty(thread, "startTimer",
-						{ value: Function.prototype, writable: false, configurable: false });
-				}`);
+
+				if("thread" in window) {
+					Object.defineProperty(thread, "changeRefresh", { value: Function.prototype, writable: false, configurable: false });
+			//		console.log("thread.changeRefresh() overwritten.");
+			//	} else {
+			//		console.log("'thread' not found - cannot overwrite changeRefresh().")
+				}
+			`);
 			const submEl = $id('formButton');
 			if(submEl && submEl.type === 'button') {
 				this._hasNewAPI = true;
