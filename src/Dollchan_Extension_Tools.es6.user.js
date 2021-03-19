@@ -17304,6 +17304,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		get markupTags() {
+			return ["[b", "[i", '[u', '[s', '[spoiler', '[code']; // bold, italics, underline, strikethrough, spoiler, code
+		}
 		init() {
 			if(!this.host.includes('nocsp.')) {
 				deWindow.location.assign(deWindow.location.href
