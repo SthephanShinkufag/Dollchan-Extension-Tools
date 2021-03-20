@@ -17312,7 +17312,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ["[b", "[i", '[u', '[s', '[spoiler', '[code']; // bold, italics, underline, strikethrough, spoiler, code
 		}
 		init() {
-			if(!this.host.includes('nocsp.')) {
+			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 				return true;
