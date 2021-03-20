@@ -10471,6 +10471,11 @@ class AbstractPost {
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
+			case 'de-btn-src':  // Click on media's search button -> put media name as quote in reply
+				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
+				quotetxt = nameLink.title;;
+				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				return;
 			}
 			return;
 		}
