@@ -12270,8 +12270,8 @@ class ExpandableImage {
 				height = maxHeight;
 				width = height * ar;
 			}
-			if(width < minSize || height < minSize) {
-				return [width, height, Math.max(width, height)];
+			if(width < minSize) {
+				return [minSize, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];
