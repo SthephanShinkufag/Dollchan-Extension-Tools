@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'dd8a83a';
+const commit = 'b1bd468';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16066,6 +16066,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
+	class _0chan extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasCatalog = true;
+		}
+		get css() {
+			return `.content > hr, .extrabtns, .replieslist { display: none; }
+				form { position: initial; }`;
+		}
+	}
+	ibDomains['0chan.cc'] = _0chan;
+
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);

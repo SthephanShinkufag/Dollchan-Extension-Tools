@@ -55,6 +55,5 @@
 		"vinyl-source-stream": "^2.0.0",
 		"yargs-parser": ">=5.0.0-security.0"
 	},
-	"dependencies": {},
 	"optionalDependencies": {}
 }
