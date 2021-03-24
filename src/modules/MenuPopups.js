@@ -103,6 +103,10 @@ class Menu {
 			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
 				link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		}
+		if(aib.kohlchan) {
+			p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net')
+				.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
+		}
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,

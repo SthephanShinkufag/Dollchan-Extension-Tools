@@ -393,9 +393,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script(`if("autoRefresh" in window) {
 					clearInterval(refreshTimer);
 				}
-				if("thread" in window && thread.refreshTimer) {
-					clearInterval(thread.refreshTimer);
-					Object.defineProperty(thread, "startTimer",
+				if("thread" in window) {
+					if(thread.refreshTimer) {
+						clearInterval(thread.refreshTimer);
+						Object.defineProperty(thread, "startTimer",
+							{ value: Function.prototype, writable: false, configurable: false });
+					}
+					Object.defineProperty(thread, "changeRefresh",
 						{ value: Function.prototype, writable: false, configurable: false });
 				}`);
 			const submEl = $id('formButton');
@@ -482,7 +486,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			const task = form.action.split('/').pop();
+			const task = form.attributes.action.value.split('/').pop();
 			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
 			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
@@ -1790,10 +1794,12 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kohlchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
 
 			this.hasTextLinks = true;
+			this.markupBB = true;
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -1806,8 +1812,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
 		init() {
-			if(!this.host.includes('nocsp.')) {
+			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 				return true;
@@ -1821,6 +1830,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
+	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
+	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
+	ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {

@@ -69,6 +69,7 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
+		this.kohlchan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {
@@ -86,7 +87,8 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}

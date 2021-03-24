@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'b1bd468';
+const commit = 'fa2f3fa';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2393,7 +2393,8 @@ function getFileType(url) {
 	case 'gif': return 'image/gif';
 	case 'jpeg':
 	case 'jpg': return 'image/jpeg';
-	case 'mp4': return 'video/mp4';
+	case 'mp4':
+	case 'm4v': return 'video/mp4';
 	case 'ogv': return 'video/ogv';
 	case 'png': return 'image/png';
 	case 'webm': return 'video/webm';
@@ -5214,6 +5215,10 @@ class Menu {
 			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
 				link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		}
+		if(aib.kohlchan) {
+			p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net')
+				.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
+		}
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
@@ -6663,10 +6668,12 @@ class VideosParser {
 function embedAudioLinks(data) {
 	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
-		const els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
+		const els = $Q('a[href*=".mp3"], a[href*=".opus"]', isPost ? data.el : data);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const link = els[i];
-			if((link.target !== '_blank' && link.rel !== 'nofollow') || !link.pathname.includes('.mp3')) {
+			if((link.target !== '_blank' && link.rel !== 'nofollow') ||
+				!link.pathname.includes('.mp3') && !link.pathname.includes('.opus')
+			) {
 				continue;
 			}
 			const src = link.href;
@@ -10465,6 +10472,10 @@ class AbstractPost {
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
+			case 'de-btn-src':
+				quotetxt = $q(aib.qImgNameLink, aib.getImgWrap(el)).title;
+				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				return;
 			}
 			return;
 		}
@@ -12163,7 +12174,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -12264,8 +12275,8 @@ class ExpandableImage {
 				height = maxHeight;
 				width = height * ar;
 			}
-			if(width < minSize || height < minSize) {
-				return [width, height, Math.max(width, height)];
+			if(width < minSize) {
+				return [minSize, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];
@@ -15199,6 +15210,7 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
+		this.kohlchan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {
@@ -15216,7 +15228,8 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -15898,9 +15911,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script(`if("autoRefresh" in window) {
 					clearInterval(refreshTimer);
 				}
-				if("thread" in window && thread.refreshTimer) {
-					clearInterval(thread.refreshTimer);
-					Object.defineProperty(thread, "startTimer",
+				if("thread" in window) {
+					if(thread.refreshTimer) {
+						clearInterval(thread.refreshTimer);
+						Object.defineProperty(thread, "startTimer",
+							{ value: Function.prototype, writable: false, configurable: false });
+					}
+					Object.defineProperty(thread, "changeRefresh",
 						{ value: Function.prototype, writable: false, configurable: false });
 				}`);
 			const submEl = $id('formButton');
@@ -15987,7 +16004,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			const task = form.action.split('/').pop();
+			const task = form.attributes.action.value.split('/').pop();
 			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
 			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}
@@ -17295,10 +17312,12 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kohlchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
 
 			this.hasTextLinks = true;
+			this.markupBB = true;
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
@@ -17311,8 +17330,11 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
 		init() {
-			if(!this.host.includes('nocsp.')) {
+			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 				return true;
@@ -17326,6 +17348,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
+	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
+	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
+	ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {

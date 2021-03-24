@@ -390,7 +390,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -491,8 +491,8 @@ class ExpandableImage {
 				height = maxHeight;
 				width = height * ar;
 			}
-			if(width < minSize || height < minSize) {
-				return [width, height, Math.max(width, height)];
+			if(width < minSize) {
+				return [minSize, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];

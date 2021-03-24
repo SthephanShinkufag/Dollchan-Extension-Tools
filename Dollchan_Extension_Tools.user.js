@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'b1bd468';
+	var commit = 'fa2f3fa';
 
 
 	var defaultCfg = {
@@ -5350,6 +5350,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			case 'jpg':
 				return 'image/jpeg';
 			case 'mp4':
+			case 'm4v':
 				return 'video/mp4';
 			case 'ogv':
 				return 'video/ogv';
@@ -8231,6 +8232,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var link = data.nextSibling;
 					p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') || link.href) + '" target="_blank">' + Lng.searchIn[lang];
 				}
+				if (aib.kohlchan) {
+					p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net').replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
+				}
 				return arrTags(['de-src-google" href="https://www.google.com/searchbyimage?image_url=' + p + 'Google', 'de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=' + p + 'Yandex', 'de-src-tineye" href="https://tineye.com/search/?url=' + p + 'TinEye', 'de-src-saucenao" href="https://saucenao.com/search.php?url=' + p + 'SauceNAO', 'de-src-iqdb" href="https://iqdb.org/?url=' + p + 'IQDB', 'de-src-tracemoe" href="https://trace.moe/?auto&url=' + p + 'TraceMoe'], '<a class="de-menu-item ', '</a>');
 			}
 		}]);
@@ -9774,10 +9778,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	function embedAudioLinks(data) {
 		var isPost = data instanceof AbstractPost;
 		if (Cfg.addMP3) {
-			var els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
+			var els = $Q('a[href*=".mp3"], a[href*=".opus"]', isPost ? data.el : data);
 			for (var i = 0, len = els.length; i < len; ++i) {
 				var link = els[i];
-				if (link.target !== '_blank' && link.rel !== 'nofollow' || !link.pathname.includes('.mp3')) {
+				if (link.target !== '_blank' && link.rel !== 'nofollow' || !link.pathname.includes('.mp3') && !link.pathname.includes('.opus')) {
 					continue;
 				}
 				var src = link.href;
@@ -14669,6 +14673,10 @@ true, true];
 							this.toggleSticky(true);return;
 						case 'de-btn-stick-on':
 							this.toggleSticky(false);return;
+						case 'de-btn-src':
+							quotetxt = $q(aib.qImgNameLink, aib.getImgWrap(el)).title;
+							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+							return;
 					}
 					return;
 				}
@@ -16902,8 +16910,8 @@ true, true];
 						height = maxHeight;
 						width = height * _ar;
 					}
-					if (width < minSize || height < minSize) {
-						return [width, height, Math.max(width, height)];
+					if (width < minSize) {
+						return [minSize, height, Math.max(width, height)];
 					}
 				}
 				return [width, height, null];
@@ -17215,7 +17223,7 @@ true, true];
 		}, {
 			key: 'isVideo',
 			get: function get() {
-				var value = /(webm|mp4|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
+				var value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) || this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 				Object.defineProperty(this, 'isVideo', { value: value });
 				return value;
 			}
@@ -20544,6 +20552,7 @@ true, true];
 			this._2channel = false;
 			this._4chan = false;
 			this.dobrochan = false;
+			this.kohlchan = false;
 			this.makaba = false;
 		}
 
@@ -20817,7 +20826,7 @@ true, true];
 		}, {
 			key: 'qImgNameLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+				var value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}
@@ -21510,7 +21519,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					$script('if("autoRefresh" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif("thread" in window && thread.refreshTimer) {\n\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\tObject.defineProperty(thread, "startTimer",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}');
+					$script('if("autoRefresh" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif("thread" in window) {\n\t\t\t\t\tif(thread.refreshTimer) {\n\t\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\t\tObject.defineProperty(thread, "startTimer",\n\t\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t\t}\n\t\t\t\t\tObject.defineProperty(thread, "changeRefresh",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}');
 					var submEl = $id('formButton');
 					if (submEl && submEl.type === 'button') {
 						this._hasNewAPI = true;
@@ -21690,7 +21699,7 @@ true, true];
 										if (needProgress && hasFiles) {
 											ajaxParams.onprogress = getUploadFunc();
 										}
-										task = form.action.split('/').pop();
+										task = form.attributes.action.value.split('/').pop();
 										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
 										return _context33.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;
@@ -23454,9 +23463,12 @@ true, true];
 
 				var _this113 = _possibleConstructorReturn(this, (Kohlchan.__proto__ || Object.getPrototypeOf(Kohlchan)).call(this, prot, dm));
 
+				_this113.kohlchan = true;
+
 				_this113.qFormRules = '#rules_row';
 
 				_this113.hasTextLinks = true;
+				_this113.markupBB = true;
 				_this113.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 				return _this113;
 			}
@@ -23474,7 +23486,7 @@ true, true];
 			}, {
 				key: 'init',
 				value: function init() {
-					if (!this.host.includes('nocsp.')) {
+					if (!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 						deWindow.location.assign(deWindow.location.href.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 						return true;
 					}
@@ -23490,12 +23502,20 @@ true, true];
 				get: function get() {
 					return _get(Kohlchan.prototype.__proto__ || Object.getPrototypeOf(Kohlchan.prototype), 'css', this) + '\n\t\t\t\t#postingForm, .sage { display: none; }';
 				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+				}
 			}]);
 
 			return Kohlchan;
 		}(Lynxchan);
 
 		ibDomains['kohlchan.net'] = Kohlchan;
+		ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
+		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
+		ibDomains['kohlkanal.net'] = Kohlchan;
 
 		var Kropyvach = function (_Vichan2) {
 			_inherits(Kropyvach, _Vichan2);
