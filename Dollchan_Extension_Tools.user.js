@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'fa2f3fa';
+	var commit = '3d3d693';
 
 
 	var defaultCfg = {
@@ -22219,14 +22219,14 @@ true, true];
 							case 3:
 								return CancelablePromise.reject(new CancelError()); 
 							case 1:
-								if (data.type === 'invisible_recaptcha') {
+								if (!Cfg.altCaptcha) {
 									if (!cap.isSubmitWait) {
 										break;
 									}
 									$q('.captcha__key').value = data.id;
 									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
 									break;
-								}if (data.type === 'recaptcha') {
+								} else if (data.type === 'recaptcha') {
 									$q('.captcha__key').value = data.id;
 									if (!$id('captcha-widget-main').hasChildNodes()) {
 										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });

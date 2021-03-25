@@ -942,7 +942,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
 				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
 				case 1: // Captcha is enabled
-					if(data.type === 'invisible_recaptcha') {
+					if(!Cfg.altCaptcha) {
 						if(!cap.isSubmitWait) {
 							break;
 						}
@@ -963,7 +963,7 @@ function getImageBoard(checkDomains, checkEngines) {
 							});
 							grecaptcha.execute(deCapWidget);`);
 						break;
-					} if(data.type === 'recaptcha') {
+					} else if(data.type === 'recaptcha') {
 						$q('.captcha__key').value = data.id;
 						/* global grecaptcha */
 						if(!$id('captcha-widget-main').hasChildNodes()) {
