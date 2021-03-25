@@ -683,15 +683,16 @@ class ExpandableImage {
 				}
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; ++i) {
-					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-						d[i + 18] === 0x7B && d[i + 19] === 0xA9
-					) {
-						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
-							str += String.fromCharCode(d[i]);
+					// {Title tag = 0x7BA9}{Title length | 0x80}{Title string}{MuxingApp tag = 0x4D80}
+					if(d[i] === 0x7B && d[i + 1] === 0xA9) {
+						const titleLenPos = i + 2;
+						const muxingAppPos = titleLenPos + (d[titleLenPos] & 0x7F) + 1;
+						if(d[muxingAppPos] === 0x4D && d[muxingAppPos + 1] === 0x80) {
+							for(let j = titleLenPos + 1; j < muxingAppPos; ++j) {
+								str += String.fromCharCode(d[j]);
+							}
+							break;
 						}
-						break;
 					}
 				}
 				const loadedTitle = decodeURIComponent(escape(str));

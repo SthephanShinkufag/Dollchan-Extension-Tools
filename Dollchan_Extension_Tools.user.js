@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '3d3d693';
+	var commit = 'ef5bd66';
 
 
 	var defaultCfg = {
@@ -17109,12 +17109,15 @@ true, true];
 						}
 						d = d[0];
 						for (var i = 0, len = d.length; i < len; ++i) {
-							if (d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 && d[i + 18] === 0x7B && d[i + 19] === 0xA9) {
-								i += 20;
-								for (var end = (d[i++] & 0x7F) + i; i < end; ++i) {
-									str += String.fromCharCode(d[i]);
+							if (d[i] === 0x7B && d[i + 1] === 0xA9) {
+								var titleLenPos = i + 2;
+								var muxingAppPos = titleLenPos + (d[titleLenPos] & 0x7F) + 1;
+								if (d[muxingAppPos] === 0x4D && d[muxingAppPos + 1] === 0x80) {
+									for (var j = titleLenPos + 1; j < muxingAppPos; ++j) {
+										str += String.fromCharCode(d[j]);
+									}
+									break;
 								}
-								break;
 							}
 						}
 						var loadedTitle = decodeURIComponent(escape(str));
