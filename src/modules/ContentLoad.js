@@ -133,6 +133,7 @@ const ContentLoader = {
 	},
 	getDataFromImg(el) {
 		try {
+			el.removeAttribute('loading');
 			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
 			cnv.width = el.width || el.videoWidth;
 			cnv.height = el.height || el.videoHeight;

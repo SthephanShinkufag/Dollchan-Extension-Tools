@@ -983,24 +983,18 @@ const ImagesHashStorage = Object.create({
 		if(!el.complete) {
 			await new Promise(resolve => el.addEventListener('load', () => resolve()));
 		}
+		el.removeAttribute('loading');
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		let data, buffer, val = -1;
+		let data, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib._4chan) {
-			const imgData = await ContentLoader.loadImgData(el.src);
-			if(imgData) {
-				({ buffer } = imgData);
-			}
-		} else {
-			const cnv = this._canvas;
-			cnv.width = w;
-			cnv.height = h;
-			const ctx = cnv.getContext('2d');
-			ctx.drawImage(el, 0, 0);
-			({ buffer } = ctx.getImageData(0, 0, w, h).data);
-		}
+		const cnv = this._canvas;
+		cnv.width = w;
+		cnv.height = h;
+		const ctx = cnv.getContext('2d');
+		ctx.drawImage(el, 0, 0);
+		const { buffer } = ctx.getImageData(0, 0, w, h).data;
 		if(buffer) {
 			data = await new Promise(resolve =>
 				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));

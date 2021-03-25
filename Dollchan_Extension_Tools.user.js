@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'ef5bd66';
+	var commit = 'dce46f0';
 
 
 	var defaultCfg = {
@@ -9052,6 +9052,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		getDataFromImg: function getDataFromImg(el) {
 			try {
+				el.removeAttribute('loading');
 				var cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
 				cnv.width = el.width || el.videoWidth;
 				cnv.height = el.height || el.videoHeight;
@@ -17530,7 +17531,7 @@ true, true];
 
 				var el = _ref62.el,
 				    src = _ref62.src;
-				var data, buffer, val, w, h, imgData, cnv, ctx;
+				var data, val, w, h, cnv, ctx, buffer;
 				return regeneratorRuntime.wrap(function _callee19$(_context24) {
 					while (1) {
 						switch (_context24.prev = _context24.next) {
@@ -17556,35 +17557,18 @@ true, true];
 								});
 
 							case 5:
+								el.removeAttribute('loading');
+
 								if (!(el.naturalWidth + el.naturalHeight === 0)) {
-									_context24.next = 7;
+									_context24.next = 8;
 									break;
 								}
 
 								return _context24.abrupt('return', -1);
 
-							case 7:
-								data = void 0, buffer = void 0, val = -1;
+							case 8:
+								data = void 0, val = -1;
 								w = el.naturalWidth, h = el.naturalHeight;
-
-								if (!aib._4chan) {
-									_context24.next = 16;
-									break;
-								}
-
-								_context24.next = 12;
-								return ContentLoader.loadImgData(el.src);
-
-							case 12:
-								imgData = _context24.sent;
-
-								if (imgData) {
-									buffer = imgData.buffer;
-								}
-								_context24.next = 22;
-								break;
-
-							case 16:
 								cnv = this._canvas;
 
 								cnv.width = w;
@@ -17594,31 +17578,30 @@ true, true];
 								ctx.drawImage(el, 0, 0);
 								buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
-							case 22:
 								if (!buffer) {
-									_context24.next = 27;
+									_context24.next = 21;
 									break;
 								}
 
-								_context24.next = 25;
+								_context24.next = 19;
 								return new Promise(function (resolve) {
 									return _this66._workers.runWorker([buffer, w, h], [buffer], function (val) {
 										return resolve(val);
 									});
 								});
 
-							case 25:
+							case 19:
 								data = _context24.sent;
 
 								if (data && 'hash' in data) {
 									val = data.hash;
 								}
 
-							case 27:
+							case 21:
 								this._storage[src] = val;
 								return _context24.abrupt('return', val);
 
-							case 29:
+							case 23:
 							case 'end':
 								return _context24.stop();
 						}
