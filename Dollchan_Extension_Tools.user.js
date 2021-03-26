@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'e0d1a20';
+	var commit = '6f92790';
 
 
 	var defaultCfg = {
@@ -23476,10 +23476,12 @@ true, true];
 						return false;
 					}
 					$popup('upload', '<div>Tor / VPN / Proxy detected</div><!--\n\t\t\t\t--><div>You need a block bypass to post</div><!--\n\t\t\t\t--><div><img src="/captcha.js?d=' + new Date().toString() + '" class="captchaImage"' + ' title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--\n\t\t\t\t--></div><div><!--\n\t\t\t\t\t--><input type="button" class="modalOkButton" value="Send"><!--\n\t\t\t\t\t--><input type="text" class="modalAnswer"><!--\n\t\t\t\t--></div>').style.cssText = 'text-align: center;';
-					$q('.modalOkButton').onclick = function () {
+					var submitEl = $q('.modalOkButton');
+					var inputEl = $q('.modalAnswer');
+					submitEl.onclick = function () {
 						$popup('captcha', Lng.sending[lang], true);
 						var formData = new FormData();
-						formData.append('captcha', $q('.modalAnswer').value.trim());
+						formData.append('captcha', inputEl.value.trim());
 						$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(function (xhr) {
 							var obj = JSON.parse(xhr.responseText);
 							switch (obj.status) {
@@ -23498,6 +23500,12 @@ true, true];
 						}, function () {
 							return $popup('captcha', Lng.noConnect[lang]);
 						});
+					};
+					inputEl.onkeydown = function (e) {
+						if (e.key === 'Enter') {
+							submitEl.click();
+							e.preventDefault();
+						}
 					};
 					if (pr.isQuick) {
 						pr.setReply(true, false);

@@ -1821,10 +1821,12 @@ function getImageBoard(checkDomains, checkEngines) {
 					--><input type="button" class="modalOkButton" value="Send"><!--
 					--><input type="text" class="modalAnswer"><!--
 				--></div>`).style.cssText = 'text-align: center;';
-			$q('.modalOkButton').onclick = () => {
+			const submitEl = $q('.modalOkButton');
+			const inputEl = $q('.modalAnswer');
+			submitEl.onclick = () => {
 				$popup('captcha', Lng.sending[lang], true);
 				const formData = new FormData();
-				formData.append('captcha', $q('.modalAnswer').value.trim());
+				formData.append('captcha', inputEl.value.trim());
 				$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(xhr => {
 					const obj = JSON.parse(xhr.responseText);
 					switch(obj.status) {
@@ -1841,6 +1843,12 @@ function getImageBoard(checkDomains, checkEngines) {
 					default: $popup('captcha', obj.data || xhr.responseText);
 					}
 				}, () => $popup('captcha', Lng.noConnect[lang]));
+			};
+			inputEl.onkeydown = e => {
+				if(e.key === 'Enter') {
+					submitEl.click();
+					e.preventDefault();
+				}
 			};
 			if(pr.isQuick) {
 				pr.setReply(true, false);
