@@ -52,6 +52,9 @@ function addSVGIcons() {
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z"/>
 	</symbol>
+	<symbol viewBox="0 0 16 16" id="de-symbol-img-dl">
+		<path class="de-svg-fill" d="M4 9h8l-4 4.5zM6 3h4v1h-4zM6 5h4v1h-4zM6 7h4v1h-4z"/>
+	</symbol>
 	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>
