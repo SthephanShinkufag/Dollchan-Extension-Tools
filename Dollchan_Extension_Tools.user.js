@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = 'dce46f0';
+	var commit = '807f699';
 
 
 	var defaultCfg = {
@@ -9051,8 +9051,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			els = null;
 		},
 		getDataFromImg: function getDataFromImg(el) {
+			if (el.getAttribute('loading') === 'lazy') {
+				return this.loadImgData(el.src);
+			}
 			try {
-				el.removeAttribute('loading');
 				var cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
 				cnv.width = el.width || el.videoWidth;
 				cnv.height = el.height || el.videoHeight;

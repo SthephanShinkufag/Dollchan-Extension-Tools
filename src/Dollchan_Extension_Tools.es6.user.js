@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = 'dce46f0';
+const commit = '807f699';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6033,8 +6033,10 @@ const ContentLoader = {
 		els = null;
 	},
 	getDataFromImg(el) {
+		if(el.getAttribute('loading') === 'lazy') {
+			return this.loadImgData(el.src);
+		}
 		try {
-			el.removeAttribute('loading');
 			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
 			cnv.width = el.width || el.videoWidth;
 			cnv.height = el.height || el.videoHeight;
