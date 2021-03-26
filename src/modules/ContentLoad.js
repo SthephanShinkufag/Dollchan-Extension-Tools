@@ -175,6 +175,7 @@ const ContentLoader = {
 				if(imageData) {
 					const fName = url.substring(url.lastIndexOf('/') + 1);
 					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
+					const fName_correct = decodeURI( nameLink.href.substring(nameLink.href.lastIndexOf('/') + 1) );
 					imgLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
 						nameLink.setAttribute('download', fName);
@@ -182,6 +183,9 @@ const ContentLoader = {
 					}
 					imgLink.href = nameLink.href =
 						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
+					nameLink.insertAdjacentHTML('beforebegin', '<a download=\"' + fName_correct + 
+								    '\" href=' + nameLink.href + ' de-href=' + nameLink.getAttribute("de-href") + 
+								    '><svg class=\"de-btn-img-dl\"><use xlink:href="#de-symbol-img-dl"></use></svg></a>');
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
