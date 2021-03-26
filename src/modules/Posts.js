@@ -163,9 +163,9 @@ class AbstractPost {
 					const task = temp.id.split('-')[0];
 					const num = +temp.id.match(/\d+/);
 					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
-						const data = JSON.parse(xhr.responseText);
-						if(data.Status !== 'OK') {
-							$popup('err-2chlike', data.Reason);
+						const obj = JSON.parse(xhr.responseText);
+						if(obj.Status !== 'OK') {
+							$popup('err-2chlike', obj.Reason);
 							return;
 						}
 						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);

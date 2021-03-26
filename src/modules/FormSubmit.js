@@ -18,6 +18,9 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
+			if(aib.checkForCaptcha && aib.checkForCaptcha(data)) {
+				return;
+			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);

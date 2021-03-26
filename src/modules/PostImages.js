@@ -753,11 +753,11 @@ class ExpandableImage {
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
-							const res = JSON.parse(xhr.responseText);
-							if(res.status === 'success') {
-								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							const obj = JSON.parse(xhr.responseText);
+							if(obj.status === 'success') {
+								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
 							} else {
-								errMsg += ':<br>' + res.error_message;
+								errMsg += ':<br>' + obj.error_message;
 							}
 						} catch(e) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);

@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '807f699';
+	var commit = '90885c3';
 
 
 	var defaultCfg = {
@@ -13122,6 +13122,9 @@ true, true];
 		var isDocument = data instanceof HTMLDocument;
 		if (aib.getSubmitData) {
 			if (aib.jsonSubmit) {
+				if (aib.checkForCaptcha && aib.checkForCaptcha(data)) {
+					return;
+				}
 				var _data = (isDocument ? data.body.textContent : data).trim();
 				try {
 					data = JSON.parse(_data);
@@ -14636,9 +14639,9 @@ true, true];
 							var task = temp.id.split('-')[0];
 							var num = +temp.id.match(/\d+/);
 							$ajax('/api/' + task + '?board=' + aib.b + '&num=' + num).then(function (xhr) {
-								var data = JSON.parse(xhr.responseText);
-								if (data.Status !== 'OK') {
-									$popup('err-2chlike', data.Reason);
+								var obj = JSON.parse(xhr.responseText);
+								if (obj.Status !== 'OK') {
+									$popup('err-2chlike', obj.Reason);
 									return;
 								}
 								temp.classList.add(task + '-div-checked', 'post__rate_' + task + 'd');
@@ -17188,11 +17191,11 @@ true, true];
 									var hostUrl = void 0,
 									    errMsg = Lng.errSaucenao[lang];
 									try {
-										var res = JSON.parse(xhr.responseText);
-										if (res.status === 'success') {
-											hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+										var obj = JSON.parse(xhr.responseText);
+										if (obj.status === 'success') {
+											hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
 										} else {
-											errMsg += ':<br>' + res.error_message;
+											errMsg += ':<br>' + obj.error_message;
 										}
 									} catch (e) {}
 									$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
@@ -20848,6 +20851,11 @@ true, true];
 				return null;
 			}
 		}, {
+			key: 'checkForCaptcha',
+			get: function get() {
+				return null;
+			}
+		}, {
 			key: 'css',
 			get: function get() {
 				return '';
@@ -23462,6 +23470,43 @@ true, true];
 			}
 
 			_createClass(Kohlchan, [{
+				key: 'checkForCaptcha',
+				value: function checkForCaptcha(data) {
+					if (data !== '{"status":"bypassable"}') {
+						return false;
+					}
+					$popup('upload', '<div>Tor / VPN / Proxy detected</div><!--\n\t\t\t\t--><div>You need a block bypass to post</div><!--\n\t\t\t\t--><div><img src="/captcha.js?d=' + new Date().toString() + '" class="captchaImage"' + ' title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--\n\t\t\t\t--></div><div><!--\n\t\t\t\t\t--><input type="button" class="modalOkButton" value="Send"><!--\n\t\t\t\t\t--><input type="text" class="modalAnswer"><!--\n\t\t\t\t--></div>').style.cssText = 'text-align: center;';
+					$q('.modalOkButton').onclick = function () {
+						$popup('captcha', Lng.sending[lang], true);
+						var formData = new FormData();
+						formData.append('captcha', $q('.modalAnswer').value.trim());
+						$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(function (xhr) {
+							var obj = JSON.parse(xhr.responseText);
+							switch (obj.status) {
+								case 'ok':
+								case 'finish':
+									closePopup('captcha');
+									$popup('upload', 'OK! You may now post.');
+									return;
+								case 'hashcash':
+									closePopup('captcha');
+									$popup('upload', '<a target="_blank" href=' + '"/addon.js/hashcash/?action=get">Click here to activate your bypass.</a>');
+									return;
+								default:
+									$popup('captcha', obj.data || xhr.responseText);
+							}
+						}, function () {
+							return $popup('captcha', Lng.noConnect[lang]);
+						});
+					};
+					if (pr.isQuick) {
+						pr.setReply(true, false);
+					}
+					updater.sendErrNotif();
+					updater.continueUpdater();
+					return true;
+				}
+			}, {
 				key: 'getImgRealName',
 				value: function getImgRealName(wrap) {
 					return $q('.originalNameLink', wrap).title;

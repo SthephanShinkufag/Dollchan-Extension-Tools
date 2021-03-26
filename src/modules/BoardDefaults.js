@@ -112,6 +112,9 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
+	get checkForCaptcha() { // Kohlchan
+		return null;
+	}
 	get css() {
 		return '';
 	}

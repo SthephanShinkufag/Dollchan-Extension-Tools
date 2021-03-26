@@ -1806,14 +1806,54 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
 		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+		checkForCaptcha(data) {
+			if(data !== '{"status":"bypassable"}') {
+				return false;
+			}
+			$popup('upload', `<div>Tor / VPN / Proxy detected</div><!--
+				--><div>You need a block bypass to post</div><!--
+				--><div><img src="/captcha.js?d=${ (new Date()).toString() }" class="captchaImage"` +
+					` title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--
+				--></div><div><!--
+					--><input type="button" class="modalOkButton" value="Send"><!--
+					--><input type="text" class="modalAnswer"><!--
+				--></div>`).style.cssText = 'text-align: center;';
+			$q('.modalOkButton').onclick = () => {
+				$popup('captcha', Lng.sending[lang], true);
+				const formData = new FormData();
+				formData.append('captcha', $q('.modalAnswer').value.trim());
+				$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(xhr => {
+					const obj = JSON.parse(xhr.responseText);
+					switch(obj.status) {
+					case 'ok':
+					case 'finish':
+						closePopup('captcha');
+						$popup('upload', 'OK! You may now post.');
+						return;
+					case 'hashcash':
+						closePopup('captcha');
+						$popup('upload', '<a target="_blank" href=' +
+							'"/addon.js/hashcash/?action=get">Click here to activate your bypass.</a>');
+						return;
+					default: $popup('captcha', obj.data || xhr.responseText);
+					}
+				}, () => $popup('captcha', Lng.noConnect[lang]));
+			};
+			if(pr.isQuick) {
+				pr.setReply(true, false);
+			}
+			updater.sendErrNotif();
+			updater.continueUpdater();
+			return true;
+		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {

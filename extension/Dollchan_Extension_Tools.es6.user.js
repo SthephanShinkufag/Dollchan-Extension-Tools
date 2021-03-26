@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '807f699';
+const commit = '90885c3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9126,6 +9126,9 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
+			if(aib.checkForCaptcha && aib.checkForCaptcha(data)) {
+				return;
+			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);
@@ -10442,9 +10445,9 @@ class AbstractPost {
 					const task = temp.id.split('-')[0];
 					const num = +temp.id.match(/\d+/);
 					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
-						const data = JSON.parse(xhr.responseText);
-						if(data.Status !== 'OK') {
-							$popup('err-2chlike', data.Reason);
+						const obj = JSON.parse(xhr.responseText);
+						if(obj.Status !== 'OK') {
+							$popup('err-2chlike', obj.Reason);
 							return;
 						}
 						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
@@ -12540,11 +12543,11 @@ class ExpandableImage {
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
-							const res = JSON.parse(xhr.responseText);
-							if(res.status === 'success') {
-								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							const obj = JSON.parse(xhr.responseText);
+							if(obj.status === 'success') {
+								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
 							} else {
-								errMsg += ':<br>' + res.error_message;
+								errMsg += ':<br>' + obj.error_message;
 							}
 						} catch(e) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
@@ -15251,6 +15254,9 @@ class BaseBoard {
 	get changeReplyMode() {
 		return null;
 	}
+	get checkForCaptcha() { // Kohlchan
+		return null;
+	}
 	get css() {
 		return '';
 	}
@@ -17322,14 +17328,54 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
 		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+		checkForCaptcha(data) {
+			if(data !== '{"status":"bypassable"}') {
+				return false;
+			}
+			$popup('upload', `<div>Tor / VPN / Proxy detected</div><!--
+				--><div>You need a block bypass to post</div><!--
+				--><div><img src="/captcha.js?d=${ (new Date()).toString() }" class="captchaImage"` +
+					` title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--
+				--></div><div><!--
+					--><input type="button" class="modalOkButton" value="Send"><!--
+					--><input type="text" class="modalAnswer"><!--
+				--></div>`).style.cssText = 'text-align: center;';
+			$q('.modalOkButton').onclick = () => {
+				$popup('captcha', Lng.sending[lang], true);
+				const formData = new FormData();
+				formData.append('captcha', $q('.modalAnswer').value.trim());
+				$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(xhr => {
+					const obj = JSON.parse(xhr.responseText);
+					switch(obj.status) {
+					case 'ok':
+					case 'finish':
+						closePopup('captcha');
+						$popup('upload', 'OK! You may now post.');
+						return;
+					case 'hashcash':
+						closePopup('captcha');
+						$popup('upload', '<a target="_blank" href=' +
+							'"/addon.js/hashcash/?action=get">Click here to activate your bypass.</a>');
+						return;
+					default: $popup('captcha', obj.data || xhr.responseText);
+					}
+				}, () => $popup('captcha', Lng.noConnect[lang]));
+			};
+			if(pr.isQuick) {
+				pr.setReply(true, false);
+			}
+			updater.sendErrNotif();
+			updater.continueUpdater();
+			return true;
+		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
-		}
-		get markupTags() {
-			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
