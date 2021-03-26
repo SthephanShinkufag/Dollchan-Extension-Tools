@@ -390,7 +390,7 @@ class ExpandableImage {
 		return value;
 	}
 	get isVideo() {
-		const value = /(webm|mp4|ogv)(&|$)/i.test(this.src) ||
+		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
@@ -491,8 +491,8 @@ class ExpandableImage {
 				height = maxHeight;
 				width = height * ar;
 			}
-			if(width < minSize || height < minSize) {
-				return [width, height, Math.max(width, height)];
+			if(width < minSize) {
+				return [minSize, height, Math.max(width, height)];
 			}
 		}
 		return [width, height, null];
@@ -683,15 +683,16 @@ class ExpandableImage {
 				}
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; ++i) {
-					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-						d[i + 18] === 0x7B && d[i + 19] === 0xA9
-					) {
-						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
-							str += String.fromCharCode(d[i]);
+					// {Title tag = 0x7BA9}{Title length | 0x80}{Title string}{MuxingApp tag = 0x4D80}
+					if(d[i] === 0x7B && d[i + 1] === 0xA9) {
+						const titleLenPos = i + 2;
+						const muxingAppPos = titleLenPos + (d[titleLenPos] & 0x7F) + 1;
+						if(d[muxingAppPos] === 0x4D && d[muxingAppPos + 1] === 0x80) {
+							for(let j = titleLenPos + 1; j < muxingAppPos; ++j) {
+								str += String.fromCharCode(d[j]);
+							}
+							break;
 						}
-						break;
 					}
 				}
 				const loadedTitle = decodeURIComponent(escape(str));
@@ -752,11 +753,11 @@ class ExpandableImage {
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
-							const res = JSON.parse(xhr.responseText);
-							if(res.status === 'success') {
-								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							const obj = JSON.parse(xhr.responseText);
+							if(obj.status === 'success') {
+								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
 							} else {
-								errMsg += ':<br>' + res.error_message;
+								errMsg += ':<br>' + obj.error_message;
 							}
 						} catch(e) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
@@ -982,24 +983,18 @@ const ImagesHashStorage = Object.create({
 		if(!el.complete) {
 			await new Promise(resolve => el.addEventListener('load', () => resolve()));
 		}
+		el.removeAttribute('loading');
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		let data, buffer, val = -1;
+		let data, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib._4chan) {
-			const imgData = await ContentLoader.loadImgData(el.src);
-			if(imgData) {
-				({ buffer } = imgData);
-			}
-		} else {
-			const cnv = this._canvas;
-			cnv.width = w;
-			cnv.height = h;
-			const ctx = cnv.getContext('2d');
-			ctx.drawImage(el, 0, 0);
-			({ buffer } = ctx.getImageData(0, 0, w, h).data);
-		}
+		const cnv = this._canvas;
+		cnv.width = w;
+		cnv.height = h;
+		const ctx = cnv.getContext('2d');
+		ctx.drawImage(el, 0, 0);
+		const { buffer } = ctx.getImageData(0, 0, w, h).data;
 		if(buffer) {
 			data = await new Promise(resolve =>
 				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));

@@ -69,6 +69,7 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
+		this.kohlchan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {
@@ -86,7 +87,8 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -101,8 +103,17 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // _410chan
+	get captchaAfterSubmit() { // Kohlchan
+		return null;
+	}
+	get captchaInit() {
+		return null;
+	}
+	get captchaLang() { // _410chan
 		return this.ru ? 2 : 1;
+	}
+	get captchaUpdate() {
+		return null;
 	}
 	get catalogUrl() { // Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
@@ -129,9 +140,6 @@ class BaseBoard {
 		return null;
 	}
 	get getSubmitData() {
-		return null;
-	}
-	get initCaptcha() {
 		return null;
 	}
 	get isArchived() {
@@ -174,9 +182,6 @@ class BaseBoard {
 		return null;
 	}
 	get stormWallHelper() { // Iichan
-		return null;
-	}
-	get updateCaptcha() {
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan

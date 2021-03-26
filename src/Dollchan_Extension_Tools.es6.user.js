@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         21.3.20.0
+// @version         20.3.17.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -29,8 +29,8 @@
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '21.3.20.0';
-const commit = 'dd8a83a';
+const version = '20.3.17.0';
+const commit = 'e0d1a20';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2527,7 +2527,7 @@ async function readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.capLang;
+	defaultCfg.captchaLang = aib.captchaLang;
 	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {
@@ -5215,11 +5215,10 @@ class Menu {
 			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
 				link.href) + '" target="_blank">' + Lng.searchIn[lang];
 		}
-		
-		// Kohlchan Onion hack to make search possible
-		p = p.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
-		p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net');
-		
+		if(aib.kohlchan) {
+			p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net')
+				.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
+		}
 		return arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
@@ -6034,6 +6033,9 @@ const ContentLoader = {
 		els = null;
 	},
 	getDataFromImg(el) {
+		if(el.getAttribute('loading') === 'lazy') {
+			return this.loadImgData(el.src);
+		}
 		try {
 			const cnv = this._canvas || (this._canvas = doc.createElement('canvas'));
 			cnv.width = el.width || el.videoWidth;
@@ -6669,10 +6671,12 @@ class VideosParser {
 function embedAudioLinks(data) {
 	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
-		const els = $Q('a[href*=".mp3"], a[href*=".opus"]', isPost ? data.el : data); // opus == ogg
+		const els = $Q('a[href*=".mp3"], a[href*=".opus"]', isPost ? data.el : data);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const link = els[i];
-			if((link.target !== '_blank' && link.rel !== 'nofollow') || !(link.pathname.includes('.mp3') || link.pathname.includes('.opus')) ) {
+			if((link.target !== '_blank' && link.rel !== 'nofollow') ||
+				!link.pathname.includes('.mp3') && !link.pathname.includes('.opus')
+			) {
 				continue;
 			}
 			const src = link.href;
@@ -9122,6 +9126,9 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
+			if(aib.captchaAfterSubmit && aib.captchaAfterSubmit(data)) {
+				return;
+			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
 			try {
 				data = JSON.parse(_data);
@@ -10124,7 +10131,7 @@ class Captcha {
 		e.stopPropagation();
 	}
 	initCapPromise() {
-		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
+		const initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
 				if(err instanceof AjaxError) {
@@ -10156,8 +10163,8 @@ class Captcha {
 	showCaptcha(isUpdateImage = false) {
 		if(!this.textEl) {
 			$show(this.parentEl);
-			if(aib.updateCaptcha) {
-				aib.updateCaptcha(this, false);
+			if(aib.captchaUpdate) {
+				aib.captchaUpdate(this, false);
 			} else if(this._isRecap) {
 				this._updateRecap();
 			}
@@ -10194,8 +10201,8 @@ class Captcha {
 			return;
 		}
 		this._lastUpdate = Date.now();
-		if(aib.updateCaptcha) {
-			const updatePromise = aib.updateCaptcha(this, isErr);
+		if(aib.captchaUpdate) {
+			const updatePromise = aib.captchaUpdate(this, isErr);
 			if(updatePromise) {
 				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
@@ -10438,9 +10445,9 @@ class AbstractPost {
 					const task = temp.id.split('-')[0];
 					const num = +temp.id.match(/\d+/);
 					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
-						const data = JSON.parse(xhr.responseText);
-						if(data.Status !== 'OK') {
-							$popup('err-2chlike', data.Reason);
+						const obj = JSON.parse(xhr.responseText);
+						if(obj.Status !== 'OK') {
+							$popup('err-2chlike', obj.Reason);
 							return;
 						}
 						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
@@ -10471,9 +10478,8 @@ class AbstractPost {
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
-			case 'de-btn-src':  // Click on media's search button -> put media name as quote in reply
-				const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-				quotetxt = nameLink.title;;
+			case 'de-btn-src':
+				quotetxt = $q(aib.qImgNameLink, aib.getImgWrap(el)).title;
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			}
@@ -12467,15 +12473,16 @@ class ExpandableImage {
 				}
 				d = d[0];
 				for(let i = 0, len = d.length; i < len; ++i) {
-					// Segment Info = 0x1549A966, segment title = 0x7BA9[length | 0x80]
-					if(d[i] === 0x49 && d[i + 1] === 0xA9 && d[i + 2] === 0x66 &&
-						d[i + 18] === 0x7B && d[i + 19] === 0xA9
-					) {
-						i += 20;
-						for(let end = (d[i++] & 0x7F) + i; i < end; ++i) {
-							str += String.fromCharCode(d[i]);
+					// {Title tag = 0x7BA9}{Title length | 0x80}{Title string}{MuxingApp tag = 0x4D80}
+					if(d[i] === 0x7B && d[i + 1] === 0xA9) {
+						const titleLenPos = i + 2;
+						const muxingAppPos = titleLenPos + (d[titleLenPos] & 0x7F) + 1;
+						if(d[muxingAppPos] === 0x4D && d[muxingAppPos + 1] === 0x80) {
+							for(let j = titleLenPos + 1; j < muxingAppPos; ++j) {
+								str += String.fromCharCode(d[j]);
+							}
+							break;
 						}
-						break;
 					}
 				}
 				const loadedTitle = decodeURIComponent(escape(str));
@@ -12536,11 +12543,11 @@ class ExpandableImage {
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
 						let hostUrl, errMsg = Lng.errSaucenao[lang];
 						try {
-							const res = JSON.parse(xhr.responseText);
-							if(res.status === 'success') {
-								hostUrl = res.url ? Menu.getMenuImgSrc(res.url) : '';
+							const obj = JSON.parse(xhr.responseText);
+							if(obj.status === 'success') {
+								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
 							} else {
-								errMsg += ':<br>' + res.error_message;
+								errMsg += ':<br>' + obj.error_message;
 							}
 						} catch(e) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
@@ -12766,24 +12773,18 @@ const ImagesHashStorage = Object.create({
 		if(!el.complete) {
 			await new Promise(resolve => el.addEventListener('load', () => resolve()));
 		}
+		el.removeAttribute('loading');
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		let data, buffer, val = -1;
+		let data, val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
-		if(aib._4chan) {
-			const imgData = await ContentLoader.loadImgData(el.src);
-			if(imgData) {
-				({ buffer } = imgData);
-			}
-		} else {
-			const cnv = this._canvas;
-			cnv.width = w;
-			cnv.height = h;
-			const ctx = cnv.getContext('2d');
-			ctx.drawImage(el, 0, 0);
-			({ buffer } = ctx.getImageData(0, 0, w, h).data);
-		}
+		const cnv = this._canvas;
+		cnv.width = w;
+		cnv.height = h;
+		const ctx = cnv.getContext('2d');
+		ctx.drawImage(el, 0, 0);
+		const { buffer } = ctx.getImageData(0, 0, w, h).data;
 		if(buffer) {
 			data = await new Promise(resolve =>
 				this._workers.runWorker([buffer, w, h], [buffer], val => resolve(val)));
@@ -15210,6 +15211,7 @@ class BaseBoard {
 		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
+		this.kohlchan = false;
 		this.makaba = false;
 	}
 	get qFormMail() {
@@ -15227,7 +15229,8 @@ class BaseBoard {
 	get qImgNameLink() {
 		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
 		Object.defineProperty(this, 'qImgNameLink', { value });
 		return value;
 	}
@@ -15242,8 +15245,17 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // _410chan
+	get captchaAfterSubmit() { // Kohlchan
+		return null;
+	}
+	get captchaInit() {
+		return null;
+	}
+	get captchaLang() { // _410chan
 		return this.ru ? 2 : 1;
+	}
+	get captchaUpdate() {
+		return null;
 	}
 	get catalogUrl() { // Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
@@ -15270,9 +15282,6 @@ class BaseBoard {
 		return null;
 	}
 	get getSubmitData() {
-		return null;
-	}
-	get initCaptcha() {
 		return null;
 	}
 	get isArchived() {
@@ -15315,9 +15324,6 @@ class BaseBoard {
 		return null;
 	}
 	get stormWallHelper() { // Iichan
-		return null;
-	}
-	get updateCaptcha() {
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan
@@ -15863,6 +15869,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ["'''", "''", '__', '~~', '**', '[code'];
 		}
+		captchaUpdate() {
+			$script('reloadCaptcha();');
+			return null;
+		}
 		changeReplyMode(form, tNum) {
 			const action = form.getAttribute('action');
 			form.setAttribute('action', tNum ? action.replace('newThread', 'replyThread') :
@@ -15906,18 +15916,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('.deletionCheckBox', thr).name.split('-')[1];
 		}
 		init() {
-			$script(`
-				if("autoRefresh" in window) {
+			$script(`if("autoRefresh" in window) {
 					clearInterval(refreshTimer);
 				}
-
 				if("thread" in window) {
-					Object.defineProperty(thread, "changeRefresh", { value: Function.prototype, writable: false, configurable: false });
-			//		console.log("thread.changeRefresh() overwritten.");
-			//	} else {
-			//		console.log("'thread' not found - cannot overwrite changeRefresh().")
-				}
-			`);
+					if(thread.refreshTimer) {
+						clearInterval(thread.refreshTimer);
+						Object.defineProperty(thread, "startTimer",
+							{ value: Function.prototype, writable: false, configurable: false });
+					}
+					Object.defineProperty(thread, "changeRefresh",
+						{ value: Function.prototype, writable: false, configurable: false });
+				}`);
 			const submEl = $id('formButton');
 			if(submEl && submEl.type === 'button') {
 				this._hasNewAPI = true;
@@ -16002,13 +16012,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			const task = form.attributes.action.value.split('/').pop();  //form.action.split('/').pop(); // KC fix
+			const task = form.attributes.action.value.split('/').pop();
 			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
 			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
-		}
-		updateCaptcha() {
-			$script('reloadCaptcha();');
-			return null;
 		}
 		updateSubmitBtn(el) {
 			el.textContent = Lng.reply[lang];
@@ -16081,6 +16087,19 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
+	class _0chan extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.hasCatalog = true;
+		}
+		get css() {
+			return `.content > hr, .extrabtns, .replieslist { display: none; }
+				form { position: initial; }`;
+		}
+	}
+	ibDomains['0chan.cc'] = _0chan;
+
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16089,7 +16108,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 			this._capUpdPromise = null;
 		}
-		updateCaptcha(cap) {
+		captchaUpdate(cap) {
 			return cap.updateHelper('/captcha_update.php', xhr => {
 				cap.parentEl.innerHTML = xhr.responseText;
 				cap.textEl = $id('recaptcha_response_field');
@@ -16118,13 +16137,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qThread() {
 			return '.threadz';
 		}
-		get css() {
-			return 'span[id$="_display"], #fastload { display: none; }';
-		}
-		get initCaptcha() {
+		get captchaInit() {
 			$id('captchadiv').innerHTML =
 				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
 			return null;
+		}
+		get css() {
+			return 'span[id$="_display"], #fastload { display: none; }';
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
@@ -16296,6 +16315,64 @@ function getImageBoard(checkDomains, checkEngines) {
 			Object.defineProperty(this, 'reportForm', { value });
 			return value;
 		}
+		captchaInit(cap) {
+			const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
+			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
+				<input name="captcha_type" value="${ value }" type="hidden">`;
+			return null;
+		}
+		captchaUpdate(cap) {
+			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`;
+			return cap.updateHelper(url, xhr => {
+				const box = $q('.captcha-box, .captcha');
+				let data = xhr.responseText;
+				try {
+					data = JSON.parse(data);
+				} catch(err) {}
+				if(cap.isSubmitWait && data.result !== 1) {
+					pr.subm.click();
+				}
+				switch(data.result) {
+				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
+				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
+				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
+				case 1: // Captcha is enabled
+					if(!Cfg.altCaptcha) {
+						if(!cap.isSubmitWait) {
+							break;
+						}
+						$q('.captcha__key').value = data.id;
+						$script($id('captcha-widget').hasChildNodes() ?
+							`grecaptcha.reset(deCapWidget);
+							grecaptcha.execute(deCapWidget);` :
+							`deCapWidget = grecaptcha.render('captcha-widget', {
+								sitekey : '${ data.id }',
+								theme   : 'light',
+								size    : 'invisible',
+								callback: function() {
+									var el = document.getElementById('captcha-widget-main');
+									el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
+									el.firstChild.value = grecaptcha.getResponse();
+									document.getElementById('submit').click();
+								}
+							});
+							grecaptcha.execute(deCapWidget);`);
+						break;
+					} else if(data.type === 'recaptcha') {
+						$q('.captcha__key').value = data.id;
+						/* global grecaptcha */
+						if(!$id('captcha-widget-main').hasChildNodes()) {
+							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+						} else {
+							grecaptcha.reset(cap._2chWidget);
+						}
+						break;
+					}
+					/* falls through */
+				default: box.innerHTML = data;
+				}
+			});
+		}
 		deleteTruncMsg(post, el) {
 			el.previousSibling.remove();
 			$show(el.previousSibling);
@@ -16406,12 +16483,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		initCaptcha(cap) {
-			const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
-			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
-				<input name="captcha_type" value="${ value }" type="hidden">`;
-			return null;
-		}
 		observeContent(checkDomains, dataPromise) {
 			if($q('#posts-form > .thread, form[de-form] > .thread')) {
 				return true;
@@ -16428,58 +16499,6 @@ function getImageBoard(checkDomains, checkEngines) {
 				initObserver.observe(el, { childList: true });
 			}
 			return false;
-		}
-		updateCaptcha(cap) {
-			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`;
-			return cap.updateHelper(url, xhr => {
-				const box = $q('.captcha-box, .captcha');
-				let data = xhr.responseText;
-				try {
-					data = JSON.parse(data);
-				} catch(err) {}
-				if(cap.isSubmitWait && data.result !== 1) {
-					pr.subm.click();
-				}
-				switch(data.result) {
-				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
-				case 2: box.textContent = 'Вы - пасскодобоярин.'; break;
-				case 3: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
-				case 1: // Captcha is enabled
-					if(data.type === 'invisible_recaptcha') {
-						if(!cap.isSubmitWait) {
-							break;
-						}
-						$q('.captcha__key').value = data.id;
-						$script($id('captcha-widget').hasChildNodes() ?
-							`grecaptcha.reset(deCapWidget);
-							grecaptcha.execute(deCapWidget);` :
-							`deCapWidget = grecaptcha.render('captcha-widget', {
-								sitekey : '${ data.id }',
-								theme   : 'light',
-								size    : 'invisible',
-								callback: function() {
-									var el = document.getElementById('captcha-widget-main');
-									el.innerHTML = '<input type="hidden" name="g-recaptcha-response">';
-									el.firstChild.value = grecaptcha.getResponse();
-									document.getElementById('submit').click();
-								}
-							});
-							grecaptcha.execute(deCapWidget);`);
-						break;
-					} if(data.type === 'recaptcha') {
-						$q('.captcha__key').value = data.id;
-						/* global grecaptcha */
-						if(!$id('captcha-widget-main').hasChildNodes()) {
-							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
-						} else {
-							grecaptcha.reset(cap._2chWidget);
-						}
-						break;
-					}
-					/* falls through */
-				default: box.innerHTML = data;
-				}
-			});
 		}
 	}
 	ibDomains['2ch.hk'] = Makaba;
@@ -16546,6 +16565,35 @@ function getImageBoard(checkDomains, checkEngines) {
 		get reportForm() {
 			return null;
 		}
+		captchaInit(cap) {
+			return this.captchaUpdate(cap);
+		}
+		captchaUpdate(cap) {
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
+			return cap.updateHelper(url, xhr => {
+				const box = $q('.captcha');
+				let data = xhr.responseText;
+				try {
+					data = JSON.parse(data);
+				} catch(err) {}
+				switch(data.result) {
+				case 1: { // Captcha is enabled
+					const el = $q('.captcha__image');
+					const img = $q('img', el) || $aBegin(el, '<img>');
+					img.src = '';
+					img.src = `/api/captcha/image/${ data.id }`;
+					$q('input[name="captcha_id"]').value = data.id;
+					break;
+				}
+				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
+				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
+				default: box.innerHTML = data;
+				}
+				$show(box);
+				box.removeAttribute('hidden');
+				cap.textEl.tabIndex = 999;
+			});
+		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 4 }, (val, i) =>
 				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
@@ -16581,35 +16629,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		initCaptcha(cap) {
-			return this.updateCaptcha(cap);
-		}
-		updateCaptcha(cap) {
-			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
-			return cap.updateHelper(url, xhr => {
-				const box = $q('.captcha');
-				let data = xhr.responseText;
-				try {
-					data = JSON.parse(data);
-				} catch(err) {}
-				switch(data.result) {
-				case 1: { // Captcha is enabled
-					const el = $q('.captcha__image');
-					const img = $q('img', el) || $aBegin(el, '<img>');
-					img.src = '';
-					img.src = `/api/captcha/image/${ data.id }`;
-					$q('input[name="captcha_id"]').value = data.id;
-					break;
-				}
-				case 2: return CancelablePromise.reject(new CancelError()); // Captcha is disabled
-				case 3: box.innerHTML = 'Вам больше не нужно вводить капчу.'; break;
-				default: box.innerHTML = data;
-				}
-				$show(box);
-				box.removeAttribute('hidden');
-				cap.textEl.tabIndex = 999;
-			});
-		}
 	}
 	ibDomains['2channel.moe'] = _2channel;
 	ibDomains['2channel5xx5xchx.onion'] = _2channel;
@@ -16628,6 +16647,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				#subject + div { display: inline !important; }
 				.replypage .reply .reflink::before { content: "" }`;
 		}
+		captchaUpdate(cap) {
+			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
+				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+				$id('captchaid').value = id;
+			});
+		}
 		getSubmitData(json) {
 			return {
 				error   : json.message ? json.message_title + ': ' + json.message : null,
@@ -16638,12 +16663,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			$script('postFormSubmit = Function.prototype;');
 			$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 			return false;
-		}
-		updateCaptcha(cap) {
-			return cap.updateHelper('/cgi/captcha?task=get_id', ({ responseText: id }) => {
-				$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-				$id('captchaid').value = id;
-			});
 		}
 	}
 	ibDomains['2ch.rip'] = _2chRip;
@@ -16662,7 +16681,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 			this._capUpdPromise = null;
 		}
-		get capLang() {
+		get captchaLang() {
 			return 0;
 		}
 		get css() {
@@ -16677,14 +16696,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['**', '*', '__', '^^', '%%', '`'];
 		}
-		getCaptchaSrc(src) {
-			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
-		}
-		getSage(post) {
-			const el = $q('.filetitle', post);
-			return !!el && el.textContent.includes('\u21E9');
-		}
-		updateCaptcha(cap) {
+		captchaUpdate(cap) {
 			return cap.updateHelper(`/api_adaptive.php?board=${ this.b }`, xhr => {
 				if(xhr.responseText === '1') {
 					cap.textEl.disabled = true;
@@ -16698,6 +16710,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				img.src = '';
 				img.src = this.getCaptchaSrc(src);
 			});
+		}
+		getCaptchaSrc(src) {
+			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
+		}
+		getSage(post) {
+			const el = $q('.filetitle', post);
+			return !!el && el.textContent.includes('\u21E9');
 		}
 	}
 	ibDomains['410chan.org'] = _410chan;
@@ -16742,20 +16761,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qImgNameLink() {
 			return '.fileText > a';
 		}
-		get css() {
-			return `.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,
-					.postMenuBtn, #togglePostFormLink { display: none !important; }
-				#bottomReportBtn { display: initial !important; }
-				#g-recaptcha { height: initial; }
-				.postForm { display: table !important; width: auto !important; }
-				textarea { margin-right: 0 !important; }
-				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
-		}
-		get markupTags() {
-			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
-				this.b === 'g' ? '[code' : ''];
-		}
-		get updateCaptcha() {
+		get captchaUpdate() {
 			let value = null;
 			const tr = $id('captchaFormPart');
 			if(tr) {
@@ -16770,8 +16776,21 @@ function getImageBoard(checkDomains, checkEngines) {
 					return null;
 				};
 			}
-			Object.defineProperty(this, 'updateCaptcha', { value });
+			Object.defineProperty(this, 'captchaUpdate', { value });
 			return value;
+		}
+		get css() {
+			return `.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,
+					.postMenuBtn, #togglePostFormLink { display: none !important; }
+				#bottomReportBtn { display: initial !important; }
+				#g-recaptcha { height: initial; }
+				.postForm { display: table !important; width: auto !important; }
+				textarea { margin-right: 0 !important; }
+				${ Cfg.widePosts ? '.sideArrows { display: none; }' : '' }`;
+		}
+		get markupTags() {
+			return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '',
+				this.b === 'g' ? '[code' : ''];
 		}
 		fixDeadLinks(str) {
 			return str.replace(/<span class="deadlink">&gt;&gt;(\d+)<\/span>/g,
@@ -16854,15 +16873,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				input.delete, #post-moderation-fields { display: initial !important; }`;
 		}
-		initCaptcha(cap) {
+		captchaInit(cap) {
 			$q('td', cap.parentEl).innerHTML = `<input placeholder="${ Lng.cap[lang] }" class="captcha_text` +
 				`" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
 				<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">
 				<div class="captcha_html"></div>`;
 			cap.textEl = $q('.captcha_text', cap.parentEl);
-			return this.updateCaptcha(cap, true);
+			return this.captchaUpdate(cap, true);
 		}
-		updateCaptcha(cap) {
+		captchaUpdate(cap) {
 			return cap.updateHelper(
 				'/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz',
 				xhr => {
@@ -17021,6 +17040,37 @@ function getImageBoard(checkDomains, checkEngines) {
 				.delete { background: none; }
 				.delete_checkbox { position: static !important; }`;
 		}
+		captchaInit(cap) {
+			if(!cap.textEl) {
+				$hide($q('img', cap.parentEl));
+				$show(cap.parentEl);
+			}
+			return null;
+		}
+		captchaUpdate(cap, isErr) {
+			const img = $q('img', cap.parentEl);
+			if(!img) {
+				return null;
+			}
+			if(cap.textEl) {
+				const src = img.getAttribute('src').split('/').slice(0, -1).join('/') +
+					`/${ Date.now() }.png`;
+				img.src = '';
+				img.src = src;
+				cap.textEl.value = '';
+			} else if(isErr) {
+				const el = img.parentNode;
+				el.innerHTML = '';
+				el.appendChild(img);
+				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
+					' id="captcha" name="captcha" size="35" type="text">');
+				$show(img);
+				cap.isAdded = false;
+				cap.originHTML = cap.parentEl.innerHTML;
+				cap.addCaptcha();
+			}
+			return null;
+		}
 		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
@@ -17082,40 +17132,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
-		initCaptcha(cap) {
-			if(!cap.textEl) {
-				$hide($q('img', cap.parentEl));
-				$show(cap.parentEl);
-			}
-			return null;
-		}
 		insertYtPlayer(msg, playerHtml) {
 			const prev = msg.previousElementSibling;
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
-		}
-		updateCaptcha(cap, isErr) {
-			const img = $q('img', cap.parentEl);
-			if(!img) {
-				return null;
-			}
-			if(cap.textEl) {
-				const src = img.getAttribute('src').split('/').slice(0, -1).join('/') +
-					`/${ Date.now() }.png`;
-				img.src = '';
-				img.src = src;
-				cap.textEl.value = '';
-			} else if(isErr) {
-				const el = img.parentNode;
-				el.innerHTML = '';
-				el.appendChild(img);
-				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
-					' id="captcha" name="captcha" size="35" type="text">');
-				$show(img);
-				cap.isAdded = false;
-				cap.originHTML = cap.parentEl.innerHTML;
-				cap.addCaptcha();
-			}
-			return null;
 		}
 	}
 	ibDomains['dobrochan.com'] = Dobrochan;
@@ -17297,24 +17316,66 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kohlchan extends Lynxchan {
 		constructor(prot, dm) {
 			super(prot, dm);
+			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
 
 			this.hasTextLinks = true;
+			this.markupBB = true;
 			this.timePattern = 'yyyy+nn+dd+hh+ii+ss';
 		}
 		get css() {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
 		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+		captchaAfterSubmit(data) {
+			if(data !== '{"status":"bypassable"}') {
+				return false;
+			}
+			$popup('upload', `<div>Tor / VPN / Proxy detected</div><!--
+				--><div>You need a block bypass to post</div><!--
+				--><div><img src="/captcha.js?d=${ (new Date()).toString() }" class="captchaImage"` +
+					` title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--
+				--></div><div><!--
+					--><input type="button" class="modalOkButton" value="Send"><!--
+					--><input type="text" class="modalAnswer"><!--
+				--></div>`).style.cssText = 'text-align: center;';
+			$q('.modalOkButton').onclick = () => {
+				$popup('captcha', Lng.sending[lang], true);
+				const formData = new FormData();
+				formData.append('captcha', $q('.modalAnswer').value.trim());
+				$ajax('/renewBypass.js?json=1', { data: formData, method: 'POST' }).then(xhr => {
+					const obj = JSON.parse(xhr.responseText);
+					switch(obj.status) {
+					case 'ok':
+					case 'finish':
+						closePopup('captcha');
+						$popup('upload', 'OK! You may now post.');
+						return;
+					case 'hashcash':
+						closePopup('captcha');
+						$popup('upload', '<a target="_blank" href=' +
+							'"/addon.js/hashcash/?action=get">Click here to activate your bypass.</a>');
+						return;
+					default: $popup('captcha', obj.data || xhr.responseText);
+					}
+				}, () => $popup('captcha', Lng.noConnect[lang]));
+			};
+			if(pr.isQuick) {
+				pr.setReply(true, false);
+			}
+			updater.sendErrNotif();
+			updater.continueUpdater();
+			return true;
+		}
 		getImgRealName(wrap) {
 			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
-		}
-		get markupTags() {
-			return ["[b", "[i", '[u', '[s', '[spoiler', '[code']; // bold, italics, underline, strikethrough, spoiler, code
 		}
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
@@ -17331,9 +17392,9 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
-	ibDomains['kohlkanal.net'] = Kohlchan;
 	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
 	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
+	ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {

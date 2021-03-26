@@ -342,10 +342,12 @@ class VideosParser {
 function embedAudioLinks(data) {
 	const isPost = data instanceof AbstractPost;
 	if(Cfg.addMP3) {
-		const els = $Q('a[href*=".mp3"]', isPost ? data.el : data);
+		const els = $Q('a[href*=".mp3"], a[href*=".opus"]', isPost ? data.el : data);
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const link = els[i];
-			if((link.target !== '_blank' && link.rel !== 'nofollow') || !link.pathname.includes('.mp3')) {
+			if((link.target !== '_blank' && link.rel !== 'nofollow') ||
+				!link.pathname.includes('.mp3') && !link.pathname.includes('.opus')
+			) {
 				continue;
 			}
 			const src = link.href;
