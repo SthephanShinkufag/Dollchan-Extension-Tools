@@ -103,16 +103,22 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get capLang() { // _410chan
+	get captchaAfterSubmit() { // Kohlchan
+		return null;
+	}
+	get captchaInit() {
+		return null;
+	}
+	get captchaLang() { // _410chan
 		return this.ru ? 2 : 1;
+	}
+	get captchaUpdate() {
+		return null;
 	}
 	get catalogUrl() { // Iichan
 		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
-		return null;
-	}
-	get checkForCaptcha() { // Kohlchan
 		return null;
 	}
 	get css() {
@@ -134,9 +140,6 @@ class BaseBoard {
 		return null;
 	}
 	get getSubmitData() {
-		return null;
-	}
-	get initCaptcha() {
 		return null;
 	}
 	get isArchived() {
@@ -179,9 +182,6 @@ class BaseBoard {
 		return null;
 	}
 	get stormWallHelper() { // Iichan
-		return null;
-	}
-	get updateCaptcha() {
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan

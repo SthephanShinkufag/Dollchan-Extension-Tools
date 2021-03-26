@@ -3353,7 +3353,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									delete obj.captchaLang;
 								}
 							}
-							defaultCfg.captchaLang = aib.capLang;
+							defaultCfg.captchaLang = aib.captchaLang;
 							defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 							Cfg = Object.assign(Object.create(defaultCfg), obj);
 							if (!Cfg.timeOffset) {
@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '90885c3';
+	var commit = 'e0d1a20';
 
 
 	var defaultCfg = {
@@ -13122,7 +13122,7 @@ true, true];
 		var isDocument = data instanceof HTMLDocument;
 		if (aib.getSubmitData) {
 			if (aib.jsonSubmit) {
-				if (aib.checkForCaptcha && aib.checkForCaptcha(data)) {
+				if (aib.captchaAfterSubmit && aib.captchaAfterSubmit(data)) {
 					return;
 				}
 				var _data = (isDocument ? data.body.textContent : data).trim();
@@ -14298,7 +14298,7 @@ true, true];
 			value: function initCapPromise() {
 				var _this40 = this;
 
-				var initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
+				var initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
 				if (initPromise) {
 					initPromise.then(function () {
 						return _this40.showCaptcha();
@@ -14344,8 +14344,8 @@ true, true];
 
 				if (!this.textEl) {
 					$show(this.parentEl);
-					if (aib.updateCaptcha) {
-						aib.updateCaptcha(this, false);
+					if (aib.captchaUpdate) {
+						aib.captchaUpdate(this, false);
 					} else if (this._isRecap) {
 						this._updateRecap();
 					}
@@ -14389,8 +14389,8 @@ true, true];
 					return;
 				}
 				this._lastUpdate = Date.now();
-				if (aib.updateCaptcha) {
-					var updatePromise = aib.updateCaptcha(this, isErr);
+				if (aib.captchaUpdate) {
+					var updatePromise = aib.captchaUpdate(this, isErr);
 					if (updatePromise) {
 						updatePromise.then(function () {
 							return _this42._updateTextEl(isFocus);
@@ -20836,9 +20836,24 @@ true, true];
 				return value;
 			}
 		}, {
-			key: 'capLang',
+			key: 'captchaAfterSubmit',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'captchaInit',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'captchaLang',
 			get: function get() {
 				return this.ru ? 2 : 1;
+			}
+		}, {
+			key: 'captchaUpdate',
+			get: function get() {
+				return null;
 			}
 		}, {
 			key: 'catalogUrl',
@@ -20847,11 +20862,6 @@ true, true];
 			}
 		}, {
 			key: 'changeReplyMode',
-			get: function get() {
-				return null;
-			}
-		}, {
-			key: 'checkForCaptcha',
 			get: function get() {
 				return null;
 			}
@@ -20887,11 +20897,6 @@ true, true];
 			}
 		}, {
 			key: 'getSubmitData',
-			get: function get() {
-				return null;
-			}
-		}, {
-			key: 'initCaptcha',
 			get: function get() {
 				return null;
 			}
@@ -20955,11 +20960,6 @@ true, true];
 			}
 		}, {
 			key: 'stormWallHelper',
-			get: function get() {
-				return null;
-			}
-		}, {
-			key: 'updateCaptcha',
 			get: function get() {
 				return null;
 			}
@@ -21448,6 +21448,12 @@ true, true];
 			}
 
 			_createClass(Lynxchan, [{
+				key: 'captchaUpdate',
+				value: function captchaUpdate() {
+					$script('reloadCaptcha();');
+					return null;
+				}
+			}, {
 				key: 'changeReplyMode',
 				value: function changeReplyMode(form, tNum) {
 					var action = form.getAttribute('action');
@@ -21718,12 +21724,6 @@ true, true];
 					return sendHTML5Post;
 				}()
 			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha() {
-					$script('reloadCaptcha();');
-					return null;
-				}
-			}, {
 				key: 'updateSubmitBtn',
 				value: function updateSubmitBtn(el) {
 					el.textContent = Lng.reply[lang];
@@ -21888,8 +21888,8 @@ true, true];
 			}
 
 			_createClass(_02ch, [{
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
 					return cap.updateHelper('/captcha_update.php', function (xhr) {
 						cap.parentEl.innerHTML = xhr.responseText;
 						cap.textEl = $id('recaptcha_response_field');
@@ -21990,15 +21990,15 @@ true, true];
 					return '.threadz';
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return 'span[id$="_display"], #fastload { display: none; }';
-				}
-			}, {
-				key: 'initCaptcha',
+				key: 'captchaInit',
 				get: function get() {
 					$id('captchadiv').innerHTML = '<img src="' + this.getCaptchaSrc() + '" style="vertical-align: bottom;" id="imgcaptcha">';
 					return null;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return 'span[id$="_display"], #fastload { display: none; }';
 				}
 			}]);
 
@@ -22057,6 +22057,55 @@ true, true];
 			}
 
 			_createClass(Makaba, [{
+				key: 'captchaInit',
+				value: function captchaInit(cap) {
+					var value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
+					$q('.captcha-box, .captcha').innerHTML = '<div id="captcha-widget-main"></div>\n\t\t\t\t<input name="captcha_type" value="' + value + '" type="hidden">';
+					return null;
+				}
+			}, {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
+					var url = '/api/captcha/' + (Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha') + '/id';
+					return cap.updateHelper(url, function (xhr) {
+						var box = $q('.captcha-box, .captcha');
+						var data = xhr.responseText;
+						try {
+							data = JSON.parse(data);
+						} catch (err) {}
+						if (cap.isSubmitWait && data.result !== 1) {
+							pr.subm.click();
+						}
+						switch (data.result) {
+							case 0:
+								box.textContent = 'Пасскод недействителен. Перелогиньтесь.';break;
+							case 2:
+								box.textContent = 'Вы - пасскодобоярин.';break;
+							case 3:
+								return CancelablePromise.reject(new CancelError()); 
+							case 1:
+								if (!Cfg.altCaptcha) {
+									if (!cap.isSubmitWait) {
+										break;
+									}
+									$q('.captcha__key').value = data.id;
+									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
+									break;
+								} else if (data.type === 'recaptcha') {
+									$q('.captcha__key').value = data.id;
+									if (!$id('captcha-widget-main').hasChildNodes()) {
+										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+									} else {
+										grecaptcha.reset(cap._2chWidget);
+									}
+									break;
+								}
+							default:
+								box.innerHTML = data;
+						}
+					});
+				}
+			}, {
 				key: 'deleteTruncMsg',
 				value: function deleteTruncMsg(post, el) {
 					el.previousSibling.remove();
@@ -22169,13 +22218,6 @@ true, true];
 					return false;
 				}
 			}, {
-				key: 'initCaptcha',
-				value: function initCaptcha(cap) {
-					var value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
-					$q('.captcha-box, .captcha').innerHTML = '<div id="captcha-widget-main"></div>\n\t\t\t\t<input name="captcha_type" value="' + value + '" type="hidden">';
-					return null;
-				}
-			}, {
 				key: 'observeContent',
 				value: function observeContent(checkDomains, dataPromise) {
 					if ($q('#posts-form > .thread, form[de-form] > .thread')) {
@@ -22193,48 +22235,6 @@ true, true];
 						initObserver.observe(el, { childList: true });
 					}
 					return false;
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					var url = '/api/captcha/' + (Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha') + '/id';
-					return cap.updateHelper(url, function (xhr) {
-						var box = $q('.captcha-box, .captcha');
-						var data = xhr.responseText;
-						try {
-							data = JSON.parse(data);
-						} catch (err) {}
-						if (cap.isSubmitWait && data.result !== 1) {
-							pr.subm.click();
-						}
-						switch (data.result) {
-							case 0:
-								box.textContent = 'Пасскод недействителен. Перелогиньтесь.';break;
-							case 2:
-								box.textContent = 'Вы - пасскодобоярин.';break;
-							case 3:
-								return CancelablePromise.reject(new CancelError()); 
-							case 1:
-								if (!Cfg.altCaptcha) {
-									if (!cap.isSubmitWait) {
-										break;
-									}
-									$q('.captcha__key').value = data.id;
-									$script($id('captcha-widget').hasChildNodes() ? 'grecaptcha.reset(deCapWidget);\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);' : 'deCapWidget = grecaptcha.render(\'captcha-widget\', {\n\t\t\t\t\t\t\t\tsitekey : \'' + data.id + '\',\n\t\t\t\t\t\t\t\ttheme   : \'light\',\n\t\t\t\t\t\t\t\tsize    : \'invisible\',\n\t\t\t\t\t\t\t\tcallback: function() {\n\t\t\t\t\t\t\t\t\tvar el = document.getElementById(\'captcha-widget-main\');\n\t\t\t\t\t\t\t\t\tel.innerHTML = \'<input type="hidden" name="g-recaptcha-response">\';\n\t\t\t\t\t\t\t\t\tel.firstChild.value = grecaptcha.getResponse();\n\t\t\t\t\t\t\t\t\tdocument.getElementById(\'submit\').click();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tgrecaptcha.execute(deCapWidget);');
-									break;
-								} else if (data.type === 'recaptcha') {
-									$q('.captcha__key').value = data.id;
-									if (!$id('captcha-widget-main').hasChildNodes()) {
-										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
-									} else {
-										grecaptcha.reset(cap._2chWidget);
-									}
-									break;
-								}
-							default:
-								box.innerHTML = data;
-						}
-					});
 				}
 			}, {
 				key: 'qFormMail',
@@ -22409,6 +22409,43 @@ true, true];
 			}
 
 			_createClass(_2channel, [{
+				key: 'captchaInit',
+				value: function captchaInit(cap) {
+					return this.captchaUpdate(cap);
+				}
+			}, {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
+					var url = '/api/captcha/service_id?board=' + this.b + '&thread=' + pr.tNum;
+					return cap.updateHelper(url, function (xhr) {
+						var box = $q('.captcha');
+						var data = xhr.responseText;
+						try {
+							data = JSON.parse(data);
+						} catch (err) {}
+						switch (data.result) {
+							case 1:
+								{
+									var _el29 = $q('.captcha__image');
+									var img = $q('img', _el29) || $aBegin(_el29, '<img>');
+									img.src = '';
+									img.src = '/api/captcha/image/' + data.id;
+									$q('input[name="captcha_id"]').value = data.id;
+									break;
+								}
+							case 2:
+								return CancelablePromise.reject(new CancelError()); 
+							case 3:
+								box.innerHTML = 'Вам больше не нужно вводить капчу.';break;
+							default:
+								box.innerHTML = data;
+						}
+						$show(box);
+						box.removeAttribute('hidden');
+						cap.textEl.tabIndex = 999;
+					});
+				}
+			}, {
 				key: 'fixFileInputs',
 				value: function fixFileInputs(el) {
 					el.innerHTML = Array.from({ length: 4 }, function (val, i) {
@@ -22451,43 +22488,6 @@ true, true];
 					return false;
 				}
 			}, {
-				key: 'initCaptcha',
-				value: function initCaptcha(cap) {
-					return this.updateCaptcha(cap);
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					var url = '/api/captcha/service_id?board=' + this.b + '&thread=' + pr.tNum;
-					return cap.updateHelper(url, function (xhr) {
-						var box = $q('.captcha');
-						var data = xhr.responseText;
-						try {
-							data = JSON.parse(data);
-						} catch (err) {}
-						switch (data.result) {
-							case 1:
-								{
-									var _el29 = $q('.captcha__image');
-									var img = $q('img', _el29) || $aBegin(_el29, '<img>');
-									img.src = '';
-									img.src = '/api/captcha/image/' + data.id;
-									$q('input[name="captcha_id"]').value = data.id;
-									break;
-								}
-							case 2:
-								return CancelablePromise.reject(new CancelError()); 
-							case 3:
-								box.innerHTML = 'Вам больше не нужно вводить капчу.';break;
-							default:
-								box.innerHTML = data;
-						}
-						$show(box);
-						box.removeAttribute('hidden');
-						cap.textEl.tabIndex = 999;
-					});
-				}
-			}, {
 				key: 'reportForm',
 				get: function get() {
 					return null;
@@ -22516,6 +22516,16 @@ true, true];
 			}
 
 			_createClass(_2chRip, [{
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
+					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
+						var id = _ref80.responseText;
+
+						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
+						$id('captchaid').value = id;
+					});
+				}
+			}, {
 				key: 'getSubmitData',
 				value: function getSubmitData(json) {
 					return {
@@ -22529,16 +22539,6 @@ true, true];
 					$script('postFormSubmit = Function.prototype;');
 					$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
 					return false;
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
-					return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref80) {
-						var id = _ref80.responseText;
-
-						$id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
-						$id('captchaid').value = id;
-					});
 				}
 			}, {
 				key: 'css',
@@ -22573,19 +22573,8 @@ true, true];
 			}
 
 			_createClass(_410chan, [{
-				key: 'getCaptchaSrc',
-				value: function getCaptchaSrc(src) {
-					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
-				}
-			}, {
-				key: 'getSage',
-				value: function getSage(post) {
-					var el = $q('.filetitle', post);
-					return !!el && el.textContent.includes('\u21E9');
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
 					var _this100 = this;
 
 					return cap.updateHelper('/api_adaptive.php?board=' + this.b, function (xhr) {
@@ -22605,7 +22594,18 @@ true, true];
 					});
 				}
 			}, {
-				key: 'capLang',
+				key: 'getCaptchaSrc',
+				value: function getCaptchaSrc(src) {
+					return src.replace(/\?[^?]+$|$/, '?board=' + aib.b + '&' + Math.random());
+				}
+			}, {
+				key: 'getSage',
+				value: function getSage(post) {
+					var el = $q('.filetitle', post);
+					return !!el && el.textContent.includes('\u21E9');
+				}
+			}, {
+				key: 'captchaLang',
 				get: function get() {
 					return 0;
 				}
@@ -22761,17 +22761,7 @@ true, true];
 					return '.fileText > a';
 				}
 			}, {
-				key: 'css',
-				get: function get() {
-					return '.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,\n\t\t\t\t\t.postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
-				}
-			}, {
-				key: 'markupTags',
-				get: function get() {
-					return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '', this.b === 'g' ? '[code' : ''];
-				}
-			}, {
-				key: 'updateCaptcha',
+				key: 'captchaUpdate',
 				get: function get() {
 					var value = null;
 					var tr = $id('captchaFormPart');
@@ -22787,8 +22777,18 @@ true, true];
 							return null;
 						};
 					}
-					Object.defineProperty(this, 'updateCaptcha', { value: value });
+					Object.defineProperty(this, 'captchaUpdate', { value: value });
 					return value;
+				}
+			}, {
+				key: 'css',
+				get: function get() {
+					return '.backlink, #blotter, .de-file-utils + .desktop, .extButton, hr.desktop, .navLinks,\n\t\t\t\t\t.postMenuBtn, #togglePostFormLink { display: none !important; }\n\t\t\t\t#bottomReportBtn { display: initial !important; }\n\t\t\t\t#g-recaptcha { height: initial; }\n\t\t\t\t.postForm { display: table !important; width: auto !important; }\n\t\t\t\ttextarea { margin-right: 0 !important; }\n\t\t\t\t' + (Cfg.widePosts ? '.sideArrows { display: none; }' : '');
+				}
+			}, {
+				key: 'markupTags',
+				get: function get() {
+					return ['', '', '', '', $q('input[type="checkbox"][name="spoiler"]') ? '[spoiler' : '', this.b === 'g' ? '[code' : ''];
 				}
 			}]);
 
@@ -22813,15 +22813,15 @@ true, true];
 			}
 
 			_createClass(_55chan, [{
-				key: 'initCaptcha',
-				value: function initCaptcha(cap) {
+				key: 'captchaInit',
+				value: function captchaInit(cap) {
 					$q('td', cap.parentEl).innerHTML = '<input placeholder="' + Lng.cap[lang] + '" class="captcha_text' + '" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">\n\t\t\t\t<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">\n\t\t\t\t<div class="captcha_html"></div>';
 					cap.textEl = $q('.captcha_text', cap.parentEl);
-					return this.updateCaptcha(cap, true);
+					return this.captchaUpdate(cap, true);
 				}
 			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap) {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap) {
 					return cap.updateHelper('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz', function (xhr) {
 						var obj = JSON.parse(xhr.responseText);
 						$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
@@ -23065,6 +23065,39 @@ true, true];
 			}
 
 			_createClass(Dobrochan, [{
+				key: 'captchaInit',
+				value: function captchaInit(cap) {
+					if (!cap.textEl) {
+						$hide($q('img', cap.parentEl));
+						$show(cap.parentEl);
+					}
+					return null;
+				}
+			}, {
+				key: 'captchaUpdate',
+				value: function captchaUpdate(cap, isErr) {
+					var img = $q('img', cap.parentEl);
+					if (!img) {
+						return null;
+					}
+					if (cap.textEl) {
+						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + ('/' + Date.now() + '.png');
+						img.src = '';
+						img.src = src;
+						cap.textEl.value = '';
+					} else if (isErr) {
+						var _el30 = img.parentNode;
+						_el30.innerHTML = '';
+						_el30.appendChild(img);
+						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
+						$show(img);
+						cap.isAdded = false;
+						cap.originHTML = cap.parentEl.innerHTML;
+						cap.addCaptcha();
+					}
+					return null;
+				}
+			}, {
 				key: 'deleteTruncMsg',
 				value: function deleteTruncMsg(post, el, isInit) {
 					[el.previousSibling, el.nextSibling, el].forEach($del);
@@ -23148,43 +23181,10 @@ true, true];
 					return false;
 				}
 			}, {
-				key: 'initCaptcha',
-				value: function initCaptcha(cap) {
-					if (!cap.textEl) {
-						$hide($q('img', cap.parentEl));
-						$show(cap.parentEl);
-					}
-					return null;
-				}
-			}, {
 				key: 'insertYtPlayer',
 				value: function insertYtPlayer(msg, playerHtml) {
 					var prev = msg.previousElementSibling;
 					return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
-				}
-			}, {
-				key: 'updateCaptcha',
-				value: function updateCaptcha(cap, isErr) {
-					var img = $q('img', cap.parentEl);
-					if (!img) {
-						return null;
-					}
-					if (cap.textEl) {
-						var src = img.getAttribute('src').split('/').slice(0, -1).join('/') + ('/' + Date.now() + '.png');
-						img.src = '';
-						img.src = src;
-						cap.textEl.value = '';
-					} else if (isErr) {
-						var _el30 = img.parentNode;
-						_el30.innerHTML = '';
-						_el30.appendChild(img);
-						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
-						$show(img);
-						cap.isAdded = false;
-						cap.originHTML = cap.parentEl.innerHTML;
-						cap.addCaptcha();
-					}
-					return null;
 				}
 			}, {
 				key: 'css',
@@ -23470,8 +23470,8 @@ true, true];
 			}
 
 			_createClass(Kohlchan, [{
-				key: 'checkForCaptcha',
-				value: function checkForCaptcha(data) {
+				key: 'captchaAfterSubmit',
+				value: function captchaAfterSubmit(data) {
 					if (data !== '{"status":"bypassable"}') {
 						return false;
 					}

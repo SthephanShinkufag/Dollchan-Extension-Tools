@@ -112,7 +112,7 @@ async function readCfg() {
 			delete obj.captchaLang;
 		}
 	}
-	defaultCfg.captchaLang = aib.capLang;
+	defaultCfg.captchaLang = aib.captchaLang;
 	defaultCfg.language = +!String(navigator.language).toLowerCase().startsWith('ru');
 	Cfg = Object.assign(Object.create(defaultCfg), obj);
 	if(!Cfg.timeOffset) {

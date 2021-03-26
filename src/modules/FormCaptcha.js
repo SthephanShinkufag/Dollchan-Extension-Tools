@@ -63,7 +63,7 @@ class Captcha {
 		e.stopPropagation();
 	}
 	initCapPromise() {
-		const initPromise = aib.initCaptcha ? aib.initCaptcha(this) : null;
+		const initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
 		if(initPromise) {
 			initPromise.then(() => this.showCaptcha(), err => {
 				if(err instanceof AjaxError) {
@@ -95,8 +95,8 @@ class Captcha {
 	showCaptcha(isUpdateImage = false) {
 		if(!this.textEl) {
 			$show(this.parentEl);
-			if(aib.updateCaptcha) {
-				aib.updateCaptcha(this, false);
+			if(aib.captchaUpdate) {
+				aib.captchaUpdate(this, false);
 			} else if(this._isRecap) {
 				this._updateRecap();
 			}
@@ -133,8 +133,8 @@ class Captcha {
 			return;
 		}
 		this._lastUpdate = Date.now();
-		if(aib.updateCaptcha) {
-			const updatePromise = aib.updateCaptcha(this, isErr);
+		if(aib.captchaUpdate) {
+			const updatePromise = aib.captchaUpdate(this, isErr);
 			if(updatePromise) {
 				updatePromise.then(() => this._updateTextEl(isFocus), err => this._setUpdateError(err));
 			}
