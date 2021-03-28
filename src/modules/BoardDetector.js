@@ -838,11 +838,11 @@ function getImageBoard(checkDomains, checkEngines) {
 						break;
 					} else if(data.type === 'recaptcha') {
 						$q('.captcha__key').value = data.id;
-						/* global grecaptcha */
 						if(!$id('captcha-widget-main').hasChildNodes()) {
-							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+							$script(`globRecapWidget = grecaptcha.render('captcha-widget-main', { sitekey: "${
+								data.id }" });`);
 						} else {
-							grecaptcha.reset(cap._2chWidget);
+							$script('grecaptcha.reset(globRecapWidget);');
 						}
 						break;
 					}

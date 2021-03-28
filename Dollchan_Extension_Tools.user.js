@@ -3880,7 +3880,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '6f92790';
+	var commit = '5ec4ba4';
 
 
 	var defaultCfg = {
@@ -22094,9 +22094,9 @@ true, true];
 								} else if (data.type === 'recaptcha') {
 									$q('.captcha__key').value = data.id;
 									if (!$id('captcha-widget-main').hasChildNodes()) {
-										cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+										$script('globRecapWidget = grecaptcha.render(\'captcha-widget-main\', { sitekey: "' + data.id + '" });');
 									} else {
-										grecaptcha.reset(cap._2chWidget);
+										$script('grecaptcha.reset(globRecapWidget);');
 									}
 									break;
 								}

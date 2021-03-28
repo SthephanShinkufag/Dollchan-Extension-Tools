@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '6f92790';
+const commit = '5ec4ba4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16360,11 +16360,11 @@ function getImageBoard(checkDomains, checkEngines) {
 						break;
 					} else if(data.type === 'recaptcha') {
 						$q('.captcha__key').value = data.id;
-						/* global grecaptcha */
 						if(!$id('captcha-widget-main').hasChildNodes()) {
-							cap._2chWidget = grecaptcha.render('captcha-widget-main', { sitekey: data.id });
+							$script(`globRecapWidget = grecaptcha.render('captcha-widget-main', { sitekey: "${
+								data.id }" });`);
 						} else {
-							grecaptcha.reset(cap._2chWidget);
+							$script('grecaptcha.reset(globRecapWidget);');
 						}
 						break;
 					}
