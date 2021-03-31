@@ -3332,7 +3332,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var readCfg = function () {
 		var _ref4 = _asyncToGenerator( regeneratorRuntime.mark(function _callee4() {
-			var obj, val, isGlobal, font, donateMsg, popupFn;
+			var obj, val, isGlobal;
 			return regeneratorRuntime.wrap(function _callee4$(_context4) {
 				while (1) {
 					switch (_context4.prev = _context4.next) {
@@ -3406,19 +3406,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							}
 							lang = Cfg.language;
 							if (val.commit !== commit && !localData) {
-								font = ' style="font: 13px monospace; color: green;"';
-								donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' + ('<span class="de-list de-depend"><i' + font + '>410012122418236</i></span><br><b><i>WebMoney</i></b><br>') + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>') + (nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ? '<br><br>New: <a href="https://addons.mozilla.org/' + (lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
-
-								popupFn = function popupFn() {
-									return $popup('donate', donateMsg);
-								};
-
 								if (doc.readyState === 'loading') {
 									doc.addEventListener('DOMContentLoaded', function () {
-										return setTimeout(popupFn, 1e3);
+										return setTimeout(showDonateMsg, 1e3);
 									});
 								} else {
-									setTimeout(popupFn, 1e3);
+									setTimeout(showDonateMsg, 1e3);
 								}
 								val.commit = commit;
 							}
@@ -3880,7 +3873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '20.3.17.0';
-	var commit = '5ec4ba4';
+	var commit = '36a9d4f';
 
 
 	var defaultCfg = {
@@ -5373,6 +5366,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			deWindow.URL.revokeObjectURL(url);
 			link.remove();
 		}, 2e5);
+	}
+
+	function showDonateMsg() {
+		var font = ' style="font: 13px monospace; color: green;"';
+		$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' + '<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' + '<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' + ('<span class="de-list de-depend"><i' + font + '>410012122418236</i></span><br><b><i>WebMoney</i></b><br>') + ('<span class="de-list de-depend">WMZ &ndash; <i' + font + '>Z100197626370</i></span><br>') + ('<span class="de-list de-depend">WMR &ndash; <i' + font + '>R266614957054</i></span><br>') + ('<span class="de-list de-depend">WMU &ndash; <i' + font + '>U142375546253</i></span><br>') + ('<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i' + font + '>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>') + ('<span class="de-list de-depend">P2SH &ndash; <i' + font + '>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>') + (nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ? '<br><br>New: <a href="https://addons.mozilla.org/' + (lang === 1 ? 'en-US' : 'ru') + '/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 	}function setStored(id, value) {
 		if (nav.hasNewGM) {
 			return GM.setValue(id, value);
@@ -7791,6 +7789,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							return $popup('updavail', html);
 						}, emptyFn);
 						break;
+					case 'de-cfg-button-donate':
+						showDonateMsg();break;
 					case 'de-cfg-button-debug':
 						{
 							var perf = {};
@@ -7990,7 +7990,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dollchan.net/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t&lt;&lt;</div>\n\t\t\t\t' + this._getSel('updDollchan') : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dollchan.net/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t' + this._getSel('updDollchan') + '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t\t<input type="button" id="de-cfg-button-donate" value="Donate">\n\t\t\t\t&lt;&lt;</div>' : '') + '\n\t\t</div>');
 		},
 
 

@@ -429,6 +429,7 @@ const CfgWindow = {
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
+			case 'de-cfg-button-donate': showDonateMsg(); break;
 			case 'de-cfg-button-debug': {
 				const perf = {};
 				const arr = Logger.getLogData(true);
@@ -786,10 +787,11 @@ const CfgWindow = {
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				${ this._getSel('updDollchan') }
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
-				&lt;&lt;</div>
-				${ this._getSel('updDollchan') }` : '' }
+					<input type="button" id="de-cfg-button-donate" value="Donate">
+				&lt;&lt;</div>` : '' }
 		</div>`;
 	},
 

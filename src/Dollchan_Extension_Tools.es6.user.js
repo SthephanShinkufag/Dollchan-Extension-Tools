@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '20.3.17.0';
-const commit = '5ec4ba4';
+const commit = '36a9d4f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2413,6 +2413,25 @@ function downloadBlob(blob, name) {
 	}, 2e5);
 }
 
+function showDonateMsg() {
+	const font = ' style="font: 13px monospace; color: green;"';
+	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
+		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
+		`<span class="de-list de-depend"><i${
+			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
+		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
+		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
+		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
+		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
+			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
+		`<span class="de-list de-depend">P2SH &ndash; <i${
+			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
+			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
+}
+
 /* ==[ Storage.js ]===========================================================================================
                                                    STORAGE
 =========================================================================================================== */
@@ -2580,27 +2599,10 @@ async function readCfg() {
 	}
 	lang = Cfg.language;
 	if(val.commit !== commit && !localData) {
-		const font = ' style="font: 13px monospace; color: green;"';
-		const donateMsg = Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
-			'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-			'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
-			`<span class="de-list de-depend"><i${
-				font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
-			`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
-			`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-			`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
-			`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
-				font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
-			`<span class="de-list de-depend">P2SH &ndash; <i${
-				font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
-			(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-				`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-				'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : '');
-		const popupFn = () => $popup('donate', donateMsg);
 		if(doc.readyState === 'loading') {
-			doc.addEventListener('DOMContentLoaded', () => setTimeout(popupFn, 1e3));
+			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));
 		} else {
-			setTimeout(popupFn, 1e3);
+			setTimeout(showDonateMsg, 1e3);
 		}
 		val.commit = commit;
 	}
@@ -4658,6 +4660,7 @@ const CfgWindow = {
 					.then(data => checkForUpdates(true, data.lastUpd))
 					.then(html => $popup('updavail', html), emptyFn);
 				break;
+			case 'de-cfg-button-donate': showDonateMsg(); break;
 			case 'de-cfg-button-debug': {
 				const perf = {};
 				const arr = Logger.getLogData(true);
@@ -5015,10 +5018,11 @@ const CfgWindow = {
 				<div id="de-info-log">${ this._getInfoTable(Logger.getLogData(false), true) }</div>
 			</div>
 			${ !nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? `
+				${ this._getSel('updDollchan') }
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
-				&lt;&lt;</div>
-				${ this._getSel('updDollchan') }` : '' }
+					<input type="button" id="de-cfg-button-donate" value="Donate">
+				&lt;&lt;</div>` : '' }
 		</div>`;
 	},
 
