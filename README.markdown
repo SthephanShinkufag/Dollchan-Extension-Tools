@@ -9,24 +9,28 @@
 ---
 - **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
 - **[Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
-- **Home: [https://dollchan.net/](https://dollchan.net/)**
-- **License:** © 2017 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
+- **Homepage: [https://dollchan.net/](https://dollchan.net/)**
+- **License:** © 2021 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
 ---
 **Dollchan Extension** is the userscript and extension that combines various options & features, making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way. If you have visited sites like [4chan.org](http://4chan.org/) or [2ch.hk](https://2ch.hk/), then you probably already heard about it.
 
 It provides such functions:
 - Sending posts without rebooting.
-- Thread updater with different types of alerts (for example, blinking favicon or desktop notification when new posts appear).
+- Thread updater with different types of alerts<br>(for example, blinking favicon or desktop notification when new posts appear).
 - Hiding posts and threads by a wide choice of expressions and rules.
 - Saving threads entirely with the originals of pictures.
+- Preloading full pictures into memory buffer.
 - Expanding threads directly on the index page.
 - Adding interesting threads to your Favorites to track new posts or responses to your posts.
 - "Endless scrolling" of index pages with threads.
 - Easy navigation through >>links as a posts tree.
 - Embedding player to YouTube and Vimeo links.
 - Easy navigation through attached pictures / videos in posts.
+- Applying search services to pictures and stills from videos.
+- Reading metadata form webm files.
 - Adding pictures to the reply form with convenient preview thumbnails.
+- Posting pictures with random bytes added and custom names.
 - Embedding preview thumbnails to .jpg / .png / .gif links.
 - Adding your CSS rules.
 - Hotkeys for many functions.
@@ -38,11 +42,11 @@ Dollchan has both cross-browser and cross-board working scope. A list of support
 ---
 ### Userscript compilation:
 
-1. Install [Node.js](https://nodejs.org/) if not yet.
-2. Install [Gulp](http://gulpjs.com/) globally:<br>
+1. Install [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) if not yet.
+2. Install [Gulp](http://gulpjs.com/) using Git:<br>
 `npm rm -g gulp`<br>
 `npm install -g gulp-cli`
-3. Go to Dollchan repo and update dependencies:<br>
+3. Using Git, go to Dollchan repo and update dependencies:<br>
 `npm install`
 4. Then you can make both ES5 and ESNext userscript versions from [/src/modules](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/tree/master/src/modules) by running:<br>
 `gulp make`
@@ -69,3 +73,15 @@ disable your existing Dollchan extension if available.
 3. Open the `/extension` directory in your Dollchan repo and select the path to `manifest.json` file.<br>
 If you don't have a Dollchan repo, download and unpack the [repository archive](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/archive/master.zip) from the last state.
 4. Done.
+
+---
+### Donate
+
+- *YooMoney:*<br>
+    410012122418236
+- *WebMoney:*<br>
+    WMZ – Z100197626370<br>
+    WMR – R266614957054
+- *Bitcoin:*<br>
+    P2PKH – 15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC<br>
+    P2SH – 3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq
