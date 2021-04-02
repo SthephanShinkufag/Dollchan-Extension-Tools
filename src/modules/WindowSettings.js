@@ -791,7 +791,9 @@ const CfgWindow = {
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 					<input type="button" id="de-cfg-button-donate" value="Donate">
-				&lt;&lt;</div>` : '' }
+				&lt;&lt;</div>` : `<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+					<input type="button" id="de-cfg-button-donate" value="Donate">
+				&lt;&lt;</div>` }
 		</div>`;
 	},
 

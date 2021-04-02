@@ -3873,7 +3873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '21.4.1.0';
-	var commit = '1d2fc2e';
+	var commit = '79ee82d';
 
 
 	var defaultCfg = {
@@ -7990,7 +7990,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		_getCfgInfo: function _getCfgInfo() {
 			var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
-			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dollchan.net/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t' + this._getSel('updDollchan') + '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t\t<input type="button" id="de-cfg-button-donate" value="Donate">\n\t\t\t\t&lt;&lt;</div>' : '') + '\n\t\t</div>');
+			return '<div id="de-cfg-info" class="de-cfg-unvis">\n\t\t\t<div style="padding-bottom: 10px;">\n\t\t\t\t<a href="' + gitWiki + 'versions" target="_blank">v' + version + '.' + commit + ((nav.isESNext ? '.es6' : '') + '</a> |\n\t\t\t\t<a href="https://dollchan.net/" target="_blank">Homepage</a> |\n\t\t\t\t<a href="' + gitWiki + (lang === 1 ? 'home-en/' : '') + '" target="_blank">Github</a> |\n\t\t\t\t<input type="button" id="de-cfg-button-debug" value="') + (Lng.debug[lang] + '" title="' + Lng.infoDebug[lang] + '">\n\t\t\t</div>\n\t\t\t<div id="de-info-table">\n\t\t\t\t<div id="de-info-stats">' + statsTable + '</div>\n\t\t\t\t<div id="de-info-log">' + this._getInfoTable(Logger.getLogData(false), true) + '</div>\n\t\t\t</div>\n\t\t\t' + (!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? '\n\t\t\t\t' + this._getSel('updDollchan') + '\n\t\t\t\t<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-updnow" value="' + Lng.checkNow[lang] + '">\n\t\t\t\t\t<input type="button" id="de-cfg-button-donate" value="Donate">\n\t\t\t\t&lt;&lt;</div>' : '<div style="margin-top: 3px; text-align: center;">&gt;&gt;\n\t\t\t\t\t<input type="button" id="de-cfg-button-donate" value="Donate">\n\t\t\t\t&lt;&lt;</div>') + '\n\t\t</div>');
 		},
 
 

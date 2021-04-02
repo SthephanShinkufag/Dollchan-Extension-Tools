@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '1d2fc2e';
+const commit = '79ee82d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5022,7 +5022,9 @@ const CfgWindow = {
 				<div style="margin-top: 3px; text-align: center;">&gt;&gt;
 					<input type="button" id="de-cfg-button-updnow" value="${ Lng.checkNow[lang] }">
 					<input type="button" id="de-cfg-button-donate" value="Donate">
-				&lt;&lt;</div>` : '' }
+				&lt;&lt;</div>` : `<div style="margin-top: 3px; text-align: center;">&gt;&gt;
+					<input type="button" id="de-cfg-button-donate" value="Donate">
+				&lt;&lt;</div>` }
 		</div>`;
 	},
 
