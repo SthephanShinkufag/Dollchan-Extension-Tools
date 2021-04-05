@@ -370,10 +370,10 @@ const CfgWindow = {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
 						$each($Q('.de-img-embed'),
-							el => addImgSrcButtons(el.parentNode.nextSibling.nextSibling));
+							el => addImgButtons(el.parentNode.nextSibling.nextSibling));
 					}
 				} else {
-					$delAll('.de-btn-src');
+					$delAll('.de-btn-img');
 				}
 				break;
 			case 'addSageBtn':

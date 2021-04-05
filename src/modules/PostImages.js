@@ -570,7 +570,7 @@ class ExpandableImage {
 			name = origSrc.split('/').pop();
 		}
 		const imgNameEl = (Cfg.imgSrcBtns ?
-			'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"></use></svg>' : '') +
+			'<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') +
 			`<a class="de-fullimg-link" target="_blank" title="${
 				Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
@@ -634,8 +634,8 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">
-				${ imgNameEl }${ hasTitle && title ? ` - ${ title }` : '' }</a>
+			<div class="de-fullimg-info">${ imgNameEl }</a>
+				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
@@ -698,8 +698,8 @@ class ExpandableImage {
 				const loadedTitle = decodeURIComponent(escape(str));
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-link', wrapEl).textContent +=
-						` - ${ videoEl.title = loadedTitle.replace(/\./g, ' ') }`;
+					$q('.de-webm-title', wrapEl).textContent =
+						videoEl.title = loadedTitle.replace(/\./g, ' ');
 				}
 			});
 		}
@@ -732,11 +732,15 @@ class ExpandableImage {
 		if(!Cfg.imgSrcBtns) {
 			return;
 		}
-		const srcBtnEl = $q('.de-btn-src', _fullEl);
+		const srcBtnEl = $q('.de-btn-img', _fullEl);
 		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
-			const menuHtml = !this.isVideo ? Menu.getMenuImgSrc(srcBtnEl) :
-				`<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>`;
+			const menuHtml = !this.isVideo ? Menu.getMenuImg(srcBtnEl) :
+				Menu.getMenuImg(srcBtnEl, true) + `<span class="de-menu-item de-menu-getframe">${
+					Lng.getFrameLinks[lang] }</span>`;
 			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
+				if(!optiontEl.classList.contains('de-menu-getframe')) {
+					return;
+				}
 				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
 					$popup('upload', Lng.sending[lang], true);
 					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
@@ -755,7 +759,7 @@ class ExpandableImage {
 						try {
 							const obj = JSON.parse(xhr.responseText);
 							if(obj.status === 'success') {
-								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
+								hostUrl = obj.url ? Menu.getMenuImg(obj.url) : '';
 							} else {
 								errMsg += ':<br>' + obj.error_message;
 							}
@@ -1007,9 +1011,9 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgSrcButtons(link, src) {
-	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-src"${
-		src ? ` de-href="${ src }"` : '' }><use xlink:href="#de-symbol-post-src"/></svg>`);
+function addImgButtons(link, src) {
+	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-img"${ src ? ` de-href="${ src }"` : '' }>` +
+		'<use xlink:href="#de-symbol-post-img"/></svg>');
 }
 
 // Adding features for info links of images
@@ -1036,7 +1040,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
+			addImgButtons(link, image.isVideo ? link.href : null);
 		}
 		const { name } = image;
 		if(!link.classList.contains('de-img-name')) {
@@ -1072,7 +1076,7 @@ function embedPostMsgImages(el) {
 		$bBegin(link, `<a href="${
 			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
-			addImgSrcButtons(link);
+			addImgButtons(link);
 		}
 	}
 }

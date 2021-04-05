@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '79ee82d';
+const commit = 'b2183f7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -996,6 +996,22 @@ const Lng = {
 	],
 
 	// Sauce search for images and video frames
+	saveAs: [
+		'Сохр. как ',
+		'Save as ',
+		'Збер. як '],
+	origName: [
+		'Оригинальное имя',
+		'Original name',
+		'Оригінальне імʼя'],
+	metaName: [
+		'Имя из метаданных',
+		'Name from metadata',
+		'Імʼя з метаданих'],
+	boardName: [
+		'Имя, присвоенное доской',
+		'Name assigned by the board',
+		'Імʼя, присвоєне дошкою'],
 	searchIn: [
 		'Искать в ',
 		'Search in ',
@@ -4601,10 +4617,10 @@ const CfgWindow = {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
 						$each($Q('.de-img-embed'),
-							el => addImgSrcButtons(el.parentNode.nextSibling.nextSibling));
+							el => addImgButtons(el.parentNode.nextSibling.nextSibling));
 					}
 				} else {
-					$delAll('.de-btn-src');
+					$delAll('.de-btn-img');
 				}
 				break;
 			case 'addSageBtn':
@@ -5212,27 +5228,54 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	static getMenuImgSrc(data) {
-		let p;
+	static getMenuImg(data, isDlOnly = false) {
+		let p, dlLinks = '';
 		if(typeof data === 'string') {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
-				link.href) + '" target="_blank">' + Lng.searchIn[lang];
+			const href = data.getAttribute('de-href') || link.getAttribute('de-href') || link.href;
+			p = encodeURIComponent(href) + '" target="_blank">' + Lng.searchIn[lang];
+			const getDlLnk = (href, name, title, isAddExt) => {
+				let ext;
+				if(isAddExt) {
+					ext = href.split('.').pop();
+					name += '.' + ext;
+				} else {
+					ext = name.split('.').pop();
+				}
+				let nameShort = name;
+				if(name.length > 20) {
+					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
+				}
+				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
+					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
+			};
+			const name = decodeURIComponent(href.split('/').pop());
+			const isFullImg = link.classList.contains('de-fullimg-link');
+			const realName = isFullImg ? link.textContent :
+				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
+			if(name !== realName) {
+				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
+			}
+			let webmTitle;
+			if(isFullImg && (webmTitle = link.nextElementSibling) && (webmTitle = webmTitle.textContent)) {
+				dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
+			}
+			dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
 		}
 		if(aib.kohlchan) {
 			p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net')
 				.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
 		}
-		return arrTags([
+		return dlLinks + (isDlOnly ? '' : arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
 			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="https://iqdb.org/?url=${ p }IQDB`,
 			`de-src-tracemoe" href="https://trace.moe/?auto&url=${ p }TraceMoe`
-		], '<a class="de-menu-item ', '</a>');
+		], '<a class="de-menu-item ', '</a>'));
 	}
 	handleEvent(e) {
 		let isOverEvent = false;
@@ -5984,7 +6027,7 @@ const ContentLoader = {
 			}
 		});
 		if(!imgOnly) {
-			$delAll('#de-main, .de-parea, .de-post-btns, .de-btn-src, .de-refmap, .de-thr-buttons, ' +
+			$delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' +
 				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
 			$each($Q('a', dc), el => {
 				let num;
@@ -10477,6 +10520,10 @@ class AbstractPost {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
+			case 'de-btn-img':
+				quotetxt = aib.getImgRealName(aib.getImgWrap(el));
+				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				return;
 			case 'de-btn-reply':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
@@ -10484,10 +10531,6 @@ class AbstractPost {
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
-			case 'de-btn-src':
-				quotetxt = $q(aib.qImgNameLink, aib.getImgWrap(el)).title;
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				return;
 			}
 			return;
 		}
@@ -10515,7 +10558,28 @@ class AbstractPost {
 		}
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
-		case 'de-post-btns': el.removeAttribute('title'); return;
+		case 'de-btn-expthr':
+			this.btns.title = Lng.expandThr[lang];
+			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
+				'<span class="de-menu-item" info="thr-exp">', '</span>'));
+			return;
+		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
+		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+		case 'de-btn-hide':
+		case 'de-btn-hide-user':
+		case 'de-btn-unhide':
+		case 'de-btn-unhide-user':
+			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
+			if(Cfg.showHideBtn === 1) {
+				this._addMenu(el, isOutEvent,
+					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+			}
+			return;
+		case 'de-btn-img':
+			if(el.parentNode.className !== 'de-fullimg-info') {
+				this._addMenu(el, isOutEvent, Menu.getMenuImg(el));
+			}
+			return;
 		case 'de-btn-reply': {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(Cfg.showRepBtn === 1) {
@@ -10533,30 +10597,9 @@ class AbstractPost {
 			}
 			return;
 		}
-		case 'de-btn-hide':
-		case 'de-btn-hide-user':
-		case 'de-btn-unhide':
-		case 'de-btn-unhide-user':
-			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.showHideBtn === 1) {
-				this._addMenu(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
-			}
-			return;
-		case 'de-btn-expthr':
-			this.btns.title = Lng.expandThr[lang];
-			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
-				'<span class="de-menu-item" info="thr-exp">', '</span>'));
-			return;
-		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
-		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src':
-			if(el.parentNode.className !== 'de-fullimg-info') {
-				this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el));
-			}
-			return;
+		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
@@ -12366,7 +12409,7 @@ class ExpandableImage {
 			name = origSrc.split('/').pop();
 		}
 		const imgNameEl = (Cfg.imgSrcBtns ?
-			'<svg class="de-btn-src"><use xlink:href="#de-symbol-post-src"></use></svg>' : '') +
+			'<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') +
 			`<a class="de-fullimg-link" target="_blank" title="${
 				Lng.openOriginal[lang] }" href="${ origSrc }">${ name }`;
 		const wrapClass = `${ inPost ? ' de-fullimg-wrap-inpost' : ` de-fullimg-wrap-center${
@@ -12430,8 +12473,8 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">
-				${ imgNameEl }${ hasTitle && title ? ` - ${ title }` : '' }</a>
+			<div class="de-fullimg-info">${ imgNameEl }</a>
+				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
 			</div>
@@ -12494,8 +12537,8 @@ class ExpandableImage {
 				const loadedTitle = decodeURIComponent(escape(str));
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
-					$q('.de-fullimg-link', wrapEl).textContent +=
-						` - ${ videoEl.title = loadedTitle.replace(/\./g, ' ') }`;
+					$q('.de-webm-title', wrapEl).textContent =
+						videoEl.title = loadedTitle.replace(/\./g, ' ');
 				}
 			});
 		}
@@ -12528,11 +12571,15 @@ class ExpandableImage {
 		if(!Cfg.imgSrcBtns) {
 			return;
 		}
-		const srcBtnEl = $q('.de-btn-src', _fullEl);
+		const srcBtnEl = $q('.de-btn-img', _fullEl);
 		srcBtnEl.addEventListener('mouseover', () => (srcBtnEl.odelay = setTimeout(() => {
-			const menuHtml = !this.isVideo ? Menu.getMenuImgSrc(srcBtnEl) :
-				`<span class="de-menu-item">${ Lng.getFrameLinks[lang] }</span>`;
+			const menuHtml = !this.isVideo ? Menu.getMenuImg(srcBtnEl) :
+				Menu.getMenuImg(srcBtnEl, true) + `<span class="de-menu-item de-menu-getframe">${
+					Lng.getFrameLinks[lang] }</span>`;
 			new Menu(srcBtnEl, menuHtml, !this.isVideo ? emptyFn : optiontEl => {
+				if(!optiontEl.classList.contains('de-menu-getframe')) {
+					return;
+				}
 				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
 					$popup('upload', Lng.sending[lang], true);
 					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
@@ -12551,7 +12598,7 @@ class ExpandableImage {
 						try {
 							const obj = JSON.parse(xhr.responseText);
 							if(obj.status === 'success') {
-								hostUrl = obj.url ? Menu.getMenuImgSrc(obj.url) : '';
+								hostUrl = obj.url ? Menu.getMenuImg(obj.url) : '';
 							} else {
 								errMsg += ':<br>' + obj.error_message;
 							}
@@ -12803,9 +12850,9 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgSrcButtons(link, src) {
-	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-src"${
-		src ? ` de-href="${ src }"` : '' }><use xlink:href="#de-symbol-post-src"/></svg>`);
+function addImgButtons(link, src) {
+	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-img"${ src ? ` de-href="${ src }"` : '' }>` +
+		'<use xlink:href="#de-symbol-post-img"/></svg>');
 }
 
 // Adding features for info links of images
@@ -12832,7 +12879,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgSrcButtons(link, image.isVideo ? image.el.src : null);
+			addImgButtons(link, image.isVideo ? link.href : null);
 		}
 		const { name } = image;
 		if(!link.classList.contains('de-img-name')) {
@@ -12868,7 +12915,7 @@ function embedPostMsgImages(el) {
 		$bBegin(link, `<a href="${
 			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
-			addImgSrcButtons(link);
+			addImgButtons(link);
 		}
 	}
 }
@@ -16257,7 +16304,6 @@ function getImageBoard(checkDomains, checkEngines) {
 					.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
 				.captcha { overflow: hidden; max-width: 300px; }
 				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
-				.de-btn-src + a { display: inline-flex; }
 				.de-pview > .post__details { margin-left: 4px; }
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
@@ -17845,7 +17891,7 @@ function addSVGIcons() {
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<path class="de-svg-fill" d="M4 9h8l-4 4.5zm2-6h4v1H6zm0 2h4v1H6zm0 2h4v1H6z"/>
 	</symbol>
-	<symbol viewBox="0 0 16 16" id="de-symbol-post-src">
+	<symbol viewBox="0 0 16 16" id="de-symbol-post-img">
 		<use class="de-post-btns-back" xlink:href="#de-symbol-post-back"/>
 		<circle class="de-svg-stroke" stroke-width="2" cx="7" cy="7" r="2.5"/>
 		<path class="de-svg-stroke" stroke-width="2" d="M9 9l3 3"/>
@@ -18214,7 +18260,7 @@ function scriptCSS() {
 
 	/* Post panel */
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
-	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
+	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
 	!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '' }
 	.de-post-btns { margin-left: 4px; }
 	.de-post-btns-back { fill: inherit; stroke: none; }
@@ -18282,7 +18328,7 @@ function scriptCSS() {
 	.de-fullimg-after { clear: left; }
 	.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }
-	.de-fullimg-info > .de-btn-src { color: #fff; }
+	.de-fullimg-info > .de-btn-img { color: #fff; }
 	.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
@@ -18301,6 +18347,7 @@ function scriptCSS() {
 	.de-img-btn-none { display: none; }
 	#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }
 	#de-img-btn-rotate { right: 0; margin-top: 20px; }
+	.de-webm-title { color: #ffe100 !important; }
 
 	/* Embedders */
 	${ cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico') }
@@ -18452,10 +18499,10 @@ function updateCSS() {
 			.de-ref-you::after { content: " (You)"; }` :
 		'.de-post-counter-you { display: none; }' }
 	${ Cfg.postBtnsCSS === 0 ?
-		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-src, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }
+		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }
 			.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }` :
-		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-reply, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }
-			.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-reply, .de-btn-src, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }
+		`.de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }
+			.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ${ Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack }; }
 			.de-btn-fav-sel { color: #FFE100; }
 			.de-btn-hide-user { color: #BFFFBF; }
 			.de-btn-sage { fill: #4B4B4B; }

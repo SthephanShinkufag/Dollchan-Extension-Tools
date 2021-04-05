@@ -94,27 +94,54 @@ class Menu {
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
-	static getMenuImgSrc(data) {
-		let p;
+	static getMenuImg(data, isDlOnly = false) {
+		let p, dlLinks = '';
 		if(typeof data === 'string') {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			p = encodeURIComponent(data.getAttribute('de-href') || link.getAttribute('de-href') ||
-				link.href) + '" target="_blank">' + Lng.searchIn[lang];
+			const href = data.getAttribute('de-href') || link.getAttribute('de-href') || link.href;
+			p = encodeURIComponent(href) + '" target="_blank">' + Lng.searchIn[lang];
+			const getDlLnk = (href, name, title, isAddExt) => {
+				let ext;
+				if(isAddExt) {
+					ext = href.split('.').pop();
+					name += '.' + ext;
+				} else {
+					ext = name.split('.').pop();
+				}
+				let nameShort = name;
+				if(name.length > 20) {
+					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
+				}
+				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
+					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
+			};
+			const name = decodeURIComponent(href.split('/').pop());
+			const isFullImg = link.classList.contains('de-fullimg-link');
+			const realName = isFullImg ? link.textContent :
+				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
+			if(name !== realName) {
+				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
+			}
+			let webmTitle;
+			if(isFullImg && (webmTitle = link.nextElementSibling) && (webmTitle = webmTitle.textContent)) {
+				dlLinks += getDlLnk(href, webmTitle, Lng.metaName[lang], true);
+			}
+			dlLinks += getDlLnk(href, name, Lng.boardName[lang], false);
 		}
 		if(aib.kohlchan) {
 			p = p.replace('kohlchanagb7ih5g.onion', 'kohlchan.net')
 				.replace('kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion', 'kohlchan.net');
 		}
-		return arrTags([
+		return dlLinks + (isDlOnly ? '' : arrTags([
 			`de-src-google" href="https://www.google.com/searchbyimage?image_url=${ p }Google`,
 			`de-src-yandex" href="https://yandex.com/images/search?rpt=imageview&url=${ p }Yandex`,
 			`de-src-tineye" href="https://tineye.com/search/?url=${ p }TinEye`,
 			`de-src-saucenao" href="https://saucenao.com/search.php?url=${ p }SauceNAO`,
 			`de-src-iqdb" href="https://iqdb.org/?url=${ p }IQDB`,
 			`de-src-tracemoe" href="https://trace.moe/?auto&url=${ p }TraceMoe`
-		], '<a class="de-menu-item ', '</a>');
+		], '<a class="de-menu-item ', '</a>'));
 	}
 	handleEvent(e) {
 		let isOverEvent = false;

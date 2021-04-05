@@ -189,6 +189,10 @@ class AbstractPost {
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
+			case 'de-btn-img':
+				quotetxt = aib.getImgRealName(aib.getImgWrap(el));
+				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				return;
 			case 'de-btn-reply':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotetxt = '';
@@ -196,10 +200,6 @@ class AbstractPost {
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
-			case 'de-btn-src':
-				quotetxt = $q(aib.qImgNameLink, aib.getImgWrap(el)).title;
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				return;
 			}
 			return;
 		}
@@ -227,7 +227,28 @@ class AbstractPost {
 		}
 		// Mouseover/mouseout on post buttons - update title, add/delete dropdown menu
 		switch(el.classList[0]) {
-		case 'de-post-btns': el.removeAttribute('title'); return;
+		case 'de-btn-expthr':
+			this.btns.title = Lng.expandThr[lang];
+			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
+				'<span class="de-menu-item" info="thr-exp">', '</span>'));
+			return;
+		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
+		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
+		case 'de-btn-hide':
+		case 'de-btn-hide-user':
+		case 'de-btn-unhide':
+		case 'de-btn-unhide-user':
+			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
+			if(Cfg.showHideBtn === 1) {
+				this._addMenu(el, isOutEvent,
+					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
+			}
+			return;
+		case 'de-btn-img':
+			if(el.parentNode.className !== 'de-fullimg-info') {
+				this._addMenu(el, isOutEvent, Menu.getMenuImg(el));
+			}
+			return;
 		case 'de-btn-reply': {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(Cfg.showRepBtn === 1) {
@@ -245,30 +266,9 @@ class AbstractPost {
 			}
 			return;
 		}
-		case 'de-btn-hide':
-		case 'de-btn-hide-user':
-		case 'de-btn-unhide':
-		case 'de-btn-unhide-user':
-			this.btns.title = this.isOp ? Lng.toggleThr[lang] : Lng.togglePost[lang];
-			if(Cfg.showHideBtn === 1) {
-				this._addMenu(el, isOutEvent,
-					(this instanceof Pview ? pByNum.get(this.num) : this)._getMenuHide());
-			}
-			return;
-		case 'de-btn-expthr':
-			this.btns.title = Lng.expandThr[lang];
-			this._addMenu(el, isOutEvent, arrTags(Lng.selExpandThr[lang],
-				'<span class="de-menu-item" info="thr-exp">', '</span>'));
-			return;
-		case 'de-btn-fav': this.btns.title = Lng.addFav[lang]; return;
-		case 'de-btn-fav-sel': this.btns.title = Lng.delFav[lang]; return;
 		case 'de-btn-sage': this.btns.title = 'SAGE'; return;
 		case 'de-btn-stick': this.btns.title = Lng.attachPview[lang]; return;
-		case 'de-btn-src':
-			if(el.parentNode.className !== 'de-fullimg-info') {
-				this._addMenu(el, isOutEvent, Menu.getMenuImgSrc(el));
-			}
-			return;
+		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
 			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {

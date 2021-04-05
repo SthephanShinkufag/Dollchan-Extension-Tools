@@ -819,6 +819,22 @@ const Lng = {
 	],
 
 	// Sauce search for images and video frames
+	saveAs: [
+		'Сохр. как ',
+		'Save as ',
+		'Збер. як '],
+	origName: [
+		'Оригинальное имя',
+		'Original name',
+		'Оригінальне імʼя'],
+	metaName: [
+		'Имя из метаданных',
+		'Name from metadata',
+		'Імʼя з метаданих'],
+	boardName: [
+		'Имя, присвоенное доской',
+		'Name assigned by the board',
+		'Імʼя, присвоєне дошкою'],
 	searchIn: [
 		'Искать в ',
 		'Search in ',
