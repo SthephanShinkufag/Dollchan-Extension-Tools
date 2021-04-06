@@ -3445,7 +3445,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var checkDelete = function () {
 		var _ref41 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(data) {
-			var err, els, threads, isThr, i, len, _el12;
+			var err, els, threads, isThr, i, len, _el11;
 
 			return regeneratorRuntime.wrap(function _callee16$(_context18) {
 				while (1) {
@@ -3468,11 +3468,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							isThr = aib.t;
 
 							for (i = 0, len = els.length; i < len; ++i) {
-								_el12 = els[i];
+								_el11 = els[i];
 
-								_el12.checked = false;
+								_el11.checked = false;
 								if (!isThr) {
-									threads.add(aib.getPostOfEl(_el12).thr);
+									threads.add(aib.getPostOfEl(_el11).thr);
 								}
 							}
 
@@ -3519,7 +3519,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el13, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams, url;
+			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el12, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams, url;
 
 			return regeneratorRuntime.wrap(function _callee17$(_context20) {
 				while (1) {
@@ -3543,7 +3543,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							name = _ref45.name;
 							value = _ref45.value;
 							type = _ref45.type;
-							_el13 = _ref45.el;
+							_el12 = _ref45.el;
 							val = value;
 
 							if (!(name === 'de-file-txt')) {
@@ -3562,7 +3562,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							hasFiles = true;
 							fileName = value.name;
 							fileExt = fileName.substring(fileName.lastIndexOf('.'));
-							newFileName = !Cfg.removeFName || _el13.obj && _el13.obj.imgFile && _el13.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
+							newFileName = !Cfg.removeFName || _el12.obj && _el12.obj.imgFile && _el12.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
 							Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + fileExt;
 							mime = value.type;
 
@@ -3577,7 +3577,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 26:
 							_context20.t1 = _context20.sent.data;
-							_context20.t2 = _el13.obj ? _el13.obj.extraFile : null;
+							_context20.t2 = _el12.obj ? _el12.obj.extraFile : null;
 							cleanData = (0, _context20.t0)(_context20.t1, _context20.t2);
 
 							if (cleanData) {
@@ -3873,7 +3873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '21.4.1.0';
-	var commit = 'b2183f7';
+	var commit = '5809518';
 
 
 	var defaultCfg = {
@@ -9143,7 +9143,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						    isVideo = _data5[5];
 
 						if (imageData) {
-							var fName = url.substring(url.lastIndexOf('/') + 1);
+							var fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
 							var nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 							imgLink.setAttribute('download', fName);
 							if (!Cfg.imgNames) {
@@ -9181,8 +9181,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.isLoading = true;
 			}
 			for (var i = 0; i < len; ++i) {
-				var _el7 = els[i];
-				var imgLink = $parent(_el7, 'A');
+				var imgEl = els[i];
+				var imgLink = aib.getImgSrcLink(imgEl);
 				if (!imgLink) {
 					continue;
 				}
@@ -9203,9 +9203,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					isRepToOrig &= Cfg.openImgs !== 2;
 				}
 				if (preloadPool) {
-					preloadPool.runTask([_url2, imgLink, type, isRepToOrig, _el7, isVideo]);
+					preloadPool.runTask([_url2, imgLink, type, isRepToOrig, imgEl, isVideo]);
 				} else if (isRepToOrig) {
-					_el7.src = _url2;
+					imgEl.src = _url2;
 				}
 			}
 			if (preloadPool) {
@@ -9551,18 +9551,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var loader = !cloned && Videos._getTitlesLoader();
 				var j = 0;
 				for (var i = 0, len = newLinks.length; i < len; ++i) {
-					var _el8 = newLinks[i];
+					var _el7 = newLinks[i];
 					var link = oldLinks[j];
 					if (link && link.classList.contains('de-current')) {
-						this.currentLink = _el8;
+						this.currentLink = _el7;
 					}
 					if (cloned) {
-						_el8.videoInfo = link.videoInfo;
+						_el7.videoInfo = link.videoInfo;
 						j++;
 					} else {
-						var m = _el8.href.match(Videos.ytReg);
+						var m = _el7.href.match(Videos.ytReg);
 						if (m) {
-							this.addLink(m, loader, _el8, true);
+							this.addLink(m, loader, _el7, true);
 							j++;
 						}
 					}
@@ -9821,13 +9821,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					continue;
 				}
 				var src = link.href;
-				var _el9 = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
+				var _el8 = (isPost ? data : aib.getPostOfEl(link)).mp3Obj;
 				if (nav.canPlayMP3) {
-					if (!$q('audio[src="' + src + '"]', _el9)) {
-						_el9.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
+					if (!$q('audio[src="' + src + '"]', _el8)) {
+						_el8.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
 					}
-				} else if (!$q('object[FlashVars*="' + src + '"]', _el9)) {
-					_el9.insertAdjacentHTML('beforeend', '<object data="' + 'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' + 'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' + 'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' + 'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' + 'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' + ('loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>'));
+				} else if (!$q('object[FlashVars*="' + src + '"]', _el8)) {
+					_el8.insertAdjacentHTML('beforeend', '<object data="' + 'http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" ' + 'wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;' + 'bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;' + 'rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;' + 'text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;' + ('loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>'));
 				}
 			}
 		}
@@ -9835,8 +9835,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
 			for (var _i8 = 0, _len7 = _els2.length; _i8 < _len7; ++_i8) {
 				var _link = _els2[_i8];
-				var _el10 = _link.previousSibling;
-				if (!_el10 || _el10.className !== 'de-vocaroo') {
+				var _el9 = _link.previousSibling;
+				if (!_el9 || _el9.className !== 'de-vocaroo') {
 					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
@@ -12546,8 +12546,8 @@ true, true];
 				if (el.tagName !== 'DIV') {
 					el = el.parentNode;
 				}
-				var _el11 = el,
-				    id = _el11.id;
+				var _el10 = el,
+				    id = _el10.id;
 
 				if (!id.startsWith('de-btn')) {
 					return;
@@ -14287,8 +14287,8 @@ true, true];
 					this.parentEl.innerHTML = this.originHTML;
 					this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 				} else {
-					var _el14 = $q('#g-recaptcha, .g-recaptcha');
-					$replace(_el14, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el14.getAttribute('data-sitekey') + '"></div>');
+					var _el13 = $q('#g-recaptcha, .g-recaptcha');
+					$replace(_el13, '<div id="g-recaptcha" class="g-recaptcha" data-sitekey="' + _el13.getAttribute('data-sitekey') + '"></div>');
 				}
 				this.initCapPromise();
 			}
@@ -15113,9 +15113,9 @@ true, true];
 					HotKeys.cPost = this;
 					HotKeys.lastPageOffset = deWindow.pageYOffset;
 				} else {
-					var _el15 = $q('.de-selected');
-					if (_el15) {
-						_el15.unselect();
+					var _el14 = $q('.de-selected');
+					if (_el14) {
+						_el14.unselect();
 					}
 				}
 				this.select();
@@ -15252,9 +15252,9 @@ true, true];
 			key: 'unselect',
 			value: function unselect() {
 				if (this.isOp) {
-					var _el16 = $id('de-thr-hid-' + this.num);
-					if (_el16) {
-						_el16.classList.remove('de-selected');
+					var _el15 = $id('de-thr-hid-' + this.num);
+					if (_el15) {
+						_el15.classList.remove('de-selected');
 					}
 					this.thr.el.classList.remove('de-selected');
 				} else {
@@ -15581,8 +15581,8 @@ true, true];
 				}
 				btnHide.setAttribute('class', isUser ? 'de-btn-unhide-user' : 'de-btn-unhide');
 				if (headerEl) {
-					for (var _el17 = headerEl.nextElementSibling; _el17; _el17 = _el17.nextElementSibling) {
-						_el17.classList.add('de-post-hiddencontent');
+					for (var _el16 = headerEl.nextElementSibling; _el16; _el16 = _el16.nextElementSibling) {
+						_el16.classList.add('de-post-hiddencontent');
 					}
 				}
 			}
@@ -15839,14 +15839,14 @@ true, true];
 						vPost = null;
 					}
 					var _pv = pv,
-					    _el18 = _pv.el;
+					    _el17 = _pv.el;
 
-					pByEl.delete(_el18);
+					pByEl.delete(_el17);
 					if (Cfg.animation) {
-						$animate(_el18, 'de-pview-anim', true);
-						_el18.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
+						$animate(_el17, 'de-pview-anim', true);
+						_el17.style.animationName = 'de-post-close-' + (this._isTop ? 't' : 'b') + (this._isLeft ? 'l' : 'r');
 					} else {
-						_el18.remove();
+						_el17.remove();
 					}
 				} while (pv = pv.kid);
 			}
@@ -15888,8 +15888,8 @@ true, true];
 						default:
 							break checkMouse;
 					}
-					var _el19 = fixEventEl(e.relatedTarget);
-					if (!_el19 || isOverEvent && (_el19.tagName !== 'A' || _el19.isNotRefLink) || _el19 !== this.el && !this.el.contains(_el19)) {
+					var _el18 = fixEventEl(e.relatedTarget);
+					if (!_el18 || isOverEvent && (_el18.tagName !== 'A' || _el18.isNotRefLink) || _el18 !== this.el && !this.el.contains(_el18)) {
 						if (isOverEvent) {
 							this.mouseEnter();
 						} else if (Pview.top) {
@@ -16237,12 +16237,12 @@ true, true];
 					return;
 				}
 				if (parent.thr.loadCount === 1 && !parent.el.contains(pv._link)) {
-					var _el20 = parent.ref.getElByNum(pv.num);
-					if (!_el20) {
+					var _el19 = parent.ref.getElByNum(pv.num);
+					if (!_el19) {
 						pv.deletePview();
 						return;
 					}
-					pv._link = _el20;
+					pv._link = _el19;
 				}
 				var cr = parent.isHidden ? parent : pv._link.getBoundingClientRect();
 				var diff = pv._isTop ? pv._offsetTop - deWindow.pageYOffset - cr.bottom : pv._offsetTop + pv.el.offsetHeight - deWindow.pageYOffset - cr.top;
@@ -16586,8 +16586,8 @@ true, true];
 						return;
 					case 'click':
 						{
-							var _el21 = e.target;
-							if (this.data.isVideo && ExpandableImage.isControlClick(e) || _el21.tagName !== 'IMG' && _el21.tagName !== 'VIDEO' && !_el21.classList.contains('de-fullimg-wrap') && !_el21.classList.contains('de-fullimg-wrap-link') && !_el21.classList.contains('de-fullimg-video-hack') && _el21.className !== 'de-fullimg-load') {
+							var _el20 = e.target;
+							if (this.data.isVideo && ExpandableImage.isControlClick(e) || _el20.tagName !== 'IMG' && _el20.tagName !== 'VIDEO' && !_el20.classList.contains('de-fullimg-wrap') && !_el20.classList.contains('de-fullimg-wrap-link') && !_el20.classList.contains('de-fullimg-video-hack') && _el20.className !== 'de-fullimg-load') {
 								return;
 							}
 							if (e.button === 0) {
@@ -16914,9 +16914,9 @@ true, true];
 					if (this.isVideo) {
 						return [0, 0, null];
 					}
-					var _el22 = new Image();
-					_el22.src = this.el.src;
-					return [_el22.width, _el22.height, null];
+					var _el21 = new Image();
+					_el21.src = this.el.src;
+					return [_el21.width, _el21.height, null];
 				}
 
 				var _size = _slicedToArray(this._size, 2),
@@ -17427,9 +17427,9 @@ true, true];
 			var hasAttachments = false;
 			var filesMap = new Map();
 			for (var i = 0, len = els.length; i < len; ++i) {
-				var _el23 = els[i];
-				last = new AttachedImage(post, _el23, last);
-				filesMap.set(_el23, last);
+				var _el22 = els[i];
+				last = new AttachedImage(post, _el22, last);
+				filesMap.set(_el22, last);
 				hasAttachments = true;
 				if (!first) {
 					first = last;
@@ -17438,9 +17438,9 @@ true, true];
 			if (Cfg.addImgs || localData) {
 				els = $Q('.de-img-embed', post.el);
 				for (var _i15 = 0, _len10 = els.length; _i15 < _len10; ++_i15) {
-					var _el24 = els[_i15];
-					last = new EmbeddedImage(post, _el24, last);
-					filesMap.set(_el24, last);
+					var _el23 = els[_i15];
+					last = new EmbeddedImage(post, _el23, last);
+					filesMap.set(_el23, last);
 					if (!first) {
 						first = last;
 					}
@@ -18529,10 +18529,10 @@ true, true];
 				if (!this._set.size) {
 					this.removeMap();
 				} else {
-					var _el25 = this.getElByNum(num);
-					if (_el25) {
-						$del(_el25.nextSibling);
-						_el25.remove();
+					var _el24 = this.getElByNum(num);
+					if (_el24) {
+						$del(_el24.nextSibling);
+						_el24.remove();
 					}
 				}
 			}
@@ -20186,14 +20186,14 @@ true, true];
 					}
 					continue;
 				}
-				var _el26 = threads[i];
+				var _el25 = threads[i];
 				var thrNext = threads[i + 1];
-				var elNext = _el26.nextSibling;
+				var elNext = _el25.nextSibling;
 				while (elNext && elNext !== thrNext) {
 					elNext.remove();
-					elNext = _el26.nextSibling;
+					elNext = _el25.nextSibling;
 				}
-				_el26.remove();
+				_el25.remove();
 				console.log('Repeated thread: ' + num);
 			}
 			if (this.firstThr === null) {
@@ -20285,12 +20285,12 @@ true, true];
 				var threads = [];
 				var fNodes = [].concat(_toConsumableArray(formEl.childNodes));
 				for (i = 0, len = fNodes.length - 1; i < len; ++i) {
-					var _el27 = fNodes[i];
-					if (_el27.tagName === 'HR') {
-						formEl.insertBefore(cThr, _el27);
+					var _el26 = fNodes[i];
+					if (_el26.tagName === 'HR') {
+						formEl.insertBefore(cThr, _el26);
 						var lastEl = cThr.lastElementChild;
 						if (lastEl.tagName === 'BR') {
-							formEl.insertBefore(lastEl, _el27);
+							formEl.insertBefore(lastEl, _el26);
 						}
 						try {
 							aib.getTNum(cThr);
@@ -20298,7 +20298,7 @@ true, true];
 						} catch (err) {}
 						cThr = doc.createElement('div');
 					} else {
-						cThr.appendChild(_el27);
+						cThr.appendChild(_el26);
 					}
 				}
 				cThr.appendChild(fNodes[i]);
@@ -20656,19 +20656,19 @@ true, true];
 				var videos = [];
 				var els = $Q('embed, object, iframe', isPost ? data.el : data);
 				for (var i = 0, _len14 = els.length; i < _len14; ++i) {
-					var _el28 = els[i];
-					var src = _el28.src || _el28.data;
+					var _el27 = els[i];
+					var src = _el27.src || _el27.data;
 					if (!src) {
 						continue;
 					}
 					var m = src.match(Videos.ytReg);
 					if (m) {
-						videos.push([isPost ? data : this.getPostOfEl(_el28), m, true]);
-						$del(_el28);
+						videos.push([isPost ? data : this.getPostOfEl(_el27), m, true]);
+						$del(_el27);
 					}
 					if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-						videos.push([isPost ? data : this.getPostOfEl(_el28), m, false]);
-						$del(_el28);
+						videos.push([isPost ? data : this.getPostOfEl(_el27), m, false]);
+						$del(_el27);
 					}
 				}
 				return videos;
@@ -21515,8 +21515,7 @@ true, true];
 			}, {
 				key: 'getImgSrcLink',
 				value: function getImgSrcLink(img) {
-					var el = img.parentNode;
-					return el.tagName === 'A' ? el : $q('.originalNameLink', el.parentNode);
+					return $q('.originalNameLink', this.getImgWrap(img));
 				}
 			}, {
 				key: 'getImgWrap',
@@ -22462,8 +22461,8 @@ true, true];
 						switch (data.result) {
 							case 1:
 								{
-									var _el29 = $q('.captcha__image');
-									var img = $q('img', _el29) || $aBegin(_el29, '<img>');
+									var _el28 = $q('.captcha__image');
+									var img = $q('img', _el28) || $aBegin(_el28, '<img>');
 									img.src = '';
 									img.src = '/api/captcha/image/' + data.id;
 									$q('input[name="captcha_id"]').value = data.id;
@@ -23122,9 +23121,9 @@ true, true];
 						img.src = src;
 						cap.textEl.value = '';
 					} else if (isErr) {
-						var _el30 = img.parentNode;
-						_el30.innerHTML = '';
-						_el30.appendChild(img);
+						var _el29 = img.parentNode;
+						_el29.innerHTML = '';
+						_el29.appendChild(img);
 						img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' + ' id="captcha" name="captcha" size="35" type="text">');
 						$show(img);
 						cap.isAdded = false;

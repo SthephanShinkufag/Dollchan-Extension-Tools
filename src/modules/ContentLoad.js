@@ -173,7 +173,7 @@ const ContentLoader = {
 			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
 				const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
 				if(imageData) {
-					const fName = url.substring(url.lastIndexOf('/') + 1);
+					const fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
 					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
 					imgLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
@@ -210,8 +210,8 @@ const ContentLoader = {
 			this.isLoading = true;
 		}
 		for(let i = 0; i < len; ++i) {
-			const el = els[i];
-			const imgLink = $parent(el, 'A');
+			const imgEl = els[i];
+			const imgLink = aib.getImgSrcLink(imgEl);
 			if(!imgLink) {
 				continue;
 			}
@@ -232,9 +232,9 @@ const ContentLoader = {
 				isRepToOrig &= Cfg.openImgs !== 2;
 			}
 			if(preloadPool) {
-				preloadPool.runTask([url, imgLink, type, isRepToOrig, el, isVideo]);
+				preloadPool.runTask([url, imgLink, type, isRepToOrig, imgEl, isVideo]);
 			} else if(isRepToOrig) {
-				el.src = url;
+				imgEl.src = url;
 			}
 		}
 		if(preloadPool) {

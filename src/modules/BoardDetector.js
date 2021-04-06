@@ -369,8 +369,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.originalNameLink', wrap).textContent;
 		}
 		getImgSrcLink(img) {
-			const el = img.parentNode;
-			return el.tagName === 'A' ? el : $q('.originalNameLink', el.parentNode);
+			return $q('.originalNameLink', this.getImgWrap(img));
 		}
 		getImgWrap(img) {
 			return $parent(img, 'FIGURE');
