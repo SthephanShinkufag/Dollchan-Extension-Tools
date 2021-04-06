@@ -100,8 +100,9 @@ class Menu {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			const href = data.getAttribute('de-href') || link.getAttribute('de-href') || link.href;
-			p = encodeURIComponent(href) + '" target="_blank">' + Lng.searchIn[lang];
+			const { href } = link;
+			const origSrc = link.getAttribute('de-href') || href;
+			p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
 				if(isAddExt) {
@@ -117,7 +118,7 @@ class Menu {
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
-			const name = decodeURIComponent(href.split('/').pop());
+			const name = decodeURIComponent(origSrc.split('/').pop());
 			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
 				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;

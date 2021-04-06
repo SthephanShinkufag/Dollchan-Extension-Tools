@@ -25,7 +25,7 @@ const ContentLoader = {
 				} else {
 					thumbName = 'thumbs/' + thumbName;
 					safeName = imgData ? 'images/' + safeName : thumbName;
-					imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
+					imgLink.href = $q(aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 				}
 				if(imgData) {
 					tar.addFile(safeName, imgData);

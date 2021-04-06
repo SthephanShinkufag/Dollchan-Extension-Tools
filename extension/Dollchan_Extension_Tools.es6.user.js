@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '5809518';
+const commit = 'f1272ac';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5234,8 +5234,9 @@ class Menu {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			const href = data.getAttribute('de-href') || link.getAttribute('de-href') || link.href;
-			p = encodeURIComponent(href) + '" target="_blank">' + Lng.searchIn[lang];
+			const { href } = link;
+			const origSrc = link.getAttribute('de-href') || href;
+			p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
 				if(isAddExt) {
@@ -5251,7 +5252,7 @@ class Menu {
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
-			const name = decodeURIComponent(href.split('/').pop());
+			const name = decodeURIComponent(origSrc.split('/').pop());
 			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
 				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
@@ -5975,7 +5976,7 @@ const ContentLoader = {
 				} else {
 					thumbName = 'thumbs/' + thumbName;
 					safeName = imgData ? 'images/' + safeName : thumbName;
-					imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
+					imgLink.href = $q(aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 				}
 				if(imgData) {
 					tar.addFile(safeName, imgData);
@@ -12850,8 +12851,8 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgButtons(link, src) {
-	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-img"${ src ? ` de-href="${ src }"` : '' }>` +
+function addImgButtons(link) {
+	link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' +
 		'<use xlink:href="#de-symbol-post-img"/></svg>');
 }
 
@@ -12879,7 +12880,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgButtons(link, image.isVideo ? link.href : null);
+			addImgButtons(link);
 		}
 		const { name } = image;
 		if(!link.classList.contains('de-img-name')) {

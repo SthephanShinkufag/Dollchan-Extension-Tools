@@ -1011,8 +1011,8 @@ const ImagesHashStorage = Object.create({
 	}
 });
 
-function addImgButtons(link, src) {
-	link.insertAdjacentHTML('beforebegin', `<svg class="de-btn-img"${ src ? ` de-href="${ src }"` : '' }>` +
+function addImgButtons(link) {
+	link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' +
 		'<use xlink:href="#de-symbol-post-img"/></svg>');
 }
 
@@ -1040,7 +1040,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 			return;
 		}
 		if(addSrc) {
-			addImgButtons(link, image.isVideo ? link.href : null);
+			addImgButtons(link);
 		}
 		const { name } = image;
 		if(!link.classList.contains('de-img-name')) {

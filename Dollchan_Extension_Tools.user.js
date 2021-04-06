@@ -3873,7 +3873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '21.4.1.0';
-	var commit = '5809518';
+	var commit = 'f1272ac';
 
 
 	var defaultCfg = {
@@ -8237,8 +8237,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 				} else {
 					var link = data.nextSibling;
-					var href = data.getAttribute('de-href') || link.getAttribute('de-href') || link.href;
-					p = encodeURIComponent(href) + '" target="_blank">' + Lng.searchIn[lang];
+					var href = link.href;
+
+					var origSrc = link.getAttribute('de-href') || href;
+					p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 					var getDlLnk = function getDlLnk(href, name, title, isAddExt) {
 						var ext = void 0;
 						if (isAddExt) {
@@ -8253,7 +8255,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return '<a class="de-menu-item" href="' + href + '" download="' + name + '" title="' + title + '" target="_blank">' + Lng.saveAs[lang] + ' &quot;' + nameShort + '&quot;</a>';
 					};
-					var name = decodeURIComponent(href.split('/').pop());
+					var name = decodeURIComponent(origSrc.split('/').pop());
 					var isFullImg = link.classList.contains('de-fullimg-link');
 					var realName = isFullImg ? link.textContent : link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
 					if (name !== realName) {
@@ -8982,7 +8984,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						} else {
 							thumbName = 'thumbs/' + thumbName;
 							safeName = imgData ? 'images/' + safeName : thumbName;
-							imgLink.href = $q('a[de-href], ' + aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
+							imgLink.href = $q(aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
 						}
 						if (imgData) {
 							tar.addFile(safeName, imgData);
@@ -17658,8 +17660,8 @@ true, true];
 		}()
 	});
 
-	function addImgButtons(link, src) {
-		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img"' + (src ? ' de-href="' + src + '"' : '') + '>' + '<use xlink:href="#de-symbol-post-img"/></svg>');
+	function addImgButtons(link) {
+		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' + '<use xlink:href="#de-symbol-post-img"/></svg>');
 	}
 
 	function processImgInfoLinks(parent) {
@@ -17695,7 +17697,7 @@ true, true];
 					return;
 				}
 				if (addSrc) {
-					addImgButtons(link, image.isVideo ? link.href : null);
+					addImgButtons(link);
 				}
 				var name = image.name;
 
