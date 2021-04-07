@@ -567,7 +567,7 @@ class ExpandableImage {
 			({ name } = this);
 		} else {
 			origSrc = parent.href;
-			name = origSrc.split('/').pop();
+			name = getFileName(origSrc);
 		}
 		const imgNameEl = (Cfg.imgSrcBtns ?
 			'<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') +
@@ -619,7 +619,7 @@ class ExpandableImage {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		const isWebm = origSrc.split('.').pop() === 'webm';
+		const isWebm = getFileExt(origSrc) === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
 		if(inPost) {
@@ -743,7 +743,7 @@ class ExpandableImage {
 				}
 				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
 					$popup('upload', Lng.sending[lang], true);
-					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
+					const name = cutFileExt(this.name) + '.png';
 					const blob = new Blob([arr], { type: 'image/png' });
 					let formData;
 					if(!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
@@ -1056,7 +1056,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 		if(imgNames) {
 			let ext;
 			if(!(ext = link.getAttribute('de-img-ext'))) {
-				ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+				ext = getFileExt(name) || getFileExt(getFileName(link.href));
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);
 			}

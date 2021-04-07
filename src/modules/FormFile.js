@@ -365,7 +365,7 @@ class FileInput {
 					myBtn.className = 'de-file-rarmsg';
 					const origFileName = this.imgFile ? this.imgFile.name : this._input.files[0].name;
 					myBtn.title = origFileName + ' + ' + file.name;
-					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
+					myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
 					this.extraFile = data;
 				}
 			});
@@ -390,7 +390,7 @@ class FileInput {
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = this._isTxtEditName = false;
-			let name = file ? file.name : url.split('/').pop();
+			let name = file ? file.name : getFileName(url);
 			const type = file && file.type || getFileType(name);
 			if(!type || name.includes('?')) {
 				let ext;

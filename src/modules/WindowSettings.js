@@ -807,7 +807,7 @@ const CfgWindow = {
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		const el = doc.createElement('div');
-		el.appendChild($txt(Cfg[id])); // Escape HTML
+		el.appendChild(doc.createTextNode(Cfg[id])); // Escape HTML
 		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;

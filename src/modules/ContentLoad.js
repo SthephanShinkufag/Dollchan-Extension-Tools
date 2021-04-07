@@ -72,8 +72,8 @@ const ContentLoader = {
 			const parentLink = $parent(el, 'A');
 			if(parentLink) {
 				const url = parentLink.href;
-				this._thrPool.runTask([url, parentLink.getAttribute('download') ||
-					url.substring(url.lastIndexOf('/') + 1), el, parentLink]);
+				this._thrPool.runTask(
+					[url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
 			}
 		});
 		if(!imgOnly) {
@@ -104,13 +104,12 @@ const ContentLoader = {
 					el.remove();
 					return;
 				}
-				let fName = url.substring(url.lastIndexOf('/') + 1)
-					.replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				let fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 				if(files.indexOf(fName) !== -1) {
 					let temp = url.lastIndexOf('.');
 					const ext = url.substring(temp);
 					url = url.substring(0, temp);
-					fName = fName.substring(0, fName.lastIndexOf('.'));
+					fName = cutFileExt(fName);
 					for(let i = 0; ; ++i) {
 						temp = `${ fName }(${ i })${ ext }`;
 						if(files.indexOf(temp) === -1) {
@@ -173,7 +172,7 @@ const ContentLoader = {
 			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
 				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
 				if(imageData) {
-					const fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
+					const fName = decodeURIComponent(getFileName(url));
 					const nameLink = getImgNameLink(el);
 					parentLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
@@ -259,8 +258,8 @@ const ContentLoader = {
 					'audio/ogg',
 					'audio/mpeg'][type]
 			})
-		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-			fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
+		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${
+			Lng.downloadFile[lang] }" download="${ cutFileExt(fName) }.${ ext }">.${ ext }</a>`);
 	},
 	// Finds built-in files in jpg and png
 	_detectImgFile: arrBuf => {

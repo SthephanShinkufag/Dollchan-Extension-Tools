@@ -3519,7 +3519,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, submitter) {
 			var needProgress = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el12, val, fileName, fileExt, newFileName, mime, cleanData, ajaxParams, url;
+			var data, hasFiles, _iteratorNormalCompletion22, _didIteratorError22, _iteratorError22, _iterator22, _step22, _ref45, name, value, type, _el12, val, fileName, newFileName, mime, cleanData, ajaxParams, url;
 
 			return regeneratorRuntime.wrap(function _callee17$(_context20) {
 				while (1) {
@@ -3535,7 +3535,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						case 7:
 							if (_iteratorNormalCompletion22 = (_step22 = _iterator22.next()).done) {
-								_context20.next = 39;
+								_context20.next = 38;
 								break;
 							}
 
@@ -3551,103 +3551,102 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								break;
 							}
 
-							return _context20.abrupt('continue', 36);
+							return _context20.abrupt('continue', 35);
 
 						case 16:
 							if (!(type === 'file')) {
-								_context20.next = 35;
+								_context20.next = 34;
 								break;
 							}
 
 							hasFiles = true;
 							fileName = value.name;
-							fileExt = fileName.substring(fileName.lastIndexOf('.'));
 							newFileName = !Cfg.removeFName || _el12.obj && _el12.obj.imgFile && _el12.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' :
-							Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + fileExt;
+							Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + '.' + getFileExt(fileName);
 							mime = value.type;
 
 							if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
-								_context20.next = 34;
+								_context20.next = 33;
 								break;
 							}
 
 							_context20.t0 = cleanFile;
-							_context20.next = 26;
+							_context20.next = 25;
 							return readFile(value);
 
-						case 26:
+						case 25:
 							_context20.t1 = _context20.sent.data;
 							_context20.t2 = _el12.obj ? _el12.obj.extraFile : null;
 							cleanData = (0, _context20.t0)(_context20.t1, _context20.t2);
 
 							if (cleanData) {
-								_context20.next = 31;
+								_context20.next = 30;
 								break;
 							}
 
 							return _context20.abrupt('return', Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
-						case 31:
+						case 30:
 							val = new File(cleanData, newFileName, { type: mime });
-							_context20.next = 35;
+							_context20.next = 34;
 							break;
 
-						case 34:
+						case 33:
 							if (Cfg.removeFName) {
 								val = new File([value], newFileName, { type: mime });
 							}
 
-						case 35:
+						case 34:
 							data.append(name, val);
 
-						case 36:
+						case 35:
 							_iteratorNormalCompletion22 = true;
 							_context20.next = 7;
 							break;
 
-						case 39:
-							_context20.next = 45;
+						case 38:
+							_context20.next = 44;
 							break;
 
-						case 41:
-							_context20.prev = 41;
+						case 40:
+							_context20.prev = 40;
 							_context20.t3 = _context20['catch'](5);
 							_didIteratorError22 = true;
 							_iteratorError22 = _context20.t3;
 
-						case 45:
+						case 44:
+							_context20.prev = 44;
 							_context20.prev = 45;
-							_context20.prev = 46;
 
 							if (!_iteratorNormalCompletion22 && _iterator22.return) {
 								_iterator22.return();
 							}
 
-						case 48:
-							_context20.prev = 48;
+						case 47:
+							_context20.prev = 47;
 
 							if (!_didIteratorError22) {
-								_context20.next = 51;
+								_context20.next = 50;
 								break;
 							}
 
 							throw _iteratorError22;
 
+						case 50:
+							return _context20.finish(47);
+
 						case 51:
-							return _context20.finish(48);
+							return _context20.finish(44);
 
 						case 52:
-							return _context20.finish(45);
-
-						case 53:
 							if (!aib.sendHTML5Post) {
-								_context20.next = 55;
+								_context20.next = 54;
 								break;
 							}
 
 							return _context20.abrupt('return', aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
-						case 55:
+						case 54:
 							ajaxParams = { data: data, method: 'POST' };
 
 							if (needProgress && hasFiles) {
@@ -3661,12 +3660,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 								return Promise.reject(err);
 							}));
 
-						case 59:
+						case 58:
 						case 'end':
 							return _context20.stop();
 					}
 				}
-			}, _callee17, this, [[5, 41, 45, 53], [46,, 48, 52]]);
+			}, _callee17, this, [[5, 40, 44, 52], [45,, 47, 51]]);
 		}));
 
 		return function html5Submit(_x50, _x51) {
@@ -3873,7 +3872,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '21.4.1.0';
-	var commit = 'a0fa5c2';
+	var commit = '74ae2dc';
 
 
 	var defaultCfg = {
@@ -4588,24 +4587,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return dummy.firstElementChild;
 	}
 
-	var $txt = function $txt(el) {
-		return doc.createTextNode(el);
-	};
-
-	function $btn(val, ttl, fn) {
+	function $btn(value, title, fn) {
 		var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'de-button';
 
-		var el = doc.createElement('input');
-		el.type = 'button';
-		el.className = className;
-		el.value = val;
-		el.title = ttl;
+		var el = $add('<input type="button" class="' + className + '" value="' + value + '" title="' + title + '">');
 		el.addEventListener('click', fn);
 		return el;
 	}
 
 	function $script(text) {
-		var el = doc.createElement('script');
+		var el = doc.createElement('script'); 
 		el.type = 'text/javascript';
 		el.textContent = text;
 		doc.head.appendChild(el).remove();
@@ -4675,6 +4666,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return image.style.color !== 'rgb(255, 255, 255)';
 	}
 
+	var cssMatches = function cssMatches(leftSel) {
+		for (var _len = arguments.length, rules = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+			rules[_key - 1] = arguments[_key];
+		}
+
+		return leftSel.split(', ').map(function (val) {
+			return val + rules.join(', ' + val);
+		}).join(', ');
+	};
+
 
 	var pad2 = function pad2(i) {
 		return (i < 10 ? '0' : '') + i;
@@ -4690,6 +4691,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 	var getAbsLink = function getAbsLink(url) {
 		return (url[1] === '/' ? aib.prot : url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
+	};
+
+	var getFileName = function getFileName(url) {
+		return url.substring(url.lastIndexOf('/') + 1);
+	};
+
+	var getFileExt = function getFileExt(url) {
+		return url.substring(url.lastIndexOf('.') + 1);
+	};
+
+	var cutFileExt = function cutFileExt(fileName) {
+		return fileName.substring(0, fileName.lastIndexOf('.'));
+	};
+
+	var prettifySize = function prettifySize(val) {
+		return val > 512 * 1024 * 1024 ? (val / Math.pow(1024, 3)).toFixed(2) + Lng.sizeGByte[lang] : val > 512 * 1024 ? (val / Math.pow(1024, 2)).toFixed(2) + Lng.sizeMByte[lang] : val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] : val.toFixed(2) + Lng.sizeByte[lang];
 	};
 
 	var quoteReg = function quoteReg(str) {
@@ -5333,10 +5350,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 		})));
 	}
-
-	var prettifySize = function prettifySize(val) {
-		return val > 512 * 1024 * 1024 ? (val / Math.pow(1024, 3)).toFixed(2) + Lng.sizeGByte[lang] : val > 512 * 1024 ? (val / Math.pow(1024, 2)).toFixed(2) + Lng.sizeMByte[lang] : val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] : val.toFixed(2) + Lng.sizeByte[lang];
-	};
 
 	function getFileType(url) {
 		var dotIdx = url.lastIndexOf('.') + 1;
@@ -6850,7 +6863,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}));
 
 		btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
-			var favObj, isUpdate, last404, myposts, els, _i, _len, el, host, _b3, num, _f, _ref9, titleEl, youEl, countEl, iconEl, form, isArchived, _ref10, _ref11, posts, cnt, j, links, a, _len2, tc;
+			var favObj, isUpdate, last404, myposts, els, _i, _len2, el, host, _b3, num, _f, _ref9, titleEl, youEl, countEl, iconEl, form, isArchived, _ref10, _ref11, posts, cnt, j, links, a, _len3, tc;
 
 			return regeneratorRuntime.wrap(function _callee6$(_context7) {
 				while (1) {
@@ -6874,10 +6887,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							last404 = false;
 							myposts = JSON.parse(locStorage['de-myposts'] || '{}');
 							els = $Q('.de-entry');
-							_i = 0, _len = els.length;
+							_i = 0, _len2 = els.length;
 
 						case 10:
-							if (!(_i < _len)) {
+							if (!(_i < _len2)) {
 								_context7.next = 64;
 								break;
 							}
@@ -6999,7 +7012,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									for (j = 0; j < cnt; ++j) {
 										links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', posts[posts.length - 1 - j]);
 
-										for (a = 0, _len2 = links.length; a < _len2; ++a) {
+										for (a = 0, _len3 = links.length; a < _len3; ++a) {
 											tc = links[a].textContent;
 
 											if (tc[0] === '>' && tc[1] === '>' && myposts[_b3][tc.substr(2)]) {
@@ -7034,7 +7047,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}))));
 
 		btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee7() {
-			var els, len, thrInfo, _i2, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, _els, _i3, _len3, _i4, inf, _i5, _inf;
+			var els, len, thrInfo, _i2, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, _els, _i3, _len4, _i4, inf, _i5, _inf;
 
 			return regeneratorRuntime.wrap(function _callee7$(_context8) {
 				while (1) {
@@ -7098,7 +7111,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							form = _context8.sent;
 							_els = DelForm.getThreads(form);
 
-							for (_i3 = 0, _len3 = _els.length; _i3 < _len3; ++_i3) {
+							for (_i3 = 0, _len4 = _els.length; _i3 < _len4; ++_i3) {
 								tNums.add(aib.getTNum(_els[_i3]));
 							}
 							_context8.next = 24;
@@ -7151,7 +7164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}))));
 
 		btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee8() {
-			var last404, els, parent, _loop3, _i6, _len4;
+			var last404, els, parent, _loop3, _i6, _len5;
 
 			return regeneratorRuntime.wrap(function _callee8$(_context10) {
 				while (1) {
@@ -7162,7 +7175,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							parent = $q('.de-fav-table');
 
 							parent.classList.add('de-fav-table-unfold');
-							_loop3 = regeneratorRuntime.mark(function _loop3(_i7, _len4) {
+							_loop3 = regeneratorRuntime.mark(function _loop3(_i7, _len5) {
 								var el, iconEl, titleEl;
 								return regeneratorRuntime.wrap(function _loop3$(_context9) {
 									while (1) {
@@ -7215,15 +7228,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									}
 								}, _loop3, _this13);
 							});
-							_i6 = 0, _len4 = els.length;
+							_i6 = 0, _len5 = els.length;
 
 						case 6:
-							if (!(_i6 < _len4)) {
+							if (!(_i6 < _len5)) {
 								_context10.next = 11;
 								break;
 							}
 
-							return _context10.delegateYield(_loop3(_i6, _len4), 't0', 8);
+							return _context10.delegateYield(_loop3(_i6, _len5), 't0', 8);
 
 						case 8:
 							++_i6;
@@ -8011,7 +8024,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 
 			var el = doc.createElement('div');
-			el.appendChild($txt(Cfg[id])); 
+			el.appendChild(doc.createTextNode(Cfg[id])); 
 			return '<label class="de-cfg-label">\n\t\t<input class="de-cfg-inptxt" info="' + id + '" type="text" size="' + size + '" value="' + el.innerHTML + '">' + (addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '') + '</label>';
 		},
 
@@ -8244,10 +8257,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var getDlLnk = function getDlLnk(href, name, title, isAddExt) {
 						var ext = void 0;
 						if (isAddExt) {
-							ext = href.split('.').pop();
+							ext = getFileExt(href);
 							name += '.' + ext;
 						} else {
-							ext = name.split('.').pop();
+							ext = getFileExt(name);
 						}
 						var nameShort = name;
 						if (name.length > 20) {
@@ -8255,7 +8268,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return '<a class="de-menu-item" href="' + href + '" download="' + name + '" title="' + title + '" target="_blank">' + Lng.saveAs[lang] + ' &quot;' + nameShort + '&quot;</a>';
 					};
-					var name = decodeURIComponent(origSrc.split('/').pop());
+					var name = decodeURIComponent(getFileName(origSrc));
 					var isFullImg = link.classList.contains('de-fullimg-link');
 					var realName = isFullImg ? link.textContent : link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
 					if (name !== realName) {
@@ -9029,7 +9042,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var parentLink = $parent(el, 'A');
 				if (parentLink) {
 					var _url = parentLink.href;
-					_this17._thrPool.runTask([_url, parentLink.getAttribute('download') || _url.substring(_url.lastIndexOf('/') + 1), el, parentLink]);
+					_this17._thrPool.runTask([_url, parentLink.getAttribute('download') || getFileName(_url), el, parentLink]);
 				}
 			});
 			if (!imgOnly) {
@@ -9060,12 +9073,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						el.remove();
 						return;
 					}
-					var fName = url.substring(url.lastIndexOf('/') + 1).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+					var fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 					if (files.indexOf(fName) !== -1) {
 						var temp = url.lastIndexOf('.');
 						var ext = url.substring(temp);
 						url = url.substring(0, temp);
-						fName = fName.substring(0, fName.lastIndexOf('.'));
+						fName = cutFileExt(fName);
 						for (var i = 0;; ++i) {
 							temp = fName + '(' + i + ')' + ext;
 							if (files.indexOf(temp) === -1) {
@@ -9145,7 +9158,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						    isVideo = _data5[5];
 
 						if (imageData) {
-							var fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
+							var fName = decodeURIComponent(getFileName(url));
 							var nameLink = getImgNameLink(el);
 							parentLink.setAttribute('download', fName);
 							if (!Cfg.imgNames) {
@@ -9227,7 +9240,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			var ext = ['7z', 'zip', 'rar', 'ogg', 'mp3'][type];
 			nameLink.insertAdjacentHTML('afterend', '<a href="' + deWindow.URL.createObjectURL(new Blob([nav.getUnsafeUint8Array(info.data, info.idx)], {
 				type: ['application/x-7z-compressed', 'application/zip', 'application/x-rar-compressed', 'audio/ogg', 'audio/mpeg'][type]
-			})) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>');
+			})) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] + '" download="' + cutFileExt(fName) + '.' + ext + '">.' + ext + '</a>');
 		},
 
 		_detectImgFile: function _detectImgFile(arrBuf) {
@@ -9369,8 +9382,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return txt;
 				}
 				return txt.replace(new RegExp(this.regex, 'g'), function (str) {
-					for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key = 1; _key < _len5; _key++) {
-						args[_key - 1] = arguments[_key];
+					for (var _len6 = arguments.length, args = Array(_len6 > 1 ? _len6 - 1 : 0), _key2 = 1; _key2 < _len6; _key2++) {
+						args[_key2 - 1] = arguments[_key2];
 					}
 
 					var second = void 0,
@@ -9715,8 +9728,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    videoObj = _ref21[2],
 				    id = _ref21[3];
 
-				for (var _len6 = arguments.length, data = Array(_len6 > 2 ? _len6 - 2 : 0), _key2 = 2; _key2 < _len6; _key2++) {
-					data[_key2 - 2] = arguments[_key2];
+				for (var _len7 = arguments.length, data = Array(_len7 > 2 ? _len7 - 2 : 0), _key3 = 2; _key3 < _len7; _key3++) {
+					data[_key3 - 2] = arguments[_key3];
 				}
 
 				if (data.length !== 0) {
@@ -9835,11 +9848,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		if (Cfg.addVocaroo) {
 			var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-			for (var _i8 = 0, _len7 = _els2.length; _i8 < _len7; ++_i8) {
+			for (var _i8 = 0, _len8 = _els2.length; _i8 < _len8; ++_i8) {
 				var _link = _els2[_i8];
 				var _el9 = _link.previousSibling;
 				if (!_el9 || _el9.className !== 'de-vocaroo') {
-					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + _link.href.split('/').pop() + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
+					_link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo">\n\t\t\t\t\t<embed src="http://vocaroo.com/player.swf?playMediaID=' + getFileName(_link.href) + '" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">\n\t\t\t\t</div>');
 				}
 			}
 		}
@@ -9893,7 +9906,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							{
 								var buf = new ArrayBuffer(answer.length);
 								var bufView = new Uint8Array(buf);
-								for (var _i9 = 0, _len8 = answer.length; _i9 < _len8; ++_i9) {
+								for (var _i9 = 0, _len9 = answer.length; _i9 < _len9; ++_i9) {
 									bufView[_i9] = answer.charCodeAt(_i9);
 								}
 								obj.response = params.responseType === 'blob' ? new Blob([buf]) : buf;
@@ -11191,18 +11204,18 @@ true, true];
 				}
 			}
 			sp = sp.sort();
-			for (var _i10 = 0, _len9 = sp.length - 1; _i10 < _len9; ++_i10) {
+			for (var _i10 = 0, _len10 = sp.length - 1; _i10 < _len10; ++_i10) {
 				var j = _i10 + 1;
 				if (sp[_i10][0] === sp[j][0] && sp[_i10][1] <= sp[j][1] && sp[_i10][1] >= sp[j][1] && (sp[_i10][2] === null || 
 				sp[_i10][2] === undefined || 
 				sp[_i10][2] <= sp[j][2] && sp[_i10][2] >= sp[j][2])) {
 					sp.splice(j, 1);
 					_i10--;
-					_len9--;
+					_len10--;
 				} else if (sp[_i10][0] === 0xFF) {
 					sp.push(sp.splice(_i10, 1)[0]);
 					_i10--;
-					_len9--;
+					_len10--;
 				}
 			}
 		},
@@ -14045,7 +14058,7 @@ true, true];
 							myBtn.className = 'de-file-rarmsg';
 							var origFileName = _this37.imgFile ? _this37.imgFile.name : _this37._input.files[0].name;
 							myBtn.title = origFileName + ' + ' + file.name;
-							myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
+							myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
 							_this37.extraFile = data;
 						}
 					});
@@ -14078,7 +14091,7 @@ true, true];
 					}
 					closePopup('file-loading');
 					_this38._isTxtEditable = _this38._isTxtEditName = false;
-					var name = file ? file.name : url.split('/').pop();
+					var name = file ? file.name : getFileName(url);
 					var type = file && file.type || getFileType(name);
 					if (!type || name.includes('?')) {
 						var ext = void 0;
@@ -17043,7 +17056,7 @@ true, true];
 					name = this.name;
 				} else {
 					origSrc = parent.href;
-					name = origSrc.split('/').pop();
+					name = getFileName(origSrc);
 				}
 				var imgNameEl = (Cfg.imgSrcBtns ? '<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') + ('<a class="de-fullimg-link" target="_blank" title="' + Lng.openOriginal[lang] + '" href="' + origSrc + '">' + name);
 				var wrapClass = '' + (inPost ? ' de-fullimg-wrap-inpost' : ' de-fullimg-wrap-center' + (this._size ? '' : ' de-fullimg-wrap-nosize')) + (this.isVideo ? ' de-fullimg-video' : '');
@@ -17085,7 +17098,7 @@ true, true];
 					return wrapEl;
 				}
 
-				var isWebm = origSrc.split('.').pop() === 'webm';
+				var isWebm = getFileExt(origSrc) === 'webm';
 				var needTitle = isWebm && Cfg.webmTitles;
 				var inPostSize = '';
 				if (inPost) {
@@ -17216,7 +17229,7 @@ true, true];
 							}
 							ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
 								$popup('upload', Lng.sending[lang], true);
-								var name = _this63.name.substring(0, _this63.name.lastIndexOf('.')) + '.png';
+								var name = cutFileExt(_this63.name) + '.png';
 								var blob = new Blob([arr], { type: 'image/png' });
 								var formData = void 0;
 								if (!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
@@ -17439,7 +17452,7 @@ true, true];
 			}
 			if (Cfg.addImgs || localData) {
 				els = $Q('.de-img-embed', post.el);
-				for (var _i15 = 0, _len10 = els.length; _i15 < _len10; ++_i15) {
+				for (var _i15 = 0, _len11 = els.length; _i15 < _len11; ++_i15) {
 					var _el23 = els[_i15];
 					last = new EmbeddedImage(post, _el23, last);
 					filesMap.set(_el23, last);
@@ -17714,7 +17727,7 @@ true, true];
 				if (imgNames) {
 					var ext = void 0;
 					if (!(ext = link.getAttribute('de-img-ext'))) {
-						ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+						ext = getFileExt(name) || getFileExt(getFileName(link.href));
 						link.setAttribute('de-img-ext', ext);
 						link.setAttribute('de-img-name-old', link.textContent);
 					}
@@ -18101,11 +18114,11 @@ true, true];
 						    th = thumb;
 						var thumbW = 200;
 						var thumbH = 200;
-						var ext = src.split('.').pop();
+						var ext = getFileExt(src);
 						if (brd === 'b' || brd === 'rf') {
-							fileName = fullFileName = th.split('/').pop();
+							fileName = fullFileName = getFileName(th);
 						} else {
-							fileName = fullFileName = src.split('/').pop();
+							fileName = fullFileName = getFileName(src);
 							if (multiFile && fileName.length > 20) {
 								fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 							}
@@ -19086,7 +19099,7 @@ true, true];
 					temp.innerHTML = aib.fixHTML(html.join(''));
 					fragm = temp.content;
 					var posts = $Q(aib.qRPost, fragm);
-					for (var _i18 = 0, _len11 = posts.length; _i18 < _len11; ++_i18) {
+					for (var _i18 = 0, _len12 = posts.length; _i18 < _len12; ++_i18) {
 						last = this._addPost(fragm, posts[_i18], begin + _i18 + 1, last, maybeVParser);
 						newVisCount -= maybeSpells.value.runSpells(last);
 						embedPostMsgImages(last.el);
@@ -20182,7 +20195,7 @@ true, true];
 			formEl.removeAttribute('id');
 			$delAll('script', this.el);
 			var threads = DelForm.getThreads(this.el);
-			for (var i = 0, _len12 = threads.length; i < _len12; ++i) {
+			for (var i = 0, _len13 = threads.length; i < _len13; ++i) {
 				var num = aib.getTNum(threads[i]);
 				if (!DelForm.tNums.has(num)) {
 					DelForm.tNums.add(num);
@@ -20410,15 +20423,6 @@ true, true];
 			};
 		}
 		nav = {
-			cssMatches: function cssMatches(leftSel) {
-				for (var _len13 = arguments.length, rules = Array(_len13 > 1 ? _len13 - 1 : 0), _key3 = 1; _key3 < _len13; _key3++) {
-					rules[_key3 - 1] = arguments[_key3];
-				}
-
-				return leftSel.split(', ').map(function (val) {
-					return val + rules.join(', ' + val);
-				}).join(', ');
-			},
 			canUseFetch: canUseFetch,
 			canUseFetchBlob: canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 			canUseNativeXHR: true,
@@ -20844,29 +20848,29 @@ true, true];
 		}, {
 			key: 'qFormMail',
 			get: function get() {
-				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
+				return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 			}
 		}, {
 			key: 'qFormName',
 			get: function get() {
-				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="name"]', '[name="field1"]');
+				return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="name"]', '[name="field1"]');
 			}
 		}, {
 			key: 'qFormSubj',
 			get: function get() {
-				return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
+				return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
 			}
 		}, {
 			key: 'qImgNameLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+				var value = cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
 				Object.defineProperty(this, 'qImgNameLink', { value: value });
 				return value;
 			}
 		}, {
 			key: 'qMsgImgLink',
 			get: function get() {
-				var value = nav.cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
+				var value = cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 				Object.defineProperty(this, 'qMsgImgLink', { value: value });
 				return value;
 			}
@@ -21742,7 +21746,7 @@ true, true];
 										if (needProgress && hasFiles) {
 											ajaxParams.onprogress = getUploadFunc();
 										}
-										task = form.attributes.action.value.split('/').pop();
+										task = getFileName(form.attributes.action.value);
 										url = this._hasNewAPI ? '/' + task + '?json=1' : '/.api/' + task.replace('.js', '');
 										return _context33.abrupt('return', $ajax(url, ajaxParams).then(function (xhr) {
 											return xhr.responseText;

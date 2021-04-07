@@ -106,10 +106,10 @@ class Menu {
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
 				if(isAddExt) {
-					ext = href.split('.').pop();
+					ext = getFileExt(href);
 					name += '.' + ext;
 				} else {
-					ext = name.split('.').pop();
+					ext = getFileExt(name);
 				}
 				let nameShort = name;
 				if(name.length > 20) {
@@ -118,7 +118,7 @@ class Menu {
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
-			const name = decodeURIComponent(origSrc.split('/').pop());
+			const name = decodeURIComponent(getFileName(origSrc));
 			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
 				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;

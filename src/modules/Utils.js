@@ -83,22 +83,14 @@ function $add(html) {
 	return dummy.firstElementChild;
 }
 
-const $txt = el => doc.createTextNode(el);
-
-// TODO: Get rid of this function and paste buttons in html
-function $btn(val, ttl, fn, className = 'de-button') {
-	const el = doc.createElement('input');
-	el.type = 'button';
-	el.className = className;
-	el.value = val;
-	el.title = ttl;
+function $btn(value, title, fn, className = 'de-button') {
+	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
 }
 
 function $script(text) {
-	// We can't insert scripts directly as html
-	const el = doc.createElement('script');
+	const el = doc.createElement('script'); // We can't insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
 	doc.head.appendChild(el).remove();
@@ -166,6 +158,10 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
+const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
+	val => val + rules.join(', ' + val)
+).join(', ');
+
 // OTHER UTILS
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
@@ -177,6 +173,18 @@ const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot :
 	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
+
+const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+
+const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+
+const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -692,12 +700,6 @@ async function readFile(file, asText = false) {
 		}
 	});
 }
-
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
 
 function getFileType(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;

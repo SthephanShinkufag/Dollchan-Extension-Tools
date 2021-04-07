@@ -73,19 +73,19 @@ class BaseBoard {
 		this.makaba = false;
 	}
 	get qFormMail() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
 	get qFormName() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
 	get qFormSubj() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
+		const value = cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
 			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
 			', [href^="blob:"]');
@@ -93,7 +93,7 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = nav.cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;

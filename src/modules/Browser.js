@@ -92,9 +92,6 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
-			val => val + rules.join(', ' + val)
-		).join(', '),
 		canUseFetch,
 		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = 'a0fa5c2';
+const commit = '74ae2dc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1787,22 +1787,14 @@ function $add(html) {
 	return dummy.firstElementChild;
 }
 
-const $txt = el => doc.createTextNode(el);
-
-// TODO: Get rid of this function and paste buttons in html
-function $btn(val, ttl, fn, className = 'de-button') {
-	const el = doc.createElement('input');
-	el.type = 'button';
-	el.className = className;
-	el.value = val;
-	el.title = ttl;
+function $btn(value, title, fn, className = 'de-button') {
+	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
 }
 
 function $script(text) {
-	// We can't insert scripts directly as html
-	const el = doc.createElement('script');
+	const el = doc.createElement('script'); // We can't insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
 	doc.head.appendChild(el).remove();
@@ -1870,6 +1862,10 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
+const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
+	val => val + rules.join(', ' + val)
+).join(', ');
+
 // OTHER UTILS
 
 const pad2 = i => (i < 10 ? '0' : '') + i;
@@ -1881,6 +1877,18 @@ const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot :
 	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
+
+const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+
+const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+
+const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
 
 // Prepares a string to be used as a new RegExp argument
 const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -2396,12 +2404,6 @@ async function readFile(file, asText = false) {
 		}
 	});
 }
-
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
 
 function getFileType(url) {
 	const dotIdx = url.lastIndexOf('.') + 1;
@@ -5054,7 +5056,7 @@ const CfgWindow = {
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		const el = doc.createElement('div');
-		el.appendChild($txt(Cfg[id])); // Escape HTML
+		el.appendChild(doc.createTextNode(Cfg[id])); // Escape HTML
 		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
@@ -5240,10 +5242,10 @@ class Menu {
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
 				if(isAddExt) {
-					ext = href.split('.').pop();
+					ext = getFileExt(href);
 					name += '.' + ext;
 				} else {
-					ext = name.split('.').pop();
+					ext = getFileExt(name);
 				}
 				let nameShort = name;
 				if(name.length > 20) {
@@ -5252,7 +5254,7 @@ class Menu {
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
-			const name = decodeURIComponent(origSrc.split('/').pop());
+			const name = decodeURIComponent(getFileName(origSrc));
 			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
 				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
@@ -6023,8 +6025,8 @@ const ContentLoader = {
 			const parentLink = $parent(el, 'A');
 			if(parentLink) {
 				const url = parentLink.href;
-				this._thrPool.runTask([url, parentLink.getAttribute('download') ||
-					url.substring(url.lastIndexOf('/') + 1), el, parentLink]);
+				this._thrPool.runTask(
+					[url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
 			}
 		});
 		if(!imgOnly) {
@@ -6055,13 +6057,12 @@ const ContentLoader = {
 					el.remove();
 					return;
 				}
-				let fName = url.substring(url.lastIndexOf('/') + 1)
-					.replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				let fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
 				if(files.indexOf(fName) !== -1) {
 					let temp = url.lastIndexOf('.');
 					const ext = url.substring(temp);
 					url = url.substring(0, temp);
-					fName = fName.substring(0, fName.lastIndexOf('.'));
+					fName = cutFileExt(fName);
 					for(let i = 0; ; ++i) {
 						temp = `${ fName }(${ i })${ ext }`;
 						if(files.indexOf(temp) === -1) {
@@ -6124,7 +6125,7 @@ const ContentLoader = {
 			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
 				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
 				if(imageData) {
-					const fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
+					const fName = decodeURIComponent(getFileName(url));
 					const nameLink = getImgNameLink(el);
 					parentLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
@@ -6210,8 +6211,8 @@ const ContentLoader = {
 					'audio/ogg',
 					'audio/mpeg'][type]
 			})
-		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${ Lng.downloadFile[lang] }" download="${
-			fName.substring(0, fName.lastIndexOf('.')) }.${ ext }">.${ ext }</a>`);
+		) }" class="de-img-${ type > 2 ? 'audio' : 'arch' }" title="${
+			Lng.downloadFile[lang] }" download="${ cutFileExt(fName) }.${ ext }">.${ ext }</a>`);
 	},
 	// Finds built-in files in jpg and png
 	_detectImgFile: arrBuf => {
@@ -6755,7 +6756,7 @@ function embedAudioLinks(data) {
 			const el = link.previousSibling;
 			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=${ link.href.split('/').pop() }` +
+					<embed src="http://vocaroo.com/player.swf?playMediaID=${ getFileName(link.href) }` +
 						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
 				</div>`);
 			}
@@ -9413,13 +9414,12 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const fileExt = fileName.substring(fileName.lastIndexOf('.'));
 			const newFileName =
 				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (
 					Cfg.removeFName === 1 ? '' :
 					// 5 years = 5*365*24*60*60*1e3 = 15768e7
 					Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))
-				) + fileExt;
+				) + '.' + getFileExt(fileName);
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||
@@ -9956,7 +9956,7 @@ class FileInput {
 					myBtn.className = 'de-file-rarmsg';
 					const origFileName = this.imgFile ? this.imgFile.name : this._input.files[0].name;
 					myBtn.title = origFileName + ' + ' + file.name;
-					myBtn.textContent = origFileName.split('.').pop() + ' + ' + file.name.split('.').pop();
+					myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
 					this.extraFile = data;
 				}
 			});
@@ -9981,7 +9981,7 @@ class FileInput {
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = this._isTxtEditName = false;
-			let name = file ? file.name : url.split('/').pop();
+			let name = file ? file.name : getFileName(url);
 			const type = file && file.type || getFileType(name);
 			if(!type || name.includes('?')) {
 				let ext;
@@ -12407,7 +12407,7 @@ class ExpandableImage {
 			({ name } = this);
 		} else {
 			origSrc = parent.href;
-			name = origSrc.split('/').pop();
+			name = getFileName(origSrc);
 		}
 		const imgNameEl = (Cfg.imgSrcBtns ?
 			'<svg class="de-btn-img"><use xlink:href="#de-symbol-post-img"></use></svg>' : '') +
@@ -12459,7 +12459,7 @@ class ExpandableImage {
 
 		// Expand videos: WEBM, MP4
 		// FIXME: handle null size videos
-		const isWebm = origSrc.split('.').pop() === 'webm';
+		const isWebm = getFileExt(origSrc) === 'webm';
 		const needTitle = isWebm && Cfg.webmTitles;
 		let inPostSize = '';
 		if(inPost) {
@@ -12583,7 +12583,7 @@ class ExpandableImage {
 				}
 				ContentLoader.getDataFromImg($q('video', _fullEl)).then(arr => {
 					$popup('upload', Lng.sending[lang], true);
-					const name = this.name.substring(0, this.name.lastIndexOf('.')) + '.png';
+					const name = cutFileExt(this.name) + '.png';
 					const blob = new Blob([arr], { type: 'image/png' });
 					let formData;
 					if(!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
@@ -12896,7 +12896,7 @@ function processPostImgInfoLinks(post, addSrc, imgNames) {
 		if(imgNames) {
 			let ext;
 			if(!(ext = link.getAttribute('de-img-ext'))) {
-				ext = name.split('.').pop() || link.href.split('/').pop().split('.').pop();
+				ext = getFileExt(name) || getFileExt(getFileName(link.href));
 				link.setAttribute('de-img-ext', ext);
 				link.setAttribute('de-img-name-old', link.textContent);
 			}
@@ -13181,11 +13181,11 @@ class DobrochanPostsBuilder {
 			let fileName, fullFileName, th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
-			const ext = src.split('.').pop();
+			const ext = getFileExt(src);
 			if(brd === 'b' || brd === 'rf') {
-				fileName = fullFileName = th.split('/').pop();
+				fileName = fullFileName = getFileName(th);
 			} else {
-				fileName = fullFileName = src.split('/').pop();
+				fileName = fullFileName = getFileName(src);
 				if(multiFile && fileName.length > 20) {
 					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
@@ -15106,9 +15106,6 @@ function initNavFuncs() {
 		};
 	}
 	nav = {
-		cssMatches: (leftSel, ...rules) => leftSel.split(', ').map(
-			val => val + rules.join(', ' + val)
-		).join(', '),
 		canUseFetch,
 		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
@@ -15273,19 +15270,19 @@ class BaseBoard {
 		this.makaba = false;
 	}
 	get qFormMail() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
 	get qFormName() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
 	get qFormSubj() {
-		return nav.cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = nav.cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
+		const value = cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
 			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
 			', [href^="blob:"]');
@@ -15293,7 +15290,7 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = nav.cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
@@ -16069,7 +16066,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(needProgress && hasFiles) {
 				ajaxParams.onprogress = getUploadFunc();
 			}
-			const task = form.attributes.action.value.split('/').pop();
+			const task = getFileName(form.attributes.action.value);
 			const url = this._hasNewAPI ? `/${ task }?json=1` : '/.api/' + task.replace('.js', '');
 			return $ajax(url, ajaxParams).then(xhr => xhr.responseText).catch(err => Promise.reject(err));
 		}

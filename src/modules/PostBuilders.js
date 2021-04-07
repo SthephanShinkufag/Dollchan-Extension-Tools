@@ -254,11 +254,11 @@ class DobrochanPostsBuilder {
 			let fileName, fullFileName, th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
-			const ext = src.split('.').pop();
+			const ext = getFileExt(src);
 			if(brd === 'b' || brd === 'rf') {
-				fileName = fullFileName = th.split('/').pop();
+				fileName = fullFileName = getFileName(th);
 			} else {
-				fileName = fullFileName = src.split('/').pop();
+				fileName = fullFileName = getFileName(src);
 				if(multiFile && fileName.length > 20) {
 					fileName = fileName.substr(0, 20 - ext.length) + '(…)' + ext;
 				}
