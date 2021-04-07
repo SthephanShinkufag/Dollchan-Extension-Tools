@@ -15,17 +15,17 @@ const ContentLoader = {
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
 		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
-			const [url, fName, el, imgLink] = data;
+			const [url, fName, el, parentLink] = data;
 			let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 			progress.value = counter.innerHTML = current++;
-			if(imgLink) {
+			if(parentLink) {
 				let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 				if(imgOnly) {
 					thumbName = 'thumb-' + thumbName;
 				} else {
 					thumbName = 'thumbs/' + thumbName;
 					safeName = imgData ? 'images/' + safeName : thumbName;
-					imgLink.href = $q(aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
+					parentLink.href = getImgNameLink(el).href = safeName;
 				}
 				if(imgData) {
 					tar.addFile(safeName, imgData);
@@ -69,11 +69,11 @@ const ContentLoader = {
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els.forEach(el => {
-			const imgLink = $parent(el, 'A');
-			if(imgLink) {
-				const url = imgLink.href;
-				this._thrPool.runTask([url, imgLink.getAttribute('download') ||
-					url.substring(url.lastIndexOf('/') + 1), el, imgLink]);
+			const parentLink = $parent(el, 'A');
+			if(parentLink) {
+				const url = parentLink.href;
+				this._thrPool.runTask([url, parentLink.getAttribute('download') ||
+					url.substring(url.lastIndexOf('/') + 1), el, parentLink]);
 			}
 		});
 		if(!imgOnly) {
@@ -171,22 +171,22 @@ const ContentLoader = {
 			const rarJpgFinder = (isPreImg || Cfg.findImgFile) && new WorkerPool(mReqs, this._detectImgFile,
 				err => console.error('File detector error:', `line: ${ err.lineno } - ${ err.message }`));
 			preloadPool = new TasksPool(mReqs, (num, data) => this.loadImgData(data[0]).then(imageData => {
-				const [url, imgLink, iType, isRepToOrig, el, isVideo] = data;
+				const [url, parentLink, iType, isRepToOrig, el, isVideo] = data;
 				if(imageData) {
 					const fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
-					const nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-					imgLink.setAttribute('download', fName);
+					const nameLink = getImgNameLink(el);
+					parentLink.setAttribute('download', fName);
 					if(!Cfg.imgNames) {
 						nameLink.setAttribute('download', fName);
 						nameLink.setAttribute('de-href', nameLink.href);
 					}
-					imgLink.href = nameLink.href =
+					parentLink.href = nameLink.href =
 						deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
 					if(isVideo) {
 						el.setAttribute('de-video', '');
 					}
 					if(isRepToOrig) {
-						el.src = imgLink.href;
+						el.src = parentLink.href;
 					}
 					if(rarJpgFinder) {
 						rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer],
@@ -211,17 +211,17 @@ const ContentLoader = {
 		}
 		for(let i = 0; i < len; ++i) {
 			const imgEl = els[i];
-			const imgLink = aib.getImgSrcLink(imgEl);
-			if(!imgLink) {
+			const parentLink = $parent(imgEl, 'A');
+			if(!parentLink) {
 				continue;
 			}
 			let isRepToOrig = !!Cfg.openImgs;
-			const url = imgLink.href;
+			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
 			const type = getFileType(url);
 			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
-			} else if($q('img[src*="/spoiler"]', imgLink)) {
+			} else if($q('img[src*="/spoiler"]', parentLink)) {
 				isRepToOrig = false;
 			} else if(type === 'image/gif') {
 				isRepToOrig &= Cfg.openImgs !== 3;
@@ -232,7 +232,7 @@ const ContentLoader = {
 				isRepToOrig &= Cfg.openImgs !== 2;
 			}
 			if(preloadPool) {
-				preloadPool.runTask([url, imgLink, type, isRepToOrig, imgEl, isVideo]);
+				preloadPool.runTask([url, parentLink, type, isRepToOrig, imgEl, isVideo]);
 			} else if(isRepToOrig) {
 				imgEl.src = url;
 			}

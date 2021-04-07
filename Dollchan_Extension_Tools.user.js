@@ -3873,7 +3873,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var _marked = regeneratorRuntime.mark(getFormElements);
 
 	var version = '21.4.1.0';
-	var commit = 'f1272ac';
+	var commit = 'a0fa5c2';
 
 
 	var defaultCfg = {
@@ -8973,18 +8973,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					    url = _data4[0],
 					    fName = _data4[1],
 					    el = _data4[2],
-					    imgLink = _data4[3];
+					    parentLink = _data4[3];
 
 					var safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
 					progress.value = counter.innerHTML = current++;
-					if (imgLink) {
+					if (parentLink) {
 						var thumbName = safeName.replace(/\.[a-z]+$/, '.png');
 						if (imgOnly) {
 							thumbName = 'thumb-' + thumbName;
 						} else {
 							thumbName = 'thumbs/' + thumbName;
 							safeName = imgData ? 'images/' + safeName : thumbName;
-							imgLink.href = $q(aib.qImgNameLink, aib.getImgWrap(el)).href = safeName;
+							parentLink.href = getImgNameLink(el).href = safeName;
 						}
 						if (imgData) {
 							tar.addFile(safeName, imgData);
@@ -9026,10 +9026,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_this17._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 			});
 			els.forEach(function (el) {
-				var imgLink = $parent(el, 'A');
-				if (imgLink) {
-					var _url = imgLink.href;
-					_this17._thrPool.runTask([_url, imgLink.getAttribute('download') || _url.substring(_url.lastIndexOf('/') + 1), el, imgLink]);
+				var parentLink = $parent(el, 'A');
+				if (parentLink) {
+					var _url = parentLink.href;
+					_this17._thrPool.runTask([_url, parentLink.getAttribute('download') || _url.substring(_url.lastIndexOf('/') + 1), el, parentLink]);
 				}
 			});
 			if (!imgOnly) {
@@ -9138,7 +9138,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return _this18.loadImgData(data[0]).then(function (imageData) {
 						var _data5 = _slicedToArray(data, 6),
 						    url = _data5[0],
-						    imgLink = _data5[1],
+						    parentLink = _data5[1],
 						    iType = _data5[2],
 						    isRepToOrig = _data5[3],
 						    el = _data5[4],
@@ -9146,18 +9146,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 						if (imageData) {
 							var fName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
-							var nameLink = $q(aib.qImgNameLink, aib.getImgWrap(el));
-							imgLink.setAttribute('download', fName);
+							var nameLink = getImgNameLink(el);
+							parentLink.setAttribute('download', fName);
 							if (!Cfg.imgNames) {
 								nameLink.setAttribute('download', fName);
 								nameLink.setAttribute('de-href', nameLink.href);
 							}
-							imgLink.href = nameLink.href = deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
+							parentLink.href = nameLink.href = deWindow.URL.createObjectURL(new Blob([imageData], { type: iType }));
 							if (isVideo) {
 								el.setAttribute('de-video', '');
 							}
 							if (isRepToOrig) {
-								el.src = imgLink.href;
+								el.src = parentLink.href;
 							}
 							if (rarJpgFinder) {
 								rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
@@ -9184,17 +9184,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 			for (var i = 0; i < len; ++i) {
 				var imgEl = els[i];
-				var imgLink = aib.getImgSrcLink(imgEl);
-				if (!imgLink) {
+				var parentLink = $parent(imgEl, 'A');
+				if (!parentLink) {
 					continue;
 				}
 				var isRepToOrig = !!Cfg.openImgs;
-				var _url2 = imgLink.href;
+				var _url2 = aib.getImgSrcLink(imgEl).getAttribute('href');
 				var type = getFileType(_url2);
 				var isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 				if (!type || isVideo && Cfg.preLoadImgs === 2) {
 					continue;
-				} else if ($q('img[src*="/spoiler"]', imgLink)) {
+				} else if ($q('img[src*="/spoiler"]', parentLink)) {
 					isRepToOrig = false;
 				} else if (type === 'image/gif') {
 					isRepToOrig &= Cfg.openImgs !== 3;
@@ -9205,7 +9205,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					isRepToOrig &= Cfg.openImgs !== 2;
 				}
 				if (preloadPool) {
-					preloadPool.runTask([_url2, imgLink, type, isRepToOrig, imgEl, isVideo]);
+					preloadPool.runTask([_url2, parentLink, type, isRepToOrig, imgEl, isVideo]);
 				} else if (isRepToOrig) {
 					imgEl.src = _url2;
 				}
@@ -16876,7 +16876,7 @@ true, true];
 				aib.getImgRedirectSrc(this.src).then(function (newSrc) {
 					_this60.redirected = true;
 					Object.defineProperty(_this60, 'src', { value: newSrc });
-					$q('img, video', fullEl).src = _this60.el.src = _this60.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(_this60.el)).href = newSrc;
+					$q('img, video', fullEl).src = _this60.el.src = _this60.el.parentNode.href = getImgNameLink(_this60.el).href = newSrc;
 					if (!_this60.isVideo) {
 						$q('a', fullEl).href = newSrc;
 					}
@@ -17659,6 +17659,10 @@ true, true];
 			return _getHashHelper;
 		}()
 	});
+
+	function getImgNameLink(el) {
+		return $q(aib.qImgNameLink, aib.getImgWrap(el));
+	}
 
 	function addImgButtons(link) {
 		link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' + '<use xlink:href="#de-symbol-post-img"/></svg>');

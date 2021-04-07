@@ -423,7 +423,7 @@ class ExpandableImage {
 			this.redirected = true;
 			Object.defineProperty(this, 'src', { value: newSrc });
 			$q('img, video', fullEl).src = this.el.src =
-				this.el.parentNode.href = $q(aib.qImgNameLink, aib.getImgWrap(this.el)).href = newSrc;
+				this.el.parentNode.href = getImgNameLink(this.el).href = newSrc;
 			if(!this.isVideo) {
 				$q('a', fullEl).href = newSrc;
 			}
@@ -1010,6 +1010,10 @@ const ImagesHashStorage = Object.create({
 		return val;
 	}
 });
+
+function getImgNameLink(el) {
+	return $q(aib.qImgNameLink, aib.getImgWrap(el));
+}
 
 function addImgButtons(link) {
 	link.insertAdjacentHTML('beforebegin', '<svg class="de-btn-img">' +
