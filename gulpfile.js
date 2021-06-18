@@ -62,7 +62,7 @@ gulp.task('copyext', () => gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
 gulp.task('make:es5', gulp.series(
 	'make:es6',
 	() => browserify(['src/es5-polyfills.js', 'src/Dollchan_Extension_Tools.es6.user.js'])
-		.transform('babelify', { presets: ['env'] })
+		.transform('babelify', { presets: ['@babel/preset-env'] })
 		.bundle()
 		.pipe(source('Dollchan_Extension_Tools.user.js'))
 		.pipe(streamify(strip()))
