@@ -258,6 +258,12 @@ class Thread {
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
+		if(aib.kohlchan && (localStorage.getItem('unixFilenames') == 'true')){
+                    var postCollection = el.querySelectorAll("div.panelUploads");
+  		    for (var z = 0; z < postCollection.length; z++) {
+		        aib.kcUnixTimestamp(postCollection[z]);
+		    }
+                }
 		return post;
 	}
 	_checkBans(pBuilder) {
