@@ -1861,6 +1861,30 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		kcUnixTimestamp(postFromCollection) {
+                    var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g,"/");
+                    var someDate = new Date(timetext);
+                    timetext = someDate.getTime();
+                    var fake_precision = timetext % 999
+                    timetext = timetext + fake_precision;
+                    var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
+
+                    for(var j = 0; j < img_imgLink.length; j++) {
+                        var org_text = img_imgLink[j].href;
+                        var extension;
+                        if (img_imgLink[j].parentElement.nodeName == "SPAN") {
+                            extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+                        } else {
+                            extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+                        }
+                        if (j == 0 && img_imgLink.length == 1) {
+                            img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
+                        } else {
+                            img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
+                        }
+                        img_imgLink[j].classList.add("unixLink");  
+                    } 
+                }
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
