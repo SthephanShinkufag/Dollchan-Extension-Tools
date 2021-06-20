@@ -1872,6 +1872,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
+			if(locStorage.convertLocalTimes !== 'false') {
+				locStorage.convertLocalTimes = false;
+				deWindow.location.reload();
+				return true;
+			}
 			return super.init();
 		}
 	}
