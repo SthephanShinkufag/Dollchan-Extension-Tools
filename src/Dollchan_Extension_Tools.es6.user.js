@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '34793c1';
+const commit = '20d0297';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1868,6 +1868,8 @@ const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
 
 // OTHER UTILS
 
+const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
@@ -1914,7 +1916,7 @@ function $pd(e) {
 
 function $isEmpty(obj) {
 	for(const i in obj) {
-		if(obj.hasOwnProperty(i)) {
+		if($hasProp(obj, i)) {
 			return false;
 		}
 	}
@@ -2009,7 +2011,7 @@ class CancelablePromise {
 		}
 	}
 	catch(eb) {
-		return this.then(void 0, eb);
+		return this.then(undefined, eb);
 	}
 	then(cb, eb) {
 		const children = [];
@@ -2796,7 +2798,7 @@ class PostsStorage {
 	}
 	has(num) {
 		const storage = this._readStorage()[aib.b];
-		return storage ? storage.hasOwnProperty(num) : false;
+		return storage ? $hasProp(storage, num) : false;
 	}
 	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
@@ -2804,7 +2806,7 @@ class PostsStorage {
 	removeStorage(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
-		if(bStorage && bStorage.hasOwnProperty(num)) {
+		if(bStorage && $hasProp(bStorage, num)) {
 			delete bStorage[num];
 			if($isEmpty(bStorage)) {
 				delete storage[board];
@@ -2817,10 +2819,10 @@ class PostsStorage {
 		if(storage && storage.$count > 5e3) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 			for(const b in storage) {
-				if(storage.hasOwnProperty(b)) {
+				if($hasProp(storage, b)) {
 					const data = storage[b];
 					for(const key in data) {
-						if(data.hasOwnProperty(key) && data[key][0] < minDate) {
+						if($hasProp(data, key) && data[key][0] < minDate) {
 							delete data[key];
 						}
 					}
@@ -2832,7 +2834,7 @@ class PostsStorage {
 	}
 
 	static _migrateOld(newName, oldName) {
-		if(locStorage.hasOwnProperty(oldName)) {
+		if($hasProp(locStorage, oldName)) {
 			locStorage[newName] = locStorage[oldName];
 			locStorage.removeItem(oldName);
 		}
@@ -3779,7 +3781,7 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		if(!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
+		if(!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];
@@ -4699,9 +4701,9 @@ const CfgWindow = {
 					case 'stats':
 					case 'nameValue':
 					case 'passwValue':
-					case 'ytApiKey': return void 0;
+					case 'ytApiKey': return undefined;
 					}
-					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+					return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
 				}, '\t');
 			}
 			}
@@ -6933,7 +6935,7 @@ function $ajax(url, params = null, isCORS = false) {
 				const { headers } = params;
 				if(headers) {
 					for(const h in headers) {
-						if(headers.hasOwnProperty(h)) {
+						if($hasProp(headers, h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
 					}
@@ -6994,7 +6996,7 @@ const AjaxCache = {
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
 		for(const idx in headers) {
-			if(!headers.hasOwnProperty(idx)) {
+			if(!$hasProp(headers, idx)) {
 				continue;
 			}
 			let header = headers[idx];
@@ -7349,7 +7351,7 @@ const Spells = Object.create({
 			}
 			if(typeof idx === 'undefined') {
 				if(scope && isNeg) {
-					spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+					spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, undefined]], undefined]);
 				} else {
 					spells[1].unshift([type, arg, scope]);
 				}
@@ -8111,7 +8113,7 @@ class SpellsRunner {
 		}
 	}
 	runSpells(post) {
-		let res = (new SpellsInterpreter(post, this._spells)).runInterpreter();
+		let res = new SpellsInterpreter(post, this._spells).runInterpreter();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;
@@ -11898,8 +11900,8 @@ class ImagesNavigBtns {
 			case 'de-img-btn-prev': viewer.navigate(false); return;
 			case 'de-img-btn-rotate': viewer.rotateView(true); return;
 			case 'de-img-btn-auto':
-				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
-					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
+				viewer.isAutoPlay = !viewer.isAutoPlay;
+				this.autoBtn.title = viewer.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
 				viewer.toggleVideoLoop();
 				parent.classList.toggle('de-img-btn-auto-on');
 			}
@@ -11950,7 +11952,7 @@ class ImagesViewer {
 		this._showFullImg(data);
 	}
 	closeImgViewer(e) {
-		if(this.hasOwnProperty('_btns')) {
+		if($hasProp(this, '_btns')) {
 			this._btns.removeBtns();
 		}
 		this._removeFullImg(e);
@@ -12184,7 +12186,7 @@ class ImagesViewer {
 		if(!data.inPview) {
 			btns.showBtns();
 			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
-		} else if(this.hasOwnProperty('_btns')) {
+		} else if($hasProp(this, '_btns')) {
 			btns.hideBtns();
 		}
 		data.post.thr.form.el.appendChild(el);
@@ -12429,7 +12431,8 @@ class ExpandableImage {
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
 				if(!(img.naturalHeight + img.naturalWidth)) {
 					if(!img.onceLoaded) {
-						img.src = img.src;
+						const { src } = img;
+						img.src = src;
 						img.onceLoaded = true;
 					}
 					return;
@@ -12517,7 +12520,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let str = '', d = (new WebmParser(data.buffer)).getWebmData();
+				let str = '', d = new WebmParser(data.buffer).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -12756,10 +12759,10 @@ const ImagesHashStorage = Object.create({
 		return value;
 	},
 	endFn() {
-		if(this.hasOwnProperty('_storage')) {
+		if($hasProp(this, '_storage')) {
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 		}
-		if(this.hasOwnProperty('_workers')) {
+		if($hasProp(this, '_workers')) {
 			this._workers.clearWorkers();
 			delete this._workers;
 		}
@@ -13847,7 +13850,7 @@ class Thread {
 	updateHidden(data) {
 		let thr = this;
 		do {
-			const realHid = data ? data.hasOwnProperty(thr.num) : false;
+			const realHid = data ? $hasProp(data, thr.num) : false;
 			if(thr.isHidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
@@ -13882,12 +13885,9 @@ class Thread {
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
-		if(aib.kohlchan && (localStorage.getItem('unixFilenames') == 'true')){
-                    var postCollection = el.querySelectorAll("div.panelUploads");
-  		    for (var z = 0; z < postCollection.length; z++) {
-		        aib.kcUnixTimestamp(postCollection[z]);
-		    }
-                }
+		if(aib.fixKCUnixFilenames && post.images.hasAttachments) {
+			aib.fixKCUnixFilenames(post);
+		}
 		return post;
 	}
 	_checkBans(pBuilder) {
@@ -14433,7 +14433,8 @@ function initThreadUpdater(title, enableUpdate) {
 				clearInterval(this._blinkInterv);
 			}
 			this._currentIcon = iconUrl;
-			this._blinkInterv = setInterval(() => this._setIcon((this._isOrigIcon = !this._isOrigIcon) ?
+			this._isOrigIcon = !this._isOrigIcon;
+			this._blinkInterv = setInterval(() => this._setIcon(this._isOrigIcon ?
 				this.originalIcon : this._currentIcon), this._blinkMS);
 		},
 		stopBlink() {
@@ -15337,6 +15338,9 @@ class BaseBoard {
 		return null;
 	}
 	get fixFileInputs() {
+		return null;
+	}
+	get fixKCUnixFilenames() { // Kohlchan
 		return null;
 	}
 	get getImgRedirectSrc() { // Archived
@@ -17387,6 +17391,29 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
 		}
+		get fixKCUnixFilenames() {
+			let value = null;
+			if(locStorage.unixFilenames === 'true') {
+				value = post => {
+					const containerEl = $q('div.panelUploads', post.el);
+					const imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
+					let timetext = new Date(containerEl.parentElement.parentElement
+						.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+					timetext = timetext + timetext % 999;
+					for(let j = 0; j < imgLinks.length; j++) {
+						const imgLink = imgLinks[j];
+						const parentEl = imgLink.parentElement;
+						imgLink.href += '/' + timetext +
+							(j === 0 && imgLinks.length === 1 ? '.' : '-' + j + '.') +
+							$q('a.originalNameLink', parentEl.nodeName === 'SPAN' ?
+								parentEl.parentElement : parentEl).title.split('.').pop();
+						imgLink.classList.add('unixLink');
+					}
+				};
+			}
+			Object.defineProperty(this, 'fixKCUnixFilenames', { value });
+			return value;
+		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
@@ -17396,7 +17423,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			$popup('upload', `<div>Tor / VPN / Proxy detected</div><!--
 				--><div>You need a block bypass to post</div><!--
-				--><div><img src="/captcha.js?d=${ (new Date()).toString() }" class="captchaImage"` +
+				--><div><img src="/captcha.js?d=${ new Date().toString() }" class="captchaImage"` +
 					` title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--
 				--></div><div><!--
 					--><input type="button" class="modalOkButton" value="Send"><!--
@@ -17444,42 +17471,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
-		kcUnixTimestamp(postFromCollection) {
-                    var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g,"/");
-                    var someDate = new Date(timetext);
-                    timetext = someDate.getTime();
-                    var fake_precision = timetext % 999
-                    timetext = timetext + fake_precision;
-                    var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
-
-                    for(var j = 0; j < img_imgLink.length; j++) {
-                        var org_text = img_imgLink[j].href;
-                        var extension;
-                        if (img_imgLink[j].parentElement.nodeName == "SPAN") {
-                            extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-                        } else {
-                            extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-                        }
-                        if (j == 0 && img_imgLink.length == 1) {
-                            img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
-                        } else {
-                            img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
-                        }
-                        img_imgLink[j].classList.add("unixLink");  
-                    } 
-                }
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 				return true;
 			}
-			if(locStorage.autoRefreshMode !== 'false') {
+			if(locStorage.autoRefreshMode !== 'false' || locStorage.convertLocalTimes !== 'false') {
 				locStorage.autoRefreshMode = false;
-				deWindow.location.reload();
-				return true;
-			}
-			if(locStorage.convertLocalTimes !== 'false') {
 				locStorage.convertLocalTimes = false;
 				deWindow.location.reload();
 				return true;

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '34793c1';
+const commit = '20d0297';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13882,6 +13882,12 @@ class Thread {
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
+		if(aib.kohlchan && (localStorage.getItem('unixFilenames') == 'true')){
+                    var postCollection = el.querySelectorAll("div.panelUploads");
+  		    for (var z = 0; z < postCollection.length; z++) {
+		        aib.kcUnixTimestamp(postCollection[z]);
+		    }
+                }
 		return post;
 	}
 	_checkBans(pBuilder) {
@@ -17438,6 +17444,30 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
+		kcUnixTimestamp(postFromCollection) {
+                    var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g,"/");
+                    var someDate = new Date(timetext);
+                    timetext = someDate.getTime();
+                    var fake_precision = timetext % 999
+                    timetext = timetext + fake_precision;
+                    var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
+
+                    for(var j = 0; j < img_imgLink.length; j++) {
+                        var org_text = img_imgLink[j].href;
+                        var extension;
+                        if (img_imgLink[j].parentElement.nodeName == "SPAN") {
+                            extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+                        } else {
+                            extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+                        }
+                        if (j == 0 && img_imgLink.length == 1) {
+                            img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
+                        } else {
+                            img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
+                        }
+                        img_imgLink[j].classList.add("unixLink");  
+                    } 
+                }
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
@@ -17446,6 +17476,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			if(locStorage.autoRefreshMode !== 'false') {
 				locStorage.autoRefreshMode = false;
+				deWindow.location.reload();
+				return true;
+			}
+			if(locStorage.convertLocalTimes !== 'false') {
+				locStorage.convertLocalTimes = false;
 				deWindow.location.reload();
 				return true;
 			}

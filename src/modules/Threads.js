@@ -223,7 +223,7 @@ class Thread {
 	updateHidden(data) {
 		let thr = this;
 		do {
-			const realHid = data ? data.hasOwnProperty(thr.num) : false;
+			const realHid = data ? $hasProp(data, thr.num) : false;
 			if(thr.isHidden ^ realHid) {
 				if(realHid) {
 					thr.op.setUserVisib(true, false);
@@ -258,12 +258,9 @@ class Thread {
 		if(aib.t && Cfg.markNewPosts) {
 			Post.addMark(el, false);
 		}
-		if(aib.kohlchan && (localStorage.getItem('unixFilenames') == 'true')){
-                    var postCollection = el.querySelectorAll("div.panelUploads");
-  		    for (var z = 0; z < postCollection.length; z++) {
-		        aib.kcUnixTimestamp(postCollection[z]);
-		    }
-                }
+		if(aib.fixKCUnixFilenames && post.images.hasAttachments) {
+			aib.fixKCUnixFilenames(post);
+		}
 		return post;
 	}
 	_checkBans(pBuilder) {

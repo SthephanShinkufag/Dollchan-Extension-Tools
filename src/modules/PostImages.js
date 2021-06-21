@@ -58,8 +58,8 @@ class ImagesNavigBtns {
 			case 'de-img-btn-prev': viewer.navigate(false); return;
 			case 'de-img-btn-rotate': viewer.rotateView(true); return;
 			case 'de-img-btn-auto':
-				this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ?
-					Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
+				viewer.isAutoPlay = !viewer.isAutoPlay;
+				this.autoBtn.title = viewer.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
 				viewer.toggleVideoLoop();
 				parent.classList.toggle('de-img-btn-auto-on');
 			}
@@ -110,7 +110,7 @@ class ImagesViewer {
 		this._showFullImg(data);
 	}
 	closeImgViewer(e) {
-		if(this.hasOwnProperty('_btns')) {
+		if($hasProp(this, '_btns')) {
 			this._btns.removeBtns();
 		}
 		this._removeFullImg(e);
@@ -344,7 +344,7 @@ class ImagesViewer {
 		if(!data.inPview) {
 			btns.showBtns();
 			btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
-		} else if(this.hasOwnProperty('_btns')) {
+		} else if($hasProp(this, '_btns')) {
 			btns.hideBtns();
 		}
 		data.post.thr.form.el.appendChild(el);
@@ -589,7 +589,8 @@ class ExpandableImage {
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
 				if(!(img.naturalHeight + img.naturalWidth)) {
 					if(!img.onceLoaded) {
-						img.src = img.src;
+						const { src } = img;
+						img.src = src;
 						img.onceLoaded = true;
 					}
 					return;
@@ -677,7 +678,7 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let str = '', d = (new WebmParser(data.buffer)).getWebmData();
+				let str = '', d = new WebmParser(data.buffer).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -916,10 +917,10 @@ const ImagesHashStorage = Object.create({
 		return value;
 	},
 	endFn() {
-		if(this.hasOwnProperty('_storage')) {
+		if($hasProp(this, '_storage')) {
 			sesStorage['de-imageshash'] = JSON.stringify(this._storage);
 		}
-		if(this.hasOwnProperty('_workers')) {
+		if($hasProp(this, '_workers')) {
 			this._workers.clearWorkers();
 			delete this._workers;
 		}

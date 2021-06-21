@@ -450,9 +450,9 @@ const CfgWindow = {
 					case 'stats':
 					case 'nameValue':
 					case 'passwValue':
-					case 'ytApiKey': return void 0;
+					case 'ytApiKey': return undefined;
 					}
-					return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+					return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
 				}, '\t');
 			}
 			}

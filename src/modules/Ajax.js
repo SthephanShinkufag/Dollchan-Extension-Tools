@@ -167,7 +167,7 @@ function $ajax(url, params = null, isCORS = false) {
 				const { headers } = params;
 				if(headers) {
 					for(const h in headers) {
-						if(headers.hasOwnProperty(h)) {
+						if($hasProp(headers, h)) {
 							xhr.setRequestHeader(h, headers[h]);
 						}
 					}
@@ -228,7 +228,7 @@ const AjaxCache = {
 		let headers = 'getAllResponseHeaders' in xhr ? xhr.getAllResponseHeaders() : xhr.responseHeaders;
 		headers = headers ? /* usual xhr */ headers.split('\r\n') : /* fetch */ xhr.headers;
 		for(const idx in headers) {
-			if(!headers.hasOwnProperty(idx)) {
+			if(!$hasProp(headers, idx)) {
 				continue;
 			}
 			let header = headers[idx];

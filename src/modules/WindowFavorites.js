@@ -11,7 +11,7 @@ function removeFavEntry(favObj, h, b, num) {
 	let f;
 	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
 		delete f[num];
-		if(!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
+		if(!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
 			delete favObj[h][b];
 			if($isEmpty(favObj[h])) {
 				delete favObj[h];

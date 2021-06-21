@@ -104,7 +104,7 @@ const Spells = Object.create({
 			}
 			if(typeof idx === 'undefined') {
 				if(scope && isNeg) {
-					spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+					spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, undefined]], undefined]);
 				} else {
 					spells[1].unshift([type, arg, scope]);
 				}
@@ -866,7 +866,7 @@ class SpellsRunner {
 		}
 	}
 	runSpells(post) {
-		let res = (new SpellsInterpreter(post, this._spells)).runInterpreter();
+		let res = new SpellsInterpreter(post, this._spells).runInterpreter();
 		if(res instanceof Promise) {
 			res = res.then(val => this._checkRes(post, val));
 			this._endPromise = this._endPromise ? this._endPromise.then(() => res) : res;

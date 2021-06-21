@@ -164,6 +164,8 @@ const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
 
 // OTHER UTILS
 
+const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+
 const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
@@ -210,7 +212,7 @@ function $pd(e) {
 
 function $isEmpty(obj) {
 	for(const i in obj) {
-		if(obj.hasOwnProperty(i)) {
+		if($hasProp(obj, i)) {
 			return false;
 		}
 	}
@@ -305,7 +307,7 @@ class CancelablePromise {
 		}
 	}
 	catch(eb) {
-		return this.then(void 0, eb);
+		return this.then(undefined, eb);
 	}
 	then(cb, eb) {
 		const children = [];

@@ -11,6 +11,7 @@
 		"sourceType": "module"
 	},
 	"rules": {
+		"multiline-ternary": "off",
 		"array-bracket-spacing": ["error", "never"],
 		"arrow-parens": ["error", "as-needed"],
 		"brace-style": ["error", "1tbs", { "allowSingleLine": false }],
@@ -36,6 +37,7 @@
 			"switch": { "after": false },
 			"while": { "after": false }
 		} }],
+		"lines-between-class-members": "off",
 		"max-len": ["error", 110, {
 			"ignoreRegExpLiterals": true,
 			"ignoreUrls": true
@@ -56,6 +58,7 @@
 		"no-extra-semi": "error",
 		"no-new": "off",
 		"no-tabs": "off",
+		"no-unreachable-loop": "off",
 		"no-unsafe-finally": "off",
 		"no-useless-concat": "error",
 		"no-var": "error",

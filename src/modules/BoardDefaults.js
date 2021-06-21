@@ -136,6 +136,9 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
+	get fixKCUnixFilenames() { // Kohlchan
+		return null;
+	}
 	get getImgRedirectSrc() { // Archived
 		return null;
 	}

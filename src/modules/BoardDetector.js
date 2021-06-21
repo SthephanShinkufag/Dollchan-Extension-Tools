@@ -1804,6 +1804,29 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `${ super.css }
 				#postingForm, .sage { display: none; }`;
 		}
+		get fixKCUnixFilenames() {
+			let value = null;
+			if(locStorage.unixFilenames === 'true') {
+				value = post => {
+					const containerEl = $q('div.panelUploads', post.el);
+					const imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
+					let timetext = new Date(containerEl.parentElement.parentElement
+						.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+					timetext = timetext + timetext % 999;
+					for(let j = 0; j < imgLinks.length; j++) {
+						const imgLink = imgLinks[j];
+						const parentEl = imgLink.parentElement;
+						imgLink.href += '/' + timetext +
+							(j === 0 && imgLinks.length === 1 ? '.' : '-' + j + '.') +
+							$q('a.originalNameLink', parentEl.nodeName === 'SPAN' ?
+								parentEl.parentElement : parentEl).title.split('.').pop();
+						imgLink.classList.add('unixLink');
+					}
+				};
+			}
+			Object.defineProperty(this, 'fixKCUnixFilenames', { value });
+			return value;
+		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
@@ -1813,7 +1836,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			$popup('upload', `<div>Tor / VPN / Proxy detected</div><!--
 				--><div>You need a block bypass to post</div><!--
-				--><div><img src="/captcha.js?d=${ (new Date()).toString() }" class="captchaImage"` +
+				--><div><img src="/captcha.js?d=${ new Date().toString() }" class="captchaImage"` +
 					` title="Click to reload" onclick="captchaUtils.reloadCaptcha();"><!--
 				--></div><div><!--
 					--><input type="button" class="modalOkButton" value="Send"><!--
@@ -1861,42 +1884,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSage(post) {
 			return !!$q('.sage', post).hasChildNodes();
 		}
-		kcUnixTimestamp(postFromCollection) {
-                    var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g,"/");
-                    var someDate = new Date(timetext);
-                    timetext = someDate.getTime();
-                    var fake_precision = timetext % 999
-                    timetext = timetext + fake_precision;
-                    var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
-
-                    for(var j = 0; j < img_imgLink.length; j++) {
-                        var org_text = img_imgLink[j].href;
-                        var extension;
-                        if (img_imgLink[j].parentElement.nodeName == "SPAN") {
-                            extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-                        } else {
-                            extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-                        }
-                        if (j == 0 && img_imgLink.length == 1) {
-                            img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
-                        } else {
-                            img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
-                        }
-                        img_imgLink[j].classList.add("unixLink");  
-                    } 
-                }
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
 				deWindow.location.assign(deWindow.location.href
 					.replace(/(www\.)?kohlchan\.net/, 'nocsp.kohlchan.net'));
 				return true;
 			}
-			if(locStorage.autoRefreshMode !== 'false') {
+			if(locStorage.autoRefreshMode !== 'false' || locStorage.convertLocalTimes !== 'false') {
 				locStorage.autoRefreshMode = false;
-				deWindow.location.reload();
-				return true;
-			}
-			if(locStorage.convertLocalTimes !== 'false') {
 				locStorage.convertLocalTimes = false;
 				deWindow.location.reload();
 				return true;

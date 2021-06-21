@@ -344,7 +344,7 @@ class PostsStorage {
 	}
 	has(num) {
 		const storage = this._readStorage()[aib.b];
-		return storage ? storage.hasOwnProperty(num) : false;
+		return storage ? $hasProp(storage, num) : false;
 	}
 	purge() {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
@@ -352,7 +352,7 @@ class PostsStorage {
 	removeStorage(num, board = aib.b) {
 		const storage = this._readStorage();
 		const bStorage = storage[board];
-		if(bStorage && bStorage.hasOwnProperty(num)) {
+		if(bStorage && $hasProp(bStorage, num)) {
 			delete bStorage[num];
 			if($isEmpty(bStorage)) {
 				delete storage[board];
@@ -365,10 +365,10 @@ class PostsStorage {
 		if(storage && storage.$count > 5e3) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 			for(const b in storage) {
-				if(storage.hasOwnProperty(b)) {
+				if($hasProp(storage, b)) {
 					const data = storage[b];
 					for(const key in data) {
-						if(data.hasOwnProperty(key) && data[key][0] < minDate) {
+						if($hasProp(data, key) && data[key][0] < minDate) {
 							delete data[key];
 						}
 					}
@@ -380,7 +380,7 @@ class PostsStorage {
 	}
 
 	static _migrateOld(newName, oldName) {
-		if(locStorage.hasOwnProperty(oldName)) {
+		if($hasProp(locStorage, oldName)) {
 			locStorage[newName] = locStorage[oldName];
 			locStorage.removeItem(oldName);
 		}

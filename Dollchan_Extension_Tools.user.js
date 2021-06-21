@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '34793c1';
+  var commit = '20d0297';
 
   var defaultCfg = {
     disabled: 0,
@@ -23098,6 +23098,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           Post.addMark(el, false);
         }
 
+        if (aib.kohlchan && localStorage.getItem('unixFilenames') == 'true') {
+          var postCollection = el.querySelectorAll("div.panelUploads");
+
+          for (var z = 0; z < postCollection.length; z++) {
+            aib.kcUnixTimestamp(postCollection[z]);
+          }
+        }
+
         return post;
       }
     }, {
@@ -28103,6 +28111,35 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return !!$q('.sage', post).hasChildNodes();
         }
       }, {
+        key: "kcUnixTimestamp",
+        value: function kcUnixTimestamp(postFromCollection) {
+          var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g, "/");
+          var someDate = new Date(timetext);
+          timetext = someDate.getTime();
+          var fake_precision = timetext % 999;
+          timetext = timetext + fake_precision;
+          var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
+
+          for (var j = 0; j < img_imgLink.length; j++) {
+            var org_text = img_imgLink[j].href;
+            var extension;
+
+            if (img_imgLink[j].parentElement.nodeName == "SPAN") {
+              extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+            } else {
+              extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
+            }
+
+            if (j == 0 && img_imgLink.length == 1) {
+              img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
+            } else {
+              img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
+            }
+
+            img_imgLink[j].classList.add("unixLink");
+          }
+        }
+      }, {
         key: "init",
         value: function init() {
           if (!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
@@ -28112,6 +28149,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           if (locStorage.autoRefreshMode !== 'false') {
             locStorage.autoRefreshMode = false;
+            deWindow.location.reload();
+            return true;
+          }
+
+          if (locStorage.convertLocalTimes !== 'false') {
+            locStorage.convertLocalTimes = false;
             deWindow.location.reload();
             return true;
           }
