@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '20d0297';
+  var commit = '2929813';
 
   var defaultCfg = {
     disabled: 0,
@@ -6311,6 +6311,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }; 
 
 
+  var $hasProp = function $hasProp(obj, i) {
+    return Object.prototype.hasOwnProperty.call(obj, i);
+  };
+
   var pad2 = function pad2(i) {
     return (i < 10 ? '0' : '') + i;
   };
@@ -6369,7 +6373,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   function $isEmpty(obj) {
     for (var i in obj) {
-      if (obj.hasOwnProperty(i)) {
+      if ($hasProp(obj, i)) {
         return false;
       }
     }
@@ -6473,7 +6477,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "catch",
       value: function _catch(eb) {
-        return this.then(void 0, eb);
+        return this.then(undefined, eb);
       }
     }, {
       key: "then",
@@ -7671,7 +7675,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: function has(num) {
         var storage = this._readStorage()[aib.b];
 
-        return storage ? storage.hasOwnProperty(num) : false;
+        return storage ? $hasProp(storage, num) : false;
       }
     }, {
       key: "purge",
@@ -7687,7 +7691,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var bStorage = storage[board];
 
-        if (bStorage && bStorage.hasOwnProperty(num)) {
+        if (bStorage && $hasProp(bStorage, num)) {
           delete bStorage[num];
 
           if ($isEmpty(bStorage)) {
@@ -7708,11 +7712,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 
           for (var b in storage) {
-            if (storage.hasOwnProperty(b)) {
+            if ($hasProp(storage, b)) {
               var _data3 = storage[b];
 
               for (var key in _data3) {
-                if (_data3.hasOwnProperty(key) && _data3[key][0] < minDate) {
+                if ($hasProp(_data3, key) && _data3[key][0] < minDate) {
                   delete _data3[key];
                 }
               }
@@ -7764,7 +7768,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }], [{
       key: "_migrateOld",
       value: function _migrateOld(newName, oldName) {
-        if (locStorage.hasOwnProperty(oldName)) {
+        if ($hasProp(locStorage, oldName)) {
           locStorage[newName] = locStorage[oldName];
           locStorage.removeItem(oldName);
         }
@@ -8921,7 +8925,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     if (h in favObj && b in favObj[h] && num in (f = favObj[h][b])) {
       delete f[num];
 
-      if (!(Object.keys(f).length - +f.hasOwnProperty('url') - +f.hasOwnProperty('hide'))) {
+      if (!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
         delete favObj[h][b];
 
         if ($isEmpty(favObj[h])) {
@@ -10239,10 +10243,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   case 'nameValue':
                   case 'passwValue':
                   case 'ytApiKey':
-                    return void 0;
+                    return undefined;
                 }
 
-                return key in defaultCfg && value === defaultCfg[key] ? void 0 : value;
+                return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
               }, '\t');
             }
         }
@@ -10599,16 +10603,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           try {
             data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-          } finally {
-            if (!data) {
-              $popup('err-invaliddata', Lng.invalidData[lang]);
-              return;
-            }
+          } catch (err) {}
 
-            saveFn(data);
-            closePopup('edit-' + name);
-            closePopup('err-invaliddata');
+          if (!data) {
+            $popup('err-invaliddata', Lng.invalidData[lang]);
+            return;
           }
+
+          saveFn(data);
+          closePopup('edit-' + name);
+          closePopup('err-invaliddata');
         }));
       });
     }, className);
@@ -10726,6 +10730,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var link = data.nextSibling;
           var href = link.href;
           var origSrc = link.getAttribute('de-href') || href;
+          var isFullImg = link.classList.contains('de-fullimg-link');
+          var isEmbedImg = !link.classList.contains('de-img-name');
+
+          if (aib.fixKCUnixFilenames && !isFullImg && !isEmbedImg) {
+            href = origSrc = $q(".unixLink[href=\"".concat(href, "\"]")).href;
+          }
+
           p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 
           var getDlLnk = function getDlLnk(href, name, title, isAddExt) {
@@ -10748,8 +10759,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           };
 
           var name = decodeURIComponent(getFileName(origSrc));
-          var isFullImg = link.classList.contains('de-fullimg-link');
-          var realName = isFullImg ? link.textContent : link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
+          var realName = isFullImg ? link.textContent : isEmbedImg ? name : aib.getImgRealName(aib.getImgWrap(data));
 
           if (name !== realName) {
             dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
@@ -11177,20 +11187,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 return _context8.abrupt("return", _this15.getDefaultKeys());
 
               case 5:
-                _context8.prev = 5;
-                keys = JSON.parse(str);
-
-              case 7:
-                _context8.prev = 7;
+                try {
+                  keys = JSON.parse(str);
+                } catch (err) {}
 
                 if (keys) {
-                  _context8.next = 10;
+                  _context8.next = 8;
                   break;
                 }
 
                 return _context8.abrupt("return", _this15.getDefaultKeys());
 
-              case 10:
+              case 8:
                 if (keys[0] !== _this15.version) {
                   tKeys = _this15.getDefaultKeys();
 
@@ -11237,12 +11245,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                 return _context8.abrupt("return", keys);
 
-              case 14:
+              case 11:
               case "end":
                 return _context8.stop();
             }
           }
-        }, _callee6, null, [[5,, 7, 14]]);
+        }, _callee6);
       }))();
     },
     resume: function resume(keys) {
@@ -11700,7 +11708,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? " PUBLIC \"".concat(dt.publicId, "\"") : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? " \"".concat(dt.systemId, "\"") : '') + '>' + dc.outerHTML);
         }
 
-        downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+        var title = Thread.first.op.title.trim();
+        downloadBlob(tar.get(), "".concat(docName).concat(imgOnly ? '-images' : '').concat(title ? ' - ' + title : '', ".tar"));
         closePopup('load-files');
         _this16._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
       });
@@ -12929,7 +12938,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           if (headers) {
             for (var h in headers) {
-              if (headers.hasOwnProperty(h)) {
+              if ($hasProp(headers, h)) {
                 xhr.setRequestHeader(h, headers[h]);
               }
             }
@@ -13021,7 +13030,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       xhr.headers;
 
       for (var idx in headers) {
-        if (!headers.hasOwnProperty(idx)) {
+        if (!$hasProp(headers, idx)) {
           continue;
         }
 
@@ -13596,7 +13605,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         if (typeof idx === 'undefined') {
           if (scope && isNeg) {
-            spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+            spells[1].unshift([0xFF, [[0x20C, '', scope], [type, arg, undefined]], undefined]);
           } else {
             spells[1].unshift([type, arg, scope]);
           }
@@ -15080,7 +15089,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_num",
       value: function _num(val) {
-        return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
+        return SpellsInterpreter._tlenNumHelper(val, this._post.count + 1);
       }
     }, {
       key: "_op",
@@ -15103,7 +15112,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: function _tlen(val) {
         var text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
 
-        return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
+        return !val ? !!text : SpellsInterpreter._tlenNumHelper(val, text.length);
       }
     }, {
       key: "_trip",
@@ -15313,8 +15322,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         return this._post.text.toLowerCase().includes(val) || this._post.subj.toLowerCase().includes(val);
       }
     }], [{
-      key: "_tlenNum_helper",
-      value: function _tlenNum_helper(val, num) {
+      key: "_tlenNumHelper",
+      value: function _tlenNumHelper(val, num) {
         for (var arr = val[0], i = arr.length - 1; i >= 0; --i) {
           if (arr[i] === num) {
             return true;
@@ -20359,7 +20368,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   return;
 
                 case 'de-img-btn-auto':
-                  this.autoBtn.title = (viewer.isAutoPlay = !viewer.isAutoPlay) ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
+                  viewer.isAutoPlay = !viewer.isAutoPlay;
+                  this.autoBtn.title = viewer.isAutoPlay ? Lng.autoPlayOff[lang] : Lng.autoPlayOn[lang];
                   viewer.toggleVideoLoop();
                   parent.classList.toggle('de-img-btn-auto-on');
               }
@@ -20433,7 +20443,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     _createClass(ImagesViewer, [{
       key: "closeImgViewer",
       value: function closeImgViewer(e) {
-        if (this.hasOwnProperty('_btns')) {
+        if ($hasProp(this, '_btns')) {
           this._btns.removeBtns();
         }
 
@@ -20740,7 +20750,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (!data.inPview) {
           btns.showBtns();
           btns.autoBtn.classList.toggle('de-img-btn-none', !data.isVideo);
-        } else if (this.hasOwnProperty('_btns')) {
+        } else if ($hasProp(this, '_btns')) {
           btns.hideBtns();
         }
 
@@ -21076,7 +21086,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             if (!(img.naturalHeight + img.naturalWidth)) {
               if (!img.onceLoaded) {
-                img.src = img.src;
+                var _src = img.src;
+                img.src = _src;
                 img.onceLoaded = true;
               }
 
@@ -21564,11 +21575,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     },
 
     endFn: function endFn() {
-      if (this.hasOwnProperty('_storage')) {
+      if ($hasProp(this, '_storage')) {
         sesStorage['de-imageshash'] = JSON.stringify(this._storage);
       }
 
-      if (this.hasOwnProperty('_workers')) {
+      if ($hasProp(this, '_workers')) {
         this._workers.clearWorkers();
 
         delete this._workers;
@@ -21588,16 +21599,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       try {
         value = JSON.parse(sesStorage['de-imageshash']);
-      } finally {
-        if (!value) {
-          value = {};
-        }
+      } catch (err) {}
 
-        Object.defineProperty(this, '_storage', {
-          value: value
-        });
-        return value;
+      if (!value) {
+        value = {};
       }
+
+      Object.defineProperty(this, '_storage', {
+        value: value
+      });
+      return value;
     },
 
     get _workers() {
@@ -23055,7 +23066,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var thr = this;
 
         do {
-          var realHid = data ? data.hasOwnProperty(thr.num) : false;
+          var realHid = data ? $hasProp(data, thr.num) : false;
 
           if (thr.isHidden ^ realHid) {
             if (realHid) {
@@ -23098,12 +23109,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           Post.addMark(el, false);
         }
 
-        if (aib.kohlchan && localStorage.getItem('unixFilenames') == 'true') {
-          var postCollection = el.querySelectorAll("div.panelUploads");
-
-          for (var z = 0; z < postCollection.length; z++) {
-            aib.kcUnixTimestamp(postCollection[z]);
-          }
+        if (aib.fixKCUnixFilenames && post.images.hasAttachments) {
+          aib.fixKCUnixFilenames(post);
         }
 
         return post;
@@ -23817,8 +23824,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         this._currentIcon = iconUrl;
+        this._isOrigIcon = !this._isOrigIcon;
         this._blinkInterv = setInterval(function () {
-          return _this73._setIcon((_this73._isOrigIcon = !_this73._isOrigIcon) ? _this73.originalIcon : _this73._currentIcon);
+          return _this73._setIcon(_this73._isOrigIcon ? _this73.originalIcon : _this73._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
@@ -24963,6 +24971,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
     }, {
       key: "fixFileInputs",
+      get: function get() {
+        return null;
+      }
+    }, {
+      key: "fixKCUnixFilenames",
       get: function get() {
         return null;
       }
@@ -28040,6 +28053,32 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return "".concat(_get(_getPrototypeOf(Kohlchan.prototype), "css", this), "\n\t\t\t\t#postingForm, .sage { display: none; }");
         }
       }, {
+        key: "fixKCUnixFilenames",
+        get: function get() {
+          var value = null;
+
+          if (locStorage.unixFilenames === 'true') {
+            value = function value(post) {
+              var containerEl = $q('div.panelUploads', post.el);
+              var imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
+              var timetext = new Date(containerEl.parentElement.parentElement.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+              timetext = timetext + timetext % 999;
+
+              for (var j = 0; j < imgLinks.length; j++) {
+                var imgLink = imgLinks[j];
+                var parentEl = imgLink.parentElement;
+                imgLink.href += '/' + timetext + (j === 0 && imgLinks.length === 1 ? '.' : '-' + j + '.') + $q('a.originalNameLink', parentEl.nodeName === 'SPAN' ? parentEl.parentElement : parentEl).title.split('.').pop();
+                imgLink.classList.add('unixLink');
+              }
+            };
+          }
+
+          Object.defineProperty(this, 'fixKCUnixFilenames', {
+            value: value
+          });
+          return value;
+        }
+      }, {
         key: "markupTags",
         get: function get() {
           return ['b', 'i', 'u', 's', 'spoiler', 'code'];
@@ -28111,35 +28150,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return !!$q('.sage', post).hasChildNodes();
         }
       }, {
-        key: "kcUnixTimestamp",
-        value: function kcUnixTimestamp(postFromCollection) {
-          var timetext = postFromCollection.parentElement.parentElement.querySelectorAll("span.labelCreated")[0].textContent.replace(/-/g, "/");
-          var someDate = new Date(timetext);
-          timetext = someDate.getTime();
-          var fake_precision = timetext % 999;
-          timetext = timetext + fake_precision;
-          var img_imgLink = postFromCollection.querySelectorAll("a.imgLink:not(.unixLink)");
-
-          for (var j = 0; j < img_imgLink.length; j++) {
-            var org_text = img_imgLink[j].href;
-            var extension;
-
-            if (img_imgLink[j].parentElement.nodeName == "SPAN") {
-              extension = img_imgLink[j].parentElement.parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-            } else {
-              extension = img_imgLink[j].parentElement.querySelectorAll("a.originalNameLink")[0].title.split('.').pop();
-            }
-
-            if (j == 0 && img_imgLink.length == 1) {
-              img_imgLink[j].href = org_text + "/" + timetext + "." + extension;
-            } else {
-              img_imgLink[j].href = org_text + "/" + timetext + "-" + j + "." + extension;
-            }
-
-            img_imgLink[j].classList.add("unixLink");
-          }
-        }
-      }, {
         key: "init",
         value: function init() {
           if (!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
@@ -28147,13 +28157,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return true;
           }
 
-          if (locStorage.autoRefreshMode !== 'false') {
+          if (locStorage.autoRefreshMode !== 'false' || locStorage.convertLocalTimes !== 'false') {
             locStorage.autoRefreshMode = false;
-            deWindow.location.reload();
-            return true;
-          }
-
-          if (locStorage.convertLocalTimes !== 'false') {
             locStorage.convertLocalTimes = false;
             deWindow.location.reload();
             return true;

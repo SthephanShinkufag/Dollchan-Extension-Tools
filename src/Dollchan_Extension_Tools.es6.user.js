@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '20d0297';
+const commit = '2929813';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5196,15 +5196,14 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 			let data;
 			try {
 				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-			} finally {
-				if(!data) {
-					$popup('err-invaliddata', Lng.invalidData[lang]);
-					return;
-				}
-				saveFn(data);
-				closePopup('edit-' + name);
-				closePopup('err-invaliddata');
+			} catch(err) {}
+			if(!data) {
+				$popup('err-invaliddata', Lng.invalidData[lang]);
+				return;
 			}
+			saveFn(data);
+			closePopup('edit-' + name);
+			closePopup('err-invaliddata');
 		}));
 	}), className);
 }
@@ -5238,8 +5237,13 @@ class Menu {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			const { href } = link;
-			const origSrc = link.getAttribute('de-href') || href;
+			let { href } = link;
+			let origSrc = link.getAttribute('de-href') || href;
+			const isFullImg = link.classList.contains('de-fullimg-link');
+			const isEmbedImg = !link.classList.contains('de-img-name');
+			if(aib.fixKCUnixFilenames && !isFullImg && !isEmbedImg) {
+				href = origSrc = $q(`.unixLink[href="${ href }"]`).href;
+			}
 			p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
@@ -5257,9 +5261,8 @@ class Menu {
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
 			const name = decodeURIComponent(getFileName(origSrc));
-			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
-				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
+				isEmbedImg ? name : aib.getImgRealName(aib.getImgWrap(data));
 			if(name !== realName) {
 				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
 			}
@@ -5633,47 +5636,46 @@ const HotKeys = {
 		let keys;
 		try {
 			keys = JSON.parse(str);
-		} finally {
-			if(!keys) {
-				return this.getDefaultKeys();
-			}
-			if(keys[0] !== this.version) {
-				const tKeys = this.getDefaultKeys();
-				switch(keys[0]) {
-				case 1:
-					keys[2][11] = tKeys[2][11];
-					keys[4] = tKeys[4];
-					/* falls through */
-				case 2:
-					keys[2][12] = tKeys[2][12];
-					keys[2][13] = tKeys[2][13];
-					keys[2][14] = tKeys[2][14];
-					keys[2][15] = tKeys[2][15];
-					keys[2][16] = tKeys[2][16];
-					/* falls through */
-				case 3:
-					keys[2][17] = keys[3][3];
-					keys[3][3] = keys[3].splice(4, 1)[0];
-					/* falls through */
-				case 4:
-				case 5:
-				case 6:
-					keys[2][18] = tKeys[2][18];
-				}
-				keys[0] = this.version;
-				setStored('DESU_keys', JSON.stringify(keys));
-			}
-			if(keys[1] ^ nav.isFirefox) {
-				const mapFunc = nav.isFirefox ?
-					key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
-					key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
-				keys[1] = nav.isFirefox;
-				keys[2] = keys[2].map(mapFunc);
-				keys[3] = keys[3].map(mapFunc);
-				setStored('DESU_keys', JSON.stringify(keys));
-			}
-			return keys;
+		} catch(err) {}
+		if(!keys) {
+			return this.getDefaultKeys();
 		}
+		if(keys[0] !== this.version) {
+			const tKeys = this.getDefaultKeys();
+			switch(keys[0]) {
+			case 1:
+				keys[2][11] = tKeys[2][11];
+				keys[4] = tKeys[4];
+				/* falls through */
+			case 2:
+				keys[2][12] = tKeys[2][12];
+				keys[2][13] = tKeys[2][13];
+				keys[2][14] = tKeys[2][14];
+				keys[2][15] = tKeys[2][15];
+				keys[2][16] = tKeys[2][16];
+				/* falls through */
+			case 3:
+				keys[2][17] = keys[3][3];
+				keys[3][3] = keys[3].splice(4, 1)[0];
+				/* falls through */
+			case 4:
+			case 5:
+			case 6:
+				keys[2][18] = tKeys[2][18];
+			}
+			keys[0] = this.version;
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		if(keys[1] ^ nav.isFirefox) {
+			const mapFunc = nav.isFirefox ?
+				key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
+				key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
+			keys[1] = nav.isFirefox;
+			keys[2] = keys[2].map(mapFunc);
+			keys[3] = keys[3].map(mapFunc);
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		return keys;
 	},
 	resume(keys) {
 		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;
@@ -6019,7 +6021,9 @@ const ContentLoader = {
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+			const title = Thread.first.op.title.trim();
+			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
+				title ? ' - ' + title : '' }.tar`);
 			closePopup('load-files');
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
@@ -8230,7 +8234,7 @@ class SpellsInterpreter {
 		}
 	}
 
-	static _tlenNum_helper(val, num) {
+	static _tlenNumHelper(val, num) {
 		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
 			if(arr[i] === num) {
 				return true;
@@ -8369,7 +8373,7 @@ class SpellsInterpreter {
 		return pName ? !val || pName.includes(val) : false;
 	}
 	_num(val) {
-		return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
+		return SpellsInterpreter._tlenNumHelper(val, this._post.count + 1);
 	}
 	_op() {
 		return this._post.isOp;
@@ -8383,7 +8387,7 @@ class SpellsInterpreter {
 	}
 	_tlen(val) {
 		const text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
-		return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
+		return !val ? !!text : SpellsInterpreter._tlenNumHelper(val, text.length);
 	}
 	_trip(val) {
 		const pTrip = this._post.posterTrip;
@@ -12777,13 +12781,12 @@ const ImagesHashStorage = Object.create({
 		let value = null;
 		try {
 			value = JSON.parse(sesStorage['de-imageshash']);
-		} finally {
-			if(!value) {
-				value = {};
-			}
-			Object.defineProperty(this, '_storage', { value });
-			return value;
+		} catch(err) {}
+		if(!value) {
+			value = {};
 		}
+		Object.defineProperty(this, '_storage', { value });
+		return value;
 	},
 	get _workers() {
 		const value = new WorkerPool(4, this._genImgHash, emptyFn);

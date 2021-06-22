@@ -983,7 +983,7 @@ class SpellsInterpreter {
 		}
 	}
 
-	static _tlenNum_helper(val, num) {
+	static _tlenNumHelper(val, num) {
 		for(let arr = val[0], i = arr.length - 1; i >= 0; --i) {
 			if(arr[i] === num) {
 				return true;
@@ -1122,7 +1122,7 @@ class SpellsInterpreter {
 		return pName ? !val || pName.includes(val) : false;
 	}
 	_num(val) {
-		return SpellsInterpreter._tlenNum_helper(val, this._post.count + 1);
+		return SpellsInterpreter._tlenNumHelper(val, this._post.count + 1);
 	}
 	_op() {
 		return this._post.isOp;
@@ -1136,7 +1136,7 @@ class SpellsInterpreter {
 	}
 	_tlen(val) {
 		const text = this._post.text.replace(/\s+(?=\s)|\n/g, '');
-		return !val ? !!text : SpellsInterpreter._tlenNum_helper(val, text.length);
+		return !val ? !!text : SpellsInterpreter._tlenNumHelper(val, text.length);
 	}
 	_trip(val) {
 		const pTrip = this._post.posterTrip;

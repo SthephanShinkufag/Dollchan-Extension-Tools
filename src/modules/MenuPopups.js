@@ -58,15 +58,14 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 			let data;
 			try {
 				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-			} finally {
-				if(!data) {
-					$popup('err-invaliddata', Lng.invalidData[lang]);
-					return;
-				}
-				saveFn(data);
-				closePopup('edit-' + name);
-				closePopup('err-invaliddata');
+			} catch(err) {}
+			if(!data) {
+				$popup('err-invaliddata', Lng.invalidData[lang]);
+				return;
 			}
+			saveFn(data);
+			closePopup('edit-' + name);
+			closePopup('err-invaliddata');
 		}));
 	}), className);
 }
@@ -100,8 +99,13 @@ class Menu {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			const { href } = link;
-			const origSrc = link.getAttribute('de-href') || href;
+			let { href } = link;
+			let origSrc = link.getAttribute('de-href') || href;
+			const isFullImg = link.classList.contains('de-fullimg-link');
+			const isEmbedImg = !link.classList.contains('de-img-name');
+			if(aib.fixKCUnixFilenames && !isFullImg && !isEmbedImg) {
+				href = origSrc = $q(`.unixLink[href="${ href }"]`).href;
+			}
 			p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
@@ -119,9 +123,8 @@ class Menu {
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
 			const name = decodeURIComponent(getFileName(origSrc));
-			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
-				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
+				isEmbedImg ? name : aib.getImgRealName(aib.getImgWrap(data));
 			if(name !== realName) {
 				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
 			}

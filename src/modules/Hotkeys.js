@@ -261,47 +261,46 @@ const HotKeys = {
 		let keys;
 		try {
 			keys = JSON.parse(str);
-		} finally {
-			if(!keys) {
-				return this.getDefaultKeys();
-			}
-			if(keys[0] !== this.version) {
-				const tKeys = this.getDefaultKeys();
-				switch(keys[0]) {
-				case 1:
-					keys[2][11] = tKeys[2][11];
-					keys[4] = tKeys[4];
-					/* falls through */
-				case 2:
-					keys[2][12] = tKeys[2][12];
-					keys[2][13] = tKeys[2][13];
-					keys[2][14] = tKeys[2][14];
-					keys[2][15] = tKeys[2][15];
-					keys[2][16] = tKeys[2][16];
-					/* falls through */
-				case 3:
-					keys[2][17] = keys[3][3];
-					keys[3][3] = keys[3].splice(4, 1)[0];
-					/* falls through */
-				case 4:
-				case 5:
-				case 6:
-					keys[2][18] = tKeys[2][18];
-				}
-				keys[0] = this.version;
-				setStored('DESU_keys', JSON.stringify(keys));
-			}
-			if(keys[1] ^ nav.isFirefox) {
-				const mapFunc = nav.isFirefox ?
-					key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
-					key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
-				keys[1] = nav.isFirefox;
-				keys[2] = keys[2].map(mapFunc);
-				keys[3] = keys[3].map(mapFunc);
-				setStored('DESU_keys', JSON.stringify(keys));
-			}
-			return keys;
+		} catch(err) {}
+		if(!keys) {
+			return this.getDefaultKeys();
 		}
+		if(keys[0] !== this.version) {
+			const tKeys = this.getDefaultKeys();
+			switch(keys[0]) {
+			case 1:
+				keys[2][11] = tKeys[2][11];
+				keys[4] = tKeys[4];
+				/* falls through */
+			case 2:
+				keys[2][12] = tKeys[2][12];
+				keys[2][13] = tKeys[2][13];
+				keys[2][14] = tKeys[2][14];
+				keys[2][15] = tKeys[2][15];
+				keys[2][16] = tKeys[2][16];
+				/* falls through */
+			case 3:
+				keys[2][17] = keys[3][3];
+				keys[3][3] = keys[3].splice(4, 1)[0];
+				/* falls through */
+			case 4:
+			case 5:
+			case 6:
+				keys[2][18] = tKeys[2][18];
+			}
+			keys[0] = this.version;
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		if(keys[1] ^ nav.isFirefox) {
+			const mapFunc = nav.isFirefox ?
+				key => key === 189 ? 173 : key === 187 ? 61 : key === 186 ? 59 : key :
+				key => key === 173 ? 189 : key === 61 ? 187 : key === 59 ? 186 : key;
+			keys[1] = nav.isFirefox;
+			keys[2] = keys[2].map(mapFunc);
+			keys[3] = keys[3].map(mapFunc);
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		return keys;
 	},
 	resume(keys) {
 		[,, this.gKeys, this.ntKeys, this.tKeys] = keys;

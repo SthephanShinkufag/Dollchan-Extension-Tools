@@ -935,13 +935,12 @@ const ImagesHashStorage = Object.create({
 		let value = null;
 		try {
 			value = JSON.parse(sesStorage['de-imageshash']);
-		} finally {
-			if(!value) {
-				value = {};
-			}
-			Object.defineProperty(this, '_storage', { value });
-			return value;
+		} catch(err) {}
+		if(!value) {
+			value = {};
 		}
+		Object.defineProperty(this, '_storage', { value });
+		return value;
 	},
 	get _workers() {
 		const value = new WorkerPool(4, this._genImgHash, emptyFn);

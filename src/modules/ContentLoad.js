@@ -64,7 +64,9 @@ const ContentLoader = {
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-			downloadBlob(tar.get(), docName + (imgOnly ? '-images.tar' : '.tar'));
+			const title = Thread.first.op.title.trim();
+			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
+				title ? ' - ' + title : '' }.tar`);
 			closePopup('load-files');
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
