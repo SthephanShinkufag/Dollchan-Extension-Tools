@@ -144,7 +144,7 @@ class Thread {
 			switch(el.classList[0]) {
 			case 'de-btn-reply':
 				this.btns.title = Lng.replyToThr[lang];
-				quotetxt = deWindow.getSelection().toString();
+				quotedText = deWindow.getSelection().toString();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':

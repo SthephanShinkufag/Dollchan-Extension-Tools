@@ -193,7 +193,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotetxt = deWindow.getSelection().toString();
+				quotedText = deWindow.getSelection().toString();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -212,9 +212,9 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
-				.replace(/\n/gm, '\n' + quote));
-			quotetxt = '';
+			insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end))
+				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + '\n');
+			quotedText = '';
 		} else {
 			const { scrtop } = txtaEl;
 			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
@@ -280,7 +280,7 @@ class PostForm {
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -306,7 +306,7 @@ class PostForm {
 			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 			(isOnNewLine ? '' : '\n') +
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
-		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
+		const quote = !quotedText ? '' : `${ quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
 		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();

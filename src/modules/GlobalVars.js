@@ -8,6 +8,6 @@ const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Ext
 
 let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
 	pByNum, pr, sesStorage, updater;
-let quotetxt = '';
+let quotedText = '';
 let visPosts = 2;
 let topWinZ = 10;

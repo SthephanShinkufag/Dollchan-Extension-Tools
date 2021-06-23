@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '2929813';
+  var commit = '33b05ad';
 
   var defaultCfg = {
     disabled: 0,
@@ -6119,7 +6119,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
   var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
   var $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, pr, sesStorage, updater;
-  var quotetxt = '';
+  var quotedText = '';
   var visPosts = 2;
   var topWinZ = 10;
 
@@ -15568,7 +15568,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         if (e.type === 'mouseover') {
           if (id === 'de-btn-quote') {
-            quotetxt = deWindow.getSelection().toString();
+            quotedText = deWindow.getSelection().toString();
           }
 
           var key = -1;
@@ -15606,8 +15606,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var quote = Cfg.spacedQuote ? '> ' : '>';
 
         if (id === 'de-btn-quote') {
-          insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end)).replace(/\n/gm, '\n' + quote));
-          quotetxt = '';
+          insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + '\n');
+          quotedText = '';
         } else {
           var scrtop = txtaEl.scrtop;
 
@@ -15698,7 +15698,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this.isQuick = true;
           this.setReply(true, false);
           $q('a', this._pBtn[+this.isBottom]).className = "de-abtn de-parea-btn-".concat(aib.t ? 'reply' : 'thr');
-        } else if (isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+        } else if (isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
           this.closeReply();
           return;
         }
@@ -15728,7 +15728,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var txt = this.txta.value;
         var isOnNewLine = txt === '' || txt.slice(-1) === '\n';
         var link = isNoLink || post.isOp && !Cfg.addOPLink && !aib.t && !isNumClick ? '' : isNumClick ? ">>".concat(pNum).concat(isOnNewLine ? '\n' : '') : (isOnNewLine ? '' : '\n') + (this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : ">>".concat(pNum, "\n"));
-        var quote = !quotetxt ? '' : "".concat(quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, "$1>".concat(Cfg.spacedQuote ? ' ' : '', "$2")), "\n");
+        var quote = !quotedText ? '' : "".concat(quotedText.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/(^|\n)(.)/gm, "$1>".concat(Cfg.spacedQuote ? ' ' : '', "$2")), "\n");
         insertText(this.txta, link + quote);
         var winTitle = post.thr.op.title.trim();
         $q('.de-win-title', this.qArea).textContent = (winTitle.length < 28 ? winTitle : "".concat(winTitle.substr(0, 30), "\u2026")) || "#".concat(pNum);
@@ -18221,9 +18221,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   e.stopPropagation();
 
                   if (!Cfg.showRepBtn) {
-                    quotetxt = deWindow.getSelection().toString();
+                    quotedText = deWindow.getSelection().toString();
                     pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-                    quotetxt = '';
+                    quotedText = '';
                   } else if (pr.isQuick || aib.t && pr.isHidden) {
                     pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
                   } else if (aib.t) {
@@ -18323,13 +18323,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               return;
 
             case 'de-btn-img':
-              quotetxt = aib.getImgRealName(aib.getImgWrap(el));
+              quotedText = aib.getImgRealName(aib.getImgWrap(el));
               pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
               return;
 
             case 'de-btn-reply':
               pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-              quotetxt = '';
+              quotedText = '';
               return;
 
             case 'de-btn-sage':
@@ -18413,7 +18413,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               if (Cfg.showRepBtn === 1) {
                 if (!isOutEvent) {
-                  quotetxt = deWindow.getSelection().toString();
+                  quotedText = deWindow.getSelection().toString();
                 }
 
                 this._addMenu(el, isOutEvent, "<span class=\"de-menu-item\" info=\"post-reply\">".concat(title, "</span>") + (aib.reportForm ? "<span class=\"de-menu-item\" info=\"post-report\">".concat(this.num === this.thr.num ? Lng.reportThr[lang] : Lng.reportPost[lang], "</span>") : '') + (Cfg.markMyPosts || Cfg.markMyLinks ? "<span class=\"de-menu-item\" info=\"post-markmy\">".concat(MyPosts.has(this.num) ? Lng.deleteMyPost[lang] : Lng.markMyPost[lang], "</span>") : ''));
@@ -19143,7 +19143,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 'post-reply':
             pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-            quotetxt = '';
+            quotedText = '';
             return;
 
           case 'post-report':
@@ -22954,7 +22954,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           switch (el.classList[0]) {
             case 'de-btn-reply':
               this.btns.title = Lng.replyToThr[lang];
-              quotetxt = deWindow.getSelection().toString();
+              quotedText = deWindow.getSelection().toString();
               return;
 
             case 'de-btn-hide':

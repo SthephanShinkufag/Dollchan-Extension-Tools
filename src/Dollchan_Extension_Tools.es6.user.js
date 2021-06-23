@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '2929813';
+const commit = '33b05ad';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1698,7 +1698,7 @@ const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Ext
 
 let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
 	pByNum, pr, sesStorage, updater;
-let quotetxt = '';
+let quotedText = '';
 let visPosts = 2;
 let topWinZ = 10;
 
@@ -8741,7 +8741,7 @@ class PostForm {
 		}
 		if(e.type === 'mouseover') {
 			if(id === 'de-btn-quote') {
-				quotetxt = deWindow.getSelection().toString();
+				quotedText = deWindow.getSelection().toString();
 			}
 			let key = -1;
 			if(HotKeys.enabled) {
@@ -8760,9 +8760,9 @@ class PostForm {
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
-			insertText(txtaEl, quote + (start === end ? quotetxt : txtaEl.value.substring(start, end))
-				.replace(/\n/gm, '\n' + quote));
-			quotetxt = '';
+			insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end))
+				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + '\n');
+			quotedText = '';
 		} else {
 			const { scrtop } = txtaEl;
 			const val = PostForm._wrapText(el.getAttribute('de-tag'), txtaEl.value.substring(start, end));
@@ -8828,7 +8828,7 @@ class PostForm {
 			this.setReply(true, false);
 			$q('a', this._pBtn[+this.isBottom]).className =
 				`de-abtn de-parea-btn-${ aib.t ? 'reply' : 'thr' }`;
-		} else if(isCloseReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
+		} else if(isCloseReply && !quotedText && post.wrap.nextElementSibling === this.qArea) {
 			this.closeReply();
 			return;
 		}
@@ -8854,7 +8854,7 @@ class PostForm {
 			isNumClick ? `>>${ pNum }${ isOnNewLine ? '\n' : '' }` :
 			(isOnNewLine ? '' : '\n') +
 				(this.lastQuickPNum === pNum && txt.includes('>>' + pNum) ? '' : `>>${ pNum }\n`);
-		const quote = !quotetxt ? '' : `${ quotetxt.replace(/^\n|\n$/g, '')
+		const quote = !quotedText ? '' : `${ quotedText.replace(/^[\r\n]|[\r\n]+$/g, '')
 			.replace(/(^|\n)(.)/gm, `$1>${ Cfg.spacedQuote ? ' ' : '' }$2`) }\n`;
 		insertText(this.txta, link + quote);
 		const winTitle = post.thr.op.title.trim();
@@ -10443,9 +10443,9 @@ class AbstractPost {
 						$pd(e);
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
-							quotetxt = deWindow.getSelection().toString();
+							quotedText = deWindow.getSelection().toString();
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-							quotetxt = '';
+							quotedText = '';
 						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
@@ -10528,12 +10528,12 @@ class AbstractPost {
 			case 'de-btn-unhide':
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-img':
-				quotetxt = aib.getImgRealName(aib.getImgWrap(el));
+				quotedText = aib.getImgRealName(aib.getImgWrap(el));
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			case 'de-btn-reply':
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
-				quotetxt = '';
+				quotedText = '';
 				return;
 			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
@@ -10591,7 +10591,7 @@ class AbstractPost {
 			const title = this.btns.title = this.isOp ? Lng.replyToThr[lang] : Lng.replyToPost[lang];
 			if(Cfg.showRepBtn === 1) {
 				if(!isOutEvent) {
-					quotetxt = deWindow.getSelection().toString();
+					quotedText = deWindow.getSelection().toString();
 				}
 				this._addMenu(el, isOutEvent,
 					`<span class="de-menu-item" info="post-reply">${ title }</span>` +
@@ -11175,7 +11175,7 @@ class Post extends AbstractPost {
 		}
 		case 'post-reply':
 			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-			quotetxt = '';
+			quotedText = '';
 			return;
 		case 'post-report': aib.reportForm(num, this.thr.num); return;
 		case 'thr-exp': {
@@ -13774,7 +13774,7 @@ class Thread {
 			switch(el.classList[0]) {
 			case 'de-btn-reply':
 				this.btns.title = Lng.replyToThr[lang];
-				quotetxt = deWindow.getSelection().toString();
+				quotedText = deWindow.getSelection().toString();
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
