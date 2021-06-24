@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '33b05ad';
+  var commit = '4662c4f';
 
   var defaultCfg = {
     disabled: 0,
@@ -14133,6 +14133,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               {
                 var name = '';
                 i++;
+                var colStart = this._col;
                 this._col++;
 
                 while (sList[i] >= 'a' && sList[i] <= 'z' || sList[i] >= 'A' && sList[i] <= 'Z') {
@@ -14189,6 +14190,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   lastType = this.TYPE_REPLACER;
                 } else {
                   if (lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+                    this._col = colStart;
+
                     this._setError(Lng.seMissOp[lang], null);
 
                     return null;

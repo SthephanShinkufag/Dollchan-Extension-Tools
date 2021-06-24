@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '33b05ad';
+const commit = '4662c4f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -7807,6 +7807,7 @@ class SpellsCodegen {
 			case '#': {
 				let name = '';
 				i++;
+				const colStart = this._col;
 				this._col++;
 				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
 					name += sList[i].toLowerCase();
@@ -7851,6 +7852,7 @@ class SpellsCodegen {
 					lastType = this.TYPE_REPLACER;
 				} else {
 					if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+						this._col = colStart;
 						this._setError(Lng.seMissOp[lang], null);
 						return null;
 					}

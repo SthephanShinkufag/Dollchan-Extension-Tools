@@ -556,6 +556,7 @@ class SpellsCodegen {
 			case '#': {
 				let name = '';
 				i++;
+				const colStart = this._col;
 				this._col++;
 				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
 					name += sList[i].toLowerCase();
@@ -600,6 +601,7 @@ class SpellsCodegen {
 					lastType = this.TYPE_REPLACER;
 				} else {
 					if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+						this._col = colStart;
 						this._setError(Lng.seMissOp[lang], null);
 						return null;
 					}
