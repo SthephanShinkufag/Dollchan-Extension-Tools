@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '81a45b8';
+  var commit = 'cb171db';
 
   var defaultCfg = {
     disabled: 0,
@@ -14159,17 +14159,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                       lookBack: while (i >= 0) {
                         switch (sList[i]) {
                           case '\n':
-                            i--;
-                            this._line--;
+                            {
+                              i--;
+                              this._line--;
+                              var j = 0;
 
-                            for (var j = 0, _len10 = i + 1; j <= _len10; ++j) {
-                              if (sList[i - j] === '\n' || j === _len10) {
-                                this._col = j;
-                                break;
+                              while (j <= i && sList[i - j] !== '\n') {
+                                j++;
                               }
-                            }
 
-                            break;
+                              this._col = j;
+                              break;
+                            }
 
                           case '\r':
                           case ' ':
@@ -21529,7 +21530,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
 
-        for (var _i16 = 0, _len11 = els.length; _i16 < _len11; ++_i16) {
+        for (var _i16 = 0, _len10 = els.length; _i16 < _len10; ++_i16) {
           var _el8 = els[_i16];
           last = new EmbeddedImage(post, _el8, last);
           filesMap.set(_el8, last);

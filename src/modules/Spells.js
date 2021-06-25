@@ -576,16 +576,16 @@ class SpellsCodegen {
 							lookBack:
 							while(i >= 0) {
 								switch(sList[i]) {
-								case '\n':
+								case '\n': {
 									i--;
 									this._line--;
-									for(let j = 0, len = i + 1; j <= len; ++j) {
-										if(sList[i - j] === '\n' || j === len) {
-											this._col = j;
-											break;
-										}
+									let j = 0;
+									while(j <= i && sList[i - j] !== '\n') {
+										j++;
 									}
+									this._col = j;
 									break;
+								}
 								case '\r':
 								case ' ':
 								case '#':
