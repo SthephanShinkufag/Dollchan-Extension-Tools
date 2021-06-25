@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '4662c4f';
+  var commit = '81a45b8';
 
   var defaultCfg = {
     disabled: 0,
@@ -14159,8 +14159,21 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                       lookBack: while (i >= 0) {
                         switch (sList[i]) {
                           case '\n':
+                            i--;
+                            this._line--;
+
+                            for (var j = 0, _len10 = i + 1; j <= _len10; ++j) {
+                              if (sList[i - j] === '\n' || j === _len10) {
+                                this._col = j;
+                                break;
+                              }
+                            }
+
+                            break;
+
                           case '\r':
                           case ' ':
+                          case '#':
                             i--;
                             this._col--;
                             break;
@@ -14334,6 +14347,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         try {
           toRegExp(val, true);
         } catch (err) {
+          this._col++;
+
           this._setError(Lng.seErrRegex[lang], val);
 
           return null;
@@ -14352,6 +14367,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           scope = [0, ['', '']];
         }
 
+        if (str[0] !== '(' || str[1] === ')') {
+          this._setError(Lng.seMissArg[lang], name);
+
+          return null;
+        }
+
         var regex = this._getRegex(str, true);
 
         if (regex) {
@@ -14368,7 +14389,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         }
 
-        this._setError(Lng.seSyntaxErr[lang], name);
+        if (!this.hasError) {
+          this._setError(Lng.seSyntaxErr[lang], name);
+        }
 
         return null;
       }
@@ -14382,6 +14405,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var spellIdx = Spells.names.indexOf(name);
 
         if (spellIdx === -1) {
+          this._col -= name.length + 1;
+
           this._setError(Lng.seUnknown[lang], name);
 
           return null;
@@ -14517,7 +14542,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         }
 
-        this._setError(Lng.seSyntaxErr[lang], name);
+        if (!this.hasError) {
+          this._setError(Lng.seSyntaxErr[lang], name);
+        }
 
         return null;
       }
@@ -21502,7 +21529,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
 
-        for (var _i16 = 0, _len10 = els.length; _i16 < _len10; ++_i16) {
+        for (var _i16 = 0, _len11 = els.length; _i16 < _len11; ++_i16) {
           var _el8 = els[_i16];
           last = new EmbeddedImage(post, _el8, last);
           filesMap.set(_el8, last);

@@ -577,8 +577,18 @@ class SpellsCodegen {
 							while(i >= 0) {
 								switch(sList[i]) {
 								case '\n':
+									i--;
+									this._line--;
+									for(let j = 0, len = i + 1; j <= len; ++j) {
+										if(sList[i - j] === '\n' || j === len) {
+											this._col = j;
+											break;
+										}
+									}
+									break;
 								case '\r':
 								case ' ':
+								case '#':
 									i--;
 									this._col--;
 									break;
@@ -705,6 +715,7 @@ class SpellsCodegen {
 		try {
 			toRegExp(val, true);
 		} catch(err) {
+			this._col++;
 			this._setError(Lng.seErrRegex[lang], val);
 			return null;
 		}
@@ -717,6 +728,10 @@ class SpellsCodegen {
 		} else {
 			scope = [0, ['', '']];
 		}
+		if(str[0] !== '(' || str[1] === ')') {
+			this._setError(Lng.seMissArg[lang], name);
+			return null;
+		}
 		const regex = this._getRegex(str, true);
 		if(regex) {
 			str = str.substring(regex[0]);
@@ -728,13 +743,16 @@ class SpellsCodegen {
 				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
 			}
 		}
-		this._setError(Lng.seSyntaxErr[lang], name);
+		if(!this.hasError) {
+			this._setError(Lng.seSyntaxErr[lang], name);
+		}
 		return null;
 	}
 	_doSpell(name, str, isNeg) {
 		let m, val, scope = null, i = 0;
 		const spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
+			this._col -= name.length + 1;
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
@@ -830,7 +848,9 @@ class SpellsCodegen {
 				return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
 			}
 		}
-		this._setError(Lng.seSyntaxErr[lang], name);
+		if(!this.hasError) {
+			this._setError(Lng.seSyntaxErr[lang], name);
+		}
 		return null;
 	}
 	_setError(msg, arg) {
