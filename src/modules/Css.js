@@ -109,7 +109,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }

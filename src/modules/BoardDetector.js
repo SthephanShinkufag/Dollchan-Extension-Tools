@@ -1802,7 +1802,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#postingForm, .sage { display: none; }`;
+				.extraMenuButton, #postingForm, .sage { display: none; }`;
 		}
 		get fixKCUnixFilenames() {
 			let value = null;

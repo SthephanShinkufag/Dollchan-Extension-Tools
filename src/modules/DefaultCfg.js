@@ -16,7 +16,6 @@ const defaultCfg = {
 	updCount     : 1,    //    show countdown to thread update
 	favIcoBlink  : 0,    //    blink the favicon on new posts
 	desktNotif   : 0,    //    desktop notifications for new posts
-	noErrInTitle : 0,    //    don't show error code in title (except 404)
 	markNewPosts : 1,    //    highlight new posts with color
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts

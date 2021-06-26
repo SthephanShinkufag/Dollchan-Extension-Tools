@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '2c5498a';
+const commit = '435b3bb';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -50,7 +50,6 @@ const defaultCfg = {
 	updCount     : 1,    //    show countdown to thread update
 	favIcoBlink  : 0,    //    blink the favicon on new posts
 	desktNotif   : 0,    //    desktop notifications for new posts
-	noErrInTitle : 0,    //    don't show error code in title (except 404)
 	markNewPosts : 1,    //    highlight new posts with color
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
@@ -17401,7 +17400,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get css() {
 			return `${ super.css }
-				#postingForm, .sage { display: none; }`;
+				.extraMenuButton, #postingForm, .sage { display: none; }`;
 		}
 		get fixKCUnixFilenames() {
 			let value = null;
@@ -18256,7 +18255,7 @@ function scriptCSS() {
 	.de-info-row { display: flex; }
 	#de-info-table { display: flex; flex: 1 0 auto; }
 	.de-spell-btn { padding: 0 4px; }
-	#de-spell-editor { display: flex; align-items: stretch; height: 258px; padding: 2px 0; }
+	#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }
 	#de-spell-panel { display: flex; }
 	#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ${ nav.isPresto ? '' : 'resize: none !important; ' }}
 	#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }
