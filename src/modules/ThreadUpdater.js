@@ -377,9 +377,7 @@ function initThreadUpdater(title, enableUpdate) {
 					disableUpdater();
 				} else {
 					this._setUpdateStatus('warn');
-					if(!Cfg.noErrInTitle) {
-						updateTitle(eCode);
-					}
+					updateTitle(eCode);
 					this._makeStep();
 				}
 				lastECode = eCode;
@@ -389,9 +387,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(lastECode !== 200) {
 				favicon.stopBlink();
 				this._setUpdateStatus('on');
-				if(!Cfg.noErrInTitle) {
-					updateTitle(eCode);
-				}
+				updateTitle(eCode);
 			}
 			lastECode = eCode;
 			if(doc.hidden) {

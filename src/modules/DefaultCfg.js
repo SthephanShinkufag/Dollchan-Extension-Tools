@@ -21,6 +21,8 @@ const defaultCfg = {
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
 	expandTrunc  : 0,    // auto-expand truncated posts
+	widePosts    : 0,    // stretch posts to screen width
+	limitPostMsg : 2000, // limit text width in posts nessages
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
 	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
@@ -28,8 +30,6 @@ const defaultCfg = {
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
-	limitPostMsg : 2000, // limit text width in posts nessages
-	widePosts    : 0,    // stretch posts to screen width
 	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
@@ -117,7 +117,7 @@ const defaultCfg = {
 	saveScroll   : 1,    // remember the scroll position in threads
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
-	favWinOn     : 0,    // Always open the Favorites window
+	favWinOn     : 0,    // always open the Favorites window
 	closePopups  : 0,    // close popups automatically
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)

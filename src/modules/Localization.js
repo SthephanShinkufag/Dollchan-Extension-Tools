@@ -69,10 +69,6 @@ const Lng = {
 			'Уведомлять о новых постах на рабочем столе',
 			'Desktop notifications for new posts',
 			'Повідомляти про нові пости на стільниці'],
-		noErrInTitle: [
-			'Не показывать номер ошибки в заголовке',
-			'Donʼt show error code in pageʼs title',
-			'Не показувати номер помилки в заголовку'],
 		markNewPosts: [
 			'Выделять цветом новые посты',
 			'Highlight new posts with color',
@@ -89,6 +85,15 @@ const Lng = {
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
 			'Авторозгортання скорочених постів*'],
+		widePosts: [
+			'Растягивать посты по ширине экрана',
+			'Stretch posts to page width',
+			'Розтягувати пости на ширину екрану'],
+		limitPostMsg: [
+			'Ограничение ширины текста в постах (px)',
+			'Limit text width in posts messages (px)',
+			'Обмеження ширини тексту в постах (px)'
+		],
 		thrBtns: {
 			sel: [
 				['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'],
@@ -139,15 +144,6 @@ const Lng = {
 				'Text spoilers expansion',
 				'Розкриття текстових спойлерів']
 		},
-		limitPostMsg: [
-			'Ограничение ширины текста в постах (px)',
-			'Limit text width in posts messages (px)',
-			'Обмеження ширини тексту в постах (px)'
-		],
-		widePosts: [
-			'Растягивать посты по ширине экрана',
-			'Stretch posts to page width',
-			'Розтягувати пости на ширину екрану'],
 		noPostNames: [
 			'Скрывать имена в постах',
 			'Hide poster names',

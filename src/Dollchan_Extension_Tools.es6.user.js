@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = 'd6cdd1d';
+const commit = '2c5498a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -55,6 +55,8 @@ const defaultCfg = {
 	useDobrAPI   : 1,    //    dobrochan: use json API
 	markMyPosts  : 1,    // highlight my own posts
 	expandTrunc  : 0,    // auto-expand truncated posts
+	widePosts    : 0,    // stretch posts to screen width
+	limitPostMsg : 2000, // limit text width in posts nessages
 	showHideBtn  : 1,    // show "Hide" buttons [0=off, 1=with menu, 2=no menu]
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
 	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
@@ -62,8 +64,6 @@ const defaultCfg = {
 	thrBtns      : 1,    /* additional buttons under threads
 		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
-	limitPostMsg : 2000, // limit text width in posts nessages
-	widePosts    : 0,    // stretch posts to screen width
 	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
@@ -151,7 +151,7 @@ const defaultCfg = {
 	saveScroll   : 1,    // remember the scroll position in threads
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
 		[0=by opnum, 1=by opnum (desc), 2=by adding, 3=by adding (desc)] */
-	favWinOn     : 0,    // Always open the Favorites window
+	favWinOn     : 0,    // always open the Favorites window
 	closePopups  : 0,    // close popups automatically
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
 	textaWidth   : 300,  // textarea width (px)
@@ -246,10 +246,6 @@ const Lng = {
 			'Уведомлять о новых постах на рабочем столе',
 			'Desktop notifications for new posts',
 			'Повідомляти про нові пости на стільниці'],
-		noErrInTitle: [
-			'Не показывать номер ошибки в заголовке',
-			'Donʼt show error code in pageʼs title',
-			'Не показувати номер помилки в заголовку'],
 		markNewPosts: [
 			'Выделять цветом новые посты',
 			'Highlight new posts with color',
@@ -266,6 +262,15 @@ const Lng = {
 			'Авторазворот сокращенных постов*',
 			'Autoexpand truncated posts*',
 			'Авторозгортання скорочених постів*'],
+		widePosts: [
+			'Растягивать посты по ширине экрана',
+			'Stretch posts to page width',
+			'Розтягувати пости на ширину екрану'],
+		limitPostMsg: [
+			'Ограничение ширины текста в постах (px)',
+			'Limit text width in posts messages (px)',
+			'Обмеження ширини тексту в постах (px)'
+		],
 		thrBtns: {
 			sel: [
 				['Откл.', 'Все', 'Все (на доске)', '"Новые посты" на доске'],
@@ -316,15 +321,6 @@ const Lng = {
 				'Text spoilers expansion',
 				'Розкриття текстових спойлерів']
 		},
-		limitPostMsg: [
-			'Ограничение ширины текста в постах (px)',
-			'Limit text width in posts messages (px)',
-			'Обмеження ширини тексту в постах (px)'
-		],
-		widePosts: [
-			'Растягивать посты по ширине экрана',
-			'Stretch posts to page width',
-			'Розтягувати пости на ширину екрану'],
 		noPostNames: [
 			'Скрывать имена в постах',
 			'Hide poster names',
@@ -4558,9 +4554,9 @@ const CfgWindow = {
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
+			case 'widePosts':
 			case 'showHideBtn':
 			case 'showRepBtn':
-			case 'widePosts':
 			case 'noPostNames':
 			case 'imgNavBtns':
 			case 'strikeHidd':
@@ -4872,20 +4868,19 @@ const CfgWindow = {
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
-					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
+			${ this._getBox('widePosts') }<br>
+			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getSel('showHideBtn') }<br>
 			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
-			${ this._getInp('limitPostMsg', true, 5) }<br>
-			${ this._getBox('widePosts') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset', true, 1) }
@@ -5090,7 +5085,7 @@ const CfgWindow = {
 		const fn = this._toggleDependant;
 		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
+			'input[info="markNewPosts"]', 'input[info="desktNotif"]'
 		]);
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
@@ -14683,9 +14678,7 @@ function initThreadUpdater(title, enableUpdate) {
 					disableUpdater();
 				} else {
 					this._setUpdateStatus('warn');
-					if(!Cfg.noErrInTitle) {
-						updateTitle(eCode);
-					}
+					updateTitle(eCode);
 					this._makeStep();
 				}
 				lastECode = eCode;
@@ -14695,9 +14688,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(lastECode !== 200) {
 				favicon.stopBlink();
 				this._setUpdateStatus('on');
-				if(!Cfg.noErrInTitle) {
-					updateTitle(eCode);
-				}
+				updateTitle(eCode);
 			}
 			lastECode = eCode;
 			if(doc.hidden) {
@@ -18241,7 +18232,7 @@ function scriptCSS() {
 	.de-block { display: block; }
 	#de-btn-spell-add { margin-left: auto; }
 	#de-cfg-bar { display: flex; margin: 0; padding: 0; }
-	.de-cfg-body { min-height: 353px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
+	.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }
 	.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }
 	.de-cfg-button { padding: 0 ${ nav.isFirefox ? '2' : '4' }px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }
 	#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }
@@ -18252,7 +18243,7 @@ function scriptCSS() {
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
-	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; }
+	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }

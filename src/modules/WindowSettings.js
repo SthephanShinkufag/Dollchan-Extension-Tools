@@ -307,9 +307,9 @@ const CfgWindow = {
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
+			case 'widePosts':
 			case 'showHideBtn':
 			case 'showRepBtn':
-			case 'widePosts':
 			case 'noPostNames':
 			case 'imgNavBtns':
 			case 'strikeHidd':
@@ -621,20 +621,19 @@ const CfgWindow = {
 					${ this._getBox('updCount') }<br>
 					${ this._getBox('favIcoBlink') }<br>
 					${ 'Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '' }
-					${ this._getBox('noErrInTitle') }<br>
 					${ this._getBox('markNewPosts') }<br>
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
 			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
+			${ this._getBox('widePosts') }<br>
+			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getSel('showHideBtn') }<br>
 			${ !localData ? this._getSel('showRepBtn') : '' }<br>
 			${ this._getSel('postBtnsCSS') }
 			${ this._getInp('postBtnsBack', false, 8) }<br>
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
-			${ this._getInp('limitPostMsg', true, 5) }<br>
-			${ this._getBox('widePosts') }<br>
 			${ this._getBox('noPostNames') }<br>
 			${ this._getBox('correctTime') }
 			${ this._getInp('timeOffset', true, 1) }
@@ -839,7 +838,7 @@ const CfgWindow = {
 		const fn = this._toggleDependant;
 		fn(Cfg.ajaxUpdThr, [
 			'input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]',
-			'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="noErrInTitle"]'
+			'input[info="markNewPosts"]', 'input[info="desktNotif"]'
 		]);
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
