@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = 'cb171db';
+  var commit = 'd6cdd1d';
 
   var defaultCfg = {
     disabled: 0,
@@ -10730,13 +10730,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var link = data.nextSibling;
           var href = link.href;
           var origSrc = link.getAttribute('de-href') || href;
-          var isFullImg = link.classList.contains('de-fullimg-link');
-          var isEmbedImg = !link.classList.contains('de-img-name');
-
-          if (aib.fixKCUnixFilenames && !isFullImg && !isEmbedImg) {
-            href = origSrc = $q(".unixLink[href=\"".concat(href, "\"]")).href;
-          }
-
           p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 
           var getDlLnk = function getDlLnk(href, name, title, isAddExt) {
@@ -10759,7 +10752,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           };
 
           var name = decodeURIComponent(getFileName(origSrc));
-          var realName = isFullImg ? link.textContent : isEmbedImg ? name : aib.getImgRealName(aib.getImgWrap(data));
+          var isFullImg = link.classList.contains('de-fullimg-link');
+          var realName = isFullImg ? link.textContent : link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
 
           if (name !== realName) {
             dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);

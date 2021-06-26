@@ -99,13 +99,8 @@ class Menu {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
 			const link = data.nextSibling;
-			let { href } = link;
-			let origSrc = link.getAttribute('de-href') || href;
-			const isFullImg = link.classList.contains('de-fullimg-link');
-			const isEmbedImg = !link.classList.contains('de-img-name');
-			if(aib.fixKCUnixFilenames && !isFullImg && !isEmbedImg) {
-				href = origSrc = $q(`.unixLink[href="${ href }"]`).href;
-			}
+			const { href } = link;
+			const origSrc = link.getAttribute('de-href') || href;
 			p = encodeURIComponent(origSrc) + '" target="_blank">' + Lng.searchIn[lang];
 			const getDlLnk = (href, name, title, isAddExt) => {
 				let ext;
@@ -123,8 +118,9 @@ class Menu {
 					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
 			const name = decodeURIComponent(getFileName(origSrc));
+			const isFullImg = link.classList.contains('de-fullimg-link');
 			const realName = isFullImg ? link.textContent :
-				isEmbedImg ? name : aib.getImgRealName(aib.getImgWrap(data));
+				link.classList.contains('de-img-name') ? aib.getImgRealName(aib.getImgWrap(data)) : name;
 			if(name !== realName) {
 				dlLinks += getDlLnk(href, realName, Lng.origName[lang], false);
 			}
