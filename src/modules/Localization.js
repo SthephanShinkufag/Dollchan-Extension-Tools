@@ -964,21 +964,21 @@ const Lng = {
 
 	// Spells: popups
 	seSyntaxErr: [
-		'синтаксическая ошибка в аргументе спелла: %s',
-		'syntax error in argument of spell: %s',
-		'синтаксична помилка в аргументі спеллу: %s'],
+		'синтаксическая ошибка в аргументе спелла: #%s',
+		'syntax error in argument of spell: #%s',
+		'синтаксична помилка в аргументі спеллу: #%s'],
 	seUnknown: [
-		'неизвестный спелл: %s',
-		'unknown spell: %s',
-		'невідомий спелл: %s'],
+		'неизвестный спелл: #%s',
+		'unknown spell: #%s',
+		'невідомий спелл: #%s'],
 	seMissOp: [
 		'пропущен оператор',
 		'missing operator',
 		'пропущено оператор'],
 	seMissArg: [
-		'пропущен аргумент спелла: %s',
-		'missing argument of spell: %s',
-		'пропущено аргумент спеллу: %s'],
+		'пропущен аргумент спелла: #%s',
+		'missing argument of spell: #%s',
+		'пропущено аргумент спеллу: #%s'],
 	seMissSpell: [
 		'пропущен спелл',
 		'missing spell',
@@ -996,9 +996,9 @@ const Lng = {
 		"missing ')' in expression",
 		'пропущено закривну дужку'],
 	seRepsInParens: [
-		'спелл %s не должен располагаться в скобках',
-		'spell %s shouldnʼt be inside parentheses',
-		'спелл %s не може бути в дужках'],
+		'спелл #%s не должен располагаться в скобках',
+		'spell #%s shouldnʼt be inside parentheses',
+		'спелл #%s не може бути в дужках'],
 	seOpInReps: [
 		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
 		'donʼt use operator %s with spells #rep & #outrep',

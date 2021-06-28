@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '435b3bb';
+  var commit = '973557d';
 
   var defaultCfg = {
     disabled: 0,
@@ -5952,15 +5952,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       гру: 11
 
     },
-    seSyntaxErr: ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s', 'синтаксична помилка в аргументі спеллу: %s'],
-    seUnknown: ['неизвестный спелл: %s', 'unknown spell: %s', 'невідомий спелл: %s'],
+    seSyntaxErr: ['синтаксическая ошибка в аргументе спелла: #%s', 'syntax error in argument of spell: #%s', 'синтаксична помилка в аргументі спеллу: #%s'],
+    seUnknown: ['неизвестный спелл: #%s', 'unknown spell: #%s', 'невідомий спелл: #%s'],
     seMissOp: ['пропущен оператор', 'missing operator', 'пропущено оператор'],
-    seMissArg: ['пропущен аргумент спелла: %s', 'missing argument of spell: %s', 'пропущено аргумент спеллу: %s'],
+    seMissArg: ['пропущен аргумент спелла: #%s', 'missing argument of spell: #%s', 'пропущено аргумент спеллу: #%s'],
     seMissSpell: ['пропущен спелл', 'missing spell', 'пропущено спелл'],
     seErrRegex: ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s', 'синтаксична помилка в регулярному виразі: %s'],
     seUnexpChar: ['неожиданный символ: %s', 'unexpected character: %s', 'неочікуваний символ: %s'],
     seMissClBkt: ['пропущена закрывающая скобка', "missing ')' in expression", 'пропущено закривну дужку'],
-    seRepsInParens: ['спелл %s не должен располагаться в скобках', 'spell %s shouldnʼt be inside parentheses', 'спелл %s не може бути в дужках'],
+    seRepsInParens: ['спелл #%s не должен располагаться в скобках', 'spell #%s shouldnʼt be inside parentheses', 'спелл #%s не може бути в дужках'],
     seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'donʼt use operator %s with spells #rep & #outrep', 'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
     seRow: [' (строка ', ' (row ', ' (рядок '],
     seCol: [', столбец ', ', column ', ', стовпчик '],
@@ -13488,7 +13488,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           reps = _data8[2],
           oreps = _data8[3];
 
-      var str = s ? this._decompileScope(s, '')[0].join('\n') : '';
+      var str = s ? this._decompileSpells(s, '')[0].join('\n') : '';
 
       if (reps || oreps) {
         if (str) {
@@ -13516,7 +13516,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     },
 
     get names() {
-      return ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor'];
+      return ['words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video', 'wipe', 'num', 'vauthor', '//'];
     },
 
     get needArg() {
@@ -13537,7 +13537,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       false,
       false,
       true,
-      true];
+      true,
+      false];
     },
 
     get outreps() {
@@ -13646,70 +13647,89 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       if (!val) {
         return spell;
-      } 
+      }
 
+      switch (type) {
+        case 8:
+          return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') + (val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' + val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
 
-      if (type === 8) {
-        return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') + (val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' + val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')'; 
-      } else if (type === 14) {
-        if (val === 0x3F && !wipeMsg) {
-          return spell;
-        }
+        case 14:
+          {
+            if (val === 0x3F && !wipeMsg) {
+              return spell;
+            }
 
-        var _ref16 = wipeMsg || [],
-            _ref17 = _slicedToArray(_ref16, 2),
-            msgBit = _ref17[0],
-            msgData = _ref17[1];
+            var _ref16 = wipeMsg || [],
+                _ref17 = _slicedToArray(_ref16, 2),
+                msgBit = _ref17[0],
+                msgData = _ref17[1];
 
-        var names = [];
-        var bits = {
-          1: 'samelines',
-          2: 'samewords',
-          4: 'longwords',
-          8: 'symbols',
-          16: 'capslock',
-          32: 'numbers',
-          64: 'whitespace'
-        };
+            var names = [];
+            var bits = {
+              1: 'samelines',
+              2: 'samewords',
+              4: 'longwords',
+              8: 'symbols',
+              16: 'capslock',
+              32: 'numbers',
+              64: 'whitespace'
+            };
 
-        for (var bit in bits) {
-          if (+bit !== msgBit && val & +bit) {
-            names.push(bits[bit]);
-          }
-        }
+            for (var bit in bits) {
+              if (+bit !== msgBit && val & +bit) {
+                names.push(bits[bit]);
+              }
+            }
 
-        if (msgBit) {
-          names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
-        }
+            if (msgBit) {
+              names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
+            }
 
-        return "".concat(spell, "(").concat(names.join(','), ")"); 
-      } else if (type === 15 || type === 11) {
-        var temp_,
-            temp = val[1].length - 1;
-
-        if (temp !== -1) {
-          for (temp_ = []; temp >= 0; --temp) {
-            temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+            return "".concat(spell, "(").concat(names.join(','), ")");
           }
 
-          temp_.reverse();
-        }
+        case 11: 
 
-        spell += '(';
+        case 15:
+          {
+            var temp_,
+                temp = val[1].length - 1;
 
-        if (val[0].length) {
-          spell += val[0].join(',') + (temp_ ? ',' : '');
-        }
+            if (temp !== -1) {
+              for (temp_ = []; temp >= 0; --temp) {
+                temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+              }
 
-        if (temp_) {
-          spell += temp_.join(',');
-        }
+              temp_.reverse();
+            }
 
-        return spell + ')'; 
-      } else if (type === 0 || type === 6 || type === 7 || type === 16) {
-        return "".concat(spell, "(").concat(val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n'), ")");
-      } else {
-        return "".concat(spell, "(").concat(String(val), ")");
+            spell += '(';
+
+            if (val[0].length) {
+              spell += val[0].join(',') + (temp_ ? ',' : '');
+            }
+
+            if (temp_) {
+              spell += temp_.join(',');
+            }
+
+            return spell + ')';
+          }
+
+        case 0: 
+
+        case 6: 
+
+        case 7: 
+
+        case 16:
+          return "".concat(spell, "(").concat(val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n'), ")");
+
+        case 17:
+          return '//' + String(val);
+
+        default:
+          return "".concat(spell, "(").concat(String(val), ")");
       }
     },
     disableSpells: function disableSpells() {
@@ -13813,7 +13833,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     _decompileRep: function _decompileRep(rep, isOrep) {
       return (isOrep ? '#outrep' : '#rep') + (rep[0] ? "[".concat(rep[0]).concat(rep[1] ? ",".concat(rep[1] === -1 ? '' : rep[1]) : '', "]") : '') + "(".concat(rep[2], ",").concat(rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n'), ")");
     },
-    _decompileScope: function _decompileScope(scope, indent) {
+    _decompileSpells: function _decompileSpells(scope, indent) {
       var dScope = [];
       var hScope = false;
 
@@ -13824,7 +13844,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (type === 0xFF) {
           hScope = true;
 
-          var temp = this._decompileScope(spell[1], indent + '    ');
+          var temp = this._decompileSpells(spell[1], indent + '    ');
 
           if (temp[1]) {
             var str = "".concat(spell[0] & 0x100 ? '!(\n' : '(\n').concat(indent, "    ") + "".concat(temp[0].join("\n".concat(indent, "    ")), "\n").concat(indent, ")");
@@ -13837,11 +13857,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           } else {
             dScope[j] = "".concat(spell[0] & 0x100 ? '!(' : '(').concat(temp[0].join(' '), ")");
           }
+        } else if (type === 17) {
+          dScope[j] = '//' + spell[1];
         } else {
           dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
         }
 
-        if (i !== len - 1) {
+        var k = i + 1;
+
+        while (k < len && (scope[k][0] & 0xFF) === 17) {
+          k++;
+        }
+
+        if (k !== len && type !== 17) {
           dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
         }
       }
@@ -14134,7 +14162,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   this._col++;
                 }
 
-                if (name === 'rep' || name === 'outrep') {
+                if (name === '') {
+                  this._setError(Lng.seUnknown[lang], sList[i].replace(/[\r\n]/, ''));
+
+                  return null;
+                } else if (name === 'rep' || name === 'outrep') {
                   if (!hasReps) {
                     if (inParens) {
                       this._col -= 1 + name.length;
@@ -14279,6 +14311,30 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               lastType = this.TYPE_NOT;
               break;
 
+            case '/':
+              {
+                i++;
+                this._col++;
+
+                if (sList[i] === '/') {
+                  var text = '';
+
+                  while (i + 1 < len && sList[i + 1] !== '\n' && sList[i + 1] !== '\r') {
+                    i++;
+                    this._col++;
+                    text += sList[i];
+                  }
+
+                  spellsArr.push([17, text]);
+                } else {
+                  this._setError(Lng.seUnexpChar[lang], '/');
+
+                  return null;
+                }
+
+                break;
+              }
+
             case ')':
               if (hasReps) {
                 this._setError(Lng.seUnexpChar[lang], ')');
@@ -14392,8 +14448,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "_doSpell",
       value: function _doSpell(name, str, isNeg) {
         var m,
-            val,
-            scope = null,
             i = 0;
         var spellIdx = Spells.names.indexOf(name);
 
@@ -14405,12 +14459,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return null;
         }
 
-        var temp = SpellsCodegen._getScope(str);
+        var scope = SpellsCodegen._getScope(str);
 
-        if (temp) {
-          i += temp[0];
-          str = str.substring(temp[0]);
-          scope = temp[1];
+        if (scope) {
+          i += scope[0];
+          str = str.substring(scope[0]);
+          scope = scope[1];
         }
 
         var spellType = isNeg ? spellIdx | 0x100 : spellIdx;
@@ -14426,6 +14480,44 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         switch (spellIdx) {
+          case 0: 
+
+          case 6: 
+
+          case 7: 
+
+          case 9: 
+
+          case 10: 
+
+          case 12: 
+
+          case 16:
+            m = SpellsCodegen._getText(str, true);
+
+            if (m) {
+              return [i + m[0], [spellType, spellIdx === 0 ? m[1].toLowerCase() : m[1], scope]];
+            }
+
+            break;
+
+          case 1: 
+
+          case 2: 
+
+          case 3: 
+
+          case 5: 
+
+          case 13:
+            m = this._getRegex(str, false);
+
+            if (m) {
+              return [i + m[0], [spellType, m[1], scope]];
+            }
+
+            break;
+
           case 4:
             m = str.match(/^\((\d+)\)/);
 
@@ -14448,91 +14540,75 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             m = str.match(/^\(([a-z, ]+)\)/);
 
             if (m) {
-              var _val = 0;
+              var val = 0;
               var arr = m[1].split(/, */);
 
               for (var _i12 = 0, len = arr.length; _i12 < len; ++_i12) {
                 switch (arr[_i12]) {
                   case 'samelines':
-                    _val |= 1;
+                    val |= 1;
                     break;
 
                   case 'samewords':
-                    _val |= 2;
+                    val |= 2;
                     break;
 
                   case 'longwords':
-                    _val |= 4;
+                    val |= 4;
                     break;
 
                   case 'symbols':
-                    _val |= 8;
+                    val |= 8;
                     break;
 
                   case 'capslock':
-                    _val |= 16;
+                    val |= 16;
                     break;
 
                   case 'numbers':
-                    _val |= 32;
+                    val |= 32;
                     break;
 
                   case 'whitespace':
-                    _val |= 64;
+                    val |= 64;
                     break;
 
                   default:
-                    _val = -1;
+                    val = -1;
                 }
               }
 
-              if (_val !== -1) {
+              if (val !== -1) {
+                return [i + m[0].length, [spellType, val, scope]];
+              }
+            }
+
+            break;
+
+          case 11: 
+
+          case 15:
+            {
+              m = str.match(/^\(([\d-, ]+)\)/);
+
+              if (m) {
+                var _val;
+
+                m[1].split(/, */).forEach(function (v) {
+                  if (v.includes('-')) {
+                    var nums = v.split('-');
+                    nums[0] = +nums[0];
+                    nums[1] = +nums[1];
+                    this[1].push(nums);
+                  } else {
+                    this[0].push(+v);
+                  }
+                }, _val = [[], []]);
                 return [i + m[0].length, [spellType, _val, scope]];
               }
+
+              break;
             }
-
-            break;
-
-          case 11:
-          case 15:
-            m = str.match(/^\(([\d-, ]+)\)/);
-
-            if (m) {
-              m[1].split(/, */).forEach(function (v) {
-                if (v.includes('-')) {
-                  var nums = v.split('-');
-                  nums[0] = +nums[0];
-                  nums[1] = +nums[1];
-                  this[1].push(nums);
-                } else {
-                  this[0].push(+v);
-                }
-              }, val = [[], []]);
-              return [i + m[0].length, [spellType, val, scope]];
-            }
-
-            break;
-
-          case 1:
-          case 2:
-          case 3:
-          case 5:
-          case 13:
-            temp = this._getRegex(str, false);
-
-            if (temp) {
-              return [i + temp[0], [spellType, temp[1], scope]];
-            }
-
-            break;
-
-          default:
-            temp = SpellsCodegen._getText(str, true);
-
-            if (temp) {
-              return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
-            }
-
         }
 
         if (!this.hasError) {
@@ -14784,6 +14860,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               this._triggeredSpellsStack.push(this._lastTSpells);
 
+              continue;
+            } else if (type === 17) {
+              i++;
               continue;
             }
 

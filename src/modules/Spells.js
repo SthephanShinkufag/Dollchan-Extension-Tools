@@ -19,7 +19,7 @@ const Spells = Object.create({
 			return '';
 		}
 		const [, s, reps, oreps] = data;
-		let str = s ? this._decompileScope(s, '')[0].join('\n') : '';
+		let str = s ? this._decompileSpells(s, '')[0].join('\n') : '';
 		if(reps || oreps) {
 			if(str) {
 				str += '\n\n';
@@ -41,7 +41,7 @@ const Spells = Object.create({
 	get names() {
 		return [
 			'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
-			'all', 'video', 'wipe', 'num', 'vauthor'
+			'all', 'video', 'wipe', 'num', 'vauthor', '//'
 		];
 	},
 	get needArg() {
@@ -49,7 +49,7 @@ const Spells = Object.create({
 			/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
 			/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
 			/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
-			/* num */ true, /* vauthor */ true
+			/* num */ true, /* vauthor */ true, /* // */ false
 		];
 	},
 	get outreps() {
@@ -145,14 +145,13 @@ const Spells = Object.create({
 		if(!val) {
 			return spell;
 		}
-		// #img
-		if(type === 8) {
+		switch(type) {
+		case 8: // #img
 			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
 				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
 				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
 				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-		// #wipe
-		} else if(type === 14) {
+		case 14: { // #wipe
 			if(val === 0x3F && !wipeMsg) {
 				return spell;
 			}
@@ -176,8 +175,9 @@ const Spells = Object.create({
 				names.push(bits[msgBit].toUpperCase() + (msgData ? ': ' + msgData : ''));
 			}
 			return `${ spell }(${ names.join(',') })`;
-		// #num, #tlen
-		} else if(type === 15 || type === 11) {
+		}
+		case 11: // #tlen
+		case 15: { // #num
 			let temp_, temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
@@ -193,11 +193,15 @@ const Spells = Object.create({
 				spell += temp_.join(',');
 			}
 			return spell + ')';
-		// #words, #name, #trip, #vauthor
-		} else if(type === 0 || type === 6 || type === 7 || type === 16) {
+		}
+		case 0: // #words
+		case 6: // #name
+		case 7: // #trip
+		case 16: // #vauthor
 			return `${ spell }(${ val.replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
-		} else {
-			return `${ spell }(${ String(val) })`;
+		case 17: // // comment
+			return '//' + String(val);
+		default: return `${ spell }(${ String(val) })`;
 		}
 	},
 	disableSpells() {
@@ -281,7 +285,7 @@ const Spells = Object.create({
 			(rep[0] ? `[${ rep[0] }${ rep[1] ? `,${ rep[1] === -1 ? '' : rep[1] }` : '' }]` : '') +
 			`(${ rep[2] },${ rep[3].replace(/([)\\])/g, '\\$1').replace(/\n/g, '\\n') })`;
 	},
-	_decompileScope(scope, indent) {
+	_decompileSpells(scope, indent) {
 		const dScope = [];
 		let hScope = false;
 		for(let i = 0, j = 0, len = scope.length; i < len; ++i, ++j) {
@@ -289,7 +293,7 @@ const Spells = Object.create({
 			const type = spell[0] & 0xFF;
 			if(type === 0xFF) {
 				hScope = true;
-				const temp = this._decompileScope(spell[1], indent + '    ');
+				const temp = this._decompileSpells(spell[1], indent + '    ');
 				if(temp[1]) {
 					const str = `${ spell[0] & 0x100 ? '!(\n' : '(\n' }${ indent }    ` +
 						`${ temp[0].join(`\n${ indent }    `) }\n${ indent })`;
@@ -301,10 +305,16 @@ const Spells = Object.create({
 				} else {
 					dScope[j] = `${ spell[0] & 0x100 ? '!(' : '(' }${ temp[0].join(' ') })`;
 				}
+			} else if(type === 17) {
+				dScope[j] = '//' + spell[1];
 			} else {
 				dScope[j] = this.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 			}
-			if(i !== len - 1) {
+			let k = i + 1;
+			while(k < len && (scope[k][0] & 0xFF) === 17) { // Skip comments at the end
+				k++;
+			}
+			if(k !== len && type !== 17) {
 				dScope[j] += spell[0] & 0x200 ? ' &' : ' |';
 			}
 		}
@@ -563,7 +573,10 @@ class SpellsCodegen {
 					i++;
 					this._col++;
 				}
-				if(name === 'rep' || name === 'outrep') {
+				if(name === '') {
+					this._setError(Lng.seUnknown[lang], sList[i].replace(/[\r\n]/, ''));
+					return null;
+				} else if(name === 'rep' || name === 'outrep') {
 					if(!hasReps) {
 						if(inParens) {
 							this._col -= 1 + name.length;
@@ -669,6 +682,23 @@ class SpellsCodegen {
 				}
 				lastType = this.TYPE_NOT;
 				break;
+			case '/': {
+				i++;
+				this._col++;
+				if(sList[i] === '/') {
+					let text = '';
+					while(i + 1 < len && sList[i + 1] !== '\n' && sList[i + 1] !== '\r') {
+						i++;
+						this._col++;
+						text += sList[i];
+					}
+					spellsArr.push([17, text]);
+				} else {
+					this._setError(Lng.seUnexpChar[lang], '/');
+					return null;
+				}
+				break;
+			}
 			case ')':
 				if(hasReps) {
 					this._setError(Lng.seUnexpChar[lang], ')');
@@ -749,18 +779,18 @@ class SpellsCodegen {
 		return null;
 	}
 	_doSpell(name, str, isNeg) {
-		let m, val, scope = null, i = 0;
+		let m, i = 0;
 		const spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._col -= name.length + 1;
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
-		let temp = SpellsCodegen._getScope(str);
-		if(temp) {
-			i += temp[0];
-			str = str.substring(temp[0]);
-			scope = temp[1];
+		let scope = SpellsCodegen._getScope(str);
+		if(scope) {
+			i += scope[0];
+			str = str.substring(scope[0]);
+			scope = scope[1];
 		}
 		const spellType = isNeg ? spellIdx | 0x100 : spellIdx;
 		if(str[0] !== '(' || str[1] === ')') {
@@ -771,15 +801,35 @@ class SpellsCodegen {
 			return [str[0] === '(' ? i + 2 : i, [spellType, spellIdx === 14 ? 0x3F : '', scope]];
 		}
 		switch(spellIdx) {
-		// #ihash
-		case 4:
+		case 0: // #words
+		case 6: // #name
+		case 7: // #trip
+		case 9: // #sage
+		case 10: // #op
+		case 12: // #all
+		case 16: // #vauthor
+			m = SpellsCodegen._getText(str, true);
+			if(m) {
+				return [i + m[0], [spellType, spellIdx === 0 ? m[1].toLowerCase() : m[1], scope]];
+			}
+			break;
+		case 1: // #exp
+		case 2: // #exph
+		case 3: // #imgn
+		case 5: // #subj
+		case 13: // #video
+			m = this._getRegex(str, false);
+			if(m) {
+				return [i + m[0], [spellType, m[1], scope]];
+			}
+			break;
+		case 4: // #ihash
 			m = str.match(/^\((\d+)\)/);
 			if(!isNaN(+m[1])) {
 				return [i + m[0].length, [spellType, +m[1], scope]];
 			}
 			break;
-		// #img
-		case 8:
+		case 8: // #img
 			m = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
 			if(m && (m[2] || m[4])) {
 				return [i + m[0].length, [spellType, [
@@ -789,8 +839,7 @@ class SpellsCodegen {
 				], scope]];
 			}
 			break;
-		// #wipe
-		case 14:
+		case 14: // #wipe
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
 				let val = 0;
@@ -812,11 +861,11 @@ class SpellsCodegen {
 				}
 			}
 			break;
-		// #tlen, #num
-		case 11:
-		case 15:
+		case 11: // #tlen
+		case 15: { // #num
 			m = str.match(/^\(([\d-, ]+)\)/);
 			if(m) {
+				let val;
 				m[1].split(/, */).forEach(function(v) {
 					if(v.includes('-')) {
 						const nums = v.split('-');
@@ -830,23 +879,7 @@ class SpellsCodegen {
 				return [i + m[0].length, [spellType, val, scope]];
 			}
 			break;
-		// #exp, #exph, #imgn, #subj, #video
-		case 1:
-		case 2:
-		case 3:
-		case 5:
-		case 13:
-			temp = this._getRegex(str, false);
-			if(temp) {
-				return [i + temp[0], [spellType, temp[1], scope]];
-			}
-			break;
-		// #sage, #op, #all, #trip, #name, #words, #vauthor
-		default:
-			temp = SpellsCodegen._getText(str, true);
-			if(temp) {
-				return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
-			}
+		}
 		}
 		if(!this.hasError) {
 			this._setError(Lng.seSyntaxErr[lang], name);
@@ -975,6 +1008,9 @@ class SpellsInterpreter {
 					i = 0;
 					this._lastTSpells = [];
 					this._triggeredSpellsStack.push(this._lastTSpells);
+					continue;
+				} else if(type === 17) {
+					i++;
 					continue;
 				}
 				const val = this._runSpell(type, scope[i][1]);
