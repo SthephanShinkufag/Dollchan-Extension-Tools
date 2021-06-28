@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '973557d';
+  var commit = 'b6c5ca6';
 
   var defaultCfg = {
     disabled: 0,
@@ -11700,7 +11700,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? " PUBLIC \"".concat(dt.publicId, "\"") : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? " \"".concat(dt.systemId, "\"") : '') + '>' + dc.outerHTML);
         }
 
-        var title = Thread.first.op.title.trim();
+        var title = Thread.first.op.title.trim().replace(/[/\\:*?"<>|]/g, '');
         downloadBlob(tar.get(), "".concat(docName).concat(imgOnly ? '-images' : '').concat(title ? ' - ' + title : '', ".tar"));
         closePopup('load-files');
         _this16._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;

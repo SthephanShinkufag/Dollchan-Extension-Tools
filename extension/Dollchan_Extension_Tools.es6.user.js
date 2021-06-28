@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '973557d';
+const commit = 'b6c5ca6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6011,7 +6011,7 @@ const ContentLoader = {
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-			const title = Thread.first.op.title.trim();
+			const title = Thread.first.op.title.trim().replace(/[/\\:*?"<>|]/g, '');
 			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
 				title ? ' - ' + title : '' }.tar`);
 			closePopup('load-files');
