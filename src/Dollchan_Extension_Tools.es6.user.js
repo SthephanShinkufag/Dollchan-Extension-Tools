@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = 'b6c5ca6';
+const commit = '87761a3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9004,7 +9004,7 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
-			if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
+			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
 				if(!this.cap.isSubmitWait) {
 					$pd(e);
 					$popup('upload', 'reCaptcha...', true);
@@ -9013,7 +9013,7 @@ class PostForm {
 					return;
 				}
 				this.cap.isSubmitWait = false;
-			}
+			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$popup('upload', Lng.subjHasTrip[lang]);
@@ -16360,8 +16360,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `#down-nav-arrow, .js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,
 					.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }
-				.captcha { overflow: hidden; max-width: 300px; }
-				.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }
+				.postform__raw_flex { flex-direction: column; align-items: flex-start; }
 				.de-pview > .post__details { margin-left: 4px; }
 				.de-reply-class { background: var(--theme_default_postbg);
 					border: 1px solid var(--theme_default_border); border-radius: 3px; }
@@ -16426,13 +16425,31 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		captchaInit(cap) {
-			const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
+			/* const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
 			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
 				<input name="captcha_type" value="${ value }" type="hidden">`;
+			return null; */
+			const box = $q('.captcha-box, .captcha');
+			if(Cfg.altCaptcha) {
+				box.innerHTML = `<div id="captcha-widget-main"></div>
+					<input name="captcha_type" value="recaptcha" type="hidden">`;
+				return null;
+			}
+			const img = box.firstChild;
+			if(!img || img.tagName !== 'IMG') {
+				box.innerHTML = `<img>
+					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
+					<input name="2chcaptcha_id" type="hidden">`;
+				const [img, inp] = [...box.children];
+				img.onclick = () => this.updateCaptcha(cap);
+				inp.tabIndex = 999;
+				cap.textEl = inp;
+			}
 			return null;
 		}
 		captchaUpdate(cap) {
-			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`;
+			/* const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`; */
+			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha' }/id`;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box, .captcha');
 				let data = xhr.responseText;
@@ -16449,6 +16466,10 @@ function getImageBoard(checkDomains, checkEngines) {
 				case 1: // Captcha is enabled
 					if(!Cfg.altCaptcha) {
 						if(!cap.isSubmitWait) {
+							const img = box.firstChild;
+							img.src = '';
+							img.src = `/api/captcha/2chcaptcha/show?id=${ data.id }`;
+							box.lastChild.value = data.id;
 							break;
 						}
 						$q('.captcha__key').value = data.id;

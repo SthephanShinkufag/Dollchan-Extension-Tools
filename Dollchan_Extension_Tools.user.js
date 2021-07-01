@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = 'b6c5ca6';
+  var commit = '87761a3';
 
   var defaultCfg = {
     disabled: 0,
@@ -15945,20 +15945,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var _this31 = this;
 
         this.subm.addEventListener('click', function (e) {
-          if (aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
-            if (!_this31.cap.isSubmitWait) {
-              $pd(e);
-              $popup('upload', 'reCaptcha...', true);
-              _this31.cap.isSubmitWait = true;
-
-              _this31.refreshCap();
-
-              return;
-            }
-
-            _this31.cap.isSubmitWait = false;
-          }
-
           if (Cfg.warnSubjTrip && _this31.subj && /#.|##./.test(_this31.subj.value)) {
             $pd(e);
             $popup('upload', Lng.subjHasTrip[lang]);
@@ -16896,8 +16882,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               url = form.action;
-              return _context33.abrupt("return", $ajax(url, ajaxParams).then(function (_ref50) {
-                var text = _ref50.responseText;
+              return _context33.abrupt("return", $ajax(url, ajaxParams).then(function (_ref51) {
+                var text = _ref51.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text);
               })["catch"](function (err) {
                 return Promise.reject(err);
@@ -26626,7 +26612,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "css",
         get: function get() {
-          return "#down-nav-arrow, .js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,\n\t\t\t\t\t.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }\n\t\t\t\t.captcha { overflow: hidden; max-width: 300px; }\n\t\t\t\t.captcha > img { display: block; width: 364px; margin: -45px 0 -22px 0; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return "#down-nav-arrow, .js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,\n\t\t\t\t\t.thread-nav > :not(.search), #up-nav-arrow { display: none !important; }\n\t\t\t\t.postform__raw_flex { flex-direction: column; align-items: flex-start; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -26693,14 +26679,38 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "captchaInit",
         value: function captchaInit(cap) {
-          var value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
-          $q('.captcha-box, .captcha').innerHTML = "<div id=\"captcha-widget-main\"></div>\n\t\t\t\t<input name=\"captcha_type\" value=\"".concat(value, "\" type=\"hidden\">");
+          var _this92 = this;
+
+          var box = $q('.captcha-box, .captcha');
+
+          if (Cfg.altCaptcha) {
+            box.innerHTML = "<div id=\"captcha-widget-main\"></div>\n\t\t\t\t\t<input name=\"captcha_type\" value=\"recaptcha\" type=\"hidden\">";
+            return null;
+          }
+
+          var img = box.firstChild;
+
+          if (!img || img.tagName !== 'IMG') {
+            box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
+
+            var _ref46 = _toConsumableArray(box.children),
+                _img2 = _ref46[0],
+                inp = _ref46[1];
+
+            _img2.onclick = function () {
+              return _this92.updateCaptcha(cap);
+            };
+
+            inp.tabIndex = 999;
+            cap.textEl = inp;
+          }
+
           return null;
         }
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var url = "/api/captcha/".concat(Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha', "/id");
+          var url = "/api/captcha/".concat(Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha', "/id");
           return cap.updateHelper(url, function (xhr) {
             var box = $q('.captcha-box, .captcha');
             var data = xhr.responseText;
@@ -26728,6 +26738,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               case 1:
                 if (!Cfg.altCaptcha) {
                   if (!cap.isSubmitWait) {
+                    var img = box.firstChild;
+                    img.src = '';
+                    img.src = "/api/captcha/2chcaptcha/show?id=".concat(data.id);
+                    box.lastChild.value = data.id;
                     break;
                   }
 
@@ -26917,22 +26931,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super21 = _createSuper(_2chan);
 
       function _2chan(prot, dm) {
-        var _this92;
+        var _this93;
 
         _classCallCheck(this, _2chan);
 
-        _this92 = _super21.call(this, prot, dm);
-        _this92.qDForm = 'form:not([enctype])';
-        _this92.qForm = '#fm';
-        _this92.qFormRedir = null;
-        _this92.qFormRules = '.chui';
-        _this92.qOmitted = 'font[color="#707070"]';
-        _this92.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-        _this92.qPostRef = '.del';
-        _this92.qRPost = 'td:nth-child(2)';
-        _this92.docExt = '.htm';
-        _this92.formParent = 'resto';
-        return _this92;
+        _this93 = _super21.call(this, prot, dm);
+        _this93.qDForm = 'form:not([enctype])';
+        _this93.qForm = '#fm';
+        _this93.qFormRedir = null;
+        _this93.qFormRules = '.chui';
+        _this93.qOmitted = 'font[color="#707070"]';
+        _this93.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+        _this93.qPostRef = '.del';
+        _this93.qRPost = 'td:nth-child(2)';
+        _this93.docExt = '.htm';
+        _this93.formParent = 'resto';
+        return _this93;
       }
 
       _createClass(_2chan, [{
@@ -26994,14 +27008,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super22 = _createSuper(_2channel);
 
       function _2channel(prot, dm) {
-        var _this93;
+        var _this94;
 
         _classCallCheck(this, _2channel);
 
-        _this93 = _super22.call(this, prot, dm);
-        _this93._2channel = true;
-        _this93.hasAltCaptcha = false;
-        return _this93;
+        _this94 = _super22.call(this, prot, dm);
+        _this94._2channel = true;
+        _this94.hasAltCaptcha = false;
+        return _this94;
       }
 
       _createClass(_2channel, [{
@@ -27115,15 +27129,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super23 = _createSuper(_2chRip);
 
       function _2chRip(prot, dm) {
-        var _this94;
+        var _this95;
 
         _classCallCheck(this, _2chRip);
 
-        _this94 = _super23.call(this, prot, dm);
-        _this94.jsonSubmit = true;
-        _this94.ru = true;
-        _this94._capUpdPromise = null;
-        return _this94;
+        _this95 = _super23.call(this, prot, dm);
+        _this95.jsonSubmit = true;
+        _this95.ru = true;
+        _this95._capUpdPromise = null;
+        return _this95;
       }
 
       _createClass(_2chRip, [{
@@ -27134,8 +27148,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref46) {
-            var id = _ref46.responseText;
+          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref47) {
+            var id = _ref47.responseText;
             $id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
             $id('captchaid').value = id;
           });
@@ -27169,19 +27183,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super24 = _createSuper(_410chan);
 
       function _410chan(prot, dm) {
-        var _this95;
+        var _this96;
 
         _classCallCheck(this, _410chan);
 
-        _this95 = _super24.call(this, prot, dm);
-        _this95.qFormRedir = 'input#noko';
-        _this95.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-        _this95.ru = true;
-        _this95.hasCatalog = true;
-        _this95.markupBB = false;
-        _this95.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-        _this95._capUpdPromise = null;
-        return _this95;
+        _this96 = _super24.call(this, prot, dm);
+        _this96.qFormRedir = 'input#noko';
+        _this96.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+        _this96.ru = true;
+        _this96.hasCatalog = true;
+        _this96.markupBB = false;
+        _this96.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+        _this96._capUpdPromise = null;
+        return _this96;
       }
 
       _createClass(_410chan, [{
@@ -27202,7 +27216,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var _this96 = this;
+          var _this97 = this;
 
           return cap.updateHelper("/api_adaptive.php?board=".concat(this.b), function (xhr) {
             if (xhr.responseText === '1') {
@@ -27218,7 +27232,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             var img = $q('img', cap.parentEl);
             var src = img.getAttribute('src');
             img.src = '';
-            img.src = _this96.getCaptchaSrc(src);
+            img.src = _this97.getCaptchaSrc(src);
           });
         }
       }, {
@@ -27245,40 +27259,40 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super25 = _createSuper(_4chan);
 
       function _4chan(prot, dm) {
-        var _this97;
+        var _this98;
 
         _classCallCheck(this, _4chan);
 
-        _this97 = _super25.call(this, prot, dm);
-        _this97._4chan = true;
-        _this97.cReply = 'post reply';
-        _this97.qBan = 'strong[style="color: red;"]';
-        _this97.qClosed = '.archivedIcon';
-        _this97.qDelBut = '.deleteform > input[type="submit"]';
-        _this97.qError = '#errmsg';
-        _this97.qForm = 'form[name="post"]';
-        _this97.qFormRedir = null;
-        _this97.qImgInfo = '.fileText';
-        _this97.qOmitted = '.summary.desktop';
-        _this97.qOPost = '.op';
-        _this97.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-        _this97.qPostHeader = '.postInfo';
-        _this97.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-        _this97.qPostName = '.name';
-        _this97.qPostRef = '.postInfo > .postNum';
-        _this97.qPostSubj = '.subject';
-        _this97._qOPostEnd = '.replyContainer';
-        _this97.anchor = '#p';
-        _this97.docExt = '';
-        _this97.firstPage = 1;
-        _this97.formParent = 'resto';
-        _this97.hasAltCaptcha = true;
-        _this97.hasCatalog = true;
-        _this97.hasTextLinks = true;
-        _this97.JsonBuilder = _4chanPostsBuilder;
-        _this97.res = 'thread/';
-        _this97.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-        return _this97;
+        _this98 = _super25.call(this, prot, dm);
+        _this98._4chan = true;
+        _this98.cReply = 'post reply';
+        _this98.qBan = 'strong[style="color: red;"]';
+        _this98.qClosed = '.archivedIcon';
+        _this98.qDelBut = '.deleteform > input[type="submit"]';
+        _this98.qError = '#errmsg';
+        _this98.qForm = 'form[name="post"]';
+        _this98.qFormRedir = null;
+        _this98.qImgInfo = '.fileText';
+        _this98.qOmitted = '.summary.desktop';
+        _this98.qOPost = '.op';
+        _this98.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+        _this98.qPostHeader = '.postInfo';
+        _this98.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+        _this98.qPostName = '.name';
+        _this98.qPostRef = '.postInfo > .postNum';
+        _this98.qPostSubj = '.subject';
+        _this98._qOPostEnd = '.replyContainer';
+        _this98.anchor = '#p';
+        _this98.docExt = '';
+        _this98.firstPage = 1;
+        _this98.formParent = 'resto';
+        _this98.hasAltCaptcha = true;
+        _this98.hasCatalog = true;
+        _this98.hasTextLinks = true;
+        _this98.JsonBuilder = _4chanPostsBuilder;
+        _this98.res = 'thread/';
+        _this98.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+        return _this98;
       }
 
       _createClass(_4chan, [{
@@ -27430,14 +27444,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super26 = _createSuper(_55chan);
 
       function _55chan(prot, dm) {
-        var _this98;
+        var _this99;
 
         _classCallCheck(this, _55chan);
 
-        _this98 = _super26.call(this, prot, dm);
-        _this98.qFormRules = '.regras';
-        _this98._capUpdPromise = null;
-        return _this98;
+        _this99 = _super26.call(this, prot, dm);
+        _this99.qFormRules = '.regras';
+        _this99._capUpdPromise = null;
+        return _this99;
       }
 
       _createClass(_55chan, [{
@@ -27514,25 +27528,25 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super28 = _createSuper(Arhivach);
 
       function Arhivach(prot, dm) {
-        var _this99;
+        var _this100;
 
         _classCallCheck(this, Arhivach);
 
-        _this99 = _super28.call(this, prot, dm);
-        _this99.cReply = 'post';
-        _this99.qDelBut = null;
-        _this99.qDelPassw = null;
-        _this99.qDForm = 'body > .container-fluid';
-        _this99.qPostHeader = '.post_head';
-        _this99.qPostImg = '.post_image > img';
-        _this99.qPostMsg = '.post_comment_body';
-        _this99.qPostRef = '.post_id, .post_head > b';
-        _this99.qPostSubj = '.post_subject';
-        _this99.qRPost = '.post[postid]:not([postid=""])';
-        _this99.docExt = '';
-        _this99.hasOPNum = true;
-        _this99.res = 'thread/';
-        return _this99;
+        _this100 = _super28.call(this, prot, dm);
+        _this100.cReply = 'post';
+        _this100.qDelBut = null;
+        _this100.qDelPassw = null;
+        _this100.qDForm = 'body > .container-fluid';
+        _this100.qPostHeader = '.post_head';
+        _this100.qPostImg = '.post_image > img';
+        _this100.qPostMsg = '.post_comment_body';
+        _this100.qPostRef = '.post_id, .post_head > b';
+        _this100.qPostSubj = '.post_subject';
+        _this100.qRPost = '.post[postid]:not([postid=""])';
+        _this100.docExt = '';
+        _this100.hasOPNum = true;
+        _this100.res = 'thread/';
+        return _this100;
       }
 
       _createClass(Arhivach, [{
@@ -27608,14 +27622,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "init",
         value: function init() {
-          var _this100 = this;
+          var _this101 = this;
 
           defaultCfg.ajaxUpdThr = 0;
           setTimeout(function () {
             var delPosts = $Q('.post_deleted');
 
             for (var i = 0, len = delPosts.length; i < len; ++i) {
-              var post = pByNum.get(_this100.getPNum(delPosts[i]));
+              var post = pByNum.get(_this101.getPNum(delPosts[i]));
 
               if (post) {
                 post.thr.deletePosts(post, false, false);
@@ -27643,13 +27657,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super29 = _createSuper(CrystalCafe);
 
       function CrystalCafe(prot, dm) {
-        var _this101;
+        var _this102;
 
         _classCallCheck(this, CrystalCafe);
 
-        _this101 = _super29.call(this, prot, dm);
-        _this101.qRPost = '.post.reply';
-        return _this101;
+        _this102 = _super29.call(this, prot, dm);
+        _this102.qRPost = '.post.reply';
+        return _this102;
       }
 
       _createClass(CrystalCafe, [{
@@ -27680,30 +27694,30 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super30 = _createSuper(Dobrochan);
 
       function Dobrochan(prot, dm) {
-        var _this102;
+        var _this103;
 
         _classCallCheck(this, Dobrochan);
 
-        _this102 = _super30.call(this, prot, dm);
-        _this102.dobrochan = true;
-        _this102.qClosed = 'img[src="/images/locked.png"]';
-        _this102.qDForm = 'form[action*="delete"]';
-        _this102.qError = '.post-error, h2';
-        _this102.qFormRedir = 'select[name="goto"]';
-        _this102.qImgInfo = '.fileinfo';
-        _this102.qOmitted = '.abbrev > span:last-of-type';
-        _this102.qPages = '.pages > tbody > tr > td';
-        _this102.qPostMsg = '.postbody';
-        _this102.qPostSubj = '.replytitle';
-        _this102.qTrunc = '.abbrev > span:first-of-type';
-        _this102.anchor = '#i';
-        _this102.formParent = 'thread_id';
-        _this102.hasPicWrap = true;
-        _this102.JsonBuilder = DobrochanPostsBuilder;
-        _this102.multiFile = true;
-        _this102.ru = true;
-        _this102.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this102;
+        _this103 = _super30.call(this, prot, dm);
+        _this103.dobrochan = true;
+        _this103.qClosed = 'img[src="/images/locked.png"]';
+        _this103.qDForm = 'form[action*="delete"]';
+        _this103.qError = '.post-error, h2';
+        _this103.qFormRedir = 'select[name="goto"]';
+        _this103.qImgInfo = '.fileinfo';
+        _this103.qOmitted = '.abbrev > span:last-of-type';
+        _this103.qPages = '.pages > tbody > tr > td';
+        _this103.qPostMsg = '.postbody';
+        _this103.qPostSubj = '.replytitle';
+        _this103.qTrunc = '.abbrev > span:first-of-type';
+        _this103.anchor = '#i';
+        _this103.formParent = 'thread_id';
+        _this103.hasPicWrap = true;
+        _this103.JsonBuilder = DobrochanPostsBuilder;
+        _this103.multiFile = true;
+        _this103.ru = true;
+        _this103.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this103;
       }
 
       _createClass(Dobrochan, [{
@@ -27860,13 +27874,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super31 = _createSuper(Endchan);
 
       function Endchan(prot, dm) {
-        var _this103;
+        var _this104;
 
         _classCallCheck(this, Endchan);
 
-        _this103 = _super31.call(this, prot, dm);
-        _this103.qTrunc = '.contentOmissionIndicator > p';
-        return _this103;
+        _this104 = _super31.call(this, prot, dm);
+        _this104.qTrunc = '.contentOmissionIndicator > p';
+        return _this104;
       }
 
       _createClass(Endchan, [{
@@ -27901,29 +27915,29 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super32 = _createSuper(Ernstchan);
 
       function Ernstchan(prot, dm) {
-        var _this104;
+        var _this105;
 
         _classCallCheck(this, Ernstchan);
 
-        _this104 = _super32.call(this, prot, dm);
-        _this104.cReply = 'post';
-        _this104.qError = '.error > .info';
-        _this104.qFormRedir = 'input[name="gb2"][value="thread"]';
-        _this104.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-        _this104.qOPost = '.thread_OP';
-        _this104.qPages = '.pagelist > li:nth-last-child(2)';
-        _this104.qPostHeader = '.post_head';
-        _this104.qPostMsg = '.text';
-        _this104.qPostSubj = '.subject';
-        _this104.qPostTrip = '.tripcode';
-        _this104.qRPost = '.thread_reply';
-        _this104.qTrunc = '.tldr';
-        _this104.docExt = '';
-        _this104.firstPage = 1;
-        _this104.markupBB = true;
-        _this104.multiFile = true;
-        _this104.res = 'thread/';
-        return _this104;
+        _this105 = _super32.call(this, prot, dm);
+        _this105.cReply = 'post';
+        _this105.qError = '.error > .info';
+        _this105.qFormRedir = 'input[name="gb2"][value="thread"]';
+        _this105.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+        _this105.qOPost = '.thread_OP';
+        _this105.qPages = '.pagelist > li:nth-last-child(2)';
+        _this105.qPostHeader = '.post_head';
+        _this105.qPostMsg = '.text';
+        _this105.qPostSubj = '.subject';
+        _this105.qPostTrip = '.tripcode';
+        _this105.qRPost = '.thread_reply';
+        _this105.qTrunc = '.tldr';
+        _this105.docExt = '';
+        _this105.firstPage = 1;
+        _this105.markupBB = true;
+        _this105.multiFile = true;
+        _this105.res = 'thread/';
+        return _this105;
       }
 
       _createClass(Ernstchan, [{
@@ -27974,13 +27988,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super33 = _createSuper(Gensokyo);
 
       function Gensokyo(prot, dm) {
-        var _this105;
+        var _this106;
 
         _classCallCheck(this, Gensokyo);
 
-        _this105 = _super33.call(this, prot, dm);
-        _this105.hasRefererErr = true;
-        return _this105;
+        _this106 = _super33.call(this, prot, dm);
+        _this106.hasRefererErr = true;
+        return _this106;
       }
 
       return Gensokyo;
@@ -27994,14 +28008,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super34 = _createSuper(Iichan);
 
       function Iichan(prot, dm) {
-        var _this106;
+        var _this107;
 
         _classCallCheck(this, Iichan);
 
-        _this106 = _super34.call(this, prot, dm);
-        _this106.hasArchive = true;
-        _this106.hasCatalog = true;
-        return _this106;
+        _this107 = _super34.call(this, prot, dm);
+        _this107.hasArchive = true;
+        _this107.hasCatalog = true;
+        return _this107;
       }
 
       _createClass(Iichan, [{
@@ -28046,11 +28060,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "stormWallFixCaptcha",
         value: function stormWallFixCaptcha(url, img) {
-          var _this107 = this;
+          var _this108 = this;
 
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this107.stormWallHelper(url, null, emptyFn, function () {
+              _this108.stormWallHelper(url, null, emptyFn, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -28132,17 +28146,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super35 = _createSuper(Kohlchan);
 
       function Kohlchan(prot, dm) {
-        var _this108;
+        var _this109;
 
         _classCallCheck(this, Kohlchan);
 
-        _this108 = _super35.call(this, prot, dm);
-        _this108.kohlchan = true;
-        _this108.qFormRules = '#rules_row';
-        _this108.hasTextLinks = true;
-        _this108.markupBB = true;
-        _this108.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this108;
+        _this109 = _super35.call(this, prot, dm);
+        _this109.kohlchan = true;
+        _this109.qFormRules = '#rules_row';
+        _this109.hasTextLinks = true;
+        _this109.markupBB = true;
+        _this109.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this109;
       }
 
       _createClass(Kohlchan, [{
@@ -28280,13 +28294,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super36 = _createSuper(Kropyvach);
 
       function Kropyvach(prot, dm) {
-        var _this109;
+        var _this110;
 
         _classCallCheck(this, Kropyvach);
 
-        _this109 = _super36.call(this, prot, dm);
-        _this109.markupBB = true;
-        return _this109;
+        _this110 = _super36.call(this, prot, dm);
+        _this110.markupBB = true;
+        return _this110;
       }
 
       _createClass(Kropyvach, [{
@@ -28312,14 +28326,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super37 = _createSuper(Kurisach);
 
       function Kurisach(prot, dm) {
-        var _this110;
+        var _this111;
 
         _classCallCheck(this, Kurisach);
 
-        _this110 = _super37.call(this, prot, dm);
-        _this110.hasCatalog = true;
-        _this110.ru = true;
-        return _this110;
+        _this111 = _super37.call(this, prot, dm);
+        _this111.hasCatalog = true;
+        _this111.ru = true;
+        return _this111;
       }
 
       return Kurisach;
@@ -28333,13 +28347,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super38 = _createSuper(Lainchan);
 
       function Lainchan(prot, dm) {
-        var _this111;
+        var _this112;
 
         _classCallCheck(this, Lainchan);
 
-        _this111 = _super38.call(this, prot, dm);
-        _this111.qOPost = '.op';
-        return _this111;
+        _this112 = _super38.call(this, prot, dm);
+        _this112.qOPost = '.op';
+        return _this112;
       }
 
       _createClass(Lainchan, [{
@@ -28427,17 +28441,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super41 = _createSuper(Ponyach);
 
       function Ponyach(prot, dm) {
-        var _this112;
+        var _this113;
 
         _classCallCheck(this, Ponyach);
 
-        _this112 = _super41.call(this, prot, dm);
-        _this112.qBan = 'font[color="#FF0000"]';
-        _this112.qImgInfo = '.filesize[style="display: inline;"]';
-        _this112.formParent = 'replythread';
-        _this112.jsonSubmit = true;
-        _this112.multiFile = true;
-        return _this112;
+        _this113 = _super41.call(this, prot, dm);
+        _this113.qBan = 'font[color="#FF0000"]';
+        _this113.qImgInfo = '.filesize[style="display: inline;"]';
+        _this113.formParent = 'replythread';
+        _this113.jsonSubmit = true;
+        _this113.multiFile = true;
+        return _this113;
       }
 
       _createClass(Ponyach, [{
@@ -28467,9 +28481,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref47) {
-          var error = _ref47.error,
-              id = _ref47.id;
+        value: function getSubmitData(_ref48) {
+          var error = _ref48.error,
+              id = _ref48.id;
           return {
             error: error,
             postNum: id && +id
@@ -28501,14 +28515,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super42 = _createSuper(Ponychan);
 
       function Ponychan(prot, dm) {
-        var _this113;
+        var _this114;
 
         _classCallCheck(this, Ponychan);
 
-        _this113 = _super42.call(this, prot, dm);
-        _this113.qOPost = '.opContainer';
-        _this113.jsonSubmit = false;
-        return _this113;
+        _this114 = _super42.call(this, prot, dm);
+        _this114.qOPost = '.opContainer';
+        _this114.jsonSubmit = false;
+        return _this114;
       }
 
       _createClass(Ponychan, [{
@@ -28544,15 +28558,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super43 = _createSuper(Synch);
 
       function Synch(prot, dm) {
-        var _this114;
+        var _this115;
 
         _classCallCheck(this, Synch);
 
-        _this114 = _super43.call(this, prot, dm);
-        _this114.qImgInfo = '.unimportant';
-        _this114.qPages = '.pagination';
-        _this114.markupBB = true;
-        return _this114;
+        _this115 = _super43.call(this, prot, dm);
+        _this115.qImgInfo = '.unimportant';
+        _this115.qPages = '.pagination';
+        _this115.markupBB = true;
+        return _this115;
       }
 
       _createClass(Synch, [{
@@ -28616,18 +28630,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _super44 = _createSuper(Warosu);
 
       function Warosu(prot, dm) {
-        var _this115;
+        var _this116;
 
         _classCallCheck(this, Warosu);
 
-        _this115 = _super44.call(this, prot, dm);
-        _this115.qDForm = '.content';
-        _this115.qForm = '.subreply';
-        _this115.qPostRef = '.js';
-        _this115.qImgInfo = 'span';
-        _this115.qOPost = 'div[itemscope]';
-        _this115.res = 'thread/';
-        return _this115;
+        _this116 = _super44.call(this, prot, dm);
+        _this116.qDForm = '.content';
+        _this116.qForm = '.subreply';
+        _this116.qPostRef = '.js';
+        _this116.qImgInfo = 'span';
+        _this116.qOPost = 'div[itemscope]';
+        _this116.res = 'thread/';
+        return _this116;
       }
 
       _createClass(Warosu, [{
@@ -28699,7 +28713,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this116 = this;
+      var _this117 = this;
 
       this.hasListeners = false;
 
@@ -28714,7 +28728,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this116.hasListeners = true;
+          _this117.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -28730,8 +28744,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref48) {
-      var arg = _ref48.data;
+    _handleMessage: function _handleMessage(_ref49) {
+      var arg = _ref49.data;
 
       if (!arg || !arg.name) {
         return;
@@ -28786,8 +28800,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     return $ajax(gitRaw + 'src/modules/Wrap.js', {
       'Content-Type': 'text/plain'
-    }, true).then(function (_ref49) {
-      var responseText = _ref49.responseText;
+    }, true).then(function (_ref50) {
+      var responseText = _ref50.responseText;
       var v = responseText.match(/const version = '([0-9.]+)';/);
       var remoteVer = v && v[1] ? v[1].split('.') : null;
 

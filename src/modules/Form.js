@@ -408,7 +408,7 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
-			if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
+			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
 				if(!this.cap.isSubmitWait) {
 					$pd(e);
 					$popup('upload', 'reCaptcha...', true);
@@ -417,7 +417,7 @@ class PostForm {
 					return;
 				}
 				this.cap.isSubmitWait = false;
-			}
+			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$popup('upload', Lng.subjHasTrip[lang]);
