@@ -148,9 +148,10 @@ function initThreadUpdater(title, enableUpdate) {
 				clearInterval(this._blinkInterv);
 			}
 			this._currentIcon = iconUrl;
-			this._isOrigIcon = !this._isOrigIcon;
-			this._blinkInterv = setInterval(() => this._setIcon(this._isOrigIcon ?
-				this.originalIcon : this._currentIcon), this._blinkMS);
+			this._blinkInterv = setInterval(() => {
+				this._isOrigIcon = !this._isOrigIcon;
+				this._setIcon(this._isOrigIcon ? this.originalIcon : this._currentIcon);
+			}, this._blinkMS);
 		},
 		stopBlink() {
 			if(this._blinkInterv) {

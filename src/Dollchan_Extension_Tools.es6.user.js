@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.4.1.0';
-const commit = '95ab5c2';
+const commit = '0a82bd1';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14484,9 +14484,10 @@ function initThreadUpdater(title, enableUpdate) {
 				clearInterval(this._blinkInterv);
 			}
 			this._currentIcon = iconUrl;
-			this._isOrigIcon = !this._isOrigIcon;
-			this._blinkInterv = setInterval(() => this._setIcon(this._isOrigIcon ?
-				this.originalIcon : this._currentIcon), this._blinkMS);
+			this._blinkInterv = setInterval(() => {
+				this._isOrigIcon = !this._isOrigIcon;
+				this._setIcon(this._isOrigIcon ? this.originalIcon : this._currentIcon);
+			}, this._blinkMS);
 		},
 		stopBlink() {
 			if(this._blinkInterv) {

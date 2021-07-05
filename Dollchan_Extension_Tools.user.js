@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '95ab5c2';
+  var commit = '0a82bd1';
 
   var defaultCfg = {
     disabled: 0,
@@ -23912,9 +23912,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         this._currentIcon = iconUrl;
-        this._isOrigIcon = !this._isOrigIcon;
         this._blinkInterv = setInterval(function () {
-          return _this73._setIcon(_this73._isOrigIcon ? _this73.originalIcon : _this73._currentIcon);
+          _this73._isOrigIcon = !_this73._isOrigIcon;
+
+          _this73._setIcon(_this73._isOrigIcon ? _this73.originalIcon : _this73._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
