@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.4.1.0';
-  var commit = '0a82bd1';
+  var commit = '22ef28f';
 
   var defaultCfg = {
     disabled: 0,
@@ -27287,7 +27287,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         _this98.docExt = '';
         _this98.firstPage = 1;
         _this98.formParent = 'resto';
-        _this98.hasAltCaptcha = true;
         _this98.hasCatalog = true;
         _this98.hasTextLinks = true;
         _this98.JsonBuilder = _4chanPostsBuilder;
@@ -27310,18 +27309,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         key: "captchaUpdate",
         get: function get() {
           var value = null;
-          var tr = $id('captchaFormPart');
 
-          if (tr) {
+          if ($id('captchaFormPart')) {
             value = function value() {
-              if (Cfg.altCaptcha) {
-                $id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
-              } else {
-                $replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-                $script('initRecaptcha();');
-              }
-
-              tr.removeAttribute('onclick');
+              $replace($id('t-root'), '<div id="t-root"></div>');
+              $script('initTCaptcha();');
               return null;
             };
           }

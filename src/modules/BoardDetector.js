@@ -1246,7 +1246,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '';
 			this.firstPage = 1;
 			this.formParent = 'resto';
-			this.hasAltCaptcha = true;
 			this.hasCatalog = true;
 			this.hasTextLinks = true;
 			this.JsonBuilder = _4chanPostsBuilder;
@@ -1261,16 +1260,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get captchaUpdate() {
 			let value = null;
-			const tr = $id('captchaFormPart');
-			if(tr) {
+			if($id('captchaFormPart')) {
 				value = () => {
-					if(Cfg.altCaptcha) {
-						$id('g-recaptcha').innerHTML = $q('noscript', tr).innerHTML;
-					} else {
-						$replace($id('g-recaptcha'), '<div id="g-recaptcha"></div>');
-						$script('initRecaptcha();');
-					}
-					tr.removeAttribute('onclick');
+					$replace($id('t-root'), '<div id="t-root"></div>');
+					$script('initTCaptcha();');
 					return null;
 				};
 			}
