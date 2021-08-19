@@ -1261,9 +1261,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		get captchaUpdate() {
 			let value = null;
 			if($id('captchaFormPart')) {
-				value = () => {
+				value = cap => {
 					$replace($id('t-root'), '<div id="t-root"></div>');
 					$script('initTCaptcha();');
+					setTimeout(() => {
+						cap.textEl = $id('t-resp');
+						cap.textEl.tabIndex = 999;
+						cap.initTextEl();
+					}, 1e3);
 					return null;
 				};
 			}

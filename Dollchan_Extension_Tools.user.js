@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '19c4044';
+  var commit = 'b289964';
 
   var defaultCfg = {
     disabled: 0,
@@ -27311,9 +27311,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var value = null;
 
           if ($id('captchaFormPart')) {
-            value = function value() {
+            value = function value(cap) {
               $replace($id('t-root'), '<div id="t-root"></div>');
               $script('initTCaptcha();');
+              setTimeout(function () {
+                cap.textEl = $id('t-resp');
+                cap.textEl.tabIndex = 999;
+                cap.initTextEl();
+              }, 1e3);
               return null;
             };
           }
