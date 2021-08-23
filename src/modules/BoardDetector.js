@@ -1262,7 +1262,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			if($id('captchaFormPart')) {
 				value = cap => {
-					$replace($id('t-root'), '<div id="t-root"></div>');
+					const container = $id('t-root');
+					if(!container) {
+						cap.hasCaptcha = false;
+						return;
+					}
+					$replace(container, '<div id="t-root"></div>');
 					$script('initTCaptcha();');
 					setTimeout(() => {
 						cap.textEl = $id('t-resp');
