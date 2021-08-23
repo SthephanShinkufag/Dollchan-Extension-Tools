@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'b289964';
+const commit = 'fa45ef3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8809,7 +8809,7 @@ class PostForm {
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
 			insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end))
-				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + '\n');
+				.replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
 			quotedText = '';
 		} else {
 			const { scrtop } = txtaEl;

@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'b289964';
+  var commit = 'fa45ef3';
 
   var defaultCfg = {
     disabled: 0,
@@ -15708,7 +15708,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var quote = Cfg.spacedQuote ? '> ' : '>';
 
         if (id === 'de-btn-quote') {
-          insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + '\n');
+          insertText(txtaEl, quote + (start === end ? quotedText : txtaEl.value.substring(start, end)).replace(/^[\r\n]|[\r\n]+$/g, '').replace(/\n/gm, '\n' + quote) + (quotedText ? '\n' : ''));
           quotedText = '';
         } else {
           var scrtop = txtaEl.scrtop;
