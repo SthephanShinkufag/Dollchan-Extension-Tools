@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'fa45ef3';
+const commit = '76dd7e5';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6906,6 +6906,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
+		xhr.withCredentials = true;
 		xhr.onreadystatechange = ({ target }) => {
 			if(needTO) {
 				clearTimeout(loadTO);
@@ -16897,7 +16898,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			let value = null;
 			if($id('captchaFormPart')) {
 				value = cap => {
-					$replace($id('t-root'), '<div id="t-root"></div>');
+					const container = $id('t-root');
+					if(!container) {
+						cap.hasCaptcha = false;
+						return;
+					}
+					$replace(container, '<div id="t-root"></div>');
 					$script('initTCaptcha();');
 					setTimeout(() => {
 						cap.textEl = $id('t-resp');

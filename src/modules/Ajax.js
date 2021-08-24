@@ -144,6 +144,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
+		xhr.withCredentials = true;
 		xhr.onreadystatechange = ({ target }) => {
 			if(needTO) {
 				clearTimeout(loadTO);

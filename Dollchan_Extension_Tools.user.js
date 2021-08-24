@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'fa45ef3';
+  var commit = '76dd7e5';
 
   var defaultCfg = {
     disabled: 0,
@@ -12898,6 +12898,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       if (params && params.onprogress) {
         xhr.upload.onprogress = params.onprogress;
       }
+
+      xhr.withCredentials = true;
 
       xhr.onreadystatechange = function (_ref13) {
         var target = _ref13.target;
@@ -27312,7 +27314,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           if ($id('captchaFormPart')) {
             value = function value(cap) {
-              $replace($id('t-root'), '<div id="t-root"></div>');
+              var container = $id('t-root');
+
+              if (!container) {
+                cap.hasCaptcha = false;
+                return;
+              }
+
+              $replace(container, '<div id="t-root"></div>');
               $script('initTCaptcha();');
               setTimeout(function () {
                 cap.textEl = $id('t-resp');
