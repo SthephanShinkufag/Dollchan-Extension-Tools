@@ -55,10 +55,12 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	constructor(json, brd) {
+		console.log(json);
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
+		this._colorIDs = [];
 	}
 	static fixFileName(name, maxLength) {
 		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
@@ -158,17 +160,20 @@ class _4chanPostsBuilder {
 		}
 
 		// --- POST ---
-		const { name = '' } = data;
+		const { id, name = '' } = data;
 		const nameEl = `<span class="name">${ name }</span>`;
 		const mobNameEl = name.length <= 30 ? nameEl :
 			`<span class="name" data-tip data-tip-cb="mShowFull">${ name.substring(30) }(…)</span>`;
 		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
-		const posteruidEl = data.id && !data.capcode ? `<span class="posteruid id_${ data.id }` +
-			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
-		const flagEl = data.country ?
-			`<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` :
-			data.board_flag ? `<span title="${ data.flag_name }" class="bfl bfl-${
-				data.board_flag.toLowerCase() }"></span>` : '';
+		const cID = id ? this._colorIDs[id] || this._computeIDColor(id) : null;
+		const posteruidEl = id && !data.capcode ? `<span class="posteruid id_${ id }` +
+			`">(ID: <span class="hand" title="Highlight posts by this ID" style="background-color: rgb(${
+				cID[0] }, ${ cID[1] }, ${ cID[2] }); color: ${ cID[3] ? 'black' : 'white' };">${
+				id }</span>)</span>` : '';
+		const flagEl = (data.country ? `<span title="${ data.country_name }" class="flag flag-${
+			data.country.toLowerCase() }"></span>` : '') +
+			(data.board_flag ? `<span title="${ data.flag_name }" class="bfl bfl-${
+				data.board_flag.toLowerCase() }"></span>` : '');
 		const emailEl = data.email ? `<a href="mailto:${
 			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
 		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
@@ -211,6 +216,18 @@ class _4chanPostsBuilder {
 		</div>`;
 	}
 	* bannedPostsData() {}
+
+	_computeIDColor(text) {
+		let hash = 0;
+		for(let i = 0, len = text.length; i < len; ++i) {
+			hash = (hash << 5) - hash + text.charCodeAt(i);
+		}
+		const r = hash >> 24 & 255;
+		const g = hash >> 16 & 255;
+		const b = hash >> 8 & 255;
+		const value = this._colorIDs[text] = [r, g, b, 0.299 * r + 0.587 * g + 0.114 * b > 125];
+		return value;
+	}
 }
 _4chanPostsBuilder._customSpoiler = new Map();
 

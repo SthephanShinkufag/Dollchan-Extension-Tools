@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '4ad99d6';
+  var commit = '04948a5';
 
   var defaultCfg = {
     disabled: 0,
@@ -22065,10 +22065,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     function _4chanPostsBuilder(json, brd) {
       _classCallCheck(this, _4chanPostsBuilder);
 
+      console.log(json);
       this._posts = json.posts;
       this._brd = brd;
       this.length = json.posts.length - 1;
       this.postersCount = this._posts[0].unique_ips;
+      this._colorIDs = [];
     }
 
     _createClass(_4chanPostsBuilder, [{
@@ -22186,13 +22188,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         } 
 
 
-        var _data$name = data.name,
+        var id = data.id,
+            _data$name = data.name,
             name = _data$name === void 0 ? '' : _data$name;
         var nameEl = "<span class=\"name\">".concat(name, "</span>");
         var mobNameEl = name.length <= 30 ? nameEl : "<span class=\"name\" data-tip data-tip-cb=\"mShowFull\">".concat(name.substring(30), "(\u2026)</span>");
         var tripEl = "".concat(data.trip ? "<span class=\"postertrip\">".concat(data.trip, "</span>") : '');
-        var posteruidEl = data.id && !data.capcode ? "<span class=\"posteruid id_".concat(data.id) + "\">(ID: <span class=\"hand\" title=\"Highlight posts by this ID\">".concat(data.id, "</span>)</span>") : '';
-        var flagEl = data.country ? "<span title=\"".concat(data.country_name, "\" class=\"flag flag-").concat(data.country.toLowerCase(), "\"></span>") : data.board_flag ? "<span title=\"".concat(data.flag_name, "\" class=\"bfl bfl-").concat(data.board_flag.toLowerCase(), "\"></span>") : '';
+        var cID = id ? this._colorIDs[id] || this._computeIDColor(id) : null;
+        var posteruidEl = id && !data.capcode ? "<span class=\"posteruid id_".concat(id) + "\">(ID: <span class=\"hand\" title=\"Highlight posts by this ID\" style=\"background-color: rgb(".concat(cID[0], ", ").concat(cID[1], ", ").concat(cID[2], "); color: ").concat(cID[3] ? 'black' : 'white', ";\">").concat(id, "</span>)</span>") : '';
+        var flagEl = (data.country ? "<span title=\"".concat(data.country_name, "\" class=\"flag flag-").concat(data.country.toLowerCase(), "\"></span>") : '') + (data.board_flag ? "<span title=\"".concat(data.flag_name, "\" class=\"bfl bfl-").concat(data.board_flag.toLowerCase(), "\"></span>") : '');
         var emailEl = data.email ? "<a href=\"mailto:".concat(data.email.replace(/ /g, '%20'), "\" class=\"useremail\">") : '';
         var replyEl = "<a href=\"#p".concat(num, "\" title=\"Link to this post\">No.</a><a href=\"javascript:quote('").concat(num, "');\" title=\"Reply to this post\">").concat(num, "</a>");
         var subjEl = "<span class=\"subject\">".concat(data.sub || '', "</span>");
@@ -22211,6 +22215,21 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         }, bannedPostsData);
       })
+    }, {
+      key: "_computeIDColor",
+      value: function _computeIDColor(text) {
+        var hash = 0;
+
+        for (var i = 0, len = text.length; i < len; ++i) {
+          hash = (hash << 5) - hash + text.charCodeAt(i);
+        }
+
+        var r = hash >> 24 & 255;
+        var g = hash >> 16 & 255;
+        var b = hash >> 8 & 255;
+        var value = this._colorIDs[text] = [r, g, b, 0.299 * r + 0.587 * g + 0.114 * b > 125];
+        return value;
+      }
     }], [{
       key: "fixFileName",
       value: function fixFileName(name, maxLength) {
