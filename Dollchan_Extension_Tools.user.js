@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '76dd7e5';
+  var commit = '4ad99d6';
 
   var defaultCfg = {
     disabled: 0,
@@ -12899,7 +12899,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         xhr.upload.onprogress = params.onprogress;
       }
 
-      xhr.withCredentials = true;
+      if (aib._4chan) {
+        xhr.withCredentials = true;
+      }
 
       xhr.onreadystatechange = function (_ref13) {
         var target = _ref13.target;
@@ -22190,7 +22192,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var mobNameEl = name.length <= 30 ? nameEl : "<span class=\"name\" data-tip data-tip-cb=\"mShowFull\">".concat(name.substring(30), "(\u2026)</span>");
         var tripEl = "".concat(data.trip ? "<span class=\"postertrip\">".concat(data.trip, "</span>") : '');
         var posteruidEl = data.id && !data.capcode ? "<span class=\"posteruid id_".concat(data.id) + "\">(ID: <span class=\"hand\" title=\"Highlight posts by this ID\">".concat(data.id, "</span>)</span>") : '';
-        var flagEl = data.country ? "<span title=\"".concat(data.country_name, "\" class=\"flag flag-").concat(data.country.toLowerCase(), "\"></span>") : '';
+        var flagEl = data.country ? "<span title=\"".concat(data.country_name, "\" class=\"flag flag-").concat(data.country.toLowerCase(), "\"></span>") : data.board_flag ? "<span title=\"".concat(data.flag_name, "\" class=\"bfl bfl-").concat(data.board_flag.toLowerCase(), "\"></span>") : '';
         var emailEl = data.email ? "<a href=\"mailto:".concat(data.email.replace(/ /g, '%20'), "\" class=\"useremail\">") : '';
         var replyEl = "<a href=\"#p".concat(num, "\" title=\"Link to this post\">No.</a><a href=\"javascript:quote('").concat(num, "');\" title=\"Reply to this post\">").concat(num, "</a>");
         var subjEl = "<span class=\"subject\">".concat(data.sub || '', "</span>");

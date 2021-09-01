@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '76dd7e5';
+const commit = '4ad99d6';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6906,7 +6906,9 @@ function $ajax(url, params = null, isCORS = false) {
 		if(params && params.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
-		xhr.withCredentials = true;
+		if(aib._4chan) {
+			xhr.withCredentials = true;
+		}
 		xhr.onreadystatechange = ({ target }) => {
 			if(needTO) {
 				clearTimeout(loadTO);
@@ -13147,8 +13149,10 @@ class _4chanPostsBuilder {
 		const tripEl = `${ data.trip ? `<span class="postertrip">${ data.trip }</span>` : '' }`;
 		const posteruidEl = data.id && !data.capcode ? `<span class="posteruid id_${ data.id }` +
 			`">(ID: <span class="hand" title="Highlight posts by this ID">${ data.id }</span>)</span>` : '';
-		const flagEl = data.country ? `<span title="${ data.country_name }" class="flag flag-${
-			data.country.toLowerCase() }"></span>` : '';
+		const flagEl = data.country ?
+			`<span title="${ data.country_name }" class="flag flag-${ data.country.toLowerCase() }"></span>` :
+			data.board_flag ? `<span title="${ data.flag_name }" class="bfl bfl-${
+				data.board_flag.toLowerCase() }"></span>` : '';
 		const emailEl = data.email ? `<a href="mailto:${
 			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
 		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
