@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '04948a5';
+  var commit = '7fb7dce';
 
   var defaultCfg = {
     disabled: 0,
@@ -24702,16 +24702,26 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     var isChrome = isWebkit && ua.includes('Chrome/');
     var isSafari = isWebkit && !isChrome;
     var hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
-    var hasNewGM =
-    typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
     var canUseFetch = ('AbortController' in deWindow); 
 
     var scriptHandler,
         hasWebStorage = false;
+    var hasGMXHR = false;
     var hasOldGM = false;
+    var hasNewGM =
+    typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 
     if (hasNewGM) {
-      scriptHandler = GM.info ? "".concat(GM.info.scriptHandler, " ").concat(GM.info.version) : 'Greasemonkey';
+      var inf = GM.info;
+      var handlerName = inf ? inf.scriptHandler : '';
+      scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
+
+      if (handlerName === 'FireMonkey') {
+        hasOldGM = true;
+        hasNewGM = false;
+      } else {
+        hasGMXHR = typeof GM.xmlHttpRequest === 'function';
+      }
     } else {
       try {
         hasOldGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
@@ -24719,6 +24729,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         hasOldGM = err.message === 'Permission denied to access property "toString"'; 
       }
 
+      hasGMXHR = typeof GM_xmlhttpRequest === 'function';
       hasWebStorage = !hasOldGM && (isFirefox || 'chrome' in deWindow) && (typeof chrome === "undefined" ? "undefined" : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
       scriptHandler = hasWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? "".concat(GM_info.scriptHandler, " ").concat(GM_info.version) : isFirefox ? 'Greasemonkey' : 'Unknown';
     }
@@ -24793,7 +24804,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         return url;
       },
       hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
-      hasGMXHR: typeof GM_xmlhttpRequest === 'function' || hasNewGM && typeof GM.xmlHttpRequest === 'function',
+      hasGMXHR: hasGMXHR,
       hasNewGM: hasNewGM,
       hasOldGM: hasOldGM,
       hasPrestoStorage: hasPrestoStorage,

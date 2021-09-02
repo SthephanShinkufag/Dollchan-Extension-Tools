@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '04948a5';
+const commit = '7fb7dce';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15119,12 +15119,21 @@ function initNavFuncs() {
 	const isChrome = isWebkit && ua.includes('Chrome/');
 	const isSafari = isWebkit && !isChrome;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
-	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
 	let scriptHandler, hasWebStorage = false;
+	let hasGMXHR = false;
 	let hasOldGM = false;
+	let hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	if(hasNewGM) {
-		scriptHandler = GM.info ? `${ GM.info.scriptHandler } ${ GM.info.version }` : 'Greasemonkey';
+		const inf = GM.info;
+		const handlerName = inf ? inf.scriptHandler : '';
+		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
+		if(handlerName === 'FireMonkey') {
+			hasOldGM = true;
+			hasNewGM = false;
+		} else {
+			hasGMXHR = typeof GM.xmlHttpRequest === 'function';
+		}
 	} else {
 		try {
 			hasOldGM = (typeof GM_setValue === 'function') &&
@@ -15132,6 +15141,7 @@ function initNavFuncs() {
 		} catch(err) {
 			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
+		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
 		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
 			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 		scriptHandler = hasWebStorage ? 'WebExtension' :
@@ -15189,21 +15199,20 @@ function initNavFuncs() {
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		fixLink          : isSafari ? getAbsLink : url => url,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
-		hasGMXHR         : (typeof GM_xmlhttpRequest === 'function') ||
-			hasNewGM && (typeof GM.xmlHttpRequest === 'function'),
+		hasGMXHR,
 		hasNewGM,
 		hasOldGM,
 		hasPrestoStorage,
 		hasWebStorage,
 		isChrome,
-		isESNext : typeof deMainFuncOuter === 'undefined',
+		isESNext         : typeof deMainFuncOuter === 'undefined',
 		isFirefox,
-		isMsEdge : ua.includes('Edge/'),
-		isPresto : !!deWindow.opera,
+		isMsEdge         : ua.includes('Edge/'),
+		isPresto         : !!deWindow.opera,
 		isSafari,
 		isWebkit,
 		scriptHandler,
-		ua       : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
+		ua               : navigator.userAgent + (isFirefox ? ` [${ navigator.buildID }]` : ''),
 
 		get canPlayMP3() {
 			const value = !!new Audio().canPlayType('audio/mpeg;');
