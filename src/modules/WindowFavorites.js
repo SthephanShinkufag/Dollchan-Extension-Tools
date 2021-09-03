@@ -129,9 +129,6 @@ function showFavoritesWindow(body, favObj) {
 					continue;
 				}
 				const t = f[tNum];
-				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
-					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
-				}
 				// Generate DOM for separate entry
 				const favLinkHref = t.url + (
 					!t.last ? '' :

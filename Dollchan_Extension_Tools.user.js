@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '7fb7dce';
+  var commit = '3ab8660';
 
   var defaultCfg = {
     disabled: 0,
@@ -9080,12 +9080,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             continue;
           }
 
-          var t = f[tNum];
-
-          if (!t.url.startsWith('http')) {
-            t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
-          } 
-
+          var t = f[tNum]; 
 
           var favLinkHref = t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '');
           var favInfIwrapTitle = !t.err ? '' : t.err === 'Closed' ? "title=\"".concat(Lng.thrClosed[lang], "\"") : "title=\"".concat(t.err, "\"");
@@ -24704,32 +24699,33 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     var hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
     var canUseFetch = ('AbortController' in deWindow); 
 
-    var scriptHandler,
-        hasWebStorage = false;
-    var hasGMXHR = false;
-    var hasOldGM = false;
     var hasNewGM =
     typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+    var hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 
     if (hasNewGM) {
       var inf = GM.info;
       var handlerName = inf ? inf.scriptHandler : '';
-      scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
 
       if (handlerName === 'FireMonkey') {
+        hasGMXHR = false;
         hasOldGM = true;
-        hasNewGM = false;
       } else {
         hasGMXHR = typeof GM.xmlHttpRequest === 'function';
+        hasOldGM = false;
       }
+
+      hasWebStorage = false;
+      scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
     } else {
+      hasGMXHR = typeof GM_xmlhttpRequest === 'function';
+
       try {
         hasOldGM = typeof GM_setValue === 'function' && (!isChrome || !GM_setValue.toString().includes('not supported'));
       } catch (err) {
         hasOldGM = err.message === 'Permission denied to access property "toString"'; 
       }
 
-      hasGMXHR = typeof GM_xmlhttpRequest === 'function';
       hasWebStorage = !hasOldGM && (isFirefox || 'chrome' in deWindow) && (typeof chrome === "undefined" ? "undefined" : _typeof(chrome)) === 'object' && !!chrome && !!chrome.storage;
       scriptHandler = hasWebStorage ? 'WebExtension' : typeof GM_info === 'undefined' ? isFirefox ? 'Scriptish' : 'Unknown' : GM_info.scriptHandler ? "".concat(GM_info.scriptHandler, " ").concat(GM_info.version) : isFirefox ? 'Greasemonkey' : 'Unknown';
     }
@@ -24918,7 +24914,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       },
       getUnsafeDataView: function getUnsafeDataView(data, offset) {
         var value = new DataView(data, offset || 0);
-        return !nav.isFirefox || !nav.hasOldGM || value instanceof DataView ? value : new unsafeWindow.DataView(data, offset || 0);
+        return nav.isFirefox && nav.hasOldGM && !(value instanceof DataView) ? new unsafeWindow.DataView(data, offset || 0) : value;
       }
     };
   }

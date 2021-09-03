@@ -29,28 +29,28 @@ function initNavFuncs() {
 	const isSafari = isWebkit && !isChrome;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	let scriptHandler, hasWebStorage = false;
-	let hasGMXHR = false;
-	let hasOldGM = false;
-	let hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 	if(hasNewGM) {
 		const inf = GM.info;
 		const handlerName = inf ? inf.scriptHandler : '';
-		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
 		if(handlerName === 'FireMonkey') {
+			hasGMXHR = false;
 			hasOldGM = true;
-			hasNewGM = false;
 		} else {
 			hasGMXHR = typeof GM.xmlHttpRequest === 'function';
+			hasOldGM = false;
 		}
+		hasWebStorage = false;
+		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
 	} else {
+		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
 		try {
 			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
 			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
-		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
 		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
 			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 		scriptHandler = hasWebStorage ? 'WebExtension' :
@@ -82,7 +82,7 @@ function initNavFuncs() {
 	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11
+	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -164,7 +164,9 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
+		// XXX: Firefox + old Greasemonkey - hack to prevent
+		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
+		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(nav.isFirefox && nav.hasOldGM) {
 				try {
@@ -182,10 +184,10 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
+		getUnsafeDataView(data, offset) { // XXX: Firefox + old Greasemonkey
 			const value = new DataView(data, offset || 0);
-			return !nav.isFirefox || !nav.hasOldGM || (value instanceof DataView) ? value :
-				new unsafeWindow.DataView(data, offset || 0);
+			return nav.isFirefox && nav.hasOldGM && !(value instanceof DataView) ?
+				new unsafeWindow.DataView(data, offset || 0) : value;
 		}
 	};
 }

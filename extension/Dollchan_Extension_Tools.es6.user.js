@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '7fb7dce';
+const commit = '3ab8660';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1927,7 +1927,7 @@ function insertText(el, txt) {
 	el.scrollTop = scrtop;
 }
 
-// XXX: SVG events hack for Opera Presto
+// XXX: Opera Presto - hack for SVG events
 function fixEventEl(el) {
 	if(el && nav.isPresto) {
 		const svg = el.correspondingUseElement;
@@ -2392,7 +2392,7 @@ function getErrorMessage(err) {
 async function readFile(file, asText = false) {
 	return new Promise(resolve => {
 		const fr = new FileReader();
-		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
+		// XXX: Firefox - hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
 		if(asText) {
 			fr.readAsText(file);
@@ -3260,7 +3260,7 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX Opera Presto: keep in sync with updMachine._setUpdateStatus
+		// XXX: Opera Presto - keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">
@@ -3894,9 +3894,6 @@ function showFavoritesWindow(body, favObj) {
 					continue;
 				}
 				const t = f[tNum];
-				if(!t.url.startsWith('http')) { // XXX: compatibility with older versions
-					t.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + t.url;
-				}
 				// Generate DOM for separate entry
 				const favLinkHref = t.url + (
 					!t.last ? '' :
@@ -5930,8 +5927,8 @@ class KeyEditListener {
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):
-//     Firefox - '-' - 173, '=' - 61, ';' - 59
-//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+//    Firefox - '-' - 173, '=' - 61, ';' - 59
+//    Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
 /* eslint-disable comma-spacing, comma-style, no-sparse-arrays */
 KeyEditListener.keyCodes = [
 	'',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',/* Pause/Break */,/* Caps Lock */,,,,,,,
@@ -12740,7 +12737,7 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// XXX: DON'T USE aib.getImgSrcLink(this.el).href
+		// Don't use aib.getImgSrcLink(this.el).href
 		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
@@ -15120,28 +15117,28 @@ function initNavFuncs() {
 	const isSafari = isWebkit && !isChrome;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	let scriptHandler, hasWebStorage = false;
-	let hasGMXHR = false;
-	let hasOldGM = false;
-	let hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 	if(hasNewGM) {
 		const inf = GM.info;
 		const handlerName = inf ? inf.scriptHandler : '';
-		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
 		if(handlerName === 'FireMonkey') {
+			hasGMXHR = false;
 			hasOldGM = true;
-			hasNewGM = false;
 		} else {
 			hasGMXHR = typeof GM.xmlHttpRequest === 'function';
+			hasOldGM = false;
 		}
+		hasWebStorage = false;
+		scriptHandler = inf ? handlerName + ' ' + inf.version : 'Greasemonkey';
 	} else {
+		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
 		try {
 			hasOldGM = (typeof GM_setValue === 'function') &&
 				(!isChrome || !GM_setValue.toString().includes('not supported'));
 		} catch(err) {
 			hasOldGM = err.message === 'Permission denied to access property "toString"'; // Chrome
 		}
-		hasGMXHR = typeof GM_xmlhttpRequest === 'function';
 		hasWebStorage = !hasOldGM && (isFirefox || ('chrome' in deWindow)) &&
 			(typeof chrome === 'object') && !!chrome && !!chrome.storage;
 		scriptHandler = hasWebStorage ? 'WebExtension' :
@@ -15173,7 +15170,7 @@ function initNavFuncs() {
 	} catch(err) {
 		needFileHack = true;
 	}
-	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11
+	if(needFileHack && FormData) { // XXX: Firefox < 39, Chrome < 50, Safari < 11 - FormData hack
 		const OrigFormData = FormData;
 		const origAppend = FormData.prototype.append;
 		FormData = function FormData(form) {
@@ -15255,7 +15252,9 @@ function initNavFuncs() {
 			Object.defineProperty(this, 'viewportWidth', { value });
 			return value;
 		},
-		getUnsafeUint8Array(data, i, len) { // XXX: Old Greasemonkeys
+		// XXX: Firefox + old Greasemonkey - hack to prevent
+		//    'Accessing TypedArray data over Xrays is slow, and forbidden' errors
+		getUnsafeUint8Array(data, i, len) {
 			let Ctor = Uint8Array;
 			if(nav.isFirefox && nav.hasOldGM) {
 				try {
@@ -15273,10 +15272,10 @@ function initNavFuncs() {
 			}
 			throw new Error();
 		},
-		getUnsafeDataView(data, offset) { // XXX: Old Greasemonkeys
+		getUnsafeDataView(data, offset) { // XXX: Firefox + old Greasemonkey
 			const value = new DataView(data, offset || 0);
-			return !nav.isFirefox || !nav.hasOldGM || (value instanceof DataView) ? value :
-				new unsafeWindow.DataView(data, offset || 0);
+			return nav.isFirefox && nav.hasOldGM && !(value instanceof DataView) ?
+				new unsafeWindow.DataView(data, offset || 0) : value;
 		}
 	};
 }

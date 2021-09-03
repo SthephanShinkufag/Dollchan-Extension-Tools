@@ -843,7 +843,7 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// XXX: DON'T USE aib.getImgSrcLink(this.el).href
+		// Don't use aib.getImgSrcLink(this.el).href
 		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}

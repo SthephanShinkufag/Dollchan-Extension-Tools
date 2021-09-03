@@ -228,7 +228,7 @@ function insertText(el, txt) {
 	el.scrollTop = scrtop;
 }
 
-// XXX: SVG events hack for Opera Presto
+// XXX: Opera Presto - hack for SVG events
 function fixEventEl(el) {
 	if(el && nav.isPresto) {
 		const svg = el.correspondingUseElement;
@@ -693,7 +693,7 @@ function getErrorMessage(err) {
 async function readFile(file, asText = false) {
 	return new Promise(resolve => {
 		const fr = new FileReader();
-		// XXX: firefox hack to prevent 'XrayWrapper denied access to property "then"' errors
+		// XXX: Firefox - hack to prevent 'XrayWrapper denied access to property "then"' errors
 		fr.onload = e => resolve({ data: e.target.result });
 		if(asText) {
 			fr.readAsText(file);
