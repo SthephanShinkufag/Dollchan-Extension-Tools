@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '3ab8660';
+  var commit = 'e5bc1a7';
 
   var defaultCfg = {
     disabled: 0,
@@ -18643,9 +18643,159 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         e.stopPropagation();
       }
     }, {
+      key: "_clickMenu",
+      value: function _clickMenu(el) {
+        var _this45 = this;
+
+        var isHide = !this.isHidden;
+        var num = this.num;
+
+        switch (el.getAttribute('info')) {
+          case 'hide-sel':
+            {
+              var _this$_selRange = this._selRange,
+                  start = _this$_selRange.startContainer,
+                  end = _this$_selRange.endContainer;
+
+              if (start.nodeType === 3) {
+                start = start.parentNode;
+              }
+
+              if (end.nodeType === 3) {
+                end = end.parentNode;
+              }
+
+              var inMsgSel = "".concat(aib.qPostMsg, ", ").concat(aib.qPostMsg, " *");
+
+              if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj)) {
+                if (this._selText.includes('\n')) {
+                  Spells.addSpell(1
+                  , "/".concat(quoteReg(this._selText).replace(/\r?\n/g, '\\n'), "/"), false);
+                } else {
+                  Spells.addSpell(0
+                  , this._selText.toLowerCase(), false);
+                }
+              } else {
+                dummy.innerHTML = '';
+                dummy.appendChild(this._selRange.cloneContents());
+                Spells.addSpell(2
+                , "/".concat(quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
+              }
+
+              return;
+            }
+
+          case 'hide-name':
+            Spells.addSpell(6
+            , this.posterName, false);
+            return;
+
+          case 'hide-trip':
+            Spells.addSpell(7
+            , this.posterTrip, false);
+            return;
+
+          case 'hide-img':
+            {
+              var _this$images$firstAtt = this.images.firstAttach,
+                  w = _this$images$firstAtt.weight,
+                  wi = _this$images$firstAtt.width,
+                  h = _this$images$firstAtt.height;
+              Spells.addSpell(8
+              , [0, [w, w], [wi, wi, h, h]], false);
+              return;
+            }
+
+          case 'hide-imgn':
+            Spells.addSpell(3
+            , "/".concat(quoteReg(this.images.firstAttach.name), "/"), false);
+            return;
+
+          case 'hide-ihash':
+            ImagesHashStorage.getHash(this.images.firstAttach).then(function (hash) {
+              if (hash !== -1) {
+                Spells.addSpell(4
+                , hash, false);
+              }
+            });
+            return;
+
+          case 'hide-noimg':
+            Spells.addSpell(0x108
+            , '', true);
+            return;
+
+          case 'hide-text':
+            {
+              var words = Post.getWrds(this.text);
+
+              for (var post = Thread.first.op; post; post = post.next) {
+                Post.findSameText(num, !isHide, words, post);
+              }
+
+              return;
+            }
+
+          case 'hide-notext':
+            Spells.addSpell(0x10B
+            , '', true);
+            return;
+
+          case 'hide-refs':
+            this.ref.toggleRef(isHide, true);
+            this.setUserVisib(isHide);
+            return;
+
+          case 'hide-refsonly':
+            Spells.addSpell(0
+            , '>>' + num, false);
+            return;
+
+          case 'post-markmy':
+            {
+              var isAdd = !MyPosts.has(num);
+
+              if (isAdd) {
+                MyPosts.set(num, this.thr.num);
+              } else {
+                MyPosts.removeStorage(num);
+              }
+
+              this.el.classList.toggle('de-mypost', isAdd);
+              $each($Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + num, "\"]")), function (el) {
+                var post = aib.getPostOfEl(el);
+
+                if (post.el !== _this45.el) {
+                  el.classList.toggle('de-ref-you', isAdd);
+                  post.el.classList.toggle('de-mypost-reply', isAdd);
+                }
+              });
+              return;
+            }
+
+          case 'post-reply':
+            {
+              var isPview = this instanceof Pview;
+              pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+              quotedText = '';
+              return;
+            }
+
+          case 'post-report':
+            aib.reportForm(num, this.thr.num);
+            return;
+
+          case 'thr-exp':
+            {
+              var task = +el.textContent.match(/\d+/);
+              this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
+            }
+        }
+      }
+    }, {
       key: "_getFullMsg",
       value: function _getFullMsg(truncEl, isInit) {
-        var _this45 = this;
+        var _this46 = this;
 
         if (aib.deleteTruncMsg) {
           aib.deleteTruncMsg(this, truncEl, isInit);
@@ -18660,7 +18810,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var sourceEl;
           var maybeSpells = new Maybe(SpellsRunner);
 
-          if (_this45.isOp) {
+          if (_this46.isOp) {
             sourceEl = form;
           } else {
             var posts = $Q(aib.qRPost, form);
@@ -18668,7 +18818,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             for (var i = 0, len = posts.length; i < len; ++i) {
               var post = posts[i];
 
-              if (_this45.num === aib.getPNum(post)) {
+              if (_this46.num === aib.getPNum(post)) {
                 sourceEl = post;
                 break;
               }
@@ -18676,7 +18826,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
 
           if (sourceEl) {
-            _this45.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+            _this46.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
 
             truncEl.remove();
           }
@@ -18689,18 +18839,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_showMenu",
       value: function _showMenu(el, html) {
-        var _this46 = this;
+        var _this47 = this;
 
         if (this._menu) {
           this._menu.removeMenu();
         }
 
         this._menu = new Menu(el, html, function (el) {
-          return (_this46 instanceof Pview ? pByNum.get(_this46.num) : _this46)._clickMenu(el);
+          return (_this47 instanceof Pview ? pByNum.get(_this47.num) || _this47 : _this47)._clickMenu(el);
         }, false);
 
         this._menu.onremove = function () {
-          return _this46._menu = null;
+          return _this47._menu = null;
         };
       }
     }]);
@@ -18714,50 +18864,50 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     var _super4 = _createSuper(Post);
 
     function Post(el, thr, num, count, isOp, prev) {
-      var _this47;
+      var _this48;
 
       _classCallCheck(this, Post);
 
-      _this47 = _super4.call(this, thr, num, isOp);
-      _this47.count = count;
-      _this47.el = el;
-      _this47.isDeleted = false;
-      _this47.isHidden = false;
-      _this47.isOmitted = false;
-      _this47.isViewed = false;
-      _this47.next = null;
-      _this47.prev = prev;
-      _this47.spellHidden = false;
-      _this47.userToggled = false;
-      _this47._selRange = null;
-      _this47._selText = '';
+      _this48 = _super4.call(this, thr, num, isOp);
+      _this48.count = count;
+      _this48.el = el;
+      _this48.isDeleted = false;
+      _this48.isHidden = false;
+      _this48.isOmitted = false;
+      _this48.isViewed = false;
+      _this48.next = null;
+      _this48.prev = prev;
+      _this48.spellHidden = false;
+      _this48.userToggled = false;
+      _this48._selRange = null;
+      _this48._selText = '';
 
       if (prev) {
-        prev.next = _assertThisInitialized(_this47);
+        prev.next = _assertThisInitialized(_this48);
       }
 
-      pByEl.set(el, _assertThisInitialized(_this47));
-      pByNum.set(num, _assertThisInitialized(_this47));
+      pByEl.set(el, _assertThisInitialized(_this48));
+      pByNum.set(num, _assertThisInitialized(_this48));
       var isMyPost = MyPosts.has(num);
 
       if (isMyPost) {
-        _this47.el.classList.add('de-mypost');
-      } else if (localData && _this47.el.classList.contains('de-mypost')) {
+        _this48.el.classList.add('de-mypost');
+      } else if (localData && _this48.el.classList.contains('de-mypost')) {
         MyPosts.set(num, thr.num);
         isMyPost = true;
       }
 
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this47.sage = aib.getSage(el);
-      _this47.btns = $aEnd(_this47._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this47.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
-      _this47.counterEl = isOp ? null : $q('.de-post-counter', _this47.btns);
+      _this48.sage = aib.getSage(el);
+      _this48.btns = $aEnd(_this48._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this48.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
+      _this48.counterEl = isOp ? null : $q('.de-post-counter', _this48.btns);
 
-      if (Cfg.expandTrunc && _this47.trunc) {
-        _this47._getFullMsg(_this47.trunc, true);
+      if (Cfg.expandTrunc && _this48.trunc) {
+        _this48._getFullMsg(_this48.trunc, true);
       }
 
-      el.addEventListener('mouseover', _assertThisInitialized(_this47), true);
-      return _this47;
+      el.addEventListener('mouseover', _assertThisInitialized(_this48), true);
+      return _this48;
     }
 
     _createClass(Post, [{
@@ -19001,7 +19151,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "setVisib",
       value: function setVisib(isHide) {
-        var _this48 = this;
+        var _this49 = this;
 
         var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -19022,7 +19172,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
               var yOffset = deWindow.pageYOffset;
 
-              _this48.hideContent(e.type === 'mouseout');
+              _this49.hideContent(e.type === 'mouseout');
 
               scrollTo(deWindow.pageXOffset, yOffset);
             };
@@ -19031,7 +19181,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         if (Cfg.strikeHidd) {
           setTimeout(function () {
-            return _this48._strikePostNum(isHide);
+            return _this49._strikePostNum(isHide);
           }, 50);
         }
 
@@ -19094,154 +19244,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this.thr.el.classList.remove('de-selected');
         } else {
           this.el.classList.remove('de-selected');
-        }
-      }
-    }, {
-      key: "_clickMenu",
-      value: function _clickMenu(el) {
-        var _this49 = this;
-
-        var isHide = !this.isHidden;
-        var isPview = this instanceof Pview;
-        var num = this.num;
-
-        switch (el.getAttribute('info')) {
-          case 'hide-sel':
-            {
-              var _this$_selRange = this._selRange,
-                  start = _this$_selRange.startContainer,
-                  end = _this$_selRange.endContainer;
-
-              if (start.nodeType === 3) {
-                start = start.parentNode;
-              }
-
-              if (end.nodeType === 3) {
-                end = end.parentNode;
-              }
-
-              var inMsgSel = "".concat(aib.qPostMsg, ", ").concat(aib.qPostMsg, " *");
-
-              if (nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj)) {
-                if (this._selText.includes('\n')) {
-                  Spells.addSpell(1
-                  , "/".concat(quoteReg(this._selText).replace(/\r?\n/g, '\\n'), "/"), false);
-                } else {
-                  Spells.addSpell(0
-                  , this._selText.toLowerCase(), false);
-                }
-              } else {
-                dummy.innerHTML = '';
-                dummy.appendChild(this._selRange.cloneContents());
-                Spells.addSpell(2
-                , "/".concat(quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
-              }
-
-              return;
-            }
-
-          case 'hide-name':
-            Spells.addSpell(6
-            , this.posterName, false);
-            return;
-
-          case 'hide-trip':
-            Spells.addSpell(7
-            , this.posterTrip, false);
-            return;
-
-          case 'hide-img':
-            {
-              var _this$images$firstAtt = this.images.firstAttach,
-                  w = _this$images$firstAtt.weight,
-                  wi = _this$images$firstAtt.width,
-                  h = _this$images$firstAtt.height;
-              Spells.addSpell(8
-              , [0, [w, w], [wi, wi, h, h]], false);
-              return;
-            }
-
-          case 'hide-imgn':
-            Spells.addSpell(3
-            , "/".concat(quoteReg(this.images.firstAttach.name), "/"), false);
-            return;
-
-          case 'hide-ihash':
-            ImagesHashStorage.getHash(this.images.firstAttach).then(function (hash) {
-              if (hash !== -1) {
-                Spells.addSpell(4
-                , hash, false);
-              }
-            });
-            return;
-
-          case 'hide-noimg':
-            Spells.addSpell(0x108
-            , '', true);
-            return;
-
-          case 'hide-text':
-            {
-              var words = Post.getWrds(this.text);
-
-              for (var post = Thread.first.op; post; post = post.next) {
-                Post.findSameText(num, !isHide, words, post);
-              }
-
-              return;
-            }
-
-          case 'hide-notext':
-            Spells.addSpell(0x10B
-            , '', true);
-            return;
-
-          case 'hide-refs':
-            this.ref.toggleRef(isHide, true);
-            this.setUserVisib(isHide);
-            return;
-
-          case 'hide-refsonly':
-            Spells.addSpell(0
-            , '>>' + num, false);
-            return;
-
-          case 'post-markmy':
-            {
-              var isAdd = !MyPosts.has(num);
-
-              if (isAdd) {
-                MyPosts.set(num, this.thr.num);
-              } else {
-                MyPosts.removeStorage(num);
-              }
-
-              this.el.classList.toggle('de-mypost', isAdd);
-              $each($Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + num, "\"]")), function (el) {
-                var post = aib.getPostOfEl(el);
-
-                if (post.el !== _this49.el) {
-                  el.classList.toggle('de-ref-you', isAdd);
-                  post.el.classList.toggle('de-mypost-reply', isAdd);
-                }
-              });
-              return;
-            }
-
-          case 'post-reply':
-            pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-            quotedText = '';
-            return;
-
-          case 'post-report':
-            aib.reportForm(num, this.thr.num);
-            return;
-
-          case 'thr-exp':
-            {
-              var task = +el.textContent.match(/\d+/);
-              this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
-            }
         }
       }
     }, {

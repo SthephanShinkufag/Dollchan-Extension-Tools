@@ -355,6 +355,98 @@ class AbstractPost {
 		$pd(e);
 		e.stopPropagation();
 	}
+	_clickMenu(el) {
+		const isHide = !this.isHidden;
+		const { num } = this;
+		switch(el.getAttribute('info')) {
+		case 'hide-sel': {
+			let { startContainer: start, endContainer: end } = this._selRange;
+			if(start.nodeType === 3) {
+				start = start.parentNode;
+			}
+			if(end.nodeType === 3) {
+				end = end.parentNode;
+			}
+			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
+			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
+				nav.matchesSelector(start, aib.qPostSubj) &&
+				nav.matchesSelector(end, aib.qPostSubj)
+			)) {
+				if(this._selText.includes('\n')) {
+					Spells.addSpell(1 /* #exp */,
+						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
+				} else {
+					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
+				}
+			} else {
+				dummy.innerHTML = '';
+				dummy.appendChild(this._selRange.cloneContents());
+				Spells.addSpell(2 /* #exph */,
+					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+			}
+			return;
+		}
+		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-img': {
+			const { weight: w, width: wi, height: h } = this.images.firstAttach;
+			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			return;
+		}
+		case 'hide-imgn':
+			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			return;
+		case 'hide-ihash':
+			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
+				if(hash !== -1) {
+					Spells.addSpell(4 /* #ihash */, hash, false);
+				}
+			});
+			return;
+		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		case 'hide-text': {
+			const words = Post.getWrds(this.text);
+			for(let post = Thread.first.op; post; post = post.next) {
+				Post.findSameText(num, !isHide, words, post);
+			}
+			return;
+		}
+		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-refs':
+			this.ref.toggleRef(isHide, true);
+			this.setUserVisib(isHide);
+			return;
+		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'post-markmy': {
+			const isAdd = !MyPosts.has(num);
+			if(isAdd) {
+				MyPosts.set(num, this.thr.num);
+			} else {
+				MyPosts.removeStorage(num);
+			}
+			this.el.classList.toggle('de-mypost', isAdd);
+			$each($Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`), el => {
+				const post = aib.getPostOfEl(el);
+				if(post.el !== this.el) {
+					el.classList.toggle('de-ref-you', isAdd);
+					post.el.classList.toggle('de-mypost-reply', isAdd);
+				}
+			});
+			return;
+		}
+		case 'post-reply': {
+			const isPview = this instanceof Pview;
+			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+			quotedText = '';
+			return;
+		}
+		case 'post-report': aib.reportForm(num, this.thr.num); return;
+		case 'thr-exp': {
+			const task = +el.textContent.match(/\d+/);
+			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
+		}
+		}
+	}
 	_getFullMsg(truncEl, isInit) {
 		if(aib.deleteTruncMsg) {
 			aib.deleteTruncMsg(this, truncEl, isInit);
@@ -392,7 +484,7 @@ class AbstractPost {
 			this._menu.removeMenu();
 		}
 		this._menu = new Menu(el, html,
-			el => (this instanceof Pview ? pByNum.get(this.num) : this)._clickMenu(el), false);
+			el => (this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el), false);
 		this._menu.onremove = () => (this._menu = null);
 	}
 }
@@ -755,97 +847,6 @@ class Post extends AbstractPost {
 		}
 	}
 
-	_clickMenu(el) {
-		const isHide = !this.isHidden;
-		const isPview = this instanceof Pview;
-		const { num } = this;
-		switch(el.getAttribute('info')) {
-		case 'hide-sel': {
-			let { startContainer: start, endContainer: end } = this._selRange;
-			if(start.nodeType === 3) {
-				start = start.parentNode;
-			}
-			if(end.nodeType === 3) {
-				end = end.parentNode;
-			}
-			const inMsgSel = `${ aib.qPostMsg }, ${ aib.qPostMsg } *`;
-			if((nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel)) || (
-				nav.matchesSelector(start, aib.qPostSubj) &&
-				nav.matchesSelector(end, aib.qPostSubj)
-			)) {
-				if(this._selText.includes('\n')) {
-					Spells.addSpell(1 /* #exp */,
-						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
-				} else {
-					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
-				}
-			} else {
-				dummy.innerHTML = '';
-				dummy.appendChild(this._selRange.cloneContents());
-				Spells.addSpell(2 /* #exph */,
-					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
-			}
-			return;
-		}
-		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
-		case 'hide-img': {
-			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
-			return;
-		}
-		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
-			return;
-		case 'hide-ihash':
-			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
-				if(hash !== -1) {
-					Spells.addSpell(4 /* #ihash */, hash, false);
-				}
-			});
-			return;
-		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
-		case 'hide-text': {
-			const words = Post.getWrds(this.text);
-			for(let post = Thread.first.op; post; post = post.next) {
-				Post.findSameText(num, !isHide, words, post);
-			}
-			return;
-		}
-		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'hide-refs':
-			this.ref.toggleRef(isHide, true);
-			this.setUserVisib(isHide);
-			return;
-		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
-		case 'post-markmy': {
-			const isAdd = !MyPosts.has(num);
-			if(isAdd) {
-				MyPosts.set(num, this.thr.num);
-			} else {
-				MyPosts.removeStorage(num);
-			}
-			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`), el => {
-				const post = aib.getPostOfEl(el);
-				if(post.el !== this.el) {
-					el.classList.toggle('de-ref-you', isAdd);
-					post.el.classList.toggle('de-mypost-reply', isAdd);
-				}
-			});
-			return;
-		}
-		case 'post-reply':
-			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
-			quotedText = '';
-			return;
-		case 'post-report': aib.reportForm(num, this.thr.num); return;
-		case 'thr-exp': {
-			const task = +el.textContent.match(/\d+/);
-			this.thr.loadPosts(!task ? 'all' : task === 10 ? 'more' : task);
-		}
-		}
-	}
 	_getMenuHide() {
 		const item = name => `<span info="hide-${ name }" class="de-menu-item">${
 			Lng.selHiderMenu[name][lang] }</span>`;
