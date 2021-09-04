@@ -12,7 +12,11 @@ function runFrames() {
 		}
 		inf = GM_info;
 	}
-	if(!inf || inf.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
+	if(!inf) {
+		return;
+	}
+	const handlerName = inf.scriptHandler;
+	if(handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {

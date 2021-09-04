@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'e5bc1a7';
+const commit = '20c0799';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18705,7 +18705,11 @@ function runFrames() {
 		}
 		inf = GM_info;
 	}
-	if(!inf || inf.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
+	if(!inf) {
+		return;
+	}
+	const handlerName = inf.scriptHandler;
+	if(handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
 		return;
 	}
 	const deMainFuncFrame = frameEl => {

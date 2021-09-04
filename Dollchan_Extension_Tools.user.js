@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'e5bc1a7';
+  var commit = '20c0799';
 
   var defaultCfg = {
     disabled: 0,
@@ -28984,7 +28984,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       inf = GM_info;
     }
 
-    if (!inf || inf.scriptHandler !== 'Greasemonkey' || !deWindow.frames[0]) {
+    if (!inf) {
+      return;
+    }
+
+    var handlerName = inf.scriptHandler;
+
+    if (handlerName !== 'Greasemonkey' && handlerName !== 'FireMonkey' || !deWindow.frames[0]) {
       return;
     }
 
