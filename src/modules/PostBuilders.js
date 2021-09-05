@@ -493,11 +493,11 @@ class MakabaPostsBuilder {
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
 			.replace(/<\/script>/ig, '</textarea>-->');
 		const p = this._isNew ? 'post__' : '';
-		return `<blockquote id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
+		return `<article id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
 			`${ comment }${ _switch(data.banned, {
 				1           : `<br><span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`,
 				2           : `<br><span class="${ p }pomyanem">(Автор этого поста был предупрежден.)</span>`,
 				'@@default' : ''
-			}) }</blockquote>`;
+			}) }</article>`;
 	}
 }

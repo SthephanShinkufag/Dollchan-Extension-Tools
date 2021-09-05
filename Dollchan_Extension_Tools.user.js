@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '8f0c86a';
+  var commit = 'a265892';
 
   var defaultCfg = {
     disabled: 0,
@@ -22567,11 +22567,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var comment = data.comment.replace(/<script /ig, '<!--<textarea ').replace(/<\/script>/ig, '</textarea>-->');
         var p = this._isNew ? 'post__' : '';
-        return "<blockquote id=\"m".concat(data.num, "\" class=\"").concat(this._isNew ? 'post__' : 'post-', "message\">") + "".concat(comment).concat(_switch(data.banned, {
+        return "<article id=\"m".concat(data.num, "\" class=\"").concat(this._isNew ? 'post__' : 'post-', "message\">") + "".concat(comment).concat(_switch(data.banned, {
           1: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"),
           2: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D.)</span>"),
           '@@default': ''
-        }), "</blockquote>");
+        }), "</article>");
       }
     }]);
 
