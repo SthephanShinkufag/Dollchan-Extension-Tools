@@ -355,7 +355,7 @@ class AbstractPost {
 		$pd(e);
 		e.stopPropagation();
 	}
-	_clickMenu(el) {
+	_clickMenu(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -417,6 +417,20 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'img-load': {
+			$popup('file-loading', Lng.loading[lang], true);
+			const url = el.href;
+			ContentLoader.loadImgData(url, false).then(data => {
+				if(!data) {
+					$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+					return;
+				}
+				closePopup('file-loading');
+				downloadBlob(new Blob([data], { type: getFileType(url) }), el.getAttribute('download'));
+			});
+			e.preventDefault();
+			return;
+		}
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {
@@ -483,8 +497,8 @@ class AbstractPost {
 		if(this._menu) {
 			this._menu.removeMenu();
 		}
-		this._menu = new Menu(el, html,
-			el => (this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el), false);
+		this._menu = new Menu(el, html, (el, e) =>
+			(this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el, e), false);
 		this._menu.onremove = () => (this._menu = null);
 	}
 }

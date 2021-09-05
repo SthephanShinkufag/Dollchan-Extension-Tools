@@ -571,11 +571,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.content > hr, .extrabtns, .replieslist { display: none; }
+			return `.content > hr, .extrabtns { display: none; }
 				form { position: initial; }`;
 		}
 	}
-	ibDomains['0chan.cc'] = _0chan;
+	ibDomains['2.0-chan.ru'] = _0chan;
 
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {

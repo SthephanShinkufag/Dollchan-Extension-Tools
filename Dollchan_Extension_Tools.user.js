@@ -5508,7 +5508,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '20c0799';
+  var commit = '8f0c86a';
 
   var defaultCfg = {
     disabled: 0,
@@ -10650,7 +10650,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             if (e.target.classList.contains('de-menu-item')) {
               this.removeMenu();
 
-              this._clickFn(e.target);
+              this._clickFn(e.target, e);
 
               if (!Cfg.expandPanel && !$q('.de-win-active')) {
                 $hide($id('de-panel-buttons'));
@@ -10741,7 +10741,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               nameShort = name.substr(0, 20 - ext.length) + "\u2026" + ext;
             }
 
-            return "<a class=\"de-menu-item\" href=\"".concat(href, "\" download=\"").concat(name, "\" title=\"").concat(title, "\" target=\"_blank\">").concat(Lng.saveAs[lang], " &quot;").concat(nameShort, "&quot;</a>");
+            var info = aib.dm !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
+            return "<a class=\"de-menu-item\" href=\"".concat(href, "\" download=\"").concat(name, "\" title=\"").concat(title, "\"").concat(info, " target=\"_blank\">").concat(Lng.saveAs[lang], " &quot;").concat(nameShort, "&quot;</a>");
           };
 
           var name = decodeURIComponent(getFileName(origSrc));
@@ -18644,7 +18645,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
     }, {
       key: "_clickMenu",
-      value: function _clickMenu(el) {
+      value: function _clickMenu(el, e) {
         var _this45 = this;
 
         var isHide = !this.isHidden;
@@ -18751,6 +18752,25 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             , '>>' + num, false);
             return;
 
+          case 'img-load':
+            {
+              $popup('file-loading', Lng.loading[lang], true);
+              var url = el.href;
+              ContentLoader.loadImgData(url, false).then(function (data) {
+                if (!data) {
+                  $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+                  return;
+                }
+
+                closePopup('file-loading');
+                downloadBlob(new Blob([data], {
+                  type: getFileType(url)
+                }), el.getAttribute('download'));
+              });
+              e.preventDefault();
+              return;
+            }
+
           case 'post-markmy':
             {
               var isAdd = !MyPosts.has(num);
@@ -18845,8 +18865,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this._menu.removeMenu();
         }
 
-        this._menu = new Menu(el, html, function (el) {
-          return (_this47 instanceof Pview ? pByNum.get(_this47.num) || _this47 : _this47)._clickMenu(el);
+        this._menu = new Menu(el, html, function (el, e) {
+          return (_this47 instanceof Pview ? pByNum.get(_this47.num) || _this47 : _this47)._clickMenu(el, e);
         }, false);
 
         this._menu.onremove = function () {
@@ -22062,7 +22082,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     function _4chanPostsBuilder(json, brd) {
       _classCallCheck(this, _4chanPostsBuilder);
 
-      console.log(json);
       this._posts = json.posts;
       this._brd = brd;
       this.length = json.posts.length - 1;
@@ -26415,14 +26434,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       _createClass(_0chan, [{
         key: "css",
         get: function get() {
-          return ".content > hr, .extrabtns, .replieslist { display: none; }\n\t\t\t\tform { position: initial; }";
+          return ".content > hr, .extrabtns { display: none; }\n\t\t\t\tform { position: initial; }";
         }
       }]);
 
       return _0chan;
     }(Kusaba);
 
-    ibDomains['0chan.cc'] = _0chan;
+    ibDomains['2.0-chan.ru'] = _0chan;
 
     var _02ch = function (_Kusaba2) {
       _inherits(_02ch, _Kusaba2);

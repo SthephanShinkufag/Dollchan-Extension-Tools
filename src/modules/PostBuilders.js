@@ -55,7 +55,6 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	constructor(json, brd) {
-		console.log(json);
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;

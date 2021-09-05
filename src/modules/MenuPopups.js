@@ -114,8 +114,9 @@ class Menu {
 				if(name.length > 20) {
 					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
 				}
+				const info = aib.dm !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
-					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
+					title }"${ info } target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
 			const name = decodeURIComponent(getFileName(origSrc));
 			const isFullImg = link.classList.contains('de-fullimg-link');
@@ -149,7 +150,7 @@ class Menu {
 		case 'click':
 			if(e.target.classList.contains('de-menu-item')) {
 				this.removeMenu();
-				this._clickFn(e.target);
+				this._clickFn(e.target, e);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
 				}

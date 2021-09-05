@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '20c0799';
+const commit = '8f0c86a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5243,8 +5243,9 @@ class Menu {
 				if(name.length > 20) {
 					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
 				}
+				const info = aib.dm !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
-					title }" target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
+					title }"${ info } target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
 			const name = decodeURIComponent(getFileName(origSrc));
 			const isFullImg = link.classList.contains('de-fullimg-link');
@@ -5278,7 +5279,7 @@ class Menu {
 		case 'click':
 			if(e.target.classList.contains('de-menu-item')) {
 				this.removeMenu();
-				this._clickFn(e.target);
+				this._clickFn(e.target, e);
 				if(!Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide($id('de-panel-buttons'));
 				}
@@ -10741,7 +10742,7 @@ class AbstractPost {
 		$pd(e);
 		e.stopPropagation();
 	}
-	_clickMenu(el) {
+	_clickMenu(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -10803,6 +10804,20 @@ class AbstractPost {
 			this.setUserVisib(isHide);
 			return;
 		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'img-load': {
+			$popup('file-loading', Lng.loading[lang], true);
+			const url = el.href;
+			ContentLoader.loadImgData(url, false).then(data => {
+				if(!data) {
+					$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+					return;
+				}
+				closePopup('file-loading');
+				downloadBlob(new Blob([data], { type: getFileType(url) }), el.getAttribute('download'));
+			});
+			e.preventDefault();
+			return;
+		}
 		case 'post-markmy': {
 			const isAdd = !MyPosts.has(num);
 			if(isAdd) {
@@ -10869,8 +10884,8 @@ class AbstractPost {
 		if(this._menu) {
 			this._menu.removeMenu();
 		}
-		this._menu = new Menu(el, html,
-			el => (this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el), false);
+		this._menu = new Menu(el, html, (el, e) =>
+			(this instanceof Pview ? pByNum.get(this.num) || this : this)._clickMenu(el, e), false);
 		this._menu.onremove = () => (this._menu = null);
 	}
 }
@@ -13037,7 +13052,6 @@ class DOMPostsBuilder {
 
 class _4chanPostsBuilder {
 	constructor(json, brd) {
-		console.log(json);
 		this._posts = json.posts;
 		this._brd = brd;
 		this.length = json.posts.length - 1;
@@ -16237,11 +16251,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.content > hr, .extrabtns, .replieslist { display: none; }
+			return `.content > hr, .extrabtns { display: none; }
 				form { position: initial; }`;
 		}
 	}
-	ibDomains['0chan.cc'] = _0chan;
+	ibDomains['2.0-chan.ru'] = _0chan;
 
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
