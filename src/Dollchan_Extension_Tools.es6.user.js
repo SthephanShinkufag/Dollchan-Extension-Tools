@@ -2427,6 +2427,15 @@ function downloadBlob(blob, name) {
 		link.remove();
 	}, 2e5);
 }
+  
+function dataURLtoBlob(dataurl) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+  bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], {type:mime});
+}
 
 function showDonateMsg() {
 	const font = ' style="font: 13px monospace; color: green;"';
@@ -17534,6 +17543,22 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+		async sendHTML5Post(form, data, needProgress, hasFiles) {
+			if (unsafeWindow.oekaki?.expanded) {
+				hasFiles = true
+				const dataURI = $('#wPaint')?.wPaint?.('image');
+				const blob = dataURLtoBlob(dataURI);
+				const files = [
+					new File([blob], 'oekaki.png', { type: 'image/png' }),
+					...data.getAll('files').slice(0, -1)
+				];
+				data.delete('files')
+				for (const file of files) {
+					data.append('files', file);
+				}
+			}
+			return super.sendHTML5Post(form, data, needProgress, hasFiles);
 		}
 		captchaAfterSubmit(data) {
 			if(data !== '{"status":"bypassable"}') {
