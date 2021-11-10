@@ -729,6 +729,14 @@ function downloadBlob(blob, name) {
 	}, 2e5);
 }
 
+function dataURLtoBlob(dataurl) {
+	var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+	bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+	while(n--){
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+	return new Blob([u8arr], {type:mime});
+}
 function showDonateMsg() {
 	const font = ' style="font: 13px monospace; color: green;"';
 	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
