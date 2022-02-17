@@ -1,13 +1,13 @@
 {
 	"env": {
 		"browser": true,
-		"es6": true,
+		"es2021": true,
 		"greasemonkey": true,
 		"webextensions": true
 	},
 	"extends": "standard",
 	"parserOptions": {
-		"ecmaVersion": 2018,
+		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
 	"rules": {
