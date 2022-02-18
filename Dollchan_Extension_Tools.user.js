@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '635ce0a';
+  var commit = '19e266b';
 
   var defaultCfg = {
     disabled: 0,
@@ -17609,9 +17609,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var needProgress,
           data,
           hasFiles,
-          _iterator36,
-          _step36,
-          _step36$value,
+          _iterator37,
+          _step37,
+          _step37$value,
           name,
           value,
           type,
@@ -17632,15 +17632,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               needProgress = _args33.length > 2 && _args33[2] !== undefined ? _args33[2] : false;
               data = new FormData();
               hasFiles = false;
-              _iterator36 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
+              _iterator37 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
-              if ((_step36 = _iterator36()).done) {
+              if ((_step37 = _iterator37()).done) {
                 _context33.next = 30;
                 break;
               }
 
-              _step36$value = _step36.value, name = _step36$value.name, value = _step36$value.value, type = _step36$value.type, el = _step36$value.el;
+              _step37$value = _step37.value, name = _step37$value.name, value = _step37$value.value, type = _step37$value.type, el = _step37$value.el;
               val = value;
 
               if (!(name === 'de-file-txt')) {
@@ -26934,7 +26934,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           $script("if(\"autoRefresh\" in window) {\n\t\t\t\t\tclearInterval(refreshTimer);\n\t\t\t\t}\n\t\t\t\tif(\"thread\" in window) {\n\t\t\t\t\tif(thread.refreshTimer) {\n\t\t\t\t\t\tclearInterval(thread.refreshTimer);\n\t\t\t\t\t\tObject.defineProperty(thread, \"startTimer\",\n\t\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t\t}\n\t\t\t\t\tObject.defineProperty(thread, \"changeRefresh\",\n\t\t\t\t\t\t{ value: Function.prototype, writable: false, configurable: false });\n\t\t\t\t}");
           var submEl = $id('formButton');
 
-          if (submEl && submEl.type === 'button') {
+          if (submEl) {
             this._hasNewAPI = true;
             $replace(submEl, "<button id=\"de-postform-submit\" type=\"submit\">".concat(submEl.innerHTML, "</button>"));
           }
@@ -29093,6 +29093,31 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return ['b', 'i', 'u', 's', 'spoiler', 'code'];
         }
       }, {
+        key: "sendHTML5Post",
+        value: function sendHTML5Post(form, data, needProgress, hasFiles) {
+          var oekakiEl = $id('wPaint');
+
+          if (oekakiEl && oekakiEl.style.display !== 'none') {
+            hasFiles = true;
+            var blob = new Blob([new Uint8Array(atob($q('.wPaint-canvas', oekakiEl).toDataURL('image/png').split(',')[1]).split('').map(function (a) {
+              return a.charCodeAt();
+            }))], {
+              type: 'image/png'
+            });
+            var files = [new File([blob], 'oekaki.png', {
+              type: 'image/png'
+            })].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
+            data["delete"]('files');
+
+            for (var _iterator35 = _createForOfIteratorHelperLoose(files), _step35; !(_step35 = _iterator35()).done;) {
+              var file = _step35.value;
+              data.append('files', file);
+            }
+          }
+
+          return _get(_getPrototypeOf(Kohlchan.prototype), "sendHTML5Post", this).call(this, form, data, needProgress, hasFiles);
+        }
+      }, {
         key: "captchaAfterSubmit",
         value: function captchaAfterSubmit(data) {
           if (data !== '{"status":"bypassable"}') {
@@ -29657,8 +29682,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           if (data) {
             rv = {};
 
-            for (var _iterator35 = _createForOfIteratorHelperLoose(data), _step35; !(_step35 = _iterator35()).done;) {
-              var aName = _step35.value;
+            for (var _iterator36 = _createForOfIteratorHelperLoose(data), _step36; !(_step36 = _iterator36()).done;) {
+              var aName = _step36.value;
               rv[aName] = DollchanAPI._register(aName.toLowerCase());
             }
           }

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '635ce0a';
+const commit = '19e266b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16086,7 +16086,7 @@ function getImageBoard(checkDomains, checkEngines) {
 						{ value: Function.prototype, writable: false, configurable: false });
 				}`);
 			const submEl = $id('formButton');
-			if(submEl && submEl.type === 'button') {
+			if(submEl) {
 				this._hasNewAPI = true;
 				$replace(submEl, `<button id="de-postform-submit" type="submit">${
 					submEl.innerHTML }</button>`);
@@ -17534,6 +17534,25 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
+		}
+		sendHTML5Post(form, data, needProgress, hasFiles) {
+			const oekakiEl = $id('wPaint');
+			if(oekakiEl && oekakiEl.style.display !== 'none') {
+				hasFiles = true;
+				const blob = new Blob([new Uint8Array(
+					atob($q('.wPaint-canvas', oekakiEl).toDataURL('image/png').split(',')[1])
+						.split('').map(a => a.charCodeAt())
+				)], { type: 'image/png' });
+				const files = [
+					new File([blob], 'oekaki.png', { type: 'image/png' }),
+					...data.getAll('files').slice(0, -1)
+				];
+				data.delete('files');
+				for(const file of files) {
+					data.append('files', file);
+				}
+			}
+			return super.sendHTML5Post(form, data, needProgress, hasFiles);
 		}
 		captchaAfterSubmit(data) {
 			if(data !== '{"status":"bypassable"}') {
