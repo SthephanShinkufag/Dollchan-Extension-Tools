@@ -132,6 +132,8 @@ const ContentLoader = {
 		this._thrPool.completeTasks();
 		els = null;
 	},
+	getDataFromCanvas: el =>
+		new Uint8Array(atob(el.toDataURL('image/png').split(',')[1]).split('').map(a => a.charCodeAt())),
 	getDataFromImg(el) {
 		if(el.getAttribute('loading') === 'lazy') {
 			return this.loadImgData(el.src);
@@ -141,8 +143,7 @@ const ContentLoader = {
 			cnv.width = el.width || el.videoWidth;
 			cnv.height = el.height || el.videoHeight;
 			cnv.getContext('2d').drawImage(el, 0, 0);
-			return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1])
-				.split('').map(a => a.charCodeAt())));
+			return Promise.resolve(this.getDataFromCanvas(cnv));
 		} catch(err) {
 			return this.loadImgData(el.src);
 		}

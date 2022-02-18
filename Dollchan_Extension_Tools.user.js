@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '19e266b';
+  var commit = 'a614aa3';
 
   var defaultCfg = {
     disabled: 0,
@@ -12620,6 +12620,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       els = null;
     },
+    getDataFromCanvas: function getDataFromCanvas(el) {
+      return new Uint8Array(atob(el.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
+        return a.charCodeAt();
+      }));
+    },
     getDataFromImg: function getDataFromImg(el) {
       if (el.getAttribute('loading') === 'lazy') {
         return this.loadImgData(el.src);
@@ -12630,9 +12635,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         cnv.width = el.width || el.videoWidth;
         cnv.height = el.height || el.videoHeight;
         cnv.getContext('2d').drawImage(el, 0, 0);
-        return Promise.resolve(new Uint8Array(atob(cnv.toDataURL('image/png').split(',')[1]).split('').map(function (a) {
-          return a.charCodeAt();
-        })));
+        return Promise.resolve(this.getDataFromCanvas(cnv));
       } catch (err) {
         return this.loadImgData(el.src);
       }
@@ -29050,6 +29053,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         _this109 = _super35.call(this, prot, dm);
         _this109.kohlchan = true;
         _this109.qFormRules = '#rules_row';
+        _this109.qPostImg = '.de-img-link > img';
         _this109.hasTextLinks = true;
         _this109.markupBB = true;
         _this109.timePattern = 'yyyy+nn+dd+hh+ii+ss';
@@ -29099,14 +29103,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           if (oekakiEl && oekakiEl.style.display !== 'none') {
             hasFiles = true;
-            var blob = new Blob([new Uint8Array(atob($q('.wPaint-canvas', oekakiEl).toDataURL('image/png').split(',')[1]).split('').map(function (a) {
-              return a.charCodeAt();
-            }))], {
+            var mime = {
               type: 'image/png'
-            });
-            var files = [new File([blob], 'oekaki.png', {
-              type: 'image/png'
-            })].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
+            };
+            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
             data["delete"]('files');
 
             for (var _iterator35 = _createForOfIteratorHelperLoose(files), _step35; !(_step35 = _iterator35()).done;) {
@@ -29198,6 +29198,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return true;
           }
 
+          $each($Q('.imgLink'), function (el) {
+            return el.className = 'de-img-link';
+          });
           return _get(_getPrototypeOf(Kohlchan.prototype), "init", this).call(this);
         }
       }]);

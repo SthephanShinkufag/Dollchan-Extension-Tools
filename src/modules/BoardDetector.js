@@ -1820,6 +1820,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
+			this.qPostImg = '.de-img-link > img';
 
 			this.hasTextLinks = true;
 			this.markupBB = true;
@@ -1859,14 +1860,10 @@ function getImageBoard(checkDomains, checkEngines) {
 			const oekakiEl = $id('wPaint');
 			if(oekakiEl && oekakiEl.style.display !== 'none') {
 				hasFiles = true;
-				const blob = new Blob([new Uint8Array(
-					atob($q('.wPaint-canvas', oekakiEl).toDataURL('image/png').split(',')[1])
-						.split('').map(a => a.charCodeAt())
-				)], { type: 'image/png' });
-				const files = [
-					new File([blob], 'oekaki.png', { type: 'image/png' }),
-					...data.getAll('files').slice(0, -1)
-				];
+				const mime = { type: 'image/png' };
+				const files = [new File([
+					new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)
+				], 'oekaki.png', mime), ...data.getAll('files').slice(0, -1)];
 				data.delete('files');
 				for(const file of files) {
 					data.append('files', file);
@@ -1940,6 +1937,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
+			$each($Q('.imgLink'), el => (el.className = 'de-img-link'));
 			return super.init();
 		}
 	}
