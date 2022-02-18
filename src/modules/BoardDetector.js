@@ -1855,6 +1855,22 @@ function getImageBoard(checkDomains, checkEngines) {
 		get markupTags() {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
+		async sendHTML5Post(form, data, needProgress, hasFiles) {
+			if (unsafeWindow.oekaki?.expanded) {
+				hasFiles = true
+				const dataURI = $('#wPaint')?.wPaint?.('image');
+				const blob = dataURLtoBlob(dataURI);
+				const files = [
+					new File([blob], 'oekaki.png', { type: 'image/png' }),
+					...data.getAll('files').slice(0, -1)
+				];
+				data.delete('files')
+				for (const file of files) {
+					data.append('files', file);
+				}
+			}
+			return super.sendHTML5Post(form, data, needProgress, hasFiles);
+		}
 		captchaAfterSubmit(data) {
 			if(data !== '{"status":"bypassable"}') {
 				return false;
