@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'a614aa3';
+  var commit = 'e7b9d70';
 
   var defaultCfg = {
     disabled: 0,
@@ -29053,7 +29053,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         _this109 = _super35.call(this, prot, dm);
         _this109.kohlchan = true;
         _this109.qFormRules = '#rules_row';
-        _this109.qPostImg = '.de-img-link > img';
+        _this109.qPostImg = '.imgLink > img, .de-img-link > img';
         _this109.hasTextLinks = true;
         _this109.markupBB = true;
         _this109.timePattern = 'yyyy+nn+dd+hh+ii+ss';

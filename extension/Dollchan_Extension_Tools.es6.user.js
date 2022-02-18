@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'a614aa3';
+const commit = 'e7b9d70';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17501,7 +17501,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
-			this.qPostImg = '.de-img-link > img';
+			this.qPostImg = '.imgLink > img, .de-img-link > img';
 
 			this.hasTextLinks = true;
 			this.markupBB = true;

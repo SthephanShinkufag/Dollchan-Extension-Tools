@@ -1820,7 +1820,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
-			this.qPostImg = '.de-img-link > img';
+			this.qPostImg = '.imgLink > img, .de-img-link > img';
 
 			this.hasTextLinks = true;
 			this.markupBB = true;
