@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '294b5ed';
+const commit = 'b6c3535';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9002,16 +9002,6 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
-			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
-				if(!this.cap.isSubmitWait) {
-					e.preventDefault();
-					$popup('upload', 'reCaptcha...', true);
-					this.cap.isSubmitWait = true;
-					this.refreshCap();
-					return;
-				}
-				this.cap.isSubmitWait = false;
-			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				e.preventDefault();
 				$popup('upload', Lng.subjHasTrip[lang]);
@@ -16465,10 +16455,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		captchaInit(cap) {
-			/* const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
-			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
-				<input name="captcha_type" value="${ value }" type="hidden">`;
-			return null; */
 			const box = $q('.captcha-box, .captcha');
 			if(Cfg.altCaptcha) {
 				box.innerHTML = `<div id="captcha-widget-main"></div>
@@ -16488,7 +16474,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		captchaUpdate(cap) {
-			/* const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`; */
 			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha' }/id`;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box, .captcha');
@@ -16673,9 +16658,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2ch.hk'] = Makaba;
-	ibDomains['2ch.pm'] = Makaba;
-	ibDomains['2ch.re'] = Makaba;
-	ibDomains['2ch.wf'] = Makaba;
+	ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {

@@ -792,10 +792,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return value;
 		}
 		captchaInit(cap) {
-			/* const value = Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha';
-			$q('.captcha-box, .captcha').innerHTML = `<div id="captcha-widget-main"></div>
-				<input name="captcha_type" value="${ value }" type="hidden">`;
-			return null; */
 			const box = $q('.captcha-box, .captcha');
 			if(Cfg.altCaptcha) {
 				box.innerHTML = `<div id="captcha-widget-main"></div>
@@ -815,7 +811,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		captchaUpdate(cap) {
-			/* const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : 'invisible_recaptcha' }/id`; */
 			const url = `/api/captcha/${ Cfg.altCaptcha ? 'recaptcha' : '2chcaptcha' }/id`;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha-box, .captcha');
@@ -1000,9 +995,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2ch.hk'] = Makaba;
-	ibDomains['2ch.pm'] = Makaba;
-	ibDomains['2ch.re'] = Makaba;
-	ibDomains['2ch.wf'] = Makaba;
+	ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {

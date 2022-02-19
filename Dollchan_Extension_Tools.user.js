@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '294b5ed';
+  var commit = 'b6c3535';
 
   var defaultCfg = {
     disabled: 0,
@@ -27886,9 +27886,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }(BaseBoard);
 
     ibDomains['2ch.hk'] = Makaba;
-    ibDomains['2ch.pm'] = Makaba;
-    ibDomains['2ch.re'] = Makaba;
-    ibDomains['2ch.wf'] = Makaba;
+    ibDomains['2ch.life'] = Makaba;
 
     var _2chan = function (_BaseBoard8) {
       _inherits(_2chan, _BaseBoard8);

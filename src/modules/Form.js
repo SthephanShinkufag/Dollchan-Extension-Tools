@@ -408,16 +408,6 @@ class PostForm {
 	}
 	_initSubmit() {
 		this.subm.addEventListener('click', e => {
-			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
-				if(!this.cap.isSubmitWait) {
-					e.preventDefault();
-					$popup('upload', 'reCaptcha...', true);
-					this.cap.isSubmitWait = true;
-					this.refreshCap();
-					return;
-				}
-				this.cap.isSubmitWait = false;
-			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				e.preventDefault();
 				$popup('upload', Lng.subjHasTrip[lang]);
