@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'b6c3535';
+  var commit = 'a411258';
 
   var defaultCfg = {
     disabled: 0,
@@ -6943,7 +6943,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     collapseThr: ['Свернуть тред', 'Collapse thread', 'Згорнути тред'],
     hiddenThr: ['Скрытый тред', 'Hidden thread', 'Схований тред'],
     hideForm: ['Скрыть форму', 'Hide form', 'Сховати форму'],
-    noSage: ['Без сажи', 'No sage', 'Без сажі'],
+    enableSage: ['Нажмите, чтобы включить сажу', 'Click to enable sage', 'Натисніть, щоб увімкнути сажу'],
+    disableSage: ['САЖА включена! Нажмите, чтобы отключить', 'SAGE enabled! Click to disable', 'САЖА ввімкнена! Натисніть, щоб вимкнути'],
     postsOmitted: ['Пропущено ответов: ', 'Posts omitted: ', 'Пропущено відповідей: '],
     newPost: [['новый пост', 'новых поста', 'новых постов'], ['new post', 'new posts', 'new posts'], ['новий пост', 'нових пости', 'нових постів']],
     youReplies: [['ответ Вам', 'ответа Вам', 'ответов Вам'], ['reply to You', 'replies to You', 'replies to You'], ['відповідь Вам', 'відповіді Вам', 'відповідей Вам']],
@@ -16685,7 +16686,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var isSage = Cfg.sageReply;
         this.sageBtn.style.opacity = isSage ? '1' : '.3';
-        this.sageBtn.title = isSage ? 'SAGE!' : Lng.noSage[lang];
+        this.sageBtn.title = isSage ? Lng.disableSage[lang] : Lng.enableSage[lang];
 
         if (this.mail.type === 'text') {
           this.mail.value = isSage ? 'sage' : aib._4chan ? 'noko' : '';

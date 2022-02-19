@@ -1477,10 +1477,14 @@ const Lng = {
 		'Скрыть форму',
 		'Hide form',
 		'Сховати форму'],
-	noSage: [
-		'Без сажи',
-		'No sage',
-		'Без сажі'],
+	enableSage: [
+		'Нажмите, чтобы включить сажу',
+		'Click to enable sage',
+		'Натисніть, щоб увімкнути сажу'],
+	disableSage: [
+		'САЖА включена! Нажмите, чтобы отключить',
+		'SAGE enabled! Click to disable',
+		'САЖА ввімкнена! Натисніть, щоб вимкнути'],
 	postsOmitted: [
 		'Пропущено ответов: ',
 		'Posts omitted: ',
