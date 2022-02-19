@@ -89,7 +89,7 @@ class AbstractPost {
 				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
-					$pd(e);
+					e.preventDefault();
 					return;
 				}
 				// Check if the link is not an image container
@@ -97,12 +97,12 @@ class AbstractPost {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
-						$pd(e);
+						e.preventDefault();
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
-						$pd(e);
+						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotedText = deWindow.getSelection().toString();
@@ -135,7 +135,7 @@ class AbstractPost {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
 						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
-						$pd(e);
+						e.preventDefault();
 					}
 				} else if(Cfg.expandImgs !== 0) {
 					this._clickImage(el, e);
@@ -176,7 +176,7 @@ class AbstractPost {
 				// Makaba: Click on "truncated message" link
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);
-					$pd(e);
+					e.preventDefault();
 					e.stopPropagation();
 				}
 			}
@@ -296,7 +296,7 @@ class AbstractPost {
 			} else { // Mouseover - we need to show a preview for this link
 				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 		}
 	}
@@ -352,7 +352,7 @@ class AbstractPost {
 			return;
 		}
 		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	_clickMenu(el, e) {
@@ -995,7 +995,7 @@ Post.Note = class PostNote {
 		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
-				$pd(e);
+				e.preventDefault();
 				this._post.setUserVisib(!this._post.isHidden);
 			};
 			text = (this._post.title ? `(${ this._post.title }) ` : '') +

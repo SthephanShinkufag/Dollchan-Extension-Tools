@@ -206,10 +206,6 @@ function toggleAttr(el, name, value, isAdd) {
 	}
 }
 
-function $pd(e) {
-	e.preventDefault();
-}
-
 function $isEmpty(obj) {
 	for(const i in obj) {
 		if($hasProp(obj, i)) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'e7b9d70';
+const commit = '294b5ed';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1905,10 +1905,6 @@ function toggleAttr(el, name, value, isAdd) {
 	}
 }
 
-function $pd(e) {
-	e.preventDefault();
-}
-
 function $isEmpty(obj) {
 	for(const i in obj) {
 		if($hasProp(obj, i)) {
@@ -3163,7 +3159,7 @@ const Panel = Object.create({
 				break;
 			default: return;
 			}
-			$pd(e);
+			e.preventDefault();
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
@@ -3316,7 +3312,7 @@ function makeDraggable(name, win, head) {
 				docBody.addEventListener('mouseleave', this);
 				docBody.addEventListener('mousemove', this);
 				docBody.addEventListener('mouseup', this);
-				$pd(e);
+				e.preventDefault();
 				return;
 			case 'mousemove': {
 				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
@@ -3384,7 +3380,7 @@ class WinResizer {
 			this.win.setAttribute('style', val);
 			docBody.addEventListener('mousemove', this);
 			docBody.addEventListener('mouseup', this);
-			$pd(e);
+			e.preventDefault();
 			return;
 		case 'mousemove':
 			if(this.vertical) {
@@ -3656,7 +3652,7 @@ function showVideosWindow(body) {
 						(exp ? 562 : +Cfg.YTubeHeigh + 82) }px`;
 				}
 				}
-				$pd(e);
+				e.preventDefault();
 				return;
 			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
@@ -3673,7 +3669,7 @@ function showVideosWindow(body) {
 				el.classList.add('de-current');
 				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
 			}
-			$pd(e);
+			e.preventDefault();
 		}
 	}, true);
 
@@ -3988,7 +3984,7 @@ function showFavoritesWindow(body, favObj) {
 				el.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
 				favObj[entriesEl.getAttribute('de-host')][entriesEl.getAttribute('de-board')].hide = isHide;
 				saveFavorites(favObj);
-				$pd(e);
+				e.preventDefault();
 				entriesEl.classList.toggle('de-fav-entries-hide');
 			}
 			}
@@ -4411,7 +4407,7 @@ const CfgWindow = {
 						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
 							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
 				}
-				$pd(e);
+				e.preventDefault();
 			}, true);
 		}));
 
@@ -4651,7 +4647,7 @@ const CfgWindow = {
 				PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
-				$pd(e);
+				e.preventDefault();
 				if($id('de-popup-edit-hotkeys')) {
 					return;
 				}
@@ -4741,7 +4737,7 @@ const CfgWindow = {
 		if(tag === 'A') {
 			if(el.id === 'de-btn-spell-add') {
 				switch(e.type) {
-				case 'click': $pd(e); break;
+				case 'click': e.preventDefault(); break;
 				case 'mouseover': el.odelay = setTimeout(() => addMenu(el), Cfg.linksOver); break;
 				case 'mouseout': clearTimeout(el.odelay);
 				}
@@ -4750,13 +4746,13 @@ const CfgWindow = {
 			if(type === 'click') {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
-					$pd(e);
+					e.preventDefault();
 					saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
 					Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
-					$pd(e);
+					e.preventDefault();
 					if(!confirm(Lng.clear[lang] + '?')) {
 						return;
 					}
@@ -5610,7 +5606,7 @@ const HotKeys = {
 			}
 			}
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	},
 	pauseHotKeys() {
@@ -5924,7 +5920,7 @@ class KeyEditListener {
 			}
 		}
 		}
-		$pd(e);
+		e.preventDefault();
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):
@@ -8822,7 +8818,7 @@ class PostForm {
 			txtaEl.focus();
 			txtaEl.scrollTop = scrtop;
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	refreshCap(isErr = false) {
@@ -8869,7 +8865,7 @@ class PostForm {
 			this.setReply(false, false);
 		}
 		if(e) {
-			$pd(e);
+			e.preventDefault();
 		}
 	}
 	showQuickReply(post, pNum, isCloseReply, isNumClick, isNoLink = false) {
@@ -8967,7 +8963,7 @@ class PostForm {
 			aib.disableRedirection(el);
 		}
 		this.form.onsubmit = e => {
-			$pd(e);
+			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true).then(checkUpload)
 				.catch(err => $popup('upload', getErrorMessage(err)));
@@ -9008,7 +9004,7 @@ class PostForm {
 		this.subm.addEventListener('click', e => {
 			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
 				if(!this.cap.isSubmitWait) {
-					$pd(e);
+					e.preventDefault();
 					$popup('upload', 'reCaptcha...', true);
 					this.cap.isSubmitWait = true;
 					this.refreshCap();
@@ -9017,7 +9013,7 @@ class PostForm {
 				this.cap.isSubmitWait = false;
 			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
-				$pd(e);
+				e.preventDefault();
 				$popup('upload', Lng.subjHasTrip[lang]);
 				return;
 			}
@@ -9068,19 +9064,15 @@ class PostForm {
 			}
 		});
 		// Add image from clipboard to file inputs on Ctrl+V
-		el.addEventListener('paste', e => {
-			if('clipboardData' in e) {
-				for(const item of e.clipboardData.items) {
-					if(item.kind === 'file') {
-						const inputs = this.files._inputs;
-						for(let i = 0, len = inputs.length; i < len; ++i) {
-							const input = inputs[i];
-							if(!input.hasFile) {
-								const file = item.getAsFile();
-								input._addUrlFile(URL.createObjectURL(file), file);
-								break;
-							}
-						}
+		el.addEventListener('paste', async e => {
+			const files = e?.clipboardData?.files;
+			for(const file of files) {
+				const inputs = this.files._inputs;
+				for(let i = 0, len = inputs.length; i < len; ++i) {
+					const input = inputs[i];
+					if(!input.hasFile) {
+						await input.addUrlFile(URL.createObjectURL(file), file);
+						break;
 					}
 				}
 			}
@@ -9105,7 +9097,7 @@ class PostForm {
 				case 'mousedown':
 					docBody.addEventListener('mousemove', this);
 					docBody.addEventListener('mouseup', this);
-					$pd(e);
+					e.preventDefault();
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();
@@ -9762,6 +9754,49 @@ class FileInput {
 			$after(this._input, this._utils);
 		}
 	}
+	async addUrlFile(url, file = null) {
+		if(!url) {
+			return Promise.reject(new Error('URL is null'));
+		}
+		$popup('file-loading', Lng.loading[lang], true);
+		return await ContentLoader.loadImgData(url, false).then(data => {
+			if(file) {
+				deWindow.URL.revokeObjectURL(url);
+			}
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			this._isTxtEditable = this._isTxtEditName = false;
+			let name = file ? file.name : getFileName(url);
+			const type = file && file.type || getFileType(name);
+			if(!type || name.includes('?')) {
+				let ext;
+				switch((data[0] << 8) | data[1]) {
+				case 0xFFD8: ext = 'jpg'; break;
+				case 0x8950: ext = 'png'; break;
+				case 0x4749: ext = 'gif'; break;
+				case 0x1A45: ext = 'webm'; break;
+				default: ext = '';
+				}
+				if(ext) {
+					name = name.split('?').shift() + '.' + ext;
+				}
+			}
+			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
+			if(!file) {
+				file = new Blob([data], { type: this.imgFile.type });
+				file.name = name;
+			}
+			this._parent._files[this._parent._inputs.indexOf(this)] = file;
+			DollchanAPI.notify('filechange', this._parent._files);
+			if(FileInput._isThumbMode) {
+				$hide(this._txtWrap);
+			}
+			this._onFileChange(true);
+		});
+	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
 		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
@@ -9913,13 +9948,13 @@ class FileInput {
 					});
 					return;
 				} else {
-					this._addUrlFile(this._txtInput.value);
+					this.addUrlFile(this._txtInput.value);
 				}
 			} else if(el === this._txtInput && !this._isTxtEditable) {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 			return;
 		}
@@ -9948,12 +9983,12 @@ class FileInput {
 				}
 				DollchanAPI.notify('filechange', this._parent._files);
 			} else {
-				this._addUrlFile(dt.getData('text/plain'));
+				this.addUrlFile(dt.getData('text/plain'));
 			}
 			if(FileInput._isThumbMode) {
 				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 		}
 		}
@@ -10021,49 +10056,6 @@ class FileInput {
 	}
 	_addThumbTitle(name, size) {
 		this._thumb.firstChild.firstChild.title = `${ name }, ${ (size / 1024).toFixed(2) }KB`;
-	}
-	_addUrlFile(url, file = null) {
-		if(!url) {
-			return Promise.reject(new Error('URL is null'));
-		}
-		$popup('file-loading', Lng.loading[lang], true);
-		return ContentLoader.loadImgData(url, false).then(data => {
-			if(file) {
-				deWindow.URL.revokeObjectURL(url);
-			}
-			if(!data) {
-				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-				return;
-			}
-			closePopup('file-loading');
-			this._isTxtEditable = this._isTxtEditName = false;
-			let name = file ? file.name : getFileName(url);
-			const type = file && file.type || getFileType(name);
-			if(!type || name.includes('?')) {
-				let ext;
-				switch((data[0] << 8) | data[1]) {
-				case 0xFFD8: ext = 'jpg'; break;
-				case 0x8950: ext = 'png'; break;
-				case 0x4749: ext = 'gif'; break;
-				case 0x1A45: ext = 'webm'; break;
-				default: ext = '';
-				}
-				if(ext) {
-					name = name.split('?').shift() + '.' + ext;
-				}
-			}
-			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
-			if(!file) {
-				file = new Blob([data], { type: this.imgFile.type });
-				file.name = name;
-			}
-			this._parent._files[this._parent._inputs.indexOf(this)] = file;
-			DollchanAPI.notify('filechange', this._parent._files);
-			if(FileInput._isThumbMode) {
-				$hide(this._txtWrap);
-			}
-			this._onFileChange(true);
-		});
 	}
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
@@ -10165,7 +10157,7 @@ class FileInput {
 	}
 	_toggleDragEvents(el, isAdd) {
 		const name = isAdd ? 'addEventListener' : 'removeEventListener';
-		el[name]('dragover', $pd);
+		el[name]('dragover', e => e.preventDefault());
 		el[name]('dragenter', this);
 		el[name]('dragleave', this);
 		el[name]('drop', this);
@@ -10233,7 +10225,7 @@ class Captcha {
 		}
 		case 'focus': this.updateOutdated();
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	initCapPromise() {
@@ -10477,7 +10469,7 @@ class AbstractPost {
 				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
-					$pd(e);
+					e.preventDefault();
 					return;
 				}
 				// Check if the link is not an image container
@@ -10485,12 +10477,12 @@ class AbstractPost {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
-						$pd(e);
+						e.preventDefault();
 						e.stopPropagation();
 					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
-						$pd(e);
+						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotedText = deWindow.getSelection().toString();
@@ -10523,7 +10515,7 @@ class AbstractPost {
 						const { videos } = this;
 						videos.currentLink.classList.add('de-current');
 						videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
-						$pd(e);
+						e.preventDefault();
 					}
 				} else if(Cfg.expandImgs !== 0) {
 					this._clickImage(el, e);
@@ -10564,7 +10556,7 @@ class AbstractPost {
 				// Makaba: Click on "truncated message" link
 				if(el.classList.contains('expand-large-comment')) {
 					this._getFullMsg(el, false);
-					$pd(e);
+					e.preventDefault();
 					e.stopPropagation();
 				}
 			}
@@ -10684,7 +10676,7 @@ class AbstractPost {
 			} else { // Mouseover - we need to show a preview for this link
 				this._linkDelay = setTimeout(() => (this.kid = Pview.showPview(this, el)), Cfg.linksOver);
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 		}
 	}
@@ -10740,7 +10732,7 @@ class AbstractPost {
 			return;
 		}
 		image.expandImg((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	_clickMenu(el, e) {
@@ -11383,7 +11375,7 @@ Post.Note = class PostNote {
 		if(this.isHideThr) {
 			this._aEl.onmouseover = this._aEl.onmouseout = e => this._post.hideContent(e.type === 'mouseout');
 			this._aEl.onclick = e => {
-				$pd(e);
+				e.preventDefault();
 				this._post.setUserVisib(!this._post.isHidden);
 			};
 			text = (this._post.title ? `(${ this._post.title }) ` : '') +
@@ -12085,7 +12077,7 @@ class ImagesViewer {
 		default: // 'wheel' event
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
-		$pd(e);
+		e.preventDefault();
 	}
 	navigate(isForward, isVideoOnly = false) {
 		let { data } = this;
@@ -12355,7 +12347,7 @@ class ExpandableImage {
 		$show(this.el.parentNode);
 		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 		if(e) {
-			$pd(e);
+			e.preventDefault();
 			if(this.inPview) {
 				this.sendCloseEvent(e, true);
 			}
@@ -13818,7 +13810,7 @@ class Thread {
 		return post;
 	}
 	handleEvent(e) {
-		$pd(e);
+		e.preventDefault();
 		const el = fixEventEl(e.target);
 		const elClass = el.classList[0];
 		const nextThr = this.next;
@@ -14910,7 +14902,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		forceLoad(e) {
 			if(e) {
-				$pd(e);
+				e.preventDefault();
 			}
 			Post.clearMarks();
 			if(enabled && paused) {
@@ -15075,9 +15067,9 @@ class DelForm {
 		if(Cfg.ajaxPosting && !localData) {
 			const delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 			if(delBtn) {
-				el.onsubmit = $pd;
+				el.onsubmit = e => e.preventDefault();
 				delBtn.onclick = e => {
-					$pd(e);
+					e.preventDefault();
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete)

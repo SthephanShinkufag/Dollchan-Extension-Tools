@@ -174,7 +174,7 @@ class ImagesViewer {
 		default: // 'wheel' event
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
-		$pd(e);
+		e.preventDefault();
 	}
 	navigate(isForward, isVideoOnly = false) {
 		let { data } = this;
@@ -444,7 +444,7 @@ class ExpandableImage {
 		$show(this.el.parentNode);
 		(aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 		if(e) {
-			$pd(e);
+			e.preventDefault();
 			if(this.inPview) {
 				this.sendCloseEvent(e, true);
 			}

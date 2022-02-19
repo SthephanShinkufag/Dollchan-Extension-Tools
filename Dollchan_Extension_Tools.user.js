@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'e7b9d70';
+  var commit = '294b5ed';
 
   var defaultCfg = {
     disabled: 0,
@@ -7206,10 +7206,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }
   }
 
-  function $pd(e) {
-    e.preventDefault();
-  }
-
   function $isEmpty(obj) {
     for (var i in obj) {
       if ($hasProp(obj, i)) {
@@ -7912,15 +7908,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }
 
   function _readFile() {
-    _readFile = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(file) {
+    _readFile = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(file) {
       var asText,
-          _args28 = arguments;
-      return regeneratorRuntime.wrap(function _callee18$(_context28) {
+          _args30 = arguments;
+      return regeneratorRuntime.wrap(function _callee20$(_context30) {
         while (1) {
-          switch (_context28.prev = _context28.next) {
+          switch (_context30.prev = _context30.next) {
             case 0:
-              asText = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : false;
-              return _context28.abrupt("return", new Promise(function (resolve) {
+              asText = _args30.length > 1 && _args30[1] !== undefined ? _args30[1] : false;
+              return _context30.abrupt("return", new Promise(function (resolve) {
                 var fr = new FileReader(); 
 
                 fr.onload = function (e) {
@@ -7938,10 +7934,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 2:
             case "end":
-              return _context28.stop();
+              return _context30.stop();
           }
         }
-      }, _callee18);
+      }, _callee20);
     }));
     return _readFile.apply(this, arguments);
   }
@@ -8000,39 +7996,39 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
   function _getStored() {
-    _getStored = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(id) {
+    _getStored = _asyncToGenerator( regeneratorRuntime.mark(function _callee21(id) {
       var value;
-      return regeneratorRuntime.wrap(function _callee19$(_context29) {
+      return regeneratorRuntime.wrap(function _callee21$(_context31) {
         while (1) {
-          switch (_context29.prev = _context29.next) {
+          switch (_context31.prev = _context31.next) {
             case 0:
               if (!nav.hasNewGM) {
-                _context29.next = 7;
+                _context31.next = 7;
                 break;
               }
 
-              _context29.next = 3;
+              _context31.next = 3;
               return GM.getValue(id);
 
             case 3:
-              value = _context29.sent;
-              return _context29.abrupt("return", value);
+              value = _context31.sent;
+              return _context31.abrupt("return", value);
 
             case 7:
               if (!nav.hasOldGM) {
-                _context29.next = 11;
+                _context31.next = 11;
                 break;
               }
 
-              return _context29.abrupt("return", GM_getValue(id));
+              return _context31.abrupt("return", GM_getValue(id));
 
             case 11:
               if (!nav.hasWebStorage) {
-                _context29.next = 15;
+                _context31.next = 15;
                 break;
               }
 
-              return _context29.abrupt("return", new Promise(function (resolve) {
+              return _context31.abrupt("return", new Promise(function (resolve) {
                 return chrome.storage.local.get(id, function (obj) {
                   if (Object.keys(obj).length) {
                     resolve(obj[id]);
@@ -8046,21 +8042,21 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 15:
               if (!nav.hasPrestoStorage) {
-                _context29.next = 17;
+                _context31.next = 17;
                 break;
               }
 
-              return _context29.abrupt("return", prestoStorage.getItem(id));
+              return _context31.abrupt("return", prestoStorage.getItem(id));
 
             case 17:
-              return _context29.abrupt("return", locStorage[id]);
+              return _context31.abrupt("return", locStorage[id]);
 
             case 18:
             case "end":
-              return _context29.stop();
+              return _context31.stop();
           }
         }
-      }, _callee19);
+      }, _callee21);
     }));
     return _getStored.apply(this, arguments);
   }
@@ -8110,45 +8106,45 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
   function _getStoredObj() {
-    _getStoredObj = _asyncToGenerator( regeneratorRuntime.mark(function _callee20(id) {
-      return regeneratorRuntime.wrap(function _callee20$(_context30) {
+    _getStoredObj = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(id) {
+      return regeneratorRuntime.wrap(function _callee22$(_context32) {
         while (1) {
-          switch (_context30.prev = _context30.next) {
+          switch (_context32.prev = _context32.next) {
             case 0:
-              _context30.t1 = JSON;
-              _context30.next = 3;
+              _context32.t1 = JSON;
+              _context32.next = 3;
               return getStored(id);
 
             case 3:
-              _context30.t2 = _context30.sent;
+              _context32.t2 = _context32.sent;
 
-              if (_context30.t2) {
-                _context30.next = 6;
+              if (_context32.t2) {
+                _context32.next = 6;
                 break;
               }
 
-              _context30.t2 = '{}';
+              _context32.t2 = '{}';
 
             case 6:
-              _context30.t3 = _context30.t2;
-              _context30.t0 = _context30.t1.parse.call(_context30.t1, _context30.t3);
+              _context32.t3 = _context32.t2;
+              _context32.t0 = _context32.t1.parse.call(_context32.t1, _context32.t3);
 
-              if (_context30.t0) {
-                _context30.next = 10;
+              if (_context32.t0) {
+                _context32.next = 10;
                 break;
               }
 
-              _context30.t0 = {};
+              _context32.t0 = {};
 
             case 10:
-              return _context30.abrupt("return", _context30.t0);
+              return _context32.abrupt("return", _context32.t0);
 
             case 11:
             case "end":
-              return _context30.stop();
+              return _context32.stop();
           }
         }
-      }, _callee20);
+      }, _callee22);
     }));
     return _getStoredObj.apply(this, arguments);
   }
@@ -8189,17 +8185,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
   function _readCfg() {
-    _readCfg = _asyncToGenerator( regeneratorRuntime.mark(function _callee21() {
+    _readCfg = _asyncToGenerator( regeneratorRuntime.mark(function _callee23() {
       var obj, val, isGlobal;
-      return regeneratorRuntime.wrap(function _callee21$(_context31) {
+      return regeneratorRuntime.wrap(function _callee23$(_context33) {
         while (1) {
-          switch (_context31.prev = _context31.next) {
+          switch (_context33.prev = _context33.next) {
             case 0:
-              _context31.next = 2;
+              _context33.next = 2;
               return getStoredObj('DESU_Config');
 
             case 2:
-              val = _context31.sent;
+              val = _context33.sent;
 
               if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
                 isGlobal = nav.hasGlobalStorage && !!val.global;
@@ -8313,10 +8309,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 25:
             case "end":
-              return _context31.stop();
+              return _context33.stop();
           }
         }
-      }, _callee21);
+      }, _callee23);
     }));
     return _readCfg.apply(this, arguments);
   }
@@ -9028,7 +9024,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               return;
           }
 
-          $pd(e);
+          e.preventDefault();
           return;
 
         case 'mouseover':
@@ -9234,7 +9230,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             docBody.addEventListener('mouseleave', this);
             docBody.addEventListener('mousemove', this);
             docBody.addEventListener('mouseup', this);
-            $pd(e);
+            e.preventDefault();
             return;
 
           case 'mousemove':
@@ -9324,7 +9320,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             this.win.setAttribute('style', val);
             docBody.addEventListener('mousemove', this);
             docBody.addEventListener('mouseup', this);
-            $pd(e);
+            e.preventDefault();
             return;
 
           case 'mousemove':
@@ -9579,7 +9575,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
           }
 
-          $pd(e);
+          e.preventDefault();
           return;
         } else if (!el.classList.contains('de-video-link')) {
           pByNum.get(+el.getAttribute('de-num')).selectAndScrollTo();
@@ -9598,7 +9594,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
         }
 
-        $pd(e);
+        e.preventDefault();
       }
     }, true); 
 
@@ -9993,7 +9989,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               el.innerHTML = _isHide ? '&#x25BC' : '&#x25B2';
               favObj[_entriesEl.getAttribute('de-host')][_entriesEl.getAttribute('de-board')].hide = _isHide;
               saveFavorites(favObj);
-              $pd(e);
+              e.preventDefault();
 
               _entriesEl.classList.toggle('de-fav-entries-hide');
             }
@@ -10664,7 +10660,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                       }), "DE_".concat(d.getFullYear()).concat(pad2(d.getMonth() + 1)).concat(pad2(d.getDate()), "_").concat(pad2(d.getHours())).concat(pad2(d.getMinutes()), "_").concat(name.join('+'), ".json"));
                     }
 
-                    $pd(e);
+                    e.preventDefault();
 
                   case 38:
                   case "end":
@@ -11023,7 +11019,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             break;
 
           case 'de-cfg-button-keys':
-            $pd(e);
+            e.preventDefault();
 
             if ($id('de-popup-edit-hotkeys')) {
               return;
@@ -11164,7 +11160,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (el.id === 'de-btn-spell-add') {
           switch (e.type) {
             case 'click':
-              $pd(e);
+              e.preventDefault();
               break;
 
             case 'mouseover':
@@ -11183,14 +11179,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (type === 'click') {
           switch (el.id) {
             case 'de-btn-spell-apply':
-              $pd(e);
+              e.preventDefault();
               saveCfg('hideBySpell', 1);
               $q('input[info="hideBySpell"]').checked = true;
               Spells.toggle();
               break;
 
             case 'de-btn-spell-clear':
-              $pd(e);
+              e.preventDefault();
 
               if (!confirm(Lng.clear[lang] + '?')) {
                 return;
@@ -11987,7 +11983,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }
 
-      $pd(e);
+      e.preventDefault();
       e.stopPropagation();
     },
     pauseHotKeys: function pauseHotKeys() {
@@ -12385,7 +12381,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             }
         }
 
-        $pd(e);
+        e.preventDefault();
       }
     }], [{
       key: "getEditMarkup",
@@ -16566,7 +16562,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           txtaEl.scrollTop = scrtop;
         }
 
-        $pd(e);
+        e.preventDefault();
         e.stopPropagation();
       }
     }, {
@@ -16632,7 +16628,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         if (e) {
-          $pd(e);
+          e.preventDefault();
         }
       }
     }, {
@@ -16723,7 +16719,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         this.form.onsubmit = function (e) {
-          $pd(e);
+          e.preventDefault();
           $popup('upload', Lng.sending[lang], true);
           html5Submit(_this28.form, _this28.subm, true).then(checkUpload)["catch"](function (err) {
             return $popup('upload', getErrorMessage(err));
@@ -16790,7 +16786,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         this.subm.addEventListener('click', function (e) {
           if (Cfg.warnSubjTrip && _this31.subj && /#.|##./.test(_this31.subj.value)) {
-            $pd(e);
+            e.preventDefault();
             $popup('upload', Lng.subjHasTrip[lang]);
             return;
           }
@@ -16857,33 +16853,73 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         }); 
 
-        el.addEventListener('paste', function (e) {
-          if ('clipboardData' in e) {
-            for (var _iterator20 = _createForOfIteratorHelperLoose(e.clipboardData.items), _step20; !(_step20 = _iterator20()).done;) {
-              var item = _step20.value;
+        el.addEventListener('paste', function () {
+          var _ref20 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(e) {
+            var _e$clipboardData;
 
-              if (item.kind === 'file') {
-                var inputs = _this32.files._inputs;
+            var files, _iterator20, _step20, file, inputs, i, len, input;
 
-                for (var i = 0, len = inputs.length; i < len; ++i) {
-                  var input = inputs[i];
+            return regeneratorRuntime.wrap(function _callee12$(_context14) {
+              while (1) {
+                switch (_context14.prev = _context14.next) {
+                  case 0:
+                    files = e === null || e === void 0 ? void 0 : (_e$clipboardData = e.clipboardData) === null || _e$clipboardData === void 0 ? void 0 : _e$clipboardData.files;
+                    _iterator20 = _createForOfIteratorHelperLoose(files);
 
-                  if (!input.hasFile) {
-                    var file = item.getAsFile();
+                  case 2:
+                    if ((_step20 = _iterator20()).done) {
+                      _context14.next = 17;
+                      break;
+                    }
 
-                    input._addUrlFile(URL.createObjectURL(file), file);
+                    file = _step20.value;
+                    inputs = _this32.files._inputs;
+                    i = 0, len = inputs.length;
 
+                  case 6:
+                    if (!(i < len)) {
+                      _context14.next = 15;
+                      break;
+                    }
+
+                    input = inputs[i];
+
+                    if (input.hasFile) {
+                      _context14.next = 12;
+                      break;
+                    }
+
+                    _context14.next = 11;
+                    return input.addUrlFile(URL.createObjectURL(file), file);
+
+                  case 11:
+                    return _context14.abrupt("break", 15);
+
+                  case 12:
+                    ++i;
+                    _context14.next = 6;
                     break;
-                  }
+
+                  case 15:
+                    _context14.next = 2;
+                    break;
+
+                  case 17:
+                  case "end":
+                    return _context14.stop();
                 }
               }
-            }
-          }
-        }); 
+            }, _callee12);
+          }));
+
+          return function (_x9) {
+            return _ref20.apply(this, arguments);
+          };
+        }()); 
 
         if (nav.isFirefox || nav.isWebkit) {
-          el.addEventListener('mouseup', function (_ref20) {
-            var target = _ref20.target;
+          el.addEventListener('mouseup', function (_ref21) {
+            var target = _ref21.target;
             var s = target.style;
             var width = s.width,
                 height = s.height;
@@ -16903,7 +16939,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               case 'mousedown':
                 docBody.addEventListener('mousemove', this);
                 docBody.addEventListener('mouseup', this);
-                $pd(e);
+                e.preventDefault();
                 return;
 
               case 'mousemove':
@@ -16965,8 +17001,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         makeDraggable('reply', this.qArea, $aBegin(this.qArea, "<div class=\"de-win-head\">\n\t\t\t<span class=\"de-win-title\"></span>\n\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t<svg class=\"de-win-btn-clear\"><use xlink:href=\"#de-symbol-unavail\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class=\"de-resizer de-resizer-top\"></div>\n\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t<div class=\"de-resizer de-resizer-right\"></div>\n\t\t<div class=\"de-resizer de-resizer-bottom\"></div>"));
         var buttons = $q('.de-win-buttons', this.qArea);
 
-        buttons.onmouseover = function (_ref21) {
-          var target = _ref21.target;
+        buttons.onmouseover = function (_ref22) {
+          var target = _ref22.target;
           var el = target.parentNode;
 
           switch (fixEventEl(target).classList[0]) {
@@ -16983,10 +17019,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         };
 
-        var _ref22 = _toConsumableArray(buttons.children),
-            clearBtn = _ref22[0],
-            toggleBtn = _ref22[1],
-            closeBtn = _ref22[2];
+        var _ref23 = _toConsumableArray(buttons.children),
+            clearBtn = _ref23[0],
+            toggleBtn = _ref23[1],
+            closeBtn = _ref23[2];
 
         clearBtn.onclick = function () {
           saveCfg('sageReply', 0);
@@ -17261,28 +17297,28 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     pr.refreshCap();
   }
 
-  function checkDelete(_x9) {
+  function checkDelete(_x10) {
     return _checkDelete.apply(this, arguments);
   } 
 
 
   function _checkDelete() {
-    _checkDelete = _asyncToGenerator( regeneratorRuntime.mark(function _callee22(data) {
+    _checkDelete = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(data) {
       var err, els, threads, isThr, i, len, el;
-      return regeneratorRuntime.wrap(function _callee22$(_context32) {
+      return regeneratorRuntime.wrap(function _callee24$(_context34) {
         while (1) {
-          switch (_context32.prev = _context32.next) {
+          switch (_context34.prev = _context34.next) {
             case 0:
               err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
 
               if (!err) {
-                _context32.next = 5;
+                _context34.next = 5;
                 break;
               }
 
               $popup('delete', Lng.errDelete[lang] + ':\n' + err);
               updater.sendErrNotif();
-              return _context32.abrupt("return");
+              return _context34.abrupt("return");
 
             case 5:
               els = $Q("[de-form] ".concat(aib.qRPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
@@ -17299,22 +17335,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               if (!isThr) {
-                _context32.next = 15;
+                _context34.next = 15;
                 break;
               }
 
               Post.clearMarks();
-              _context32.next = 13;
+              _context34.next = 13;
               return Thread.first.loadNewPosts()["catch"](function (err) {
                 return infoLoadErrors(err);
               });
 
             case 13:
-              _context32.next = 17;
+              _context34.next = 17;
               break;
 
             case 15:
-              _context32.next = 17;
+              _context34.next = 17;
               return Promise.all(_toConsumableArray(threads).map(function (thr) {
                 return thr.loadPosts('new', false, false);
               }));
@@ -17324,10 +17360,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 18:
             case "end":
-              return _context32.stop();
+              return _context34.stop();
           }
         }
-      }, _callee22);
+      }, _callee24);
     }));
     return _checkDelete.apply(this, arguments);
   }
@@ -17357,9 +17393,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   function getFormElements(form, submitter) {
     var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, img, files, _j2, _jlen, dirname;
 
-    return regeneratorRuntime.wrap(function getFormElements$(_context14) {
+    return regeneratorRuntime.wrap(function getFormElements$(_context15) {
       while (1) {
-        switch (_context14.prev = _context14.next) {
+        switch (_context15.prev = _context15.next) {
           case 0:
             controls = $Q('button, input, keygen, object, select, textarea', form);
 
@@ -17371,7 +17407,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 3:
             if (!(i < len)) {
-              _context14.next = 65;
+              _context15.next = 65;
               break;
             }
 
@@ -17381,15 +17417,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             name = field.getAttribute('name');
 
             if (!($parent(field, 'DATALIST', form) || isFormElDisabled(field) || field !== submitter && (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
-              _context14.next = 10;
+              _context15.next = 10;
               break;
             }
 
-            return _context14.abrupt("continue", 62);
+            return _context15.abrupt("continue", 62);
 
           case 10:
             if (!(tagName === 'select')) {
-              _context14.next = 23;
+              _context15.next = 23;
               break;
             }
 
@@ -17398,18 +17434,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 13:
             if (!(j < jlen)) {
-              _context14.next = 21;
+              _context15.next = 21;
               break;
             }
 
             option = options[j];
 
             if (!(option.selected && !isFormElDisabled(option))) {
-              _context14.next = 18;
+              _context15.next = 18;
               break;
             }
 
-            _context14.next = 18;
+            _context15.next = 18;
             return {
               type: type,
               el: field,
@@ -17419,28 +17455,28 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 18:
             ++j;
-            _context14.next = 13;
+            _context15.next = 13;
             break;
 
           case 21:
-            _context14.next = 51;
+            _context15.next = 51;
             break;
 
           case 23:
             if (!(tagName === 'input')) {
-              _context14.next = 51;
+              _context15.next = 51;
               break;
             }
 
-            _context14.t0 = type;
-            _context14.next = _context14.t0 === 'image' ? 27 : _context14.t0 === 'checkbox' ? 28 : _context14.t0 === 'radio' ? 28 : _context14.t0 === 'file' ? 31 : 51;
+            _context15.t0 = type;
+            _context15.next = _context15.t0 === 'image' ? 27 : _context15.t0 === 'checkbox' ? 28 : _context15.t0 === 'radio' ? 28 : _context15.t0 === 'file' ? 31 : 51;
             break;
 
           case 27:
             throw new Error('input[type="image"] is not supported');
 
           case 28:
-            _context14.next = 30;
+            _context15.next = 30;
             return {
               type: type,
               el: field,
@@ -17449,13 +17485,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             };
 
           case 30:
-            return _context14.abrupt("continue", 62);
+            return _context15.abrupt("continue", 62);
 
           case 31:
             img = void 0;
 
             if (!(field.files.length > 0)) {
-              _context14.next = 43;
+              _context15.next = 43;
               break;
             }
 
@@ -17464,11 +17500,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 35:
             if (!(_j2 < _jlen)) {
-              _context14.next = 41;
+              _context15.next = 41;
               break;
             }
 
-            _context14.next = 38;
+            _context15.next = 38;
             return {
               name: name,
               type: type,
@@ -17478,20 +17514,20 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 38:
             ++_j2;
-            _context14.next = 35;
+            _context15.next = 35;
             break;
 
           case 41:
-            _context14.next = 50;
+            _context15.next = 50;
             break;
 
           case 43:
             if (!(field.obj && (img = field.obj.imgFile))) {
-              _context14.next = 48;
+              _context15.next = 48;
               break;
             }
 
-            _context14.next = 46;
+            _context15.next = 46;
             return {
               name: name,
               type: type,
@@ -17502,11 +17538,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             };
 
           case 46:
-            _context14.next = 50;
+            _context15.next = 50;
             break;
 
           case 48:
-            _context14.next = 50;
+            _context15.next = 50;
             return {
               el: field,
               name: fixName(name),
@@ -17515,15 +17551,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             };
 
           case 50:
-            return _context14.abrupt("continue", 62);
+            return _context15.abrupt("continue", 62);
 
           case 51:
             if (!(type === 'textarea')) {
-              _context14.next = 56;
+              _context15.next = 56;
               break;
             }
 
-            _context14.next = 54;
+            _context15.next = 54;
             return {
               type: type,
               el: field,
@@ -17532,11 +17568,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             };
 
           case 54:
-            _context14.next = 58;
+            _context15.next = 58;
             break;
 
           case 56:
-            _context14.next = 58;
+            _context15.next = 58;
             return {
               type: type,
               el: field,
@@ -17548,11 +17584,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             dirname = field.getAttribute('dirname');
 
             if (!dirname) {
-              _context14.next = 62;
+              _context15.next = 62;
               break;
             }
 
-            _context14.next = 62;
+            _context15.next = 62;
             return {
               el: field,
               name: fixName(dirname),
@@ -17562,12 +17598,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 62:
             ++i;
-            _context14.next = 3;
+            _context15.next = 3;
             break;
 
           case 65:
           case "end":
-            return _context14.stop();
+            return _context15.stop();
         }
       }
     }, _marked);
@@ -17580,14 +17616,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     var progress = $id('de-uploadprogress');
     var counterWrap = progress.nextElementSibling;
 
-    var _ref23 = _toConsumableArray(counterWrap.children),
-        counterEl = _ref23[0],
-        totalEl = _ref23[1],
-        speedEl = _ref23[2];
+    var _ref24 = _toConsumableArray(counterWrap.children),
+        counterEl = _ref24[0],
+        totalEl = _ref24[1],
+        speedEl = _ref24[2];
 
-    return function (_ref24) {
-      var total = _ref24.total,
-          i = _ref24.loaded;
+    return function (_ref25) {
+      var total = _ref25.total,
+          i = _ref25.loaded;
 
       if (!isInited) {
         progress.setAttribute('max', total);
@@ -17603,12 +17639,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     };
   }
 
-  function html5Submit(_x10, _x11) {
+  function html5Submit(_x11, _x12) {
     return _html5Submit.apply(this, arguments);
   }
 
   function _html5Submit() {
-    _html5Submit = _asyncToGenerator( regeneratorRuntime.mark(function _callee23(form, submitter) {
+    _html5Submit = _asyncToGenerator( regeneratorRuntime.mark(function _callee25(form, submitter) {
       var needProgress,
           data,
           hasFiles,
@@ -17626,20 +17662,20 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           cleanData,
           ajaxParams,
           url,
-          _args33 = arguments;
+          _args35 = arguments;
 
-      return regeneratorRuntime.wrap(function _callee23$(_context33) {
+      return regeneratorRuntime.wrap(function _callee25$(_context35) {
         while (1) {
-          switch (_context33.prev = _context33.next) {
+          switch (_context35.prev = _context35.next) {
             case 0:
-              needProgress = _args33.length > 2 && _args33[2] !== undefined ? _args33[2] : false;
+              needProgress = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
               data = new FormData();
               hasFiles = false;
               _iterator37 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
               if ((_step37 = _iterator37()).done) {
-                _context33.next = 30;
+                _context35.next = 30;
                 break;
               }
 
@@ -17647,15 +17683,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               val = value;
 
               if (!(name === 'de-file-txt')) {
-                _context33.next = 9;
+                _context35.next = 9;
                 break;
               }
 
-              return _context33.abrupt("continue", 28);
+              return _context35.abrupt("continue", 28);
 
             case 9:
               if (!(type === 'file')) {
-                _context33.next = 27;
+                _context35.next = 27;
                 break;
               }
 
@@ -17666,31 +17702,31 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               mime = value.type;
 
               if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
-                _context33.next = 26;
+                _context35.next = 26;
                 break;
               }
 
-              _context33.t0 = cleanFile;
-              _context33.next = 18;
+              _context35.t0 = cleanFile;
+              _context35.next = 18;
               return readFile(value);
 
             case 18:
-              _context33.t1 = _context33.sent.data;
-              _context33.t2 = el.obj ? el.obj.extraFile : null;
-              cleanData = (0, _context33.t0)(_context33.t1, _context33.t2);
+              _context35.t1 = _context35.sent.data;
+              _context35.t2 = el.obj ? el.obj.extraFile : null;
+              cleanData = (0, _context35.t0)(_context35.t1, _context35.t2);
 
               if (cleanData) {
-                _context33.next = 23;
+                _context35.next = 23;
                 break;
               }
 
-              return _context33.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
+              return _context35.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
             case 23:
               val = new File(cleanData, newFileName, {
                 type: mime
               });
-              _context33.next = 27;
+              _context35.next = 27;
               break;
 
             case 26:
@@ -17704,16 +17740,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               data.append(name, val);
 
             case 28:
-              _context33.next = 4;
+              _context35.next = 4;
               break;
 
             case 30:
               if (!aib.sendHTML5Post) {
-                _context33.next = 32;
+                _context35.next = 32;
                 break;
               }
 
-              return _context33.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
+              return _context35.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
             case 32:
               ajaxParams = {
@@ -17726,8 +17762,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               url = form.action;
-              return _context33.abrupt("return", $ajax(url, ajaxParams).then(function (_ref51) {
-                var text = _ref51.responseText;
+              return _context35.abrupt("return", $ajax(url, ajaxParams).then(function (_ref52) {
+                var text = _ref52.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text);
               })["catch"](function (err) {
                 return Promise.reject(err);
@@ -17735,10 +17771,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 36:
             case "end":
-              return _context33.stop();
+              return _context35.stop();
           }
         }
-      }, _callee23);
+      }, _callee25);
     }));
     return _html5Submit.apply(this, arguments);
   }
@@ -18015,22 +18051,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       this._thumb = null;
       this._utils = $add("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
 
-      var _ref25 = _toConsumableArray(this._utils.children);
+      var _ref26 = _toConsumableArray(this._utils.children);
 
-      this._btnRar = _ref25[0];
-      this._btnSpoil = _ref25[1];
-      this._btnTxt = _ref25[2];
-      this._btnRen = _ref25[3];
-      this._btnDel = _ref25[4];
+      this._btnRar = _ref26[0];
+      this._btnSpoil = _ref26[1];
+      this._btnTxt = _ref26[2];
+      this._btnRen = _ref26[3];
+      this._btnDel = _ref26[4];
 
       this._utils.addEventListener('click', this);
 
       this._txtWrap = $add("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
 
-      var _ref26 = _toConsumableArray(this._txtWrap.children);
+      var _ref27 = _toConsumableArray(this._txtWrap.children);
 
-      this._txtInput = _ref26[0];
-      this._txtAddBtn = _ref26[1];
+      this._txtInput = _ref27[0];
+      this._txtAddBtn = _ref27[1];
 
       this._txtWrap.addEventListener('click', this);
 
@@ -18061,6 +18097,114 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }
 
     _createClass(FileInput, [{
+      key: "addUrlFile",
+      value: function () {
+        var _addUrlFile = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(url) {
+          var _this35 = this;
+
+          var file,
+              _args16 = arguments;
+          return regeneratorRuntime.wrap(function _callee13$(_context16) {
+            while (1) {
+              switch (_context16.prev = _context16.next) {
+                case 0:
+                  file = _args16.length > 1 && _args16[1] !== undefined ? _args16[1] : null;
+
+                  if (url) {
+                    _context16.next = 3;
+                    break;
+                  }
+
+                  return _context16.abrupt("return", Promise.reject(new Error('URL is null')));
+
+                case 3:
+                  $popup('file-loading', Lng.loading[lang], true);
+                  _context16.next = 6;
+                  return ContentLoader.loadImgData(url, false).then(function (data) {
+                    if (file) {
+                      deWindow.URL.revokeObjectURL(url);
+                    }
+
+                    if (!data) {
+                      $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+                      return;
+                    }
+
+                    closePopup('file-loading');
+                    _this35._isTxtEditable = _this35._isTxtEditName = false;
+                    var name = file ? file.name : getFileName(url);
+                    var type = file && file.type || getFileType(name);
+
+                    if (!type || name.includes('?')) {
+                      var ext;
+
+                      switch (data[0] << 8 | data[1]) {
+                        case 0xFFD8:
+                          ext = 'jpg';
+                          break;
+
+                        case 0x8950:
+                          ext = 'png';
+                          break;
+
+                        case 0x4749:
+                          ext = 'gif';
+                          break;
+
+                        case 0x1A45:
+                          ext = 'webm';
+                          break;
+
+                        default:
+                          ext = '';
+                      }
+
+                      if (ext) {
+                        name = name.split('?').shift() + '.' + ext;
+                      }
+                    }
+
+                    _this35.imgFile = {
+                      data: data.buffer,
+                      name: name,
+                      type: type || getFileType(name)
+                    };
+
+                    if (!file) {
+                      file = new Blob([data], {
+                        type: _this35.imgFile.type
+                      });
+                      file.name = name;
+                    }
+
+                    _this35._parent._files[_this35._parent._inputs.indexOf(_this35)] = file;
+                    DollchanAPI.notify('filechange', _this35._parent._files);
+
+                    if (FileInput._isThumbMode) {
+                      $hide(_this35._txtWrap);
+                    }
+
+                    _this35._onFileChange(true);
+                  });
+
+                case 6:
+                  return _context16.abrupt("return", _context16.sent);
+
+                case 7:
+                case "end":
+                  return _context16.stop();
+              }
+            }
+          }, _callee13);
+        }));
+
+        function addUrlFile(_x13) {
+          return _addUrlFile.apply(this, arguments);
+        }
+
+        return addUrlFile;
+      }()
+    }, {
       key: "changeMode",
       value: function changeMode(showThumbs) {
         $toggle(this._input, !Cfg.fileInputs);
@@ -18142,7 +18286,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this35 = this;
+        var _this36 = this;
 
         var el = e.target;
         var thumb = this._thumb;
@@ -18163,17 +18307,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   for (var i = 0; i < allowedLen; ++i) {
                     FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
                       if (! --j) {
-                        _this35._removeFileHelper();
+                        _this36._removeFileHelper();
                       }
                     });
 
-                    _this35._parent._files[curInpIdx + i] = el.files[i];
+                    _this36._parent._files[curInpIdx + i] = el.files[i];
                   }
                 })();
               } else {
                 if (filesLen > 0) {
                   setTimeout(function () {
-                    return _this35._onFileChange(false);
+                    return _this36._onFileChange(false);
                   }, 20);
                   this._parent._files[curInpIdx] = el.files[0];
                 } else {
@@ -18263,25 +18407,25 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   }
 
                   var file = this._input.files[0];
-                  readFile(file).then(function (_ref27) {
-                    var data = _ref27.data;
-                    _this35.imgFile = {
+                  readFile(file).then(function (_ref28) {
+                    var data = _ref28.data;
+                    _this36.imgFile = {
                       data: data,
                       name: newName,
                       type: file.type,
                       isConstName: true
                     };
 
-                    _this35._removeFileHelper(); 
+                    _this36._removeFileHelper(); 
 
 
                     if (FileInput._isThumbMode) {
-                      _this35._addThumbTitle(newName, data.byteLength);
+                      _this36._addThumbTitle(newName, data.byteLength);
                     }
                   });
                   return;
                 } else {
-                  this._addUrlFile(this._txtInput.value);
+                  this.addUrlFile(this._txtInput.value);
                 }
               } else if (el === this._txtInput && !this._isTxtEditable) {
                 this._input.click();
@@ -18289,7 +18433,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 this._txtInput.blur();
               }
 
-              $pd(e);
+              e.preventDefault();
               e.stopPropagation();
               return;
             }
@@ -18330,7 +18474,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                 DollchanAPI.notify('filechange', this._parent._files);
               } else {
-                this._addUrlFile(dt.getData('text/plain'));
+                this.addUrlFile(dt.getData('text/plain'));
               }
 
               if (FileInput._isThumbMode) {
@@ -18339,7 +18483,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 }, 10);
               }
 
-              $pd(e);
+              e.preventDefault();
               e.stopPropagation();
             }
         }
@@ -18388,23 +18532,23 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_addRarJpeg",
       value: function _addRarJpeg() {
-        var _this36 = this;
+        var _this37 = this;
 
         var el = this._parent.rarInput;
 
         el.onchange = function (e) {
-          $hide(_this36._btnRar);
-          var myBtn = _this36._rarMsg = $aBegin(_this36._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+          $hide(_this37._btnRar);
+          var myBtn = _this37._rarMsg = $aBegin(_this37._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
           var file = e.target.files[0];
-          readFile(file).then(function (_ref28) {
-            var data = _ref28.data;
+          readFile(file).then(function (_ref29) {
+            var data = _ref29.data;
 
-            if (_this36._rarMsg === myBtn) {
+            if (_this37._rarMsg === myBtn) {
               myBtn.className = 'de-file-rarmsg';
-              var origFileName = _this36.imgFile ? _this36.imgFile.name : _this36._input.files[0].name;
+              var origFileName = _this37.imgFile ? _this37.imgFile.name : _this37._input.files[0].name;
               myBtn.title = origFileName + ' + ' + file.name;
               myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
-              _this36.extraFile = data;
+              _this37.extraFile = data;
             }
           });
         };
@@ -18415,85 +18559,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "_addThumbTitle",
       value: function _addThumbTitle(name, size) {
         this._thumb.firstChild.firstChild.title = "".concat(name, ", ").concat((size / 1024).toFixed(2), "KB");
-      }
-    }, {
-      key: "_addUrlFile",
-      value: function _addUrlFile(url) {
-        var _this37 = this;
-
-        var file = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-        if (!url) {
-          return Promise.reject(new Error('URL is null'));
-        }
-
-        $popup('file-loading', Lng.loading[lang], true);
-        return ContentLoader.loadImgData(url, false).then(function (data) {
-          if (file) {
-            deWindow.URL.revokeObjectURL(url);
-          }
-
-          if (!data) {
-            $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-            return;
-          }
-
-          closePopup('file-loading');
-          _this37._isTxtEditable = _this37._isTxtEditName = false;
-          var name = file ? file.name : getFileName(url);
-          var type = file && file.type || getFileType(name);
-
-          if (!type || name.includes('?')) {
-            var ext;
-
-            switch (data[0] << 8 | data[1]) {
-              case 0xFFD8:
-                ext = 'jpg';
-                break;
-
-              case 0x8950:
-                ext = 'png';
-                break;
-
-              case 0x4749:
-                ext = 'gif';
-                break;
-
-              case 0x1A45:
-                ext = 'webm';
-                break;
-
-              default:
-                ext = '';
-            }
-
-            if (ext) {
-              name = name.split('?').shift() + '.' + ext;
-            }
-          }
-
-          _this37.imgFile = {
-            data: data.buffer,
-            name: name,
-            type: type || getFileType(name)
-          };
-
-          if (!file) {
-            file = new Blob([data], {
-              type: _this37.imgFile.type
-            });
-            file.name = name;
-          }
-
-          _this37._parent._files[_this37._parent._inputs.indexOf(_this37)] = file;
-          DollchanAPI.notify('filechange', _this37._parent._files);
-
-          if (FileInput._isThumbMode) {
-            $hide(_this37._txtWrap);
-          }
-
-          _this37._onFileChange(true);
-        });
       }
     }, {
       key: "_changeFilesCount",
@@ -18614,8 +18679,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var file = this._input.files[0];
 
         if (file) {
-          readFile(file).then(function (_ref29) {
-            var data = _ref29.data;
+          readFile(file).then(function (_ref30) {
+            var data = _ref30.data;
 
             if (_this38._input.files[0] === file) {
               _this38._addNewThumb(data, file.name, file.type, file.size);
@@ -18634,7 +18699,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "_toggleDragEvents",
       value: function _toggleDragEvents(el, isAdd) {
         var name = isAdd ? 'addEventListener' : 'removeEventListener';
-        el[name]('dragover', $pd);
+        el[name]('dragover', function (e) {
+          return e.preventDefault();
+        });
         el[name]('dragenter', this);
         el[name]('dragleave', this);
         el[name]('drop', this);
@@ -18647,8 +18714,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_readDroppedFile",
       value: function _readDroppedFile(inputObj, file) {
-        return readFile(file).then(function (_ref30) {
-          var data = _ref30.data;
+        return readFile(file).then(function (_ref31) {
+          var data = _ref31.data;
           inputObj.imgFile = {
             data: data,
             name: file.name,
@@ -18742,7 +18809,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             this.updateOutdated();
         }
 
-        $pd(e);
+        e.preventDefault();
         e.stopPropagation();
       }
     }, {
@@ -19021,16 +19088,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "refLinks",
       value: regeneratorRuntime.mark(function refLinks() {
         var links, lNum, i, len, link, tc;
-        return regeneratorRuntime.wrap(function refLinks$(_context15) {
+        return regeneratorRuntime.wrap(function refLinks$(_context17) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context17.prev = _context17.next) {
               case 0:
                 links = $Q('a', this.msg);
                 i = 0, len = links.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context15.next = 12;
+                  _context17.next = 12;
                   break;
                 }
 
@@ -19038,24 +19105,24 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 tc = link.textContent;
 
                 if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
-                  _context15.next = 7;
+                  _context17.next = 7;
                   break;
                 }
 
-                return _context15.abrupt("continue", 9);
+                return _context17.abrupt("continue", 9);
 
               case 7:
-                _context15.next = 9;
+                _context17.next = 9;
                 return [link, lNum];
 
               case 9:
                 ++i;
-                _context15.next = 2;
+                _context17.next = 2;
                 break;
 
               case 12:
               case "end":
-                return _context15.stop();
+                return _context17.stop();
             }
           }
         }, refLinks, this);
@@ -19135,7 +19202,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             case 'A':
               if (el.classList.contains('de-video-link')) {
                 this.videos.clickLink(el, Cfg.embedYTube);
-                $pd(e);
+                e.preventDefault();
                 return;
               } 
 
@@ -19146,10 +19213,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 if (temp === this.trunc) {
                   this._getFullMsg(temp, false);
 
-                  $pd(e);
+                  e.preventDefault();
                   e.stopPropagation();
                 } else if (Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
-                  $pd(e);
+                  e.preventDefault();
                   e.stopPropagation();
 
                   if (!Cfg.showRepBtn) {
@@ -19185,7 +19252,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   var videos = this.videos;
                   videos.currentLink.classList.add('de-current');
                   videos.setPlayer(videos.playerInfo, el.classList.contains('de-ytube'));
-                  $pd(e);
+                  e.preventDefault();
                 }
               } else if (Cfg.expandImgs !== 0) {
                 this._clickImage(el, e);
@@ -19228,7 +19295,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             if (el.classList.contains('expand-large-comment')) {
               this._getFullMsg(el, false);
 
-              $pd(e);
+              e.preventDefault();
               e.stopPropagation();
             }
           } 
@@ -19400,7 +19467,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }, Cfg.linksOver);
             }
 
-            $pd(e);
+            e.preventDefault();
             e.stopPropagation();
         }
       }
@@ -19484,7 +19551,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         image.expandImg(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
-        $pd(e);
+        e.preventDefault();
         e.stopPropagation();
       }
     }, {
@@ -20421,7 +20488,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           };
 
           this._aEl.onclick = function (e) {
-            $pd(e);
+            e.preventDefault();
 
             _this51._post.setUserVisib(!_this51._post.isHidden);
           };
@@ -20708,11 +20775,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_buildPview",
       value: function () {
-        var _buildPview2 = _asyncToGenerator( regeneratorRuntime.mark(function _callee12(post) {
+        var _buildPview2 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(post) {
           var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
-          return regeneratorRuntime.wrap(function _callee12$(_context16) {
+          return regeneratorRuntime.wrap(function _callee14$(_context18) {
             while (1) {
-              switch (_context16.prev = _context16.next) {
+              switch (_context18.prev = _context18.next) {
                 case 0:
                   $del(this.el);
                   num = this.num;
@@ -20734,52 +20801,52 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   this._link.classList.add('de-link-parent');
 
                   isOp = this.isOp;
-                  _context16.t0 = isOp;
+                  _context18.t0 = isOp;
 
-                  if (!_context16.t0) {
-                    _context16.next = 27;
+                  if (!_context18.t0) {
+                    _context18.next = 27;
                     break;
                   }
 
-                  _context16.t1 = post.thr.isFav;
+                  _context18.t1 = post.thr.isFav;
 
-                  if (_context16.t1) {
-                    _context16.next = 26;
+                  if (_context18.t1) {
+                    _context18.next = 26;
                     break;
                   }
 
-                  _context16.next = 18;
+                  _context18.next = 18;
                   return readFavorites();
 
                 case 18:
-                  _context16.t4 = aib.host;
-                  _context16.t3 = f = _context16.sent[_context16.t4];
+                  _context18.t4 = aib.host;
+                  _context18.t3 = f = _context18.sent[_context18.t4];
 
-                  if (!_context16.t3) {
-                    _context16.next = 22;
+                  if (!_context18.t3) {
+                    _context18.next = 22;
                     break;
                   }
 
-                  _context16.t3 = f = f[this.brd];
+                  _context18.t3 = f = f[this.brd];
 
                 case 22:
-                  _context16.t2 = _context16.t3;
+                  _context18.t2 = _context18.t3;
 
-                  if (!_context16.t2) {
-                    _context16.next = 25;
+                  if (!_context18.t2) {
+                    _context18.next = 25;
                     break;
                   }
 
-                  _context16.t2 = num in f;
+                  _context18.t2 = num in f;
 
                 case 25:
-                  _context16.t1 = _context16.t2;
+                  _context18.t1 = _context18.t2;
 
                 case 26:
-                  _context16.t0 = _context16.t1;
+                  _context18.t0 = _context18.t1;
 
                 case 27:
-                  isFav = _context16.t0;
+                  isFav = _context18.t0;
                   isCached = post instanceof CacheItem;
                   pCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
                   pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
@@ -20851,13 +20918,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                 case 34:
                 case "end":
-                  return _context16.stop();
+                  return _context18.stop();
               }
             }
-          }, _callee12, this);
+          }, _callee14, this);
         }));
 
-        function _buildPview(_x12) {
+        function _buildPview(_x14) {
           return _buildPview2.apply(this, arguments);
         }
 
@@ -21094,15 +21161,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     _createClass(CacheItem, [{
       key: "refLinks",
       value: regeneratorRuntime.mark(function refLinks() {
-        return regeneratorRuntime.wrap(function refLinks$(_context17) {
+        return regeneratorRuntime.wrap(function refLinks$(_context19) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context19.prev = _context19.next) {
               case 0:
-                return _context17.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
+                return _context19.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
 
               case 1:
               case "end":
-                return _context17.stop();
+                return _context19.stop();
             }
           }
         }, refLinks, this);
@@ -21246,11 +21313,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       var btns = $bEnd(docBody, "<div style=\"display: none;\">\n\t\t\t<div id=\"de-img-btn-prev\" class=\"de-img-btn\" de-title=\"".concat(Lng.prevImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-next\" class=\"de-img-btn\" de-title=\"").concat(Lng.nextImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-auto\" class=\"de-img-btn de-img-btn-none\" title=\"").concat(Lng.autoPlayOn[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-auto\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-rotate\" class=\"de-img-btn\" title=\"").concat(Lng.rotateImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-rotate\"/></svg></div></div>"));
 
-      var _ref31 = _toConsumableArray(btns.children);
+      var _ref32 = _toConsumableArray(btns.children);
 
-      this.prevBtn = _ref31[0];
-      this.nextBtn = _ref31[1];
-      this.autoBtn = _ref31[2];
+      this.prevBtn = _ref32[0];
+      this.nextBtn = _ref32[1];
+      this.autoBtn = _ref32[2];
       this._btns = btns;
       this._btnsStyle = btns.style;
       this._hideTmt = 0;
@@ -21473,7 +21540,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         }
 
-        $pd(e);
+        e.preventDefault();
       }
     }, {
       key: "navigate",
@@ -21849,7 +21916,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         (aib.hasPicWrap ? this._getImageParent : this.el.parentNode).nextSibling.remove();
 
         if (e) {
-          $pd(e);
+          e.preventDefault();
 
           if (this.inPview) {
             this.sendCloseEvent(e, true);
@@ -22034,8 +22101,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
 
-          imgEl.onload = imgEl.onerror = function (_ref32) {
-            var img = _ref32.target;
+          imgEl.onload = imgEl.onerror = function (_ref33) {
+            var img = _ref33.target;
 
             if (!(img.naturalHeight + img.naturalWidth)) {
               if (!img.onceLoaded) {
@@ -22097,8 +22164,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         videoEl.addEventListener('ended', function () {
           return AttachedImage.viewer.navigate(true, true);
         });
-        videoEl.addEventListener('error', function (_ref33) {
-          var el = _ref33.target;
+        videoEl.addEventListener('error', function (_ref34) {
+          var el = _ref34.target;
 
           if (!el.onceLoaded) {
             el.load();
@@ -22107,8 +22174,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         });
 
         if (!this._size) {
-          videoEl.addEventListener('loadedmetadata', function (_ref34) {
-            var el = _ref34.target;
+          videoEl.addEventListener('loadedmetadata', function (_ref35) {
+            var el = _ref35.target;
             _this61._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
@@ -22118,9 +22185,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         setTimeout(function () {
           return videoEl.dispatchEvent(new CustomEvent('volumechange'));
         }, 150);
-        videoEl.addEventListener('volumechange', function (_ref35) {
-          var el = _ref35.target,
-              isTrusted = _ref35.isTrusted;
+        videoEl.addEventListener('volumechange', function (_ref36) {
+          var el = _ref36.target,
+              isTrusted = _ref36.isTrusted;
           var val = el.muted ? 0 : Math.round(el.volume * 100);
 
           if (isTrusted && val !== Cfg.webmVolume) {
@@ -22210,10 +22277,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
     }, {
       key: "srcBtnEvents",
-      value: function srcBtnEvents(_ref36) {
+      value: function srcBtnEvents(_ref37) {
         var _this62 = this;
 
-        var _fullEl = _ref36._fullEl;
+        var _fullEl = _ref37._fullEl;
 
         if (!Cfg.imgSrcBtns) {
           return;
@@ -22573,11 +22640,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       return value;
     },
 
-    _genImgHash: function _genImgHash(_ref37) {
-      var _ref38 = _slicedToArray(_ref37, 3),
-          arrBuf = _ref38[0],
-          oldw = _ref38[1],
-          oldh = _ref38[2];
+    _genImgHash: function _genImgHash(_ref38) {
+      var _ref39 = _slicedToArray(_ref38, 3),
+          arrBuf = _ref39[0],
+          oldw = _ref39[1],
+          oldh = _ref39[2];
 
       var buf = new Uint8Array(arrBuf);
       var size = oldw * oldh;
@@ -22616,31 +22683,31 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         hash: hash
       };
     },
-    _getHashHelper: function _getHashHelper(_ref39) {
+    _getHashHelper: function _getHashHelper(_ref40) {
       var _this63 = this;
 
-      return _asyncToGenerator( regeneratorRuntime.mark(function _callee13() {
+      return _asyncToGenerator( regeneratorRuntime.mark(function _callee15() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
-        return regeneratorRuntime.wrap(function _callee13$(_context18) {
+        return regeneratorRuntime.wrap(function _callee15$(_context20) {
           while (1) {
-            switch (_context18.prev = _context18.next) {
+            switch (_context20.prev = _context20.next) {
               case 0:
-                el = _ref39.el, src = _ref39.src;
+                el = _ref40.el, src = _ref40.src;
 
                 if (!(src in _this63._storage)) {
-                  _context18.next = 3;
+                  _context20.next = 3;
                   break;
                 }
 
-                return _context18.abrupt("return", _this63._storage[src]);
+                return _context20.abrupt("return", _this63._storage[src]);
 
               case 3:
                 if (el.complete) {
-                  _context18.next = 6;
+                  _context20.next = 6;
                   break;
                 }
 
-                _context18.next = 6;
+                _context20.next = 6;
                 return new Promise(function (resolve) {
                   return el.addEventListener('load', function () {
                     return resolve();
@@ -22651,11 +22718,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 el.removeAttribute('loading');
 
                 if (!(el.naturalWidth + el.naturalHeight === 0)) {
-                  _context18.next = 9;
+                  _context20.next = 9;
                   break;
                 }
 
-                return _context18.abrupt("return", -1);
+                return _context20.abrupt("return", -1);
 
               case 9:
                 val = -1;
@@ -22668,11 +22735,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
                 if (!buffer) {
-                  _context18.next = 22;
+                  _context20.next = 22;
                   break;
                 }
 
-                _context18.next = 20;
+                _context20.next = 20;
                 return new Promise(function (resolve) {
                   return _this63._workers.runWorker([buffer, w, h], [buffer], function (val) {
                     return resolve(val);
@@ -22680,7 +22747,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 });
 
               case 20:
-                data = _context18.sent;
+                data = _context20.sent;
 
                 if (data && 'hash' in data) {
                   val = data.hash;
@@ -22688,14 +22755,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               case 22:
                 _this63._storage[src] = val;
-                return _context18.abrupt("return", val);
+                return _context20.abrupt("return", val);
 
               case 24:
               case "end":
-                return _context18.stop();
+                return _context20.stop();
             }
           }
-        }, _callee13);
+        }, _callee15);
       }))();
     }
   });
@@ -22832,9 +22899,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: regeneratorRuntime.mark(function getRefLinks(i, thrUrl) {
         var msg, links, _i18, len, link, tc, lNum, url;
 
-        return regeneratorRuntime.wrap(function getRefLinks$(_context19) {
+        return regeneratorRuntime.wrap(function getRefLinks$(_context21) {
           while (1) {
-            switch (_context19.prev = _context19.next) {
+            switch (_context21.prev = _context21.next) {
               case 0:
                 msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
                 links = $Q('a', msg);
@@ -22842,7 +22909,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               case 3:
                 if (!(_i18 < len)) {
-                  _context19.next = 16;
+                  _context21.next = 16;
                   break;
                 }
 
@@ -22850,18 +22917,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 tc = link.textContent;
 
                 if (!(tc[0] === '>' && tc[1] === '>')) {
-                  _context19.next = 13;
+                  _context21.next = 13;
                   break;
                 }
 
                 lNum = parseInt(tc.substr(2), 10);
 
                 if (!lNum) {
-                  _context19.next = 13;
+                  _context21.next = 13;
                   break;
                 }
 
-                _context19.next = 11;
+                _context21.next = 11;
                 return [link, lNum];
 
               case 11:
@@ -22873,12 +22940,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               case 13:
                 ++_i18;
-                _context19.next = 3;
+                _context21.next = 3;
                 break;
 
               case 16:
               case "end":
-                return _context19.stop();
+                return _context21.stop();
             }
           }
         }, getRefLinks, this);
@@ -22887,32 +22954,32 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "bannedPostsData",
       value: regeneratorRuntime.mark(function bannedPostsData() {
         var banEls, i, len, banEl, postEl;
-        return regeneratorRuntime.wrap(function bannedPostsData$(_context20) {
+        return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
           while (1) {
-            switch (_context20.prev = _context20.next) {
+            switch (_context22.prev = _context22.next) {
               case 0:
                 banEls = $Q(aib.qBan, this._form);
                 i = 0, len = banEls.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context20.next = 10;
+                  _context22.next = 10;
                   break;
                 }
 
                 banEl = banEls[i];
                 postEl = aib.getPostElOfEl(banEl);
-                _context20.next = 7;
+                _context22.next = 7;
                 return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
               case 7:
                 ++i;
-                _context20.next = 2;
+                _context22.next = 2;
                 break;
 
               case 10:
               case "end":
-                return _context20.stop();
+                return _context22.stop();
             }
           }
         }, bannedPostsData, this);
@@ -23065,12 +23132,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "bannedPostsData",
       value: regeneratorRuntime.mark(function bannedPostsData() {
-        return regeneratorRuntime.wrap(function bannedPostsData$(_context21) {
+        return regeneratorRuntime.wrap(function bannedPostsData$(_context23) {
           while (1) {
-            switch (_context21.prev = _context21.next) {
+            switch (_context23.prev = _context23.next) {
               case 0:
               case "end":
-                return _context21.stop();
+                return _context23.stop();
             }
           }
         }, bannedPostsData);
@@ -23222,12 +23289,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "bannedPostsData",
       value: regeneratorRuntime.mark(function bannedPostsData() {
-        return regeneratorRuntime.wrap(function bannedPostsData$(_context22) {
+        return regeneratorRuntime.wrap(function bannedPostsData$(_context24) {
           while (1) {
-            switch (_context22.prev = _context22.next) {
+            switch (_context24.prev = _context24.next) {
               case 0:
               case "end":
-                return _context22.stop();
+                return _context24.stop();
             }
           }
         }, bannedPostsData);
@@ -23341,45 +23408,45 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: regeneratorRuntime.mark(function bannedPostsData() {
         var p, _iterator28, _step28, _step28$value, banned, num;
 
-        return regeneratorRuntime.wrap(function bannedPostsData$(_context23) {
+        return regeneratorRuntime.wrap(function bannedPostsData$(_context25) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context25.prev = _context25.next) {
               case 0:
                 p = this._isNew ? 'post__' : '';
                 _iterator28 = _createForOfIteratorHelperLoose(this._posts);
 
               case 2:
                 if ((_step28 = _iterator28()).done) {
-                  _context23.next = 15;
+                  _context25.next = 15;
                   break;
                 }
 
                 _step28$value = _step28.value, banned = _step28$value.banned, num = _step28$value.num;
-                _context23.t0 = banned;
-                _context23.next = _context23.t0 === 1 ? 7 : _context23.t0 === 2 ? 10 : 13;
+                _context25.t0 = banned;
+                _context25.next = _context25.t0 === 1 ? 7 : _context25.t0 === 2 ? 10 : 13;
                 break;
 
               case 7:
-                _context23.next = 9;
+                _context25.next = 9;
                 return [1, num, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
 
               case 9:
-                return _context23.abrupt("break", 13);
+                return _context25.abrupt("break", 13);
 
               case 10:
-                _context23.next = 12;
+                _context25.next = 12;
                 return [2, num, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
 
               case 12:
-                return _context23.abrupt("break", 13);
+                return _context25.abrupt("break", 13);
 
               case 13:
-                _context23.next = 2;
+                _context25.next = 2;
                 break;
 
               case 15:
               case "end":
-                return _context23.stop();
+                return _context25.stop();
             }
           }
         }, bannedPostsData, this);
@@ -23773,11 +23840,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       this.btns.addEventListener('click', this);
       this.btns.addEventListener('mouseover', this);
 
-      var _ref40 = _toConsumableArray(this.btns.children);
+      var _ref41 = _toConsumableArray(this.btns.children);
 
-      this.btnHide = _ref40[0];
-      this.btnFav = _ref40[2];
-      this.btnUpd = _ref40[3];
+      this.btnHide = _ref41[0];
+      this.btnFav = _ref41[2];
+      this.btnUpd = _ref41[3];
 
       if (!aib.t && Cfg.hideReplies) {
         this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -23867,7 +23934,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        $pd(e);
+        e.preventDefault();
         var el = fixEventEl(e.target);
         var elClass = el.classList[0];
         var nextThr = this.next;
@@ -25152,9 +25219,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             case 1:
               counter.setWait();
               this._state = 2;
-              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref41) {
-                var newCount = _ref41.newCount,
-                    locked = _ref41.locked;
+              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref42) {
+                var newCount = _ref42.newCount,
+                    locked = _ref42.locked;
                 return _this77._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
                 return _this77._handleNewPosts(0, err);
@@ -25283,7 +25350,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       },
       forceLoad: function forceLoad(e) {
         if (e) {
-          $pd(e);
+          e.preventDefault();
         }
 
         Post.clearMarks();
@@ -25420,10 +25487,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 
           if (delBtn) {
-            el.onsubmit = $pd;
+            el.onsubmit = function (e) {
+              return e.preventDefault();
+            };
 
             delBtn.onclick = function (e) {
-              $pd(e);
+              e.preventDefault();
               pr.closeReply();
               $popup('delete', Lng.deleting[lang], true);
               html5Submit(el, e.target).then(checkDelete)["catch"](function (err) {
@@ -26452,16 +26521,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "changeReplyMode",
         value: function () {
-          var _changeReplyMode = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(form, tNum) {
+          var _changeReplyMode = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(form, tNum) {
             var _this80 = this;
 
             var pageInp, query, errFn;
-            return regeneratorRuntime.wrap(function _callee14$(_context24) {
+            return regeneratorRuntime.wrap(function _callee16$(_context26) {
               while (1) {
-                switch (_context24.prev = _context24.next) {
+                switch (_context26.prev = _context26.next) {
                   case 0:
                     if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-                      _context24.next = 5;
+                      _context26.next = 5;
                       break;
                     }
 
@@ -26474,13 +26543,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                       form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
                     }
 
-                    return _context24.abrupt("return");
+                    return _context26.abrupt("return");
 
                   case 5:
                     query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
                     if ($q('input[name="thread"]', form)) {
-                      _context24.next = 11;
+                      _context26.next = 11;
                       break;
                     }
 
@@ -26488,12 +26557,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     $each($Q(query, form), function (el) {
                       return _this80._origInputs[0].appendChild(el);
                     });
-                    _context24.next = 17;
+                    _context26.next = 17;
                     break;
 
                   case 11:
                     if (tNum) {
-                      _context24.next = 17;
+                      _context26.next = 17;
                       break;
                     }
 
@@ -26501,7 +26570,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     $delAll(query, form);
                     form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
                     this._origInputs = null;
-                    return _context24.abrupt("return");
+                    return _context26.abrupt("return");
 
                   case 17:
                     errFn = function errFn() {
@@ -26510,7 +26579,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     };
 
                     $popup('load-form', Lng.loading[lang], true);
-                    _context24.next = 21;
+                    _context26.next = 21;
                     return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
                       var loadedForm = $q(_this80.qForm, loadedDoc);
 
@@ -26529,13 +26598,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                   case 21:
                   case "end":
-                    return _context24.stop();
+                    return _context26.stop();
                 }
               }
-            }, _callee14, this);
+            }, _callee16, this);
           }));
 
-          function changeReplyMode(_x13, _x14) {
+          function changeReplyMode(_x15, _x16) {
             return _changeReplyMode.apply(this, arguments);
           }
 
@@ -26581,9 +26650,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref42) {
-          var error = _ref42.error,
-              id = _ref42.id;
+        value: function getSubmitData(_ref43) {
+          var error = _ref43.error,
+              id = _ref43.id;
           return {
             error: error,
             postNum: id && +id
@@ -26918,9 +26987,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref43) {
-          var status = _ref43.status,
-              data = _ref43.data;
+        value: function getSubmitData(_ref44) {
+          var status = _ref44.status,
+              data = _ref44.data;
           return {
             error: status === 'error' ? data : null,
             postNum: status === 'ok' ? +data : null
@@ -26976,14 +27045,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "sendHTML5Post",
         value: function () {
-          var _sendHTML5Post = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(form, data, needProgress, hasFiles) {
+          var _sendHTML5Post = _asyncToGenerator( regeneratorRuntime.mark(function _callee19(form, data, needProgress, hasFiles) {
             var ajaxParams, getBase64, getCookies, dataObj, files, i, len, file, cookieObj, task, url;
-            return regeneratorRuntime.wrap(function _callee17$(_context27) {
+            return regeneratorRuntime.wrap(function _callee19$(_context29) {
               while (1) {
-                switch (_context27.prev = _context27.next) {
+                switch (_context29.prev = _context29.next) {
                   case 0:
                     if (!this._hasNewAPI) {
-                      _context27.next = 4;
+                      _context29.next = 4;
                       break;
                     }
 
@@ -26991,17 +27060,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                       data: data,
                       method: 'POST'
                     };
-                    _context27.next = 27;
+                    _context29.next = 27;
                     break;
 
                   case 4:
                     getBase64 = function () {
-                      var _ref44 = _asyncToGenerator( regeneratorRuntime.mark(function _callee15(file) {
-                        return regeneratorRuntime.wrap(function _callee15$(_context25) {
+                      var _ref45 = _asyncToGenerator( regeneratorRuntime.mark(function _callee17(file) {
+                        return regeneratorRuntime.wrap(function _callee17$(_context27) {
                           while (1) {
-                            switch (_context25.prev = _context25.next) {
+                            switch (_context27.prev = _context27.next) {
                               case 0:
-                                return _context25.abrupt("return", new Promise(function (resolve, reject) {
+                                return _context27.abrupt("return", new Promise(function (resolve, reject) {
                                   var reader = new FileReader();
                                   reader.readAsDataURL(file);
 
@@ -27016,14 +27085,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                               case 1:
                               case "end":
-                                return _context25.stop();
+                                return _context27.stop();
                             }
                           }
-                        }, _callee15);
+                        }, _callee17);
                       }));
 
-                      return function getBase64(_x19) {
-                        return _ref44.apply(this, arguments);
+                      return function getBase64(_x21) {
+                        return _ref45.apply(this, arguments);
                       };
                     }();
 
@@ -27044,10 +27113,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     };
                     files = [];
                     data.forEach( function () {
-                      var _ref45 = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(value, key) {
-                        return regeneratorRuntime.wrap(function _callee16$(_context26) {
+                      var _ref46 = _asyncToGenerator( regeneratorRuntime.mark(function _callee18(value, key) {
+                        return regeneratorRuntime.wrap(function _callee18$(_context28) {
                           while (1) {
-                            switch (_context26.prev = _context26.next) {
+                            switch (_context28.prev = _context28.next) {
                               case 0:
                                 if (key !== 'files') {
                                   dataObj[key] = value;
@@ -27057,53 +27126,53 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                               case 1:
                               case "end":
-                                return _context26.stop();
+                                return _context28.stop();
                             }
                           }
-                        }, _callee16);
+                        }, _callee18);
                       }));
 
-                      return function (_x20, _x21) {
-                        return _ref45.apply(this, arguments);
+                      return function (_x22, _x23) {
+                        return _ref46.apply(this, arguments);
                       };
                     }());
                     i = 0, len = files.length;
 
                   case 10:
                     if (!(i < len)) {
-                      _context27.next = 25;
+                      _context29.next = 25;
                       break;
                     }
 
                     file = files[i];
 
                     if (!file.type) {
-                      _context27.next = 22;
+                      _context29.next = 22;
                       break;
                     }
 
-                    _context27.t0 = dataObj.files;
-                    _context27.t1 = "data:".concat(file.type, ";base64,");
-                    _context27.next = 17;
+                    _context29.t0 = dataObj.files;
+                    _context29.t1 = "data:".concat(file.type, ";base64,");
+                    _context29.next = 17;
                     return getBase64(file).then(function (data) {
                       return data.split(',')[1];
                     });
 
                   case 17:
-                    _context27.t2 = _context27.sent;
-                    _context27.t3 = _context27.t1.concat.call(_context27.t1, _context27.t2);
-                    _context27.t4 = file.name;
-                    _context27.t5 = {
-                      content: _context27.t3,
-                      name: _context27.t4,
+                    _context29.t2 = _context29.sent;
+                    _context29.t3 = _context29.t1.concat.call(_context29.t1, _context29.t2);
+                    _context29.t4 = file.name;
+                    _context29.t5 = {
+                      content: _context29.t3,
+                      name: _context29.t4,
                       spoiler: false
                     };
 
-                    _context27.t0.push.call(_context27.t0, _context27.t5);
+                    _context29.t0.push.call(_context29.t0, _context29.t5);
 
                   case 22:
                     ++i;
-                    _context27.next = 10;
+                    _context29.next = 10;
                     break;
 
                   case 25:
@@ -27131,7 +27200,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                     task = getFileName(form.attributes.action.value);
                     url = this._hasNewAPI ? "/".concat(task, "?json=1") : '/.api/' + task.replace('.js', '');
-                    return _context27.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
+                    return _context29.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
                       return xhr.responseText;
                     })["catch"](function (err) {
                       return Promise.reject(err);
@@ -27139,13 +27208,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                   case 31:
                   case "end":
-                    return _context27.stop();
+                    return _context29.stop();
                 }
               }
-            }, _callee17, this);
+            }, _callee19, this);
           }));
 
-          function sendHTML5Post(_x15, _x16, _x17, _x18) {
+          function sendHTML5Post(_x17, _x18, _x19, _x20) {
             return _sendHTML5Post.apply(this, arguments);
           }
 
@@ -27589,9 +27658,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           if (!img || img.tagName !== 'IMG') {
             box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
 
-            var _ref46 = _toConsumableArray(box.children),
-                _img2 = _ref46[0],
-                inp = _ref46[1];
+            var _ref47 = _toConsumableArray(box.children),
+                _img2 = _ref47[0],
+                inp = _ref47[1];
 
             _img2.onclick = function () {
               return _this92.updateCaptcha(cap);
@@ -28044,8 +28113,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref47) {
-            var id = _ref47.responseText;
+          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref48) {
+            var id = _ref48.responseText;
             $id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
             $id('captchaid').value = id;
           });
@@ -29406,9 +29475,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref48) {
-          var error = _ref48.error,
-              id = _ref48.id;
+        value: function getSubmitData(_ref49) {
+          var error = _ref49.error,
+              id = _ref49.id;
           return {
             error: error,
             postNum: id && +id
@@ -29669,8 +29738,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref49) {
-      var arg = _ref49.data;
+    _handleMessage: function _handleMessage(_ref50) {
+      var arg = _ref50.data;
 
       if (!arg || !arg.name) {
         return;
@@ -29725,8 +29794,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     return $ajax(gitRaw + 'src/modules/Wrap.js', {
       'Content-Type': 'text/plain'
-    }, true).then(function (_ref50) {
-      var responseText = _ref50.responseText;
+    }, true).then(function (_ref51) {
+      var responseText = _ref51.responseText;
       var v = responseText.match(/const version = '([0-9.]+)';/);
       var remoteVer = v && v[1] ? v[1].split('.') : null;
 
@@ -29917,79 +29986,79 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }
   }
 
-  function runMain(_x22, _x23) {
+  function runMain(_x24, _x25) {
     return _runMain.apply(this, arguments);
   }
 
   function _runMain() {
-    _runMain = _asyncToGenerator( regeneratorRuntime.mark(function _callee24(checkDomains, dataPromise) {
+    _runMain = _asyncToGenerator( regeneratorRuntime.mark(function _callee26(checkDomains, dataPromise) {
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
-      return regeneratorRuntime.wrap(function _callee24$(_context34) {
+      return regeneratorRuntime.wrap(function _callee26$(_context36) {
         while (1) {
-          switch (_context34.prev = _context34.next) {
+          switch (_context36.prev = _context36.next) {
             case 0:
               Logger.initLogger();
 
               if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-                _context34.next = 3;
+                _context36.next = 3;
                 break;
               }
 
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 3:
               formEl = $q(aib.qDForm + ', form[de-form]');
 
               if (formEl) {
-                _context34.next = 7;
+                _context36.next = 7;
                 break;
               }
 
               runFrames();
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 7:
               if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-                _context34.next = 9;
+                _context36.next = 9;
                 break;
               }
 
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 9:
               Logger.log('Imageboard check');
 
               if (locStorage) {
-                _context34.next = 14;
+                _context36.next = 14;
                 break;
               }
 
               if (checkStorage()) {
-                _context34.next = 13;
+                _context36.next = 13;
                 break;
               }
 
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 13:
               initNavFuncs();
 
             case 14:
-              _context34.next = 16;
+              _context36.next = 16;
               return dataPromise || readData();
 
             case 16:
-              _yield = _context34.sent;
+              _yield = _context36.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
               if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
-                _context34.next = 21;
+                _context36.next = 21;
                 break;
               }
 
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 21:
               docBody.classList.add('de-runned');
@@ -29997,13 +30066,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               addSVGIcons();
 
               if (!Cfg.disabled) {
-                _context34.next = 28;
+                _context36.next = 28;
                 break;
               }
 
               Panel.initPanel(formEl);
               scriptCSS();
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 28:
               if ('toJSON' in aProto) {
@@ -30046,22 +30115,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               Logger.log('Replace delform');
               pByEl = new Map();
               pByNum = new Map();
-              _context34.prev = 43;
+              _context36.prev = 43;
               DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 
               if (!Thread.first) {
                 console.error('No threads detected!');
               }
 
-              _context34.next = 53;
+              _context36.next = 53;
               break;
 
             case 48:
-              _context34.prev = 48;
-              _context34.t0 = _context34["catch"](43);
-              console.error('Delform parsing error:', getErrorMessage(_context34.t0));
+              _context36.prev = 48;
+              _context36.t0 = _context36["catch"](43);
+              console.error('Delform parsing error:', getErrorMessage(_context36.t0));
               $show(docBody);
-              return _context34.abrupt("return");
+              return _context36.abrupt("return");
 
             case 53:
               Logger.log('Parse delform');
@@ -30119,10 +30188,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 80:
             case "end":
-              return _context34.stop();
+              return _context36.stop();
           }
         }
-      }, _callee24, null, [[43, 48]]);
+      }, _callee26, null, [[43, 48]]);
     }));
     return _runMain.apply(this, arguments);
   }

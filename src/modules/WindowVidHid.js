@@ -105,7 +105,7 @@ function showVideosWindow(body) {
 						(exp ? 562 : +Cfg.YTubeHeigh + 82) }px`;
 				}
 				}
-				$pd(e);
+				e.preventDefault();
 				return;
 			} else if(!el.classList.contains('de-video-link')) { // Clicking on ">" before link
 				// Go to post that contains this link
@@ -122,7 +122,7 @@ function showVideosWindow(body) {
 				el.classList.add('de-current');
 				Videos.addPlayer(this, info, el.classList.contains('de-ytube'), true);
 			}
-			$pd(e);
+			e.preventDefault();
 		}
 	}, true);
 

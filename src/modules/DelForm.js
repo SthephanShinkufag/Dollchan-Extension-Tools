@@ -110,9 +110,9 @@ class DelForm {
 		if(Cfg.ajaxPosting && !localData) {
 			const delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
 			if(delBtn) {
-				el.onsubmit = $pd;
+				el.onsubmit = e => e.preventDefault();
 				delBtn.onclick = e => {
-					$pd(e);
+					e.preventDefault();
 					pr.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete)

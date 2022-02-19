@@ -105,7 +105,7 @@ class Thread {
 		return post;
 	}
 	handleEvent(e) {
-		$pd(e);
+		e.preventDefault();
 		const el = fixEventEl(e.target);
 		const elClass = el.classList[0];
 		const nextThr = this.next;

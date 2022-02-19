@@ -131,7 +131,7 @@ const Panel = Object.create({
 				break;
 			default: return;
 			}
-			$pd(e);
+			e.preventDefault();
 			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {

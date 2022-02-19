@@ -223,7 +223,7 @@ function showFavoritesWindow(body, favObj) {
 				el.innerHTML = isHide ? '&#x25BC' : '&#x25B2';
 				favObj[entriesEl.getAttribute('de-host')][entriesEl.getAttribute('de-board')].hide = isHide;
 				saveFavorites(favObj);
-				$pd(e);
+				e.preventDefault();
 				entriesEl.classList.toggle('de-fav-entries-hide');
 			}
 			}

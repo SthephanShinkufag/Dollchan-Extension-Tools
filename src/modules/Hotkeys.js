@@ -247,7 +247,7 @@ const HotKeys = {
 			}
 			}
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	},
 	pauseHotKeys() {
@@ -561,7 +561,7 @@ class KeyEditListener {
 			}
 		}
 		}
-		$pd(e);
+		e.preventDefault();
 	}
 }
 // Browsers have different codes for these keys (see HotKeys.readKeys):

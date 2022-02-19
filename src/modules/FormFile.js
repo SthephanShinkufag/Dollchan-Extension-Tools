@@ -115,6 +115,49 @@ class FileInput {
 			$after(this._input, this._utils);
 		}
 	}
+	async addUrlFile(url, file = null) {
+		if(!url) {
+			return Promise.reject(new Error('URL is null'));
+		}
+		$popup('file-loading', Lng.loading[lang], true);
+		return await ContentLoader.loadImgData(url, false).then(data => {
+			if(file) {
+				deWindow.URL.revokeObjectURL(url);
+			}
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			this._isTxtEditable = this._isTxtEditName = false;
+			let name = file ? file.name : getFileName(url);
+			const type = file && file.type || getFileType(name);
+			if(!type || name.includes('?')) {
+				let ext;
+				switch((data[0] << 8) | data[1]) {
+				case 0xFFD8: ext = 'jpg'; break;
+				case 0x8950: ext = 'png'; break;
+				case 0x4749: ext = 'gif'; break;
+				case 0x1A45: ext = 'webm'; break;
+				default: ext = '';
+				}
+				if(ext) {
+					name = name.split('?').shift() + '.' + ext;
+				}
+			}
+			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
+			if(!file) {
+				file = new Blob([data], { type: this.imgFile.type });
+				file.name = name;
+			}
+			this._parent._files[this._parent._inputs.indexOf(this)] = file;
+			DollchanAPI.notify('filechange', this._parent._files);
+			if(FileInput._isThumbMode) {
+				$hide(this._txtWrap);
+			}
+			this._onFileChange(true);
+		});
+	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
 		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
@@ -266,13 +309,13 @@ class FileInput {
 					});
 					return;
 				} else {
-					this._addUrlFile(this._txtInput.value);
+					this.addUrlFile(this._txtInput.value);
 				}
 			} else if(el === this._txtInput && !this._isTxtEditable) {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 			return;
 		}
@@ -301,12 +344,12 @@ class FileInput {
 				}
 				DollchanAPI.notify('filechange', this._parent._files);
 			} else {
-				this._addUrlFile(dt.getData('text/plain'));
+				this.addUrlFile(dt.getData('text/plain'));
 			}
 			if(FileInput._isThumbMode) {
 				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			}
-			$pd(e);
+			e.preventDefault();
 			e.stopPropagation();
 		}
 		}
@@ -374,49 +417,6 @@ class FileInput {
 	}
 	_addThumbTitle(name, size) {
 		this._thumb.firstChild.firstChild.title = `${ name }, ${ (size / 1024).toFixed(2) }KB`;
-	}
-	_addUrlFile(url, file = null) {
-		if(!url) {
-			return Promise.reject(new Error('URL is null'));
-		}
-		$popup('file-loading', Lng.loading[lang], true);
-		return ContentLoader.loadImgData(url, false).then(data => {
-			if(file) {
-				deWindow.URL.revokeObjectURL(url);
-			}
-			if(!data) {
-				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-				return;
-			}
-			closePopup('file-loading');
-			this._isTxtEditable = this._isTxtEditName = false;
-			let name = file ? file.name : getFileName(url);
-			const type = file && file.type || getFileType(name);
-			if(!type || name.includes('?')) {
-				let ext;
-				switch((data[0] << 8) | data[1]) {
-				case 0xFFD8: ext = 'jpg'; break;
-				case 0x8950: ext = 'png'; break;
-				case 0x4749: ext = 'gif'; break;
-				case 0x1A45: ext = 'webm'; break;
-				default: ext = '';
-				}
-				if(ext) {
-					name = name.split('?').shift() + '.' + ext;
-				}
-			}
-			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
-			if(!file) {
-				file = new Blob([data], { type: this.imgFile.type });
-				file.name = name;
-			}
-			this._parent._files[this._parent._inputs.indexOf(this)] = file;
-			DollchanAPI.notify('filechange', this._parent._files);
-			if(FileInput._isThumbMode) {
-				$hide(this._txtWrap);
-			}
-			this._onFileChange(true);
-		});
 	}
 	_changeFilesCount(val) {
 		this._parent.filesCount = Math.max(this._parent.filesCount + val, 0);
@@ -518,7 +518,7 @@ class FileInput {
 	}
 	_toggleDragEvents(el, isAdd) {
 		const name = isAdd ? 'addEventListener' : 'removeEventListener';
-		el[name]('dragover', $pd);
+		el[name]('dragover', e => e.preventDefault());
 		el[name]('dragenter', this);
 		el[name]('dragleave', this);
 		el[name]('drop', this);

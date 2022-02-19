@@ -59,7 +59,7 @@ class Captcha {
 		}
 		case 'focus': this.updateOutdated();
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	initCapPromise() {

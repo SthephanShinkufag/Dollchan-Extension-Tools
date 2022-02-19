@@ -539,7 +539,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		forceLoad(e) {
 			if(e) {
-				$pd(e);
+				e.preventDefault();
 			}
 			Post.clearMarks();
 			if(enabled && paused) {

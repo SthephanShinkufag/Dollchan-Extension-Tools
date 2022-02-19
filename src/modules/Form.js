@@ -224,7 +224,7 @@ class PostForm {
 			txtaEl.focus();
 			txtaEl.scrollTop = scrtop;
 		}
-		$pd(e);
+		e.preventDefault();
 		e.stopPropagation();
 	}
 	refreshCap(isErr = false) {
@@ -271,7 +271,7 @@ class PostForm {
 			this.setReply(false, false);
 		}
 		if(e) {
-			$pd(e);
+			e.preventDefault();
 		}
 	}
 	showQuickReply(post, pNum, isCloseReply, isNumClick, isNoLink = false) {
@@ -369,7 +369,7 @@ class PostForm {
 			aib.disableRedirection(el);
 		}
 		this.form.onsubmit = e => {
-			$pd(e);
+			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
 			html5Submit(this.form, this.subm, true).then(checkUpload)
 				.catch(err => $popup('upload', getErrorMessage(err)));
@@ -410,7 +410,7 @@ class PostForm {
 		this.subm.addEventListener('click', e => {
 			/* if(aib.makaba && !aib._2channel && !Cfg.altCaptcha) {
 				if(!this.cap.isSubmitWait) {
-					$pd(e);
+					e.preventDefault();
 					$popup('upload', 'reCaptcha...', true);
 					this.cap.isSubmitWait = true;
 					this.refreshCap();
@@ -419,7 +419,7 @@ class PostForm {
 				this.cap.isSubmitWait = false;
 			} */
 			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
-				$pd(e);
+				e.preventDefault();
 				$popup('upload', Lng.subjHasTrip[lang]);
 				return;
 			}
@@ -470,19 +470,15 @@ class PostForm {
 			}
 		});
 		// Add image from clipboard to file inputs on Ctrl+V
-		el.addEventListener('paste', e => {
-			if('clipboardData' in e) {
-				for(const item of e.clipboardData.items) {
-					if(item.kind === 'file') {
-						const inputs = this.files._inputs;
-						for(let i = 0, len = inputs.length; i < len; ++i) {
-							const input = inputs[i];
-							if(!input.hasFile) {
-								const file = item.getAsFile();
-								input._addUrlFile(URL.createObjectURL(file), file);
-								break;
-							}
-						}
+		el.addEventListener('paste', async e => {
+			const files = e?.clipboardData?.files;
+			for(const file of files) {
+				const inputs = this.files._inputs;
+				for(let i = 0, len = inputs.length; i < len; ++i) {
+					const input = inputs[i];
+					if(!input.hasFile) {
+						await input.addUrlFile(URL.createObjectURL(file), file);
+						break;
 					}
 				}
 			}
@@ -507,7 +503,7 @@ class PostForm {
 				case 'mousedown':
 					docBody.addEventListener('mousemove', this);
 					docBody.addEventListener('mouseup', this);
-					$pd(e);
+					e.preventDefault();
 					return;
 				case 'mousemove': {
 					const cr = this._el.getBoundingClientRect();

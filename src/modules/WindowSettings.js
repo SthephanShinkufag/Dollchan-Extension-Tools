@@ -168,7 +168,7 @@ const CfgWindow = {
 						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
 							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
 				}
-				$pd(e);
+				e.preventDefault();
 			}, true);
 		}));
 
@@ -408,7 +408,7 @@ const CfgWindow = {
 				PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
-				$pd(e);
+				e.preventDefault();
 				if($id('de-popup-edit-hotkeys')) {
 					return;
 				}
@@ -498,7 +498,7 @@ const CfgWindow = {
 		if(tag === 'A') {
 			if(el.id === 'de-btn-spell-add') {
 				switch(e.type) {
-				case 'click': $pd(e); break;
+				case 'click': e.preventDefault(); break;
 				case 'mouseover': el.odelay = setTimeout(() => addMenu(el), Cfg.linksOver); break;
 				case 'mouseout': clearTimeout(el.odelay);
 				}
@@ -507,13 +507,13 @@ const CfgWindow = {
 			if(type === 'click') {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
-					$pd(e);
+					e.preventDefault();
 					saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
 					Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
-					$pd(e);
+					e.preventDefault();
 					if(!confirm(Lng.clear[lang] + '?')) {
 						return;
 					}

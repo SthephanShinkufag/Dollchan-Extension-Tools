@@ -34,7 +34,7 @@ function makeDraggable(name, win, head) {
 				docBody.addEventListener('mouseleave', this);
 				docBody.addEventListener('mousemove', this);
 				docBody.addEventListener('mouseup', this);
-				$pd(e);
+				e.preventDefault();
 				return;
 			case 'mousemove': {
 				const maxX = Post.sizing.wWidth - this._win.offsetWidth;
@@ -102,7 +102,7 @@ class WinResizer {
 			this.win.setAttribute('style', val);
 			docBody.addEventListener('mousemove', this);
 			docBody.addEventListener('mouseup', this);
-			$pd(e);
+			e.preventDefault();
 			return;
 		case 'mousemove':
 			if(this.vertical) {
