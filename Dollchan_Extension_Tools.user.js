@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'a411258';
+  var commit = '3f44eae';
 
   var defaultCfg = {
     disabled: 0,
@@ -17168,7 +17168,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
   function getSubmitError(dc) {
-    if (!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
+    var _dc$body;
+
+    if (!((_dc$body = dc.body) !== null && _dc$body !== void 0 && _dc$body.hasChildNodes()) || $q(aib.qDForm, dc)) {
       return null;
     }
 

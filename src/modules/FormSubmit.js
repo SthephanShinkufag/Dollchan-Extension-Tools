@@ -4,7 +4,7 @@
 =========================================================================================================== */
 
 function getSubmitError(dc) {
-	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
+	if(!dc.body?.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')

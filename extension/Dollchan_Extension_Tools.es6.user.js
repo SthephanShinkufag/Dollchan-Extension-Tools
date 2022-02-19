@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'a411258';
+const commit = '3f44eae';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9205,7 +9205,7 @@ class PostForm {
 =========================================================================================================== */
 
 function getSubmitError(dc) {
-	if(!dc.body.hasChildNodes() || $q(aib.qDForm, dc)) {
+	if(!dc.body?.hasChildNodes() || $q(aib.qDForm, dc)) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
