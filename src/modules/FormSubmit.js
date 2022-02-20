@@ -137,6 +137,7 @@ function isFormElDisabled(el) {
 	}
 	return false;
 }
+
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
 function * getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);

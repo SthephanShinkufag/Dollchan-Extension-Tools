@@ -6349,7 +6349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '3f44eae';
+  var commit = '9101d05';
 
   var defaultCfg = {
     disabled: 0,
@@ -28548,8 +28548,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           for (var i = 0, len = links.length; i < len; ++i) {
             var link = links[i];
-            link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
-            link.removeAttribute('onclick');
+            var href = link.getAttribute('onclick').match(/(?:https?:\/|\/storage)[^']+/);
+
+            if (href) {
+              link.href = href[0];
+              link.removeAttribute('onclick');
+            }
           }
 
           return formEl;
@@ -29279,6 +29283,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }(Lynxchan);
 
     ibDomains['kohlchan.net'] = Kohlchan;
+    ibDomains['kohlchan.top'] = Kohlchan;
     ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
     ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
     ibDomains['kohlkanal.net'] = Kohlchan;

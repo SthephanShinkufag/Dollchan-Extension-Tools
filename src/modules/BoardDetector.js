@@ -1437,8 +1437,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			const links = $Q('.expand_image', formEl);
 			for(let i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
-				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
-				link.removeAttribute('onclick');
+				const href = link.getAttribute('onclick').match(/(?:https?:\/|\/storage)[^']+/);
+				if(href) {
+					link.href = href[0];
+					link.removeAttribute('onclick');
+				}
 			}
 			return formEl;
 		}
@@ -1935,6 +1938,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
+	ibDomains['kohlchan.top'] = Kohlchan;
 	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
 	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
 	ibDomains['kohlkanal.net'] = Kohlchan;

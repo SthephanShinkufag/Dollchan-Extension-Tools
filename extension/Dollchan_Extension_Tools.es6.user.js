@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '3f44eae';
+const commit = '9101d05';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9338,6 +9338,7 @@ function isFormElDisabled(el) {
 	}
 	return false;
 }
+
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
 function * getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
@@ -17104,8 +17105,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			const links = $Q('.expand_image', formEl);
 			for(let i = 0, len = links.length; i < len; ++i) {
 				const link = links[i];
-				link.href = link.getAttribute('onclick').match(/https?:\/[^']+/)[0];
-				link.removeAttribute('onclick');
+				const href = link.getAttribute('onclick').match(/(?:https?:\/|\/storage)[^']+/);
+				if(href) {
+					link.href = href[0];
+					link.removeAttribute('onclick');
+				}
 			}
 			return formEl;
 		}
@@ -17602,6 +17606,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kohlchan.net'] = Kohlchan;
+	ibDomains['kohlchan.top'] = Kohlchan;
 	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
 	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
 	ibDomains['kohlkanal.net'] = Kohlchan;
