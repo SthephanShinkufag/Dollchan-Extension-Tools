@@ -99,7 +99,7 @@ class FileInput {
 		el.obj = this;
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
-		if(el?.files[0]) {
+		if(el.files?.[0]) {
 			this._removeFile();
 		}
 		if(Cfg.fileInputs) {

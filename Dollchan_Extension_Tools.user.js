@@ -6351,7 +6351,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'cd33dfd';
+  var commit = 'b63b47d';
 
   var defaultCfg = {
     disabled: 0,
@@ -18062,6 +18062,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   var FileInput = function () {
     function FileInput(parent, el) {
+      var _el$files;
+
       _classCallCheck(this, FileInput);
 
       this.extraFile = null;
@@ -18102,7 +18104,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       el.classList.add('de-file-input');
       el.addEventListener('change', this);
 
-      if (el !== null && el !== void 0 && el.files[0]) {
+      if ((_el$files = el.files) !== null && _el$files !== void 0 && _el$files[0]) {
         this._removeFile();
       }
 
@@ -29198,14 +29200,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "sendHTML5Post",
         value: function sendHTML5Post(form, data, needProgress, hasFiles) {
-          var _$id4;
+          var oekakiEl = $id('wPaint');
 
-          if (((_$id4 = $id('wPaint')) === null || _$id4 === void 0 ? void 0 : _$id4.style.display) !== 'none') {
+          if (oekakiEl && oekakiEl.style.display !== 'none') {
             hasFiles = true;
             var mime = {
               type: 'image/png'
             };
-            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('#wPaint > .wPaint-canvas'))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
+            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
             data["delete"]('files');
 
             for (var _iterator35 = _createForOfIteratorHelperLoose(files), _step35; !(_step35 = _iterator35()).done;) {

@@ -30,7 +30,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'cd33dfd';
+const commit = 'b63b47d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -9730,7 +9730,7 @@ class FileInput {
 		el.obj = this;
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
-		if(el?.files[0]) {
+		if(el.files?.[0]) {
 			this._removeFile();
 		}
 		if(Cfg.fileInputs) {
@@ -17501,11 +17501,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		sendHTML5Post(form, data, needProgress, hasFiles) {
-			if($id('wPaint')?.style.display !== 'none') {
+			const oekakiEl = $id('wPaint');
+			if(oekakiEl && oekakiEl.style.display !== 'none') {
 				hasFiles = true;
 				const mime = { type: 'image/png' };
 				const files = [new File([
-					new Blob([ContentLoader.getDataFromCanvas($q('#wPaint > .wPaint-canvas'))], mime)
+					new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)
 				], 'oekaki.png', mime), ...data.getAll('files').slice(0, -1)];
 				data.delete('files');
 				for(const file of files) {
