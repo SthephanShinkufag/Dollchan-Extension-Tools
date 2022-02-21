@@ -63,10 +63,7 @@ function initNavFuncs() {
 	}
 	if(!('remove' in Element.prototype)) { // XXX: Opera Presto
 		Element.prototype.remove = function() {
-			const el = this.parentNode;
-			if(el) {
-				el.removeChild(this);
-			}
+			this.parentNode?.removeChild(this);
 		};
 	}
 	const nlProto = NodeList.prototype;

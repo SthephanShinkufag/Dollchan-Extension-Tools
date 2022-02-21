@@ -141,7 +141,7 @@ class WinResizer {
 
 function toggleWindow(name, isUpdate, data, noAnim) {
 	let el, win = $id('de-win-' + name);
-	const isActive = win && win.classList.contains('de-win-active');
+	const isActive = win?.classList.contains('de-win-active');
 	if(isUpdate && !isActive) {
 		return;
 	}

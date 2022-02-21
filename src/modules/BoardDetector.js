@@ -723,7 +723,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
-			return `.js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,
+			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,
 					.thread-nav > :not(.search) { display: none !important; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
@@ -981,8 +981,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			const initObserver = new MutationObserver(mutations => {
-				const el = mutations[0].addedNodes[0];
-				if(el && el.className === 'thread') {
+				if(mutations[0].addedNodes[0]?.className === 'thread') {
 					initObserver.disconnect();
 					runMain(checkDomains, dataPromise);
 				}
@@ -1206,8 +1205,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return src.replace(/\?[^?]+$|$/, `?board=${ aib.b }&${ Math.random() }`);
 		}
 		getSage(post) {
-			const el = $q('.filetitle', post);
-			return !!el && el.textContent.includes('\u21E9');
+			return !!$q('.filetitle', post)?.textContent.includes('\u21E9');
 		}
 	}
 	ibDomains['410chan.org'] = _410chan;
@@ -1339,10 +1337,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		init() {
 			Cfg.findImgFile = 0;
 			Cfg.txtBtnsLoc = 0;
-			const el = $id('styleSelector');
-			if(el) {
-				el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
-			}
+			$id('styleSelector')?.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
 			return false;
 		}
 	}
@@ -1623,10 +1618,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
-			const el = $id('postform');
-			if(el) {
-				el.appendChild($q('.rules'));
-			}
+			$id('postform')?.appendChild($q('.rules'));
 			return false;
 		}
 		insertYtPlayer(msg, playerHtml) {
@@ -1853,12 +1845,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return ['b', 'i', 'u', 's', 'spoiler', 'code'];
 		}
 		sendHTML5Post(form, data, needProgress, hasFiles) {
-			const oekakiEl = $id('wPaint');
-			if(oekakiEl && oekakiEl.style.display !== 'none') {
+			if($id('wPaint')?.style.display !== 'none') {
 				hasFiles = true;
 				const mime = { type: 'image/png' };
 				const files = [new File([
-					new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)
+					new Blob([ContentLoader.getDataFromCanvas($q('#wPaint > .wPaint-canvas'))], mime)
 				], 'oekaki.png', mime), ...data.getAll('files').slice(0, -1)];
 				data.delete('files');
 				for(const file of files) {
@@ -2148,7 +2139,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	const wLoc = deWindow.location;
 	const prot = wLoc.protocol;
-	let dm = localData && localData.dm;
+	let dm = localData?.dm;
 	if(checkDomains) {
 		if(!dm) {
 			const ibKeys = Object.keys(ibDomains);

@@ -6,7 +6,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '9101d05';
+const commit = 'cd33dfd';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
@@ -48,7 +48,7 @@ const commit = '9101d05';
 /* ==[ Tail ]== */
 }(
 	window,
-	window.opera && window.opera.scriptStorage,
+	window.opera?.scriptStorage,
 	window.FormData,
 	(x, y) => window.scrollTo(x, y),
 	/* global localData */ typeof localData === 'object' ? localData : null

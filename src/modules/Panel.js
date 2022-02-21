@@ -7,7 +7,7 @@ const Panel = Object.create({
 	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
-		(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+		(pr?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
 				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
 					<svg class="de-panel-logo-svg">
@@ -153,7 +153,7 @@ const Panel = Object.create({
 				/* falls through */
 			case 'de-panel-savethr':
 			case 'de-panel-audio-off':
-				if(this._menu && this._menu.parentEl === el) {
+				if(this._menu?.parentEl === el) {
 					return;
 				}
 				this._menuTO = setTimeout(() => {

@@ -95,7 +95,7 @@ function $ajax(url, params = null, isCORS = false) {
 		};
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const obj = {
-			method : (params && params.method) || 'GET',
+			method : params?.method || 'GET',
 			url    : nav.fixLink(url),
 			onreadystatechange(e) {
 				if(needTO) {
@@ -141,7 +141,7 @@ function $ajax(url, params = null, isCORS = false) {
 			xhr.abort();
 		};
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
-		if(params && params.onprogress) {
+		if(params?.onprogress) {
 			xhr.upload.onprogress = params.onprogress;
 		}
 		if(aib._4chan) {
@@ -162,7 +162,7 @@ function $ajax(url, params = null, isCORS = false) {
 			}
 		};
 		try {
-			xhr.open((params && params.method) || 'GET', getAbsLink(url), true);
+			xhr.open(params?.method || 'GET', getAbsLink(url), true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
@@ -176,7 +176,7 @@ function $ajax(url, params = null, isCORS = false) {
 					}
 				}
 			}
-			xhr.send(params && params.data || null);
+			xhr.send(params?.data || null);
 			cancelFn = () => {
 				if(needTO) {
 					clearTimeout(loadTO);
@@ -308,7 +308,7 @@ function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
 	}
 	return aib.hasArchive ?
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
-			.then(data => data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
+			.then(data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
 		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }

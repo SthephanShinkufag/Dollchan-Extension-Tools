@@ -99,7 +99,7 @@ class FileInput {
 		el.obj = this;
 		el.classList.add('de-file-input');
 		el.addEventListener('change', this);
-		if(el.files && el.files[0]) {
+		if(el?.files[0]) {
 			this._removeFile();
 		}
 		if(Cfg.fileInputs) {
@@ -130,8 +130,8 @@ class FileInput {
 			}
 			closePopup('file-loading');
 			this._isTxtEditable = this._isTxtEditName = false;
-			let name = file ? file.name : getFileName(url);
-			const type = file && file.type || getFileType(name);
+			let name = file?.name || getFileName(url);
+			const type = file?.type || getFileType(name);
 			if(!type || name.includes('?')) {
 				let ext;
 				switch((data[0] << 8) | data[1]) {

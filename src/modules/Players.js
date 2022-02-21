@@ -162,7 +162,7 @@ class Videos {
 		for(let i = 0, len = newLinks.length; i < len; ++i) {
 			const el = newLinks[i];
 			const link = oldLinks[j];
-			if(link && link.classList.contains('de-current')) {
+			if(link?.classList.contains('de-current')) {
 				this.currentLink = el;
 			}
 			if(cloned) {
@@ -247,7 +247,7 @@ class Videos {
 		}).catch(() => Videos._titlesLoaderHelper(info, num));
 	}
 	static _titlesLoaderHelper([link, isYtube, videoObj, id], num, ...data) {
-		if(data.length !== 0) {
+		if(data.length) {
 			Videos.setLinkData(link, data);
 			Videos._global.vData[+!isYtube][id] = data;
 			videoObj.vData[+!isYtube].push(data);

@@ -195,7 +195,7 @@ function readPostsData(firstPost, favObj) {
 			if(json.hash === (Cfg.hideBySpell ? Spells.hash : 0) &&
 				pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount
 			) {
-				sVis = json.data && json.data[0] instanceof Array ? json.data : null;
+				sVis = json.data?.[0] instanceof Array ? json.data : null;
 			}
 		}
 	} catch(err) {
@@ -245,10 +245,10 @@ function readPostsData(firstPost, favObj) {
 			if(HiddenThreads.has(num)) {
 				hideData = [true, null];
 			} else if(spellsHide) {
-				hideData = sVis && sVis[post.count];
+				hideData = sVis?.[post.count];
 			}
 		} else if(spellsHide) {
-			hideData = sVis && sVis[post.count];
+			hideData = sVis?.[post.count];
 		} else {
 			continue;
 		}

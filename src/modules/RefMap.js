@@ -37,7 +37,7 @@ class RefMap {
 		}
 	}
 	static initRefMap(form) {
-		let post = form.firstThr && form.firstThr.op;
+		let post = form.firstThr?.op;
 		if(post && Cfg.linksNavig) {
 			this.gen(pByNum);
 			const strNums = Cfg.strikeHidd && Post.hiddenNums.size ? Post.hiddenNums : null;
@@ -79,14 +79,14 @@ class RefMap {
 				lPost.ref.removeLink(pNum);
 				return;
 			}
-			if(strNums && strNums.has(lNum)) {
+			if(strNums?.has(lNum)) {
 				link.classList.add('de-link-hid');
 			}
 			if(!aib.hasOPNum && DelForm.tNums.has(lNum)) {
 				link.classList.add('de-ref-op');
 			}
 			lPost.ref.hasMap = true;
-			lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
+			lPost.ref.addRefNum(post, pNum, strNums?.has(pNum));
 		}
 	}
 	addRefNum(post, num, isHidden = null) {
@@ -130,7 +130,7 @@ class RefMap {
 	initPostRef(tUrl, strNums) {
 		let html = '';
 		for(const num of this._set) {
-			html += this._getHTML(num, tUrl, strNums && strNums.has(num));
+			html += this._getHTML(num, tUrl, strNums?.has(num));
 		}
 		this._createEl(html, false);
 		this._isInited = true;

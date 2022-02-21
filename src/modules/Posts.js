@@ -108,7 +108,7 @@ class AbstractPost {
 							quotedText = deWindow.getSelection().toString();
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 							quotedText = '';
-						} else if(pr.isQuick || (aib.t && pr.isHidden)) {
+						} else if(pr.isQuick || aib.t && pr.isHidden) {
 							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
 							const formText = pr.txta.value;
@@ -649,7 +649,7 @@ class Post extends AbstractPost {
 	}
 	get nextNotDeleted() {
 		let post = this.nextInThread;
-		while(post && post.isDeleted) {
+		while(post?.isDeleted) {
 			post = post.nextInThread;
 		}
 		return post;
@@ -757,10 +757,7 @@ class Post extends AbstractPost {
 			HotKeys.cPost = this;
 			HotKeys.lastPageOffset = deWindow.pageYOffset;
 		} else {
-			const el = $q('.de-selected');
-			if(el) {
-				el.unselect();
-			}
+			$q('.de-selected')?.unselect();
 		}
 		this.select();
 	}
@@ -851,10 +848,7 @@ class Post extends AbstractPost {
 	}
 	unselect() {
 		if(this.isOp) {
-			const el = $id('de-thr-hid-' + this.num);
-			if(el) {
-				el.classList.remove('de-selected');
-			}
+			$id('de-thr-hid-' + this.num)?.classList.remove('de-selected');
 			this.thr.el.classList.remove('de-selected');
 		} else {
 			this.el.classList.remove('de-selected');

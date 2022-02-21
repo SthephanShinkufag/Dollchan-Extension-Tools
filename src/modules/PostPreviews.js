@@ -127,7 +127,7 @@ class Pview extends AbstractPost {
 			this._loadPromise.cancelPromise();
 			this._loadPromise = null;
 		}
-		let vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
+		let vPost = AttachedImage.viewer?.data.post;
 		let pv = this;
 		do {
 			clearTimeout(pv._readDelay);

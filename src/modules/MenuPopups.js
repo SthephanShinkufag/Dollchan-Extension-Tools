@@ -161,7 +161,7 @@ class Menu {
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
 			let rt = fixEventEl(e.relatedTarget);
-			rt = rt && rt.farthestViewportElement || rt;
+			rt = rt?.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
 					if(this.onover) {

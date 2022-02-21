@@ -59,6 +59,7 @@
 		"no-new": "off",
 		"no-tabs": ["error", { "allowIndentationTabs": true }],
 		"no-unreachable-loop": "off",
+		"no-unsafe-optional-chaining": "error",
 		"no-useless-concat": "error",
 		"no-var": "error",
 		"object-curly-newline": ["error", { "multiline": true }],

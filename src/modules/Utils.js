@@ -69,9 +69,7 @@ function $replace(origEl, newEl) {
 }
 
 function $del(el) {
-	if(el) {
-		el.remove();
-	}
+	el?.remove();
 }
 
 function $delAll(path, root = docBody) {
@@ -389,7 +387,7 @@ class TasksPool {
 	}
 	completeTasks() {
 		if(!this.stopped) {
-			if(this.array.length === 0 && this.running === 0) {
+			if(!this.array.length && this.running === 0) {
 				this.endFn();
 			} else {
 				this.completed = true;
@@ -417,13 +415,13 @@ class TasksPool {
 	_continueTasks() {
 		if(!this.stopped) {
 			this.paused = false;
-			if(this.array.length === 0) {
+			if(!this.array.length) {
 				if(this.completed) {
 					this.endFn();
 				}
 				return;
 			}
-			while(this.array.length !== 0 && this.running !== this.max) {
+			while(this.array.length && this.running !== this.max) {
 				this._runTask(this.array.shift());
 				this.running++;
 			}
@@ -431,7 +429,7 @@ class TasksPool {
 	}
 	_endTask() {
 		if(!this.stopped) {
-			if(!this.paused && this.array.length !== 0) {
+			if(!this.paused && this.array.length) {
 				this._runTask(this.array.shift());
 				return;
 			}

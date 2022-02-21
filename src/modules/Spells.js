@@ -62,7 +62,7 @@ const Spells = Object.create({
 	},
 	addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
-		const val = fld && fld.value;
+		const val = fld?.value;
 		const chk = $q('input[info="hideBySpell"]');
 		let spells = val && this.parseText(val);
 		if(!val || spells) {

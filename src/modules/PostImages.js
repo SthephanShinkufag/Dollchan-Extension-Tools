@@ -181,7 +181,7 @@ class ImagesViewer {
 		data.cancelWebmLoad(this._fullEl);
 		do {
 			data = data.getFollowImg(isForward);
-		} while(data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
+		} while(data && (!data.isVideo && !data.isImage || isVideoOnly && data.isImage));
 		if(data) {
 			this.updateImgViewer(data, true, null);
 			data.post.selectAndScrollTo(data.post.images.first.el);
@@ -385,13 +385,13 @@ class ExpandableImage {
 	}
 	get isImage() {
 		const value = /(jpe?g|png|gif|webp)$/i.test(this.src) ||
-			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
+			this.src.startsWith('blob:') && !this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isImage', { value });
 		return value;
 	}
 	get isVideo() {
 		const value = /(webm|mp4|m4v|ogv)(&|$)/i.test(this.src) ||
-			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+			this.src.startsWith('blob:') && this.el.hasAttribute('de-video');
 		Object.defineProperty(this, 'isVideo', { value });
 		return value;
 	}

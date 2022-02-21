@@ -481,7 +481,7 @@ class KeyEditListener {
 				break;
 			}
 			const keyStr = KeyEditListener.keyCodes[key];
-			if(keyStr === undefined) {
+			if(typeof keyStr === 'undefined') {
 				this.cKey = -1;
 				return;
 			}

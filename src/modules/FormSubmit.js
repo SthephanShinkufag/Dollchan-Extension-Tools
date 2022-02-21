@@ -18,7 +18,7 @@ function checkUpload(data) {
 	const isDocument = data instanceof HTMLDocument;
 	if(aib.getSubmitData) {
 		if(aib.jsonSubmit) {
-			if(aib.captchaAfterSubmit && aib.captchaAfterSubmit(data)) {
+			if(aib.captchaAfterSubmit?.(data)) {
 				return;
 			}
 			const _data = (isDocument ? data.body.textContent : data).trim();
@@ -180,7 +180,7 @@ function * getFormElements(form, submitter) {
 				continue constructSet;
 			case 'file': {
 				let img;
-				if(field.files.length > 0) {
+				if(field.files.length) {
 					const { files } = field;
 					for(let j = 0, jlen = files.length; j < jlen; ++j) {
 						yield { name, type, el: field, value: files[j] };
@@ -256,12 +256,11 @@ async function html5Submit(form, submitter, needProgress = false) {
 		if(type === 'file') {
 			hasFiles = true;
 			const fileName = value.name;
-			const newFileName =
-				!Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (
-					Cfg.removeFName === 1 ? '' :
-					// 5 years = 5*365*24*60*60*1e3 = 15768e7
-					Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))
-				) + '.' + getFileExt(fileName);
+			const newFileName = !Cfg.removeFName || el.obj?.imgFile?.isConstName ? fileName : (
+				Cfg.removeFName === 1 ? '' :
+				// 5 years = 5*365*24*60*60*1e3 = 15768e7
+				Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))
+			) + '.' + getFileExt(fileName);
 			const mime = value.type;
 			if((Cfg.postSameImg || Cfg.removeEXIF) && (
 				mime === 'image/jpeg' ||

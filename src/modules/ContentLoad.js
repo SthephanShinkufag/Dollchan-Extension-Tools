@@ -41,7 +41,7 @@ const ContentLoader = {
 					el.src = thumbName;
 					tar.addFile(thumbName, data);
 				}, () => (el.src = safeName));
-			} else if(imgData && imgData.length > 0) {
+			} else if(imgData?.length) {
 				tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
 			} else {
 				$del(el);

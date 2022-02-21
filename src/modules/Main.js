@@ -25,7 +25,7 @@ function runFrames() {
 			const deWindow = fDoc.defaultView;
 			deMainFuncInner(
 				deWindow,
-				deWindow.opera && deWindow.opera.scriptStorage,
+				deWindow.opera?.scriptStorage,
 				deWindow.FormData,
 				(x, y) => deWindow.scrollTo(x, y),
 				typeof localData === 'object' ? localData : null
@@ -70,7 +70,7 @@ async function runMain(checkDomains, dataPromise) {
 		initNavFuncs();
 	}
 	const [favObj] = await (dataPromise || readData());
-	if(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local')) {
+	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
 	docBody.classList.add('de-runned');
@@ -125,10 +125,12 @@ async function runMain(checkDomains, dataPromise) {
 		return;
 	}
 	Logger.log('Parse delform');
-	const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
-	if(aib.t && !!sesStorage[storageName] && (sesStorage[storageName] > Thread.first.pcount)) {
-		sesStorage.removeItem(storageName);
-		deWindow.location.reload();
+	if(aib.t) {
+		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
+		if(sesStorage[storageName] > Thread.first.pcount) {
+			sesStorage.removeItem(storageName);
+			deWindow.location.reload();
+		}
 	}
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');

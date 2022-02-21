@@ -68,12 +68,12 @@ class Thread {
 	}
 	get nextNotHidden() {
 		let thr;
-		for(thr = this.next; thr && thr.isHidden; thr = thr.next) /* empty */;
+		for(thr = this.next; thr?.isHidden; thr = thr.next) /* empty */;
 		return thr;
 	}
 	get prevNotHidden() {
 		let thr;
-		for(thr = this.prev; thr && thr.isHidden; thr = thr.prev) /* empty */;
+		for(thr = this.prev; thr?.isHidden; thr = thr.prev) /* empty */;
 		return thr;
 	}
 	get top() {
@@ -117,7 +117,7 @@ class Thread {
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
 			case 'de-btn-unhide-user':
-				oldCoord = nextThr && nextThr.top;
+				oldCoord = nextThr?.top;
 				this.op.setUserVisib(!this.isHidden);
 				break;
 			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;

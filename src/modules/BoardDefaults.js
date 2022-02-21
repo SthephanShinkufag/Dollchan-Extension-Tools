@@ -369,7 +369,7 @@ class BaseBoard {
 			this.page = this.firstPage;
 		} else { // We are on board
 			const temp = url.match(/\/?(\d+)[^/]*?$/);
-			this.page = temp && +temp[1] || this.firstPage;
+			this.page = +temp?.[1] || this.firstPage;
 			this.b = url.replace(temp && this.page ? temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
 		}
 		if(this.docExt === null) {

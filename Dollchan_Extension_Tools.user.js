@@ -6290,6 +6290,8 @@ try {
 },{}],303:[function(require,module,exports){
 "use strict";
 
+var _window$opera;
+
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -6349,7 +6351,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '9101d05';
+  var commit = 'cd33dfd';
 
   var defaultCfg = {
     disabled: 0,
@@ -7038,9 +7040,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }
 
   function $del(el) {
-    if (el) {
-      el.remove();
-    }
+    el === null || el === void 0 ? void 0 : el.remove();
   }
 
   function $delAll(path) {
@@ -7469,7 +7469,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "completeTasks",
       value: function completeTasks() {
         if (!this.stopped) {
-          if (this.array.length === 0 && this.running === 0) {
+          if (!this.array.length && this.running === 0) {
             this.endFn();
           } else {
             this.completed = true;
@@ -7506,7 +7506,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (!this.stopped) {
           this.paused = false;
 
-          if (this.array.length === 0) {
+          if (!this.array.length) {
             if (this.completed) {
               this.endFn();
             }
@@ -7514,7 +7514,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return;
           }
 
-          while (this.array.length !== 0 && this.running !== this.max) {
+          while (this.array.length && this.running !== this.max) {
             this._runTask(this.array.shift());
 
             this.running++;
@@ -7525,7 +7525,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "_endTask",
       value: function _endTask() {
         if (!this.stopped) {
-          if (!this.paused && this.array.length !== 0) {
+          if (!this.paused && this.array.length) {
             this._runTask(this.array.shift());
 
             return;
@@ -8328,7 +8328,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var json = JSON.parse(str);
 
         if (json.hash === (Cfg.hideBySpell ? Spells.hash : 0) && pByNum.has(json.lastNum) && pByNum.get(json.lastNum).count === json.lastCount) {
-          sVis = json.data && json.data[0] instanceof Array ? json.data : null;
+          var _json$data;
+
+          sVis = ((_json$data = json.data) === null || _json$data === void 0 ? void 0 : _json$data[0]) instanceof Array ? json.data : null;
         }
       }
     } catch (err) {
@@ -8388,10 +8390,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (HiddenThreads.has(num)) {
           hideData = [true, null];
         } else if (spellsHide) {
-          hideData = sVis && sVis[post.count];
+          var _sVis;
+
+          hideData = (_sVis = sVis) === null || _sVis === void 0 ? void 0 : _sVis[post.count];
         }
       } else if (spellsHide) {
-        hideData = sVis && sVis[post.count];
+        var _sVis2;
+
+        hideData = (_sVis2 = sVis) === null || _sVis2 === void 0 ? void 0 : _sVis2[post.count];
       } else {
         continue;
       }
@@ -8889,9 +8895,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var Panel = Object.create({
     isVidEnabled: false,
     initPanel: function initPanel(formEl) {
+      var _pr;
+
       var imgLen = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-pcount\" title=\"" + "".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang], "\">") + "".concat(Thread.first.pcount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-icount\" title=\"").concat(Lng.panelBtn.imglen[lang], "\">").concat(imgLen, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-acount\" title=\"").concat(Lng.panelBtn.posters[lang], "\"></span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
+      (((_pr = pr) === null || _pr === void 0 ? void 0 : _pr.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-pcount\" title=\"" + "".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang], "\">") + "".concat(Thread.first.pcount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-icount\" title=\"").concat(Lng.panelBtn.imglen[lang], "\">").concat(imgLen, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-acount\" title=\"").concat(Lng.panelBtn.posters[lang], "\"></span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
       this._el = $id('de-panel');
 
       this._el.addEventListener('click', this, true);
@@ -8916,7 +8924,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       $id('de-main').remove();
     },
     handleEvent: function handleEvent(e) {
-      var _this10 = this;
+      var _this$_menu,
+          _this10 = this;
 
       if ('isTrusted' in e && !e.isTrusted) {
         return;
@@ -9071,7 +9080,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 'de-panel-savethr':
             case 'de-panel-audio-off':
-              if (this._menu && this._menu.parentEl === el) {
+              if (((_this$_menu = this._menu) === null || _this$_menu === void 0 ? void 0 : _this$_menu.parentEl) === el) {
                 return;
               }
 
@@ -9360,9 +9369,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }();
 
   function toggleWindow(name, isUpdate, data, noAnim) {
+    var _win;
+
     var el,
         win = $id('de-win-' + name);
-    var isActive = win && win.classList.contains('de-win-active');
+    var isActive = (_win = win) === null || _win === void 0 ? void 0 : _win.classList.contains('de-win-active');
 
     if (isUpdate && !isActive) {
       return;
@@ -10160,7 +10171,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 _f["new"] = cnt;
                 isUpdate = true; 
 
-                if (myposts && myposts[_b]) {
+                if (myposts !== null && myposts !== void 0 && myposts[_b]) {
                   _f.you = 0;
 
                   for (j = 0; j < cnt; ++j) {
@@ -11503,9 +11514,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           case 'mouseout':
             {
+              var _rt;
+
               clearTimeout(this._closeTO);
               var rt = fixEventEl(e.relatedTarget);
-              rt = rt && rt.farthestViewportElement || rt;
+              rt = ((_rt = rt) === null || _rt === void 0 ? void 0 : _rt.farthestViewportElement) || rt;
 
               if (!rt || rt !== this._el && !this._el.contains(rt)) {
                 if (isOverEvent) {
@@ -12278,7 +12291,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               var keyStr = KeyEditListener.keyCodes[key];
 
-              if (keyStr === undefined) {
+              if (typeof keyStr === 'undefined') {
                 this.cKey = -1;
                 return;
               }
@@ -12509,7 +12522,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             }, function () {
               return el.src = safeName;
             });
-          } else if (imgData && imgData.length > 0) {
+          } else if (imgData !== null && imgData !== void 0 && imgData.length) {
             tar.addFile(el.href = el.src = 'data/' + safeName, imgData);
           } else {
             $del(el);
@@ -13190,7 +13203,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var el = newLinks[i];
           var link = oldLinks[j];
 
-          if (link && link.classList.contains('de-current')) {
+          if (link !== null && link !== void 0 && link.classList.contains('de-current')) {
             this.currentLink = el;
           }
 
@@ -13358,7 +13371,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           data[_key2 - 2] = arguments[_key2];
         }
 
-        if (data.length !== 0) {
+        if (data.length) {
           Videos.setLinkData(link, data);
           Videos._global.vData[+!isYtube][id] = data;
           videoObj.vData[+!isYtube].push(data);
@@ -13662,6 +13675,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         });
       }
     } else if ((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
+      var _params;
+
       var gmxhr;
 
       var timeoutFn = function timeoutFn() {
@@ -13675,7 +13690,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var _loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 
       var obj = {
-        method: params && params.method || 'GET',
+        method: ((_params = params) === null || _params === void 0 ? void 0 : _params.method) || 'GET',
         url: nav.fixLink(url),
         onreadystatechange: function onreadystatechange(e) {
           if (needTO) {
@@ -13723,6 +13738,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         };
       }
     } else if (nav.canUseNativeXHR) {
+      var _params2;
+
       var xhr = new XMLHttpRequest();
 
       var _timeoutFn = function _timeoutFn() {
@@ -13732,7 +13749,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       var _loadTO2 = needTO && setTimeout(_timeoutFn, WAITING_TIME);
 
-      if (params && params.onprogress) {
+      if ((_params2 = params) !== null && _params2 !== void 0 && _params2.onprogress) {
         xhr.upload.onprogress = params.onprogress;
       }
 
@@ -13759,15 +13776,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       };
 
       try {
-        xhr.open(params && params.method || 'GET', getAbsLink(url), true);
+        var _params3, _params5;
+
+        xhr.open(((_params3 = params) === null || _params3 === void 0 ? void 0 : _params3.method) || 'GET', getAbsLink(url), true);
 
         if (params) {
           if (params.responseType) {
             xhr.responseType = params.responseType;
           }
 
-          var _params = params,
-              headers = _params.headers;
+          var _params4 = params,
+              headers = _params4.headers;
 
           if (headers) {
             for (var h in headers) {
@@ -13778,7 +13797,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         }
 
-        xhr.send(params && params.data || null);
+        xhr.send(((_params5 = params) === null || _params5 === void 0 ? void 0 : _params5.data) || null);
 
         cancelFn = function cancelFn() {
           if (needTO) {
@@ -13980,7 +13999,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }
 
     return aib.hasArchive ? ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true).then(function (data) {
-      return data && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
+      return data !== null && data !== void 0 && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
     }) : ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache).then(function (form) {
       return form ? new DOMPostsBuilder(form) : null;
     });
@@ -14396,7 +14415,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     addSpell: function addSpell(type, arg, isNeg) {
       var fld = $id('de-spell-txt');
-      var val = fld && fld.value;
+      var val = fld === null || fld === void 0 ? void 0 : fld.value;
       var chk = $q('input[info="hideBySpell"]');
       var spells = val && this.parseText(val);
 
@@ -17187,7 +17206,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     if (aib.getSubmitData) {
       if (aib.jsonSubmit) {
-        if (aib.captchaAfterSubmit && aib.captchaAfterSubmit(data)) {
+        var _aib$captchaAfterSubm, _aib;
+
+        if ((_aib$captchaAfterSubm = (_aib = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib, data)) {
           return;
         }
 
@@ -17229,8 +17250,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       return;
     }
 
-    var _pr = pr,
-        tNum = _pr.tNum;
+    var _pr2 = pr,
+        tNum = _pr2.tNum;
 
     if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
       MyPosts.set(postNum, tNum || postNum);
@@ -17493,7 +17514,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           case 31:
             img = void 0;
 
-            if (!(field.files.length > 0)) {
+            if (!field.files.length) {
               _context15.next = 43;
               break;
             }
@@ -17659,6 +17680,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           type,
           el,
           val,
+          _el$obj,
+          _el$obj$imgFile,
           fileName,
           newFileName,
           mime,
@@ -17700,7 +17723,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               hasFiles = true;
               fileName = value.name;
-              newFileName = !Cfg.removeFName || el.obj && el.obj.imgFile && el.obj.imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' : 
+              newFileName = !Cfg.removeFName || (_el$obj = el.obj) !== null && _el$obj !== void 0 && (_el$obj$imgFile = _el$obj.imgFile) !== null && _el$obj$imgFile !== void 0 && _el$obj$imgFile.isConstName ? fileName : (Cfg.removeFName === 1 ? '' : 
               Date.now() - (Cfg.removeFName === 2 ? 0 : Math.round(Math.random() * 15768e7))) + '.' + getFileExt(fileName);
               mime = value.type;
 
@@ -18079,7 +18102,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       el.classList.add('de-file-input');
       el.addEventListener('change', this);
 
-      if (el.files && el.files[0]) {
+      if (el !== null && el !== void 0 && el.files[0]) {
         this._removeFile();
       }
 
@@ -18124,6 +18147,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   $popup('file-loading', Lng.loading[lang], true);
                   _context16.next = 6;
                   return ContentLoader.loadImgData(url, false).then(function (data) {
+                    var _file, _file2;
+
                     if (file) {
                       deWindow.URL.revokeObjectURL(url);
                     }
@@ -18135,8 +18160,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                     closePopup('file-loading');
                     _this35._isTxtEditable = _this35._isTxtEditName = false;
-                    var name = file ? file.name : getFileName(url);
-                    var type = file && file.type || getFileType(name);
+                    var name = ((_file = file) === null || _file === void 0 ? void 0 : _file.name) || getFileName(url);
+                    var type = ((_file2 = file) === null || _file2 === void 0 ? void 0 : _file2.type) || getFileType(name);
 
                     if (!type || name.includes('?')) {
                       var ext;
@@ -19880,7 +19905,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       get: function get() {
         var post = this.nextInThread;
 
-        while (post && post.isDeleted) {
+        while ((_post4 = post) !== null && _post4 !== void 0 && _post4.isDeleted) {
+          var _post4;
+
           post = post.nextInThread;
         }
 
@@ -20033,11 +20060,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           HotKeys.cPost = this;
           HotKeys.lastPageOffset = deWindow.pageYOffset;
         } else {
-          var el = $q('.de-selected');
+          var _$q;
 
-          if (el) {
-            el.unselect();
-          }
+          (_$q = $q('.de-selected')) === null || _$q === void 0 ? void 0 : _$q.unselect();
         }
 
         this.select();
@@ -20169,12 +20194,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "unselect",
       value: function unselect() {
         if (this.isOp) {
-          var el = $id('de-thr-hid-' + this.num);
+          var _$id;
 
-          if (el) {
-            el.classList.remove('de-selected');
-          }
-
+          (_$id = $id('de-thr-hid-' + this.num)) === null || _$id === void 0 ? void 0 : _$id.classList.remove('de-selected');
           this.thr.el.classList.remove('de-selected');
         } else {
           this.el.classList.remove('de-selected');
@@ -20639,6 +20661,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "deletePview",
       value: function deletePview() {
+        var _AttachedImage$viewer;
+
         this.parent.kid = null;
 
         this._link.classList.remove('de-link-parent');
@@ -20653,7 +20677,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this._loadPromise = null;
         }
 
-        var vPost = AttachedImage.viewer && AttachedImage.viewer.data.post;
+        var vPost = (_AttachedImage$viewer = AttachedImage.viewer) === null || _AttachedImage$viewer === void 0 ? void 0 : _AttachedImage$viewer.data.post;
         var pv = this;
 
         do {
@@ -21554,7 +21578,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         do {
           data = data.getFollowImg(isForward);
-        } while (data && !data.isVideo && !data.isImage || isVideoOnly && data.isImage);
+        } while (data && (!data.isVideo && !data.isImage || isVideoOnly && data.isImage));
 
         if (data) {
           this.updateImgViewer(data, true, null);
@@ -23350,6 +23374,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "getPostHTML",
       value: function getPostHTML(i) {
+        var _data$files;
+
         var data = this._posts[i + 1];
         var num = data.num;
         var brd = this._brd;
@@ -23363,7 +23389,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var filesHTML = '';
 
-        if (data.files && data.files.length !== 0) {
+        if ((_data$files = data.files) !== null && _data$files !== void 0 && _data$files.length) {
           filesHTML = "<div class=\"".concat(isNew ? 'post__images post__images_type_' : 'images images-').concat(data.files.length === 1 ? 'single' : 'multi', "\">");
 
           for (var _iterator27 = _createForOfIteratorHelperLoose(data.files), _step27; !(_step27 = _iterator27()).done;) {
@@ -23568,7 +23594,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         for (var _iterator30 = _createForOfIteratorHelperLoose(this._set), _step30; !(_step30 = _iterator30()).done;) {
           var num = _step30.value;
-          html += this._getHTML(num, tUrl, strNums && strNums.has(num));
+          html += this._getHTML(num, tUrl, strNums === null || strNums === void 0 ? void 0 : strNums.has(num));
         }
 
         this._createEl(html, false);
@@ -23725,7 +23751,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "initRefMap",
       value: function initRefMap(form) {
-        var post = form.firstThr && form.firstThr.op;
+        var _form$firstThr;
+
+        var post = (_form$firstThr = form.firstThr) === null || _form$firstThr === void 0 ? void 0 : _form$firstThr.op;
 
         if (post && Cfg.linksNavig) {
           this.gen(pByNum);
@@ -23781,7 +23809,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return;
           }
 
-          if (strNums && strNums.has(lNum)) {
+          if (strNums !== null && strNums !== void 0 && strNums.has(lNum)) {
             link.classList.add('de-link-hid');
           }
 
@@ -23790,7 +23818,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
 
           lPost.ref.hasMap = true;
-          lPost.ref.addRefNum(post, pNum, strNums && strNums.has(pNum));
+          lPost.ref.addRefNum(post, pNum, strNums === null || strNums === void 0 ? void 0 : strNums.has(pNum));
         }
       }
     }]);
@@ -23877,7 +23905,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       get: function get() {
         var thr;
 
-        for (thr = this.next; thr && thr.isHidden; thr = thr.next) {
+        for (thr = this.next; (_thr = thr) !== null && _thr !== void 0 && _thr.isHidden; thr = thr.next) {
+          var _thr;
+
           ;
         }
 
@@ -23888,7 +23918,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       get: function get() {
         var thr;
 
-        for (thr = this.prev; thr && thr.isHidden; thr = thr.prev) {
+        for (thr = this.prev; (_thr2 = thr) !== null && _thr2 !== void 0 && _thr2.isHidden; thr = thr.prev) {
+          var _thr2;
+
           ;
         }
 
@@ -23956,7 +23988,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             case 'de-btn-hide':
             case 'de-btn-hide-user':
             case 'de-btn-unhide-user':
-              oldCoord = nextThr && nextThr.top;
+              oldCoord = nextThr === null || nextThr === void 0 ? void 0 : nextThr.top;
               this.op.setUserVisib(!this.isHidden);
               break;
 
@@ -24063,9 +24095,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (!preview || preview.num === this.num) {
           this.op.toggleFavBtn(isEnable);
           this.isFav = isEnable;
-          var _aib = aib;
-          h = _aib.host;
-          b = _aib.b;
+          var _aib2 = aib;
+          h = _aib2.host;
+          b = _aib2.b;
           num = this.num;
           cnt = this.pcount;
           txt = this.op.title;
@@ -24419,8 +24451,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var len = pBuilder.length;
         var maybeSpells = new Maybe(SpellsRunner);
         var maybeVParser = new Maybe(Cfg.embedYTube ? VideosParser : null);
-        var _post4 = post,
-            count = _post4.count;
+        var _post5 = post,
+            count = _post5.count;
 
         if (count !== 0 && (aib.dobrochan || count > len || pBuilder.getPNum(count - 1) !== post.num)) {
           post = this.op.nextNotDeleted;
@@ -24428,9 +24460,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var firstChangedPost = null;
 
           for (; i < len && post;) {
-            var _post5 = post,
-                num = _post5.num,
-                prev = _post5.prev;
+            var _post6 = post,
+                num = _post6.num,
+                prev = _post6.prev;
             var iNum = pBuilder.getPNum(i);
 
             if (num === iNum) {
@@ -25675,11 +25707,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     if (!('remove' in Element.prototype)) {
       Element.prototype.remove = function () {
-        var el = this.parentNode;
+        var _this$parentNode;
 
-        if (el) {
-          el.removeChild(this);
-        }
+        (_this$parentNode = this.parentNode) === null || _this$parentNode === void 0 ? void 0 : _this$parentNode.removeChild(this);
       };
     }
 
@@ -26381,7 +26411,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         } else {
           var _temp = url.match(/\/?(\d+)[^/]*?$/);
 
-          this.page = _temp && +_temp[1] || this.firstPage;
+          this.page = +(_temp === null || _temp === void 0 ? void 0 : _temp[1]) || this.firstPage;
           this.b = url.replace(_temp && this.page ? _temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
         }
 
@@ -27580,7 +27610,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "css",
         get: function get() {
-          return ".js-post-findimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,\n\t\t\t\t\t.thread-nav > :not(.search) { display: none !important; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.postform__raw_flex { flex-direction: column; align-items: flex-start; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
+          return ".js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,\n\t\t\t\t\t.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,\n\t\t\t\t\t.thread-nav > :not(.search) { display: none !important; }\n\t\t\t\t#down-nav-arrow, #up-nav-arrow { z-index: 0; }\n\t\t\t\t.postform__raw_flex { flex-direction: column; align-items: flex-start; }\n\t\t\t\t.de-pview > .post__details { margin-left: 4px; }\n\t\t\t\t.de-reply-class { background: var(--theme_default_postbg);\n\t\t\t\t\tborder: 1px solid var(--theme_default_border); border-radius: 3px; }\n\t\t\t\t.oekaki-height, .oekaki-width { width: 36px !important; }\n\t\t\t\t.post_type_reply { max-width: 100%; }\n\t\t\t\t.postform { width: auto; }\n\t\t\t\t.postform__sticker-btn, .postform__sticker-prev { bottom: " + "".concat(!Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 : Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25, "px !important; }\n\t\t\t\t").concat(Cfg.addSageBtn ? ".options__box[onclick=\"ToggleSage()\"]\n\t\t\t\t\t{ display: none !important; }" : '', "\n\t\t\t\t").concat(Cfg.addTextBtns ? '.js-postform-mu { display: none; }' : '', "\n\t\t\t\t").concat(Cfg.expandTrunc ? ".expand-large-comment,\n\t\t\t\t\tdiv[id^=\"shrinked-post\"] { display: none !important; }\n\t\t\t\t\tdiv[id^=\"original-post\"] { display: block !important; }" : '', "\n\t\t\t\t").concat(Cfg.imgNames === 2 ? ".post__filezise { display: inline !important; }\n\t\t\t\t\t.post__file-attr { margin-bottom: 1px; }" : '', "\n\t\t\t\t").concat(Cfg.noSpoilers ? '.spoiler::after { width: 0; }' : '');
         }
       }, {
         key: "isArchived",
@@ -27866,9 +27896,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
 
           var initObserver = new MutationObserver(function (mutations) {
-            var el = mutations[0].addedNodes[0];
+            var _mutations$0$addedNod;
 
-            if (el && el.className === 'thread') {
+            if (((_mutations$0$addedNod = mutations[0].addedNodes[0]) === null || _mutations$0$addedNod === void 0 ? void 0 : _mutations$0$addedNod.className) === 'thread') {
               initObserver.disconnect();
               runMain(checkDomains, dataPromise);
             }
@@ -28209,8 +28239,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "getSage",
         value: function getSage(post) {
-          var el = $q('.filetitle', post);
-          return !!el && el.textContent.includes("\u21E9");
+          var _$q2;
+
+          return !!((_$q2 = $q('.filetitle', post)) !== null && _$q2 !== void 0 && _$q2.textContent.includes("\u21E9"));
         }
       }]);
 
@@ -28390,14 +28421,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "init",
         value: function init() {
+          var _$id2;
+
           Cfg.findImgFile = 0;
           Cfg.txtBtnsLoc = 0;
-          var el = $id('styleSelector');
-
-          if (el) {
-            el.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
-          }
-
+          (_$id2 = $id('styleSelector')) === null || _$id2 === void 0 ? void 0 : _$id2.setAttribute('onchange', 'setActiveStyleSheet(this.value);');
           return false;
         }
       }]);
@@ -28808,6 +28836,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "init",
         value: function init() {
+          var _$id3;
+
           if (deWindow.location.pathname === '/settings') {
             $q('input[type="button"]').addEventListener('click', function () {
               return readCfg().then(function () {
@@ -28818,12 +28848,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
 
           $script('UploadProgress = Function.prototype;');
-          var el = $id('postform');
-
-          if (el) {
-            el.appendChild($q('.rules'));
-          }
-
+          (_$id3 = $id('postform')) === null || _$id3 === void 0 ? void 0 : _$id3.appendChild($q('.rules'));
           return false;
         }
       }, {
@@ -29173,14 +29198,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "sendHTML5Post",
         value: function sendHTML5Post(form, data, needProgress, hasFiles) {
-          var oekakiEl = $id('wPaint');
+          var _$id4;
 
-          if (oekakiEl && oekakiEl.style.display !== 'none') {
+          if (((_$id4 = $id('wPaint')) === null || _$id4 === void 0 ? void 0 : _$id4.style.display) !== 'none') {
             hasFiles = true;
             var mime = {
               type: 'image/png'
             };
-            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
+            var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('#wPaint > .wPaint-canvas'))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
             data["delete"]('files');
 
             for (var _iterator35 = _createForOfIteratorHelperLoose(files), _step35; !(_step35 = _iterator35()).done;) {
@@ -29667,7 +29692,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     ibDomains['warosu.org'] = Warosu;
     var wLoc = deWindow.location;
     var prot = wLoc.protocol;
-    var dm = localData && localData.dm;
+    var dm = localData === null || localData === void 0 ? void 0 : localData.dm;
 
     if (checkDomains) {
       if (!dm) {
@@ -29801,9 +29826,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     return $ajax(gitRaw + 'src/modules/Wrap.js', {
       'Content-Type': 'text/plain'
     }, true).then(function (_ref51) {
+      var _v$;
+
       var responseText = _ref51.responseText;
       var v = responseText.match(/const version = '([0-9.]+)';/);
-      var remoteVer = v && v[1] ? v[1].split('.') : null;
+      var remoteVer = v === null || v === void 0 ? void 0 : (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
 
       if (!remoteVer) {
         return Promise.reject();
@@ -29961,8 +29988,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var fDoc = frameEl.contentDocument;
 
       if (fDoc) {
+        var _deWindow$opera;
+
         var _deWindow = fDoc.defaultView;
-        deMainFuncInner(_deWindow, _deWindow.opera && _deWindow.opera.scriptStorage, _deWindow.FormData, function (x, y) {
+        deMainFuncInner(_deWindow, (_deWindow$opera = _deWindow.opera) === null || _deWindow$opera === void 0 ? void 0 : _deWindow$opera.scriptStorage, _deWindow.FormData, function (x, y) {
           return _deWindow.scrollTo(x, y);
         }, _typeof(localData) === 'object' ? localData : null);
       }
@@ -29998,6 +30027,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   function _runMain() {
     _runMain = _asyncToGenerator( regeneratorRuntime.mark(function _callee26(checkDomains, dataPromise) {
+      var _aib$init, _aib3;
+
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
       return regeneratorRuntime.wrap(function _callee26$(_context36) {
@@ -30059,7 +30090,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
-              if (!(!Cfg.disabled && aib.init && aib.init() || !localData && docBody.classList.contains('de-mode-local'))) {
+              if (!(!Cfg.disabled && (_aib$init = (_aib3 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib3) || !localData && docBody.classList.contains('de-mode-local'))) {
                 _context36.next = 21;
                 break;
               }
@@ -30140,11 +30171,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 53:
               Logger.log('Parse delform');
-              storageName = "de-lastpcount-".concat(aib.b, "-").concat(aib.t);
 
-              if (aib.t && !!sesStorage[storageName] && sesStorage[storageName] > Thread.first.pcount) {
-                sesStorage.removeItem(storageName);
-                deWindow.location.reload();
+              if (aib.t) {
+                storageName = "de-lastpcount-".concat(aib.b, "-").concat(aib.t);
+
+                if (sesStorage[storageName] > Thread.first.pcount) {
+                  sesStorage.removeItem(storageName);
+                  deWindow.location.reload();
+                }
               }
 
               pr = new PostForm($q(aib.qForm));
@@ -30192,7 +30226,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
               Logger.finish();
 
-            case 80:
+            case 79:
             case "end":
               return _context36.stop();
           }
@@ -30235,7 +30269,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }
 
   initMain();
-})(window, window.opera && window.opera.scriptStorage, window.FormData, function (x, y) {
+})(window, (_window$opera = window.opera) === null || _window$opera === void 0 ? void 0 : _window$opera.scriptStorage, window.FormData, function (x, y) {
   return window.scrollTo(x, y);
 },
 (typeof localData === "undefined" ? "undefined" : _typeof(localData)) === 'object' ? localData : null);

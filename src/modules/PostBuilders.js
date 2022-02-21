@@ -376,7 +376,7 @@ class MakabaPostsBuilder {
 
 		// --- FILE ---
 		let filesHTML = '';
-		if(data.files && data.files.length !== 0) {
+		if(data.files?.length) {
 			filesHTML = `<div class="${ isNew ? 'post__images post__images_type_' : 'images images-' }${
 				data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {

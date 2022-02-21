@@ -320,7 +320,7 @@ function showFavoritesWindow(body, favObj) {
 				f.new = cnt;
 				isUpdate = true;
 				// Check for replies to my posts
-				if(myposts && myposts[b]) {
+				if(myposts?.[b]) {
 					f.you = 0;
 					for(let j = 0; j < cnt; ++j) {
 						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
