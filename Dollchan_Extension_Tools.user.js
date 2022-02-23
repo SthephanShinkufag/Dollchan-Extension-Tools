@@ -6351,7 +6351,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '5872236';
+  var commit = 'd5e3aff';
 
   var defaultCfg = {
     disabled: 0,
@@ -12513,6 +12513,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var els = _toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc)));
 
       var count = els.length;
+
+      var delSymbols = function delSymbols(str) {
+        var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+        return str.replace(/[\\/:*?"<>|]/g, r);
+      };
+
       this._thrPool = new TasksPool(4, function (num, data) {
         return _this16.loadImgData(data[0]).then(function (imgData) {
           var _data4 = _slicedToArray(data, 4),
@@ -12521,7 +12527,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               el = _data4[2],
               parentLink = _data4[3];
 
-          var safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+          var safeName = delSymbols(fName, '_');
           progress.value = counter.innerHTML = current++;
 
           if (parentLink) {
@@ -12561,7 +12567,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         });
       }, function () {
-        var docName = "".concat(aib.dm, "-").concat(aib.b.replace(/[\\/:*?"<>|]/g, ''), "-").concat(aib.t);
+        var docName = "".concat(aib.dm, "-").concat(delSymbols(aib.b), "-").concat(aib.t);
 
         if (!imgOnly) {
           $q('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
@@ -12579,7 +12585,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name + (dt.publicId ? " PUBLIC \"".concat(dt.publicId, "\"") : dt.systemId ? ' SYSTEM' : '') + (dt.systemId ? " \"".concat(dt.systemId, "\"") : '') + '>' + dc.outerHTML);
         }
 
-        var title = Thread.first.op.title.trim().replace(/[/\\:*?"<>|]/g, '');
+        var title = delSymbols(Thread.first.op.title.trim());
         downloadBlob(tar.get(), "".concat(docName).concat(imgOnly ? '-images' : '').concat(title ? ' - ' + title : '', ".tar"));
         closePopup('load-files');
         _this16._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
@@ -12627,7 +12633,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return;
           }
 
-          var fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+          var fName = delSymbols(getFileName(url), '_').toLowerCase();
 
           if (files.indexOf(fName) !== -1) {
             var temp = url.lastIndexOf('.');
@@ -16174,7 +16180,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var txt = this._post.text; 
 
         if (val & 1) {
-          arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+          arr = txt.replaceAll('>', '').split(/\s*\n\s*/);
 
           if ((len = arr.length) > 5) {
             arr.sort();
@@ -20465,7 +20471,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "text",
       get: function get() {
-        var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&nbsp;/g, "\xA0").trim();
+        var value = this.post.msg.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n').replace(/<[^>]+?>/g, '').replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&nbsp;', "\xA0").trim();
         Object.defineProperty(this, 'text', {
           value: value
         });
@@ -22306,7 +22312,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             _this61.el.setAttribute('de-metatitle', loadedTitle);
 
             if (str) {
-              $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replace(/\./g, ' ');
+              $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replaceAll('.', ' ');
             }
           });
         }
@@ -23191,7 +23197,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         var cID = id ? this._colorIDs[id] || this._computeIDColor(id) : null;
         var posteruidEl = id && !data.capcode ? "<span class=\"posteruid id_".concat(id) + "\">(ID: <span class=\"hand\" title=\"Highlight posts by this ID\" style=\"background-color: rgb(".concat(cID[0], ", ").concat(cID[1], ", ").concat(cID[2], "); color: ").concat(cID[3] ? 'black' : 'white', ";\">").concat(id, "</span>)</span>") : '';
         var flagEl = (data.country ? "<span title=\"".concat(data.country_name, "\" class=\"flag flag-").concat(data.country.toLowerCase(), "\"></span>") : '') + (data.board_flag ? "<span title=\"".concat(data.flag_name, "\" class=\"bfl bfl-").concat(data.board_flag.toLowerCase(), "\"></span>") : '');
-        var emailEl = data.email ? "<a href=\"mailto:".concat(data.email.replace(/ /g, '%20'), "\" class=\"useremail\">") : '';
+        var emailEl = data.email ? "<a href=\"mailto:".concat(data.email.replaceAll(' ', '%20'), "\" class=\"useremail\">") : '';
         var replyEl = "<a href=\"#p".concat(num, "\" title=\"Link to this post\">No.</a><a href=\"javascript:quote('").concat(num, "');\" title=\"Reply to this post\">").concat(num, "</a>");
         var subjEl = "<span class=\"subject\">".concat(data.sub || '', "</span>");
         return "<div class=\"postContainer replyContainer\" id=\"pc".concat(num, "\">\n\t\t\t<div class=\"sideArrows\" id=\"sa").concat(num, "\">&gt;&gt;</div>\n\t\t\t<div id=\"p").concat(num, "\" class=\"post ").concat(i === -1 ? 'op' : 'reply', " ").concat(highlight, "\">\n\t\t\t\t<div class=\"postInfoM mobile\" id=\"pim").concat(num, "\">\n\t\t\t\t\t<span class=\"nameBlock ").concat(ccClass, "\">\n\t\t\t\t\t\t").concat(mobNameEl, "\n\t\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t\t").concat(ccText, "\n\t\t\t\t\t\t").concat(ccImg, "\n\t\t\t\t\t\t").concat(posteruidEl, "\n\t\t\t\t\t\t").concat(flagEl, "<br>\n\t\t\t\t\t\t").concat(subjEl, "\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"dateTime postNum\" data-utc=\"").concat(data.time, "\">").concat(data.now, " ").concat(replyEl, "</span>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"postInfo desktop\" id=\"pi").concat(num, "\">\n\t\t\t\t\t<input name=\"").concat(num, "\" value=\"delete\" type=\"checkbox\">\n\t\t\t\t\t").concat(subjEl, "\n\t\t\t\t\t<span class=\"nameBlock ").concat(ccClass, "\">\n\t\t\t\t\t\t").concat(emailEl, "\n\t\t\t\t\t\t\t").concat(nameEl, "\n\t\t\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t\t\t").concat(ccText, "\n\t\t\t\t\t\t").concat(data.email ? '</a>' : '', "\n\t\t\t\t\t\t").concat(ccImg, "\n\t\t\t\t\t\t").concat(posteruidEl, "\n\t\t\t\t\t\t").concat(flagEl, "\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"dateTime\" data-utc=\"").concat(data.time, "\">").concat(data.now, "</span>\n\t\t\t\t\t<span class=\"postNum desktop\">").concat(replyEl, "</span>\n\t\t\t\t</div>\n\t\t\t\t").concat(fileHTML, "\n\t\t\t\t<blockquote class=\"postMessage\" id=\"m").concat(num, "\"> ").concat(data.com || '', "</blockquote>\n\t\t\t</div>\n\t\t</div>");
@@ -23227,13 +23233,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }], [{
       key: "fixFileName",
       value: function fixFileName(name, maxLength) {
-        var decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        var decodedName = name.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#039;', '\'').replaceAll('&lt;', '<').replaceAll('&gt;', '>');
         return decodedName.length <= maxLength ? {
           isFixed: false,
           name: name
         } : {
           isFixed: true,
-          name: decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          name: decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('\'', '&#039;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
         };
       }
     }]);
@@ -23463,7 +23469,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         if (this._hasLikes) {
           var likes = "<div id=\"like-div".concat(num, "\" class=\"").concat(isNew ? "post__detailpart post__rate post__rate_type_like\" title=\"\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F\">\n\t\t\t\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"post__rate-icon icon\">\n\t\t\t\t\t\t<use xlink:href=\"#icon__thunder\"></use></svg>" : 'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>', " <span id=\"like-count").concat(num, "\"").concat(isNew ? '' : 'class="like-count"', ">");
-          var dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+          var dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
           rate = "".concat(likes).concat(data.likes || 0, "</span></div>\n\t\t\t\t").concat(dislikes).concat(data.dislikes || 0, "</span></div>");
         }
 
@@ -27511,7 +27517,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "fixHTMLHelper",
         value: function fixHTMLHelper(str) {
-          return str.replace(/data-original="\//g, 'src="/');
+          return str.replaceAll('data-original="/', 'src="/');
         }
       }, {
         key: "getCaptchaSrc",
@@ -29213,7 +29219,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             value = function value(post) {
               var containerEl = $q('div.panelUploads', post.el);
               var imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
-              var timetext = new Date(containerEl.parentElement.parentElement.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+              var timetext = new Date(containerEl.parentElement.parentElement.querySelectorAll('span.labelCreated')[0].textContent.replaceAll('-', '/')).getTime();
               timetext = timetext + timetext % 999;
 
               for (var j = 0; j < imgLinks.length; j++) {

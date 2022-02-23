@@ -15,9 +15,10 @@ const ContentLoader = {
 		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
+		const delSymbols = (str, r = '') => str.replace(/[\\/:*?"<>|]/g, r);
 		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
 			const [url, fName, el, parentLink] = data;
-			let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+			let safeName = delSymbols(fName, '_');
 			progress.value = counter.innerHTML = current++;
 			if(parentLink) {
 				let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
@@ -48,7 +49,7 @@ const ContentLoader = {
 				$del(el);
 			}
 		}), () => {
-			const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
+			const docName = `${ aib.dm }-${ delSymbols(aib.b) }-${ aib.t }`;
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
@@ -65,7 +66,7 @@ const ContentLoader = {
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-			const title = Thread.first.op.title.trim().replace(/[/\\:*?"<>|]/g, '');
+			const title = delSymbols(Thread.first.op.title.trim());
 			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
 				title ? ' - ' + title : '' }.tar`);
 			closePopup('load-files');
@@ -107,7 +108,7 @@ const ContentLoader = {
 					el.remove();
 					return;
 				}
-				let fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				let fName = delSymbols(getFileName(url), '_').toLowerCase();
 				if(files.indexOf(fName) !== -1) {
 					let temp = url.lastIndexOf('.');
 					const ext = url.substring(temp);

@@ -1244,7 +1244,7 @@ class SpellsInterpreter {
 		const txt = this._post.text;
 		// (1 << 0): samelines
 		if(val & 1) {
-			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+			arr = txt.replaceAll('>', '').split(/\s*\n\s*/);
 			if((len = arr.length) > 5) {
 				arr.sort();
 				for(let i = 0, n = len / 4; i < len;) {

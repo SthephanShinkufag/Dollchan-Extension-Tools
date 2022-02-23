@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '5872236';
+const commit = 'd5e3aff';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5982,9 +5982,10 @@ const ContentLoader = {
 		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
+		const delSymbols = (str, r = '') => str.replace(/[\\/:*?"<>|]/g, r);
 		this._thrPool = new TasksPool(4, (num, data) => this.loadImgData(data[0]).then(imgData => {
 			const [url, fName, el, parentLink] = data;
-			let safeName = fName.replace(/[\\/:*?"<>|]/g, '_');
+			let safeName = delSymbols(fName, '_');
 			progress.value = counter.innerHTML = current++;
 			if(parentLink) {
 				let thumbName = safeName.replace(/\.[a-z]+$/, '.png');
@@ -6015,7 +6016,7 @@ const ContentLoader = {
 				$del(el);
 			}
 		}), () => {
-			const docName = `${ aib.dm }-${ aib.b.replace(/[\\/:*?"<>|]/g, '') }-${ aib.t }`;
+			const docName = `${ aib.dm }-${ delSymbols(aib.b) }-${ aib.t }`;
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
@@ -6032,7 +6033,7 @@ const ContentLoader = {
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
 					(dt.systemId ? ` "${ dt.systemId }"` : '') + '>' + dc.outerHTML);
 			}
-			const title = Thread.first.op.title.trim().replace(/[/\\:*?"<>|]/g, '');
+			const title = delSymbols(Thread.first.op.title.trim());
 			downloadBlob(tar.get(), `${ docName }${ imgOnly ? '-images' : '' }${
 				title ? ' - ' + title : '' }.tar`);
 			closePopup('load-files');
@@ -6074,7 +6075,7 @@ const ContentLoader = {
 					el.remove();
 					return;
 				}
-				let fName = getFileName(url).replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+				let fName = delSymbols(getFileName(url), '_').toLowerCase();
 				if(files.indexOf(fName) !== -1) {
 					let temp = url.lastIndexOf('.');
 					const ext = url.substring(temp);
@@ -8510,7 +8511,7 @@ class SpellsInterpreter {
 		const txt = this._post.text;
 		// (1 << 0): samelines
 		if(val & 1) {
-			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+			arr = txt.replaceAll('>', '').split(/\s*\n\s*/);
 			if((len = arr.length) > 5) {
 				arr.sort();
 				for(let i = 0, n = len / 4; i < len;) {
@@ -11339,9 +11340,9 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		const value = this.post.msg.innerHTML
 			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
 			.replace(/<[^>]+?>/g, '')
-			.replace(/&gt;/g, '>')
-			.replace(/&lt;/g, '<')
-			.replace(/&nbsp;/g, '\u00A0').trim();
+			.replaceAll('&gt;', '>')
+			.replaceAll('&lt;', '<')
+			.replaceAll('&nbsp;', '\u00A0').trim();
 		Object.defineProperty(this, 'text', { value });
 		return value;
 	}
@@ -12622,7 +12623,7 @@ class ExpandableImage {
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
 					$q('.de-webm-title', wrapEl).textContent =
-						videoEl.title = loadedTitle.replace(/\./g, ' ');
+						videoEl.title = loadedTitle.replaceAll('.', ' ');
 				}
 			});
 		}
@@ -13075,12 +13076,12 @@ class _4chanPostsBuilder {
 		this._colorIDs = [];
 	}
 	static fixFileName(name, maxLength) {
-		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'')
-			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		const decodedName = name.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#039;', '\'')
+			.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
 			isFixed : true,
-			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			name    : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+				.replaceAll('\'', '&#039;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 		};
 	}
 	get isClosed() {
@@ -13191,7 +13192,7 @@ class _4chanPostsBuilder {
 			(data.board_flag ? `<span title="${ data.flag_name }" class="bfl bfl-${
 				data.board_flag.toLowerCase() }"></span>` : '');
 		const emailEl = data.email ? `<a href="mailto:${
-			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
+			data.email.replaceAll(' ', '%20') }" class="useremail">` : '';
 		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
 			num }');" title="Reply to this post">${ num }</a>`;
 		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
@@ -13446,7 +13447,7 @@ class MakabaPostsBuilder {
 						<use xlink:href="#icon__thunder"></use></svg>` :
 				'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>'
 			} <span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			const dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
 			rate = `${ likes }${ data.likes || 0 }</span></div>
 				${ dislikes }${ data.dislikes || 0 }</span></div>`;
 		}
@@ -16329,7 +16330,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/data-original="\//g, 'src="/');
+			return str.replaceAll('data-original="/', 'src="/');
 		}
 		getCaptchaSrc() {
 			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
@@ -17527,7 +17528,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					const containerEl = $q('div.panelUploads', post.el);
 					const imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
 					let timetext = new Date(containerEl.parentElement.parentElement
-						.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+						.querySelectorAll('span.labelCreated')[0].textContent.replaceAll('-', '/')).getTime();
 					timetext = timetext + timetext % 999;
 					for(let j = 0; j < imgLinks.length; j++) {
 						const imgLink = imgLinks[j];

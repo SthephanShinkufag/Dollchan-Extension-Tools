@@ -702,7 +702,7 @@ class ExpandableImage {
 				this.el.setAttribute('de-metatitle', loadedTitle);
 				if(str) {
 					$q('.de-webm-title', wrapEl).textContent =
-						videoEl.title = loadedTitle.replace(/\./g, ' ');
+						videoEl.title = loadedTitle.replaceAll('.', ' ');
 				}
 			});
 		}

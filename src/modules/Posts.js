@@ -935,9 +935,9 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		const value = this.post.msg.innerHTML
 			.replace(/<\/?(?:br|p|li)[^>]*?>/gi, '\n')
 			.replace(/<[^>]+?>/g, '')
-			.replace(/&gt;/g, '>')
-			.replace(/&lt;/g, '<')
-			.replace(/&nbsp;/g, '\u00A0').trim();
+			.replaceAll('&gt;', '>')
+			.replaceAll('&lt;', '<')
+			.replaceAll('&nbsp;', '\u00A0').trim();
 		Object.defineProperty(this, 'text', { value });
 		return value;
 	}

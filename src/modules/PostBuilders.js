@@ -62,12 +62,12 @@ class _4chanPostsBuilder {
 		this._colorIDs = [];
 	}
 	static fixFileName(name, maxLength) {
-		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'')
-			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+		const decodedName = name.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#039;', '\'')
+			.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
 			isFixed : true,
-			name    : decodedName.slice(0, 25).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			name    : decodedName.slice(0, 25).replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+				.replaceAll('\'', '&#039;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 		};
 	}
 	get isClosed() {
@@ -178,7 +178,7 @@ class _4chanPostsBuilder {
 			(data.board_flag ? `<span title="${ data.flag_name }" class="bfl bfl-${
 				data.board_flag.toLowerCase() }"></span>` : '');
 		const emailEl = data.email ? `<a href="mailto:${
-			data.email.replace(/ /g, '%20') }" class="useremail">` : '';
+			data.email.replaceAll(' ', '%20') }" class="useremail">` : '';
 		const replyEl = `<a href="#p${ num }" title="Link to this post">No.</a><a href="javascript:quote('${
 			num }');" title="Reply to this post">${ num }</a>`;
 		const subjEl = `<span class="subject">${ data.sub || '' }</span>`;
@@ -433,7 +433,7 @@ class MakabaPostsBuilder {
 						<use xlink:href="#icon__thunder"></use></svg>` :
 				'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>'
 			} <span id="like-count${ num }"${ isNew ? '' : 'class="like-count"' }>`;
-			const dislikes = likes.replace(/like/g, 'dislike').replace('icon__thunder', 'icon__thumbdown');
+			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
 			rate = `${ likes }${ data.likes || 0 }</span></div>
 				${ dislikes }${ data.dislikes || 0 }</span></div>`;
 		}

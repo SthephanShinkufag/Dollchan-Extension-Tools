@@ -627,7 +627,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/data-original="\//g, 'src="/');
+			return str.replaceAll('data-original="/', 'src="/');
 		}
 		getCaptchaSrc() {
 			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
@@ -1825,7 +1825,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					const containerEl = $q('div.panelUploads', post.el);
 					const imgLinks = $Q('a.imgLink:not(.unixLink)', containerEl);
 					let timetext = new Date(containerEl.parentElement.parentElement
-						.querySelectorAll('span.labelCreated')[0].textContent.replace(/-/g, '/')).getTime();
+						.querySelectorAll('span.labelCreated')[0].textContent.replaceAll('-', '/')).getTime();
 					timetext = timetext + timetext % 999;
 					for(let j = 0; j < imgLinks.length; j++) {
 						const imgLink = imgLinks[j];

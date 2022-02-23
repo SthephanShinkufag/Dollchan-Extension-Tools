@@ -3,7 +3,7 @@
 # ![dE](https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/extension/icons/logo-32.png) Dollchan Extension Tools
 
 - **[ [ES5 USERSCRIPT](https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js) ]** &mdash; `for old browsers`
-- **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 52+ / Chrome 55+ / Opera 42+`
+- **[ [ESNEXT USERSCRIPT ](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js) ]** &mdash; `Firefox 77+ / Chrome 85+ / Opera 71+`
 - **[ [FIREFOX EXTENSION](https://addons.mozilla.org/firefox/addon/dollchan-extension/) ]**<br>![Mozilla rating](https://img.shields.io/amo/rating/dollchan-extension.svg)
 
 ---
