@@ -69,7 +69,8 @@ class AbstractPost {
 		embedAudioLinks(this);
 	}
 	handleEvent(e) {
-		let temp, el = fixEventEl(e.target);
+		let temp;
+		let el = fixEventEl(e.target);
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -278,7 +279,7 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Don't use classList here, 'de-link-postref ' should be first
+			// Donʼt use classList here, 'de-link-postref ' should be first
 			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
 		case 'de-link-backref':

@@ -121,7 +121,7 @@ async function readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
+	if(aib.prot !== 'http:') { // Vocaroo doesnʼt support https
 		Cfg.addVocaroo = 0;
 	}
 	if(aib.dobrochan && !Cfg.useDobrAPI) {
@@ -205,7 +205,7 @@ function readPostsData(firstPost, favObj) {
 		return;
 	}
 	let updateFav = null;
-	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
+	const favBrd = favObj[aib.host]?.[aib.b] || {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -214,15 +214,15 @@ function readPostsData(firstPost, favObj) {
 		const { num } = post;
 		// Mark favorite threads, update favorites data
 		if(post.isOp && (num in favBrd)) {
-			const f = favBrd[num];
+			const entry = favBrd[num];
 			const { thr } = post;
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;
 			if(aib.t) {
-				f.cnt = thr.pcount;
-				f.new = f.you = 0;
-				if(Cfg.markNewPosts && f.last) {
-					let lastPost = pByNum.get(+f.last.match(/\d+/));
+				entry.cnt = thr.pcount;
+				entry.new = entry.you = 0;
+				if(Cfg.markNewPosts && entry.last) {
+					let lastPost = pByNum.get(+entry.last.match(/\d+/));
 					if(lastPost) {
 						// Mark all new posts after last viewed post
 						while((lastPost = lastPost.next)) {
@@ -230,9 +230,9 @@ function readPostsData(firstPost, favObj) {
 						}
 					}
 				}
-				f.last = aib.anchor + thr.last.num;
+				entry.last = aib.anchor + thr.last.num;
 			} else {
-				f.new = thr.pcount - f.cnt;
+				entry.new = thr.pcount - entry.cnt;
 			}
 			updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
 		}
@@ -364,9 +364,9 @@ class PostsStorage {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5e3) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
-			for(const b in storage) {
-				if($hasProp(storage, b)) {
-					const data = storage[b];
+			for(const board in storage) {
+				if($hasProp(storage, board)) {
+					const data = storage[board];
 					for(const key in data) {
 						if($hasProp(data, key) && data[key][0] < minDate) {
 							delete data[key];
@@ -440,8 +440,10 @@ const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 	getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
-		for(const b in storage) {
-			rv += Object.keys(storage[b]).length;
+		for(const board in storage) {
+			if($hasProp(storage, board)) {
+				rv += Object.keys(storage[board]).length;
+			}
 		}
 		return rv;
 	}
@@ -500,7 +502,8 @@ function sendStorageEvent(name, value) {
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
-		let data, temp, val = e.newValue;
+		let data, temp;
+		let val = e.newValue;
 		if(!val) {
 			return;
 		}

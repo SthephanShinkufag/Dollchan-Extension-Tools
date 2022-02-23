@@ -40,9 +40,10 @@ class Captcha {
 				return;
 			}
 			const ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
-			const en = "qwertyuiop[]]assdfghjkl;''zxcvbnm,.`\\";
+			const en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
 			const code = e.charCode || e.keyCode;
-			let i, chr = String.fromCharCode(code).toLowerCase();
+			let i;
+			let chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
 				if(code < 0x0410 || code > 0x04FF || (i = ruUa.indexOf(chr)) === -1) {
 					return;

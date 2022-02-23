@@ -10,7 +10,7 @@ function showVideosWindow(body) {
 	}
 	// EXCLUDED FROM FIREFOX EXTENSION - START
 	if(!$id('de-ytube-api')) {
-		// YouTube APT script. We can't insert scripts directly as html.
+		// YouTube APT script. We canʼt insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.youtube.com/player_api';
@@ -145,24 +145,30 @@ function updateVideoList(parent, link, num) {
 
 // HIDDEN THREADS WINDOW
 function showHiddenWindow(body) {
-	const hThr = HiddenThreads.getRawData();
-	const hasThreads = !$isEmpty(hThr);
+	const boards = HiddenThreads.getRawData();
+	const hasThreads = !$isEmpty(boards);
 	if(hasThreads) {
 		// Generate DOM for the list of hidden threads
-		for(const b in hThr) {
-			if($isEmpty(hThr[b])) {
+		for(const board in boards) {
+			if(!$hasProp(boards, board)) {
+				continue;
+			}
+			const threads = boards[board];
+			if($isEmpty(threads)) {
 				continue;
 			}
 			const block = $bEnd(body,
-				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
+				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
 				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
-			for(const tNum in hThr[b]) {
-				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
-					<input type="checkbox">
-					<a href="${ aib.getThrUrl(b, tNum) }" target="_blank">${ tNum }</a>
-					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
-				</div>`);
+			for(const tNum in threads) {
+				if($hasProp(threads, tNum)) {
+					$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
+						<input type="checkbox">
+						<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
+						<div class="de-entry-title">- ${ threads[tNum][2] }</div>
+					</div>`);
+				}
 			}
 		}
 	}
@@ -181,11 +187,11 @@ function showHiddenWindow(body) {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
-			const [b, tNum] = els[i].getAttribute('info').split(';');
-			await $ajax(aib.getThrUrl(b, tNum)).catch(err => {
+			const [board, tNum] = els[i].getAttribute('info').split(';');
+			await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
 				if(err.code === 404) {
-					HiddenThreads.removeStorage(tNum, b);
-					HiddenPosts.removeStorage(tNum, b);
+					HiddenThreads.removeStorage(tNum, board);
+					HiddenPosts.removeStorage(tNum, board);
 				}
 			});
 		}
@@ -198,14 +204,14 @@ function showHiddenWindow(body) {
 			if(!$q('input', el).checked) {
 				return;
 			}
-			const [brd, tNum] = el.getAttribute('info').split(';');
+			const [board, tNum] = el.getAttribute('info').split(';');
 			const num = +tNum;
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
-				sendStorageEvent('__de-post', { brd, num, hide: false, thrNum: num });
+				sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
 			}
-			HiddenThreads.removeStorage(num, brd);
+			HiddenThreads.removeStorage(num, board);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);

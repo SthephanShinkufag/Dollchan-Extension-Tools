@@ -1,12 +1,10 @@
-/* eslint indent: ["error", "tab", {
-	"flatTernaryExpressions": true,
-	"outerIIFEBody": 0 }] */
+/* eslint indent: ["error", "tab", { "flatTernaryExpressions": true, "outerIIFEBody": 0 }] */
 
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'b63b47d';
+const commit = '5872236';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */

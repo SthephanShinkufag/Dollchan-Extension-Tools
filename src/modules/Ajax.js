@@ -169,9 +169,9 @@ function $ajax(url, params = null, isCORS = false) {
 				}
 				const { headers } = params;
 				if(headers) {
-					for(const h in headers) {
-						if($hasProp(headers, h)) {
-							xhr.setRequestHeader(h, headers[h]);
+					for(const header in headers) {
+						if($hasProp(headers, header)) {
+							xhr.setRequestHeader(header, headers[header]);
 						}
 					}
 				}
@@ -189,7 +189,7 @@ function $ajax(url, params = null, isCORS = false) {
 			return $ajax(url, params);
 		}
 	} else {
-		reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
+		reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;
@@ -291,25 +291,25 @@ function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
-function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
+function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
 	if(useJson && aib.JsonBuilder) {
-		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
+		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(board, tNum), useCache).then(xhr => {
 			try {
-				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
+				return new aib.JsonBuilder(JSON.parse(xhr.responseText), board);
 			} catch(err) {
 				if(err instanceof AjaxError) {
 					return CancelablePromise.reject(err);
 				}
 				console.warn(`API error: ${ err }. Switching to DOM parsing!`);
 				aib.JsonBuilder = null;
-				return ajaxPostsLoad(brd, tNum, useCache);
+				return ajaxPostsLoad(board, tNum, useCache);
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return aib.hasArchive ?
-		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
+		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true)
 			.then(data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
-		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)
+		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache)
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 

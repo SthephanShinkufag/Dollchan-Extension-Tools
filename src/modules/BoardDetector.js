@@ -91,7 +91,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
 		get markupTags() {
-			return ["'''", "''", '__', '~~', '**', '[code'];
+			return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
 		}
 		async changeReplyMode(form, tNum) {
 			if(!this._origInputs && !$q('input[name="hash"]', form)) {
@@ -162,8 +162,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				$q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
 			return el.title || el.textContent;
 		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+		getPageUrl(board, page) {
+			return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
 		}
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
@@ -345,7 +345,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.form-post button, .form-post input, .form-post img { width: initial; }`;
 		}
 		get markupTags() {
-			return ["'''", "''", '__', '~~', '**', '[code'];
+			return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
 		}
 		captchaUpdate() {
 			$script('reloadCaptcha();');
@@ -362,7 +362,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
 		}
-		getCapParent(el) {
+		getCapParent() {
 			return $id('captchaDiv');
 		}
 		getImgRealName(wrap) {
@@ -374,8 +374,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return $parent(img, 'FIGURE');
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? p + this.docExt : 'index.html');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
 		}
 		getPNum(post) {
 			return +$q('.deletionCheckBox', post).name.split('-')[2];
@@ -541,8 +541,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? `page/${ page }/` : '');
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-thread-num');
@@ -639,8 +639,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			let txt;
 			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
-		getPageUrl(b, p) {
-			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
+		getPageUrl(board, page) {
+			return `${ fixBrd(board) }${ page > 0 ? page : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -783,7 +783,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
-					} catch(e) {}
+					} catch(err) {}
 					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
 						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
 				});
@@ -883,8 +883,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return $parent(img, 'FIGURE');
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `/${ brd }/res/${ tNum }.json`;
+		getJsonApiUrl(board, tNum) {
+			return `/${ board }/res/${ tNum }.json`;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -1023,8 +1023,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.reply { background: #f0e0d6; }
 				span { font-size: inherit; }`;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
 		}
 		getPNum(post) {
 			return +$q('input', post).name;
@@ -1092,7 +1092,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/src="[^>]+" data-src="/g, 'src="');
 		}
-		getCapParent(el) {
+		getCapParent() {
 			return $q('.captcha');
 		}
 		init() {
@@ -1292,7 +1292,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
 				.replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
 		}
-		fixVideo(isPost, data) {
+		fixVideo() {
 			return [];
 		}
 		getImgInfo(wrap) {
@@ -1303,14 +1303,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el = $q(this.qImgNameLink, wrap);
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
+		getJsonApiUrl(board, tNum) {
+			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? p : '');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? page : '');
 		}
 		getPostWrap(el) {
 			return el.parentNode;
@@ -1592,8 +1592,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 				img.previousElementSibling ? el : el.parentNode;
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
+		getJsonApiUrl(board, tNum) {
+			return `/api/thread/${ board }/${ tNum }/all.json?new_format&message_html&board`;
 		}
 		getOmitted(el) {
 			while(el) {
@@ -1605,8 +1605,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return 1;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
 		}
 		getTNum(thr) {
 			return +$q('a[name]', thr).name.match(/\d+/);
@@ -1694,8 +1694,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+		getPageUrl(board, page) {
+			return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
 		}
 		getPostElOfEl(el) {
 			while(el && !nav.matchesSelector(el, '.post')) {

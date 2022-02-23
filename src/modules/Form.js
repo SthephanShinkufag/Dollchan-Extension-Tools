@@ -353,7 +353,9 @@ class PostForm {
 			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
 			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 		}
-		let m, rv = '', i = 0;
+		let m;
+		let rv = '';
+		let i = 0;
 		const arr = text.split('\n');
 		for(let len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);

@@ -29,7 +29,7 @@ function initNavFuncs() {
 	const isSafari = isWebkit && !isChrome;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 	if(hasNewGM) {
 		const inf = GM.info;
@@ -88,7 +88,7 @@ function initNavFuncs() {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
 				}
-				return origAppend.apply(this, arguments);
+				return origAppend.apply(this, [name, value, fileName]);
 			};
 			return rv;
 		};

@@ -51,13 +51,13 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
-		const ta = el.lastChild;
-		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
+		const inputEl = el.lastChild;
+		inputEl.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn.bind(ta) : () => {
+		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
 			let data;
 			try {
-				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+				data = JSON.parse(inputEl.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 			} catch(err) {}
 			if(!data) {
 				$popup('err-invaliddata', Lng.invalidData[lang]);
@@ -94,7 +94,8 @@ class Menu {
 		parentEl.addEventListener('mouseout', this);
 	}
 	static getMenuImg(data, isDlOnly = false) {
-		let p, dlLinks = '';
+		let p;
+		let dlLinks = '';
 		if(typeof data === 'string') {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {

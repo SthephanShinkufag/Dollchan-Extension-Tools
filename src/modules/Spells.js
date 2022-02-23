@@ -72,7 +72,8 @@ const Spells = Object.create({
 				} catch(err) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
-			let idx, isAdded = true;
+			let idx;
+			let isAdded = true;
 			const scope = aib.t ? [aib.b, aib.t] : null;
 			if(spells[1]) {
 				const sScope = String(scope);
@@ -178,7 +179,8 @@ const Spells = Object.create({
 		}
 		case 11: // #tlen
 		case 15: { // #num
-			let temp_, temp = val[1].length - 1;
+			let temp_;
+			let temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
 					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
@@ -393,7 +395,8 @@ const Spells = Object.create({
 		return !rv.length ? null : rv;
 	},
 	_optimizeSpells(spells) {
-		let neg, lastSpell = -1;
+		let neg;
+		let lastSpell = -1;
 		let newSpells = [];
 		for(let i = 0, len = spells.length; i < len; ++i) {
 			let j;
@@ -779,7 +782,8 @@ class SpellsCodegen {
 		return null;
 	}
 	_doSpell(name, str, isNeg) {
-		let m, i = 0;
+		let m;
+		let i = 0;
 		const spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._col -= name.length + 1;

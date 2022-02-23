@@ -54,15 +54,15 @@ class DOMPostsBuilder {
 }
 
 class _4chanPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		this._posts = json.posts;
-		this._brd = brd;
+		this._board = board;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
 		this._colorIDs = [];
 	}
 	static fixFileName(name, maxLength) {
-		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'')
 			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
 			isFixed : true,
@@ -89,7 +89,7 @@ class _4chanPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.no;
-		const brd = this._brd;
+		const board = this._board;
 		const _icon = id => `//s.4cdn.org/image/${ id }${
 			deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
@@ -116,14 +116,14 @@ class _4chanPostsBuilder {
 			const fileTextTitle = isSpoiler ? ` title="${ data.filename + data.ext }"` : '';
 			const aHref = needTitle ? `title="${ data.filename + data.ext }"` : '';
 			const imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' :
-				`//i.4cdn.org/${ brd }/${ data.tim }s.jpg`;
+				`//i.4cdn.org/${ board }/${ data.tim }s.jpg`;
 			fileHTML = `<div class="file" id="f${ num }">
 				<div class="fileText" id="fT${ num }"${ fileTextTitle }>File:
-					<a href="//i.4cdn.org/${ brd }/${ data.tim +
+					<a href="//i.4cdn.org/${ board }/${ data.tim +
 						data.ext }" ${ aHref } target="_blank">${ name }</a>
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
-				<a class="fileThumb ${ isSpoiler ? 'imgspoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
+				<a class="fileThumb ${ isSpoiler ? 'imgspoiler' : '' }" href="//i.4cdn.org/${ board }/` +
 					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
 						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
@@ -135,7 +135,8 @@ class _4chanPostsBuilder {
 		}
 
 		// --- CAPCODE ---
-		let highlight = '', ccBy = '';
+		let highlight = '';
+		let ccBy = '';
 		let cc = data.capcode;
 		switch(cc) {
 		case 'admin_highlight':
@@ -148,7 +149,10 @@ class _4chanPostsBuilder {
 		case 'manager': ccBy = 'Managers'; break;
 		case 'founder': ccBy = 'Founder';
 		}
-		let ccName = '', ccText = '', ccImg = '', ccClass = '';
+		let ccName = '';
+		let ccText = '';
+		let ccImg = '';
+		let ccClass = '';
 		if(cc) {
 			ccName = cc[0].toUpperCase() + cc.slice(1);
 			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +
@@ -231,12 +235,12 @@ class _4chanPostsBuilder {
 _4chanPostsBuilder._customSpoiler = new Map();
 
 class DobrochanPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		if(json.error) {
 			throw new AjaxError(0, `API error: ${ json.error.message }`);
 		}
 		this._json = json.result;
-		this._brd = brd;
+		this._board = board;
 		this._posts = json.result.threads[0].posts;
 		this.length = this._posts.length - 1;
 		this.postersCount = '';
@@ -263,17 +267,18 @@ class DobrochanPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.display_id;
-		const brd = this._brd;
+		const board = this._board;
 		const multiFile = data.files.length > 1;
 
 		// --- FILE ---
 		let filesHTML = '';
 		for(const { file_id, metadata, rating, size, src, thumb, thumb_height, thumb_width } of data.files) {
-			let fileName, fullFileName, th = thumb;
+			let fileName, fullFileName;
+			let th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
 			const ext = getFileExt(src);
-			if(brd === 'b' || brd === 'rf') {
+			if(board === 'b' || board === 'rf') {
 				fileName = fullFileName = getFileName(th);
 			} else {
 				fileName = fullFileName = getFileName(src);
@@ -330,7 +335,7 @@ class DobrochanPostsBuilder {
 					<span class="postername">${ data.name || 'Анонимус' }</span> ${ date }
 				</label>
 				<span class="reflink">
-					<a href="/${ brd }/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
+					<a href="/${ board }/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
@@ -341,12 +346,12 @@ class DobrochanPostsBuilder {
 }
 
 class MakabaPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		if(json.Error) {
 			throw new AjaxError(0, `API error: ${ json.Error } (${ json.Code })`);
 		}
 		this._json = json;
-		this._brd = brd;
+		this._board = board;
 		this._posts = json.threads[0].posts;
 		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
 		this.postersCount = json.unique_posters;
@@ -369,7 +374,7 @@ class MakabaPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const { num } = data;
-		const brd = this._brd;
+		const board = this._board;
 		const isNew = this._isNew;
 		const p = isNew ? 'post__' : '';
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
@@ -419,7 +424,7 @@ class MakabaPostsBuilder {
 			'@@default'        :
 				`${ data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip' }">` + data.trip
 		}) }</span>`;
-		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
+		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
 			const likes = `<div id="like-div${ num }" class="${ isNew ?

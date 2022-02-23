@@ -94,9 +94,7 @@ const CfgWindow = {
 						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
-					const cfgObj = obj.settings;
-					const favObj = obj.favorites;
-					const dmObj = obj[aib.dm];
+					const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
 					const isOldCfg = !cfgObj && !favObj && !dmObj;
 					if(isOldCfg) {
 						setStored('DESU_Config', data);
@@ -136,8 +134,11 @@ const CfgWindow = {
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
 			expFile.addEventListener('click', async e => {
-				const name = [], nameDm = [], d = new Date();
-				let val = [], valDm = [];
+				const name = [];
+				const nameDm = [];
+				const d = new Date();
+				let val = [];
+				let valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
@@ -558,8 +559,8 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$after($q('input[info="userCSS"]').parentNode, getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, function() {
-						saveCfg('userCSSTxt', this.value);
+					fn => fn(Cfg.userCSSTxt, false, inputEl => {
+						saveCfg('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),

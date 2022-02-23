@@ -223,7 +223,8 @@ class BaseBoard {
 			str = Spells.replace(str);
 		}
 		if(Cfg.crossLinks) {
-			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
+			str = str.replace(aib.reCrossLinks,
+				(_, board, tNum, pNum) => `>&gt;&gt;/${ board }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
 			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
@@ -314,8 +315,8 @@ class BaseBoard {
 		}
 		return op;
 	}
-	getPageUrl(b, p) {
-		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+	getPageUrl(board, page) {
+		return fixBrd(board) + (page > 0 ? page + this.docExt : '');
 	}
 	getPNum(post) {
 		return +post.id.match(/\d+/);
@@ -345,8 +346,8 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Arhivach
-		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+	getThrUrl(board, tNum) { // Arhivach
+		return this.prot + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;

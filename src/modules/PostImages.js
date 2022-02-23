@@ -541,7 +541,8 @@ class ExpandableImage {
 		if(nImage) {
 			return nImage;
 		}
-		let imgs, { post } = this;
+		let imgs;
+		let { post } = this;
 		do {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
@@ -678,7 +679,8 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let str = '', d = new WebmParser(data.buffer).getWebmData();
+				let str = '';
+				let d = new WebmParser(data.buffer).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -756,7 +758,8 @@ class ExpandableImage {
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
-						let hostUrl, errMsg = Lng.errSaucenao[lang];
+						let hostUrl;
+						let errMsg = Lng.errSaucenao[lang];
 						try {
 							const obj = JSON.parse(xhr.responseText);
 							if(obj.status === 'success') {
@@ -764,7 +767,7 @@ class ExpandableImage {
 							} else {
 								errMsg += ':<br>' + obj.error_message;
 							}
-						} catch(e) {}
+						} catch(err) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
 					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
 				}, emptyFn);
@@ -843,8 +846,8 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// Don't use aib.getImgSrcLink(this.el).href
-		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
+		// Donʼt use aib.getImgSrcLink(this.el).href
+		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image canʼt be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
@@ -853,7 +856,9 @@ AttachedImage.viewer = null;
 // A class that finds a set of images in a post
 class PostImages {
 	constructor(post) {
-		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let first = null;
+		let last = null;
+		let els = $Q(aib.qPostImg, post.el);
 		let hasAttachments = false;
 		const filesMap = new Map();
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -991,7 +996,8 @@ const ImagesHashStorage = Object.create({
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		let data, val = -1;
+		let data;
+		let val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
 		const cnv = this._canvas;
 		cnv.width = w;

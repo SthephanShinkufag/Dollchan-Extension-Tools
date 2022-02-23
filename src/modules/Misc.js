@@ -30,7 +30,7 @@ const DollchanAPI = {
 	},
 
 	_handleMessage({ data: arg }) {
-		if(!arg || !arg.name) {
+		if(!arg?.name) {
 			return;
 		}
 		let rv = null;
@@ -64,7 +64,7 @@ const DollchanAPI = {
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			return Promise.reject();
+			return Promise.reject(new Error('Itʼs not time for an update yet'));
 		}
 	}
 	return $ajax(
@@ -73,7 +73,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v?.[1]?.split('.');
 		if(!remoteVer) {
-			return Promise.reject();
+			return Promise.reject(new Error('Canʼt get remote version'));
 		}
 		const currentVer = version.split('.');
 		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
@@ -96,9 +96,9 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
 					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 		}
-		return Promise.reject();
-	}, () => !isManual ?
-		Promise.reject() : `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
+		return Promise.reject(new Error());
+	}, () => isManual ? `<div style="color: red; font-weigth: bold;">${
+		Lng.noConnect[lang] }</div>` : Promise.reject(new Error(Lng.noConnect[lang]))
 	);
 }
 

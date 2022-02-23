@@ -188,35 +188,36 @@ class Thread {
 			.then(pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
-		let h, b, num, cnt, txt, last;
+		let host, board, num, cnt, txt, last;
 		if(preview) {
 			preview.toggleFavBtn(isEnable);
 		}
 		if(!preview || preview.num === this.num) { // Oppost or usual preview
 			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
-			({ host: h, b } = aib);
+			({ host, b: board } = aib);
 			({ num } = this);
 			cnt = this.pcount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
 		} else { // Loaded preview for oppost in remote thread
-			h = aib.host;
-			({ brd: b, num } = preview);
+			({ host } = aib);
+			({ board, num } = preview);
 			cnt = preview.remoteThr.pcount;
 			txt = preview.remoteThr.title;
 			last = aib.anchor + preview.remoteThr.lastNum;
 		}
 		readFavorites().then(favObj => {
 			if(isEnable) {
-				let f = favObj[h] || (favObj[h] = {});
-				f = f[b] || (f[b] = {});
-				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last, time: Date.now() };
+				let entry = favObj[host] || (favObj[host] = {});
+				entry = entry[board] || (entry[board] = {});
+				entry.url = aib.prot + '//' + aib.host + aib.getPageUrl(board, 0);
+				const url = aib.getThrUrl(board, num);
+				entry[num] = { cnt, new: 0, you: 0, txt, url, last, time: Date.now() };
 			} else {
-				removeFavEntry(favObj, h, b, num);
+				removeFavEntry(favObj, host, board, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
+			sendStorageEvent('__de-favorites', [host, board, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
 	}

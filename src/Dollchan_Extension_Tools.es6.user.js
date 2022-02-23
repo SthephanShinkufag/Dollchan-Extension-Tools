@@ -22,15 +22,13 @@
 // @include         *
 // ==/UserScript==
 
-/* eslint indent: ["error", "tab", {
-	"flatTernaryExpressions": true,
-	"outerIIFEBody": 0 }] */
+/* eslint indent: ["error", "tab", { "flatTernaryExpressions": true, "outerIIFEBody": 0 }] */
 
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'b63b47d';
+const commit = '5872236';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -71,7 +69,7 @@ const defaultCfg = {
 	expandImgs   : 2,    // expand images on click [0=off, 1=in post, 2=by center]
 	imgNavBtns   : 1,    //    add buttons to navigate images
 	imgInfoLink  : 1,    //    show name under expanded image
-	resizeDPI    : 0,    //    don't upscale images on high DPI displays
+	resizeDPI    : 0,    //    donʼt upscale images on high DPI displays
 	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
@@ -92,7 +90,7 @@ const defaultCfg = {
 	markViewed   : 0,    //    mark viewed posts
 	strikeHidd   : 0,    //    strike >>links to hidden posts
 	removeHidd   : 0,    //        also remove from reply maps
-	noNavigHidd  : 0,    //    don't show previews for hidden posts
+	noNavigHidd  : 0,    //    donʼt show previews for hidden posts
 	markMyLinks  : 1,    // mark links to my posts with (You)
 	crossLinks   : 0,    // replace http:// with >>/b/links*
 	decodeLinks  : 0,    // decode %D0%A5%D1 in links
@@ -429,7 +427,7 @@ const Lng = {
 		imgNames: {
 			sel: [
 				['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'],
-				['Don`t change', 'Original (trunc.)', 'Hide', 'Original (full)'],
+				['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'],
 				['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
 			txt: [
 				'имена картинок',
@@ -541,7 +539,7 @@ const Lng = {
 		removeFName: {
 			sel: [
 				['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'],
-				['Don`t change', 'Clear', 'Unixtime', 'Unixtime-random'],
+				['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'],
 				['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 			txt: [
 				'имена файлов',
@@ -1029,7 +1027,7 @@ const Lng = {
 		'Зберегти отриманий кадр'],
 	errSaucenao: [
 		'Ошибка: не могу загрузить на saucenao.com',
-		'Error: can`t load to saucenao.com',
+		'Error: canʼt load to saucenao.com',
 		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
@@ -1169,7 +1167,7 @@ const Lng = {
 		'неочікуваний символ: %s'],
 	seMissClBkt: [
 		'пропущена закрывающая скобка',
-		"missing ')' in expression",
+		'missing \')\' in expression',
 		'пропущено закривну дужку'],
 	seRepsInParens: [
 		'спелл #%s не должен располагаться в скобках',
@@ -1430,9 +1428,9 @@ const Lng = {
 		'Enter a link to the file manually',
 		'Ввести посилання на файл вручну'],
 	enterTheLink: [
-		"Введите ссылку и нажмите '+'",
-		"Enter the link and click '+'",
-		"Введіть посилання та натисніть '+'"],
+		'Введите ссылку и нажмите \'+\'',
+		'Enter the link and click \'+\'',
+		'Введіть посилання та натисніть \'+\''],
 	helpAddFile: [
 		'Встроить ogg/rar/zip/7z в картинку',
 		'Embed ogg/rar/zip/7z into the image',
@@ -1583,7 +1581,7 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Can`t load the reply form',
+		'Canʼt load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 
@@ -1791,7 +1789,7 @@ function $btn(value, title, fn, className = 'de-button') {
 }
 
 function $script(text) {
-	const el = doc.createElement('script'); // We can't insert scripts directly as html
+	const el = doc.createElement('script'); // We canʼt insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
 	doc.head.appendChild(el).remove();
@@ -1871,7 +1869,7 @@ const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
+const fixBrd = board => `/${ board }${ board ? '/' : '' }`;
 
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot :
@@ -1945,7 +1943,8 @@ const Logger = {
 	getLogData(isFull) {
 		const marks = this._marks;
 		const timeLog = [];
-		let duration, i = 1;
+		let duration;
+		let i = 1;
 		let lastExtra = 0;
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
@@ -2216,7 +2215,8 @@ class TarBuilder {
 		this._data = [];
 	}
 	addFile(filepath, input) {
-		let i, checksum = 0;
+		let i;
+		let checksum = 0;
 		const fileSize = input.length;
 		const header = new Uint8Array(512);
 		const nameLen = Math.min(filepath.length, 100);
@@ -2568,7 +2568,7 @@ async function readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if(aib.prot !== 'http:') { // Vocaroo doesn't support https
+	if(aib.prot !== 'http:') { // Vocaroo doesnʼt support https
 		Cfg.addVocaroo = 0;
 	}
 	if(aib.dobrochan && !Cfg.useDobrAPI) {
@@ -2652,7 +2652,7 @@ function readPostsData(firstPost, favObj) {
 		return;
 	}
 	let updateFav = null;
-	const favBrd = (aib.host in favObj) && (aib.b in favObj[aib.host]) ? favObj[aib.host][aib.b] : {};
+	const favBrd = favObj[aib.host]?.[aib.b] || {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -2661,15 +2661,15 @@ function readPostsData(firstPost, favObj) {
 		const { num } = post;
 		// Mark favorite threads, update favorites data
 		if(post.isOp && (num in favBrd)) {
-			const f = favBrd[num];
+			const entry = favBrd[num];
 			const { thr } = post;
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;
 			if(aib.t) {
-				f.cnt = thr.pcount;
-				f.new = f.you = 0;
-				if(Cfg.markNewPosts && f.last) {
-					let lastPost = pByNum.get(+f.last.match(/\d+/));
+				entry.cnt = thr.pcount;
+				entry.new = entry.you = 0;
+				if(Cfg.markNewPosts && entry.last) {
+					let lastPost = pByNum.get(+entry.last.match(/\d+/));
 					if(lastPost) {
 						// Mark all new posts after last viewed post
 						while((lastPost = lastPost.next)) {
@@ -2677,9 +2677,9 @@ function readPostsData(firstPost, favObj) {
 						}
 					}
 				}
-				f.last = aib.anchor + thr.last.num;
+				entry.last = aib.anchor + thr.last.num;
 			} else {
-				f.new = thr.pcount - f.cnt;
+				entry.new = thr.pcount - entry.cnt;
 			}
 			updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
 		}
@@ -2811,9 +2811,9 @@ class PostsStorage {
 		const storage = this._readStorage();
 		if(storage && storage.$count > 5e3) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
-			for(const b in storage) {
-				if($hasProp(storage, b)) {
-					const data = storage[b];
+			for(const board in storage) {
+				if($hasProp(storage, board)) {
+					const data = storage[board];
 					for(const key in data) {
 						if($hasProp(data, key) && data[key][0] < minDate) {
 							delete data[key];
@@ -2887,8 +2887,10 @@ const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 	getCount() {
 		const storage = this._readStorage();
 		let rv = 0;
-		for(const b in storage) {
-			rv += Object.keys(storage[b]).length;
+		for(const board in storage) {
+			if($hasProp(storage, board)) {
+				rv += Object.keys(storage[board]).length;
+			}
 		}
 		return rv;
 	}
@@ -2947,7 +2949,8 @@ function sendStorageEvent(name, value) {
 
 function initStorageEvent() {
 	doc.defaultView.addEventListener('storage', e => {
-		let data, temp, val = e.newValue;
+		let data, temp;
+		let val = e.newValue;
 		if(!val) {
 			return;
 		}
@@ -3420,7 +3423,8 @@ class WinResizer {
 }
 
 function toggleWindow(name, isUpdate, data, noAnim) {
-	let el, win = $id('de-win-' + name);
+	let el;
+	let win = $id('de-win-' + name);
 	const isActive = win?.classList.contains('de-win-active');
 	if(isUpdate && !isActive) {
 		return;
@@ -3559,7 +3563,7 @@ function showVideosWindow(body) {
 	}
 	// EXCLUDED FROM FIREFOX EXTENSION - START
 	if(!$id('de-ytube-api')) {
-		// YouTube APT script. We can't insert scripts directly as html.
+		// YouTube APT script. We canʼt insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.youtube.com/player_api';
@@ -3694,24 +3698,30 @@ function updateVideoList(parent, link, num) {
 
 // HIDDEN THREADS WINDOW
 function showHiddenWindow(body) {
-	const hThr = HiddenThreads.getRawData();
-	const hasThreads = !$isEmpty(hThr);
+	const boards = HiddenThreads.getRawData();
+	const hasThreads = !$isEmpty(boards);
 	if(hasThreads) {
 		// Generate DOM for the list of hidden threads
-		for(const b in hThr) {
-			if($isEmpty(hThr[b])) {
+		for(const board in boards) {
+			if(!$hasProp(boards, board)) {
+				continue;
+			}
+			const threads = boards[board];
+			if($isEmpty(threads)) {
 				continue;
 			}
 			const block = $bEnd(body,
-				`<div class="de-fold-block"><input type="checkbox"><b>/${ b }</b></div>`);
+				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
 				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
-			for(const tNum in hThr[b]) {
-				$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ b };${ tNum }">
-					<input type="checkbox">
-					<a href="${ aib.getThrUrl(b, tNum) }" target="_blank">${ tNum }</a>
-					<div class="de-entry-title">- ${ hThr[b][tNum][2] }</div>
-				</div>`);
+			for(const tNum in threads) {
+				if($hasProp(threads, tNum)) {
+					$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
+						<input type="checkbox">
+						<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
+						<div class="de-entry-title">- ${ threads[tNum][2] }</div>
+					</div>`);
+				}
 			}
 		}
 	}
@@ -3730,11 +3740,11 @@ function showHiddenWindow(body) {
 		// Sequentially load threads, and remove inaccessible
 		const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
 		for(let i = 0, len = els.length; i < len; ++i) {
-			const [b, tNum] = els[i].getAttribute('info').split(';');
-			await $ajax(aib.getThrUrl(b, tNum)).catch(err => {
+			const [board, tNum] = els[i].getAttribute('info').split(';');
+			await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
 				if(err.code === 404) {
-					HiddenThreads.removeStorage(tNum, b);
-					HiddenPosts.removeStorage(tNum, b);
+					HiddenThreads.removeStorage(tNum, board);
+					HiddenPosts.removeStorage(tNum, board);
 				}
 			});
 		}
@@ -3747,14 +3757,14 @@ function showHiddenWindow(body) {
 			if(!$q('input', el).checked) {
 				return;
 			}
-			const [brd, tNum] = el.getAttribute('info').split(';');
+			const [board, tNum] = el.getAttribute('info').split(';');
 			const num = +tNum;
 			if(pByNum.has(num)) {
 				pByNum.get(num).setUserVisib(false);
 			} else {
-				sendStorageEvent('__de-post', { brd, num, hide: false, thrNum: num });
+				sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
 			}
-			HiddenThreads.removeStorage(num, brd);
+			HiddenThreads.removeStorage(num, board);
 			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 		});
 		toggleWindow('hid', true);
@@ -3770,21 +3780,21 @@ function saveRenewFavorites(favObj) {
 	toggleWindow('fav', true, favObj);
 }
 
-function removeFavEntry(favObj, h, b, num) {
-	let f;
-	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
-		delete f[num];
-		if(!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
-			delete favObj[h][b];
-			if($isEmpty(favObj[h])) {
-				delete favObj[h];
+function removeFavEntry(favObj, host, board, num) {
+	const entry = favObj[host]?.[board];
+	if(entry?.[num]) {
+		delete entry[num];
+		if(!(Object.keys(entry).length - +$hasProp(entry, 'url') - +$hasProp(entry, 'hide'))) {
+			delete favObj[host][board];
+			if($isEmpty(favObj[host])) {
+				delete favObj[host];
 			}
 		}
 	}
 }
 
-function toggleThrFavBtn(h, b, num, isEnable) {
-	if(h === aib.host && b === aib.b && pByNum.has(num)) {
+function toggleThrFavBtn(host, board, num, isEnable) {
+	if(host === aib.host && board === aib.b && pByNum.has(num)) {
 		const post = pByNum.get(num);
 		post.toggleFavBtn(isEnable);
 		post.thr.isFav = isEnable;
@@ -3793,28 +3803,28 @@ function toggleThrFavBtn(h, b, num, isEnable) {
 
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
-		let isUpdate = false;
-		let f = favObj[aib.host];
-		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
+		const entry = favObj[aib.host]?.[aib.b]?.[num];
+		if(!entry) {
 			return;
 		}
+		let isUpdate = false;
 		switch(mode) {
 		case 'error':
-			if(f.err !== value) {
+			if(entry.err !== value) {
 				isUpdate = true;
 			}
-			f.err = value;
+			entry.err = value;
 			break;
 		case 'update':
-			if(f.cnt !== value[0]) {
+			if(entry.cnt !== value[0]) {
 				isUpdate = true;
 			}
-			f.cnt = value[0];
-			f.new = f.you = 0;
-			f.last = aib.anchor + value[1];
+			entry.cnt = value[0];
+			entry.new = entry.you = 0;
+			entry.last = aib.anchor + value[1];
 		}
-		const data = [aib.host, aib.b, num, value, mode];
 		if(isUpdate) {
+			const data = [aib.host, aib.b, num, value, mode];
 			updateFavWindow(...data);
 			saveFavorites(favObj);
 			sendStorageEvent('__de-favorites', data);
@@ -3822,17 +3832,18 @@ function updateFavorites(num, value, mode) {
 	});
 }
 
-function updateFavWindow(h, b, num, value, mode) {
+function updateFavWindow(host, board, num, value, mode) {
 	if(mode === 'add' || mode === 'delete') {
-		toggleThrFavBtn(h, b, num, mode === 'add');
+		toggleThrFavBtn(host, board, num, mode === 'add');
 		toggleWindow('fav', true, value);
 		return;
 	}
 	const winEl = $q('#de-win-fav > .de-win-body');
-	if(!winEl || !winEl.hasChildNodes()) {
+	if(!winEl?.hasChildNodes()) {
 		return;
 	}
-	const el = $q(`.de-entry[de-host="${ h }"][de-board="${ b }"][de-num="${ num }"] > .de-fav-inf`, winEl);
+	const el = $q(`.de-entry[de-host="${
+		host }"][de-board="${ board }"][de-num="${ num }"] > .de-fav-inf`, winEl);
 	if(!el) {
 		return;
 	}
@@ -3859,11 +3870,11 @@ function cleanFavorites() {
 	readFavorites().then(favObj => {
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
-			const h = el.getAttribute('de-host');
-			const b = el.getAttribute('de-board');
+			const host = el.getAttribute('de-host');
+			const board = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
-			removeFavEntry(favObj, h, b, num);
-			toggleThrFavBtn(h, b, num, false);
+			removeFavEntry(favObj, host, board, num);
+			toggleThrFavBtn(host, board, num, false);
 		}
 		saveRenewFavorites(favObj);
 	});
@@ -3872,43 +3883,52 @@ function cleanFavorites() {
 function showFavoritesWindow(body, favObj) {
 	let html = '';
 	// Create the list of favorite threads
-	for(const h in favObj) {
-		for(const b in favObj[h]) {
-			const f = favObj[h][b];
-			const hb = `de-host="${ h }" de-board="${ b }"`;
+	for(const host in favObj) {
+		if(!$hasProp(favObj, host)) {
+			continue;
+		}
+		const boards = favObj[host];
+		for(const board in boards) {
+			if(!$hasProp(boards, board)) {
+				continue;
+			}
+			const threads = boards[board];
+			const hb = `de-host="${ host }" de-board="${ board }"`;
 			const delBtn = `<span class="de-fav-del-btn">
 				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
 			</span>`;
-			let fArr, innerHtml = '';
+			let tNums;
+			const tArr = Object.entries(threads);
 			switch(Cfg.favThrOrder) {
-			case 0: fArr = Object.entries(f); break;
-			case 1: fArr = Object.entries(f).reverse(); break;
-			case 2: fArr = Object.entries(f).sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
-			case 3: fArr = Object.entries(f).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+			case 0: tNums = tArr; break;
+			case 1: tNums = tArr.reverse(); break;
+			case 2: tNums = tArr.sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
+			case 3: tNums = tArr.sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
 			}
-			for(let i = 0, len = fArr.length; i < len; ++i) {
-				const tNum = fArr[i][0];
+			let innerHtml = '';
+			for(let i = 0, len = tNums.length; i < len; ++i) {
+				const tNum = tNums[i][0];
 				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}
-				const t = f[tNum];
+				const entry = threads[tNum];
 				// Generate DOM for separate entry
-				const favLinkHref = t.url + (
-					!t.last ? '' :
-					t.last.startsWith('#') ? t.last :
-					h === aib.host ? aib.anchor + t.last : '');
-				const favInfIwrapTitle = !t.err ? '' :
-					t.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ t.err }"`;
-				const favInfIconClass = !t.err ? '' :
-					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
-				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
-				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
+				const favLinkHref = entry.url + (
+					!entry.last ? '' :
+					entry.last.startsWith('#') ? entry.last :
+					host === aib.host ? aib.anchor + entry.last : '');
+				const favInfIwrapTitle = !entry.err ? '' :
+					entry.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ entry.err }"`;
+				const favInfIconClass = !entry.err ? '' :
+					entry.err === 'Closed' || entry.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
+				const favInfYouDisp = entry.you ? '' : ' style="display: none;"';
+				const favInfNewDisp = entry.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
-					hb } de-num="${ tNum }" de-url="${ t.url }">
+					hb } de-num="${ tNum }" de-url="${ entry.url }">
 					${ delBtn }
 					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
-					<div class="de-entry-title">- ${ t.txt }</div>
+					<div class="de-entry-title">- ${ entry.txt }</div>
 					<div class="de-fav-inf">
 						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
 							<svg class="de-fav-inf-icon ${ favInfIconClass }">
@@ -3918,10 +3938,10 @@ function showFavoritesWindow(body, favObj) {
 							</svg>
 						</span>
 						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
-							${ t.you || 0 }</span>
+							${ entry.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
-							${ t.new || 0 }</span>
-						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
+							${ entry.new || 0 }</span>
+						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ entry.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`;
@@ -3929,13 +3949,14 @@ function showFavoritesWindow(body, favObj) {
 			if(!innerHtml) {
 				continue;
 			}
-			const isHide = f.hide === undefined ? h !== aib.host : f.hide;
+			const isHide = threads.hide === undefined ? host !== aib.host : threads.hide;
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
+			html += `<div class="de-fold-block${
+				host === aib.host && board === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
 					${ delBtn }
 					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
-						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+						` href="${ threads.url }" rel="noreferrer">${ host }/${ board }</a>
 					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
 						` href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
@@ -4013,12 +4034,12 @@ function showFavoritesWindow(body, favObj) {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const host = el.getAttribute('de-host');
-			const b = el.getAttribute('de-board');
+			const board = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			const f = favObj[host][b][num];
-			// Updating doesn't works for other domains because of different posts structure
+			const entry = favObj[host][board][num];
+			// Updating doesnʼt works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
+			if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
 				continue;
 			}
 			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
@@ -4029,15 +4050,15 @@ function showFavoritesWindow(body, favObj) {
 			let form, isArchived;
 			try {
 				if(!aib.hasArchive) {
-					form = await ajaxLoad(aib.getThrUrl(b, num));
+					form = await ajaxLoad(aib.getThrUrl(board, num));
 				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
 				}
 				last404 = false;
 			} catch(err) {
 				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(b, num); // Not working yet
+						Thread.removeSavedData(board, num); // Not working yet
 					} else {
 						last404 = true;
 						--i; // Repeat this cycle again
@@ -4048,55 +4069,55 @@ function showFavoritesWindow(body, favObj) {
 				$hide(countEl);
 				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f.err = titleEl.title = getErrorMessage(err);
+				entry.err = titleEl.title = getErrorMessage(err);
 				isUpdate = true;
 				continue;
 			}
 			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
-				f.err = 'Closed';
+				entry.err = 'Closed';
 				isUpdate = true;
 			} else if(isArchived) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
-				f.err = 'Archived';
+				entry.err = 'Archived';
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-				if(f.err) { // Cancel error status if existed
-					delete f.err;
+				if(entry.err) { // Cancel error status if existed
+					delete entry.err;
 					isUpdate = true;
 				}
 			}
 			// Updating a counter of new posts
 			const posts = $Q(aib.qRPost, form);
-			const cnt = posts.length + 1 - f.cnt;
+			const cnt = posts.length + 1 - entry.cnt;
 			countEl.textContent = cnt;
 			if(cnt === 0) {
 				$hide(countEl); // Hide counter if no new posts
 				$hide(youEl);
 			} else {
 				$show(countEl);
-				f.new = cnt;
+				entry.new = cnt;
 				isUpdate = true;
 				// Check for replies to my posts
-				if(myposts?.[b]) {
-					f.you = 0;
+				if(myposts?.[board]) {
+					entry.you = 0;
 					for(let j = 0; j < cnt; ++j) {
 						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
 							posts[posts.length - 1 - j]);
 						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
-							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
-								f.you++;
+							if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
+								entry.you++;
 							}
 						}
 					}
-					if(f.you) {
-						youEl.textContent = f.you;
+					if(entry.you) {
+						youEl.textContent = entry.you;
 						$show(youEl);
 					}
 				}
@@ -4136,7 +4157,7 @@ function showFavoritesWindow(body, favObj) {
 		}
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
-		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
+		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
 		let infoLoaded = 0;
 		const updateInf = (inf, page) => {
 			inf.iconEl.setAttribute('class', inf.iconClass);
@@ -4191,7 +4212,7 @@ function showFavoritesWindow(body, favObj) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
-				switch(el.getAttribute('de-host')) { // Makaba doesn't return 404
+				switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
 				case '2ch.hk':
 				case '2ch.pm': {
 					const dc = $DOM(xhr.responseText);
@@ -4335,9 +4356,7 @@ const CfgWindow = {
 						$popup('err-invaliddata', Lng.invalidData[lang]);
 						return;
 					}
-					const cfgObj = obj.settings;
-					const favObj = obj.favorites;
-					const dmObj = obj[aib.dm];
+					const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
 					const isOldCfg = !cfgObj && !favObj && !dmObj;
 					if(isOldCfg) {
 						setStored('DESU_Config', data);
@@ -4377,8 +4396,11 @@ const CfgWindow = {
 			const els = $Q('input', expFile.nextElementSibling);
 			els[0].checked = true;
 			expFile.addEventListener('click', async e => {
-				const name = [], nameDm = [], d = new Date();
-				let val = [], valDm = [];
+				const name = [];
+				const nameDm = [];
+				const d = new Date();
+				let val = [];
+				let valDm = [];
 				for(let i = 0, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
@@ -4799,8 +4821,8 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$after($q('input[info="userCSS"]').parentNode, getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, function() {
-						saveCfg('userCSSTxt', this.value);
+					fn => fn(Cfg.userCSSTxt, false, inputEl => {
+						saveCfg('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),
@@ -5178,13 +5200,13 @@ function getEditButton(name, getDataFn, className = 'de-button') {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
-		const ta = el.lastChild;
-		ta.value = isJSON ? JSON.stringify(val, null, '\t') : val;
+		const inputEl = el.lastChild;
+		inputEl.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn.bind(ta) : () => {
+		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
 			let data;
 			try {
-				data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+				data = JSON.parse(inputEl.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 			} catch(err) {}
 			if(!data) {
 				$popup('err-invaliddata', Lng.invalidData[lang]);
@@ -5221,7 +5243,8 @@ class Menu {
 		parentEl.addEventListener('mouseout', this);
 	}
 	static getMenuImg(data, isDlOnly = false) {
-		let p, dlLinks = '';
+		let p;
+		let dlLinks = '';
 		if(typeof data === 'string') {
 			p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
 		} else {
@@ -5787,7 +5810,8 @@ class KeyEditListener {
 		return value;
 	}
 	handleEvent(e) {
-		let key, el = e.target;
+		let key;
+		let el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(HotKeys.enabled && this.errCount === 0) {
@@ -5937,7 +5961,7 @@ KeyEditListener.keyCodes = [
 	/* Select */,,,'Num 0','Num 1','Num 2','Num 3','Num 4','Num 5','Num 6','Num 7','Num 8','Num 9','Num *',
 	'Num +',,'Num -','Num .','Num /',/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,
 	/* F9 */,/* F10 */,/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,
-	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
+	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
 ];
 /* eslint-enable comma-spacing, comma-style, no-sparse-arrays */
 
@@ -5951,9 +5975,10 @@ const ContentLoader = {
 	isLoading : false,
 	popupId   : null,
 	downloadThread(imgOnly) {
-		let progress, counter, current = 1,
-			warnings = '',
-			tar = new TarBuilder();
+		let progress, counter;
+		let current = 1;
+		let warnings = '';
+		let tar = new TarBuilder();
 		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;
@@ -6747,7 +6772,7 @@ function embedAudioLinks(data) {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const link = els[i];
 			const el = link.previousSibling;
-			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
+			if(!el || el.className !== 'de-vocaroo') { // Donʼt embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
 					<embed src="http://vocaroo.com/player.swf?playMediaID=${ getFileName(link.href) }` +
 						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
@@ -6928,9 +6953,9 @@ function $ajax(url, params = null, isCORS = false) {
 				}
 				const { headers } = params;
 				if(headers) {
-					for(const h in headers) {
-						if($hasProp(headers, h)) {
-							xhr.setRequestHeader(h, headers[h]);
+					for(const header in headers) {
+						if($hasProp(headers, header)) {
+							xhr.setRequestHeader(header, headers[header]);
 						}
 					}
 				}
@@ -6948,7 +6973,7 @@ function $ajax(url, params = null, isCORS = false) {
 			return $ajax(url, params);
 		}
 	} else {
-		reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
+		reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
 	}
 	return new CancelablePromise((res, rej) => {
 		resolve = res;
@@ -7050,25 +7075,25 @@ function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
 	}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 }
 
-function ajaxPostsLoad(brd, tNum, useCache, useJson = true) {
+function ajaxPostsLoad(board, tNum, useCache, useJson = true) {
 	if(useJson && aib.JsonBuilder) {
-		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(xhr => {
+		return AjaxCache.runCachedAjax(aib.getJsonApiUrl(board, tNum), useCache).then(xhr => {
 			try {
-				return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
+				return new aib.JsonBuilder(JSON.parse(xhr.responseText), board);
 			} catch(err) {
 				if(err instanceof AjaxError) {
 					return CancelablePromise.reject(err);
 				}
 				console.warn(`API error: ${ err }. Switching to DOM parsing!`);
 				aib.JsonBuilder = null;
-				return ajaxPostsLoad(brd, tNum, useCache);
+				return ajaxPostsLoad(board, tNum, useCache);
 			}
 		}, err => err.code === 304 ? null : CancelablePromise.reject(err));
 	}
 	return aib.hasArchive ?
-		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true)
+		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true)
 			.then(data => data?.[0] ? new DOMPostsBuilder(data[0], data[1]) : null) :
-		ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache)
+		ajaxLoad(aib.getThrUrl(board, tNum), true, useCache)
 			.then(form => form ? new DOMPostsBuilder(form) : null);
 }
 
@@ -7313,7 +7338,8 @@ const Spells = Object.create({
 				} catch(err) {}
 				spells = spells || [Date.now(), [], null, null];
 			}
-			let idx, isAdded = true;
+			let idx;
+			let isAdded = true;
 			const scope = aib.t ? [aib.b, aib.t] : null;
 			if(spells[1]) {
 				const sScope = String(scope);
@@ -7419,7 +7445,8 @@ const Spells = Object.create({
 		}
 		case 11: // #tlen
 		case 15: { // #num
-			let temp_, temp = val[1].length - 1;
+			let temp_;
+			let temp = val[1].length - 1;
 			if(temp !== -1) {
 				for(temp_ = []; temp >= 0; --temp) {
 					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
@@ -7634,7 +7661,8 @@ const Spells = Object.create({
 		return !rv.length ? null : rv;
 	},
 	_optimizeSpells(spells) {
-		let neg, lastSpell = -1;
+		let neg;
+		let lastSpell = -1;
 		let newSpells = [];
 		for(let i = 0, len = spells.length; i < len; ++i) {
 			let j;
@@ -8020,7 +8048,8 @@ class SpellsCodegen {
 		return null;
 	}
 	_doSpell(name, str, isNeg) {
-		let m, i = 0;
+		let m;
+		let i = 0;
 		const spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._col -= name.length + 1;
@@ -8949,7 +8978,9 @@ class PostForm {
 			const str = `${ m[1] }[${ tag }]${ m[2] }[/${ tag }]${ m[3] }`;
 			return [!m[2].length ? m[1].length + tag.length + 2 : str.length, str];
 		}
-		let m, rv = '', i = 0;
+		let m;
+		let rv = '';
+		let i = 0;
 		const arr = text.split('\n');
 		for(let len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
@@ -9338,7 +9369,7 @@ function isFormElDisabled(el) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function * getFormElements(form, submitter) {
+function* getFormElements(form, submitter) {
 	const controls = $Q('button, input, keygen, object, select, textarea', form);
 	const fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
 
@@ -10198,9 +10229,10 @@ class Captcha {
 				return;
 			}
 			const ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
-			const en = "qwertyuiop[]]assdfghjkl;''zxcvbnm,.`\\";
+			const en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
 			const code = e.charCode || e.keyCode;
-			let i, chr = String.fromCharCode(code).toLowerCase();
+			let i;
+			let chr = String.fromCharCode(code).toLowerCase();
 			if(Cfg.captchaLang === 1) {
 				if(code < 0x0410 || code > 0x04FF || (i = ruUa.indexOf(chr)) === -1) {
 					return;
@@ -10441,7 +10473,8 @@ class AbstractPost {
 		embedAudioLinks(this);
 	}
 	handleEvent(e) {
-		let temp, el = fixEventEl(e.target);
+		let temp;
+		let el = fixEventEl(e.target);
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -10650,7 +10683,7 @@ class AbstractPost {
 				el.isNotRefLink = true;
 				return;
 			}
-			// Don't use classList here, 'de-link-postref ' should be first
+			// Donʼt use classList here, 'de-link-postref ' should be first
 			el.className = 'de-link-postref ' + el.className;
 			/* falls through */
 		case 'de-link-backref':
@@ -11435,9 +11468,9 @@ class Pview extends AbstractPost {
 			return;
 		}
 		this._isCached = true;
-		this.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(PviewsCache.has(this.brd + tNum)) {
-			post = PviewsCache.get(this.brd + tNum).getPost(pNum);
+		this.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+		if(PviewsCache.has(this.board + tNum)) {
+			post = PviewsCache.get(this.board + tNum).getPost(pNum);
 			if(post) {
 				this._buildPview(post);
 			} else {
@@ -11450,7 +11483,7 @@ class Pview extends AbstractPost {
 			<svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg>${ Lng.loading[lang] }</div>`));
 
 		// Get post preview via ajax. Always use DOM parsing.
-		this._loadPromise = ajaxPostsLoad(this.brd, tNum, false, false)
+		this._loadPromise = ajaxPostsLoad(this.board, tNum, false, false)
 			.then(pBuilder => this._onload(pBuilder), err => this._onerror(err));
 	}
 	static get topParent() {
@@ -11560,7 +11593,8 @@ class Pview extends AbstractPost {
 		} while((pv = pv.kid));
 	}
 	deleteNonSticky() {
-		let lastSticky = null, pv = this;
+		let lastSticky = null;
+		let pv = this;
 		do {
 			if(pv.isSticky) {
 				lastSticky = pv;
@@ -11653,9 +11687,7 @@ class Pview extends AbstractPost {
 		this._pref = $q(aib.qPostRef, pv);
 		this._link.classList.add('de-link-parent');
 		const { isOp } = this;
-		let f;
-		const isFav = isOp && (post.thr.isFav ||
-			((f = (await readFavorites())[aib.host]) && (f = f[this.brd]) && (num in f)));
+		const isFav = isOp && (post.thr.isFav || (await readFavorites())[aib.host]?.[this.board]?.[num]);
 		const isCached = post instanceof CacheItem;
 		const pCountHtml = (post.isDeleted ? ` de-post-counter-deleted">${ Lng.deleted[lang] }</span>` :
 			`">${ isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached) }</span>`) +
@@ -11725,14 +11757,13 @@ class Pview extends AbstractPost {
 		}
 	}
 	_onload(pBuilder) {
-		const b = this.brd;
-		const { num } = this.parent;
-		const post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
-		if(post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
+		const { board, parent: num } = this;
+		const post = new PviewsCache(pBuilder, board, this.tNum).getPost(this.num);
+		if(post && (aib.b !== board || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
-					aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
-					aib.b === b ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
+					aib.getThrUrl(board, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
+					aib.b === board ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
 			this._buildPview(post);
@@ -11813,7 +11844,7 @@ class CacheItem {
 		this.isViewed = false;
 	}
 	* refLinks() {
-		yield * this._pBuilder.getRefLinks(this.count, this._thrUrl);
+		yield* this._pBuilder.getRefLinks(this.count, this._thrUrl);
 	}
 	get msg() {
 		const value = $q(aib.qPostMsg, this.el);
@@ -11851,20 +11882,20 @@ class CacheItem {
 }
 
 class PviewsCache extends TemporaryContent {
-	constructor(pBuilder, b, tNum) {
-		super(b + tNum);
+	constructor(pBuilder, board, tNum) {
+		super(board + tNum);
 		if(this._isInited) {
 			return;
 		}
 		this._isInited = true;
 		const lPByNum = new Map();
-		const thrUrl = aib.getThrUrl(b, tNum);
+		const thrUrl = aib.getThrUrl(board, tNum);
 		lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
 		for(let i = 0; i < pBuilder.length; ++i) {
 			lPByNum.set(pBuilder.getPNum(i), new CacheItem(pBuilder, thrUrl, i + 1));
 		}
 		DelForm.tNums.add(tNum);
-		this._b = b;
+		this._b = board;
 		this._posts = lPByNum;
 		if(Cfg.linksNavig) {
 			RefMap.gen(lPByNum);
@@ -12430,7 +12461,8 @@ class ExpandableImage {
 		if(nImage) {
 			return nImage;
 		}
-		let imgs, { post } = this;
+		let imgs;
+		let { post } = this;
 		do {
 			post = post.getAdjacentVisPost(!isForward);
 			if(!post) {
@@ -12567,7 +12599,8 @@ class ExpandableImage {
 				if(!data) {
 					return;
 				}
-				let str = '', d = new WebmParser(data.buffer).getWebmData();
+				let str = '';
+				let d = new WebmParser(data.buffer).getWebmData();
 				if(!d) {
 					return;
 				}
@@ -12645,7 +12678,8 @@ class ExpandableImage {
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
 						Lng.saveFrame[lang] }</a>`;
 					$ajax('https://tmp.saucenao.com/', ajaxParams, true).then(xhr => {
-						let hostUrl, errMsg = Lng.errSaucenao[lang];
+						let hostUrl;
+						let errMsg = Lng.errSaucenao[lang];
 						try {
 							const obj = JSON.parse(xhr.responseText);
 							if(obj.status === 'success') {
@@ -12653,7 +12687,7 @@ class ExpandableImage {
 							} else {
 								errMsg += ':<br>' + obj.error_message;
 							}
-						} catch(e) {}
+						} catch(err) {}
 						$popup('upload', (hostUrl || errMsg) + frameLinkHtml);
 					}, () => $popup('upload', Lng.errSaucenao[lang] + frameLinkHtml));
 				}, emptyFn);
@@ -12732,8 +12766,8 @@ class AttachedImage extends ExpandableImage {
 		return null;
 	}
 	_getImageSrc() {
-		// Don't use aib.getImgSrcLink(this.el).href
-		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image can't be expanded!
+		// Donʼt use aib.getImgSrcLink(this.el).href
+		// If #ihash spells enabled, Chrome reads href in ajaxed posts as empty -> image canʼt be expanded!
 		return aib.getImgSrcLink(this.el).getAttribute('href');
 	}
 }
@@ -12742,7 +12776,9 @@ AttachedImage.viewer = null;
 // A class that finds a set of images in a post
 class PostImages {
 	constructor(post) {
-		let first = null, last = null, els = $Q(aib.qPostImg, post.el);
+		let first = null;
+		let last = null;
+		let els = $Q(aib.qPostImg, post.el);
 		let hasAttachments = false;
 		const filesMap = new Map();
 		for(let i = 0, len = els.length; i < len; ++i) {
@@ -12880,7 +12916,8 @@ const ImagesHashStorage = Object.create({
 		if(el.naturalWidth + el.naturalHeight === 0) {
 			return -1;
 		}
-		let data, val = -1;
+		let data;
+		let val = -1;
 		const { naturalWidth: w, naturalHeight: h } = el;
 		const cnv = this._canvas;
 		cnv.width = w;
@@ -13030,15 +13067,15 @@ class DOMPostsBuilder {
 }
 
 class _4chanPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		this._posts = json.posts;
-		this._brd = brd;
+		this._board = board;
 		this.length = json.posts.length - 1;
 		this.postersCount = this._posts[0].unique_ips;
 		this._colorIDs = [];
 	}
 	static fixFileName(name, maxLength) {
-		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+		const decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'')
 			.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 		return decodedName.length <= maxLength ? { isFixed: false, name } : {
 			isFixed : true,
@@ -13065,7 +13102,7 @@ class _4chanPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.no;
-		const brd = this._brd;
+		const board = this._board;
 		const _icon = id => `//s.4cdn.org/image/${ id }${
 			deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif' }`;
 
@@ -13092,14 +13129,14 @@ class _4chanPostsBuilder {
 			const fileTextTitle = isSpoiler ? ` title="${ data.filename + data.ext }"` : '';
 			const aHref = needTitle ? `title="${ data.filename + data.ext }"` : '';
 			const imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' :
-				`//i.4cdn.org/${ brd }/${ data.tim }s.jpg`;
+				`//i.4cdn.org/${ board }/${ data.tim }s.jpg`;
 			fileHTML = `<div class="file" id="f${ num }">
 				<div class="fileText" id="fT${ num }"${ fileTextTitle }>File:
-					<a href="//i.4cdn.org/${ brd }/${ data.tim +
+					<a href="//i.4cdn.org/${ board }/${ data.tim +
 						data.ext }" ${ aHref } target="_blank">${ name }</a>
 					(${ size }, ${ data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h })
 				</div>
-				<a class="fileThumb ${ isSpoiler ? 'imgspoiler' : '' }" href="//i.4cdn.org/${ brd }/` +
+				<a class="fileThumb ${ isSpoiler ? 'imgspoiler' : '' }" href="//i.4cdn.org/${ board }/` +
 					`${ data.tim + data.ext }" target="_blank">
 					<img src="${ imgSrc }" alt="${ size }" data-md5="` +
 						`${ data.md5 }" style="height: ${ data.tn_h }px; width: ${ data.tn_w }px;">
@@ -13111,7 +13148,8 @@ class _4chanPostsBuilder {
 		}
 
 		// --- CAPCODE ---
-		let highlight = '', ccBy = '';
+		let highlight = '';
+		let ccBy = '';
 		let cc = data.capcode;
 		switch(cc) {
 		case 'admin_highlight':
@@ -13124,7 +13162,10 @@ class _4chanPostsBuilder {
 		case 'manager': ccBy = 'Managers'; break;
 		case 'founder': ccBy = 'Founder';
 		}
-		let ccName = '', ccText = '', ccImg = '', ccClass = '';
+		let ccName = '';
+		let ccText = '';
+		let ccImg = '';
+		let ccClass = '';
 		if(cc) {
 			ccName = cc[0].toUpperCase() + cc.slice(1);
 			ccText = `<strong class="capcode hand id_${ cc === 'founder' ? 'admin' : cc }` +
@@ -13207,12 +13248,12 @@ class _4chanPostsBuilder {
 _4chanPostsBuilder._customSpoiler = new Map();
 
 class DobrochanPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		if(json.error) {
 			throw new AjaxError(0, `API error: ${ json.error.message }`);
 		}
 		this._json = json.result;
-		this._brd = brd;
+		this._board = board;
 		this._posts = json.result.threads[0].posts;
 		this.length = this._posts.length - 1;
 		this.postersCount = '';
@@ -13239,17 +13280,18 @@ class DobrochanPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const num = data.display_id;
-		const brd = this._brd;
+		const board = this._board;
 		const multiFile = data.files.length > 1;
 
 		// --- FILE ---
 		let filesHTML = '';
 		for(const { file_id, metadata, rating, size, src, thumb, thumb_height, thumb_width } of data.files) {
-			let fileName, fullFileName, th = thumb;
+			let fileName, fullFileName;
+			let th = thumb;
 			let thumbW = 200;
 			let thumbH = 200;
 			const ext = getFileExt(src);
-			if(brd === 'b' || brd === 'rf') {
+			if(board === 'b' || board === 'rf') {
 				fileName = fullFileName = getFileName(th);
 			} else {
 				fileName = fullFileName = getFileName(src);
@@ -13306,7 +13348,7 @@ class DobrochanPostsBuilder {
 					<span class="postername">${ data.name || 'Анонимус' }</span> ${ date }
 				</label>
 				<span class="reflink">
-					<a href="/${ brd }/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
+					<a href="/${ board }/res/${ data.thread_id }.xhtml#i${ num }"> No.${ num }</a>
 				</span><br>
 				${ filesHTML }
 				${ multiFile ? '<div style="clear: both;"></div>' : '' }
@@ -13317,12 +13359,12 @@ class DobrochanPostsBuilder {
 }
 
 class MakabaPostsBuilder {
-	constructor(json, brd) {
+	constructor(json, board) {
 		if(json.Error) {
 			throw new AjaxError(0, `API error: ${ json.Error } (${ json.Code })`);
 		}
 		this._json = json;
-		this._brd = brd;
+		this._board = board;
 		this._posts = json.threads[0].posts;
 		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
 		this.postersCount = json.unique_posters;
@@ -13345,7 +13387,7 @@ class MakabaPostsBuilder {
 	getPostHTML(i) {
 		const data = this._posts[i + 1];
 		const { num } = data;
-		const brd = this._brd;
+		const board = this._board;
 		const isNew = this._isNew;
 		const p = isNew ? 'post__' : '';
 		const _switch = (val, obj) => val in obj ? obj[val] : obj['@@default'];
@@ -13395,7 +13437,7 @@ class MakabaPostsBuilder {
 			'@@default'        :
 				`${ data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip' }">` + data.trip
 		}) }</span>`;
-		const refHref = `/${ brd }/res/${ parseInt(data.parent) || num }.html#${ num }`;
+		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
 			const likes = `<div id="like-div${ num }" class="${ isNew ?
@@ -13879,35 +13921,36 @@ class Thread {
 			.then(pBuilder => pBuilder ? this._loadNewFromBuilder(pBuilder) : { newCount: 0, locked: false });
 	}
 	toggleFavState(isEnable, preview = null) {
-		let h, b, num, cnt, txt, last;
+		let host, board, num, cnt, txt, last;
 		if(preview) {
 			preview.toggleFavBtn(isEnable);
 		}
 		if(!preview || preview.num === this.num) { // Oppost or usual preview
 			this.op.toggleFavBtn(isEnable);
 			this.isFav = isEnable;
-			({ host: h, b } = aib);
+			({ host, b: board } = aib);
 			({ num } = this);
 			cnt = this.pcount;
 			txt = this.op.title;
 			last = aib.anchor + this.last.num;
 		} else { // Loaded preview for oppost in remote thread
-			h = aib.host;
-			({ brd: b, num } = preview);
+			({ host } = aib);
+			({ board, num } = preview);
 			cnt = preview.remoteThr.pcount;
 			txt = preview.remoteThr.title;
 			last = aib.anchor + preview.remoteThr.lastNum;
 		}
 		readFavorites().then(favObj => {
 			if(isEnable) {
-				let f = favObj[h] || (favObj[h] = {});
-				f = f[b] || (f[b] = {});
-				f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-				f[num] = { cnt, new: 0, you: 0, txt, url: aib.getThrUrl(b, num), last, time: Date.now() };
+				let entry = favObj[host] || (favObj[host] = {});
+				entry = entry[board] || (entry[board] = {});
+				entry.url = aib.prot + '//' + aib.host + aib.getPageUrl(board, 0);
+				const url = aib.getThrUrl(board, num);
+				entry[num] = { cnt, new: 0, you: 0, txt, url, last, time: Date.now() };
 			} else {
-				removeFavEntry(favObj, h, b, num);
+				removeFavEntry(favObj, host, board, num);
 			}
-			sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
+			sendStorageEvent('__de-favorites', [host, board, num, favObj, isEnable ? 'add' : 'delete']);
 			saveRenewFavorites(favObj);
 		});
 	}
@@ -14352,7 +14395,8 @@ const thrNavPanel = {
 =========================================================================================================== */
 
 function initThreadUpdater(title, enableUpdate) {
-	let focusLoadTime, disabledByUser = true;
+	let focusLoadTime;
+	let disabledByUser = true;
 	let enabled = false;
 	let repliesToYou = new Set();
 	let lastECode = 200;
@@ -14525,8 +14569,8 @@ function initThreadUpdater(title, enableUpdate) {
 		_blinkMS     : 800,
 		_currentIcon : null,
 		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_getIconNew  : newPosts => null,
-		_getIconYou  : newPosts => null,
+		_getIconNew  : () => null,
+		_getIconYou  : () => null,
 		_hasIcons    : false,
 		_iconError   : null,
 		_iconsNew    : [],
@@ -15019,7 +15063,8 @@ class DelForm {
 	}
 
 	static _parseClasslessThreads(formEl) {
-		let i, len, cThr = doc.createElement('div');
+		let i, len;
+		let cThr = doc.createElement('div');
 		const threads = [];
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
@@ -15111,7 +15156,7 @@ function initNavFuncs() {
 	const isSafari = isWebkit && !isChrome;
 	const hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
 	const canUseFetch = 'AbortController' in deWindow; // Firefox 57+, Chrome 66+, Safari 11.1+
-	const hasNewGM = /* global GM */ typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+	const hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
 	let hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 	if(hasNewGM) {
 		const inf = GM.info;
@@ -15170,7 +15215,7 @@ function initNavFuncs() {
 				if(value instanceof Blob && 'name' in value && fileName === null) {
 					return origAppend.call(this, name, value, value.name);
 				}
-				return origAppend.apply(this, arguments);
+				return origAppend.apply(this, [name, value, fileName]);
 			};
 			return rv;
 		};
@@ -15496,7 +15541,8 @@ class BaseBoard {
 			str = Spells.replace(str);
 		}
 		if(Cfg.crossLinks) {
-			str = str.replace(aib.reCrossLinks, (_, b, tNum, pNum) => `>&gt;&gt;/${ b }/${ pNum || tNum }<`);
+			str = str.replace(aib.reCrossLinks,
+				(_, board, tNum, pNum) => `>&gt;&gt;/${ board }/${ pNum || tNum }<`);
 		}
 		if(Cfg.decodeLinks) {
 			str = str.replace(/>https?:\/\/[^<]+</ig, match => {
@@ -15587,8 +15633,8 @@ class BaseBoard {
 		}
 		return op;
 	}
-	getPageUrl(b, p) {
-		return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+	getPageUrl(board, page) {
+		return fixBrd(board) + (page > 0 ? page + this.docExt : '');
 	}
 	getPNum(post) {
 		return +post.id.match(/\d+/);
@@ -15618,8 +15664,8 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(b, tNum) { // Arhivach
-		return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+	getThrUrl(board, tNum) { // Arhivach
+		return this.prot + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
@@ -15747,7 +15793,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					.fileinfo > .unimportant { white-space: nowrap; }` : '' }`;
 		}
 		get markupTags() {
-			return ["'''", "''", '__', '~~', '**', '[code'];
+			return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
 		}
 		async changeReplyMode(form, tNum) {
 			if(!this._origInputs && !$q('input[name="hash"]', form)) {
@@ -15818,8 +15864,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				$q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
 			return el.title || el.textContent;
 		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+		getPageUrl(board, page) {
+			return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
 		}
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
@@ -16001,7 +16047,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.form-post button, .form-post input, .form-post img { width: initial; }`;
 		}
 		get markupTags() {
-			return ["'''", "''", '__', '~~', '**', '[code'];
+			return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
 		}
 		captchaUpdate() {
 			$script('reloadCaptcha();');
@@ -16018,7 +16064,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			el.innerHTML = '<div' + str +
 				('<div style="display: none;"' + str).repeat((maxEl ? +maxEl.textContent : 3) - 1);
 		}
-		getCapParent(el) {
+		getCapParent() {
 			return $id('captchaDiv');
 		}
 		getImgRealName(wrap) {
@@ -16030,8 +16076,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return $parent(img, 'FIGURE');
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? p + this.docExt : 'index.html');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
 		}
 		getPNum(post) {
 			return +$q('.deletionCheckBox', post).name.split('-')[2];
@@ -16197,8 +16243,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? `page/${ p }/` : '');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? `page/${ page }/` : '');
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-thread-num');
@@ -16295,8 +16341,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			let txt;
 			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
-		getPageUrl(b, p) {
-			return `${ fixBrd(b) }${ p > 0 ? p : 0 }.memhtml`;
+		getPageUrl(board, page) {
+			return `${ fixBrd(board) }${ page > 0 ? page : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -16439,7 +16485,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
-					} catch(e) {}
+					} catch(err) {}
 					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
 						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
 				});
@@ -16539,8 +16585,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return $parent(img, 'FIGURE');
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `/${ brd }/res/${ tNum }.json`;
+		getJsonApiUrl(board, tNum) {
+			return `/${ board }/res/${ tNum }.json`;
 		}
 		getPNum(post) {
 			return +post.getAttribute('data-num');
@@ -16679,8 +16725,8 @@ function getImageBoard(checkDomains, checkEngines) {
 				.reply { background: #f0e0d6; }
 				span { font-size: inherit; }`;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
 		}
 		getPNum(post) {
 			return +$q('input', post).name;
@@ -16748,7 +16794,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		fixHTMLHelper(str) {
 			return str.replace(/src="[^>]+" data-src="/g, 'src="');
 		}
-		getCapParent(el) {
+		getCapParent() {
 			return $q('.captcha');
 		}
 		init() {
@@ -16948,7 +16994,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return str.replace(/<span>([^<]+)(?:<\/?wbr>)?([^<]+)<\/span> \[<a [^>]+>Embed<\/a>\]/g, '$1$2')
 				.replace(/<\/?wbr>/g, '').replace(/( \(OP\)| →)<\/a/g, '</a');
 		}
-		fixVideo(isPost, data) {
+		fixVideo() {
 			return [];
 		}
 		getImgInfo(wrap) {
@@ -16959,14 +17005,14 @@ function getImageBoard(checkDomains, checkEngines) {
 			const el = $q(this.qImgNameLink, wrap);
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `//a.4cdn.org/${ brd }/thread/${ tNum }.json`;
+		getJsonApiUrl(board, tNum) {
+			return `//a.4cdn.org/${ board }/thread/${ tNum }.json`;
 		}
 		getImgWrap(img) {
 			return img.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 1 ? p : '');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 1 ? page : '');
 		}
 		getPostWrap(el) {
 			return el.parentNode;
@@ -17248,8 +17294,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 				img.previousElementSibling ? el : el.parentNode;
 		}
-		getJsonApiUrl(brd, tNum) {
-			return `/api/thread/${ brd }/${ tNum }/all.json?new_format&message_html&board`;
+		getJsonApiUrl(board, tNum) {
+			return `/api/thread/${ board }/${ tNum }/all.json?new_format&message_html&board`;
 		}
 		getOmitted(el) {
 			while(el) {
@@ -17261,8 +17307,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return 1;
 		}
-		getPageUrl(b, p) {
-			return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+		getPageUrl(board, page) {
+			return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
 		}
 		getTNum(thr) {
 			return +$q('a[name]', thr).name.match(/\d+/);
@@ -17350,8 +17396,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgWrap(img) {
 			return img.parentNode.parentNode.parentNode;
 		}
-		getPageUrl(b, p) {
-			return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+		getPageUrl(board, page) {
+			return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
 		}
 		getPostElOfEl(el) {
 			while(el && !nav.matchesSelector(el, '.post')) {
@@ -17860,7 +17906,7 @@ const DollchanAPI = {
 	},
 
 	_handleMessage({ data: arg }) {
-		if(!arg || !arg.name) {
+		if(!arg?.name) {
 			return;
 		}
 		let rv = null;
@@ -17894,7 +17940,7 @@ const DollchanAPI = {
 function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			return Promise.reject();
+			return Promise.reject(new Error('Itʼs not time for an update yet'));
 		}
 	}
 	return $ajax(
@@ -17903,7 +17949,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const v = responseText.match(/const version = '([0-9.]+)';/);
 		const remoteVer = v?.[1]?.split('.');
 		if(!remoteVer) {
-			return Promise.reject();
+			return Promise.reject(new Error('Canʼt get remote version'));
 		}
 		const currentVer = version.split('.');
 		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
@@ -17926,9 +17972,9 @@ function checkForUpdates(isManual, lastUpdateTime) {
 				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
 					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
 		}
-		return Promise.reject();
-	}, () => !isManual ?
-		Promise.reject() : `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`
+		return Promise.reject(new Error());
+	}, () => isManual ? `<div style="color: red; font-weigth: bold;">${
+		Lng.noConnect[lang] }</div>` : Promise.reject(new Error(Lng.noConnect[lang]))
 	);
 }
 

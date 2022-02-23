@@ -374,7 +374,7 @@ function embedAudioLinks(data) {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const link = els[i];
 			const el = link.previousSibling;
-			if(!el || el.className !== 'de-vocaroo') { // Don't embed already embedded links
+			if(!el || el.className !== 'de-vocaroo') { // Donʼt embed already embedded links
 				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
 					<embed src="http://vocaroo.com/player.swf?playMediaID=${ getFileName(link.href) }` +
 						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">

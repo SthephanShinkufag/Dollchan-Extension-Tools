@@ -7,21 +7,21 @@ function saveRenewFavorites(favObj) {
 	toggleWindow('fav', true, favObj);
 }
 
-function removeFavEntry(favObj, h, b, num) {
-	let f;
-	if((h in favObj) && (b in favObj[h]) && (num in (f = favObj[h][b]))) {
-		delete f[num];
-		if(!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
-			delete favObj[h][b];
-			if($isEmpty(favObj[h])) {
-				delete favObj[h];
+function removeFavEntry(favObj, host, board, num) {
+	const entry = favObj[host]?.[board];
+	if(entry?.[num]) {
+		delete entry[num];
+		if(!(Object.keys(entry).length - +$hasProp(entry, 'url') - +$hasProp(entry, 'hide'))) {
+			delete favObj[host][board];
+			if($isEmpty(favObj[host])) {
+				delete favObj[host];
 			}
 		}
 	}
 }
 
-function toggleThrFavBtn(h, b, num, isEnable) {
-	if(h === aib.host && b === aib.b && pByNum.has(num)) {
+function toggleThrFavBtn(host, board, num, isEnable) {
+	if(host === aib.host && board === aib.b && pByNum.has(num)) {
 		const post = pByNum.get(num);
 		post.toggleFavBtn(isEnable);
 		post.thr.isFav = isEnable;
@@ -30,28 +30,28 @@ function toggleThrFavBtn(h, b, num, isEnable) {
 
 function updateFavorites(num, value, mode) {
 	readFavorites().then(favObj => {
-		let isUpdate = false;
-		let f = favObj[aib.host];
-		if(!f || !f[aib.b] || !(f = f[aib.b][num])) {
+		const entry = favObj[aib.host]?.[aib.b]?.[num];
+		if(!entry) {
 			return;
 		}
+		let isUpdate = false;
 		switch(mode) {
 		case 'error':
-			if(f.err !== value) {
+			if(entry.err !== value) {
 				isUpdate = true;
 			}
-			f.err = value;
+			entry.err = value;
 			break;
 		case 'update':
-			if(f.cnt !== value[0]) {
+			if(entry.cnt !== value[0]) {
 				isUpdate = true;
 			}
-			f.cnt = value[0];
-			f.new = f.you = 0;
-			f.last = aib.anchor + value[1];
+			entry.cnt = value[0];
+			entry.new = entry.you = 0;
+			entry.last = aib.anchor + value[1];
 		}
-		const data = [aib.host, aib.b, num, value, mode];
 		if(isUpdate) {
+			const data = [aib.host, aib.b, num, value, mode];
 			updateFavWindow(...data);
 			saveFavorites(favObj);
 			sendStorageEvent('__de-favorites', data);
@@ -59,17 +59,18 @@ function updateFavorites(num, value, mode) {
 	});
 }
 
-function updateFavWindow(h, b, num, value, mode) {
+function updateFavWindow(host, board, num, value, mode) {
 	if(mode === 'add' || mode === 'delete') {
-		toggleThrFavBtn(h, b, num, mode === 'add');
+		toggleThrFavBtn(host, board, num, mode === 'add');
 		toggleWindow('fav', true, value);
 		return;
 	}
 	const winEl = $q('#de-win-fav > .de-win-body');
-	if(!winEl || !winEl.hasChildNodes()) {
+	if(!winEl?.hasChildNodes()) {
 		return;
 	}
-	const el = $q(`.de-entry[de-host="${ h }"][de-board="${ b }"][de-num="${ num }"] > .de-fav-inf`, winEl);
+	const el = $q(`.de-entry[de-host="${
+		host }"][de-board="${ board }"][de-num="${ num }"] > .de-fav-inf`, winEl);
 	if(!el) {
 		return;
 	}
@@ -96,11 +97,11 @@ function cleanFavorites() {
 	readFavorites().then(favObj => {
 		for(let i = 0; i < len; ++i) {
 			const el = els[i];
-			const h = el.getAttribute('de-host');
-			const b = el.getAttribute('de-board');
+			const host = el.getAttribute('de-host');
+			const board = el.getAttribute('de-board');
 			const num = +el.getAttribute('de-num');
-			removeFavEntry(favObj, h, b, num);
-			toggleThrFavBtn(h, b, num, false);
+			removeFavEntry(favObj, host, board, num);
+			toggleThrFavBtn(host, board, num, false);
 		}
 		saveRenewFavorites(favObj);
 	});
@@ -109,43 +110,52 @@ function cleanFavorites() {
 function showFavoritesWindow(body, favObj) {
 	let html = '';
 	// Create the list of favorite threads
-	for(const h in favObj) {
-		for(const b in favObj[h]) {
-			const f = favObj[h][b];
-			const hb = `de-host="${ h }" de-board="${ b }"`;
+	for(const host in favObj) {
+		if(!$hasProp(favObj, host)) {
+			continue;
+		}
+		const boards = favObj[host];
+		for(const board in boards) {
+			if(!$hasProp(boards, board)) {
+				continue;
+			}
+			const threads = boards[board];
+			const hb = `de-host="${ host }" de-board="${ board }"`;
 			const delBtn = `<span class="de-fav-del-btn">
 				<svg><use xlink:href="#de-symbol-win-close"></use></svg>
 			</span>`;
-			let fArr, innerHtml = '';
+			let tNums;
+			const tArr = Object.entries(threads);
 			switch(Cfg.favThrOrder) {
-			case 0: fArr = Object.entries(f); break;
-			case 1: fArr = Object.entries(f).reverse(); break;
-			case 2: fArr = Object.entries(f).sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
-			case 3: fArr = Object.entries(f).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+			case 0: tNums = tArr; break;
+			case 1: tNums = tArr.reverse(); break;
+			case 2: tNums = tArr.sort((a, b) => (a[1].time || 0) - (b[1].time || 0)); break;
+			case 3: tNums = tArr.sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
 			}
-			for(let i = 0, len = fArr.length; i < len; ++i) {
-				const tNum = fArr[i][0];
+			let innerHtml = '';
+			for(let i = 0, len = tNums.length; i < len; ++i) {
+				const tNum = tNums[i][0];
 				if(tNum === 'url' || tNum === 'hide') {
 					continue;
 				}
-				const t = f[tNum];
+				const entry = threads[tNum];
 				// Generate DOM for separate entry
-				const favLinkHref = t.url + (
-					!t.last ? '' :
-					t.last.startsWith('#') ? t.last :
-					h === aib.host ? aib.anchor + t.last : '');
-				const favInfIwrapTitle = !t.err ? '' :
-					t.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ t.err }"`;
-				const favInfIconClass = !t.err ? '' :
-					t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
-				const favInfYouDisp = t.you ? '' : ' style="display: none;"';
-				const favInfNewDisp = t.new ? '' : ' style="display: none;"';
+				const favLinkHref = entry.url + (
+					!entry.last ? '' :
+					entry.last.startsWith('#') ? entry.last :
+					host === aib.host ? aib.anchor + entry.last : '');
+				const favInfIwrapTitle = !entry.err ? '' :
+					entry.err === 'Closed' ? `title="${ Lng.thrClosed[lang] }"` : `title="${ entry.err }"`;
+				const favInfIconClass = !entry.err ? '' :
+					entry.err === 'Closed' || entry.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
+				const favInfYouDisp = entry.you ? '' : ' style="display: none;"';
+				const favInfNewDisp = entry.new ? '' : ' style="display: none;"';
 				innerHtml += `<div class="de-entry ${ aib.cReply }" ${
-					hb } de-num="${ tNum }" de-url="${ t.url }">
+					hb } de-num="${ tNum }" de-url="${ entry.url }">
 					${ delBtn }
 					<a class="de-fav-link" title="${ Lng.goToThread[lang] }"` +
 						` href="${ favLinkHref }" rel="noreferrer">${ tNum }</a>
-					<div class="de-entry-title">- ${ t.txt }</div>
+					<div class="de-entry-title">- ${ entry.txt }</div>
 					<div class="de-fav-inf">
 						<span class="de-fav-inf-iwrap" ${ favInfIwrapTitle }>
 							<svg class="de-fav-inf-icon ${ favInfIconClass }">
@@ -155,10 +165,10 @@ function showFavoritesWindow(body, favObj) {
 							</svg>
 						</span>
 						<span class="de-fav-inf-you" title="${ Lng.myPostsRep[lang] }"${ favInfYouDisp }>
-							${ t.you || 0 }</span>
+							${ entry.you || 0 }</span>
 						<span class="de-fav-inf-new" title="${ Lng.newPosts[lang] }"${ favInfNewDisp }>
-							${ t.new || 0 }</span>
-						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ t.cnt }</span>
+							${ entry.new || 0 }</span>
+						<span class="de-fav-inf-old" title="${ Lng.oldPosts[lang] }">${ entry.cnt }</span>
 						<span class="de-fav-inf-page" title="${ Lng.thrPage[lang] }"></span>
 					</div>
 				</div>`;
@@ -166,13 +176,14 @@ function showFavoritesWindow(body, favObj) {
 			if(!innerHtml) {
 				continue;
 			}
-			const isHide = f.hide === undefined ? h !== aib.host : f.hide;
+			const isHide = threads.hide === undefined ? host !== aib.host : threads.hide;
 			// Building a foldable block for specific board
-			html += `<div class="de-fold-block${ h === aib.host && b === aib.b ? ' de-fav-current' : '' }">
+			html += `<div class="de-fold-block${
+				host === aib.host && board === aib.b ? ' de-fav-current' : '' }">
 				<div class="de-fav-header">
 					${ delBtn }
 					<a class="de-fav-header-link" title="${ Lng.goToBoard[lang] }"` +
-						` href="${ f.url }" rel="noreferrer">${ h }/${ b }</a>
+						` href="${ threads.url }" rel="noreferrer">${ host }/${ board }</a>
 					<a class="de-abtn de-fav-header-btn" title="${ Lng.toggleEntries[lang] }"` +
 						` href="#">${ isHide ? '&#x25BC;' : '&#x25B2;' }</a>
 				</div>
@@ -250,12 +261,12 @@ function showFavoritesWindow(body, favObj) {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const host = el.getAttribute('de-host');
-			const b = el.getAttribute('de-board');
+			const board = el.getAttribute('de-board');
 			const num = el.getAttribute('de-num');
-			const f = favObj[host][b][num];
-			// Updating doesn't works for other domains because of different posts structure
+			const entry = favObj[host][board][num];
+			// Updating doesnʼt works for other domains because of different posts structure
 			// Updating is not needed in closed threads
-			if(host !== aib.host || f.err === 'Closed' || f.err === 'Archived') {
+			if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
 				continue;
 			}
 			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
@@ -266,15 +277,15 @@ function showFavoritesWindow(body, favObj) {
 			let form, isArchived;
 			try {
 				if(!aib.hasArchive) {
-					form = await ajaxLoad(aib.getThrUrl(b, num));
+					form = await ajaxLoad(aib.getThrUrl(board, num));
 				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(b, num), true, false, true);
+					[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
 				}
 				last404 = false;
 			} catch(err) {
 				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
 					if(last404) {
-						Thread.removeSavedData(b, num); // Not working yet
+						Thread.removeSavedData(board, num); // Not working yet
 					} else {
 						last404 = true;
 						--i; // Repeat this cycle again
@@ -285,55 +296,55 @@ function showFavoritesWindow(body, favObj) {
 				$hide(countEl);
 				$hide(youEl);
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				f.err = titleEl.title = getErrorMessage(err);
+				entry.err = titleEl.title = getErrorMessage(err);
 				isUpdate = true;
 				continue;
 			}
 			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrClosed[lang];
-				f.err = 'Closed';
+				entry.err = 'Closed';
 				isUpdate = true;
 			} else if(isArchived) {
 				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
 				titleEl.title = Lng.thrArchived[lang];
-				f.err = 'Archived';
+				entry.err = 'Archived';
 				isUpdate = true;
 			} else {
 				// Thread is available and not closed
 				iconEl.setAttribute('class', 'de-fav-inf-icon');
 				titleEl.removeAttribute('title');
-				if(f.err) { // Cancel error status if existed
-					delete f.err;
+				if(entry.err) { // Cancel error status if existed
+					delete entry.err;
 					isUpdate = true;
 				}
 			}
 			// Updating a counter of new posts
 			const posts = $Q(aib.qRPost, form);
-			const cnt = posts.length + 1 - f.cnt;
+			const cnt = posts.length + 1 - entry.cnt;
 			countEl.textContent = cnt;
 			if(cnt === 0) {
 				$hide(countEl); // Hide counter if no new posts
 				$hide(youEl);
 			} else {
 				$show(countEl);
-				f.new = cnt;
+				entry.new = cnt;
 				isUpdate = true;
 				// Check for replies to my posts
-				if(myposts?.[b]) {
-					f.you = 0;
+				if(myposts?.[board]) {
+					entry.you = 0;
 					for(let j = 0; j < cnt; ++j) {
 						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
 							posts[posts.length - 1 - j]);
 						for(let a = 0, len = links.length; a < len; ++a) {
 							const tc = links[a].textContent;
-							if(tc[0] === '>' && tc[1] === '>' && myposts[b][tc.substr(2)]) {
-								f.you++;
+							if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
+								entry.you++;
 							}
 						}
 					}
-					if(f.you) {
-						youEl.textContent = f.you;
+					if(entry.you) {
+						youEl.textContent = entry.you;
 						$show(youEl);
 					}
 				}
@@ -373,7 +384,7 @@ function showFavoritesWindow(body, favObj) {
 		}
 		// Sequentially load pages and search for favorites threads
 		// We cannot know a count of pages while in the thread
-		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we don't know
+		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
 		let infoLoaded = 0;
 		const updateInf = (inf, page) => {
 			inf.iconEl.setAttribute('class', inf.iconClass);
@@ -428,7 +439,7 @@ function showFavoritesWindow(body, favObj) {
 			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
 			titleEl.title = Lng.updating[lang];
 			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
-				switch(el.getAttribute('de-host')) { // Makaba doesn't return 404
+				switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
 				case '2ch.hk':
 				case '2ch.pm': {
 					const dc = $DOM(xhr.responseText);

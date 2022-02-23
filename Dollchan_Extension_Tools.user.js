@@ -6351,7 +6351,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'b63b47d';
+  var commit = '5872236';
 
   var defaultCfg = {
     disabled: 0,
@@ -6579,7 +6579,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       },
       imgSrcBtns: ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки "Пошук" для зображень'],
       imgNames: {
-        sel: [['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'], ['Don`t change', 'Original (trunc.)', 'Hide', 'Original (full)'], ['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
+        sel: [['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'], ['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'], ['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
         txt: ['имена картинок', 'filenames', 'імена зображень']
       },
       maskVisib: ['Видимость для NSFW-картинок [0-100%]', 'Visibility for NSFW images [0-100%]', 'Видимість для NSFW-зображень [0-100%]'],
@@ -6609,7 +6609,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       postSameImg: ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
       removeEXIF: ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
       removeFName: {
-        sel: [['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'], ['Don`t change', 'Clear', 'Unixtime', 'Unixtime-random'], ['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
+        sel: [['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'], ['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'], ['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
         txt: ['имена файлов', 'file names', 'імена файлів']
       },
       sendErrNotif: ['Оповещать в заголовке об ошибке отправки', 'Inform in title about post send error', 'Сповіщати в заголовку про помилку надсилання'],
@@ -6746,7 +6746,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     gotoResults: ['Перейти к результатам поиска', 'Go to search results', 'Перейти до результатів пошуку'],
     getFrameLinks: ['Получить ссылки для поиска этого кадра', 'Get links to search this frame', 'Отримати посилання для пошуку цього кадру'],
     saveFrame: ['Сохранить полученный кадр', 'Save the received frame', 'Зберегти отриманий кадр'],
-    errSaucenao: ['Ошибка: не могу загрузить на saucenao.com', 'Error: can`t load to saucenao.com', 'Помилка: не можу завантажити на saucenao.com'],
+    errSaucenao: ['Ошибка: не могу загрузить на saucenao.com', 'Error: canʼt load to saucenao.com', 'Помилка: не можу завантажити на saucenao.com'],
     hotKeyEdit: [[
     '%l%i24 – предыдущая страница/картинка%/l', '%l%i217 – следующая страница/картинка%/l', '%l%i21 – тред (на доске)/пост (в треде) ниже%/l', '%l%i20 – тред (на доске)/пост (в треде) выше%/l', '%l%i31 – пост (на доске) ниже%/l', '%l%i30 – пост (на доске) выше%/l', '%l%i23 – скрыть пост/тред%/l', '%l%i32 – перейти в тред%/l', '%l%i33 – развернуть тред%/l', '%l%i211 – раскрыть картинку в посте%/l', '%l%i22 – быстрый ответ%/l', '%l%i25t – отправить пост%/l', '%l%i210 – открыть/закрыть "Настройки"%/l', '%l%i26 – открыть/закрыть "Избранное"%/l', '%l%i27 – открыть/закрыть "Скрытое"%/l', '%l%i218 – открыть/закрыть "Видео"%/l', '%l%i28 – открыть/закрыть панель%/l', '%l%i29 – вкл./выкл. режим NSFW%/l', '%l%i40 – обновить тред (в треде)%/l', '%l%i212t – жирный%/l', '%l%i213t – курсив%/l', '%l%i214t – зачеркнутый%/l', '%l%i215t – спойлер%/l', '%l%i216t – код%/l'], [
     '%l%i24 – previous page/image%/l', '%l%i217 – next page/image%/l', '%l%i21 – thread (on board)/post (in thread) below%/l', '%l%i20 – thread (on board)/post (in thread) above%/l', '%l%i31 – on board post below%/l', '%l%i30 – on board post above%/l', '%l%i23 – hide post/thread%/l', '%l%i32 – go to thread%/l', '%l%i33 – expand thread%/l', '%l%i211 – expand postʼs images%/l', '%l%i22 – quick reply%/l', '%l%i25t – send post%/l', '%l%i210 – open/close "Settings"%/l', '%l%i26 – open/close "Favorites"%/l', '%l%i27 – open/close "Hidden"%/l', '%l%i218 – open/close "Videos"%/l', '%l%i28 – open/close main panel%/l', '%l%i29 – toggle NSFW mode%/l', '%l%i40 – update thread%/l', '%l%i212t – bold%/l', '%l%i213t – italic%/l', '%l%i214t – strike%/l', '%l%i215t – spoiler%/l', '%l%i216t – code%/l'], [
@@ -6802,7 +6802,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     seMissSpell: ['пропущен спелл', 'missing spell', 'пропущено спелл'],
     seErrRegex: ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s', 'синтаксична помилка в регулярному виразі: %s'],
     seUnexpChar: ['неожиданный символ: %s', 'unexpected character: %s', 'неочікуваний символ: %s'],
-    seMissClBkt: ['пропущена закрывающая скобка', "missing ')' in expression", 'пропущено закривну дужку'],
+    seMissClBkt: ['пропущена закрывающая скобка', 'missing \')\' in expression', 'пропущено закривну дужку'],
     seRepsInParens: ['спелл #%s не должен располагаться в скобках', 'spell #%s shouldnʼt be inside parentheses', 'спелл #%s не може бути в дужках'],
     seOpInReps: ['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'donʼt use operator %s with spells #rep & #outrep', 'неприпустимо використовувати оператор %s зі спеллами #rep и #outrep'],
     seRow: [' (строка ', ' (row ', ' (рядок '],
@@ -6866,7 +6866,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     renameFile: ['Переименовать файл', 'Rename file', 'Перейменувати файл'],
     spoilFile: ['Спойлер', 'Spoiler', 'Спойлер'],
     addManually: ['Ввести ссылку на файл вручную', 'Enter a link to the file manually', 'Ввести посилання на файл вручну'],
-    enterTheLink: ["Введите ссылку и нажмите '+'", "Enter the link and click '+'", "Введіть посилання та натисніть '+'"],
+    enterTheLink: ['Введите ссылку и нажмите \'+\'', 'Enter the link and click \'+\'', 'Введіть посилання та натисніть \'+\''],
     helpAddFile: ['Встроить ogg/rar/zip/7z в картинку', 'Embed ogg/rar/zip/7z into the image', 'Вбудувати ogg/rar/zip/7z в зображення'],
     expImgInline: ['[Click] открыть в посте, [Ctrl+Click] по центру', '[Click] expand in post, [Ctrl+Click] by center', '[Click] розгорнути в пості, [Ctrl+Click] в центрі'],
     expImgFull: ['[Click] открыть по центру, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post', '[Click] розгорнути в центрі, [Ctrl+Click] в пості'],
@@ -6902,7 +6902,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     noGlobalCfg: ['Глобальные настройки не найдены', 'Global config not found', 'Глобальні налаштування не знайдено'],
     subjHasTrip: ['Поле "Тема" содержит трипкод!', '"Subject" field contains a tripcode!', 'Поле "Тема" містить трипкод!'],
     errMsEdgeWebm: ['Загрузите скрипт для воспроизведения WebM (VP9/Opus)', 'Please load a script to play WebM (VP9/Opus)', 'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
-    errFormLoad: ['Не удаётся загрузить форму ответа', 'Can`t load the reply form', 'Не вдалося завантажити форму відповіді'],
+    errFormLoad: ['Не удаётся загрузить форму ответа', 'Canʼt load the reply form', 'Не вдалося завантажити форму відповіді'],
     second: ['с', 's', 'с'],
     sizeByte: [' Байт', ' Byte', ' Байт'],
     sizeKByte: [' КБ', ' KB', ' КБ'],
@@ -7163,8 +7163,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     return start + arr.join(end + start) + end;
   };
 
-  var fixBrd = function fixBrd(b) {
-    return "/".concat(b).concat(b ? '/' : '');
+  var fixBrd = function fixBrd(board) {
+    return "/".concat(board).concat(board ? '/' : '');
   };
 
   var getAbsLink = function getAbsLink(url) {
@@ -7249,8 +7249,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     getLogData: function getLogData(isFull) {
       var marks = this._marks;
       var timeLog = [];
-      var duration,
-          i = 1;
+      var duration;
+      var i = 1;
       var lastExtra = 0;
 
       for (var len = marks.length - 1; i < len; ++i) {
@@ -7663,8 +7663,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     _createClass(TarBuilder, [{
       key: "addFile",
       value: function addFile(filepath, input) {
-        var i,
-            checksum = 0;
+        var i;
+        var checksum = 0;
         var fileSize = input.length;
         var header = new Uint8Array(512);
         var nameLen = Math.min(filepath.length, 100);
@@ -8319,6 +8319,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }
 
   function readPostsData(firstPost, favObj) {
+    var _favObj$aib$host;
+
     var sVis = null;
 
     try {
@@ -8342,7 +8344,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }
 
     var updateFav = null;
-    var favBrd = aib.host in favObj && aib.b in favObj[aib.host] ? favObj[aib.host][aib.b] : {};
+    var favBrd = ((_favObj$aib$host = favObj[aib.host]) === null || _favObj$aib$host === void 0 ? void 0 : _favObj$aib$host[aib.b]) || {};
     var spellsHide = Cfg.hideBySpell;
     var maybeSpells = new Maybe(SpellsRunner); 
 
@@ -8351,18 +8353,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           num = _post.num; 
 
       if (post.isOp && num in favBrd) {
-        var f = favBrd[num];
+        var entry = favBrd[num];
         var _post2 = post,
             thr = _post2.thr;
         post.toggleFavBtn(true);
         post.thr.isFav = true;
 
         if (aib.t) {
-          f.cnt = thr.pcount;
-          f["new"] = f.you = 0;
+          entry.cnt = thr.pcount;
+          entry["new"] = entry.you = 0;
 
-          if (Cfg.markNewPosts && f.last) {
-            var lastPost = pByNum.get(+f.last.match(/\d+/));
+          if (Cfg.markNewPosts && entry.last) {
+            var lastPost = pByNum.get(+entry.last.match(/\d+/));
 
             if (lastPost) {
               while (lastPost = lastPost.next) {
@@ -8371,9 +8373,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             }
           }
 
-          f.last = aib.anchor + thr.last.num;
+          entry.last = aib.anchor + thr.last.num;
         } else {
-          f["new"] = thr.pcount - f.cnt;
+          entry["new"] = thr.pcount - entry.cnt;
         }
 
         updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
@@ -8553,9 +8555,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         if (storage && storage.$count > 5e3) {
           var minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 
-          for (var b in storage) {
-            if ($hasProp(storage, b)) {
-              var _data3 = storage[b];
+          for (var board in storage) {
+            if ($hasProp(storage, board)) {
+              var _data3 = storage[board];
 
               for (var key in _data3) {
                 if ($hasProp(_data3, key) && _data3[key][0] < minDate) {
@@ -8680,8 +8682,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var rv = 0;
 
-        for (var b in storage) {
-          rv += Object.keys(storage[b]).length;
+        for (var board in storage) {
+          if ($hasProp(storage, board)) {
+            rv += Object.keys(storage[board]).length;
+          }
         }
 
         return rv;
@@ -8781,9 +8785,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   function initStorageEvent() {
     doc.defaultView.addEventListener('storage', function (e) {
-      var data,
-          temp,
-          val = e.newValue;
+      var data, temp;
+      var val = e.newValue;
 
       if (!val) {
         return;
@@ -9371,8 +9374,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   function toggleWindow(name, isUpdate, data, noAnim) {
     var _win;
 
-    var el,
-        win = $id('de-win-' + name);
+    var el;
+    var win = $id('de-win-' + name);
     var isActive = (_win = win) === null || _win === void 0 ? void 0 : _win.classList.contains('de-win-active');
 
     if (isUpdate && !isActive) {
@@ -9627,16 +9630,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
   function showHiddenWindow(body) {
-    var hThr = HiddenThreads.getRawData();
-    var hasThreads = !$isEmpty(hThr);
+    var boards = HiddenThreads.getRawData();
+    var hasThreads = !$isEmpty(boards);
 
     if (hasThreads) {
-      var _loop = function _loop(b) {
-        if ($isEmpty(hThr[b])) {
+      var _loop = function _loop(board) {
+        if (!$hasProp(boards, board)) {
           return "continue";
         }
 
-        var block = $bEnd(body, "<div class=\"de-fold-block\"><input type=\"checkbox\"><b>/".concat(b, "</b></div>"));
+        var threads = boards[board];
+
+        if ($isEmpty(threads)) {
+          return "continue";
+        }
+
+        var block = $bEnd(body, "<div class=\"de-fold-block\"><input type=\"checkbox\"><b>/".concat(board, "</b></div>"));
 
         block.firstChild.onclick = function (e) {
           return $each($Q('.de-entry > input', block), function (el) {
@@ -9644,13 +9653,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           });
         };
 
-        for (var tNum in hThr[b]) {
-          $bEnd(block, "<div class=\"de-entry ".concat(aib.cReply, "\" info=\"").concat(b, ";").concat(tNum, "\">\n\t\t\t\t\t<input type=\"checkbox\">\n\t\t\t\t\t<a href=\"").concat(aib.getThrUrl(b, tNum), "\" target=\"_blank\">").concat(tNum, "</a>\n\t\t\t\t\t<div class=\"de-entry-title\">- ").concat(hThr[b][tNum][2], "</div>\n\t\t\t\t</div>"));
+        for (var tNum in threads) {
+          if ($hasProp(threads, tNum)) {
+            $bEnd(block, "<div class=\"de-entry ".concat(aib.cReply, "\" info=\"").concat(board, ";").concat(tNum, "\">\n\t\t\t\t\t\t<input type=\"checkbox\">\n\t\t\t\t\t\t<a href=\"").concat(aib.getThrUrl(board, tNum), "\" target=\"_blank\">").concat(tNum, "</a>\n\t\t\t\t\t\t<div class=\"de-entry-title\">- ").concat(threads[tNum][2], "</div>\n\t\t\t\t\t</div>"));
+          }
         }
       };
 
-      for (var b in hThr) {
-        var _ret = _loop(b);
+      for (var board in boards) {
+        var _ret = _loop(board);
 
         if (_ret === "continue") continue;
       }
@@ -9676,18 +9687,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               case 0:
                 els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
                 _loop2 = regeneratorRuntime.mark(function _loop2(i, len) {
-                  var _els$i$getAttribute$s, _els$i$getAttribute$s2, b, tNum;
+                  var _els$i$getAttribute$s, _els$i$getAttribute$s2, board, tNum;
 
                   return regeneratorRuntime.wrap(function _loop2$(_context) {
                     while (1) {
                       switch (_context.prev = _context.next) {
                         case 0:
-                          _els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), b = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
+                          _els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), board = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
                           _context.next = 3;
-                          return $ajax(aib.getThrUrl(b, tNum))["catch"](function (err) {
+                          return $ajax(aib.getThrUrl(board, tNum))["catch"](function (err) {
                             if (err.code === 404) {
-                              HiddenThreads.removeStorage(tNum, b);
-                              HiddenPosts.removeStorage(tNum, b);
+                              HiddenThreads.removeStorage(tNum, board);
+                              HiddenPosts.removeStorage(tNum, board);
                             }
                           });
 
@@ -9737,7 +9748,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var _el$getAttribute$spli = el.getAttribute('info').split(';'),
             _el$getAttribute$spli2 = _slicedToArray(_el$getAttribute$spli, 2),
-            brd = _el$getAttribute$spli2[0],
+            board = _el$getAttribute$spli2[0],
             tNum = _el$getAttribute$spli2[1];
 
         var num = +tNum;
@@ -9746,14 +9757,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           pByNum.get(num).setUserVisib(false);
         } else {
           sendStorageEvent('__de-post', {
-            brd: brd,
+            brd: board,
             num: num,
             hide: false,
             thrNum: num
           });
         }
 
-        HiddenThreads.removeStorage(num, brd);
+        HiddenThreads.removeStorage(num, board);
         HiddenPosts.set(num, num, false); 
       });
       toggleWindow('hid', true);
@@ -9766,24 +9777,26 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     toggleWindow('fav', true, favObj);
   }
 
-  function removeFavEntry(favObj, h, b, num) {
-    var f;
+  function removeFavEntry(favObj, host, board, num) {
+    var _favObj$host;
 
-    if (h in favObj && b in favObj[h] && num in (f = favObj[h][b])) {
-      delete f[num];
+    var entry = (_favObj$host = favObj[host]) === null || _favObj$host === void 0 ? void 0 : _favObj$host[board];
 
-      if (!(Object.keys(f).length - +$hasProp(f, 'url') - +$hasProp(f, 'hide'))) {
-        delete favObj[h][b];
+    if (entry !== null && entry !== void 0 && entry[num]) {
+      delete entry[num];
 
-        if ($isEmpty(favObj[h])) {
-          delete favObj[h];
+      if (!(Object.keys(entry).length - +$hasProp(entry, 'url') - +$hasProp(entry, 'hide'))) {
+        delete favObj[host][board];
+
+        if ($isEmpty(favObj[host])) {
+          delete favObj[host];
         }
       }
     }
   }
 
-  function toggleThrFavBtn(h, b, num, isEnable) {
-    if (h === aib.host && b === aib.b && pByNum.has(num)) {
+  function toggleThrFavBtn(host, board, num, isEnable) {
+    if (host === aib.host && board === aib.b && pByNum.has(num)) {
       var post = pByNum.get(num);
       post.toggleFavBtn(isEnable);
       post.thr.isFav = isEnable;
@@ -9792,35 +9805,37 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   function updateFavorites(num, value, mode) {
     readFavorites().then(function (favObj) {
-      var isUpdate = false;
-      var f = favObj[aib.host];
+      var _favObj$aib$host2, _favObj$aib$host2$aib;
 
-      if (!f || !f[aib.b] || !(f = f[aib.b][num])) {
+      var entry = (_favObj$aib$host2 = favObj[aib.host]) === null || _favObj$aib$host2 === void 0 ? void 0 : (_favObj$aib$host2$aib = _favObj$aib$host2[aib.b]) === null || _favObj$aib$host2$aib === void 0 ? void 0 : _favObj$aib$host2$aib[num];
+
+      if (!entry) {
         return;
       }
 
+      var isUpdate = false;
+
       switch (mode) {
         case 'error':
-          if (f.err !== value) {
+          if (entry.err !== value) {
             isUpdate = true;
           }
 
-          f.err = value;
+          entry.err = value;
           break;
 
         case 'update':
-          if (f.cnt !== value[0]) {
+          if (entry.cnt !== value[0]) {
             isUpdate = true;
           }
 
-          f.cnt = value[0];
-          f["new"] = f.you = 0;
-          f.last = aib.anchor + value[1];
+          entry.cnt = value[0];
+          entry["new"] = entry.you = 0;
+          entry.last = aib.anchor + value[1];
       }
 
-      var data = [aib.host, aib.b, num, value, mode];
-
       if (isUpdate) {
+        var data = [aib.host, aib.b, num, value, mode];
         updateFavWindow.apply(void 0, data);
         saveFavorites(favObj);
         sendStorageEvent('__de-favorites', data);
@@ -9828,20 +9843,20 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     });
   }
 
-  function updateFavWindow(h, b, num, value, mode) {
+  function updateFavWindow(host, board, num, value, mode) {
     if (mode === 'add' || mode === 'delete') {
-      toggleThrFavBtn(h, b, num, mode === 'add');
+      toggleThrFavBtn(host, board, num, mode === 'add');
       toggleWindow('fav', true, value);
       return;
     }
 
     var winEl = $q('#de-win-fav > .de-win-body');
 
-    if (!winEl || !winEl.hasChildNodes()) {
+    if (!(winEl !== null && winEl !== void 0 && winEl.hasChildNodes())) {
       return;
     }
 
-    var el = $q(".de-entry[de-host=\"".concat(h, "\"][de-board=\"").concat(b, "\"][de-num=\"").concat(num, "\"] > .de-fav-inf"), winEl);
+    var el = $q(".de-entry[de-host=\"".concat(host, "\"][de-board=\"").concat(board, "\"][de-num=\"").concat(num, "\"] > .de-fav-inf"), winEl);
 
     if (!el) {
       return;
@@ -9879,11 +9894,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     readFavorites().then(function (favObj) {
       for (var i = 0; i < len; ++i) {
         var el = els[i];
-        var h = el.getAttribute('de-host');
-        var b = el.getAttribute('de-board');
+        var host = el.getAttribute('de-host');
+        var board = el.getAttribute('de-board');
         var num = +el.getAttribute('de-num');
-        removeFavEntry(favObj, h, b, num);
-        toggleThrFavBtn(h, b, num, false);
+        removeFavEntry(favObj, host, board, num);
+        toggleThrFavBtn(host, board, num, false);
       }
 
       saveRenewFavorites(favObj);
@@ -9893,59 +9908,71 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   function showFavoritesWindow(body, favObj) {
     var html = ''; 
 
-    for (var h in favObj) {
-      for (var b in favObj[h]) {
-        var f = favObj[h][b];
-        var hb = "de-host=\"".concat(h, "\" de-board=\"").concat(b, "\"");
+    for (var host in favObj) {
+      if (!$hasProp(favObj, host)) {
+        continue;
+      }
+
+      var boards = favObj[host];
+
+      for (var board in boards) {
+        if (!$hasProp(boards, board)) {
+          continue;
+        }
+
+        var threads = boards[board];
+        var hb = "de-host=\"".concat(host, "\" de-board=\"").concat(board, "\"");
         var delBtn = "<span class=\"de-fav-del-btn\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-win-close\"></use></svg>\n\t\t\t</span>";
-        var fArr = void 0,
-            innerHtml = '';
+        var tNums = void 0;
+        var tArr = Object.entries(threads);
 
         switch (Cfg.favThrOrder) {
           case 0:
-            fArr = Object.entries(f);
+            tNums = tArr;
             break;
 
           case 1:
-            fArr = Object.entries(f).reverse();
+            tNums = tArr.reverse();
             break;
 
           case 2:
-            fArr = Object.entries(f).sort(function (a, b) {
+            tNums = tArr.sort(function (a, b) {
               return (a[1].time || 0) - (b[1].time || 0);
             });
             break;
 
           case 3:
-            fArr = Object.entries(f).sort(function (a, b) {
+            tNums = tArr.sort(function (a, b) {
               return (b[1].time || 0) - (a[1].time || 0);
             });
         }
 
-        for (var i = 0, len = fArr.length; i < len; ++i) {
-          var tNum = fArr[i][0];
+        var innerHtml = '';
+
+        for (var i = 0, len = tNums.length; i < len; ++i) {
+          var tNum = tNums[i][0];
 
           if (tNum === 'url' || tNum === 'hide') {
             continue;
           }
 
-          var t = f[tNum]; 
+          var entry = threads[tNum]; 
 
-          var favLinkHref = t.url + (!t.last ? '' : t.last.startsWith('#') ? t.last : h === aib.host ? aib.anchor + t.last : '');
-          var favInfIwrapTitle = !t.err ? '' : t.err === 'Closed' ? "title=\"".concat(Lng.thrClosed[lang], "\"") : "title=\"".concat(t.err, "\"");
-          var favInfIconClass = !t.err ? '' : t.err === 'Closed' || t.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
-          var favInfYouDisp = t.you ? '' : ' style="display: none;"';
-          var favInfNewDisp = t["new"] ? '' : ' style="display: none;"';
-          innerHtml += "<div class=\"de-entry ".concat(aib.cReply, "\" ").concat(hb, " de-num=\"").concat(tNum, "\" de-url=\"").concat(t.url, "\">\n\t\t\t\t\t").concat(delBtn, "\n\t\t\t\t\t<a class=\"de-fav-link\" title=\"").concat(Lng.goToThread[lang], "\"") + " href=\"".concat(favLinkHref, "\" rel=\"noreferrer\">").concat(tNum, "</a>\n\t\t\t\t\t<div class=\"de-entry-title\">- ").concat(t.txt, "</div>\n\t\t\t\t\t<div class=\"de-fav-inf\">\n\t\t\t\t\t\t<span class=\"de-fav-inf-iwrap\" ").concat(favInfIwrapTitle, ">\n\t\t\t\t\t\t\t<svg class=\"de-fav-inf-icon ").concat(favInfIconClass, "\">\n\t\t\t\t\t\t\t\t<use class=\"de-fav-closed-use\" xlink:href=\"#de-symbol-closed\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-unavail-use\" xlink:href=\"#de-symbol-unavail\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-wait-use\" xlink:href=\"#de-symbol-wait\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-you\" title=\"").concat(Lng.myPostsRep[lang], "\"").concat(favInfYouDisp, ">\n\t\t\t\t\t\t\t").concat(t.you || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-new\" title=\"").concat(Lng.newPosts[lang], "\"").concat(favInfNewDisp, ">\n\t\t\t\t\t\t\t").concat(t["new"] || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-old\" title=\"").concat(Lng.oldPosts[lang], "\">").concat(t.cnt, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-page\" title=\"").concat(Lng.thrPage[lang], "\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>");
+          var favLinkHref = entry.url + (!entry.last ? '' : entry.last.startsWith('#') ? entry.last : host === aib.host ? aib.anchor + entry.last : '');
+          var favInfIwrapTitle = !entry.err ? '' : entry.err === 'Closed' ? "title=\"".concat(Lng.thrClosed[lang], "\"") : "title=\"".concat(entry.err, "\"");
+          var favInfIconClass = !entry.err ? '' : entry.err === 'Closed' || entry.err === 'Archived' ? 'de-fav-closed' : 'de-fav-unavail';
+          var favInfYouDisp = entry.you ? '' : ' style="display: none;"';
+          var favInfNewDisp = entry["new"] ? '' : ' style="display: none;"';
+          innerHtml += "<div class=\"de-entry ".concat(aib.cReply, "\" ").concat(hb, " de-num=\"").concat(tNum, "\" de-url=\"").concat(entry.url, "\">\n\t\t\t\t\t").concat(delBtn, "\n\t\t\t\t\t<a class=\"de-fav-link\" title=\"").concat(Lng.goToThread[lang], "\"") + " href=\"".concat(favLinkHref, "\" rel=\"noreferrer\">").concat(tNum, "</a>\n\t\t\t\t\t<div class=\"de-entry-title\">- ").concat(entry.txt, "</div>\n\t\t\t\t\t<div class=\"de-fav-inf\">\n\t\t\t\t\t\t<span class=\"de-fav-inf-iwrap\" ").concat(favInfIwrapTitle, ">\n\t\t\t\t\t\t\t<svg class=\"de-fav-inf-icon ").concat(favInfIconClass, "\">\n\t\t\t\t\t\t\t\t<use class=\"de-fav-closed-use\" xlink:href=\"#de-symbol-closed\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-unavail-use\" xlink:href=\"#de-symbol-unavail\"/>\n\t\t\t\t\t\t\t\t<use class=\"de-fav-wait-use\" xlink:href=\"#de-symbol-wait\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-you\" title=\"").concat(Lng.myPostsRep[lang], "\"").concat(favInfYouDisp, ">\n\t\t\t\t\t\t\t").concat(entry.you || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-new\" title=\"").concat(Lng.newPosts[lang], "\"").concat(favInfNewDisp, ">\n\t\t\t\t\t\t\t").concat(entry["new"] || 0, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-old\" title=\"").concat(Lng.oldPosts[lang], "\">").concat(entry.cnt, "</span>\n\t\t\t\t\t\t<span class=\"de-fav-inf-page\" title=\"").concat(Lng.thrPage[lang], "\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>");
         }
 
         if (!innerHtml) {
           continue;
         }
 
-        var isHide = f.hide === undefined ? h !== aib.host : f.hide; 
+        var isHide = threads.hide === undefined ? host !== aib.host : threads.hide; 
 
-        html += "<div class=\"de-fold-block".concat(h === aib.host && b === aib.b ? ' de-fav-current' : '', "\">\n\t\t\t\t<div class=\"de-fav-header\">\n\t\t\t\t\t").concat(delBtn, "\n\t\t\t\t\t<a class=\"de-fav-header-link\" title=\"").concat(Lng.goToBoard[lang], "\"") + " href=\"".concat(f.url, "\" rel=\"noreferrer\">").concat(h, "/").concat(b, "</a>\n\t\t\t\t\t<a class=\"de-abtn de-fav-header-btn\" title=\"").concat(Lng.toggleEntries[lang], "\"") + " href=\"#\">".concat(isHide ? '&#x25BC;' : '&#x25B2;', "</a>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"de-fav-entries").concat(isHide ? ' de-fav-entries-hide' : '', "\" ").concat(hb, ">\n\t\t\t\t\t").concat(innerHtml, "\n\t\t\t\t</div>\n\t\t\t</div>");
+        html += "<div class=\"de-fold-block".concat(host === aib.host && board === aib.b ? ' de-fav-current' : '', "\">\n\t\t\t\t<div class=\"de-fav-header\">\n\t\t\t\t\t").concat(delBtn, "\n\t\t\t\t\t<a class=\"de-fav-header-link\" title=\"").concat(Lng.goToBoard[lang], "\"") + " href=\"".concat(threads.url, "\" rel=\"noreferrer\">").concat(host, "/").concat(board, "</a>\n\t\t\t\t\t<a class=\"de-abtn de-fav-header-btn\" title=\"").concat(Lng.toggleEntries[lang], "\"") + " href=\"#\">".concat(isHide ? '&#x25BC;' : '&#x25B2;', "</a>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"de-fav-entries").concat(isHide ? ' de-fav-entries-hide' : '', "\" ").concat(hb, ">\n\t\t\t\t\t").concat(innerHtml, "\n\t\t\t\t</div>\n\t\t\t</div>");
       }
     } 
 
@@ -10020,7 +10047,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     })); 
 
     btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee2() {
-      var favObj, isUpdate, last404, myposts, els, _i2, _len2, el, host, _b, num, _f, _ref4, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len3, tc;
+      var favObj, isUpdate, last404, myposts, els, _i2, _len2, el, _host, _board, num, _entry, _ref4, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len3, tc;
 
       return regeneratorRuntime.wrap(function _callee2$(_context3) {
         while (1) {
@@ -10053,12 +10080,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               el = els[_i2];
-              host = el.getAttribute('de-host');
-              _b = el.getAttribute('de-board');
+              _host = el.getAttribute('de-host');
+              _board = el.getAttribute('de-board');
               num = el.getAttribute('de-num');
-              _f = favObj[host][_b][num]; 
+              _entry = favObj[_host][_board][num]; 
 
-              if (!(host !== aib.host || _f.err === 'Closed' || _f.err === 'Archived')) {
+              if (!(_host !== aib.host || _entry.err === 'Closed' || _entry.err === 'Archived')) {
                 _context3.next = 18;
                 break;
               }
@@ -10080,7 +10107,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               _context3.next = 27;
-              return ajaxLoad(aib.getThrUrl(_b, num));
+              return ajaxLoad(aib.getThrUrl(_board, num));
 
             case 27:
               form = _context3.sent;
@@ -10089,7 +10116,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
             case 30:
               _context3.next = 32;
-              return ajaxLoad(aib.getThrUrl(_b, num), true, false, true);
+              return ajaxLoad(aib.getThrUrl(_board, num), true, false, true);
 
             case 32:
               _yield$ajaxLoad = _context3.sent;
@@ -10116,7 +10143,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 break;
               }
 
-              Thread.removeSavedData(_b, num); 
+              Thread.removeSavedData(_board, num); 
 
               _context3.next = 49;
               break;
@@ -10132,7 +10159,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               $hide(countEl);
               $hide(youEl);
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-              _f.err = titleEl.title = getErrorMessage(_context3.t0);
+              _entry.err = titleEl.title = getErrorMessage(_context3.t0);
               isUpdate = true;
               return _context3.abrupt("continue", 61);
 
@@ -10140,26 +10167,26 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               if (aib.qClosed && $q(aib.qClosed, form)) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrClosed[lang];
-                _f.err = 'Closed';
+                _entry.err = 'Closed';
                 isUpdate = true;
               } else if (isArchived) {
                 iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
                 titleEl.title = Lng.thrArchived[lang];
-                _f.err = 'Archived';
+                _entry.err = 'Archived';
                 isUpdate = true;
               } else {
                 iconEl.setAttribute('class', 'de-fav-inf-icon');
                 titleEl.removeAttribute('title');
 
-                if (_f.err) {
-                  delete _f.err;
+                if (_entry.err) {
+                  delete _entry.err;
                   isUpdate = true;
                 }
               } 
 
 
               posts = $Q(aib.qRPost, form);
-              cnt = posts.length + 1 - _f.cnt;
+              cnt = posts.length + 1 - _entry.cnt;
               countEl.textContent = cnt;
 
               if (cnt === 0) {
@@ -10168,11 +10195,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 $hide(youEl);
               } else {
                 $show(countEl);
-                _f["new"] = cnt;
+                _entry["new"] = cnt;
                 isUpdate = true; 
 
-                if (myposts !== null && myposts !== void 0 && myposts[_b]) {
-                  _f.you = 0;
+                if (myposts !== null && myposts !== void 0 && myposts[_board]) {
+                  _entry.you = 0;
 
                   for (j = 0; j < cnt; ++j) {
                     links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a', posts[posts.length - 1 - j]);
@@ -10180,14 +10207,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     for (a = 0, _len3 = links.length; a < _len3; ++a) {
                       tc = links[a].textContent;
 
-                      if (tc[0] === '>' && tc[1] === '>' && myposts[_b][tc.substr(2)]) {
-                        _f.you++;
+                      if (tc[0] === '>' && tc[1] === '>' && myposts[_board][tc.substr(2)]) {
+                        _entry.you++;
                       }
                     }
                   }
 
-                  if (_f.you) {
-                    youEl.textContent = _f.you;
+                  if (_entry.you) {
+                    youEl.textContent = _entry.you;
                     $show(youEl);
                   }
                 }
@@ -10214,7 +10241,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     })))); 
 
     btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( regeneratorRuntime.mark(function _callee3() {
-      var els, len, thrInfo, _i3, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, tNums, form, _els, _i4, _len4, _i5, inf, _i6, _inf;
+      var els, len, thrInfo, _i3, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, form, _els, _i4, _len4, _i5, inf, _i6, _inf;
 
       return regeneratorRuntime.wrap(function _callee3$(_context4) {
         while (1) {
@@ -10271,7 +10298,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 break;
               }
 
-              tNums = new Set();
+              _tNums = new Set();
               _context4.prev = 13;
               _context4.next = 16;
               return ajaxLoad(aib.getPageUrl(aib.b, page));
@@ -10281,7 +10308,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               _els = DelForm.getThreads(form);
 
               for (_i4 = 0, _len4 = _els.length; _i4 < _len4; ++_i4) {
-                tNums.add(aib.getTNum(_els[_i4]));
+                _tNums.add(aib.getTNum(_els[_i4]));
               }
 
               _context4.next = 24;
@@ -10296,7 +10323,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               for (_i5 = 0; _i5 < len; ++_i5) {
                 inf = thrInfo[_i5];
 
-                if (tNums.has(inf.num)) {
+                if (_tNums.has(inf.num)) {
                   updateInf(inf, page);
                   inf.found = true;
                   infoLoaded++;
@@ -10534,9 +10561,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               return;
             }
 
-            var cfgObj = obj.settings;
-            var favObj = obj.favorites;
-            var dmObj = obj[aib.dm];
+            var _obj = obj,
+                cfgObj = _obj.settings,
+                favObj = _obj.favorites,
+                dmObj = _obj[aib.dm];
             var isOldCfg = !cfgObj && !favObj && !dmObj;
 
             if (isOldCfg) {
@@ -10589,78 +10617,81 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               while (1) {
                 switch (_context7.prev = _context7.next) {
                   case 0:
-                    name = [], nameDm = [], d = new Date();
-                    val = [], valDm = [];
+                    name = [];
+                    nameDm = [];
+                    d = new Date();
+                    val = [];
+                    valDm = [];
                     i = 0, len = els.length;
 
-                  case 3:
+                  case 6:
                     if (!(i < len)) {
-                      _context7.next = 35;
+                      _context7.next = 38;
                       break;
                     }
 
                     if (els[i].checked) {
-                      _context7.next = 6;
+                      _context7.next = 9;
                       break;
                     }
 
-                    return _context7.abrupt("continue", 32);
-
-                  case 6:
-                    _context7.t0 = i;
-                    _context7.next = _context7.t0 === 0 ? 9 : _context7.t0 === 1 ? 15 : _context7.t0 === 2 ? 27 : _context7.t0 === 3 ? 30 : 32;
-                    break;
+                    return _context7.abrupt("continue", 35);
 
                   case 9:
-                    name.push('Cfg');
-                    _context7.next = 12;
-                    return Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
+                    _context7.t0 = i;
+                    _context7.next = _context7.t0 === 0 ? 12 : _context7.t0 === 1 ? 18 : _context7.t0 === 2 ? 30 : _context7.t0 === 3 ? 33 : 35;
+                    break;
 
                   case 12:
-                    cfgData = _context7.sent;
-                    val.push("\"settings\":".concat(cfgData[0]), "\"hotkeys\":".concat(cfgData[1] || '""'));
-                    return _context7.abrupt("break", 32);
+                    name.push('Cfg');
+                    _context7.next = 15;
+                    return Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
 
                   case 15:
+                    cfgData = _context7.sent;
+                    val.push("\"settings\":".concat(cfgData[0]), "\"hotkeys\":".concat(cfgData[1] || '""'));
+                    return _context7.abrupt("break", 35);
+
+                  case 18:
                     name.push('Fav');
                     _context7.t1 = val;
                     _context7.t2 = "\"favorites\":";
-                    _context7.next = 20;
+                    _context7.next = 23;
                     return getStored('DESU_Favorites');
 
-                  case 20:
+                  case 23:
                     _context7.t3 = _context7.sent;
 
                     if (_context7.t3) {
-                      _context7.next = 23;
+                      _context7.next = 26;
                       break;
                     }
 
                     _context7.t3 = '{}';
 
-                  case 23:
+                  case 26:
                     _context7.t4 = _context7.t3;
                     _context7.t5 = _context7.t2.concat.call(_context7.t2, _context7.t4);
 
                     _context7.t1.push.call(_context7.t1, _context7.t5);
 
-                    return _context7.abrupt("break", 32);
-
-                  case 27:
-                    nameDm.push('Hid');
-                    valDm.push("\"posts\":".concat(locStorage['de-posts'] || '{}'), "\"threads\":".concat(locStorage['de-threads'] || '{}'));
-                    return _context7.abrupt("break", 32);
+                    return _context7.abrupt("break", 35);
 
                   case 30:
+                    nameDm.push('Hid');
+                    valDm.push("\"posts\":".concat(locStorage['de-posts'] || '{}'), "\"threads\":".concat(locStorage['de-threads'] || '{}'));
+                    return _context7.abrupt("break", 35);
+
+                  case 33:
                     nameDm.push('You');
                     valDm.push("\"myposts\":".concat(locStorage['de-myposts'] || '{}'));
 
-                  case 32:
+                  case 35:
                     ++i;
-                    _context7.next = 3;
+                    _context7.next = 6;
                     break;
 
-                  case 35:
+                  case 38:
                     if (valDm = valDm.join(',')) {
                       val.push("\"".concat(aib.dm, "\":{").concat(valDm, "}"));
                       name.push("".concat(aib.dm, " (").concat(nameDm.join('+'), ")"));
@@ -10674,7 +10705,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                     e.preventDefault();
 
-                  case 38:
+                  case 41:
                   case "end":
                     return _context7.stop();
                 }
@@ -11243,8 +11274,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         if (id === 'common') {
           $after($q('input[info="userCSS"]').parentNode, getEditButton('css', function (fn) {
-            return fn(Cfg.userCSSTxt, false, function () {
-              saveCfg('userCSSTxt', this.value);
+            return fn(Cfg.userCSSTxt, false, function (inputEl) {
+              saveCfg('userCSSTxt', inputEl.value);
               updateCSS();
               toggleWindow('cfg', true);
             });
@@ -11437,14 +11468,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     return $btn(Lng.edit[lang], Lng.editInTxt[lang], function () {
       return getDataFn(function (val, isJSON, saveFn) {
         var el = $popup('edit-' + name, "<b>".concat(Lng.editor[name][lang], "</b><textarea class=\"de-editor\"></textarea>"));
-        var ta = el.lastChild;
-        ta.value = isJSON ? JSON.stringify(val, null, '\t') : val; 
+        var inputEl = el.lastChild;
+        inputEl.value = isJSON ? JSON.stringify(val, null, '\t') : val; 
 
-        el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? saveFn.bind(ta) : function () {
+        el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? function () {
+          return saveFn(inputEl);
+        } : function () {
           var data;
 
           try {
-            data = JSON.parse(ta.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+            data = JSON.parse(inputEl.value.trim().replace(/[\n\r\t]/g, '') || '{}');
           } catch (err) {}
 
           if (!data) {
@@ -11565,8 +11598,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "getMenuImg",
       value: function getMenuImg(data) {
         var isDlOnly = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        var p,
-            dlLinks = '';
+        var p;
+        var dlLinks = '';
 
         if (typeof data === 'string') {
           p = encodeURIComponent(data) + '" target="_blank">' + Lng.frameSearch[lang];
@@ -12213,8 +12246,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var key,
-            el = e.target;
+        var key;
+        var el = e.target;
 
         switch (e.type) {
           case 'blur':
@@ -12461,7 +12494,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 
-  '',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,, 'Space',,,,, '←', '↑', '→', '↓',,,,,,,, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,, 'Num 0', 'Num 1', 'Num 2', 'Num 3', 'Num 4', 'Num 5', 'Num 6', 'Num 7', 'Num 8', 'Num 9', 'Num *', 'Num +',, 'Num -', 'Num .', 'Num /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', "'"];
+  '',,,,,,,, 'Backspace', 'Tab',,,, 'Enter',,, 'Shift', 'Ctrl', 'Alt',,,,,,,,,,,,,, 'Space',,,,, '←', '↑', '→', '↓',,,,,,,, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',, ';',, '=',,,, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',,,,,, 'Num 0', 'Num 1', 'Num 2', 'Num 3', 'Num 4', 'Num 5', 'Num 6', 'Num 7', 'Num 8', 'Num 9', 'Num *', 'Num +',, 'Num -', 'Num .', 'Num /',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, '-',,,,,,,,,,,,, ';', '=', ',', '-', '.', '/', '`',,,,,,,,,,,,,,,,,,,,,,,,,,, '[', '\\', ']', '\''];
 
 
   var ContentLoader = {
@@ -12471,11 +12504,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     downloadThread: function downloadThread(imgOnly) {
       var _this16 = this;
 
-      var progress,
-          counter,
-          current = 1,
-          warnings = '',
-          tar = new TarBuilder();
+      var progress, counter;
+      var current = 1;
+      var warnings = '';
+      var tar = new TarBuilder();
       var dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 
       var els = _toConsumableArray($Q(aib.qPostImg, $q('[de-form]', dc)));
@@ -13789,9 +13821,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               headers = _params4.headers;
 
           if (headers) {
-            for (var h in headers) {
-              if ($hasProp(headers, h)) {
-                xhr.setRequestHeader(h, headers[h]);
+            for (var header in headers) {
+              if ($hasProp(headers, header)) {
+                xhr.setRequestHeader(header, headers[header]);
               }
             }
           }
@@ -13812,7 +13844,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         return $ajax(url, params);
       }
     } else {
-      reject(new AjaxError(0, 'Ajax error: Can`t send any type of request.'));
+      reject(new AjaxError(0, 'Ajax error: Canʼt send any type of request.'));
     }
 
     return new CancelablePromise(function (res, rej) {
@@ -13977,13 +14009,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     });
   }
 
-  function ajaxPostsLoad(brd, tNum, useCache) {
+  function ajaxPostsLoad(board, tNum, useCache) {
     var useJson = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
     if (useJson && aib.JsonBuilder) {
-      return AjaxCache.runCachedAjax(aib.getJsonApiUrl(brd, tNum), useCache).then(function (xhr) {
+      return AjaxCache.runCachedAjax(aib.getJsonApiUrl(board, tNum), useCache).then(function (xhr) {
         try {
-          return new aib.JsonBuilder(JSON.parse(xhr.responseText), brd);
+          return new aib.JsonBuilder(JSON.parse(xhr.responseText), board);
         } catch (err) {
           if (err instanceof AjaxError) {
             return CancelablePromise.reject(err);
@@ -13991,16 +14023,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           console.warn("API error: ".concat(err, ". Switching to DOM parsing!"));
           aib.JsonBuilder = null;
-          return ajaxPostsLoad(brd, tNum, useCache);
+          return ajaxPostsLoad(board, tNum, useCache);
         }
       }, function (err) {
         return err.code === 304 ? null : CancelablePromise.reject(err);
       });
     }
 
-    return aib.hasArchive ? ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache, true).then(function (data) {
+    return aib.hasArchive ? ajaxLoad(aib.getThrUrl(board, tNum), true, useCache, true).then(function (data) {
       return data !== null && data !== void 0 && data[0] ? new DOMPostsBuilder(data[0], data[1]) : null;
-    }) : ajaxLoad(aib.getThrUrl(brd, tNum), true, useCache).then(function (form) {
+    }) : ajaxLoad(aib.getThrUrl(board, tNum), true, useCache).then(function (form) {
       return form ? new DOMPostsBuilder(form) : null;
     });
   }
@@ -14428,8 +14460,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           spells = spells || [Date.now(), [], null, null];
         }
 
-        var idx,
-            isAdded = true;
+        var idx;
+        var isAdded = true;
         var scope = aib.t ? [aib.b, aib.t] : null;
 
         if (spells[1]) {
@@ -14552,8 +14584,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         case 15:
           {
-            var temp_,
-                temp = val[1].length - 1;
+            var temp_;
+            var temp = val[1].length - 1;
 
             if (temp !== -1) {
               for (temp_ = []; temp >= 0; --temp) {
@@ -14839,8 +14871,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       return !rv.length ? null : rv;
     },
     _optimizeSpells: function _optimizeSpells(spells) {
-      var neg,
-          lastSpell = -1;
+      var neg;
+      var lastSpell = -1;
       var newSpells = [];
 
       for (var i = 0, len = spells.length; i < len; ++i) {
@@ -15307,8 +15339,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_doSpell",
       value: function _doSpell(name, str, isNeg) {
-        var m,
-            i = 0;
+        var m;
+        var i = 0;
         var spellIdx = Spells.names.indexOf(name);
 
         if (spellIdx === -1) {
@@ -17168,9 +17200,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return [!_m[2].length ? _m[1].length + tag.length + 2 : str.length, str];
         }
 
-        var m,
-            rv = '',
-            i = 0;
+        var m;
+        var rv = '';
+        var i = 0;
         var arr = text.split('\n');
 
         for (var len = arr.length; i < len; ++i) {
@@ -18812,10 +18844,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               }
 
               var ruUa = 'йцукенгшщзхъїфыівапролджэєячсмитьбюёґ';
-              var en = "qwertyuiop[]]assdfghjkl;''zxcvbnm,.`\\";
+              var en = 'qwertyuiop[]]assdfghjkl;\'\'zxcvbnm,.`\\';
               var code = e.charCode || e.keyCode;
-              var i,
-                  chr = String.fromCharCode(code).toLowerCase();
+              var i;
+              var chr = String.fromCharCode(code).toLowerCase();
 
               if (Cfg.captchaLang === 1) {
                 if (code < 0x0410 || code > 0x04FF || (i = ruUa.indexOf(chr)) === -1) {
@@ -19203,8 +19235,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: function handleEvent(e) {
         var _this43 = this;
 
-        var temp,
-            el = fixEventEl(e.target);
+        var temp;
+        var el = fixEventEl(e.target);
         var type = e.type;
         var isOutEvent = type === 'mouseout';
         var isPview = this instanceof Pview;
@@ -20626,10 +20658,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       _this52._isCached = true;
-      _this52.brd = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+      _this52.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 
-      if (PviewsCache.has(_this52.brd + tNum)) {
-        post = PviewsCache.get(_this52.brd + tNum).getPost(pNum);
+      if (PviewsCache.has(_this52.board + tNum)) {
+        post = PviewsCache.get(_this52.board + tNum).getPost(pNum);
 
         if (post) {
           _this52._buildPview(post);
@@ -20643,7 +20675,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       _this52._showPview(_this52.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>"))); 
 
 
-      _this52._loadPromise = ajaxPostsLoad(_this52.brd, tNum, false, false).then(function (pBuilder) {
+      _this52._loadPromise = ajaxPostsLoad(_this52.board, tNum, false, false).then(function (pBuilder) {
         return _this52._onload(pBuilder);
       }, function (err) {
         return _this52._onerror(err);
@@ -20705,8 +20737,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "deleteNonSticky",
       value: function deleteNonSticky() {
-        var lastSticky = null,
-            pv = this;
+        var lastSticky = null;
+        var pv = this;
 
         do {
           if (pv.isSticky) {
@@ -20805,7 +20837,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "_buildPview",
       value: function () {
         var _buildPview2 = _asyncToGenerator( regeneratorRuntime.mark(function _callee14(post) {
-          var num, pv, isMyPost, isOp, f, isFav, isCached, pCountHtml, pText, btnsEl, link;
+          var _yield$readFavorites$, _yield$readFavorites$2;
+
+          var num, pv, isMyPost, isOp, isFav, isCached, pCountHtml, pText, btnsEl, link;
           return regeneratorRuntime.wrap(function _callee14$(_context18) {
             while (1) {
               switch (_context18.prev = _context18.next) {
@@ -20833,14 +20867,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   _context18.t0 = isOp;
 
                   if (!_context18.t0) {
-                    _context18.next = 27;
+                    _context18.next = 30;
                     break;
                   }
 
                   _context18.t1 = post.thr.isFav;
 
                   if (_context18.t1) {
-                    _context18.next = 26;
+                    _context18.next = 29;
                     break;
                   }
 
@@ -20848,33 +20882,37 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                   return readFavorites();
 
                 case 18:
-                  _context18.t4 = aib.host;
-                  _context18.t3 = f = _context18.sent[_context18.t4];
+                  _context18.t3 = aib.host;
+                  _context18.t4 = _yield$readFavorites$ = _context18.sent[_context18.t3];
+                  _context18.t2 = _context18.t4 === null;
 
-                  if (!_context18.t3) {
-                    _context18.next = 22;
+                  if (_context18.t2) {
+                    _context18.next = 23;
                     break;
                   }
 
-                  _context18.t3 = f = f[this.brd];
+                  _context18.t2 = _yield$readFavorites$ === void 0;
 
-                case 22:
-                  _context18.t2 = _context18.t3;
-
+                case 23:
                   if (!_context18.t2) {
-                    _context18.next = 25;
+                    _context18.next = 27;
                     break;
                   }
 
-                  _context18.t2 = num in f;
-
-                case 25:
-                  _context18.t1 = _context18.t2;
-
-                case 26:
-                  _context18.t0 = _context18.t1;
+                  _context18.t5 = void 0;
+                  _context18.next = 28;
+                  break;
 
                 case 27:
+                  _context18.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
+
+                case 28:
+                  _context18.t1 = _context18.t5;
+
+                case 29:
+                  _context18.t0 = _context18.t1;
+
+                case 30:
                   isFav = _context18.t0;
                   isCached = post instanceof CacheItem;
                   pCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
@@ -20945,7 +20983,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                   this._showPview(pv);
 
-                case 34:
+                case 37:
                 case "end":
                   return _context18.stop();
               }
@@ -20969,12 +21007,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_onload",
       value: function _onload(pBuilder) {
-        var b = this.brd;
-        var num = this.parent.num;
-        var post = new PviewsCache(pBuilder, b, this.tNum).getPost(this.num);
+        var board = this.board,
+            num = this.parent;
+        var post = new PviewsCache(pBuilder, board, this.tNum).getPost(this.num);
 
-        if (post && (aib.b !== b || !post.ref.hasMap || !post.ref.has(num))) {
-          (post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', "<a class=\"de-link-backref\" href=\"".concat(aib.getThrUrl(b, this.parent.tNum) + aib.anchor + num, "\">&gt;&gt;").concat(aib.b === b ? '' : "/".concat(aib.b, "/")).concat(num, "</a><span class=\"de-refcomma\">, </span>"));
+        if (post && (aib.b !== board || !post.ref.hasMap || !post.ref.has(num))) {
+          (post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>')).insertAdjacentHTML('afterbegin', "<a class=\"de-link-backref\" href=\"".concat(aib.getThrUrl(board, this.parent.tNum) + aib.anchor + num, "\">&gt;&gt;").concat(aib.b === board ? '' : "/".concat(aib.b, "/")).concat(num, "</a><span class=\"de-refcomma\">, </span>"));
         }
 
         if (post) {
@@ -21279,12 +21317,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     var _super7 = _createSuper(PviewsCache);
 
-    function PviewsCache(pBuilder, b, tNum) {
+    function PviewsCache(pBuilder, board, tNum) {
       var _this56;
 
       _classCallCheck(this, PviewsCache);
 
-      _this56 = _super7.call(this, b + tNum);
+      _this56 = _super7.call(this, board + tNum);
 
       if (_this56._isInited) {
         return _possibleConstructorReturn(_this56);
@@ -21292,7 +21330,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       _this56._isInited = true;
       var lPByNum = new Map();
-      var thrUrl = aib.getThrUrl(b, tNum);
+      var thrUrl = aib.getThrUrl(board, tNum);
       lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
 
       for (var i = 0; i < pBuilder.length; ++i) {
@@ -21300,7 +21338,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       DelForm.tNums.add(tNum);
-      _this56._b = b;
+      _this56._b = board;
       _this56._posts = lPByNum;
 
       if (Cfg.linksNavig) {
@@ -22079,8 +22117,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return nImage;
         }
 
-        var imgs,
-            post = this.post;
+        var imgs;
+        var post = this.post;
 
         do {
           post = post.getAdjacentVisPost(!isForward);
@@ -22239,8 +22277,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               return;
             }
 
-            var str = '',
-                d = new WebmParser(data.buffer).getWebmData();
+            var str = '';
+            var d = new WebmParser(data.buffer).getWebmData();
 
             if (!d) {
               return;
@@ -22346,8 +22384,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                 };
                 var frameLinkHtml = "<a class=\"de-menu-item de-list\" href=\"".concat(deWindow.URL.createObjectURL(blob), "\" download=\"").concat(name, "\" target=\"_blank\">").concat(Lng.saveFrame[lang], "</a>");
                 $ajax('https://tmp.saucenao.com/', ajaxParams, true).then(function (xhr) {
-                  var hostUrl,
-                      errMsg = Lng.errSaucenao[lang];
+                  var hostUrl;
+                  var errMsg = Lng.errSaucenao[lang];
 
                   try {
                     var obj = JSON.parse(xhr.responseText);
@@ -22357,7 +22395,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
                     } else {
                       errMsg += ':<br>' + obj.error_message;
                     }
-                  } catch (e) {}
+                  } catch (err) {}
 
                   $popup('upload', (hostUrl || errMsg) + frameLinkHtml);
                 }, function () {
@@ -22528,9 +22566,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     function PostImages(post) {
       _classCallCheck(this, PostImages);
 
-      var first = null,
-          last = null,
-          els = $Q(aib.qPostImg, post.el);
+      var first = null;
+      var last = null;
+      var els = $Q(aib.qPostImg, post.el);
       var hasAttachments = false;
       var filesMap = new Map();
 
@@ -23019,11 +23057,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }();
 
   var _4chanPostsBuilder = function () {
-    function _4chanPostsBuilder(json, brd) {
+    function _4chanPostsBuilder(json, board) {
       _classCallCheck(this, _4chanPostsBuilder);
 
       this._posts = json.posts;
-      this._brd = brd;
+      this._board = board;
       this.length = json.posts.length - 1;
       this.postersCount = this._posts[0].unique_ips;
       this._colorIDs = [];
@@ -23062,7 +23100,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: function getPostHTML(i) {
         var data = this._posts[i + 1];
         var num = data.no;
-        var brd = this._brd;
+        var board = this._board;
 
         var _icon = function _icon(id) {
           return "//s.4cdn.org/image/".concat(id).concat(deWindow.devicePixelRatio < 2 ? '.gif' : '@2x.gif');
@@ -23096,13 +23134,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var size = prettifySize(data.fsize);
           var fileTextTitle = isSpoiler ? " title=\"".concat(data.filename + data.ext, "\"") : '';
           var aHref = needTitle ? "title=\"".concat(data.filename + data.ext, "\"") : '';
-          var imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' : "//i.4cdn.org/".concat(brd, "/").concat(data.tim, "s.jpg");
-          fileHTML = "<div class=\"file\" id=\"f".concat(num, "\">\n\t\t\t\t<div class=\"fileText\" id=\"fT").concat(num, "\"").concat(fileTextTitle, ">File:\n\t\t\t\t\t<a href=\"//i.4cdn.org/").concat(brd, "/").concat(data.tim + data.ext, "\" ").concat(aHref, " target=\"_blank\">").concat(_name2, "</a>\n\t\t\t\t\t(").concat(size, ", ").concat(data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h, ")\n\t\t\t\t</div>\n\t\t\t\t<a class=\"fileThumb ").concat(isSpoiler ? 'imgspoiler' : '', "\" href=\"//i.4cdn.org/").concat(brd, "/") + "".concat(data.tim + data.ext, "\" target=\"_blank\">\n\t\t\t\t\t<img src=\"").concat(imgSrc, "\" alt=\"").concat(size, "\" data-md5=\"") + "".concat(data.md5, "\" style=\"height: ").concat(data.tn_h, "px; width: ").concat(data.tn_w, "px;\">\n\t\t\t\t\t<div data-tip=\"\" data-tip-cb=\"mShowFull\" class=\"mFileInfo mobile\">\n\t\t\t\t\t\t").concat(size, " ").concat(data.ext.substr(1).toUpperCase(), "\n\t\t\t\t\t</div>\n\t\t\t\t</a>\n\t\t\t</div>");
+          var imgSrc = isSpoiler ? '//s.4cdn.org/image/spoiler.png' : "//i.4cdn.org/".concat(board, "/").concat(data.tim, "s.jpg");
+          fileHTML = "<div class=\"file\" id=\"f".concat(num, "\">\n\t\t\t\t<div class=\"fileText\" id=\"fT").concat(num, "\"").concat(fileTextTitle, ">File:\n\t\t\t\t\t<a href=\"//i.4cdn.org/").concat(board, "/").concat(data.tim + data.ext, "\" ").concat(aHref, " target=\"_blank\">").concat(_name2, "</a>\n\t\t\t\t\t(").concat(size, ", ").concat(data.ext === '.pdf' ? 'PDF' : data.w + 'x' + data.h, ")\n\t\t\t\t</div>\n\t\t\t\t<a class=\"fileThumb ").concat(isSpoiler ? 'imgspoiler' : '', "\" href=\"//i.4cdn.org/").concat(board, "/") + "".concat(data.tim + data.ext, "\" target=\"_blank\">\n\t\t\t\t\t<img src=\"").concat(imgSrc, "\" alt=\"").concat(size, "\" data-md5=\"") + "".concat(data.md5, "\" style=\"height: ").concat(data.tn_h, "px; width: ").concat(data.tn_w, "px;\">\n\t\t\t\t\t<div data-tip=\"\" data-tip-cb=\"mShowFull\" class=\"mFileInfo mobile\">\n\t\t\t\t\t\t").concat(size, " ").concat(data.ext.substr(1).toUpperCase(), "\n\t\t\t\t\t</div>\n\t\t\t\t</a>\n\t\t\t</div>");
         } 
 
 
-        var highlight = '',
-            ccBy = '';
+        var highlight = '';
+        var ccBy = '';
         var cc = data.capcode;
 
         switch (cc) {
@@ -23131,10 +23169,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             ccBy = 'Founder';
         }
 
-        var ccName = '',
-            ccText = '',
-            ccImg = '',
-            ccClass = '';
+        var ccName = '';
+        var ccText = '';
+        var ccImg = '';
+        var ccClass = '';
 
         if (cc) {
           ccName = cc[0].toUpperCase() + cc.slice(1);
@@ -23189,7 +23227,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }], [{
       key: "fixFileName",
       value: function fixFileName(name, maxLength) {
-        var decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        var decodedName = name.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, '\'').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
         return decodedName.length <= maxLength ? {
           isFixed: false,
           name: name
@@ -23206,7 +23244,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   _4chanPostsBuilder._customSpoiler = new Map();
 
   var DobrochanPostsBuilder = function () {
-    function DobrochanPostsBuilder(json, brd) {
+    function DobrochanPostsBuilder(json, board) {
       _classCallCheck(this, DobrochanPostsBuilder);
 
       if (json.error) {
@@ -23214,7 +23252,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       this._json = json.result;
-      this._brd = brd;
+      this._board = board;
       this._posts = json.result.threads[0].posts;
       this.length = this._posts.length - 1;
       this.postersCount = '';
@@ -23256,7 +23294,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       value: function getPostHTML(i) {
         var data = this._posts[i + 1];
         var num = data.display_id;
-        var brd = this._brd;
+        var board = this._board;
         var multiFile = data.files.length > 1; 
 
         var filesHTML = '';
@@ -23272,13 +23310,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               thumb_height = _step26$value.thumb_height,
               thumb_width = _step26$value.thumb_width;
           var fileName = void 0,
-              fullFileName = void 0,
-              th = thumb;
+              fullFileName = void 0;
+          var th = thumb;
           var thumbW = 200;
           var thumbH = 200;
           var ext = getFileExt(src);
 
-          if (brd === 'b' || brd === 'rf') {
+          if (board === 'b' || board === 'rf') {
             fileName = fullFileName = getFileName(th);
           } else {
             fileName = fullFileName = getFileName(src);
@@ -23313,7 +23351,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return "".concat(pad2(dt.getDate()), " ").concat(Lng.fullMonth[1][dt.getMonth()], " ").concat(dt.getFullYear(), " (").concat(Lng.week[1][dt.getDay()], ") ").concat(pad2(dt.getHours()), ":").concat(pad2(dt.getMinutes()));
         });
         var isOp = i === -1;
-        return "".concat(isOp ? "<div id=\"post_".concat(num, "\" class=\"oppost post\">") : "<table id=\"post_".concat(num, "\" class=\"replypost post\"><tbody><tr>\n\t\t\t<td class=\"doubledash\">&gt;&gt;</td>\n\t\t\t<td class=\"reply\" id=\"reply").concat(num, "\">"), "\n\t\t\t\t<a name=\"i").concat(num, "\"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name=\"").concat(num, "\" value=\"").concat(data.thread_id, "\" ") + "class=\"delete_checkbox\" id=\"delbox_".concat(num, "\" type=\"checkbox\">\n\t\t\t\t\t").concat(data.subject ? "<span class=\"replytitle\">".concat(data.subject, "</span>") : '', "\n\t\t\t\t\t<span class=\"postername\">").concat(data.name || 'Анонимус', "</span> ").concat(date, "\n\t\t\t\t</label>\n\t\t\t\t<span class=\"reflink\">\n\t\t\t\t\t<a href=\"/").concat(brd, "/res/").concat(data.thread_id, ".xhtml#i").concat(num, "\"> No.").concat(num, "</a>\n\t\t\t\t</span><br>\n\t\t\t\t").concat(filesHTML, "\n\t\t\t\t").concat(multiFile ? '<div style="clear: both;"></div>' : '', "\n\t\t\t\t<div class=\"postbody\"> ").concat(data.message_html, "</div>\n\t\t\t").concat(isOp ? '</div>' : '</td></tr></tbody></table>');
+        return "".concat(isOp ? "<div id=\"post_".concat(num, "\" class=\"oppost post\">") : "<table id=\"post_".concat(num, "\" class=\"replypost post\"><tbody><tr>\n\t\t\t<td class=\"doubledash\">&gt;&gt;</td>\n\t\t\t<td class=\"reply\" id=\"reply").concat(num, "\">"), "\n\t\t\t\t<a name=\"i").concat(num, "\"></a>\n\t\t\t\t<label>\n\t\t\t\t\t<input name=\"").concat(num, "\" value=\"").concat(data.thread_id, "\" ") + "class=\"delete_checkbox\" id=\"delbox_".concat(num, "\" type=\"checkbox\">\n\t\t\t\t\t").concat(data.subject ? "<span class=\"replytitle\">".concat(data.subject, "</span>") : '', "\n\t\t\t\t\t<span class=\"postername\">").concat(data.name || 'Анонимус', "</span> ").concat(date, "\n\t\t\t\t</label>\n\t\t\t\t<span class=\"reflink\">\n\t\t\t\t\t<a href=\"/").concat(board, "/res/").concat(data.thread_id, ".xhtml#i").concat(num, "\"> No.").concat(num, "</a>\n\t\t\t\t</span><br>\n\t\t\t\t").concat(filesHTML, "\n\t\t\t\t").concat(multiFile ? '<div style="clear: both;"></div>' : '', "\n\t\t\t\t<div class=\"postbody\"> ").concat(data.message_html, "</div>\n\t\t\t").concat(isOp ? '</div>' : '</td></tr></tbody></table>');
       }
     }, {
       key: "bannedPostsData",
@@ -23334,7 +23372,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   }();
 
   var MakabaPostsBuilder = function () {
-    function MakabaPostsBuilder(json, brd) {
+    function MakabaPostsBuilder(json, board) {
       _classCallCheck(this, MakabaPostsBuilder);
 
       if (json.Error) {
@@ -23342,7 +23380,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       this._json = json;
-      this._brd = brd;
+      this._board = board;
       this._posts = json.threads[0].posts;
       this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
       this.postersCount = json.unique_posters;
@@ -23380,7 +23418,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         var data = this._posts[i + 1];
         var num = data.num;
-        var brd = this._brd;
+        var board = this._board;
         var isNew = this._isNew;
         var p = isNew ? 'post__' : '';
 
@@ -23420,7 +23458,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           '!!%curunir%!!': "".concat(p, "mod\">## Curunir ##"),
           '@@default': "".concat(data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip', "\">") + data.trip
         }), "</span>");
-        var refHref = "/".concat(brd, "/res/").concat(parseInt(data.parent) || num, ".html#").concat(num);
+        var refHref = "/".concat(board, "/res/").concat(parseInt(data.parent) || num, ".html#").concat(num);
         var rate = '';
 
         if (this._hasLikes) {
@@ -24088,7 +24126,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       key: "toggleFavState",
       value: function toggleFavState(isEnable) {
         var preview = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        var h, b, num, cnt, txt, last;
+        var host, board, num, cnt, txt, last;
 
         if (preview) {
           preview.toggleFavBtn(isEnable);
@@ -24098,15 +24136,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this.op.toggleFavBtn(isEnable);
           this.isFav = isEnable;
           var _aib2 = aib;
-          h = _aib2.host;
-          b = _aib2.b;
+          host = _aib2.host;
+          board = _aib2.b;
           num = this.num;
           cnt = this.pcount;
           txt = this.op.title;
           last = aib.anchor + this.last.num;
         } else {
-          h = aib.host;
-          b = preview.brd;
+          var _aib3 = aib;
+          host = _aib3.host;
+          board = preview.board;
           num = preview.num;
           cnt = preview.remoteThr.pcount;
           txt = preview.remoteThr.title;
@@ -24115,23 +24154,24 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         readFavorites().then(function (favObj) {
           if (isEnable) {
-            var f = favObj[h] || (favObj[h] = {});
-            f = f[b] || (f[b] = {});
-            f.url = aib.prot + '//' + aib.host + aib.getPageUrl(b, 0);
-            f[num] = {
+            var entry = favObj[host] || (favObj[host] = {});
+            entry = entry[board] || (entry[board] = {});
+            entry.url = aib.prot + '//' + aib.host + aib.getPageUrl(board, 0);
+            var url = aib.getThrUrl(board, num);
+            entry[num] = {
               cnt: cnt,
               "new": 0,
               you: 0,
               txt: txt,
-              url: aib.getThrUrl(b, num),
+              url: url,
               last: last,
               time: Date.now()
             };
           } else {
-            removeFavEntry(favObj, h, b, num);
+            removeFavEntry(favObj, host, board, num);
           }
 
-          sendStorageEvent('__de-favorites', [h, b, num, favObj, isEnable ? 'add' : 'delete']);
+          sendStorageEvent('__de-favorites', [host, board, num, favObj, isEnable ? 'add' : 'delete']);
           saveRenewFavorites(favObj);
         });
       }
@@ -24720,8 +24760,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   };
 
   function initThreadUpdater(title, enableUpdate) {
-    var focusLoadTime,
-        disabledByUser = true;
+    var focusLoadTime;
+    var disabledByUser = true;
     var enabled = false;
     var repliesToYou = new Set();
     var lastECode = 200;
@@ -24928,10 +24968,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       _blinkMS: 800,
       _currentIcon: null,
       _emptyIcon: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-      _getIconNew: function _getIconNew(newPosts) {
+      _getIconNew: function _getIconNew() {
         return null;
       },
-      _getIconYou: function _getIconYou(newPosts) {
+      _getIconYou: function _getIconYou() {
         return null;
       },
       _hasIcons: false,
@@ -25600,9 +25640,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }, {
       key: "_parseClasslessThreads",
       value: function _parseClasslessThreads(formEl) {
-        var i,
-            len,
-            cThr = doc.createElement('div');
+        var i, len;
+        var cThr = doc.createElement('div');
         var threads = [];
 
         var fNodes = _toConsumableArray(formEl.childNodes);
@@ -25670,8 +25709,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     var hasPrestoStorage = !!prestoStorage && !ua.includes('Opera Mobi');
     var canUseFetch = ('AbortController' in deWindow); 
 
-    var hasNewGM =
-    typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
+    var hasNewGM = typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function';
     var hasGMXHR, hasOldGM, hasWebStorage, scriptHandler;
 
     if (hasNewGM) {
@@ -25747,7 +25785,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return origAppend.call(this, name, value, value.name);
           }
 
-          return origAppend.apply(this, arguments);
+          return origAppend.apply(this, [name, value, fileName]);
         };
 
         return rv;
@@ -26191,8 +26229,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
 
         if (Cfg.crossLinks) {
-          str = str.replace(aib.reCrossLinks, function (_, b, tNum, pNum) {
-            return ">&gt;&gt;/".concat(b, "/").concat(pNum || tNum, "<");
+          str = str.replace(aib.reCrossLinks, function (_, board, tNum, pNum) {
+            return ">&gt;&gt;/".concat(board, "/").concat(pNum || tNum, "<");
           });
         }
 
@@ -26325,8 +26363,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
     }, {
       key: "getPageUrl",
-      value: function getPageUrl(b, p) {
-        return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+      value: function getPageUrl(board, page) {
+        return fixBrd(board) + (page > 0 ? page + this.docExt : '');
       }
     }, {
       key: "getPNum",
@@ -26377,8 +26415,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
     }, {
       key: "getThrUrl",
-      value: function getThrUrl(b, tNum) {
-        return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+      value: function getThrUrl(board, tNum) {
+        return this.prot + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
       }
     }, {
       key: "getTNum",
@@ -26551,7 +26589,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "markupTags",
         get: function get() {
-          return ["'''", "''", '__', '~~', '**', '[code'];
+          return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
         }
       }, {
         key: "changeReplyMode",
@@ -26680,8 +26718,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
+        value: function getPageUrl(board, page) {
+          return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
         }
       }, {
         key: "getSubmitData",
@@ -26964,7 +27002,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "markupTags",
         get: function get() {
-          return ["'''", "''", '__', '~~', '**', '[code'];
+          return ['\'\'\'', '\'\'', '__', '~~', '**', '[code'];
         }
       }, {
         key: "captchaUpdate",
@@ -26987,7 +27025,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getCapParent",
-        value: function getCapParent(el) {
+        value: function getCapParent() {
           return $id('captchaDiv');
         }
       }, {
@@ -27007,8 +27045,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return fixBrd(b) + (p > 1 ? p + this.docExt : 'index.html');
+        value: function getPageUrl(board, page) {
+          return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
         }
       }, {
         key: "getPNum",
@@ -27329,8 +27367,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return fixBrd(b) + (p > 1 ? "page/".concat(p, "/") : '');
+        value: function getPageUrl(board, page) {
+          return fixBrd(board) + (page > 1 ? "page/".concat(page, "/") : '');
         }
       }, {
         key: "getTNum",
@@ -27493,8 +27531,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return "".concat(fixBrd(b)).concat(p > 0 ? p : 0, ".memhtml");
+        value: function getPageUrl(board, page) {
+          return "".concat(fixBrd(board)).concat(page > 0 ? page : 0, ".memhtml");
         }
       }, {
         key: "getSubmitData",
@@ -27664,7 +27702,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
                 try {
                   obj = JSON.parse(xhr.responseText);
-                } catch (e) {}
+                } catch (err) {}
 
                 $popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText : (obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
               });
@@ -27795,8 +27833,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getJsonApiUrl",
-        value: function getJsonApiUrl(brd, tNum) {
-          return "/".concat(brd, "/res/").concat(tNum, ".json");
+        value: function getJsonApiUrl(board, tNum) {
+          return "/".concat(board, "/res/").concat(tNum, ".json");
         }
       }, {
         key: "getPNum",
@@ -27964,8 +28002,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+        value: function getPageUrl(board, page) {
+          return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
         }
       }, {
         key: "getPNum",
@@ -28081,7 +28119,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getCapParent",
-        value: function getCapParent(el) {
+        value: function getCapParent() {
           return $q('.captcha');
         }
       }, {
@@ -28355,7 +28393,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "fixVideo",
-        value: function fixVideo(isPost, data) {
+        value: function fixVideo() {
           return [];
         }
       }, {
@@ -28372,8 +28410,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getJsonApiUrl",
-        value: function getJsonApiUrl(brd, tNum) {
-          return "//a.4cdn.org/".concat(brd, "/thread/").concat(tNum, ".json");
+        value: function getJsonApiUrl(board, tNum) {
+          return "//a.4cdn.org/".concat(board, "/thread/").concat(tNum, ".json");
         }
       }, {
         key: "getImgWrap",
@@ -28382,8 +28420,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return fixBrd(b) + (p > 1 ? p : '');
+        value: function getPageUrl(board, page) {
+          return fixBrd(board) + (page > 1 ? page : '');
         }
       }, {
         key: "getPostWrap",
@@ -28807,8 +28845,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getJsonApiUrl",
-        value: function getJsonApiUrl(brd, tNum) {
-          return "/api/thread/".concat(brd, "/").concat(tNum, "/all.json?new_format&message_html&board");
+        value: function getJsonApiUrl(board, tNum) {
+          return "/api/thread/".concat(board, "/").concat(tNum, "/all.json?new_format&message_html&board");
         }
       }, {
         key: "getOmitted",
@@ -28827,8 +28865,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+        value: function getPageUrl(board, page) {
+          return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
         }
       }, {
         key: "getTNum",
@@ -28964,8 +29002,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "getPageUrl",
-        value: function getPageUrl(b, p) {
-          return p > 1 ? fixBrd(b) + 'page/' + p : fixBrd(b);
+        value: function getPageUrl(board, page) {
+          return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
         }
       }, {
         key: "getPostElOfEl",
@@ -29774,7 +29812,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     _handleMessage: function _handleMessage(_ref50) {
       var arg = _ref50.data;
 
-      if (!arg || !arg.name) {
+      if (!(arg !== null && arg !== void 0 && arg.name)) {
         return;
       }
 
@@ -29821,7 +29859,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
   function checkForUpdates(isManual, lastUpdateTime) {
     if (!isManual) {
       if (Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-        return Promise.reject();
+        return Promise.reject(new Error('Itʼs not time for an update yet'));
       }
     }
 
@@ -29835,7 +29873,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var remoteVer = v === null || v === void 0 ? void 0 : (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
 
       if (!remoteVer) {
-        return Promise.reject();
+        return Promise.reject(new Error('Canʼt get remote version'));
       }
 
       var currentVer = version.split('.');
@@ -29858,9 +29896,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink)));
       }
 
-      return Promise.reject();
+      return Promise.reject(new Error());
     }, function () {
-      return !isManual ? Promise.reject() : "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>");
+      return isManual ? "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>") : Promise.reject(new Error(Lng.noConnect[lang]));
     });
   }
 
@@ -30029,7 +30067,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
   function _runMain() {
     _runMain = _asyncToGenerator( regeneratorRuntime.mark(function _callee26(checkDomains, dataPromise) {
-      var _aib$init, _aib3;
+      var _aib$init, _aib4;
 
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
@@ -30092,7 +30130,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
-              if (!(!Cfg.disabled && (_aib$init = (_aib3 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib3) || !localData && docBody.classList.contains('de-mode-local'))) {
+              if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
                 _context36.next = 21;
                 break;
               }

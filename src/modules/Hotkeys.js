@@ -426,7 +426,8 @@ class KeyEditListener {
 		return value;
 	}
 	handleEvent(e) {
-		let key, el = e.target;
+		let key;
+		let el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(HotKeys.enabled && this.errCount === 0) {
@@ -576,6 +577,6 @@ KeyEditListener.keyCodes = [
 	/* Select */,,,'Num 0','Num 1','Num 2','Num 3','Num 4','Num 5','Num 6','Num 7','Num 8','Num 9','Num *',
 	'Num +',,'Num -','Num .','Num /',/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,
 	/* F9 */,/* F10 */,/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,
-	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']',"'"
+	,,,,,,,,,,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
 ];
 /* eslint-enable comma-spacing, comma-style, no-sparse-arrays */

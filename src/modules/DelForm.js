@@ -76,7 +76,8 @@ class DelForm {
 	}
 
 	static _parseClasslessThreads(formEl) {
-		let i, len, cThr = doc.createElement('div');
+		let i, len;
+		let cThr = doc.createElement('div');
 		const threads = [];
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {

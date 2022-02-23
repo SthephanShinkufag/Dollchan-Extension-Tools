@@ -88,7 +88,7 @@ function $btn(value, title, fn, className = 'de-button') {
 }
 
 function $script(text) {
-	const el = doc.createElement('script'); // We can't insert scripts directly as html
+	const el = doc.createElement('script'); // We canʼt insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
 	doc.head.appendChild(el).remove();
@@ -168,7 +168,7 @@ const pad2 = i => (i < 10 ? '0' : '') + i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = b => `/${ b }${ b ? '/' : '' }`;
+const fixBrd = board => `/${ board }${ board ? '/' : '' }`;
 
 const getAbsLink = url => (
 	url[1] === '/' ? aib.prot :
@@ -242,7 +242,8 @@ const Logger = {
 	getLogData(isFull) {
 		const marks = this._marks;
 		const timeLog = [];
-		let duration, i = 1;
+		let duration;
+		let i = 1;
 		let lastExtra = 0;
 		for(let len = marks.length - 1; i < len; ++i) {
 			duration = marks[i][1] - marks[i - 1][1] + lastExtra;
@@ -513,7 +514,8 @@ class TarBuilder {
 		this._data = [];
 	}
 	addFile(filepath, input) {
-		let i, checksum = 0;
+		let i;
+		let checksum = 0;
 		const fileSize = input.length;
 		const header = new Uint8Array(512);
 		const nameLen = Math.min(filepath.length, 100);

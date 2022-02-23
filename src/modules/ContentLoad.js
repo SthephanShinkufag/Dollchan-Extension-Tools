@@ -8,9 +8,10 @@ const ContentLoader = {
 	isLoading : false,
 	popupId   : null,
 	downloadThread(imgOnly) {
-		let progress, counter, current = 1,
-			warnings = '',
-			tar = new TarBuilder();
+		let progress, counter;
+		let current = 1;
+		let warnings = '';
+		let tar = new TarBuilder();
 		const dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 		let els = [...$Q(aib.qPostImg, $q('[de-form]', dc))];
 		let count = els.length;

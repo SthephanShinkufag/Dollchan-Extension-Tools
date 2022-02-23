@@ -253,7 +253,7 @@ const Lng = {
 		imgNames: {
 			sel: [
 				['Не изменять', 'Настоящие (сокр.)', 'Скрывать', 'Настоящие (полные)'],
-				['Don`t change', 'Original (trunc.)', 'Hide', 'Original (full)'],
+				['Donʼt change', 'Original (trunc.)', 'Hide', 'Original (full)'],
 				['Не змінювати', 'Справжні (скороч.)', 'Ховати', 'Справжні (повні)']],
 			txt: [
 				'имена картинок',
@@ -365,7 +365,7 @@ const Lng = {
 		removeFName: {
 			sel: [
 				['Не изменять', 'Удалять', 'Unixtime', 'Unixtime-random'],
-				['Don`t change', 'Clear', 'Unixtime', 'Unixtime-random'],
+				['Donʼt change', 'Clear', 'Unixtime', 'Unixtime-random'],
 				['Не змінювати', 'Видаляти', 'Unixtime', 'Unixtime-random']],
 			txt: [
 				'имена файлов',
@@ -853,7 +853,7 @@ const Lng = {
 		'Зберегти отриманий кадр'],
 	errSaucenao: [
 		'Ошибка: не могу загрузить на saucenao.com',
-		'Error: can`t load to saucenao.com',
+		'Error: canʼt load to saucenao.com',
 		'Помилка: не можу завантажити на saucenao.com'],
 
 	// Hotkeys editor
@@ -993,7 +993,7 @@ const Lng = {
 		'неочікуваний символ: %s'],
 	seMissClBkt: [
 		'пропущена закрывающая скобка',
-		"missing ')' in expression",
+		'missing \')\' in expression',
 		'пропущено закривну дужку'],
 	seRepsInParens: [
 		'спелл #%s не должен располагаться в скобках',
@@ -1254,9 +1254,9 @@ const Lng = {
 		'Enter a link to the file manually',
 		'Ввести посилання на файл вручну'],
 	enterTheLink: [
-		"Введите ссылку и нажмите '+'",
-		"Enter the link and click '+'",
-		"Введіть посилання та натисніть '+'"],
+		'Введите ссылку и нажмите \'+\'',
+		'Enter the link and click \'+\'',
+		'Введіть посилання та натисніть \'+\''],
 	helpAddFile: [
 		'Встроить ogg/rar/zip/7z в картинку',
 		'Embed ogg/rar/zip/7z into the image',
@@ -1407,7 +1407,7 @@ const Lng = {
 		'Завантажте скрипт для відтворення WebM (VP9/Opus)'],
 	errFormLoad: [
 		'Не удаётся загрузить форму ответа',
-		'Can`t load the reply form',
+		'Canʼt load the reply form',
 		'Не вдалося завантажити форму відповіді'
 	],
 

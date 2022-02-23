@@ -3,7 +3,8 @@
 =========================================================================================================== */
 
 function initThreadUpdater(title, enableUpdate) {
-	let focusLoadTime, disabledByUser = true;
+	let focusLoadTime;
+	let disabledByUser = true;
 	let enabled = false;
 	let repliesToYou = new Set();
 	let lastECode = 200;
@@ -176,8 +177,8 @@ function initThreadUpdater(title, enableUpdate) {
 		_blinkMS     : 800,
 		_currentIcon : null,
 		_emptyIcon   : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-		_getIconNew  : newPosts => null,
-		_getIconYou  : newPosts => null,
+		_getIconNew  : () => null,
+		_getIconYou  : () => null,
 		_hasIcons    : false,
 		_iconError   : null,
 		_iconsNew    : [],

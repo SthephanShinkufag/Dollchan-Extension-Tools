@@ -37,7 +37,7 @@ const defaultCfg = {
 	expandImgs   : 2,    // expand images on click [0=off, 1=in post, 2=by center]
 	imgNavBtns   : 1,    //    add buttons to navigate images
 	imgInfoLink  : 1,    //    show name under expanded image
-	resizeDPI    : 0,    //    don't upscale images on high DPI displays
+	resizeDPI    : 0,    //    donʼt upscale images on high DPI displays
 	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
@@ -58,7 +58,7 @@ const defaultCfg = {
 	markViewed   : 0,    //    mark viewed posts
 	strikeHidd   : 0,    //    strike >>links to hidden posts
 	removeHidd   : 0,    //        also remove from reply maps
-	noNavigHidd  : 0,    //    don't show previews for hidden posts
+	noNavigHidd  : 0,    //    donʼt show previews for hidden posts
 	markMyLinks  : 1,    // mark links to my posts with (You)
 	crossLinks   : 0,    // replace http:// with >>/b/links*
 	decodeLinks  : 0,    // decode %D0%A5%D1 in links
