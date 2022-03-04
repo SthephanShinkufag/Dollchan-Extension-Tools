@@ -106,7 +106,7 @@ class Thread {
 	}
 	handleEvent(e) {
 		e.preventDefault();
-		const el = fixEventEl(e.target);
+		const el = nav.fixEventEl(e.target);
 		const elClass = el.classList[0];
 		const nextThr = this.next;
 		let oldCoord = false;
@@ -240,7 +240,7 @@ class Thread {
 		const num = aib.getPNum(el);
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		const post = new Post(el, this, num, i, false, prev);
-		parent.appendChild(wrap);
+		parent.append(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
 		}
@@ -272,7 +272,7 @@ class Thread {
 			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
 				$del($q(aib.qBan, post.el));
-				post.msg.appendChild(bEl);
+				post.msg.append(bEl);
 				post.banned = banId;
 			}
 		}
@@ -372,7 +372,7 @@ class Thread {
 			if(maybeVParser.hasValue) {
 				maybeVParser.value.endParser();
 			}
-			$after(op.wrap, fragm);
+			op.wrap.after(fragm);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
 			if(post) {
@@ -400,8 +400,9 @@ class Thread {
 		}
 		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
-			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
+			btns.insertAdjacentHTML('beforeend',
+				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
+					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
@@ -448,7 +449,7 @@ class Thread {
 	_moveBtnsToEnd() {
 		const { btns, el } = this;
 		if(btns !== el.lastChild) {
-			el.appendChild(btns);
+			el.append(btns);
 		}
 		return btns;
 	}
@@ -492,7 +493,7 @@ class Thread {
 				newPosts += res[0];
 				this.pcount += res[0];
 				newVisPosts += res[1];
-				$after(prev.wrap, res[2]);
+				prev.wrap.after(res[2]);
 				res[3].next = post;
 				post.prev = res[3];
 				DollchanAPI.notify('newpost', res[4]);
@@ -519,7 +520,7 @@ class Thread {
 				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
-			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).appendChild(res[2]);
+			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).append(res[2]);
 			this.last = res[3];
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
@@ -543,7 +544,7 @@ class Thread {
 		}
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
-		$each(this.btns.children, el => el !== this.btnReplies && $toggle(el, !isHide));
+		this.btns.children.forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
@@ -565,8 +566,8 @@ const thrNavPanel = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
-		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
-		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
+		case 'mouseover': this._expandCollapse(true, nav.fixEventEl(e.relatedTarget)); break;
+		case 'mouseout': this._expandCollapse(false, nav.fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
@@ -639,7 +640,7 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		const el = fixEventEl(e.target);
+		const el = nav.fixEventEl(e.target);
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +

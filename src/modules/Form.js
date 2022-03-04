@@ -13,6 +13,7 @@ class PostForm {
 		this.pForm = null;
 		this.qArea = null;
 		this._pBtn = [];
+		console.log(90)
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
 		if(!ignoreForm && !form) {
@@ -27,6 +28,7 @@ class PostForm {
 			}
 			return;
 		}
+		console.log(91)
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
@@ -38,12 +40,15 @@ class PostForm {
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
+		console.log(92)
 		this._initFileInputs();
+		console.log(93)
 		this._makeHideableContainer();
 		this._makeWindow();
 		if(!form || !this.txta) {
 			return;
 		}
+		console.log(94)
 		form.style.display = 'inline-block';
 		form.style.textAlign = 'left';
 		const { qArea, txta } = this;
@@ -51,21 +56,23 @@ class PostForm {
 		new WinResizer('reply', 'left', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'right', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', qArea, txta);
+		console.log(95)
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
 		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
+		console.log(96)
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}
 		if(Cfg.addSageBtn && this.mail) {
-			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
+			PostForm.hideField(this.mail.closest('label') || this.mail);
 			setTimeout(() => this.toggleSage(), 0);
 		}
 		if(Cfg.noPassword && this.passw) {
-			$hide($qParent(this.passw, aib.qFormTr));
+			$hide(this.passw.closest(aib.qFormTr));
 		}
 		if(Cfg.noName && this.name) {
 			PostForm.hideField(this.name);
@@ -83,7 +90,7 @@ class PostForm {
 	static hideField(el) {
 		const next = el.nextElementSibling;
 		$toggle(next && (next.style.display !== 'none') ||
-			el.previousElementSibling ? el : $qParent(el, aib.qFormTr));
+			el.previousElementSibling ? el : el.closest(aib.qFormTr));
 	}
 	static setUserName() {
 		const el = $q('input[info="nameValue"]');
@@ -139,7 +146,7 @@ class PostForm {
 			el.addEventListener('mouseover', this);
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, el);
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
@@ -246,10 +253,10 @@ class PostForm {
 	}
 	setReply(isQuick, needToHide) {
 		if(isQuick) {
-			$after(this.qArea.firstChild, this.pForm);
+			this.qArea.firstChild.after(this.pForm);
 		} else {
-			$after(this.pArea[+this.isBottom], this.qArea);
-			$after(this._pBtn[+this.isBottom], this.pForm);
+			this.pArea[+this.isBottom].after(this.qArea);
+			this._pBtn[+this.isBottom].after(this.pForm);
 		}
 		this.isHidden = needToHide;
 		$toggle(this.qArea, isQuick);
@@ -284,7 +291,7 @@ class PostForm {
 			this.closeReply();
 			return;
 		}
-		$after(post.wrap, this.qArea);
+		post.wrap.after(this.qArea);
 		if(this.qArea.classList.contains('de-win')) {
 			updateWinZ(this.qArea.style);
 		}
@@ -401,7 +408,7 @@ class PostForm {
 			return;
 		}
 		if(aib.fixFileInputs) {
-			aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
+			aib.fixFileInputs(fileEl.closest(aib.qFormTd));
 		}
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
@@ -439,7 +446,7 @@ class PostForm {
 			if(this.isQuick) {
 				$hide(this.pForm);
 				$hide(this.qArea);
-				$after(this._pBtn[+this.isBottom], this.pForm);
+				this._pBtn[+this.isBottom].after(this.pForm);
 			}
 			updater.pauseUpdater();
 		});
@@ -513,13 +520,8 @@ class PostForm {
 		});
 	}
 	_makeHideableContainer() {
-		this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
-		if(this.form) {
-			this.pForm.appendChild(this.form);
-		}
-		if(this.oeForm) {
-			this.pForm.appendChild(this.oeForm);
-		}
+		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
+			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 		this.pArea = [
 			$bBegin(DelForm.first.el, html),
@@ -550,7 +552,7 @@ class PostForm {
 		const buttons = $q('.de-win-buttons', this.qArea);
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
-			switch(fixEventEl(target).classList[0]) {
+			switch(nav.fixEventEl(target).classList[0]) {
 			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
 			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
 			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
@@ -579,7 +581,7 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
+			$toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
 		}
 	}
 	_toggleQuickReply(tNum) {

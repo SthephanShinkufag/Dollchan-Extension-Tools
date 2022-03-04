@@ -73,7 +73,7 @@ const ContentLoader = {
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els.forEach(el => {
-			const parentLink = $parent(el, 'A');
+			const parentLink = el.closest('a');
 			if(parentLink) {
 				const url = parentLink.href;
 				this._thrPool.runTask(
@@ -83,7 +83,7 @@ const ContentLoader = {
 		if(!imgOnly) {
 			$delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' +
 				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
-			$each($Q('a', dc), el => {
+			$Q('a', dc).forEach(el => {
 				let num;
 				const tc = el.textContent;
 				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -92,14 +92,14 @@ const ContentLoader = {
 						el.className = 'de-link-postref ' + el.className;
 					}
 				} else {
-					el.href = getAbsLink(el.href);
+					el.href = aib.getAbsLink(el.href);
 				}
 			});
-			$each($Q(aib.qRPost, dc), (el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			$Q(aib.qRPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				quoteReg(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
-			$each($Q('link, *[src]', dc), el => {
+				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
+			$Q('link, *[src]', dc).forEach(el => {
 				if(els.indexOf(el) !== -1) {
 					return;
 				}
@@ -215,13 +215,13 @@ const ContentLoader = {
 		}
 		for(let i = 0; i < len; ++i) {
 			const imgEl = els[i];
-			const parentLink = $parent(imgEl, 'A');
+			const parentLink = imgEl.closest('a');
 			if(!parentLink) {
 				continue;
 			}
 			let isRepToOrig = !!Cfg.openImgs;
 			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
-			const type = getFileType(url);
+			const type = getFileMime(url);
 			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;

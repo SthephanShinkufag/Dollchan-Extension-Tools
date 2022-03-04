@@ -27,7 +27,7 @@ const Pages = {
 						DelForm.tNums.delete(thr.num);
 					} else {
 						const oldLastThr = firstForm.lastThr;
-						$after(oldLastThr.el, thr.el);
+						oldLastThr.el.after(thr.el);
 						newForm.firstThr = thr.next;
 						thr.prev = oldLastThr;
 						thr.form = firstForm;
@@ -72,7 +72,7 @@ const Pages = {
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$each($Q('a[href^="blob:"]', form.el), el => URL.revokeObjectURL(el.href));
+			$Q('a[href^="blob:"]', form.el).forEach(el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;
@@ -101,7 +101,7 @@ const Pages = {
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
-		$after(DelForm.last.el, formEl);
+		DelForm.last.el.after(formEl);
 		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();

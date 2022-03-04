@@ -73,19 +73,19 @@ class BaseBoard {
 		this.makaba = false;
 	}
 	get qFormMail() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
 	get qFormName() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
 	get qFormSubj() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
 			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
 			', [href^="blob:"]');
@@ -93,7 +93,7 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
@@ -165,7 +165,7 @@ class BaseBoard {
 	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
-			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
+			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
@@ -188,7 +188,7 @@ class BaseBoard {
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan
-		$hide($qParent(el, aib.qFormTr));
+		$hide(el.closest(aib.qFormTr));
 		el.checked = true;
 	}
 	fixHTML(data, isForm = false) {
@@ -267,11 +267,14 @@ class BaseBoard {
 		}
 		return videos;
 	}
+	getAbsLink(url) { // Sets here only
+		return (url[1] === '/' ? this.prot : url[0] === '/' ? this.prot + '//' + this.host : '') + url;
+	}
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
 	getCapParent(el) {
-		return $qParent(el, this.qFormTr);
+		return el.closest(this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
 		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -287,10 +290,10 @@ class BaseBoard {
 		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {
-		return $parent(img, 'A');
+		return img.closest('a');
 	}
 	getImgWrap(img) {
-		return ($parent(img, 'A') || img).parentNode;
+		return (img.closest('a') || img).parentNode;
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
@@ -306,13 +309,9 @@ class BaseBoard {
 		let el;
 		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
-			op.appendChild(el);
+			op.append(el);
 		}
-		if(thr.hasChildNodes()) {
-			thr.insertBefore(op, thr.firstChild);
-		} else {
-			thr.appendChild(op);
-		}
+		thr.prepend(op);
 		return op;
 	}
 	getPageUrl(board, page) {
@@ -336,7 +335,7 @@ class BaseBoard {
 			return el;
 		}
 		Object.defineProperty(this, 'getPostWrap',
-			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : $parent(el, 'TABLE') : el => el });
+			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : el.closest('table') : el => el });
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {

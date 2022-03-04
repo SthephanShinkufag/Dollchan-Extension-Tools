@@ -210,7 +210,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
+			$toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {
@@ -325,10 +325,10 @@ class ImagesViewer {
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		el.appendChild(this._fullEl);
+		el.append(this._fullEl);
 		if(data.isImage) {
 			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
-				.appendChild($q('img', this._fullEl));
+				.append($q('img', this._fullEl));
 		}
 		this._elStyle = el.style;
 		this.data = data;
@@ -347,7 +347,7 @@ class ImagesViewer {
 		} else if($hasProp(this, '_btns')) {
 			btns.hideBtns();
 		}
-		data.post.thr.form.el.appendChild(el);
+		data.post.thr.form.el.append(el);
 		this.toggleVideoLoop();
 		if(this.data.rotate) {
 			this.rotateView(false);
@@ -526,8 +526,9 @@ class ExpandableImage {
 		this._fullEl = this.getFullImg(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		this.srcBtnEvents(this);
-		$hide(el.parentNode);
-		$after(el.parentNode, this._fullEl);
+		const parent = el.parentNode;
+		$hide(parent);
+		parent.after(this._fullEl);
 		this.checkForRedirect(this._fullEl);
 		if(e) {
 			const fullImgTop = this._fullEl.getBoundingClientRect().top;
@@ -1083,8 +1084,8 @@ function embedPostMsgImages(el) {
 		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
-		$bBegin(link, `<a href="${
-			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
+		link.insertAdjacentHTML('beforebegin',
+			`<a href="${ url }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
 			addImgButtons(link);
 		}

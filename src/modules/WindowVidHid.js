@@ -14,7 +14,8 @@ function showVideosWindow(body) {
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.youtube.com/player_api';
-		doc.head.appendChild(script).id = 'de-ytube-api';
+		script.id = 'de-ytube-api';
+		doc.head.append(script);
 	}
 	// EXCLUDED FROM FIREFOX EXTENSION - END
 	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
@@ -66,7 +67,7 @@ function showVideosWindow(body) {
 			document.getElementById("de-video-btn-next").click();
 		}
 	})();`;
-	body.appendChild(script);
+	body.append(script);
 	// EXCLUDED FROM FIREFOX EXTENSION - END
 
 	// Events for control buttons
@@ -130,17 +131,18 @@ function showVideosWindow(body) {
 	for(let i = 0, len = els.length; i < len; ++i) {
 		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
-	body.appendChild(linkList);
+	body.append(linkList);
 	$q('.de-video-link', linkList).click();
 }
 
 function updateVideoList(parent, link, num) {
 	const el = link.cloneNode(true);
 	el.videoInfo = link.videoInfo;
+	el.classList.remove('de-current');
+	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
 		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;&gt;</a>
-	</div>`).appendChild(el).classList.remove('de-current');
-	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
+	</div>`).append(el);
 }
 
 // HIDDEN THREADS WINDOW
@@ -160,60 +162,60 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
+				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
 			for(const tNum in threads) {
 				if($hasProp(threads, tNum)) {
-					$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
-						<input type="checkbox">
-						<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
-						<div class="de-entry-title">- ${ threads[tNum][2] }</div>
-					</div>`);
+					block.insertAdjacentHTML('beforeend',
+						`<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
+							<input type="checkbox">
+							<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
+							<div class="de-entry-title">- ${ threads[tNum][2] }</div>
+						</div>`);
 				}
 			}
 		}
 	}
-	const btns = $bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
-		'<div id="de-hid-buttons"></div>');
-
-	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
-	btns.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
-		HiddenThreads.saveRawData(data);
-		Thread.first.updateHidden(data[aib.b]);
-		toggleWindow('hid', true);
-	})));
-
-	// "Clear" button. Allows to clear 404'd threads.
-	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
-		// Sequentially load threads, and remove inaccessible
-		const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const [board, tNum] = els[i].getAttribute('info').split(';');
-			await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
-				if(err.code === 404) {
-					HiddenThreads.removeStorage(tNum, board);
-					HiddenPosts.removeStorage(tNum, board);
+	$bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+		'<div id="de-hid-buttons"></div>'
+	).append(
+		// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
+		getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+			HiddenThreads.saveRawData(data);
+			Thread.first.updateHidden(data[aib.b]);
+			toggleWindow('hid', true);
+		})),
+		// "Clear" button. Allows to clear 404'd threads.
+		$button(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
+			// Sequentially load threads, and remove inaccessible
+			const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const [board, tNum] = els[i].getAttribute('info').split(';');
+				await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
+					if(err.code === 404) {
+						HiddenThreads.removeStorage(tNum, board);
+						HiddenPosts.removeStorage(tNum, board);
+					}
+				});
+			}
+			toggleWindow('hid', true);
+		}),
+		// "Delete" button. Allows to delete selected threads
+		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
+			$Q('.de-entry[info]', body).forEach(el => {
+				if(!$q('input', el).checked) {
+					return;
 				}
+				const [board, tNum] = el.getAttribute('info').split(';');
+				const num = +tNum;
+				if(pByNum.has(num)) {
+					pByNum.get(num).setUserVisib(false);
+				} else {
+					sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
+				}
+				HiddenThreads.removeStorage(num, board);
+				HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 			});
-		}
-		toggleWindow('hid', true);
-	}));
-
-	// "Delete" button. Allows to delete selected threads
-	btns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry[info]', body), el => {
-			if(!$q('input', el).checked) {
-				return;
-			}
-			const [board, tNum] = el.getAttribute('info').split(';');
-			const num = +tNum;
-			if(pByNum.has(num)) {
-				pByNum.get(num).setUserVisib(false);
-			} else {
-				sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
-			}
-			HiddenThreads.removeStorage(num, board);
-			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
-		});
-		toggleWindow('hid', true);
-	}));
+			toggleWindow('hid', true);
+		})
+	);
 }

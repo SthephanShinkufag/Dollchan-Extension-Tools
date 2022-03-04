@@ -61,15 +61,6 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
 		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: Opera Presto
-		Element.prototype.remove = function() {
-			this.parentNode?.removeChild(this);
-		};
-	}
-	const nlProto = NodeList.prototype;
-	$each = 'forEach' in nlProto ?
-		(els, cb) => nlProto.forEach.call(els, cb) :
-		(els, cb) => aProto.forEach.call(els, cb);
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -103,7 +94,6 @@ function initNavFuncs() {
 		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		fixLink          : isSafari ? getAbsLink : url => url,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
 		hasGMXHR,
 		hasNewGM,
@@ -159,6 +149,12 @@ function initNavFuncs() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
+			return value;
+		},
+		// XXX: Opera Presto - hack for SVG events
+		get fixEventEl() {
+			const value = !nav.isPresto ? el => el : el => el?.correspondingUseElement?.ownerSVGElement || el;
+			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent

@@ -94,7 +94,7 @@ function checkUpload(data) {
 }
 
 async function checkDelete(data) {
-	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
+	const err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
 		updater.sendErrNotif();
@@ -149,7 +149,7 @@ function* getFormElements(form, submitter) {
 		const tagName = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
-		if($parent(field, 'DATALIST', form) || isFormElDisabled(field) ||
+		if(field.closest('datalist') || isFormElDisabled(field) ||
 			field !== submitter && (
 				tagName === 'button' ||
 				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
@@ -288,7 +288,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 	}
 	const url = form.action;
 	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
-		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text)
+		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text)
 	).catch(err => Promise.reject(err));
 }
 

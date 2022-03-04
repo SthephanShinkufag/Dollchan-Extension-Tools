@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'd5e3aff';
+const commit = 'c042049';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1693,8 +1693,8 @@ const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let $each, aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl,
-	pByNum, pr, sesStorage, updater;
+let aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, pr,
+	sesStorage, updater;
 let quotedText = '';
 let visPosts = 2;
 let topWinZ = 10;
@@ -1705,40 +1705,16 @@ let topWinZ = 10;
 
 // DOM SEARCH
 
-const $Q = (path, root = docBody) => root.querySelectorAll(path);
+const $id = id => doc.getElementById(id);
 
 const $q = (path, root = docBody) => root.querySelector(path);
 
-const $id = id => doc.getElementById(id);
+const $Q = (path, root = docBody) => root.querySelectorAll(path);
 
-function $parent(el, tagName) {
-	do {
-		el = el.parentElement;
-	} while(el && el.tagName !== tagName);
-	return el;
-}
-
-function $qParent(el, path) {
-	do {
-		el = el.parentElement;
-	} while(el && !nav.matchesSelector(el, path));
-	return el;
-}
+const $match = (parent, ...rules) =>
+	parent.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 
 // DOM MODIFIERS
-
-function $before(el, node) {
-	el.parentNode.insertBefore(node, el);
-}
-
-function $after(el, node) {
-	const nextEl = el.nextSibling;
-	if(nextEl) {
-		el.parentNode.insertBefore(node, nextEl);
-	} else {
-		el.parentNode.appendChild(node);
-	}
-}
 
 function $bBegin(sibling, html) {
 	sibling.insertAdjacentHTML('beforebegin', html);
@@ -1760,13 +1736,9 @@ function $aEnd(sibling, html) {
 	return sibling.nextSibling;
 }
 
-function $replace(origEl, newEl) {
-	if(typeof newEl === 'string') {
-		origEl.insertAdjacentHTML('afterend', newEl);
-		origEl.remove();
-	} else {
-		origEl.parentNode.replaceChild(newEl, origEl);
-	}
+function $replace(el, html) {
+	el.insertAdjacentHTML('afterend', html);
+	el.remove();
 }
 
 function $del(el) {
@@ -1774,7 +1746,7 @@ function $del(el) {
 }
 
 function $delAll(path, root = docBody) {
-	$each(root.querySelectorAll(path, root), el => el.remove());
+	root.querySelectorAll(path, root).forEach(el => el.remove());
 }
 
 function $add(html) {
@@ -1782,7 +1754,7 @@ function $add(html) {
 	return dummy.firstElementChild;
 }
 
-function $btn(value, title, fn, className = 'de-button') {
+function $button(value, title, fn, className = 'de-button') {
 	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
@@ -1792,7 +1764,8 @@ function $script(text) {
 	const el = doc.createElement('script'); // We canʼt insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
-	doc.head.appendChild(el).remove();
+	doc.head.append(el);
+	el.remove();
 }
 
 function $css(text) {
@@ -1802,13 +1775,21 @@ function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
 }
 
-function $DOM(html) {
+function $createDoc(html) {
 	const myDoc = doc.implementation.createHTMLDocument('');
 	myDoc.documentElement.innerHTML = html;
 	return myDoc;
 }
 
-// CSS UTILS
+// CSS AND ATTRIBUTES
+
+function $show(el) {
+	el.style.removeProperty('display');
+}
+
+function $hide(el) {
+	el.style.display = 'none';
+}
 
 function $toggle(el, needToShow = el.style.display) {
 	if(needToShow) {
@@ -1818,12 +1799,12 @@ function $toggle(el, needToShow = el.style.display) {
 	}
 }
 
-function $show(el) {
-	el.style.removeProperty('display');
-}
-
-function $hide(el) {
-	el.style.display = 'none';
+function $toggleAttr(el, name, value, isAdd) {
+	if(isAdd) {
+		el.setAttribute(name, value);
+	} else {
+		el.removeAttribute(name);
+	}
 }
 
 function $animate(el, cName, isRemove = false) {
@@ -1838,7 +1819,121 @@ function $animate(el, cName, isRemove = false) {
 	el.classList.add(cName);
 }
 
-// Checks the validity of the user inputted color
+// OBJECT
+
+const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+
+function $isEmpty(obj) {
+	for(const i in obj) {
+		if($hasProp(obj, i)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// REGEXP
+
+// Prepares a string to be used as a new RegExp argument
+const escapeRegExp = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+
+// Converts a string into regular expression
+function strToRegExp(str, notGlobal) {
+	const l = str.lastIndexOf('/');
+	const flags = str.substr(l + 1);
+	return new RegExp(str.substr(1, l - 1), notGlobal ? flags.replace('g', '') : flags);
+}
+
+// OTHER UTILS
+
+const pad2 = i => i < 10 ? '0' + i : i;
+
+const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
+
+const fixBrd = board => '/' + (board ? board + '/' : '');
+
+const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+
+const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+
+const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+
+// Converts bytes into KB/MB/GB
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
+
+// Inserts the text at the cursor into an input field
+function insertText(el, txt) {
+	const { scrollTop, selectionStart: start } = el;
+	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+	el.setSelectionRange(start + txt.length, start + txt.length);
+	el.focus();
+	el.scrollTop = scrollTop;
+}
+
+// Gets the error stack trace
+function getErrorMessage(err) {
+	if(err instanceof AjaxError) {
+		return err.toString();
+	}
+	if(typeof err === 'string') {
+		return err;
+	}
+	const { stack, name, message } = err;
+	return Lng.internalError[lang] + (
+		!stack ? `${ name }: ${ message }` :
+		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
+			/^([^@]*).*\/(.+)$/gm,
+			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
+		) }`
+	);
+}
+
+// Reads File into data
+async function readFile(file, asText) {
+	return new Promise(resolve => {
+		const fr = new FileReader();
+		fr.onload = e => resolve({ data: e.target.result });
+		if(asText) {
+			fr.readAsText(file);
+		} else {
+			fr.readAsArrayBuffer(file);
+		}
+	});
+}
+
+// Gets mime type depending on file name
+function getFileMime(url) {
+	const dotIdx = url.lastIndexOf('.') + 1;
+	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
+	case 'gif': return 'image/gif';
+	case 'jpeg':
+	case 'jpg': return 'image/jpeg';
+	case 'mp4':
+	case 'm4v': return 'video/mp4';
+	case 'ogv': return 'video/ogv';
+	case 'png': return 'image/png';
+	case 'webm': return 'video/webm';
+	case 'webp': return 'image/webp';
+	default: return '';
+	}
+}
+
+// Uploads files stored in a Blob
+function downloadBlob(blob, name) {
+	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
+	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
+	link.click();
+	setTimeout(() => {
+		deWindow.URL.revokeObjectURL(url);
+		link.remove();
+	}, 2e5);
+}
+
+// Checks if the color entered by the user is correct
 function checkCSSColor(color) {
 	if(!color || color === 'inherit' || color === 'currentColor') {
 		return false;
@@ -1857,81 +1952,24 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
-const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
-	val => val + rules.join(', ' + val)
-).join(', ');
-
-// OTHER UTILS
-
-const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
-
-const pad2 = i => (i < 10 ? '0' : '') + i;
-
-const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
-
-const fixBrd = board => `/${ board }${ board ? '/' : '' }`;
-
-const getAbsLink = url => (
-	url[1] === '/' ? aib.prot :
-	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
-
-const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
-
-const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
-
-const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
-
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
-
-// Prepares a string to be used as a new RegExp argument
-const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-
-// Converts a string to a regular expression
-function toRegExp(str, noG) {
-	const l = str.lastIndexOf('/');
-	const flags = str.substr(l + 1);
-	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
-}
-
-function toggleAttr(el, name, value, isAdd) {
-	if(isAdd) {
-		el.setAttribute(name, value);
-	} else {
-		el.removeAttribute(name);
-	}
-}
-
-function $isEmpty(obj) {
-	for(const i in obj) {
-		if($hasProp(obj, i)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function insertText(el, txt) {
-	const scrtop = el.scrollTop;
-	const start = el.selectionStart;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
-	el.setSelectionRange(start + txt.length, start + txt.length);
-	el.focus();
-	el.scrollTop = scrtop;
-}
-
-// XXX: Opera Presto - hack for SVG events
-function fixEventEl(el) {
-	if(el && nav.isPresto) {
-		const svg = el.correspondingUseElement;
-		if(svg) {
-			el = svg.ownerSVGElement;
-		}
-	}
-	return el;
+// Donation message after Dollchan update
+function showDonateMsg() {
+	const font = ' style="font: 13px monospace; color: green;"';
+	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
+		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
+		`<span class="de-list de-depend"><i${
+			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
+		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
+		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
+		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
+		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
+			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
+		`<span class="de-list de-depend">P2SH &ndash; <i${
+			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
+			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 // Allows to record the duration of code execution
@@ -2369,81 +2407,6 @@ WebmParser.Element = function(elData, dataLength, offset) {
 	this.endOffset = offset + size;
 	this.size = size;
 };
-
-function getErrorMessage(err) {
-	if(err instanceof AjaxError) {
-		return err.toString();
-	}
-	if(typeof err === 'string') {
-		return err;
-	}
-	const { stack, name, message } = err;
-	return Lng.internalError[lang] + (
-		!stack ? `${ name }: ${ message }` :
-		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
-			/^([^@]*).*\/(.+)$/gm,
-			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
-		) }`
-	);
-}
-
-async function readFile(file, asText = false) {
-	return new Promise(resolve => {
-		const fr = new FileReader();
-		// XXX: Firefox - hack to prevent 'XrayWrapper denied access to property "then"' errors
-		fr.onload = e => resolve({ data: e.target.result });
-		if(asText) {
-			fr.readAsText(file);
-		} else {
-			fr.readAsArrayBuffer(file);
-		}
-	});
-}
-
-function getFileType(url) {
-	const dotIdx = url.lastIndexOf('.') + 1;
-	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
-	case 'gif': return 'image/gif';
-	case 'jpeg':
-	case 'jpg': return 'image/jpeg';
-	case 'mp4':
-	case 'm4v': return 'video/mp4';
-	case 'ogv': return 'video/ogv';
-	case 'png': return 'image/png';
-	case 'webm': return 'video/webm';
-	case 'webp': return 'image/webp';
-	default: return '';
-	}
-}
-
-function downloadBlob(blob, name) {
-	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
-	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
-	link.click();
-	setTimeout(() => {
-		deWindow.URL.revokeObjectURL(url);
-		link.remove();
-	}, 2e5);
-}
-
-function showDonateMsg() {
-	const font = ' style="font: 13px monospace; color: green;"';
-	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
-		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
-		`<span class="de-list de-depend"><i${
-			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
-		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
-		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
-		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
-			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
-		`<span class="de-list de-depend">P2SH &ndash; <i${
-			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
-}
 
 /* ==[ Storage.js ]===========================================================================================
                                                    STORAGE
@@ -3099,7 +3062,7 @@ const Panel = Object.create({
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		let el = fixEventEl(e.target);
+		let el = nav.fixEventEl(e.target);
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
@@ -3198,7 +3161,7 @@ const Panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide(fixEventEl(e.relatedTarget));
+			this._prepareToHide(nav.fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -3261,7 +3224,6 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX: Opera Presto - keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">
@@ -3464,7 +3426,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		}
 		el = $q('.de-win-buttons', win);
 		el.onmouseover = e => {
-			const el = fixEventEl(e.target);
+			const el = nav.fixEventEl(e.target);
 			const parent = el.parentNode;
 			switch(el.classList[0]) {
 			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;
@@ -3567,7 +3529,8 @@ function showVideosWindow(body) {
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.youtube.com/player_api';
-		doc.head.appendChild(script).id = 'de-ytube-api';
+		script.id = 'de-ytube-api';
+		doc.head.append(script);
 	}
 	// EXCLUDED FROM FIREFOX EXTENSION - END
 	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
@@ -3619,7 +3582,7 @@ function showVideosWindow(body) {
 			document.getElementById("de-video-btn-next").click();
 		}
 	})();`;
-	body.appendChild(script);
+	body.append(script);
 	// EXCLUDED FROM FIREFOX EXTENSION - END
 
 	// Events for control buttons
@@ -3683,17 +3646,18 @@ function showVideosWindow(body) {
 	for(let i = 0, len = els.length; i < len; ++i) {
 		updateVideoList(linkList, els[i], aib.getPostOfEl(els[i]).num);
 	}
-	body.appendChild(linkList);
+	body.append(linkList);
 	$q('.de-video-link', linkList).click();
 }
 
 function updateVideoList(parent, link, num) {
 	const el = link.cloneNode(true);
 	el.videoInfo = link.videoInfo;
+	el.classList.remove('de-current');
+	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	$bEnd(parent, `<div class="de-entry ${ aib.cReply }">
 		<a class="de-video-refpost" title=">>${ num }" de-num="${ num }">&gt;&gt;</a>
-	</div>`).appendChild(el).classList.remove('de-current');
-	el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
+	</div>`).append(el);
 }
 
 // HIDDEN THREADS WINDOW
@@ -3713,62 +3677,62 @@ function showHiddenWindow(body) {
 			const block = $bEnd(body,
 				`<div class="de-fold-block"><input type="checkbox"><b>/${ board }</b></div>`);
 			block.firstChild.onclick =
-				e => $each($Q('.de-entry > input', block), el => (el.checked = e.target.checked));
+				e => $Q('.de-entry > input', block).forEach(el => (el.checked = e.target.checked));
 			for(const tNum in threads) {
 				if($hasProp(threads, tNum)) {
-					$bEnd(block, `<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
-						<input type="checkbox">
-						<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
-						<div class="de-entry-title">- ${ threads[tNum][2] }</div>
-					</div>`);
+					block.insertAdjacentHTML('beforeend',
+						`<div class="de-entry ${ aib.cReply }" info="${ board };${ tNum }">
+							<input type="checkbox">
+							<a href="${ aib.getThrUrl(board, tNum) }" target="_blank">${ tNum }</a>
+							<div class="de-entry-title">- ${ threads[tNum][2] }</div>
+						</div>`);
 				}
 			}
 		}
 	}
-	const btns = $bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
-		'<div id="de-hid-buttons"></div>');
-
-	// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
-	btns.appendChild(getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
-		HiddenThreads.saveRawData(data);
-		Thread.first.updateHidden(data[aib.b]);
-		toggleWindow('hid', true);
-	})));
-
-	// "Clear" button. Allows to clear 404'd threads.
-	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
-		// Sequentially load threads, and remove inaccessible
-		const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const [board, tNum] = els[i].getAttribute('info').split(';');
-			await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
-				if(err.code === 404) {
-					HiddenThreads.removeStorage(tNum, board);
-					HiddenPosts.removeStorage(tNum, board);
+	$bEnd(body, (!hasThreads ? `<center><b>${ Lng.noHidThr[lang] }</b></center>` : '') +
+		'<div id="de-hid-buttons"></div>'
+	).append(
+		// "Edit" button. Calls a popup with editor to edit Hidden in JSON.
+		getEditButton('hidden', fn => fn(HiddenThreads.getRawData(), true, data => {
+			HiddenThreads.saveRawData(data);
+			Thread.first.updateHidden(data[aib.b]);
+			toggleWindow('hid', true);
+		})),
+		// "Clear" button. Allows to clear 404'd threads.
+		$button(Lng.clear[lang], Lng.clrDeleted[lang], async e => {
+			// Sequentially load threads, and remove inaccessible
+			const els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const [board, tNum] = els[i].getAttribute('info').split(';');
+				await $ajax(aib.getThrUrl(board, tNum)).catch(err => {
+					if(err.code === 404) {
+						HiddenThreads.removeStorage(tNum, board);
+						HiddenPosts.removeStorage(tNum, board);
+					}
+				});
+			}
+			toggleWindow('hid', true);
+		}),
+		// "Delete" button. Allows to delete selected threads
+		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
+			$Q('.de-entry[info]', body).forEach(el => {
+				if(!$q('input', el).checked) {
+					return;
 				}
+				const [board, tNum] = el.getAttribute('info').split(';');
+				const num = +tNum;
+				if(pByNum.has(num)) {
+					pByNum.get(num).setUserVisib(false);
+				} else {
+					sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
+				}
+				HiddenThreads.removeStorage(num, board);
+				HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
 			});
-		}
-		toggleWindow('hid', true);
-	}));
-
-	// "Delete" button. Allows to delete selected threads
-	btns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry[info]', body), el => {
-			if(!$q('input', el).checked) {
-				return;
-			}
-			const [board, tNum] = el.getAttribute('info').split(';');
-			const num = +tNum;
-			if(pByNum.has(num)) {
-				pByNum.get(num).setUserVisib(false);
-			} else {
-				sendStorageEvent('__de-post', { brd: board, num, hide: false, thrNum: num });
-			}
-			HiddenThreads.removeStorage(num, board);
-			HiddenPosts.set(num, num, false); // Actually unhide thread by its oppost
-		});
-		toggleWindow('hid', true);
-	}));
+			toggleWindow('hid', true);
+		})
+	);
 }
 
 /* ==[ WindowFavorites.js ]===================================================================================
@@ -3970,7 +3934,7 @@ function showFavoritesWindow(body, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = fixEventEl(e.target);
+			let el = nav.fixEventEl(e.target);
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
 				el = parentEl;
@@ -3986,12 +3950,12 @@ function showFavoritesWindow(body, favObj) {
 				break;
 			case 'de-fav-del-btn': {
 				const wasChecked = el.getAttribute('de-checked') === '';
-				const toggleFn = btnEl => toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				const toggleFn = btnEl => $toggleAttr(btnEl, 'de-checked', '', !wasChecked);
 				toggleFn(el);
 				if(parentEl.className === 'de-fav-header') {
 					// Select/unselect all checkboxes in board block
 					const entriesEl = parentEl.nextElementSibling;
-					$each($Q('.de-fav-del-btn', entriesEl), toggleFn);
+					$Q('.de-fav-del-btn', entriesEl).forEach(toggleFn);
 					if(!wasChecked && entriesEl.classList.contains('de-fav-entries-hide')) {
 						entriesEl.classList.remove('de-fav-entries-hide');
 					}
@@ -4013,251 +3977,254 @@ function showFavoritesWindow(body, favObj) {
 			}
 		});
 	} else {
-		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
+		body.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
+
 	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
+	btns.append(
+		// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
+		getEditButton('favor', fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))),
 
-	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	btns.appendChild(getEditButton('favor',
-		fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))));
-
-	// "Refresh" button. Updates counters of new posts for each thread entry.
-	btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
-		const favObj = await readFavorites();
-		if(!favObj[aib.host]) {
-			return;
-		}
-		let isUpdate = false;
-		let last404 = false;
-		const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
-		const els = $Q('.de-entry');
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			const host = el.getAttribute('de-host');
-			const board = el.getAttribute('de-board');
-			const num = el.getAttribute('de-num');
-			const entry = favObj[host][board][num];
-			// Updating doesnʼt works for other domains because of different posts structure
-			// Updating is not needed in closed threads
-			if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
-				continue;
+		// "Refresh" button. Updates counters of new posts for each thread entry.
+		$button(Lng.refresh[lang], Lng.infoCount[lang], async () => {
+			const favObj = await readFavorites();
+			if(!favObj[aib.host]) {
+				return;
 			}
-			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
-			const iconEl = titleEl.firstElementChild;
-			// setAttribute for class is used because of SVG (for correct work in some browsers)
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-			let form, isArchived;
-			try {
-				if(!aib.hasArchive) {
-					form = await ajaxLoad(aib.getThrUrl(board, num));
-				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
+			let isUpdate = false;
+			let last404 = false;
+			const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
+			const els = $Q('.de-entry');
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				const host = el.getAttribute('de-host');
+				const board = el.getAttribute('de-board');
+				const num = el.getAttribute('de-num');
+				const entry = favObj[host][board][num];
+				// Updating doesnʼt works for other domains because of different posts structure
+				// Updating is not needed in closed threads
+				if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
+					continue;
 				}
-				last404 = false;
-			} catch(err) {
-				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-					if(last404) {
-						Thread.removeSavedData(board, num); // Not working yet
+				const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+				const iconEl = titleEl.firstElementChild;
+				// setAttribute for class is used because of SVG (for correct work in some browsers)
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+				let form, isArchived;
+				try {
+					if(!aib.hasArchive) {
+						form = await ajaxLoad(aib.getThrUrl(board, num));
 					} else {
-						last404 = true;
-						--i; // Repeat this cycle again
-						continue;
+						[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
 					}
-				}
-				last404 = false;
-				$hide(countEl);
-				$hide(youEl);
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				entry.err = titleEl.title = getErrorMessage(err);
-				isUpdate = true;
-				continue;
-			}
-			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-				titleEl.title = Lng.thrClosed[lang];
-				entry.err = 'Closed';
-				isUpdate = true;
-			} else if(isArchived) {
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-				titleEl.title = Lng.thrArchived[lang];
-				entry.err = 'Archived';
-				isUpdate = true;
-			} else {
-				// Thread is available and not closed
-				iconEl.setAttribute('class', 'de-fav-inf-icon');
-				titleEl.removeAttribute('title');
-				if(entry.err) { // Cancel error status if existed
-					delete entry.err;
-					isUpdate = true;
-				}
-			}
-			// Updating a counter of new posts
-			const posts = $Q(aib.qRPost, form);
-			const cnt = posts.length + 1 - entry.cnt;
-			countEl.textContent = cnt;
-			if(cnt === 0) {
-				$hide(countEl); // Hide counter if no new posts
-				$hide(youEl);
-			} else {
-				$show(countEl);
-				entry.new = cnt;
-				isUpdate = true;
-				// Check for replies to my posts
-				if(myposts?.[board]) {
-					entry.you = 0;
-					for(let j = 0; j < cnt; ++j) {
-						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
-							posts[posts.length - 1 - j]);
-						for(let a = 0, len = links.length; a < len; ++a) {
-							const tc = links[a].textContent;
-							if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
-								entry.you++;
-							}
+					last404 = false;
+				} catch(err) {
+					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
+						if(last404) {
+							Thread.removeSavedData(board, num); // Not working yet
+						} else {
+							last404 = true;
+							--i; // Repeat this cycle again
+							continue;
 						}
 					}
-					if(entry.you) {
-						youEl.textContent = entry.you;
-						$show(youEl);
+					last404 = false;
+					$hide(countEl);
+					$hide(youEl);
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					entry.err = titleEl.title = getErrorMessage(err);
+					isUpdate = true;
+					continue;
+				}
+				if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+					titleEl.title = Lng.thrClosed[lang];
+					entry.err = 'Closed';
+					isUpdate = true;
+				} else if(isArchived) {
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+					titleEl.title = Lng.thrArchived[lang];
+					entry.err = 'Archived';
+					isUpdate = true;
+				} else {
+					// Thread is available and not closed
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					titleEl.removeAttribute('title');
+					if(entry.err) { // Cancel error status if existed
+						delete entry.err;
+						isUpdate = true;
+					}
+				}
+				// Updating a counter of new posts
+				const posts = $Q(aib.qRPost, form);
+				const cnt = posts.length + 1 - entry.cnt;
+				countEl.textContent = cnt;
+				if(cnt === 0) {
+					$hide(countEl); // Hide counter if no new posts
+					$hide(youEl);
+				} else {
+					$show(countEl);
+					entry.new = cnt;
+					isUpdate = true;
+					// Check for replies to my posts
+					if(myposts?.[board]) {
+						entry.you = 0;
+						for(let j = 0; j < cnt; ++j) {
+							const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
+								posts[posts.length - 1 - j]);
+							for(let a = 0, len = links.length; a < len; ++a) {
+								const tc = links[a].textContent;
+								if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
+									entry.you++;
+								}
+							}
+						}
+						if(entry.you) {
+							youEl.textContent = entry.you;
+							$show(youEl);
+						}
 					}
 				}
 			}
-		}
-		AjaxCache.clearCache();
-		if(isUpdate) {
-			saveFavorites(favObj);
-		}
-	}));
-
-	// "Page" button. Shows on which page every thread is existed.
-	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
-		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
-		const len = els.length;
-		if(!len) { // Cancel if no existed entries
-			return;
-		}
-		$popup('load-pages', Lng.loading[lang], true);
-		// Create indexed array of entries and "waiting" SVG icon for each entry
-		const thrInfo = [];
-		for(let i = 0; i < len; ++i) {
-			const el = els[i];
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
-			thrInfo.push({
-				found     : false,
-				num       : +el.getAttribute('de-num'),
-				pageEl    : $q('.de-fav-inf-page', el),
-				iconClass : iconEl.getAttribute('class'),
-				iconEl,
-				iconTitle : titleEl.getAttribute('title'),
-				titleEl
-			});
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-		}
-		// Sequentially load pages and search for favorites threads
-		// We cannot know a count of pages while in the thread
-		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
-		let infoLoaded = 0;
-		const updateInf = (inf, page) => {
-			inf.iconEl.setAttribute('class', inf.iconClass);
-			toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
-			inf.pageEl.textContent = '@' + page;
-		};
-		for(let page = 0; page < endPage; ++page) {
-			const tNums = new Set();
-			try {
-				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				const els = DelForm.getThreads(form);
-				for(let i = 0, len = els.length; i < len; ++i) {
-					tNums.add(aib.getTNum(els[i]));
-				}
-			} catch(err) {
-				continue;
+			AjaxCache.clearCache();
+			if(isUpdate) {
+				saveFavorites(favObj);
 			}
-			// Search for threads on current page
+		}),
+
+		// "Page" button. Shows on which page every thread is existed.
+		$button(Lng.page[lang], Lng.infoPage[lang], async () => {
+			const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
+			const len = els.length;
+			if(!len) { // Cancel if no existed entries
+				return;
+			}
+			$popup('load-pages', Lng.loading[lang], true);
+			// Create indexed array of entries and "waiting" SVG icon for each entry
+			const thrInfo = [];
+			for(let i = 0; i < len; ++i) {
+				const el = els[i];
+				const iconEl = $q('.de-fav-inf-icon', el);
+				const titleEl = iconEl.parentNode;
+				thrInfo.push({
+					found     : false,
+					num       : +el.getAttribute('de-num'),
+					pageEl    : $q('.de-fav-inf-page', el),
+					iconClass : iconEl.getAttribute('class'),
+					iconEl,
+					iconTitle : titleEl.getAttribute('title'),
+					titleEl
+				});
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+			}
+			// Sequentially load pages and search for favorites threads
+			// We cannot know a count of pages while in the thread
+			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
+			let infoLoaded = 0;
+			const updateInf = (inf, page) => {
+				inf.iconEl.setAttribute('class', inf.iconClass);
+				$toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+				inf.pageEl.textContent = '@' + page;
+			};
+			for(let page = 0; page < endPage; ++page) {
+				const tNums = new Set();
+				try {
+					const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
+					const els = DelForm.getThreads(form);
+					for(let i = 0, len = els.length; i < len; ++i) {
+						tNums.add(aib.getTNum(els[i]));
+					}
+				} catch(err) {
+					continue;
+				}
+				// Search for threads on current page
+				for(let i = 0; i < len; ++i) {
+					const inf = thrInfo[i];
+					if(tNums.has(inf.num)) {
+						updateInf(inf, page);
+						inf.found = true;
+						infoLoaded++;
+					}
+				}
+				if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
+					break;
+				}
+			}
+			// Process missed threads that not found
 			for(let i = 0; i < len; ++i) {
 				const inf = thrInfo[i];
-				if(tNums.has(inf.num)) {
-					updateInf(inf, page);
-					inf.found = true;
-					infoLoaded++;
+				if(!inf.found) {
+					updateInf(inf, '?');
 				}
 			}
-			if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
-				break;
-			}
-		}
-		// Process missed threads that not found
-		for(let i = 0; i < len; ++i) {
-			const inf = thrInfo[i];
-			if(!inf.found) {
-				updateInf(inf, '?');
-			}
-		}
-		closePopup('load-pages');
-	}));
+			closePopup('load-pages');
+		}),
 
-	// "Clear" button. Allows to clear 404'd threads.
-	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
-		// Sequentially load threads, and remove inaccessible
-		let last404 = false;
-		const els = $Q('.de-entry');
-		const parent = $q('.de-fav-table');
-		parent.classList.add('de-fav-table-unfold');
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
-				switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
-				case '2ch.hk':
-				case '2ch.pm': {
-					const dc = $DOM(xhr.responseText);
-					if(dc && $q('.message-title', dc)) {
-						throw new AjaxError(404, 'Error');
+		// "Clear" button. Allows to clear 404'd threads.
+		$button(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
+			// Sequentially load threads, and remove inaccessible
+			let last404 = false;
+			const els = $Q('.de-entry');
+			const parent = $q('.de-fav-table');
+			parent.classList.add('de-fav-table-unfold');
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				const iconEl = $q('.de-fav-inf-icon', el);
+				const titleEl = iconEl.parentNode;
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+				await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
+					switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
+					case '2ch.hk':
+					case '2ch.pm': {
+						const dc = $createDoc(xhr.responseText);
+						if(dc && $q('.message-title', dc)) {
+							throw new AjaxError(404, 'Error');
+						}
 					}
-				}
-				}
-				iconEl.setAttribute('class', 'de-fav-inf-icon');
-				titleEl.removeAttribute('title');
-				last404 = false;
-			}).catch(err => {
-				if(err.code === 404) { // Check for 404 error twice
-					if(!last404) {
-						last404 = true;
-						--i; // Repeat this cycle again
-						return;
 					}
-					Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
-						+el.getAttribute('de-num'));
-					el.setAttribute('de-removed', ''); // Mark an entry as deleted
-				}
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(err);
-				last404 = false;
-			});
-		}
-		cleanFavorites(); // Delete marked entries
-		parent.classList.remove('de-fav-table-unfold');
-	}));
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					titleEl.removeAttribute('title');
+					last404 = false;
+				}).catch(err => {
+					if(err.code === 404) { // Check for 404 error twice
+						if(!last404) {
+							last404 = true;
+							--i; // Repeat this cycle again
+							return;
+						}
+						Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
+							+el.getAttribute('de-num'));
+						el.setAttribute('de-removed', ''); // Mark an entry as deleted
+					}
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					titleEl.title = getErrorMessage(err);
+					last404 = false;
+				});
+			}
+			cleanFavorites(); // Delete marked entries
+			parent.classList.remove('de-fav-table-unfold');
+		})
+	);
 
 	// Deletion confirm/cancel buttons
 	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
-	delBtns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > .de-fav-del-btn[de-checked]', body),
-			el => el.parentNode.setAttribute('de-removed', ''));
-		cleanFavorites(); // Delete marked entries
-		$show(btns);
-		$hide(delBtns);
-	}));
-	delBtns.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('.de-fav-del-btn', body), el => el.removeAttribute('de-checked'));
-		$show(btns);
-		$hide(delBtns);
-	}));
+	delBtns.append(
+		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
+			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
+				el => el.parentNode.setAttribute('de-removed', ''));
+			cleanFavorites(); // Delete marked entries
+			$show(btns);
+			$hide(delBtns);
+		}),
+		$button(Lng.cancel[lang], '', () => {
+			$Q('.de-fav-del-btn', body).forEach(el => el.removeAttribute('de-checked'));
+			$show(btns);
+			$hide(delBtns);
+		})
+	);
 }
 
 /* ==[ WindowSettings.js ]====================================================================================
@@ -4288,193 +4255,196 @@ const CfgWindow = {
 		// Open default or current tab
 		this._clickTab(Cfg.cfgTab);
 
-		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
-			saveCfgObj(aib.dm, data);
-			deWindow.location.reload();
-		})));
+		div.append(
+			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
+			getEditButton('cfg', fn => fn(Cfg, true, data => {
+				saveCfgObj(aib.dm, data);
+				deWindow.location.reload();
+			})),
 
-		// "Global" button. Allows to save/load global settings.
-		nav.hasGlobalStorage && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
-			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
-			// "Load" button. Applies global settings for current domain.
-			$bEnd(el, `<div id="de-list"><input type="button" value="${
-				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
-				if(data && ('global' in data) && !$isEmpty(data.global)) {
-					saveCfgObj(aib.dm, data.global);
-					deWindow.location.reload();
-				} else {
-					$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
-				}
-			});
-			// "Save" button. Copies the domain settings into global.
-			div = $bEnd(el, `<div id="de-list"><input type="button" value="${
-				Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
-				const obj = {};
-				const com = data[aib.dm];
-				for(const i in com) {
-					if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
-						i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
-					) {
-						obj[i] = com[i];
-					}
-				}
-				data.global = obj;
-				saveCfgObj('global', data.global);
-				toggleWindow('cfg', true);
-			});
-			el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
-		}));
-
-		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
-			const list = this._getList([
-				Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-				Lng.panelBtn.fav[lang],
-				Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-				Lng.myPosts[lang] + ` (${ aib.dm })`
-			]);
-			// Create popup with controls
-			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
-				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
-					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
-				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
-				--><div class="de-depend">${ list }</div></div>`);
-			// Import data from a file to the storage
-			$id('de-import-file').onchange = e => {
-				const file = e.target.files[0];
-				if(!file) {
-					return;
-				}
-				readFile(file, true).then(({ data }) => {
-					let obj;
-					try {
-						obj = JSON.parse(data);
-					} catch(err) {
-						$popup('err-invaliddata', Lng.invalidData[lang]);
-						return;
-					}
-					const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
-					const isOldCfg = !cfgObj && !favObj && !dmObj;
-					if(isOldCfg) {
-						setStored('DESU_Config', data);
-					}
-					if(cfgObj) {
-						try {
-							setStored('DESU_Config', JSON.stringify(cfgObj));
-							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-						} catch(err) {}
-					}
-					if(favObj) {
-						saveRenewFavorites(favObj);
-					}
-					if(dmObj) {
-						if(dmObj.posts) {
-							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-						}
-						if(dmObj.threads) {
-							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-						}
-						if(dmObj.myposts) {
-							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-						}
-					}
-					if(cfgObj || dmObj || isOldCfg) {
-						$popup('cfg-file', Lng.updating[lang], true);
+			// "Global" button. Allows to save/load global settings.
+			nav.hasGlobalStorage ? $button(Lng.global[lang], Lng.globalCfg[lang], () => {
+				const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
+				// "Load" button. Applies global settings for current domain.
+				$bEnd(el, `<div id="de-list"><input type="button" value="${
+					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
+				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+					if(data && ('global' in data) && !$isEmpty(data.global)) {
+						saveCfgObj(aib.dm, data.global);
 						deWindow.location.reload();
+					} else {
+						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
+					}
+				});
+				// "Save" button. Copies the domain settings into global.
+				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
+					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
+				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+					const obj = {};
+					const com = data[aib.dm];
+					for(const i in com) {
+						if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
+							i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
+						) {
+							obj[i] = com[i];
+						}
+					}
+					data.global = obj;
+					saveCfgObj('global', data.global);
+					toggleWindow('cfg', true);
+				});
+				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
+			}) : '',
+
+			// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
+			!nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], () => {
+				const list = this._getList([
+					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+					Lng.panelBtn.fav[lang],
+					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+					Lng.myPosts[lang] + ` (${ aib.dm })`
+				]);
+				// Create popup with controls
+				$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
+					--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
+						--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
+					--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
+					--><div class="de-depend">${ list }</div></div>`);
+				// Import data from a file to the storage
+				$id('de-import-file').onchange = e => {
+					const file = e.target.files[0];
+					if(!file) {
 						return;
 					}
-					closePopup('cfg-file');
-				});
-			};
+					readFile(file, true).then(({ data }) => {
+						let obj;
+						try {
+							obj = JSON.parse(data);
+						} catch(err) {
+							$popup('err-invaliddata', Lng.invalidData[lang]);
+							return;
+						}
+						const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
+						const isOldCfg = !cfgObj && !favObj && !dmObj;
+						if(isOldCfg) {
+							setStored('DESU_Config', data);
+						}
+						if(cfgObj) {
+							try {
+								setStored('DESU_Config', JSON.stringify(cfgObj));
+								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+							} catch(err) {}
+						}
+						if(favObj) {
+							saveRenewFavorites(favObj);
+						}
+						if(dmObj) {
+							if(dmObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+							}
+							if(dmObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							}
+							if(dmObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							}
+						}
+						if(cfgObj || dmObj || isOldCfg) {
+							$popup('cfg-file', Lng.updating[lang], true);
+							deWindow.location.reload();
+							return;
+						}
+						closePopup('cfg-file');
+					});
+				};
 
-			// Export data from a storage to the file. The file will be named by date and type of storage.
-			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
-			const expFile = $id('de-export-file');
-			const els = $Q('input', expFile.nextElementSibling);
-			els[0].checked = true;
-			expFile.addEventListener('click', async e => {
-				const name = [];
-				const nameDm = [];
-				const d = new Date();
-				let val = [];
-				let valDm = [];
-				for(let i = 0, len = els.length; i < len; ++i) {
+				// Export data from a storage to the file. The file will be named by date and type of storage.
+				// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
+				const expFile = $id('de-export-file');
+				const els = $Q('input', expFile.nextElementSibling);
+				els[0].checked = true;
+				expFile.addEventListener('click', async e => {
+					const name = [];
+					const nameDm = [];
+					const d = new Date();
+					let val = [];
+					let valDm = [];
+					for(let i = 0, len = els.length; i < len; ++i) {
+						if(!els[i].checked) {
+							continue;
+						}
+						switch(i) {
+						case 0: name.push('Cfg'); {
+							const cfgData = await Promise.all(
+								[getStored('DESU_Config'), getStored('DESU_keys')]);
+							val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
+							break;
+						}
+						case 1: name.push('Fav');
+							val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
+							break;
+						case 2: nameDm.push('Hid');
+							valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+								`"threads":${ locStorage['de-threads'] || '{}' }`);
+							break;
+						case 3: nameDm.push('You');
+							valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+						}
+					}
+					if((valDm = valDm.join(','))) {
+						val.push(`"${ aib.dm }":{${ valDm }}`);
+						name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+					}
+					if((val = val.join(','))) {
+						downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
+							`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
+								pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
+					}
+					e.preventDefault();
+				}, true);
+			}) : '',
+
+			// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
+			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
+				'cfg-reset',
+				`<b>${ Lng.resetData[lang] }:</b><hr>` +
+				`<div class="de-list"><b>${ aib.dm }:</b>${
+					this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
+				}</div><hr>` +
+				`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
+					this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
+				}</div><hr>`
+			).append($button(Lng.clear[lang], '', e => {
+				const els = $Q('input[type="checkbox"]', e.target.parentNode);
+				for(let i = 1, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
 					}
 					switch(i) {
-					case 0: name.push('Cfg'); {
-						const cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
-						val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
+					case 1:
+						locStorage.removeItem('de-posts');
+						locStorage.removeItem('de-threads');
 						break;
-					}
-					case 1: name.push('Fav');
-						val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
-						break;
-					case 2: nameDm.push('Hid');
-						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
-							`"threads":${ locStorage['de-threads'] || '{}' }`);
-						break;
-					case 3: nameDm.push('You');
-						valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+					case 2: locStorage.removeItem('de-myposts'); break;
+					case 4: delStored('DESU_Favorites');
 					}
 				}
-				if((valDm = valDm.join(','))) {
-					val.push(`"${ aib.dm }":{${ valDm }}`);
-					name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+				if(els[3].checked) {
+					delStored('DESU_Config');
+					delStored('DESU_keys');
+				} else if(els[0].checked) {
+					getStoredObj('DESU_Config').then(data => {
+						delete data[aib.dm];
+						setStored('DESU_Config', JSON.stringify(data));
+						$popup('cfg-reset', Lng.updating[lang], true);
+						deWindow.location.reload();
+					});
+					return;
 				}
-				if((val = val.join(','))) {
-					downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
-						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
-							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
-				}
-				e.preventDefault();
-			}, true);
-		}));
-
-		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
-		div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
-			'cfg-reset',
-			`<b>${ Lng.resetData[lang] }:</b><hr>` +
-			`<div class="de-list"><b>${ aib.dm }:</b>${
-				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
-			}</div><hr>` +
-			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
-				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
-			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', e => {
-			const els = $Q('input[type="checkbox"]', e.target.parentNode);
-			for(let i = 1, len = els.length; i < len; ++i) {
-				if(!els[i].checked) {
-					continue;
-				}
-				switch(i) {
-				case 1:
-					locStorage.removeItem('de-posts');
-					locStorage.removeItem('de-threads');
-					break;
-				case 2: locStorage.removeItem('de-myposts'); break;
-				case 4: delStored('DESU_Favorites');
-				}
-			}
-			if(els[3].checked) {
-				delStored('DESU_Config');
-				delStored('DESU_keys');
-			} else if(els[0].checked) {
-				getStoredObj('DESU_Config').then(data => {
-					delete data[aib.dm];
-					setStored('DESU_Config', JSON.stringify(data));
-					$popup('cfg-reset', Lng.updating[lang], true);
-					deWindow.location.reload();
-				});
-				return;
-			}
-			$popup('cfg-reset', Lng.updating[lang], true);
-			deWindow.location.reload();
-		}))));
+				$popup('cfg-reset', Lng.updating[lang], true);
+				deWindow.location.reload();
+			})))
+		);
 	},
 
 	// Event handler for Setting window and its controls.
@@ -4500,7 +4470,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updateSubmitBtn(pr.subm);
 					if(pr.files) {
-						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -4538,7 +4508,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, Cfg.imgNames);
 					}
 				} else {
-					$each($Q('.de-img-name'), el => (el.textContent = el.getAttribute('de-img-name-old')));
+					$Q('.de-img-name').forEach(el => (el.textContent = el.getAttribute('de-img-name-old')));
 				}
 				updateCSS();
 				break;
@@ -4632,7 +4602,7 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
-						$each($Q('.de-img-embed'),
+						$Q('.de-img-embed').forEach(
 							el => addImgButtons(el.parentNode.nextSibling.nextSibling));
 					}
 				} else {
@@ -4640,7 +4610,7 @@ const CfgWindow = {
 				}
 				break;
 			case 'addSageBtn':
-				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
+				PostForm.hideField(pr.mail.closest('label') || pr.mail);
 				setTimeout(() => pr.toggleSage(), 0);
 				updateCSS();
 				break;
@@ -4651,7 +4621,7 @@ const CfgWindow = {
 				break;
 			case 'userPassw': PostForm.setUserPassw(); break;
 			case 'userName': PostForm.setUserName(); break;
-			case 'noPassword': $toggle($qParent(pr.passw, aib.qFormTr)); break;
+			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;
@@ -4819,7 +4789,7 @@ const CfgWindow = {
 			}
 			if(id === 'common') {
 				// XXX: remove and make insertion in this._getCfgCommon()
-				$after($q('input[info="userCSS"]').parentNode, getEditButton(
+				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, inputEl => {
 						saveCfg('userCSSTxt', inputEl.value);
@@ -5069,7 +5039,7 @@ const CfgWindow = {
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		const el = doc.createElement('div');
-		el.appendChild(doc.createTextNode(Cfg[id])); // Escape HTML
+		el.append(Cfg[id]); // Escape HTML
 		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;
@@ -5178,7 +5148,7 @@ function $popup(id, txt, isWait = false) {
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`);
 		el.onclick = e => {
-			let el = fixEventEl(e.target);
+			let el = nav.fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -5196,14 +5166,14 @@ function $popup(id, txt, isWait = false) {
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.
 function getEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
+	return $button(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
 		const inputEl = el.lastChild;
 		inputEl.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
+		el.append($button(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
 			let data;
 			try {
 				data = JSON.parse(inputEl.value.trim().replace(/[\n\r\t]/g, '') || '{}');
@@ -5310,7 +5280,7 @@ class Menu {
 			/* falls through */
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
-			let rt = fixEventEl(e.relatedTarget);
+			let rt = nav.fixEventEl(e.relatedTarget);
 			rt = rt?.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
@@ -6040,7 +6010,7 @@ const ContentLoader = {
 			this._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
 		});
 		els.forEach(el => {
-			const parentLink = $parent(el, 'A');
+			const parentLink = el.closest('a');
 			if(parentLink) {
 				const url = parentLink.href;
 				this._thrPool.runTask(
@@ -6050,7 +6020,7 @@ const ContentLoader = {
 		if(!imgOnly) {
 			$delAll('.de-btn-img, #de-main, .de-parea, .de-post-btns, .de-refmap, .de-thr-buttons, ' +
 				'.de-video-obj, #de-win-reply, link[rel="alternate stylesheet"], script, ' + aib.qForm, dc);
-			$each($Q('a', dc), el => {
+			$Q('a', dc).forEach(el => {
 				let num;
 				const tc = el.textContent;
 				if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && pByNum.has(num)) {
@@ -6059,14 +6029,14 @@ const ContentLoader = {
 						el.className = 'de-link-postref ' + el.className;
 					}
 				} else {
-					el.href = getAbsLink(el.href);
+					el.href = aib.getAbsLink(el.href);
 				}
 			});
-			$each($Q(aib.qRPost, dc), (el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			$Q(aib.qRPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				quoteReg(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
-			$each($Q('link, *[src]', dc), el => {
+				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
+			$Q('link, *[src]', dc).forEach(el => {
 				if(els.indexOf(el) !== -1) {
 					return;
 				}
@@ -6182,13 +6152,13 @@ const ContentLoader = {
 		}
 		for(let i = 0; i < len; ++i) {
 			const imgEl = els[i];
-			const parentLink = $parent(imgEl, 'A');
+			const parentLink = imgEl.closest('a');
 			if(!parentLink) {
 				continue;
 			}
 			let isRepToOrig = !!Cfg.openImgs;
 			const url = aib.getImgSrcLink(imgEl).getAttribute('href');
-			const type = getFileType(url);
+			const type = getFileMime(url);
 			const isVideo = type && (type === 'video/webm' || type === 'video/mp4' || type === 'video/ogv');
 			if(!type || isVideo && Cfg.preLoadImgs === 2) {
 				continue;
@@ -6807,7 +6777,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		}
-		url = getAbsLink(url);
+		url = aib.getAbsLink(url);
 		// Chrome-extension: avoid CORS in content script. Sending data to background.js
 		if(isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
 			if(params.body) {
@@ -6881,7 +6851,7 @@ function $ajax(url, params = null, isCORS = false) {
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const obj = {
 			method : params?.method || 'GET',
-			url    : nav.fixLink(url),
+			url    : nav.isSafari ? aib.getAbsLink(url) : url,
 			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
@@ -6947,7 +6917,7 @@ function $ajax(url, params = null, isCORS = false) {
 			}
 		};
 		try {
-			xhr.open(params?.method || 'GET', getAbsLink(url), true);
+			xhr.open(params?.method || 'GET', aib.getAbsLink(url), true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
@@ -7063,7 +7033,7 @@ const AjaxCache = {
 };
 
 function getAjaxResponseEl(text, needForm) {
-	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $createDoc(text)) : $createDoc(text);
 }
 
 function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
@@ -7143,7 +7113,7 @@ const Pages = {
 						DelForm.tNums.delete(thr.num);
 					} else {
 						const oldLastThr = firstForm.lastThr;
-						$after(oldLastThr.el, thr.el);
+						oldLastThr.el.after(thr.el);
 						newForm.firstThr = thr.next;
 						thr.prev = oldLastThr;
 						thr.form = firstForm;
@@ -7188,7 +7158,7 @@ const Pages = {
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
-			$each($Q('a[href^="blob:"]', form.el), el => URL.revokeObjectURL(el.href));
+			$Q('a[href^="blob:"]', form.el).forEach(el => URL.revokeObjectURL(el.href));
 			$hide(form.el);
 			if(form === DelForm.last) {
 				break;
@@ -7217,7 +7187,7 @@ const Pages = {
 	_addForm(formEl, pageNum) {
 		formEl = doc.adoptNode(formEl);
 		$hide(formEl = aib.fixHTML(formEl));
-		$after(DelForm.last.el, formEl);
+		DelForm.last.el.after(formEl);
 		const form = new DelForm(formEl, +pageNum, DelForm.last);
 		DelForm.last = form;
 		form.addStuff();
@@ -7626,7 +7596,7 @@ const Spells = Object.create({
 					case 2:
 					case 3:
 					case 5:
-					case 13: item[1] = toRegExp(val, true); break;
+					case 13: item[1] = strToRegExp(val, true); break;
 					case 0xFF: this._initHiders(val);
 					}
 				}
@@ -7637,7 +7607,7 @@ const Spells = Object.create({
 	_initReps(data) {
 		if(data) {
 			for(const item of data) {
-				item[0] = toRegExp(item[0], false);
+				item[0] = strToRegExp(item[0], false);
 			}
 		}
 		return data;
@@ -8013,7 +7983,7 @@ class SpellsCodegen {
 		}
 		const val = m[1];
 		try {
-			toRegExp(val, true);
+			strToRegExp(val, true);
 		} catch(err) {
 			this._col++;
 			this._setError(Lng.seErrRegex[lang], val);
@@ -8639,6 +8609,7 @@ class PostForm {
 		this.pForm = null;
 		this.qArea = null;
 		this._pBtn = [];
+		console.log(90)
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
 		if(!ignoreForm && !form) {
@@ -8653,6 +8624,7 @@ class PostForm {
 			}
 			return;
 		}
+		console.log(91)
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
@@ -8664,12 +8636,15 @@ class PostForm {
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
+		console.log(92)
 		this._initFileInputs();
+		console.log(93)
 		this._makeHideableContainer();
 		this._makeWindow();
 		if(!form || !this.txta) {
 			return;
 		}
+		console.log(94)
 		form.style.display = 'inline-block';
 		form.style.textAlign = 'left';
 		const { qArea, txta } = this;
@@ -8677,21 +8652,23 @@ class PostForm {
 		new WinResizer('reply', 'left', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'right', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', qArea, txta);
+		console.log(95)
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
 		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
+		console.log(96)
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}
 		if(Cfg.addSageBtn && this.mail) {
-			PostForm.hideField($parent(this.mail, 'LABEL') || this.mail);
+			PostForm.hideField(this.mail.closest('label') || this.mail);
 			setTimeout(() => this.toggleSage(), 0);
 		}
 		if(Cfg.noPassword && this.passw) {
-			$hide($qParent(this.passw, aib.qFormTr));
+			$hide(this.passw.closest(aib.qFormTr));
 		}
 		if(Cfg.noName && this.name) {
 			PostForm.hideField(this.name);
@@ -8709,7 +8686,7 @@ class PostForm {
 	static hideField(el) {
 		const next = el.nextElementSibling;
 		$toggle(next && (next.style.display !== 'none') ||
-			el.previousElementSibling ? el : $qParent(el, aib.qFormTr));
+			el.previousElementSibling ? el : el.closest(aib.qFormTr));
 	}
 	static setUserName() {
 		const el = $q('input[info="nameValue"]');
@@ -8765,7 +8742,7 @@ class PostForm {
 			el.addEventListener('mouseover', this);
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		$after(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm, el);
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
@@ -8872,10 +8849,10 @@ class PostForm {
 	}
 	setReply(isQuick, needToHide) {
 		if(isQuick) {
-			$after(this.qArea.firstChild, this.pForm);
+			this.qArea.firstChild.after(this.pForm);
 		} else {
-			$after(this.pArea[+this.isBottom], this.qArea);
-			$after(this._pBtn[+this.isBottom], this.pForm);
+			this.pArea[+this.isBottom].after(this.qArea);
+			this._pBtn[+this.isBottom].after(this.pForm);
 		}
 		this.isHidden = needToHide;
 		$toggle(this.qArea, isQuick);
@@ -8910,7 +8887,7 @@ class PostForm {
 			this.closeReply();
 			return;
 		}
-		$after(post.wrap, this.qArea);
+		post.wrap.after(this.qArea);
 		if(this.qArea.classList.contains('de-win')) {
 			updateWinZ(this.qArea.style);
 		}
@@ -9027,7 +9004,7 @@ class PostForm {
 			return;
 		}
 		if(aib.fixFileInputs) {
-			aib.fixFileInputs($qParent(fileEl, aib.qFormTd));
+			aib.fixFileInputs(fileEl.closest(aib.qFormTd));
 		}
 		this.files = new Files(this, $q(aib.qFormFile, this.form));
 		// We need to clear file inputs in case if session was restored.
@@ -9065,7 +9042,7 @@ class PostForm {
 			if(this.isQuick) {
 				$hide(this.pForm);
 				$hide(this.qArea);
-				$after(this._pBtn[+this.isBottom], this.pForm);
+				this._pBtn[+this.isBottom].after(this.pForm);
 			}
 			updater.pauseUpdater();
 		});
@@ -9139,13 +9116,8 @@ class PostForm {
 		});
 	}
 	_makeHideableContainer() {
-		this.pForm = $add('<div id="de-pform" class="de-win-body"></div>');
-		if(this.form) {
-			this.pForm.appendChild(this.form);
-		}
-		if(this.oeForm) {
-			this.pForm.appendChild(this.oeForm);
-		}
+		(this.pForm = $add('<div id="de-pform" class="de-win-body"></div>'))
+			.append(this.form || '', this.oeForm || '');
 		const html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
 		this.pArea = [
 			$bBegin(DelForm.first.el, html),
@@ -9176,7 +9148,7 @@ class PostForm {
 		const buttons = $q('.de-win-buttons', this.qArea);
 		buttons.onmouseover = ({ target }) => {
 			const el = target.parentNode;
-			switch(fixEventEl(target).classList[0]) {
+			switch(nav.fixEventEl(target).classList[0]) {
 			case 'de-win-btn-clear': el.title = Lng.clearForm[lang]; break;
 			case 'de-win-btn-close': el.title = Lng.closeReply[lang]; break;
 			case 'de-win-btn-toggle': el.title = Cfg.replyWinDrag ? Lng.underPost[lang] : Lng.makeDrag[lang];
@@ -9205,7 +9177,7 @@ class PostForm {
 	_setPlaceholder(val) {
 		const el = val === 'cap' ? this.cap.textEl : this[val];
 		if(el) {
-			toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
+			$toggleAttr(el, 'placeholder', Lng[val][lang], aib.multiFile || Cfg.fileInputs !== 2);
 		}
 	}
 	_toggleQuickReply(tNum) {
@@ -9325,7 +9297,7 @@ function checkUpload(data) {
 }
 
 async function checkDelete(data) {
-	const err = getSubmitError(data instanceof HTMLDocument ? data : $DOM(data));
+	const err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
 	if(err) {
 		$popup('delete', Lng.errDelete[lang] + ':\n' + err);
 		updater.sendErrNotif();
@@ -9380,7 +9352,7 @@ function* getFormElements(form, submitter) {
 		const tagName = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
-		if($parent(field, 'DATALIST', form) || isFormElDisabled(field) ||
+		if(field.closest('datalist') || isFormElDisabled(field) ||
 			field !== submitter && (
 				tagName === 'button' ||
 				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
@@ -9519,7 +9491,7 @@ async function html5Submit(form, submitter, needProgress = false) {
 	}
 	const url = form.action;
 	return $ajax(url, ajaxParams).then(({ responseText: text }) => aib.jsonSubmit ? text :
-		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $DOM(text)
+		aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text)
 	).catch(err => Promise.reject(err));
 }
 
@@ -9669,7 +9641,7 @@ function readExif(data, off, len) {
 class Files {
 	constructor(form, fileEl) {
 		this.filesCount = 0;
-		this.fileTr = $qParent(fileEl, aib.qFormTr);
+		this.fileTr = fileEl.closest(aib.qFormTr);
 		this.onchange = null;
 		this._form = form;
 		this._inputs = [];
@@ -9690,7 +9662,7 @@ class Files {
 		if(aib.multiFile) {
 			value = $aEnd(this.fileTr, '<div id="de-file-area"></div>');
 		} else {
-			value = $qParent(this._form.txta, aib.qFormTd).previousElementSibling;
+			value = this._form.txta.closest(aib.qFormTd).previousElementSibling;
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
@@ -9774,8 +9746,8 @@ class FileInput {
 		if(FileInput._isThumbMode) {
 			this._initThumbs();
 		} else {
-			$before(this._input, this._txtWrap);
-			$after(this._input, this._utils);
+			this._input.before(this._txtWrap);
+			this._input.after(this._utils);
 		}
 	}
 	async addUrlFile(url, file = null) {
@@ -9794,7 +9766,7 @@ class FileInput {
 			closePopup('file-loading');
 			this._isTxtEditable = this._isTxtEditName = false;
 			let name = file?.name || getFileName(url);
-			const type = file?.type || getFileType(name);
+			const type = file?.type || getFileMime(name);
 			if(!type || name.includes('?')) {
 				let ext;
 				switch((data[0] << 8) | data[1]) {
@@ -9808,7 +9780,7 @@ class FileInput {
 					name = name.split('?').shift() + '.' + ext;
 				}
 			}
-			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
+			this.imgFile = { data: data.buffer, name, type: type || getFileMime(name) };
 			if(!file) {
 				file = new Blob([data], { type: this.imgFile.type });
 				file.name = name;
@@ -9823,7 +9795,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
-		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
+		$toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
 		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
@@ -9832,8 +9804,8 @@ class FileInput {
 			this._initThumbs();
 			return;
 		}
-		$before(this._input, this._txtWrap);
-		$after(this._input, this._utils);
+		this._input.before(this._txtWrap);
+		this._input.after(this._utils);
 		$del($q('de-file-txt-area'));
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
@@ -10095,13 +10067,13 @@ class FileInput {
 		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
 			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
 			'<div class="de-file-txt-area"></div>');
-		(isTr ? txtArea.lastChild : txtArea).appendChild(this._txtWrap);
+		(isTr ? txtArea.lastChild : txtArea).append(this._txtWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
 		this._thumb.addEventListener('click', this);
 		this._thumb.addEventListener('dragenter', this);
-		this._thumb.appendChild(this._utils);
+		this._thumb.append(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
 			this._showFileThumb();
@@ -10302,7 +10274,7 @@ class Captcha {
 		this.initImage(img);
 		const a = img.parentNode;
 		if(a.tagName === 'A') {
-			$replace(a, img);
+			a.replaceWith(img);
 		}
 		if(isUpdateImage) {
 			this.refreshCaptcha(false);
@@ -10389,7 +10361,7 @@ class Captcha {
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
-		doc.head.appendChild(script);
+		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
 		// EXCLUDED FROM FIREFOX EXTENSION - END
 	}
@@ -10475,7 +10447,7 @@ class AbstractPost {
 	}
 	handleEvent(e) {
 		let temp;
-		let el = fixEventEl(e.target);
+		let el = nav.fixEventEl(e.target);
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -10694,7 +10666,7 @@ class AbstractPost {
 			}
 			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkDelay);
-				if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+				if(!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
@@ -10722,7 +10694,7 @@ class AbstractPost {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		}
-		$replace(origMsg, newMsg);
+		origMsg.replaceWith(newMsg);
 		Object.defineProperties(this, {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
@@ -10731,7 +10703,7 @@ class AbstractPost {
 		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
-				newMsg.appendChild(videoExt);
+				newMsg.append(videoExt);
 			}
 		}
 		this.addFuncs();
@@ -10780,15 +10752,15 @@ class AbstractPost {
 			)) {
 				if(this._selText.includes('\n')) {
 					Spells.addSpell(1 /* #exp */,
-						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
+						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
 					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
-				dummy.appendChild(this._selRange.cloneContents());
+				dummy.append(this._selRange.cloneContents());
 				Spells.addSpell(2 /* #exph */,
-					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
@@ -10800,7 +10772,7 @@ class AbstractPost {
 			return;
 		}
 		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
 			return;
 		case 'hide-ihash':
 			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
@@ -10832,7 +10804,7 @@ class AbstractPost {
 					return;
 				}
 				closePopup('file-loading');
-				downloadBlob(new Blob([data], { type: getFileType(url) }), el.getAttribute('download'));
+				downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 			});
 			e.preventDefault();
 			return;
@@ -10845,7 +10817,7 @@ class AbstractPost {
 				MyPosts.removeStorage(num);
 			}
 			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`), el => {
+			$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
 				const post = aib.getPostOfEl(el);
 				if(post.el !== this.el) {
 					el.classList.toggle('de-ref-you', isAdd);
@@ -10963,7 +10935,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
+			$Q('.de-new-post').forEach(el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -11020,7 +10992,7 @@ class Post extends AbstractPost {
 	static hideContent(headerEl, btnHide, isUser, isHide) {
 		if(!isHide) {
 			btnHide.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+			$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(
 				el => el.classList.remove('de-post-hiddencontent'));
 			return;
 		}
@@ -11285,7 +11257,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
+		$Q(`[de-form] a[href$="${ aib.anchor + num }"]`).forEach(el => {
 			el.classList.toggle('de-link-hid', isHide);
 			if(Cfg.removeHidd && el.classList.contains('de-link-backref')) {
 				const refMapEl = el.parentNode;
@@ -11508,7 +11480,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
+					$Q('.de-link-pview', pv.el).forEach(el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -11624,7 +11596,7 @@ class Pview extends AbstractPost {
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			const el = fixEventEl(e.relatedTarget);
+			const el = nav.fixEventEl(e.relatedTarget);
 			if(!el ||
 				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
@@ -11656,7 +11628,7 @@ class Pview extends AbstractPost {
 		const isHide = post.isHidden;
 		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
-		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
+		$Q(`.de-btn-pview-hide[de-num="${ this.num }"]`).forEach(el => {
 			el.setAttribute('class',
 				`${ isHide ? 'de-btn-hide-user' : 'de-btn-unhide-user' } de-btn-pview-hide`);
 			el.parentNode.classList.toggle('de-post-hide', !isHide);
@@ -11668,7 +11640,7 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el),
+		$Q(`a[href*="${ num }"]`, el).forEach(
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	async _buildPview(post) {
@@ -11681,7 +11653,7 @@ class Pview extends AbstractPost {
 			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }` +
 			`${ post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : '' }`;
 		$show(pv);
-		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
+		$Q('.de-post-hiddencontent', pv).forEach(el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pv, this.parent.num);
 		}
@@ -11721,7 +11693,7 @@ class Pview extends AbstractPost {
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
 			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv);
-			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
+			$Q(aib.qPostImg, pv).forEach(el => $show(el.parentNode));
 			const link = $q('.de-link-parent', pv);
 			if(link) {
 				link.classList.remove('de-link-parent');
@@ -11734,7 +11706,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pv), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pv), $show);
+				$Q('.de-img-embed', pv).forEach($show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -11758,12 +11730,13 @@ class Pview extends AbstractPost {
 		}
 	}
 	_onload(pBuilder) {
-		const { board, parent: num } = this;
+		const { board } = this;
+		const { num, tNum } = this.parent;
 		const post = new PviewsCache(pBuilder, board, this.tNum).getPost(this.num);
 		if(post && (aib.b !== board || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
-					aib.getThrUrl(board, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
+					aib.getThrUrl(board, tNum) + aib.anchor + num }">&gt;&gt;${
 					aib.b === board ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
@@ -11818,7 +11791,7 @@ class Pview extends AbstractPost {
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
-		this.thr.form.el.appendChild(el);
+		this.thr.form.el.append(el);
 		this._setPosition(this._link, false);
 		if(Cfg.animation) {
 			el.addEventListener('animationend', function aEvent() {
@@ -12131,7 +12104,7 @@ class ImagesViewer {
 	}
 	toggleVideoLoop() {
 		if(this.data.isVideo) {
-			toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
+			$toggleAttr($q('video', this._fullEl), 'loop', '', !this.isAutoPlay);
 		}
 	}
 	updateImgViewer(data, showButtons, e) {
@@ -12246,10 +12219,10 @@ class ImagesViewer {
 			data.isVideo ? ' de-fullimg-center-video' : '' }" style="top:${ this._oldT -
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
-		el.appendChild(this._fullEl);
+		el.append(this._fullEl);
 		if(data.isImage) {
 			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
-				.appendChild($q('img', this._fullEl));
+				.append($q('img', this._fullEl));
 		}
 		this._elStyle = el.style;
 		this.data = data;
@@ -12268,7 +12241,7 @@ class ImagesViewer {
 		} else if($hasProp(this, '_btns')) {
 			btns.hideBtns();
 		}
-		data.post.thr.form.el.appendChild(el);
+		data.post.thr.form.el.append(el);
 		this.toggleVideoLoop();
 		if(this.data.rotate) {
 			this.rotateView(false);
@@ -12447,8 +12420,9 @@ class ExpandableImage {
 		this._fullEl = this.getFullImg(true, null, null);
 		this._fullEl.addEventListener('click', e => this.collapseImg(e), true);
 		this.srcBtnEvents(this);
-		$hide(el.parentNode);
-		$after(el.parentNode, this._fullEl);
+		const parent = el.parentNode;
+		$hide(parent);
+		parent.after(this._fullEl);
 		this.checkForRedirect(this._fullEl);
 		if(e) {
 			const fullImgTop = this._fullEl.getBoundingClientRect().top;
@@ -13004,8 +12978,8 @@ function embedPostMsgImages(el) {
 		if(url.includes('?') || aib.getPostOfEl(link).hidden) {
 			continue;
 		}
-		$bBegin(link, `<a href="${
-			link.href }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
+		link.insertAdjacentHTML('beforebegin',
+			`<a href="${ url }" target="_blank"><img class="de-img-embed" src="${ url }"></a><br>`);
 		if(Cfg.imgSrcBtns) {
 			addImgButtons(link);
 		}
@@ -13840,7 +13814,7 @@ class Thread {
 	}
 	handleEvent(e) {
 		e.preventDefault();
-		const el = fixEventEl(e.target);
+		const el = nav.fixEventEl(e.target);
 		const elClass = el.classList[0];
 		const nextThr = this.next;
 		let oldCoord = false;
@@ -13974,7 +13948,7 @@ class Thread {
 		const num = aib.getPNum(el);
 		const wrap = doc.adoptNode(aib.getPostWrap(el, false));
 		const post = new Post(el, this, num, i, false, prev);
-		parent.appendChild(wrap);
+		parent.append(wrap);
 		if(aib.t && !doc.hidden && Cfg.animation) {
 			$animate(el, 'de-post-new');
 		}
@@ -14006,7 +13980,7 @@ class Thread {
 			const post = bNum ? pByNum.get(bNum) : this.op;
 			if(post && post.banned !== banId) {
 				$del($q(aib.qBan, post.el));
-				post.msg.appendChild(bEl);
+				post.msg.append(bEl);
 				post.banned = banId;
 			}
 		}
@@ -14106,7 +14080,7 @@ class Thread {
 			if(maybeVParser.hasValue) {
 				maybeVParser.value.endParser();
 			}
-			$after(op.wrap, fragm);
+			op.wrap.after(fragm);
 			DollchanAPI.notify('newpost', nums);
 			last.next = post;
 			if(post) {
@@ -14134,8 +14108,9 @@ class Thread {
 		}
 		const btns = this._moveBtnsToEnd();
 		if(!$q('.de-thr-collapse', btns)) {
-			$bEnd(btns, `<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
-				aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
+			btns.insertAdjacentHTML('beforeend',
+				`<span class="de-thr-collapse"> [<a class="de-thr-collapse-link de-abtn" href="${
+					aib.getThrUrl(aib.b, this.num) }"></a>]</span>`);
 		}
 		if(needToShow > visPosts) {
 			thrNavPanel.addThr(this);
@@ -14182,7 +14157,7 @@ class Thread {
 	_moveBtnsToEnd() {
 		const { btns, el } = this;
 		if(btns !== el.lastChild) {
-			el.appendChild(btns);
+			el.append(btns);
 		}
 		return btns;
 	}
@@ -14226,7 +14201,7 @@ class Thread {
 				newPosts += res[0];
 				this.pcount += res[0];
 				newVisPosts += res[1];
-				$after(prev.wrap, res[2]);
+				prev.wrap.after(res[2]);
 				res[3].next = post;
 				post.prev = res[3];
 				DollchanAPI.notify('newpost', res[4]);
@@ -14253,7 +14228,7 @@ class Thread {
 				len, maybeVParser, maybeSpells);
 			newPosts += res[0];
 			newVisPosts += res[1];
-			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).appendChild(res[2]);
+			(aib.qPostsParent ? $q(aib.qPostsParent, this.el) : this.el).append(res[2]);
 			this.last = res[3];
 			DollchanAPI.notify('newpost', res[4]);
 			this.pcount = len + 1;
@@ -14277,7 +14252,7 @@ class Thread {
 		}
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
-		$each(this.btns.children, el => el !== this.btnReplies && $toggle(el, !isHide));
+		this.btns.children.forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
@@ -14299,8 +14274,8 @@ const thrNavPanel = {
 	handleEvent(e) {
 		switch(e.type) {
 		case 'scroll': deWindow.requestAnimationFrame(() => this._checkThreads()); break;
-		case 'mouseover': this._expandCollapse(true, fixEventEl(e.relatedTarget)); break;
-		case 'mouseout': this._expandCollapse(false, fixEventEl(e.relatedTarget)); break;
+		case 'mouseover': this._expandCollapse(true, nav.fixEventEl(e.relatedTarget)); break;
+		case 'mouseout': this._expandCollapse(false, nav.fixEventEl(e.relatedTarget)); break;
 		case 'click': this._handleClick(e); break;
 		}
 	},
@@ -14373,7 +14348,7 @@ const thrNavPanel = {
 		return this._findCurrentThread();
 	},
 	_handleClick(e) {
-		const el = fixEventEl(e.target);
+		const el = nav.fixEventEl(e.target);
 		switch((el.tagName.toLowerCase() === 'svg' ? el.parentNode : el).id) {
 		case 'de-thr-navup':
 			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset +
@@ -15071,10 +15046,10 @@ class DelForm {
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			const el = fNodes[i];
 			if(el.tagName === 'HR') {
-				formEl.insertBefore(cThr, el);
+				el.before(cThr);
 				const lastEl = cThr.lastElementChild;
 				if(lastEl.tagName === 'BR') {
-					formEl.insertBefore(lastEl, el);
+					el.before(lastEl);
 				}
 				try {
 					aib.getTNum(cThr);
@@ -15082,11 +15057,11 @@ class DelForm {
 				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
-				cThr.appendChild(el);
+				cThr.append(el);
 			}
 		}
-		cThr.appendChild(fNodes[i]);
-		formEl.appendChild(cThr);
+		cThr.append(fNodes[i]);
+		formEl.append(cThr);
 		return threads;
 	}
 	get passEl() {
@@ -15189,15 +15164,6 @@ function initNavFuncs() {
 	if(!('requestAnimationFrame' in deWindow)) { // XXX: Opera Presto
 		deWindow.requestAnimationFrame = fn => setTimeout(fn, 0);
 	}
-	if(!('remove' in Element.prototype)) { // XXX: Opera Presto
-		Element.prototype.remove = function() {
-			this.parentNode?.removeChild(this);
-		};
-	}
-	const nlProto = NodeList.prototype;
-	$each = 'forEach' in nlProto ?
-		(els, cb) => nlProto.forEach.call(els, cb) :
-		(els, cb) => aProto.forEach.call(els, cb);
 	let needFileHack = false;
 	try {
 		new File([''], '');
@@ -15231,7 +15197,6 @@ function initNavFuncs() {
 		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
-		fixLink          : isSafari ? getAbsLink : url => url,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
 		hasGMXHR,
 		hasNewGM,
@@ -15287,6 +15252,12 @@ function initNavFuncs() {
 			const value = doc.compatMode && doc.compatMode === 'CSS1Compat' ?
 				() => doc.documentElement.clientWidth : () => docBody.clientWidth;
 			Object.defineProperty(this, 'viewportWidth', { value });
+			return value;
+		},
+		// XXX: Opera Presto - hack for SVG events
+		get fixEventEl() {
+			const value = !nav.isPresto ? el => el : el => el?.correspondingUseElement?.ownerSVGElement || el;
+			Object.defineProperty(this, 'fixEventEl', { value });
 			return value;
 		},
 		// XXX: Firefox + old Greasemonkey - hack to prevent
@@ -15392,19 +15363,19 @@ class BaseBoard {
 		this.makaba = false;
 	}
 	get qFormMail() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="email"]', '[name="em"]', '[name="field2"]', '[name="sage"]');
 	}
 	get qFormName() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="name"]', '[name="field1"]');
 	}
 	get qFormSubj() {
-		return cssMatches('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
+		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
 	get qImgNameLink() {
-		const value = cssMatches(this.qImgInfo.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qImgInfo.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
 			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
 			', [href^="blob:"]');
@@ -15412,7 +15383,7 @@ class BaseBoard {
 		return value;
 	}
 	get qMsgImgLink() { // Sets here only
-		const value = cssMatches(this.qPostMsg.split(', ').join(' a, ') + ' a',
+		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
 		return value;
@@ -15484,7 +15455,7 @@ class BaseBoard {
 	}
 	get reCrossLinks() { // Sets here only
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
-			quoteReg(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
+			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
 	}
@@ -15507,7 +15478,7 @@ class BaseBoard {
 		return null;
 	}
 	disableRedirection(el) { // Dobrochan
-		$hide($qParent(el, aib.qFormTr));
+		$hide(el.closest(aib.qFormTr));
 		el.checked = true;
 	}
 	fixHTML(data, isForm = false) {
@@ -15586,11 +15557,14 @@ class BaseBoard {
 		}
 		return videos;
 	}
+	getAbsLink(url) { // Sets here only
+		return (url[1] === '/' ? this.prot : url[0] === '/' ? this.prot + '//' + this.host : '') + url;
+	}
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
 	getCapParent(el) {
-		return $qParent(el, this.qFormTr);
+		return el.closest(this.qFormTr);
 	}
 	getCaptchaSrc(src, tNum) {
 		const temp = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -15606,10 +15580,10 @@ class BaseBoard {
 		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {
-		return $parent(img, 'A');
+		return img.closest('a');
 	}
 	getImgWrap(img) {
-		return ($parent(img, 'A') || img).parentNode;
+		return (img.closest('a') || img).parentNode;
 	}
 	getJsonApiUrl() {}
 	getOmitted(el) {
@@ -15625,13 +15599,9 @@ class BaseBoard {
 		let el;
 		const opEnd = $q(this._qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
-			op.appendChild(el);
+			op.append(el);
 		}
-		if(thr.hasChildNodes()) {
-			thr.insertBefore(op, thr.firstChild);
-		} else {
-			thr.appendChild(op);
-		}
+		thr.prepend(op);
 		return op;
 	}
 	getPageUrl(board, page) {
@@ -15655,7 +15625,7 @@ class BaseBoard {
 			return el;
 		}
 		Object.defineProperty(this, 'getPostWrap',
-			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : $parent(el, 'TABLE') : el => el });
+			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : el.closest('table') : el => el });
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
@@ -15814,7 +15784,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
-				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
+				$Q(query, form).forEach(el => this._origInputs[0].append(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
@@ -15837,16 +15807,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
 				$delAll(query, form);
-				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
+				$Q(query, loadedForm).forEach(el => form.append(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
 		}
 		fixHTML(data, isForm) {
 			const formEl = super.fixHTML(data, isForm);
-			$each($Q('br.clear', formEl), brEl => {
+			$Q('br.clear', formEl).forEach(brEl => {
 				const hr = brEl.nextElementSibling;
 				if(hr && hr.tagName === 'HR') {
-					$after(brEl.parentNode, hr);
+					brEl.parentNode.after(hr);
 				}
 				brEl.remove();
 			});
@@ -15967,7 +15937,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addTextBtns = 0;
-			$each($Q('.message > .omittedposts'),
+			$Q('.message > .omittedposts').forEach(
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
@@ -16075,7 +16045,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.originalNameLink', this.getImgWrap(img));
 		}
 		getImgWrap(img) {
-			return $parent(img, 'FIGURE');
+			return img.closest('figure');
 		}
 		getPageUrl(board, page) {
 			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
@@ -16120,7 +16090,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
 					' #fieldPostingPassword, #fieldSubject');
 				for(let i = 0, len = els.length; i < len; ++i) {
-					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
+					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.append(els[i]);
 				}
 			}
 			return false;
@@ -16254,7 +16224,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.ajaxUpdThr = 0;
 			const el = $q('.search_box');
 			if(el) {
-				docBody.appendChild(el);
+				docBody.append(el);
 			}
 			return false;
 		}
@@ -16365,7 +16335,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			const dFormEl = $q(this.qDForm);
 			$delAll('input[type="hidden"]', dFormEl);
-			dFormEl.appendChild($q('.userdelete'));
+			dFormEl.append($q('.userdelete'));
 			return false;
 		}
 	}
@@ -16584,7 +16554,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgWrap(img) {
-			return $parent(img, 'FIGURE');
+			return img.closest('figure');
 		}
 		getJsonApiUrl(board, tNum) {
 			return `/${ board }/res/${ tNum }.json`;
@@ -16649,7 +16619,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const infEl = $q('.postform .filer__limits');
 				const optEl = $q('.postform .options');
 				if(infEl && optEl) {
-					optEl.appendChild(infEl);
+					optEl.append(infEl);
 				}
 			}
 			$script(`(function() {
@@ -16666,7 +16636,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$each($Q('.autorefresh'), el => {
+			$Q('.autorefresh').forEach(el => {
 				const inpEl = $q('input', el);
 				if(inpEl.checked) {
 					inpEl.click();
@@ -16814,7 +16784,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			let el = $q('.captcha');
 			if(el) {
-				$before($q('.freply__files-and-captcha'), el);
+				$q('.freply__files-and-captcha').before(el);
 			}
 			el = $id('postform');
 			if(el) {
@@ -16854,7 +16824,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('postFormSubmit = Function.prototype;');
-			$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
+			$id('postform').insertAdjacentHTML('beforeend', '<input type="hidden" name="json" value="1">');
 			return false;
 		}
 	}
@@ -17147,7 +17117,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return wrap.title;
 		}
 		getImgWrap(img) {
-			return $parent(img, 'A').parentNode;
+			return img.closest('a').parentNode;
 		}
 		getOp(el) {
 			return $q('.post:first-child', el);
@@ -17256,7 +17226,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(isErr) {
 				const el = img.parentNode;
 				el.innerHTML = '';
-				el.appendChild(img);
+				el.append(img);
 				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
 					' id="captcha" name="captcha" size="35" type="text">');
 				$show(img);
@@ -17269,7 +17239,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
-				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
+				post.msg.firstElementChild.replaceWith($q('.alternate > div', post.el));
 			} else {
 				const sRunner = new SpellsRunner();
 				post.updateMsg($q('.alternate > div', post.el), sRunner);
@@ -17277,11 +17247,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 		}
 		disableRedirection(el) {
-			$hide($parent(el, 'TR'));
+			$hide(el.closest('tr'));
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$each($Q('input[type="file"]', el), el => el.removeAttribute('onchange'));
+			$Q('input[type="file"]', el).forEach(el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -17321,7 +17291,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
-			$id('postform')?.appendChild($q('.rules'));
+			$id('postform')?.append($q('.rules'));
 			return false;
 		}
 		insertYtPlayer(msg, playerHtml) {
@@ -17348,8 +17318,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
-			$each($Q('.youtube_wrapper'), el => {
+			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del(el.closest('figure')));
+			$Q('.youtube_wrapper').forEach(el => {
 				const src = $q('a', el).href;
 				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
 			});
@@ -17460,8 +17430,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		stormWallFixSubmit(url, text, ajaxParams) {
-			return this.stormWallHelper(url, text, () => $DOM(text),
-				() => $ajax(url, ajaxParams).then(xhr => $DOM(xhr.responseText)));
+			return this.stormWallHelper(url, text, () => $createDoc(text),
+				() => $ajax(url, ajaxParams).then(xhr => $createDoc(xhr.responseText)));
 		}
 		stormWallHelper(url, text, fnOK, fnRes) {
 			const stormWallTxt = '<script src="https://static.stormwall.pro/';
@@ -17549,7 +17519,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		sendHTML5Post(form, data, needProgress, hasFiles) {
 			const oekakiEl = $id('wPaint');
-			if(oekakiEl && oekakiEl.style.display !== 'none') {
+			if(oekakiEl?.hasChildNodes() && oekakiEl.style.display !== 'none') {
 				hasFiles = true;
 				const mime = { type: 'image/png' };
 				const files = [new File([
@@ -17614,7 +17584,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
-			return !!$q('.sage', post).hasChildNodes();
+			return $q('.sage', post).hasChildNodes();
 		}
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
@@ -17628,7 +17598,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$each($Q('.imgLink'), el => (el.className = 'de-img-link'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
 			return super.init();
 		}
 	}
@@ -17680,7 +17650,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			$Q('.files + .post.op').forEach(el => el.prepend(el.previousElementSibling));
 			return false;
 		}
 	}
@@ -17765,7 +17735,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
+			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -17808,7 +17778,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const formEl = super.fixHTML(data, isForm);
 			const els = $Q('.btn-group', formEl);
 			for(let i = 0, len = els.length; i < len; ++i) {
-				$replace(els[i], $q('a', els[i]));
+				els[i].replaceWith($q('a', els[i]));
 			}
 			return formEl;
 		}
@@ -18784,6 +18754,7 @@ function runFrames() {
 }
 
 async function runMain(checkDomains, dataPromise) {
+	console.log(1)
 	Logger.initLogger();
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
@@ -18809,6 +18780,7 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
+		console.log(2)
 	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
 	addSVGIcons();
@@ -18822,6 +18794,7 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	initStorageEvent();
 	DollchanAPI.initAPI();
+		console.log(3)
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -18860,6 +18833,7 @@ async function runMain(checkDomains, dataPromise) {
 		$show(docBody);
 		return;
 	}
+		console.log(4)
 	Logger.log('Parse delform');
 	if(aib.t) {
 		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
@@ -18868,22 +18842,28 @@ async function runMain(checkDomains, dataPromise) {
 			deWindow.location.reload();
 		}
 	}
+	console.log(41)
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
+	console.log(411)
 	initPage();
 	Logger.log('Init page');
+	console.log(42)
 	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	embedPostMsgImages(DelForm.first.el);
+	console.log(421)
 	Logger.log('Image-links');
 	DelForm.first.addStuff();
 	readViewedPosts();
+	console.log(43)
 	scriptCSS();
 	Logger.log('Apply CSS');
+		console.log(5)
 	$show(docBody);
 	Logger.log('Display page');
 	toggleInfinityScroll();
@@ -18896,7 +18876,7 @@ async function runMain(checkDomains, dataPromise) {
 	scrollPage();
 	Logger.log('Scroll page');
 	if(localData) {
-		$each($Q('.de-post-removed'), el => {
+		$Q('.de-post-removed').forEach(el => {
 			const post = pByEl.get(el);
 			if(post) {
 				post.deletePost(false);

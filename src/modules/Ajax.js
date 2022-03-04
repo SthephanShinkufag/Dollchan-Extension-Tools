@@ -22,7 +22,7 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		}
-		url = getAbsLink(url);
+		url = aib.getAbsLink(url);
 		// Chrome-extension: avoid CORS in content script. Sending data to background.js
 		if(isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
 			if(params.body) {
@@ -96,7 +96,7 @@ function $ajax(url, params = null, isCORS = false) {
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 		const obj = {
 			method : params?.method || 'GET',
-			url    : nav.fixLink(url),
+			url    : nav.isSafari ? aib.getAbsLink(url) : url,
 			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
@@ -162,7 +162,7 @@ function $ajax(url, params = null, isCORS = false) {
 			}
 		};
 		try {
-			xhr.open(params?.method || 'GET', getAbsLink(url), true);
+			xhr.open(params?.method || 'GET', aib.getAbsLink(url), true);
 			if(params) {
 				if(params.responseType) {
 					xhr.responseType = params.responseType;
@@ -278,7 +278,7 @@ const AjaxCache = {
 };
 
 function getAjaxResponseEl(text, needForm) {
-	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $createDoc(text)) : $createDoc(text);
 }
 
 function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {

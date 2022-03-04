@@ -61,7 +61,7 @@ class Pview extends AbstractPost {
 				link.classList.add('de-link-parent');
 				pv._link = link;
 				if(pv.parent.num !== parent.num) {
-					$each($Q('.de-link-pview', pv.el), el => el.classList.remove('de-link-pview'));
+					$Q('.de-link-pview', pv.el).forEach(el => el.classList.remove('de-link-pview'));
 					Pview._markLink(pv.el, parent.num);
 				}
 			}
@@ -177,7 +177,7 @@ class Pview extends AbstractPost {
 			case 'mouseout': break;
 			default: break checkMouse;
 			}
-			const el = fixEventEl(e.relatedTarget);
+			const el = nav.fixEventEl(e.relatedTarget);
 			if(!el ||
 				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
@@ -209,7 +209,7 @@ class Pview extends AbstractPost {
 		const isHide = post.isHidden;
 		post.setUserVisib(!isHide);
 		Pview.updatePosition(true);
-		$each($Q(`.de-btn-pview-hide[de-num="${ this.num }"]`), el => {
+		$Q(`.de-btn-pview-hide[de-num="${ this.num }"]`).forEach(el => {
 			el.setAttribute('class',
 				`${ isHide ? 'de-btn-hide-user' : 'de-btn-unhide-user' } de-btn-pview-hide`);
 			el.parentNode.classList.toggle('de-post-hide', !isHide);
@@ -221,7 +221,7 @@ class Pview extends AbstractPost {
 	}
 
 	static _markLink(el, num) {
-		$each($Q(`a[href*="${ num }"]`, el),
+		$Q(`a[href*="${ num }"]`, el).forEach(
 			el => el.textContent.startsWith('>>' + num) && el.classList.add('de-link-pview'));
 	}
 	async _buildPview(post) {
@@ -234,7 +234,7 @@ class Pview extends AbstractPost {
 			post.isViewed ? ' de-viewed' : '' }${ isMyPost ? ' de-mypost' : '' }` +
 			`${ post.el.classList.contains('de-mypost-reply') ? ' de-mypost-reply' : '' }`;
 		$show(pv);
-		$each($Q('.de-post-hiddencontent', pv), el => el.classList.remove('de-post-hiddencontent'));
+		$Q('.de-post-hiddencontent', pv).forEach(el => el.classList.remove('de-post-hiddencontent'));
 		if(Cfg.linksNavig) {
 			Pview._markLink(pv, this.parent.num);
 		}
@@ -274,7 +274,7 @@ class Pview extends AbstractPost {
 				--><use class="de-btn-hide-use" xlink:href="#de-symbol-post-hide"/><!--
 				--><use class="de-btn-unhide-use" xlink:href="#de-symbol-post-unhide"/></svg>${ pText }`;
 			$delAll(`${ !aib.t && isOp ? aib.qOmitted + ', ' : '' }.de-fullimg-wrap, .de-fullimg-after`, pv);
-			$each($Q(aib.qPostImg, pv), el => $show(el.parentNode));
+			$Q(aib.qPostImg, pv).forEach(el => $show(el.parentNode));
 			const link = $q('.de-link-parent', pv);
 			if(link) {
 				link.classList.remove('de-link-parent');
@@ -287,7 +287,7 @@ class Pview extends AbstractPost {
 				this.videos.updatePost($Q('.de-video-link', post.el), $Q('.de-video-link', pv), true);
 			}
 			if(Cfg.addImgs) {
-				$each($Q('.de-img-embed', pv), $show);
+				$Q('.de-img-embed', pv).forEach($show);
 			}
 			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(post => {
@@ -311,12 +311,13 @@ class Pview extends AbstractPost {
 		}
 	}
 	_onload(pBuilder) {
-		const { board, parent: num } = this;
+		const { board } = this;
+		const { num, tNum } = this.parent;
 		const post = new PviewsCache(pBuilder, board, this.tNum).getPost(this.num);
 		if(post && (aib.b !== board || !post.ref.hasMap || !post.ref.has(num))) {
 			(post.ref.hasMap ? $q('.de-refmap', post.el) : $aEnd(post.msg, '<div class="de-refmap"></div>'))
 				.insertAdjacentHTML('afterbegin', `<a class="de-link-backref" href="${
-					aib.getThrUrl(board, this.parent.tNum) + aib.anchor + num }">&gt;&gt;${
+					aib.getThrUrl(board, tNum) + aib.anchor + num }">&gt;&gt;${
 					aib.b === board ? '' : `/${ aib.b }/` }${ num }</a><span class="de-refcomma">, </span>`);
 		}
 		if(post) {
@@ -371,7 +372,7 @@ class Pview extends AbstractPost {
 	_showPview(el) {
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
-		this.thr.form.el.appendChild(el);
+		this.thr.form.el.append(el);
 		this._setPosition(this._link, false);
 		if(Cfg.animation) {
 			el.addEventListener('animationend', function aEvent() {

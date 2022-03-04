@@ -26,193 +26,196 @@ const CfgWindow = {
 		// Open default or current tab
 		this._clickTab(Cfg.cfgTab);
 
-		// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-		div.appendChild(getEditButton('cfg', fn => fn(Cfg, true, data => {
-			saveCfgObj(aib.dm, data);
-			deWindow.location.reload();
-		})));
+		div.append(
+			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
+			getEditButton('cfg', fn => fn(Cfg, true, data => {
+				saveCfgObj(aib.dm, data);
+				deWindow.location.reload();
+			})),
 
-		// "Global" button. Allows to save/load global settings.
-		nav.hasGlobalStorage && div.appendChild($btn(Lng.global[lang], Lng.globalCfg[lang], () => {
-			const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
-			// "Load" button. Applies global settings for current domain.
-			$bEnd(el, `<div id="de-list"><input type="button" value="${
-				Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
-				if(data && ('global' in data) && !$isEmpty(data.global)) {
-					saveCfgObj(aib.dm, data.global);
-					deWindow.location.reload();
-				} else {
-					$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
-				}
-			});
-			// "Save" button. Copies the domain settings into global.
-			div = $bEnd(el, `<div id="de-list"><input type="button" value="${
-				Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-			).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
-				const obj = {};
-				const com = data[aib.dm];
-				for(const i in com) {
-					if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
-						i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
-					) {
-						obj[i] = com[i];
-					}
-				}
-				data.global = obj;
-				saveCfgObj('global', data.global);
-				toggleWindow('cfg', true);
-			});
-			el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
-		}));
-
-		// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
-		!nav.isPresto && div.appendChild($btn(Lng.file[lang], Lng.fileImpExp[lang], () => {
-			const list = this._getList([
-				Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
-				Lng.panelBtn.fav[lang],
-				Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-				Lng.myPosts[lang] + ` (${ aib.dm })`
-			]);
-			// Create popup with controls
-			$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
-				--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
-					--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
-				--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
-				--><div class="de-depend">${ list }</div></div>`);
-			// Import data from a file to the storage
-			$id('de-import-file').onchange = e => {
-				const file = e.target.files[0];
-				if(!file) {
-					return;
-				}
-				readFile(file, true).then(({ data }) => {
-					let obj;
-					try {
-						obj = JSON.parse(data);
-					} catch(err) {
-						$popup('err-invaliddata', Lng.invalidData[lang]);
-						return;
-					}
-					const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
-					const isOldCfg = !cfgObj && !favObj && !dmObj;
-					if(isOldCfg) {
-						setStored('DESU_Config', data);
-					}
-					if(cfgObj) {
-						try {
-							setStored('DESU_Config', JSON.stringify(cfgObj));
-							setStored('DESU_keys', JSON.stringify(obj.hotkeys));
-						} catch(err) {}
-					}
-					if(favObj) {
-						saveRenewFavorites(favObj);
-					}
-					if(dmObj) {
-						if(dmObj.posts) {
-							locStorage['de-posts'] = JSON.stringify(dmObj.posts);
-						}
-						if(dmObj.threads) {
-							locStorage['de-threads'] = JSON.stringify(dmObj.threads);
-						}
-						if(dmObj.myposts) {
-							locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
-						}
-					}
-					if(cfgObj || dmObj || isOldCfg) {
-						$popup('cfg-file', Lng.updating[lang], true);
+			// "Global" button. Allows to save/load global settings.
+			nav.hasGlobalStorage ? $button(Lng.global[lang], Lng.globalCfg[lang], () => {
+				const el = $popup('cfg-global', `<b>${ Lng.globalCfg[lang] }:</b>`);
+				// "Load" button. Applies global settings for current domain.
+				$bEnd(el, `<div id="de-list"><input type="button" value="${
+					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
+				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+					if(data && ('global' in data) && !$isEmpty(data.global)) {
+						saveCfgObj(aib.dm, data.global);
 						deWindow.location.reload();
+					} else {
+						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
+					}
+				});
+				// "Save" button. Copies the domain settings into global.
+				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
+					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
+				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+					const obj = {};
+					const com = data[aib.dm];
+					for(const i in com) {
+						if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
+							i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
+						) {
+							obj[i] = com[i];
+						}
+					}
+					data.global = obj;
+					saveCfgObj('global', data.global);
+					toggleWindow('cfg', true);
+				});
+				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
+			}) : '',
+
+			// "File" button. Allows to save and load settings/favorites/hidden/etc from file.
+			!nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], () => {
+				const list = this._getList([
+					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
+					Lng.panelBtn.fav[lang],
+					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
+					Lng.myPosts[lang] + ` (${ aib.dm })`
+				]);
+				// Create popup with controls
+				$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
+					--><div class="de-list">${ Lng.fileToData[lang] }:<div class="de-depend"><!--
+						--><input type="file" accept=".json" id="de-import-file"></div></div><hr><!--
+					--><div class="de-list"><a id="de-export-file" href="#">${ Lng.dataToFile[lang] }:<!--
+					--><div class="de-depend">${ list }</div></div>`);
+				// Import data from a file to the storage
+				$id('de-import-file').onchange = e => {
+					const file = e.target.files[0];
+					if(!file) {
 						return;
 					}
-					closePopup('cfg-file');
-				});
-			};
+					readFile(file, true).then(({ data }) => {
+						let obj;
+						try {
+							obj = JSON.parse(data);
+						} catch(err) {
+							$popup('err-invaliddata', Lng.invalidData[lang]);
+							return;
+						}
+						const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
+						const isOldCfg = !cfgObj && !favObj && !dmObj;
+						if(isOldCfg) {
+							setStored('DESU_Config', data);
+						}
+						if(cfgObj) {
+							try {
+								setStored('DESU_Config', JSON.stringify(cfgObj));
+								setStored('DESU_keys', JSON.stringify(obj.hotkeys));
+							} catch(err) {}
+						}
+						if(favObj) {
+							saveRenewFavorites(favObj);
+						}
+						if(dmObj) {
+							if(dmObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+							}
+							if(dmObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							}
+							if(dmObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							}
+						}
+						if(cfgObj || dmObj || isOldCfg) {
+							$popup('cfg-file', Lng.updating[lang], true);
+							deWindow.location.reload();
+							return;
+						}
+						closePopup('cfg-file');
+					});
+				};
 
-			// Export data from a storage to the file. The file will be named by date and type of storage.
-			// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
-			const expFile = $id('de-export-file');
-			const els = $Q('input', expFile.nextElementSibling);
-			els[0].checked = true;
-			expFile.addEventListener('click', async e => {
-				const name = [];
-				const nameDm = [];
-				const d = new Date();
-				let val = [];
-				let valDm = [];
-				for(let i = 0, len = els.length; i < len; ++i) {
+				// Export data from a storage to the file. The file will be named by date and type of storage.
+				// For example, like "DE_20160727_1540_Cfg+Fav+domain.com(Hid+You).json".
+				const expFile = $id('de-export-file');
+				const els = $Q('input', expFile.nextElementSibling);
+				els[0].checked = true;
+				expFile.addEventListener('click', async e => {
+					const name = [];
+					const nameDm = [];
+					const d = new Date();
+					let val = [];
+					let valDm = [];
+					for(let i = 0, len = els.length; i < len; ++i) {
+						if(!els[i].checked) {
+							continue;
+						}
+						switch(i) {
+						case 0: name.push('Cfg'); {
+							const cfgData = await Promise.all(
+								[getStored('DESU_Config'), getStored('DESU_keys')]);
+							val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
+							break;
+						}
+						case 1: name.push('Fav');
+							val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
+							break;
+						case 2: nameDm.push('Hid');
+							valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+								`"threads":${ locStorage['de-threads'] || '{}' }`);
+							break;
+						case 3: nameDm.push('You');
+							valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+						}
+					}
+					if((valDm = valDm.join(','))) {
+						val.push(`"${ aib.dm }":{${ valDm }}`);
+						name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+					}
+					if((val = val.join(','))) {
+						downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
+							`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
+								pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
+					}
+					e.preventDefault();
+				}, true);
+			}) : '',
+
+			// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
+			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
+				'cfg-reset',
+				`<b>${ Lng.resetData[lang] }:</b><hr>` +
+				`<div class="de-list"><b>${ aib.dm }:</b>${
+					this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
+				}</div><hr>` +
+				`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
+					this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
+				}</div><hr>`
+			).append($button(Lng.clear[lang], '', e => {
+				const els = $Q('input[type="checkbox"]', e.target.parentNode);
+				for(let i = 1, len = els.length; i < len; ++i) {
 					if(!els[i].checked) {
 						continue;
 					}
 					switch(i) {
-					case 0: name.push('Cfg'); {
-						const cfgData = await Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
-						val.push(`"settings":${ cfgData[0] }`, `"hotkeys":${ cfgData[1] || '""' }`);
+					case 1:
+						locStorage.removeItem('de-posts');
+						locStorage.removeItem('de-threads');
 						break;
-					}
-					case 1: name.push('Fav');
-						val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
-						break;
-					case 2: nameDm.push('Hid');
-						valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
-							`"threads":${ locStorage['de-threads'] || '{}' }`);
-						break;
-					case 3: nameDm.push('You');
-						valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+					case 2: locStorage.removeItem('de-myposts'); break;
+					case 4: delStored('DESU_Favorites');
 					}
 				}
-				if((valDm = valDm.join(','))) {
-					val.push(`"${ aib.dm }":{${ valDm }}`);
-					name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+				if(els[3].checked) {
+					delStored('DESU_Config');
+					delStored('DESU_keys');
+				} else if(els[0].checked) {
+					getStoredObj('DESU_Config').then(data => {
+						delete data[aib.dm];
+						setStored('DESU_Config', JSON.stringify(data));
+						$popup('cfg-reset', Lng.updating[lang], true);
+						deWindow.location.reload();
+					});
+					return;
 				}
-				if((val = val.join(','))) {
-					downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
-						`DE_${ d.getFullYear() }${ pad2(d.getMonth() + 1) }${ pad2(d.getDate()) }_${
-							pad2(d.getHours()) }${ pad2(d.getMinutes()) }_${ name.join('+') }.json`);
-				}
-				e.preventDefault();
-			}, true);
-		}));
-
-		// "Clear" button. Allows to clear settings/favorites/hidden/etc optionally.
-		div.appendChild($btn(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
-			'cfg-reset',
-			`<b>${ Lng.resetData[lang] }:</b><hr>` +
-			`<div class="de-list"><b>${ aib.dm }:</b>${
-				this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
-			}</div><hr>` +
-			`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
-				this._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]])
-			}</div><hr>`
-		).appendChild($btn(Lng.clear[lang], '', e => {
-			const els = $Q('input[type="checkbox"]', e.target.parentNode);
-			for(let i = 1, len = els.length; i < len; ++i) {
-				if(!els[i].checked) {
-					continue;
-				}
-				switch(i) {
-				case 1:
-					locStorage.removeItem('de-posts');
-					locStorage.removeItem('de-threads');
-					break;
-				case 2: locStorage.removeItem('de-myposts'); break;
-				case 4: delStored('DESU_Favorites');
-				}
-			}
-			if(els[3].checked) {
-				delStored('DESU_Config');
-				delStored('DESU_keys');
-			} else if(els[0].checked) {
-				getStoredObj('DESU_Config').then(data => {
-					delete data[aib.dm];
-					setStored('DESU_Config', JSON.stringify(data));
-					$popup('cfg-reset', Lng.updating[lang], true);
-					deWindow.location.reload();
-				});
-				return;
-			}
-			$popup('cfg-reset', Lng.updating[lang], true);
-			deWindow.location.reload();
-		}))));
+				$popup('cfg-reset', Lng.updating[lang], true);
+				deWindow.location.reload();
+			})))
+		);
 	},
 
 	// Event handler for Setting window and its controls.
@@ -238,7 +241,7 @@ const CfgWindow = {
 					pr.updateLanguage();
 					aib.updateSubmitBtn(pr.subm);
 					if(pr.files) {
-						$each($Q('.de-file-img, .de-file-txt-input', pr.form),
+						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -276,7 +279,7 @@ const CfgWindow = {
 						processImgInfoLinks(el, 0, Cfg.imgNames);
 					}
 				} else {
-					$each($Q('.de-img-name'), el => (el.textContent = el.getAttribute('de-img-name-old')));
+					$Q('.de-img-name').forEach(el => (el.textContent = el.getAttribute('de-img-name-old')));
 				}
 				updateCSS();
 				break;
@@ -370,7 +373,7 @@ const CfgWindow = {
 				if(Cfg.imgSrcBtns) {
 					for(const { el } of DelForm) {
 						processImgInfoLinks(el, 1, 0);
-						$each($Q('.de-img-embed'),
+						$Q('.de-img-embed').forEach(
 							el => addImgButtons(el.parentNode.nextSibling.nextSibling));
 					}
 				} else {
@@ -378,7 +381,7 @@ const CfgWindow = {
 				}
 				break;
 			case 'addSageBtn':
-				PostForm.hideField($parent(pr.mail, 'LABEL') || pr.mail);
+				PostForm.hideField(pr.mail.closest('label') || pr.mail);
 				setTimeout(() => pr.toggleSage(), 0);
 				updateCSS();
 				break;
@@ -389,7 +392,7 @@ const CfgWindow = {
 				break;
 			case 'userPassw': PostForm.setUserPassw(); break;
 			case 'userName': PostForm.setUserName(); break;
-			case 'noPassword': $toggle($qParent(pr.passw, aib.qFormTr)); break;
+			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;
@@ -557,7 +560,7 @@ const CfgWindow = {
 			}
 			if(id === 'common') {
 				// XXX: remove and make insertion in this._getCfgCommon()
-				$after($q('input[info="userCSS"]').parentNode, getEditButton(
+				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, inputEl => {
 						saveCfg('userCSSTxt', inputEl.value);
@@ -807,7 +810,7 @@ const CfgWindow = {
 	// Creates a text input for text option values
 	_getInp(id, addText = true, size = 2) {
 		const el = doc.createElement('div');
-		el.appendChild(doc.createTextNode(Cfg[id])); // Escape HTML
+		el.append(Cfg[id]); // Escape HTML
 		return `<label class="de-cfg-label">
 		<input class="de-cfg-inptxt" info="${ id }" type="text" size="${ size }" value="${
 		el.innerHTML }">${ addText && Lng.cfg[id] ? Lng.cfg[id][lang] : '' }</label>`;

@@ -359,7 +359,7 @@ const Spells = Object.create({
 					case 2:
 					case 3:
 					case 5:
-					case 13: item[1] = toRegExp(val, true); break;
+					case 13: item[1] = strToRegExp(val, true); break;
 					case 0xFF: this._initHiders(val);
 					}
 				}
@@ -370,7 +370,7 @@ const Spells = Object.create({
 	_initReps(data) {
 		if(data) {
 			for(const item of data) {
-				item[0] = toRegExp(item[0], false);
+				item[0] = strToRegExp(item[0], false);
 			}
 		}
 		return data;
@@ -746,7 +746,7 @@ class SpellsCodegen {
 		}
 		const val = m[1];
 		try {
-			toRegExp(val, true);
+			strToRegExp(val, true);
 		} catch(err) {
 			this._col++;
 			this._setError(Lng.seErrRegex[lang], val);

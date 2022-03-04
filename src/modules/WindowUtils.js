@@ -181,7 +181,7 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 		}
 		el = $q('.de-win-buttons', win);
 		el.onmouseover = e => {
-			const el = fixEventEl(e.target);
+			const el = nav.fixEventEl(e.target);
 			const parent = el.parentNode;
 			switch(el.classList[0]) {
 			case 'de-win-btn-close': parent.title = Lng.closeWindow[lang]; break;

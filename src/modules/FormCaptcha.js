@@ -112,7 +112,7 @@ class Captcha {
 		this.initImage(img);
 		const a = img.parentNode;
 		if(a.tagName === 'A') {
-			$replace(a, img);
+			a.replaceWith(img);
 		}
 		if(isUpdateImage) {
 			this.refreshCaptcha(false);
@@ -199,7 +199,7 @@ class Captcha {
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
 		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
-		doc.head.appendChild(script);
+		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
 		// EXCLUDED FROM FIREFOX EXTENSION - END
 	}

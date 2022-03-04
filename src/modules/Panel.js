@@ -66,7 +66,7 @@ const Panel = Object.create({
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
-		let el = fixEventEl(e.target);
+		let el = nav.fixEventEl(e.target);
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
@@ -165,7 +165,7 @@ const Panel = Object.create({
 			}
 			return;
 		default: // mouseout
-			this._prepareToHide(fixEventEl(e.relatedTarget));
+			this._prepareToHide(nav.fixEventEl(e.relatedTarget));
 			switch(el.id) {
 			case 'de-panel-refresh':
 			case 'de-panel-savethr':
@@ -228,7 +228,6 @@ const Panel = Object.create({
 		case 'catalog':
 			href = aib.catalogUrl;
 		}
-		// XXX: Opera Presto - keep in sync with updMachine._setUpdateStatus
 		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
 			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
 			<svg class="de-panel-svg">

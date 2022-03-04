@@ -4,40 +4,16 @@
 
 // DOM SEARCH
 
-const $Q = (path, root = docBody) => root.querySelectorAll(path);
+const $id = id => doc.getElementById(id);
 
 const $q = (path, root = docBody) => root.querySelector(path);
 
-const $id = id => doc.getElementById(id);
+const $Q = (path, root = docBody) => root.querySelectorAll(path);
 
-function $parent(el, tagName) {
-	do {
-		el = el.parentElement;
-	} while(el && el.tagName !== tagName);
-	return el;
-}
-
-function $qParent(el, path) {
-	do {
-		el = el.parentElement;
-	} while(el && !nav.matchesSelector(el, path));
-	return el;
-}
+const $match = (parent, ...rules) =>
+	parent.split(', ').map(val => val + rules.join(', ' + val)).join(', ');
 
 // DOM MODIFIERS
-
-function $before(el, node) {
-	el.parentNode.insertBefore(node, el);
-}
-
-function $after(el, node) {
-	const nextEl = el.nextSibling;
-	if(nextEl) {
-		el.parentNode.insertBefore(node, nextEl);
-	} else {
-		el.parentNode.appendChild(node);
-	}
-}
 
 function $bBegin(sibling, html) {
 	sibling.insertAdjacentHTML('beforebegin', html);
@@ -59,13 +35,9 @@ function $aEnd(sibling, html) {
 	return sibling.nextSibling;
 }
 
-function $replace(origEl, newEl) {
-	if(typeof newEl === 'string') {
-		origEl.insertAdjacentHTML('afterend', newEl);
-		origEl.remove();
-	} else {
-		origEl.parentNode.replaceChild(newEl, origEl);
-	}
+function $replace(el, html) {
+	el.insertAdjacentHTML('afterend', html);
+	el.remove();
 }
 
 function $del(el) {
@@ -73,7 +45,7 @@ function $del(el) {
 }
 
 function $delAll(path, root = docBody) {
-	$each(root.querySelectorAll(path, root), el => el.remove());
+	root.querySelectorAll(path, root).forEach(el => el.remove());
 }
 
 function $add(html) {
@@ -81,7 +53,7 @@ function $add(html) {
 	return dummy.firstElementChild;
 }
 
-function $btn(value, title, fn, className = 'de-button') {
+function $button(value, title, fn, className = 'de-button') {
 	const el = $add(`<input type="button" class="${ className }" value="${ value }" title="${ title }">`);
 	el.addEventListener('click', fn);
 	return el;
@@ -91,7 +63,8 @@ function $script(text) {
 	const el = doc.createElement('script'); // We canʼt insert scripts directly as html
 	el.type = 'text/javascript';
 	el.textContent = text;
-	doc.head.appendChild(el).remove();
+	doc.head.append(el);
+	el.remove();
 }
 
 function $css(text) {
@@ -101,13 +74,21 @@ function $css(text) {
 	return $bEnd(doc.head, `<style type="text/css">${ text }</style>`);
 }
 
-function $DOM(html) {
+function $createDoc(html) {
 	const myDoc = doc.implementation.createHTMLDocument('');
 	myDoc.documentElement.innerHTML = html;
 	return myDoc;
 }
 
-// CSS UTILS
+// CSS AND ATTRIBUTES
+
+function $show(el) {
+	el.style.removeProperty('display');
+}
+
+function $hide(el) {
+	el.style.display = 'none';
+}
 
 function $toggle(el, needToShow = el.style.display) {
 	if(needToShow) {
@@ -117,12 +98,12 @@ function $toggle(el, needToShow = el.style.display) {
 	}
 }
 
-function $show(el) {
-	el.style.removeProperty('display');
-}
-
-function $hide(el) {
-	el.style.display = 'none';
+function $toggleAttr(el, name, value, isAdd) {
+	if(isAdd) {
+		el.setAttribute(name, value);
+	} else {
+		el.removeAttribute(name);
+	}
 }
 
 function $animate(el, cName, isRemove = false) {
@@ -137,7 +118,121 @@ function $animate(el, cName, isRemove = false) {
 	el.classList.add(cName);
 }
 
-// Checks the validity of the user inputted color
+// OBJECT
+
+const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
+
+function $isEmpty(obj) {
+	for(const i in obj) {
+		if($hasProp(obj, i)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// REGEXP
+
+// Prepares a string to be used as a new RegExp argument
+const escapeRegExp = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+
+// Converts a string into regular expression
+function strToRegExp(str, notGlobal) {
+	const l = str.lastIndexOf('/');
+	const flags = str.substr(l + 1);
+	return new RegExp(str.substr(1, l - 1), notGlobal ? flags.replace('g', '') : flags);
+}
+
+// OTHER UTILS
+
+const pad2 = i => i < 10 ? '0' + i : i;
+
+const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
+
+const fixBrd = board => '/' + (board ? board + '/' : '');
+
+const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
+
+const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
+
+const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
+
+// Converts bytes into KB/MB/GB
+const prettifySize = val =>
+	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
+	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
+	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
+	val.toFixed(2) + Lng.sizeByte[lang];
+
+// Inserts the text at the cursor into an input field
+function insertText(el, txt) {
+	const { scrollTop, selectionStart: start } = el;
+	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
+	el.setSelectionRange(start + txt.length, start + txt.length);
+	el.focus();
+	el.scrollTop = scrollTop;
+}
+
+// Gets the error stack trace
+function getErrorMessage(err) {
+	if(err instanceof AjaxError) {
+		return err.toString();
+	}
+	if(typeof err === 'string') {
+		return err;
+	}
+	const { stack, name, message } = err;
+	return Lng.internalError[lang] + (
+		!stack ? `${ name }: ${ message }` :
+		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
+			/^([^@]*).*\/(.+)$/gm,
+			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
+		) }`
+	);
+}
+
+// Reads File into data
+async function readFile(file, asText) {
+	return new Promise(resolve => {
+		const fr = new FileReader();
+		fr.onload = e => resolve({ data: e.target.result });
+		if(asText) {
+			fr.readAsText(file);
+		} else {
+			fr.readAsArrayBuffer(file);
+		}
+	});
+}
+
+// Gets mime type depending on file name
+function getFileMime(url) {
+	const dotIdx = url.lastIndexOf('.') + 1;
+	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
+	case 'gif': return 'image/gif';
+	case 'jpeg':
+	case 'jpg': return 'image/jpeg';
+	case 'mp4':
+	case 'm4v': return 'video/mp4';
+	case 'ogv': return 'video/ogv';
+	case 'png': return 'image/png';
+	case 'webm': return 'video/webm';
+	case 'webp': return 'image/webp';
+	default: return '';
+	}
+}
+
+// Uploads files stored in a Blob
+function downloadBlob(blob, name) {
+	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
+	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
+	link.click();
+	setTimeout(() => {
+		deWindow.URL.revokeObjectURL(url);
+		link.remove();
+	}, 2e5);
+}
+
+// Checks if the color entered by the user is correct
 function checkCSSColor(color) {
 	if(!color || color === 'inherit' || color === 'currentColor') {
 		return false;
@@ -156,81 +251,24 @@ function checkCSSColor(color) {
 	return image.style.color !== 'rgb(255, 255, 255)';
 }
 
-const cssMatches = (leftSel, ...rules) => leftSel.split(', ').map(
-	val => val + rules.join(', ' + val)
-).join(', ');
-
-// OTHER UTILS
-
-const $hasProp = (obj, i) => Object.prototype.hasOwnProperty.call(obj, i);
-
-const pad2 = i => (i < 10 ? '0' : '') + i;
-
-const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
-
-const fixBrd = board => `/${ board }${ board ? '/' : '' }`;
-
-const getAbsLink = url => (
-	url[1] === '/' ? aib.prot :
-	url[0] === '/' ? aib.prot + '//' + aib.host : '') + url;
-
-const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
-
-const getFileExt = url => url.substring(url.lastIndexOf('.') + 1);
-
-const cutFileExt = fileName => fileName.substring(0, fileName.lastIndexOf('.'));
-
-const prettifySize = val =>
-	val > 512 * 1024 * 1024 ? (val / (1024 ** 3)).toFixed(2) + Lng.sizeGByte[lang] :
-	val > 512 * 1024 ? (val / (1024 ** 2)).toFixed(2) + Lng.sizeMByte[lang] :
-	val > 512 ? (val / 1024).toFixed(2) + Lng.sizeKByte[lang] :
-	val.toFixed(2) + Lng.sizeByte[lang];
-
-// Prepares a string to be used as a new RegExp argument
-const quoteReg = str => (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-
-// Converts a string to a regular expression
-function toRegExp(str, noG) {
-	const l = str.lastIndexOf('/');
-	const flags = str.substr(l + 1);
-	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
-}
-
-function toggleAttr(el, name, value, isAdd) {
-	if(isAdd) {
-		el.setAttribute(name, value);
-	} else {
-		el.removeAttribute(name);
-	}
-}
-
-function $isEmpty(obj) {
-	for(const i in obj) {
-		if($hasProp(obj, i)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function insertText(el, txt) {
-	const scrtop = el.scrollTop;
-	const start = el.selectionStart;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
-	el.setSelectionRange(start + txt.length, start + txt.length);
-	el.focus();
-	el.scrollTop = scrtop;
-}
-
-// XXX: Opera Presto - hack for SVG events
-function fixEventEl(el) {
-	if(el && nav.isPresto) {
-		const svg = el.correspondingUseElement;
-		if(svg) {
-			el = svg.ownerSVGElement;
-		}
-	}
-	return el;
+// Donation message after Dollchan update
+function showDonateMsg() {
+	const font = ' style="font: 13px monospace; color: green;"';
+	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
+		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
+		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
+		`<span class="de-list de-depend"><i${
+			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
+		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
+		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
+		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
+		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
+			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
+		`<span class="de-list de-depend">P2SH &ndash; <i${
+			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
+			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
+			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
 }
 
 // Allows to record the duration of code execution
@@ -668,78 +706,3 @@ WebmParser.Element = function(elData, dataLength, offset) {
 	this.endOffset = offset + size;
 	this.size = size;
 };
-
-function getErrorMessage(err) {
-	if(err instanceof AjaxError) {
-		return err.toString();
-	}
-	if(typeof err === 'string') {
-		return err;
-	}
-	const { stack, name, message } = err;
-	return Lng.internalError[lang] + (
-		!stack ? `${ name }: ${ message }` :
-		nav.isWebkit ? stack : `${ name }: ${ message }\n${ !nav.isFirefox ? stack : stack.replace(
-			/^([^@]*).*\/(.+)$/gm,
-			(str, fName, line) => `    at ${ fName ? `${ fName } (${ line })` : line }`
-		) }`
-	);
-}
-
-async function readFile(file, asText = false) {
-	return new Promise(resolve => {
-		const fr = new FileReader();
-		// XXX: Firefox - hack to prevent 'XrayWrapper denied access to property "then"' errors
-		fr.onload = e => resolve({ data: e.target.result });
-		if(asText) {
-			fr.readAsText(file);
-		} else {
-			fr.readAsArrayBuffer(file);
-		}
-	});
-}
-
-function getFileType(url) {
-	const dotIdx = url.lastIndexOf('.') + 1;
-	switch(dotIdx && url.substr(dotIdx).toLowerCase()) {
-	case 'gif': return 'image/gif';
-	case 'jpeg':
-	case 'jpg': return 'image/jpeg';
-	case 'mp4':
-	case 'm4v': return 'video/mp4';
-	case 'ogv': return 'video/ogv';
-	case 'png': return 'image/png';
-	case 'webm': return 'video/webm';
-	case 'webp': return 'image/webp';
-	default: return '';
-	}
-}
-
-function downloadBlob(blob, name) {
-	const url = nav.isMsEdge ? navigator.msSaveOrOpenBlob(blob, name) : deWindow.URL.createObjectURL(blob);
-	const link = $bEnd(docBody, `<a href="${ url }" download="${ name }"></a>`);
-	link.click();
-	setTimeout(() => {
-		deWindow.URL.revokeObjectURL(url);
-		link.remove();
-	}, 2e5);
-}
-
-function showDonateMsg() {
-	const font = ' style="font: 13px monospace; color: green;"';
-	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
-		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
-		`<span class="de-list de-depend"><i${
-			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
-		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
-		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
-		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
-			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
-		`<span class="de-list de-depend">P2SH &ndash; <i${
-			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
-		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
-			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
-			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
-}

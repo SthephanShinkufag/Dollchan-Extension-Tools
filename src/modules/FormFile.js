@@ -6,7 +6,7 @@
 class Files {
 	constructor(form, fileEl) {
 		this.filesCount = 0;
-		this.fileTr = $qParent(fileEl, aib.qFormTr);
+		this.fileTr = fileEl.closest(aib.qFormTr);
 		this.onchange = null;
 		this._form = form;
 		this._inputs = [];
@@ -27,7 +27,7 @@ class Files {
 		if(aib.multiFile) {
 			value = $aEnd(this.fileTr, '<div id="de-file-area"></div>');
 		} else {
-			value = $qParent(this._form.txta, aib.qFormTd).previousElementSibling;
+			value = this._form.txta.closest(aib.qFormTd).previousElementSibling;
 			value.innerHTML = `<div style="display: none;">${ value.innerHTML }</div><div></div>`;
 			value = value.lastChild;
 		}
@@ -111,8 +111,8 @@ class FileInput {
 		if(FileInput._isThumbMode) {
 			this._initThumbs();
 		} else {
-			$before(this._input, this._txtWrap);
-			$after(this._input, this._utils);
+			this._input.before(this._txtWrap);
+			this._input.after(this._utils);
 		}
 	}
 	async addUrlFile(url, file = null) {
@@ -131,7 +131,7 @@ class FileInput {
 			closePopup('file-loading');
 			this._isTxtEditable = this._isTxtEditName = false;
 			let name = file?.name || getFileName(url);
-			const type = file?.type || getFileType(name);
+			const type = file?.type || getFileMime(name);
 			if(!type || name.includes('?')) {
 				let ext;
 				switch((data[0] << 8) | data[1]) {
@@ -145,7 +145,7 @@ class FileInput {
 					name = name.split('?').shift() + '.' + ext;
 				}
 			}
-			this.imgFile = { data: data.buffer, name, type: type || getFileType(name) };
+			this.imgFile = { data: data.buffer, name, type: type || getFileMime(name) };
 			if(!file) {
 				file = new Blob([data], { type: this.imgFile.type });
 				file.name = name;
@@ -160,7 +160,7 @@ class FileInput {
 	}
 	changeMode(showThumbs) {
 		$toggle(this._input, !Cfg.fileInputs);
-		toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
+		$toggleAttr(this._input, 'multiple', true, aib.multiFile && Cfg.fileInputs);
 		$toggle(this._btnRen, Cfg.fileInputs && this.hasFile);
 		if(!(showThumbs ^ !!this._thumb)) {
 			return;
@@ -169,8 +169,8 @@ class FileInput {
 			this._initThumbs();
 			return;
 		}
-		$before(this._input, this._txtWrap);
-		$after(this._input, this._utils);
+		this._input.before(this._txtWrap);
+		this._input.after(this._utils);
 		$del($q('de-file-txt-area'));
 		$show(this._parent.fileTr);
 		$show(this._txtWrap);
@@ -432,13 +432,13 @@ class FileInput {
 		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
 			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
 			'<div class="de-file-txt-area"></div>');
-		(isTr ? txtArea.lastChild : txtArea).appendChild(this._txtWrap);
+		(isTr ? txtArea.lastChild : txtArea).append(this._txtWrap);
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
 		this._thumb.addEventListener('click', this);
 		this._thumb.addEventListener('dragenter', this);
-		this._thumb.appendChild(this._utils);
+		this._thumb.append(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
 			this._showFileThumb();

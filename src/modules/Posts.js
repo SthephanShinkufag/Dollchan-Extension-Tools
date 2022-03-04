@@ -70,7 +70,7 @@ class AbstractPost {
 	}
 	handleEvent(e) {
 		let temp;
-		let el = fixEventEl(e.target);
+		let el = nav.fixEventEl(e.target);
 		const { type } = e;
 		const isOutEvent = type === 'mouseout';
 		const isPview = this instanceof Pview;
@@ -289,7 +289,7 @@ class AbstractPost {
 			}
 			if(isOutEvent) { // Mouseout - We need to delete previews
 				clearTimeout(this._linkDelay);
-				if(!(aib.getPostOfEl(fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
+				if(!(aib.getPostOfEl(nav.fixEventEl(e.relatedTarget)) instanceof Pview) && Pview.top) {
 					Pview.top.markToDel(); // If cursor is not over one of previews - delete all previews
 				} else if(this.kid) {
 					this.kid.markToDel(); // If cursor is over any preview - delete its kids
@@ -317,7 +317,7 @@ class AbstractPost {
 			videoExt = $q('.de-video-ext', origMsg);
 			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		}
-		$replace(origMsg, newMsg);
+		origMsg.replaceWith(newMsg);
 		Object.defineProperties(this, {
 			msg   : { configurable: true, value: newMsg },
 			trunc : { configurable: true, value: null }
@@ -326,7 +326,7 @@ class AbstractPost {
 		if(Cfg.embedYTube) {
 			this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
 			if(videoExt) {
-				newMsg.appendChild(videoExt);
+				newMsg.append(videoExt);
 			}
 		}
 		this.addFuncs();
@@ -375,15 +375,15 @@ class AbstractPost {
 			)) {
 				if(this._selText.includes('\n')) {
 					Spells.addSpell(1 /* #exp */,
-						`/${ quoteReg(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
+						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
 					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
-				dummy.appendChild(this._selRange.cloneContents());
+				dummy.append(this._selRange.cloneContents());
 				Spells.addSpell(2 /* #exph */,
-					`/${ quoteReg(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
+					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
@@ -395,7 +395,7 @@ class AbstractPost {
 			return;
 		}
 		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ quoteReg(this.images.firstAttach.name) }/`, false);
+			Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
 			return;
 		case 'hide-ihash':
 			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
@@ -427,7 +427,7 @@ class AbstractPost {
 					return;
 				}
 				closePopup('file-loading');
-				downloadBlob(new Blob([data], { type: getFileType(url) }), el.getAttribute('download'));
+				downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 			});
 			e.preventDefault();
 			return;
@@ -440,7 +440,7 @@ class AbstractPost {
 				MyPosts.removeStorage(num);
 			}
 			this.el.classList.toggle('de-mypost', isAdd);
-			$each($Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`), el => {
+			$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
 				const post = aib.getPostOfEl(el);
 				if(post.el !== this.el) {
 					el.classList.toggle('de-ref-you', isAdd);
@@ -558,7 +558,7 @@ class Post extends AbstractPost {
 	static clearMarks() {
 		if(Post.hasNew) {
 			Post.hasNew = false;
-			$each($Q('.de-new-post'), el => el.classList.remove('de-new-post'));
+			$Q('.de-new-post').forEach(el => el.classList.remove('de-new-post'));
 			doc.removeEventListener('click', Post.clearMarks, true);
 		}
 	}
@@ -615,7 +615,7 @@ class Post extends AbstractPost {
 	static hideContent(headerEl, btnHide, isUser, isHide) {
 		if(!isHide) {
 			btnHide.setAttribute('class', isUser ? 'de-btn-hide-user' : 'de-btn-hide');
-			$each($Q('.de-post-hiddencontent', headerEl.parentNode),
+			$Q('.de-post-hiddencontent', headerEl.parentNode).forEach(
 				el => el.classList.remove('de-post-hiddencontent'));
 			return;
 		}
@@ -880,7 +880,7 @@ class Post extends AbstractPost {
 		} else {
 			Post.hiddenNums.delete(+num);
 		}
-		$each($Q(`[de-form] a[href$="${ aib.anchor + num }"]`), el => {
+		$Q(`[de-form] a[href$="${ aib.anchor + num }"]`).forEach(el => {
 			el.classList.toggle('de-link-hid', isHide);
 			if(Cfg.removeHidd && el.classList.contains('de-link-backref')) {
 				const refMapEl = el.parentNode;

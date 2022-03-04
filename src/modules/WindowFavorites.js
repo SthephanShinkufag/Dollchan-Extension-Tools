@@ -197,7 +197,7 @@ function showFavoritesWindow(body, favObj) {
 	// Appending DOM and events
 	if(html) {
 		$bEnd(body, `<div class="de-fav-table">${ html }</div>`).addEventListener('click', e => {
-			let el = fixEventEl(e.target);
+			let el = nav.fixEventEl(e.target);
 			let parentEl = el.parentNode;
 			if(el.tagName.toLowerCase() === 'svg') {
 				el = parentEl;
@@ -213,12 +213,12 @@ function showFavoritesWindow(body, favObj) {
 				break;
 			case 'de-fav-del-btn': {
 				const wasChecked = el.getAttribute('de-checked') === '';
-				const toggleFn = btnEl => toggleAttr(btnEl, 'de-checked', '', !wasChecked);
+				const toggleFn = btnEl => $toggleAttr(btnEl, 'de-checked', '', !wasChecked);
 				toggleFn(el);
 				if(parentEl.className === 'de-fav-header') {
 					// Select/unselect all checkboxes in board block
 					const entriesEl = parentEl.nextElementSibling;
-					$each($Q('.de-fav-del-btn', entriesEl), toggleFn);
+					$Q('.de-fav-del-btn', entriesEl).forEach(toggleFn);
 					if(!wasChecked && entriesEl.classList.contains('de-fav-entries-hide')) {
 						entriesEl.classList.remove('de-fav-entries-hide');
 					}
@@ -240,249 +240,252 @@ function showFavoritesWindow(body, favObj) {
 			}
 		});
 	} else {
-		$bEnd(body, `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
+		body.insertAdjacentHTML('beforeend', `<center><b>${ Lng.noFavThr[lang] }</b></center>`);
 	}
+
 	const btns = $bEnd(body, '<div id="de-fav-buttons"></div>');
+	btns.append(
+		// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
+		getEditButton('favor', fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))),
 
-	// "Edit" button. Calls a popup with editor to edit Favorites in JSON.
-	btns.appendChild(getEditButton('favor',
-		fn => readFavorites().then(favObj => fn(favObj, true, saveRenewFavorites))));
-
-	// "Refresh" button. Updates counters of new posts for each thread entry.
-	btns.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async () => {
-		const favObj = await readFavorites();
-		if(!favObj[aib.host]) {
-			return;
-		}
-		let isUpdate = false;
-		let last404 = false;
-		const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
-		const els = $Q('.de-entry');
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			const host = el.getAttribute('de-host');
-			const board = el.getAttribute('de-board');
-			const num = el.getAttribute('de-num');
-			const entry = favObj[host][board][num];
-			// Updating doesnʼt works for other domains because of different posts structure
-			// Updating is not needed in closed threads
-			if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
-				continue;
+		// "Refresh" button. Updates counters of new posts for each thread entry.
+		$button(Lng.refresh[lang], Lng.infoCount[lang], async () => {
+			const favObj = await readFavorites();
+			if(!favObj[aib.host]) {
+				return;
 			}
-			const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
-			const iconEl = titleEl.firstElementChild;
-			// setAttribute for class is used because of SVG (for correct work in some browsers)
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-			let form, isArchived;
-			try {
-				if(!aib.hasArchive) {
-					form = await ajaxLoad(aib.getThrUrl(board, num));
-				} else {
-					[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
+			let isUpdate = false;
+			let last404 = false;
+			const myposts = JSON.parse(locStorage['de-myposts'] || '{}');
+			const els = $Q('.de-entry');
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				const host = el.getAttribute('de-host');
+				const board = el.getAttribute('de-board');
+				const num = el.getAttribute('de-num');
+				const entry = favObj[host][board][num];
+				// Updating doesnʼt works for other domains because of different posts structure
+				// Updating is not needed in closed threads
+				if(host !== aib.host || entry.err === 'Closed' || entry.err === 'Archived') {
+					continue;
 				}
-				last404 = false;
-			} catch(err) {
-				if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
-					if(last404) {
-						Thread.removeSavedData(board, num); // Not working yet
+				const [titleEl, youEl, countEl] = [...el.lastElementChild.children];
+				const iconEl = titleEl.firstElementChild;
+				// setAttribute for class is used because of SVG (for correct work in some browsers)
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+				let form, isArchived;
+				try {
+					if(!aib.hasArchive) {
+						form = await ajaxLoad(aib.getThrUrl(board, num));
 					} else {
-						last404 = true;
-						--i; // Repeat this cycle again
-						continue;
+						[form, isArchived] = await ajaxLoad(aib.getThrUrl(board, num), true, false, true);
 					}
-				}
-				last404 = false;
-				$hide(countEl);
-				$hide(youEl);
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				entry.err = titleEl.title = getErrorMessage(err);
-				isUpdate = true;
-				continue;
-			}
-			if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-				titleEl.title = Lng.thrClosed[lang];
-				entry.err = 'Closed';
-				isUpdate = true;
-			} else if(isArchived) {
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
-				titleEl.title = Lng.thrArchived[lang];
-				entry.err = 'Archived';
-				isUpdate = true;
-			} else {
-				// Thread is available and not closed
-				iconEl.setAttribute('class', 'de-fav-inf-icon');
-				titleEl.removeAttribute('title');
-				if(entry.err) { // Cancel error status if existed
-					delete entry.err;
-					isUpdate = true;
-				}
-			}
-			// Updating a counter of new posts
-			const posts = $Q(aib.qRPost, form);
-			const cnt = posts.length + 1 - entry.cnt;
-			countEl.textContent = cnt;
-			if(cnt === 0) {
-				$hide(countEl); // Hide counter if no new posts
-				$hide(youEl);
-			} else {
-				$show(countEl);
-				entry.new = cnt;
-				isUpdate = true;
-				// Check for replies to my posts
-				if(myposts?.[board]) {
-					entry.you = 0;
-					for(let j = 0; j < cnt; ++j) {
-						const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
-							posts[posts.length - 1 - j]);
-						for(let a = 0, len = links.length; a < len; ++a) {
-							const tc = links[a].textContent;
-							if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
-								entry.you++;
-							}
+					last404 = false;
+				} catch(err) {
+					if((err instanceof AjaxError) && err.code === 404) { // Check for 404 error twice
+						if(last404) {
+							Thread.removeSavedData(board, num); // Not working yet
+						} else {
+							last404 = true;
+							--i; // Repeat this cycle again
+							continue;
 						}
 					}
-					if(entry.you) {
-						youEl.textContent = entry.you;
-						$show(youEl);
+					last404 = false;
+					$hide(countEl);
+					$hide(youEl);
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					entry.err = titleEl.title = getErrorMessage(err);
+					isUpdate = true;
+					continue;
+				}
+				if(aib.qClosed && $q(aib.qClosed, form)) { // Check for closed thread
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+					titleEl.title = Lng.thrClosed[lang];
+					entry.err = 'Closed';
+					isUpdate = true;
+				} else if(isArchived) {
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-closed');
+					titleEl.title = Lng.thrArchived[lang];
+					entry.err = 'Archived';
+					isUpdate = true;
+				} else {
+					// Thread is available and not closed
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					titleEl.removeAttribute('title');
+					if(entry.err) { // Cancel error status if existed
+						delete entry.err;
+						isUpdate = true;
+					}
+				}
+				// Updating a counter of new posts
+				const posts = $Q(aib.qRPost, form);
+				const cnt = posts.length + 1 - entry.cnt;
+				countEl.textContent = cnt;
+				if(cnt === 0) {
+					$hide(countEl); // Hide counter if no new posts
+					$hide(youEl);
+				} else {
+					$show(countEl);
+					entry.new = cnt;
+					isUpdate = true;
+					// Check for replies to my posts
+					if(myposts?.[board]) {
+						entry.you = 0;
+						for(let j = 0; j < cnt; ++j) {
+							const links = $Q(aib.qPostMsg.split(', ').join(' a, ') + ' a',
+								posts[posts.length - 1 - j]);
+							for(let a = 0, len = links.length; a < len; ++a) {
+								const tc = links[a].textContent;
+								if(tc[0] === '>' && tc[1] === '>' && myposts[board][tc.substr(2)]) {
+									entry.you++;
+								}
+							}
+						}
+						if(entry.you) {
+							youEl.textContent = entry.you;
+							$show(youEl);
+						}
 					}
 				}
 			}
-		}
-		AjaxCache.clearCache();
-		if(isUpdate) {
-			saveFavorites(favObj);
-		}
-	}));
-
-	// "Page" button. Shows on which page every thread is existed.
-	btns.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async () => {
-		const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
-		const len = els.length;
-		if(!len) { // Cancel if no existed entries
-			return;
-		}
-		$popup('load-pages', Lng.loading[lang], true);
-		// Create indexed array of entries and "waiting" SVG icon for each entry
-		const thrInfo = [];
-		for(let i = 0; i < len; ++i) {
-			const el = els[i];
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
-			thrInfo.push({
-				found     : false,
-				num       : +el.getAttribute('de-num'),
-				pageEl    : $q('.de-fav-inf-page', el),
-				iconClass : iconEl.getAttribute('class'),
-				iconEl,
-				iconTitle : titleEl.getAttribute('title'),
-				titleEl
-			});
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-		}
-		// Sequentially load pages and search for favorites threads
-		// We cannot know a count of pages while in the thread
-		const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
-		let infoLoaded = 0;
-		const updateInf = (inf, page) => {
-			inf.iconEl.setAttribute('class', inf.iconClass);
-			toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
-			inf.pageEl.textContent = '@' + page;
-		};
-		for(let page = 0; page < endPage; ++page) {
-			const tNums = new Set();
-			try {
-				const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
-				const els = DelForm.getThreads(form);
-				for(let i = 0, len = els.length; i < len; ++i) {
-					tNums.add(aib.getTNum(els[i]));
-				}
-			} catch(err) {
-				continue;
+			AjaxCache.clearCache();
+			if(isUpdate) {
+				saveFavorites(favObj);
 			}
-			// Search for threads on current page
+		}),
+
+		// "Page" button. Shows on which page every thread is existed.
+		$button(Lng.page[lang], Lng.infoPage[lang], async () => {
+			const els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
+			const len = els.length;
+			if(!len) { // Cancel if no existed entries
+				return;
+			}
+			$popup('load-pages', Lng.loading[lang], true);
+			// Create indexed array of entries and "waiting" SVG icon for each entry
+			const thrInfo = [];
+			for(let i = 0; i < len; ++i) {
+				const el = els[i];
+				const iconEl = $q('.de-fav-inf-icon', el);
+				const titleEl = iconEl.parentNode;
+				thrInfo.push({
+					found     : false,
+					num       : +el.getAttribute('de-num'),
+					pageEl    : $q('.de-fav-inf-page', el),
+					iconClass : iconEl.getAttribute('class'),
+					iconEl,
+					iconTitle : titleEl.getAttribute('title'),
+					titleEl
+				});
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+			}
+			// Sequentially load pages and search for favorites threads
+			// We cannot know a count of pages while in the thread
+			const endPage = (aib.lastPage || 10) + 1; // Check up to 10 page, if we donʼt know
+			let infoLoaded = 0;
+			const updateInf = (inf, page) => {
+				inf.iconEl.setAttribute('class', inf.iconClass);
+				$toggleAttr(inf.titleEl, 'title', inf.iconTitle, inf.iconTitle);
+				inf.pageEl.textContent = '@' + page;
+			};
+			for(let page = 0; page < endPage; ++page) {
+				const tNums = new Set();
+				try {
+					const form = await ajaxLoad(aib.getPageUrl(aib.b, page));
+					const els = DelForm.getThreads(form);
+					for(let i = 0, len = els.length; i < len; ++i) {
+						tNums.add(aib.getTNum(els[i]));
+					}
+				} catch(err) {
+					continue;
+				}
+				// Search for threads on current page
+				for(let i = 0; i < len; ++i) {
+					const inf = thrInfo[i];
+					if(tNums.has(inf.num)) {
+						updateInf(inf, page);
+						inf.found = true;
+						infoLoaded++;
+					}
+				}
+				if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
+					break;
+				}
+			}
+			// Process missed threads that not found
 			for(let i = 0; i < len; ++i) {
 				const inf = thrInfo[i];
-				if(tNums.has(inf.num)) {
-					updateInf(inf, page);
-					inf.found = true;
-					infoLoaded++;
+				if(!inf.found) {
+					updateInf(inf, '?');
 				}
 			}
-			if(infoLoaded === len) { // Stop pages loading when all favorite threads checked
-				break;
-			}
-		}
-		// Process missed threads that not found
-		for(let i = 0; i < len; ++i) {
-			const inf = thrInfo[i];
-			if(!inf.found) {
-				updateInf(inf, '?');
-			}
-		}
-		closePopup('load-pages');
-	}));
+			closePopup('load-pages');
+		}),
 
-	// "Clear" button. Allows to clear 404'd threads.
-	btns.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
-		// Sequentially load threads, and remove inaccessible
-		let last404 = false;
-		const els = $Q('.de-entry');
-		const parent = $q('.de-fav-table');
-		parent.classList.add('de-fav-table-unfold');
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const el = els[i];
-			const iconEl = $q('.de-fav-inf-icon', el);
-			const titleEl = iconEl.parentNode;
-			iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
-			titleEl.title = Lng.updating[lang];
-			await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
-				switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
-				case '2ch.hk':
-				case '2ch.pm': {
-					const dc = $DOM(xhr.responseText);
-					if(dc && $q('.message-title', dc)) {
-						throw new AjaxError(404, 'Error');
+		// "Clear" button. Allows to clear 404'd threads.
+		$button(Lng.clear[lang], Lng.clrDeleted[lang], async () => {
+			// Sequentially load threads, and remove inaccessible
+			let last404 = false;
+			const els = $Q('.de-entry');
+			const parent = $q('.de-fav-table');
+			parent.classList.add('de-fav-table-unfold');
+			for(let i = 0, len = els.length; i < len; ++i) {
+				const el = els[i];
+				const iconEl = $q('.de-fav-inf-icon', el);
+				const titleEl = iconEl.parentNode;
+				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
+				titleEl.title = Lng.updating[lang];
+				await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
+					switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
+					case '2ch.hk':
+					case '2ch.pm': {
+						const dc = $createDoc(xhr.responseText);
+						if(dc && $q('.message-title', dc)) {
+							throw new AjaxError(404, 'Error');
+						}
 					}
-				}
-				}
-				iconEl.setAttribute('class', 'de-fav-inf-icon');
-				titleEl.removeAttribute('title');
-				last404 = false;
-			}).catch(err => {
-				if(err.code === 404) { // Check for 404 error twice
-					if(!last404) {
-						last404 = true;
-						--i; // Repeat this cycle again
-						return;
 					}
-					Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
-						+el.getAttribute('de-num'));
-					el.setAttribute('de-removed', ''); // Mark an entry as deleted
-				}
-				iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-				titleEl.title = getErrorMessage(err);
-				last404 = false;
-			});
-		}
-		cleanFavorites(); // Delete marked entries
-		parent.classList.remove('de-fav-table-unfold');
-	}));
+					iconEl.setAttribute('class', 'de-fav-inf-icon');
+					titleEl.removeAttribute('title');
+					last404 = false;
+				}).catch(err => {
+					if(err.code === 404) { // Check for 404 error twice
+						if(!last404) {
+							last404 = true;
+							--i; // Repeat this cycle again
+							return;
+						}
+						Thread.removeSavedData(el.getAttribute('de-board'), // Not working yet
+							+el.getAttribute('de-num'));
+						el.setAttribute('de-removed', ''); // Mark an entry as deleted
+					}
+					iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
+					titleEl.title = getErrorMessage(err);
+					last404 = false;
+				});
+			}
+			cleanFavorites(); // Delete marked entries
+			parent.classList.remove('de-fav-table-unfold');
+		})
+	);
 
 	// Deletion confirm/cancel buttons
 	const delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
-	delBtns.appendChild($btn(Lng.remove[lang], Lng.delEntries[lang], () => {
-		$each($Q('.de-entry > .de-fav-del-btn[de-checked]', body),
-			el => el.parentNode.setAttribute('de-removed', ''));
-		cleanFavorites(); // Delete marked entries
-		$show(btns);
-		$hide(delBtns);
-	}));
-	delBtns.appendChild($btn(Lng.cancel[lang], '', () => {
-		$each($Q('.de-fav-del-btn', body), el => el.removeAttribute('de-checked'));
-		$show(btns);
-		$hide(delBtns);
-	}));
+	delBtns.append(
+		$button(Lng.remove[lang], Lng.delEntries[lang], () => {
+			$Q('.de-entry > .de-fav-del-btn[de-checked]', body).forEach(
+				el => el.parentNode.setAttribute('de-removed', ''));
+			cleanFavorites(); // Delete marked entries
+			$show(btns);
+			$hide(delBtns);
+		}),
+		$button(Lng.cancel[lang], '', () => {
+			$Q('.de-fav-del-btn', body).forEach(el => el.removeAttribute('de-checked'));
+			$show(btns);
+			$hide(delBtns);
+		})
+	);
 }

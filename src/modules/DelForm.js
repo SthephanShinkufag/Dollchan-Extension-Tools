@@ -83,10 +83,10 @@ class DelForm {
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			const el = fNodes[i];
 			if(el.tagName === 'HR') {
-				formEl.insertBefore(cThr, el);
+				el.before(cThr);
 				const lastEl = cThr.lastElementChild;
 				if(lastEl.tagName === 'BR') {
-					formEl.insertBefore(lastEl, el);
+					el.before(lastEl);
 				}
 				try {
 					aib.getTNum(cThr);
@@ -94,11 +94,11 @@ class DelForm {
 				} catch(err) {}
 				cThr = doc.createElement('div');
 			} else {
-				cThr.appendChild(el);
+				cThr.append(el);
 			}
 		}
-		cThr.appendChild(fNodes[i]);
-		formEl.appendChild(cThr);
+		cThr.append(fNodes[i]);
+		formEl.append(cThr);
 		return threads;
 	}
 	get passEl() {

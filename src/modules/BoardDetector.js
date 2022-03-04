@@ -111,7 +111,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
 				this._origInputs = [doc.createElement('div'), pr.subm.value];
-				$each($Q(query, form), el => this._origInputs[0].appendChild(el));
+				$Q(query, form).forEach(el => this._origInputs[0].append(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
 				pr.subm.value = this._origInputs[1];
@@ -134,16 +134,16 @@ function getImageBoard(checkDomains, checkEngines) {
 				}
 				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
 				$delAll(query, form);
-				$each($Q(query, loadedForm), el => form.appendChild(doc.adoptNode(el)));
+				$Q(query, loadedForm).forEach(el => form.append(doc.adoptNode(el)));
 				closePopup('load-form');
 			}, errFn);
 		}
 		fixHTML(data, isForm) {
 			const formEl = super.fixHTML(data, isForm);
-			$each($Q('br.clear', formEl), brEl => {
+			$Q('br.clear', formEl).forEach(brEl => {
 				const hr = brEl.nextElementSibling;
 				if(hr && hr.tagName === 'HR') {
-					$after(brEl.parentNode, hr);
+					brEl.parentNode.after(hr);
 				}
 				brEl.remove();
 			});
@@ -264,7 +264,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			defaultCfg.addTextBtns = 0;
-			$each($Q('.message > .omittedposts'),
+			$Q('.message > .omittedposts').forEach(
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
@@ -372,7 +372,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.originalNameLink', this.getImgWrap(img));
 		}
 		getImgWrap(img) {
-			return $parent(img, 'FIGURE');
+			return img.closest('figure');
 		}
 		getPageUrl(board, page) {
 			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
@@ -417,7 +417,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const els = $Q('#captchaDiv, #divUpload, #fieldEmail, #fieldMessage, #fieldName,' +
 					' #fieldPostingPassword, #fieldSubject');
 				for(let i = 0, len = els.length; i < len; ++i) {
-					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.appendChild(els[i]);
+					$bEnd(table, '<tr><th></th><td></td></tr>').lastChild.append(els[i]);
 				}
 			}
 			return false;
@@ -551,7 +551,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			defaultCfg.ajaxUpdThr = 0;
 			const el = $q('.search_box');
 			if(el) {
-				docBody.appendChild(el);
+				docBody.append(el);
 			}
 			return false;
 		}
@@ -662,7 +662,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			const dFormEl = $q(this.qDForm);
 			$delAll('input[type="hidden"]', dFormEl);
-			dFormEl.appendChild($q('.userdelete'));
+			dFormEl.append($q('.userdelete'));
 			return false;
 		}
 	}
@@ -881,7 +881,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return !el ? 0 : el.textContent.includes('предупрежден') ? 2 : 1;
 		}
 		getImgWrap(img) {
-			return $parent(img, 'FIGURE');
+			return img.closest('figure');
 		}
 		getJsonApiUrl(board, tNum) {
 			return `/${ board }/res/${ tNum }.json`;
@@ -946,7 +946,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				const infEl = $q('.postform .filer__limits');
 				const optEl = $q('.postform .options');
 				if(infEl && optEl) {
-					optEl.appendChild(infEl);
+					optEl.append(infEl);
 				}
 			}
 			$script(`(function() {
@@ -963,7 +963,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				window.FormData = void 0;
 				$(function() { $(window).off(); });
 			})();`);
-			$each($Q('.autorefresh'), el => {
+			$Q('.autorefresh').forEach(el => {
 				const inpEl = $q('input', el);
 				if(inpEl.checked) {
 					inpEl.click();
@@ -1111,7 +1111,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			});
 			let el = $q('.captcha');
 			if(el) {
-				$before($q('.freply__files-and-captcha'), el);
+				$q('.freply__files-and-captcha').before(el);
 			}
 			el = $id('postform');
 			if(el) {
@@ -1151,7 +1151,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('postFormSubmit = Function.prototype;');
-			$bEnd($id('postform'), '<input type="hidden" name="json" value="1">');
+			$id('postform').insertAdjacentHTML('beforeend', '<input type="hidden" name="json" value="1">');
 			return false;
 		}
 	}
@@ -1444,7 +1444,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return wrap.title;
 		}
 		getImgWrap(img) {
-			return $parent(img, 'A').parentNode;
+			return img.closest('a').parentNode;
 		}
 		getOp(el) {
 			return $q('.post:first-child', el);
@@ -1553,7 +1553,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			} else if(isErr) {
 				const el = img.parentNode;
 				el.innerHTML = '';
-				el.appendChild(img);
+				el.append(img);
 				img.insertAdjacentHTML('afterend', '<br><input placeholder="Капча" autocomplete="off"' +
 					' id="captcha" name="captcha" size="35" type="text">');
 				$show(img);
@@ -1566,7 +1566,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		deleteTruncMsg(post, el, isInit) {
 			[el.previousSibling, el.nextSibling, el].forEach($del);
 			if(isInit) {
-				$replace(post.msg.firstElementChild, $q('.alternate > div', post.el));
+				post.msg.firstElementChild.replaceWith($q('.alternate > div', post.el));
 			} else {
 				const sRunner = new SpellsRunner();
 				post.updateMsg($q('.alternate > div', post.el), sRunner);
@@ -1574,11 +1574,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 		}
 		disableRedirection(el) {
-			$hide($parent(el, 'TR'));
+			$hide(el.closest('tr'));
 			el.selectedIndex = 1;
 		}
 		fixFileInputs(el) {
-			$each($Q('input[type="file"]', el), el => el.removeAttribute('onchange'));
+			$Q('input[type="file"]', el).forEach(el => el.removeAttribute('onchange'));
 			el.firstElementChild.value = 1;
 		}
 		getImgSrcLink(img) {
@@ -1618,7 +1618,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
-			$id('postform')?.appendChild($q('.rules'));
+			$id('postform')?.append($q('.rules'));
 			return false;
 		}
 		insertYtPlayer(msg, playerHtml) {
@@ -1645,8 +1645,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.imgLink > img[src^="/.youtube/"]'), el => $del($parent(el, 'FIGURE')));
-			$each($Q('.youtube_wrapper'), el => {
+			$Q('.imgLink > img[src^="/.youtube/"]').forEach(el => $del(el.closest('figure')));
+			$Q('.youtube_wrapper').forEach(el => {
 				const src = $q('a', el).href;
 				$del($bBegin(el, `<a href="${ src }">${ src }</a>`).nextSibling);
 			});
@@ -1757,8 +1757,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 		}
 		stormWallFixSubmit(url, text, ajaxParams) {
-			return this.stormWallHelper(url, text, () => $DOM(text),
-				() => $ajax(url, ajaxParams).then(xhr => $DOM(xhr.responseText)));
+			return this.stormWallHelper(url, text, () => $createDoc(text),
+				() => $ajax(url, ajaxParams).then(xhr => $createDoc(xhr.responseText)));
 		}
 		stormWallHelper(url, text, fnOK, fnRes) {
 			const stormWallTxt = '<script src="https://static.stormwall.pro/';
@@ -1846,7 +1846,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		sendHTML5Post(form, data, needProgress, hasFiles) {
 			const oekakiEl = $id('wPaint');
-			if(oekakiEl && oekakiEl.style.display !== 'none') {
+			if(oekakiEl?.hasChildNodes() && oekakiEl.style.display !== 'none') {
 				hasFiles = true;
 				const mime = { type: 'image/png' };
 				const files = [new File([
@@ -1911,7 +1911,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.originalNameLink', wrap).title;
 		}
 		getSage(post) {
-			return !!$q('.sage', post).hasChildNodes();
+			return $q('.sage', post).hasChildNodes();
 		}
 		init() {
 			if(!this.host.includes('nocsp.') && this.host.includes('kohlchan.net')) {
@@ -1925,7 +1925,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				deWindow.location.reload();
 				return true;
 			}
-			$each($Q('.imgLink'), el => (el.className = 'de-img-link'));
+			$Q('.imgLink').forEach(el => (el.className = 'de-img-link'));
 			return super.init();
 		}
 	}
@@ -1977,7 +1977,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('.files + .post.op'), el => el.insertBefore(el.previousElementSibling, el.firstChild));
+			$Q('.files + .post.op').forEach(el => el.prepend(el.previousElementSibling));
 			return false;
 		}
 	}
@@ -2062,7 +2062,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			super.init();
-			$each($Q('img[data-mature-src]'), el => (el.src = el.getAttribute('data-mature-src')));
+			$Q('img[data-mature-src]').forEach(el => (el.src = el.getAttribute('data-mature-src')));
 			return false;
 		}
 	}
@@ -2105,7 +2105,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const formEl = super.fixHTML(data, isForm);
 			const els = $Q('.btn-group', formEl);
 			for(let i = 0, len = els.length; i < len; ++i) {
-				$replace(els[i], $q('a', els[i]));
+				els[i].replaceWith($q('a', els[i]));
 			}
 			return formEl;
 		}

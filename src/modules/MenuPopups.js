@@ -29,7 +29,7 @@ function $popup(id, txt, isWait = false) {
 			<div class="de-popup-msg">${ txt.trim() }</div>
 		</div>`);
 		el.onclick = e => {
-			let el = fixEventEl(e.target);
+			let el = nav.fixEventEl(e.target);
 			el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 			if(el.className === 'de-popup-btn') {
 				closePopup(el.parentNode);
@@ -47,14 +47,14 @@ function $popup(id, txt, isWait = false) {
 
 // Adds button that calls a popup with the text editor. Useful to edit settings.
 function getEditButton(name, getDataFn, className = 'de-button') {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
+	return $button(Lng.edit[lang], Lng.editInTxt[lang], () => getDataFn((val, isJSON, saveFn) => {
 		// Create popup window with textarea.
 		const el = $popup('edit-' + name,
 			`<b>${ Lng.editor[name][lang] }</b><textarea class="de-editor"></textarea>`);
 		const inputEl = el.lastChild;
 		inputEl.value = isJSON ? JSON.stringify(val, null, '\t') : val;
 		// "Save" button. If there a JSON data, parses and saves on success.
-		el.appendChild($btn(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
+		el.append($button(Lng.save[lang], Lng.saveChanges[lang], !isJSON ? () => saveFn(inputEl) : () => {
 			let data;
 			try {
 				data = JSON.parse(inputEl.value.trim().replace(/[\n\r\t]/g, '') || '{}');
@@ -161,7 +161,7 @@ class Menu {
 			/* falls through */
 		case 'mouseout': {
 			clearTimeout(this._closeTO);
-			let rt = fixEventEl(e.relatedTarget);
+			let rt = nav.fixEventEl(e.relatedTarget);
 			rt = rt?.farthestViewportElement || rt;
 			if(!rt || (rt !== this._el && !this._el.contains(rt))) {
 				if(isOverEvent) {
