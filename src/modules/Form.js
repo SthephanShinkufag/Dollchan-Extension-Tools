@@ -13,7 +13,6 @@ class PostForm {
 		this.pForm = null;
 		this.qArea = null;
 		this._pBtn = [];
-		console.log(90)
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
 		if(!ignoreForm && !form) {
@@ -28,7 +27,6 @@ class PostForm {
 			}
 			return;
 		}
-		console.log(91)
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
@@ -40,15 +38,12 @@ class PostForm {
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-		console.log(92)
 		this._initFileInputs();
-		console.log(93)
 		this._makeHideableContainer();
 		this._makeWindow();
 		if(!form || !this.txta) {
 			return;
 		}
-		console.log(94)
 		form.style.display = 'inline-block';
 		form.style.textAlign = 'left';
 		const { qArea, txta } = this;
@@ -56,14 +51,12 @@ class PostForm {
 		new WinResizer('reply', 'left', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'right', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', qArea, txta);
-		console.log(95)
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
 		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
-		console.log(96)
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}

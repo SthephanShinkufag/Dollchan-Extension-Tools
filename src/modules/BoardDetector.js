@@ -568,6 +568,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qDForm = '#delform_instant';
+
 			this.hasCatalog = true;
 		}
 		get css() {
@@ -620,7 +622,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		get css() {
-			return 'span[id$="_display"], #fastload { display: none; }';
+			return '#fastload, .rfmap, span[id$="_display"] { display: none; }';
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
@@ -666,8 +668,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2--ch.ru'] = _2__ch;
-	ibDomains['2-ch.su'] = _2__ch;
+	ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -993,8 +994,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2ch.hk'] = Makaba;
-	ibDomains['2ch.life'] = Makaba;
+	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -1120,8 +1120,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2channel.moe'] = _2channel;
-	ibDomains['2channel5xx5xchx.onion'] = _2channel;
+	ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
 	class _2chRip extends BaseBoard {
 		constructor(prot, dm) {
@@ -1155,8 +1154,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2ch.rip'] = _2chRip;
-	ibDomains['dva-ch.net'] = _2chRip;
+	ibDomains['2ch.rip'] = ibDomains['dva-ch.net'] = _2chRip;
 
 	class _410chan extends Kusaba {
 		constructor(prot, dm) {
@@ -1341,50 +1339,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['4chan.org'] = _4chan;
-	ibDomains['4channel.org'] = _4chan;
-
-	class _55chan extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRules = '.regras';
-
-			this._capUpdPromise = null;
-		}
-		get qImgNameLink() {
-			return '.fileinfo > a:last-of-type';
-		}
-		get qThread() {
-			return 'div[data-board]';
-		}
-		get css() {
-			return `${ super.css }
-				input.delete, #post-moderation-fields { display: initial !important; }`;
-		}
-		captchaInit(cap) {
-			$q('td', cap.parentEl).innerHTML = `<input placeholder="${ Lng.cap[lang] }" class="captcha_text` +
-				`" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
-				<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">
-				<div class="captcha_html"></div>`;
-			cap.textEl = $q('.captcha_text', cap.parentEl);
-			return this.captchaUpdate(cap, true);
-		}
-		captchaUpdate(cap) {
-			return cap.updateHelper(
-				'/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz',
-				xhr => {
-					const obj = JSON.parse(xhr.responseText);
-					$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
-					$q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
-					const img = $q('img', cap.parentEl);
-					if(img) {
-						cap.initImage(img);
-					}
-				});
-		}
-	}
-	ibDomains['55chan.org'] = _55chan;
+	ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
@@ -1477,12 +1432,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.net'] = Arhivach;
-	ibDomains['arhivach.ng'] = Arhivach;
-	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
-
-	ibDomains['desuchan.moe'] = BaseBoard;
-	ibDomains['desuchan.net'] = BaseBoard;
+	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class CrystalCafe extends Tinyboard {
 		constructor(prot, dm) {
@@ -1626,10 +1576,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 	}
-	ibDomains['dobrochan.com'] = Dobrochan;
-	ibDomains['dobrochan.net'] = Dobrochan;
-	ibDomains['dobrochan.org'] = Dobrochan;
-	ibDomains['dobrochan.ru'] = Dobrochan;
+	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
@@ -1929,11 +1876,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.init();
 		}
 	}
-	ibDomains['kohlchan.net'] = Kohlchan;
-	ibDomains['kohlchan.top'] = Kohlchan;
-	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
-	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
-	ibDomains['kohlkanal.net'] = Kohlchan;
+	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] =
+		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] =
+		ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {
@@ -1949,16 +1894,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kropyva.ch'] = Kropyvach;
-
-	class Kurisach extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.hasCatalog = true;
-			this.ru = true;
-		}
-	}
-	ibDomains['kurisa.ch'] = Kurisach;
 
 	class Lainchan extends Vichan {
 		constructor(prot, dm) {
@@ -2110,9 +2045,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return formEl;
 		}
 	}
-	ibDomains['syn-ch.ru'] = Synch;
-	ibDomains['syn-ch.com'] = Synch;
-	ibDomains['syn-ch.org'] = Synch;
+	ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] =
+		ibDomains['syn-ch.org'] = Synch;
 
 	class Warosu extends BaseBoard {
 		constructor(prot, dm) {

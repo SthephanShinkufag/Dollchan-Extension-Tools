@@ -48,7 +48,6 @@ function runFrames() {
 }
 
 async function runMain(checkDomains, dataPromise) {
-	console.log(1)
 	Logger.initLogger();
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
@@ -74,7 +73,6 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
-		console.log(2)
 	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
 	addSVGIcons();
@@ -88,7 +86,6 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	initStorageEvent();
 	DollchanAPI.initAPI();
-		console.log(3)
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -127,7 +124,6 @@ async function runMain(checkDomains, dataPromise) {
 		$show(docBody);
 		return;
 	}
-		console.log(4)
 	Logger.log('Parse delform');
 	if(aib.t) {
 		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
@@ -136,28 +132,22 @@ async function runMain(checkDomains, dataPromise) {
 			deWindow.location.reload();
 		}
 	}
-	console.log(41)
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
-	console.log(411)
 	initPage();
 	Logger.log('Init page');
-	console.log(42)
 	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	embedPostMsgImages(DelForm.first.el);
-	console.log(421)
 	Logger.log('Image-links');
 	DelForm.first.addStuff();
 	readViewedPosts();
-	console.log(43)
 	scriptCSS();
 	Logger.log('Apply CSS');
-		console.log(5)
 	$show(docBody);
 	Logger.log('Display page');
 	toggleInfinityScroll();

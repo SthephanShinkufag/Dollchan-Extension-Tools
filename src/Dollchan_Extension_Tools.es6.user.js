@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'c042049';
+const commit = '71b4a3f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8609,7 +8609,6 @@ class PostForm {
 		this.pForm = null;
 		this.qArea = null;
 		this._pBtn = [];
-		console.log(90)
 		const qOeForm = 'form[name="oeform"], form[action*="paint"]';
 		this.oeForm = oeForm || $q(qOeForm);
 		if(!ignoreForm && !form) {
@@ -8624,7 +8623,6 @@ class PostForm {
 			}
 			return;
 		}
-		console.log(91)
 		this.tNum = aib.t;
 		this.form = form;
 		this.files = null;
@@ -8636,15 +8634,12 @@ class PostForm {
 		this.passw = $q(aib.qFormPassw, form);
 		this.rules = $q(aib.qFormRules, form);
 		this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-		console.log(92)
 		this._initFileInputs();
-		console.log(93)
 		this._makeHideableContainer();
 		this._makeWindow();
 		if(!form || !this.txta) {
 			return;
 		}
-		console.log(94)
 		form.style.display = 'inline-block';
 		form.style.textAlign = 'left';
 		const { qArea, txta } = this;
@@ -8652,14 +8647,12 @@ class PostForm {
 		new WinResizer('reply', 'left', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'right', 'textaWidth', qArea, txta);
 		new WinResizer('reply', 'bottom', 'textaHeight', qArea, txta);
-		console.log(95)
 		this._initTextarea();
 		this.addMarkupPanel();
 		this.setPlaceholders();
 		this.updateLanguage();
 		this._initCaptcha();
 		this._initSubmit();
-		console.log(96)
 		if(Cfg.ajaxPosting) {
 			this._initAjaxPosting();
 		}
@@ -13486,12 +13479,13 @@ class MakabaPostsBuilder {
 		const comment = data.comment.replace(/<script /ig, '<!--<textarea ')
 			.replace(/<\/script>/ig, '</textarea>-->');
 		const p = this._isNew ? 'post__' : '';
-		return `<article id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
+		const tag = aib._2channel ? 'blockquote' : 'article';
+		return `<${ tag } id="m${ data.num }" class="${ this._isNew ? 'post__' : 'post-' }message">` +
 			`${ comment }${ _switch(data.banned, {
 				1           : `<br><span class="${ p }pomyanem">(Автор этого поста был забанен.)</span>`,
 				2           : `<br><span class="${ p }pomyanem">(Автор этого поста был предупрежден.)</span>`,
 				'@@default' : ''
-			}) }</article>`;
+			}) }</${ tag }>`;
 	}
 }
 
@@ -16241,6 +16235,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qDForm = '#delform_instant';
+
 			this.hasCatalog = true;
 		}
 		get css() {
@@ -16293,7 +16289,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		get css() {
-			return 'span[id$="_display"], #fastload { display: none; }';
+			return '#fastload, .rfmap, span[id$="_display"] { display: none; }';
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
@@ -16339,8 +16335,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2--ch.ru'] = _2__ch;
-	ibDomains['2-ch.su'] = _2__ch;
+	ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(prot, dm) {
@@ -16666,8 +16661,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2ch.hk'] = Makaba;
-	ibDomains['2ch.life'] = Makaba;
+	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
 		constructor(prot, dm) {
@@ -16793,8 +16787,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2channel.moe'] = _2channel;
-	ibDomains['2channel5xx5xchx.onion'] = _2channel;
+	ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
 	class _2chRip extends BaseBoard {
 		constructor(prot, dm) {
@@ -16828,8 +16821,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['2ch.rip'] = _2chRip;
-	ibDomains['dva-ch.net'] = _2chRip;
+	ibDomains['2ch.rip'] = ibDomains['dva-ch.net'] = _2chRip;
 
 	class _410chan extends Kusaba {
 		constructor(prot, dm) {
@@ -17014,50 +17006,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['4chan.org'] = _4chan;
-	ibDomains['4channel.org'] = _4chan;
-
-	class _55chan extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qFormRules = '.regras';
-
-			this._capUpdPromise = null;
-		}
-		get qImgNameLink() {
-			return '.fileinfo > a:last-of-type';
-		}
-		get qThread() {
-			return 'div[data-board]';
-		}
-		get css() {
-			return `${ super.css }
-				input.delete, #post-moderation-fields { display: initial !important; }`;
-		}
-		captchaInit(cap) {
-			$q('td', cap.parentEl).innerHTML = `<input placeholder="${ Lng.cap[lang] }" class="captcha_text` +
-				`" type="text" name="captcha_text" size="25" maxlength="8" autocomplete="off">
-				<input class="captcha_cookie de-input-hidden" name="captcha_cookie" type="hidden">
-				<div class="captcha_html"></div>`;
-			cap.textEl = $q('.captcha_text', cap.parentEl);
-			return this.captchaUpdate(cap, true);
-		}
-		captchaUpdate(cap) {
-			return cap.updateHelper(
-				'/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz',
-				xhr => {
-					const obj = JSON.parse(xhr.responseText);
-					$q('.captcha_cookie', cap.parentEl).value = obj.cookie;
-					$q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
-					const img = $q('img', cap.parentEl);
-					if(img) {
-						cap.initImage(img);
-					}
-				});
-		}
-	}
-	ibDomains['55chan.org'] = _55chan;
+	ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
 
 	class Archived extends FoolFuuka {
 		getImgRedirectSrc(url) {
@@ -17150,12 +17099,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 	}
-	ibDomains['arhivach.net'] = Arhivach;
-	ibDomains['arhivach.ng'] = Arhivach;
-	ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
-
-	ibDomains['desuchan.moe'] = BaseBoard;
-	ibDomains['desuchan.net'] = BaseBoard;
+	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class CrystalCafe extends Tinyboard {
 		constructor(prot, dm) {
@@ -17299,10 +17243,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 	}
-	ibDomains['dobrochan.com'] = Dobrochan;
-	ibDomains['dobrochan.net'] = Dobrochan;
-	ibDomains['dobrochan.org'] = Dobrochan;
-	ibDomains['dobrochan.ru'] = Dobrochan;
+	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
@@ -17602,11 +17543,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.init();
 		}
 	}
-	ibDomains['kohlchan.net'] = Kohlchan;
-	ibDomains['kohlchan.top'] = Kohlchan;
-	ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
-	ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
-	ibDomains['kohlkanal.net'] = Kohlchan;
+	ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] =
+		ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] =
+		ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
 		constructor(prot, dm) {
@@ -17622,16 +17561,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['kropyva.ch'] = Kropyvach;
-
-	class Kurisach extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.hasCatalog = true;
-			this.ru = true;
-		}
-	}
-	ibDomains['kurisa.ch'] = Kurisach;
 
 	class Lainchan extends Vichan {
 		constructor(prot, dm) {
@@ -17783,9 +17712,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return formEl;
 		}
 	}
-	ibDomains['syn-ch.ru'] = Synch;
-	ibDomains['syn-ch.com'] = Synch;
-	ibDomains['syn-ch.org'] = Synch;
+	ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] =
+		ibDomains['syn-ch.org'] = Synch;
 
 	class Warosu extends BaseBoard {
 		constructor(prot, dm) {
@@ -18754,7 +18682,6 @@ function runFrames() {
 }
 
 async function runMain(checkDomains, dataPromise) {
-	console.log(1)
 	Logger.initLogger();
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
@@ -18780,7 +18707,6 @@ async function runMain(checkDomains, dataPromise) {
 	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
-		console.log(2)
 	docBody.classList.add('de-runned');
 	Logger.log('Storage loading');
 	addSVGIcons();
@@ -18794,7 +18720,6 @@ async function runMain(checkDomains, dataPromise) {
 	}
 	initStorageEvent();
 	DollchanAPI.initAPI();
-		console.log(3)
 	if(localData) {
 		aib.prot = 'http:';
 		aib.host = aib.dm;
@@ -18833,7 +18758,6 @@ async function runMain(checkDomains, dataPromise) {
 		$show(docBody);
 		return;
 	}
-		console.log(4)
 	Logger.log('Parse delform');
 	if(aib.t) {
 		const storageName = `de-lastpcount-${ aib.b }-${ aib.t }`;
@@ -18842,28 +18766,22 @@ async function runMain(checkDomains, dataPromise) {
 			deWindow.location.reload();
 		}
 	}
-	console.log(41)
 	pr = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enableHotKeys();
 		Logger.log('Init keybinds');
 	}
-	console.log(411)
 	initPage();
 	Logger.log('Init page');
-	console.log(42)
 	Panel.initPanel(formEl);
 	Logger.log('Add panel');
 	embedPostMsgImages(DelForm.first.el);
-	console.log(421)
 	Logger.log('Image-links');
 	DelForm.first.addStuff();
 	readViewedPosts();
-	console.log(43)
 	scriptCSS();
 	Logger.log('Apply CSS');
-		console.log(5)
 	$show(docBody);
 	Logger.log('Display page');
 	toggleInfinityScroll();

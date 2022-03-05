@@ -6879,7 +6879,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'c042049';
+  var commit = '71b4a3f';
 
   var defaultCfg = {
     disabled: 0,
@@ -16835,7 +16835,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.pForm = null;
       this.qArea = null;
       this._pBtn = [];
-      console.log(90);
       var qOeForm = 'form[name="oeform"], form[action*="paint"]';
       this.oeForm = oeForm || $q(qOeForm);
 
@@ -16855,7 +16854,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return;
       }
 
-      console.log(91);
       this.tNum = aib.t;
       this.form = form;
       this.files = null;
@@ -16867,11 +16865,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.passw = $q(aib.qFormPassw, form);
       this.rules = $q(aib.qFormRules, form);
       this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
-      console.log(92);
 
       this._initFileInputs();
-
-      console.log(93);
 
       this._makeHideableContainer();
 
@@ -16881,7 +16876,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return;
       }
 
-      console.log(94);
       form.style.display = 'inline-block';
       form.style.textAlign = 'left';
       var qArea = this.qArea,
@@ -16890,7 +16884,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       new WinResizer('reply', 'left', 'textaWidth', qArea, txta);
       new WinResizer('reply', 'right', 'textaWidth', qArea, txta);
       new WinResizer('reply', 'bottom', 'textaHeight', qArea, txta);
-      console.log(95);
 
       this._initTextarea();
 
@@ -16901,8 +16894,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._initCaptcha();
 
       this._initSubmit();
-
-      console.log(96);
 
       if (Cfg.ajaxPosting) {
         this._initAjaxPosting();
@@ -24035,11 +24026,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         var comment = data.comment.replace(/<script /ig, '<!--<textarea ').replace(/<\/script>/ig, '</textarea>-->');
         var p = this._isNew ? 'post__' : '';
-        return "<article id=\"m".concat(data.num, "\" class=\"").concat(this._isNew ? 'post__' : 'post-', "message\">") + "".concat(comment).concat(_switch(data.banned, {
+        var tag = aib._2channel ? 'blockquote' : 'article';
+        return "<".concat(tag, " id=\"m").concat(data.num, "\" class=\"").concat(this._isNew ? 'post__' : 'post-', "message\">") + "".concat(comment).concat(_switch(data.banned, {
           1: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"),
           2: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D.)</span>"),
           '@@default': ''
-        }), "</article>");
+        }), "</").concat(tag, ">");
       }
     }]);
 
@@ -27898,6 +27890,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _classCallCheck(this, _0chan);
 
         _this87 = _super17.call(this, prot, dm);
+        _this87.qDForm = '#delform_instant';
         _this87.hasCatalog = true;
         return _this87;
       }
@@ -27985,7 +27978,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "css",
         get: function get() {
-          return 'span[id$="_display"], #fastload { display: none; }';
+          return '#fastload, .rfmap, span[id$="_display"] { display: none; }';
         }
       }, {
         key: "fixFileInputs",
@@ -28059,8 +28052,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _2__ch;
     }(BaseBoard);
 
-    ibDomains['2--ch.ru'] = _2__ch;
-    ibDomains['2-ch.su'] = _2__ch;
+    ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
     var
     Makaba = function (_BaseBoard7) {
@@ -28443,8 +28435,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Makaba;
     }(BaseBoard);
 
-    ibDomains['2ch.hk'] = Makaba;
-    ibDomains['2ch.life'] = Makaba;
+    ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
     var _2chan = function (_BaseBoard8) {
       _inherits(_2chan, _BaseBoard8);
@@ -28641,8 +28632,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _2channel;
     }(Makaba);
 
-    ibDomains['2channel.moe'] = _2channel;
-    ibDomains['2channel5xx5xchx.onion'] = _2channel;
+    ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
     var _2chRip = function (_BaseBoard9) {
       _inherits(_2chRip, _BaseBoard9);
@@ -28695,8 +28685,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _2chRip;
     }(BaseBoard);
 
-    ibDomains['2ch.rip'] = _2chRip;
-    ibDomains['dva-ch.net'] = _2chRip;
+    ibDomains['2ch.rip'] = ibDomains['dva-ch.net'] = _2chRip;
 
     var _410chan = function (_Kusaba3) {
       _inherits(_410chan, _Kusaba3);
@@ -28958,77 +28947,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _4chan;
     }(BaseBoard);
 
-    ibDomains['4chan.org'] = _4chan;
-    ibDomains['4channel.org'] = _4chan;
-
-    var _55chan = function (_Vichan) {
-      _inherits(_55chan, _Vichan);
-
-      var _super26 = _createSuper(_55chan);
-
-      function _55chan(prot, dm) {
-        var _this99;
-
-        _classCallCheck(this, _55chan);
-
-        _this99 = _super26.call(this, prot, dm);
-        _this99.qFormRules = '.regras';
-        _this99._capUpdPromise = null;
-        return _this99;
-      }
-
-      _createClass(_55chan, [{
-        key: "qImgNameLink",
-        get: function get() {
-          return '.fileinfo > a:last-of-type';
-        }
-      }, {
-        key: "qThread",
-        get: function get() {
-          return 'div[data-board]';
-        }
-      }, {
-        key: "css",
-        get: function get() {
-          return "".concat(_get(_getPrototypeOf(_55chan.prototype), "css", this), "\n\t\t\t\tinput.delete, #post-moderation-fields { display: initial !important; }");
-        }
-      }, {
-        key: "captchaInit",
-        value: function captchaInit(cap) {
-          $q('td', cap.parentEl).innerHTML = "<input placeholder=\"".concat(Lng.cap[lang], "\" class=\"captcha_text") + "\" type=\"text\" name=\"captcha_text\" size=\"25\" maxlength=\"8\" autocomplete=\"off\">\n\t\t\t\t<input class=\"captcha_cookie de-input-hidden\" name=\"captcha_cookie\" type=\"hidden\">\n\t\t\t\t<div class=\"captcha_html\"></div>";
-          cap.textEl = $q('.captcha_text', cap.parentEl);
-          return this.captchaUpdate(cap, true);
-        }
-      }, {
-        key: "captchaUpdate",
-        value: function captchaUpdate(cap) {
-          return cap.updateHelper('/8chan-captcha/entrypoint.php?mode=get&extra=abcdefghijklmnopqrstuvwxyz', function (xhr) {
-            var obj = JSON.parse(xhr.responseText);
-            $q('.captcha_cookie', cap.parentEl).value = obj.cookie;
-            $q('.captcha_html', cap.parentEl).innerHTML = obj.captchahtml;
-            var img = $q('img', cap.parentEl);
-
-            if (img) {
-              cap.initImage(img);
-            }
-          });
-        }
-      }]);
-
-      return _55chan;
-    }(Vichan);
-
-    ibDomains['55chan.org'] = _55chan;
+    ibDomains['4chan.org'] = ibDomains['4channel.org'] = _4chan;
 
     var Archived = function (_FoolFuuka) {
       _inherits(Archived, _FoolFuuka);
 
-      var _super27 = _createSuper(Archived);
+      var _super26 = _createSuper(Archived);
 
       function Archived() {
         _classCallCheck(this, Archived);
 
-        return _super27.apply(this, arguments);
+        return _super26.apply(this, arguments);
       }
 
       _createClass(Archived, [{
@@ -29048,28 +28977,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Arhivach = function (_BaseBoard11) {
       _inherits(Arhivach, _BaseBoard11);
 
-      var _super28 = _createSuper(Arhivach);
+      var _super27 = _createSuper(Arhivach);
 
       function Arhivach(prot, dm) {
-        var _this100;
+        var _this99;
 
         _classCallCheck(this, Arhivach);
 
-        _this100 = _super28.call(this, prot, dm);
-        _this100.cReply = 'post';
-        _this100.qDelBut = null;
-        _this100.qDelPassw = null;
-        _this100.qDForm = 'body > .container-fluid';
-        _this100.qPostHeader = '.post_head';
-        _this100.qPostImg = '.post_image > img';
-        _this100.qPostMsg = '.post_comment_body';
-        _this100.qPostRef = '.post_id, .post_head > b';
-        _this100.qPostSubj = '.post_subject';
-        _this100.qRPost = '.post[postid]:not([postid=""])';
-        _this100.docExt = '';
-        _this100.hasOPNum = true;
-        _this100.res = 'thread/';
-        return _this100;
+        _this99 = _super27.call(this, prot, dm);
+        _this99.cReply = 'post';
+        _this99.qDelBut = null;
+        _this99.qDelPassw = null;
+        _this99.qDForm = 'body > .container-fluid';
+        _this99.qPostHeader = '.post_head';
+        _this99.qPostImg = '.post_image > img';
+        _this99.qPostMsg = '.post_comment_body';
+        _this99.qPostRef = '.post_id, .post_head > b';
+        _this99.qPostSubj = '.post_subject';
+        _this99.qRPost = '.post[postid]:not([postid=""])';
+        _this99.docExt = '';
+        _this99.hasOPNum = true;
+        _this99.res = 'thread/';
+        return _this99;
       }
 
       _createClass(Arhivach, [{
@@ -29149,14 +29078,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "init",
         value: function init() {
-          var _this101 = this;
+          var _this100 = this;
 
           defaultCfg.ajaxUpdThr = 0;
           setTimeout(function () {
             var delPosts = $Q('.post_deleted');
 
             for (var i = 0, len = delPosts.length; i < len; ++i) {
-              var post = pByNum.get(_this101.getPNum(delPosts[i]));
+              var post = pByNum.get(_this100.getPNum(delPosts[i]));
 
               if (post) {
                 post.thr.deletePosts(post, false, false);
@@ -29172,25 +29101,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Arhivach;
     }(BaseBoard);
 
-    ibDomains['arhivach.net'] = Arhivach;
-    ibDomains['arhivach.ng'] = Arhivach;
-    ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
-    ibDomains['desuchan.moe'] = BaseBoard;
-    ibDomains['desuchan.net'] = BaseBoard;
+    ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
     var CrystalCafe = function (_Tinyboard2) {
       _inherits(CrystalCafe, _Tinyboard2);
 
-      var _super29 = _createSuper(CrystalCafe);
+      var _super28 = _createSuper(CrystalCafe);
 
       function CrystalCafe(prot, dm) {
-        var _this102;
+        var _this101;
 
         _classCallCheck(this, CrystalCafe);
 
-        _this102 = _super29.call(this, prot, dm);
-        _this102.qRPost = '.post.reply';
-        return _this102;
+        _this101 = _super28.call(this, prot, dm);
+        _this101.qRPost = '.post.reply';
+        return _this101;
       }
 
       _createClass(CrystalCafe, [{
@@ -29218,33 +29143,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Dobrochan = function (_BaseBoard12) {
       _inherits(Dobrochan, _BaseBoard12);
 
-      var _super30 = _createSuper(Dobrochan);
+      var _super29 = _createSuper(Dobrochan);
 
       function Dobrochan(prot, dm) {
-        var _this103;
+        var _this102;
 
         _classCallCheck(this, Dobrochan);
 
-        _this103 = _super30.call(this, prot, dm);
-        _this103.dobrochan = true;
-        _this103.qClosed = 'img[src="/images/locked.png"]';
-        _this103.qDForm = 'form[action*="delete"]';
-        _this103.qError = '.post-error, h2';
-        _this103.qFormRedir = 'select[name="goto"]';
-        _this103.qImgInfo = '.fileinfo';
-        _this103.qOmitted = '.abbrev > span:last-of-type';
-        _this103.qPages = '.pages > tbody > tr > td';
-        _this103.qPostMsg = '.postbody';
-        _this103.qPostSubj = '.replytitle';
-        _this103.qTrunc = '.abbrev > span:first-of-type';
-        _this103.anchor = '#i';
-        _this103.formParent = 'thread_id';
-        _this103.hasPicWrap = true;
-        _this103.JsonBuilder = DobrochanPostsBuilder;
-        _this103.multiFile = true;
-        _this103.ru = true;
-        _this103.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this103;
+        _this102 = _super29.call(this, prot, dm);
+        _this102.dobrochan = true;
+        _this102.qClosed = 'img[src="/images/locked.png"]';
+        _this102.qDForm = 'form[action*="delete"]';
+        _this102.qError = '.post-error, h2';
+        _this102.qFormRedir = 'select[name="goto"]';
+        _this102.qImgInfo = '.fileinfo';
+        _this102.qOmitted = '.abbrev > span:last-of-type';
+        _this102.qPages = '.pages > tbody > tr > td';
+        _this102.qPostMsg = '.postbody';
+        _this102.qPostSubj = '.replytitle';
+        _this102.qTrunc = '.abbrev > span:first-of-type';
+        _this102.anchor = '#i';
+        _this102.formParent = 'thread_id';
+        _this102.hasPicWrap = true;
+        _this102.JsonBuilder = DobrochanPostsBuilder;
+        _this102.multiFile = true;
+        _this102.ru = true;
+        _this102.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this102;
       }
 
       _createClass(Dobrochan, [{
@@ -29387,24 +29312,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Dobrochan;
     }(BaseBoard);
 
-    ibDomains['dobrochan.com'] = Dobrochan;
-    ibDomains['dobrochan.net'] = Dobrochan;
-    ibDomains['dobrochan.org'] = Dobrochan;
-    ibDomains['dobrochan.ru'] = Dobrochan;
+    ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = Dobrochan;
 
     var Endchan = function (_Lynxchan) {
       _inherits(Endchan, _Lynxchan);
 
-      var _super31 = _createSuper(Endchan);
+      var _super30 = _createSuper(Endchan);
 
       function Endchan(prot, dm) {
-        var _this104;
+        var _this103;
 
         _classCallCheck(this, Endchan);
 
-        _this104 = _super31.call(this, prot, dm);
-        _this104.qTrunc = '.contentOmissionIndicator > p';
-        return _this104;
+        _this103 = _super30.call(this, prot, dm);
+        _this103.qTrunc = '.contentOmissionIndicator > p';
+        return _this103;
       }
 
       _createClass(Endchan, [{
@@ -29436,32 +29358,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ernstchan = function (_BaseBoard13) {
       _inherits(Ernstchan, _BaseBoard13);
 
-      var _super32 = _createSuper(Ernstchan);
+      var _super31 = _createSuper(Ernstchan);
 
       function Ernstchan(prot, dm) {
-        var _this105;
+        var _this104;
 
         _classCallCheck(this, Ernstchan);
 
-        _this105 = _super32.call(this, prot, dm);
-        _this105.cReply = 'post';
-        _this105.qError = '.error > .info';
-        _this105.qFormRedir = 'input[name="gb2"][value="thread"]';
-        _this105.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-        _this105.qOPost = '.thread_OP';
-        _this105.qPages = '.pagelist > li:nth-last-child(2)';
-        _this105.qPostHeader = '.post_head';
-        _this105.qPostMsg = '.text';
-        _this105.qPostSubj = '.subject';
-        _this105.qPostTrip = '.tripcode';
-        _this105.qRPost = '.thread_reply';
-        _this105.qTrunc = '.tldr';
-        _this105.docExt = '';
-        _this105.firstPage = 1;
-        _this105.markupBB = true;
-        _this105.multiFile = true;
-        _this105.res = 'thread/';
-        return _this105;
+        _this104 = _super31.call(this, prot, dm);
+        _this104.cReply = 'post';
+        _this104.qError = '.error > .info';
+        _this104.qFormRedir = 'input[name="gb2"][value="thread"]';
+        _this104.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+        _this104.qOPost = '.thread_OP';
+        _this104.qPages = '.pagelist > li:nth-last-child(2)';
+        _this104.qPostHeader = '.post_head';
+        _this104.qPostMsg = '.text';
+        _this104.qPostSubj = '.subject';
+        _this104.qPostTrip = '.tripcode';
+        _this104.qRPost = '.thread_reply';
+        _this104.qTrunc = '.tldr';
+        _this104.docExt = '';
+        _this104.firstPage = 1;
+        _this104.markupBB = true;
+        _this104.multiFile = true;
+        _this104.res = 'thread/';
+        return _this104;
       }
 
       _createClass(Ernstchan, [{
@@ -29509,16 +29431,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Gensokyo = function (_Kusaba4) {
       _inherits(Gensokyo, _Kusaba4);
 
-      var _super33 = _createSuper(Gensokyo);
+      var _super32 = _createSuper(Gensokyo);
 
       function Gensokyo(prot, dm) {
-        var _this106;
+        var _this105;
 
         _classCallCheck(this, Gensokyo);
 
-        _this106 = _super33.call(this, prot, dm);
-        _this106.hasRefererErr = true;
-        return _this106;
+        _this105 = _super32.call(this, prot, dm);
+        _this105.hasRefererErr = true;
+        return _this105;
       }
 
       return _createClass(Gensokyo);
@@ -29529,17 +29451,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Iichan = function (_BaseBoard14) {
       _inherits(Iichan, _BaseBoard14);
 
-      var _super34 = _createSuper(Iichan);
+      var _super33 = _createSuper(Iichan);
 
       function Iichan(prot, dm) {
-        var _this107;
+        var _this106;
 
         _classCallCheck(this, Iichan);
 
-        _this107 = _super34.call(this, prot, dm);
-        _this107.hasArchive = true;
-        _this107.hasCatalog = true;
-        return _this107;
+        _this106 = _super33.call(this, prot, dm);
+        _this106.hasArchive = true;
+        _this106.hasCatalog = true;
+        return _this106;
       }
 
       _createClass(Iichan, [{
@@ -29584,11 +29506,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "stormWallFixCaptcha",
         value: function stormWallFixCaptcha(url, img) {
-          var _this108 = this;
+          var _this107 = this;
 
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this108.stormWallHelper(url, null, emptyFn, function () {
+              _this107.stormWallHelper(url, null, emptyFn, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -29667,21 +29589,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Kohlchan = function (_Lynxchan2) {
       _inherits(Kohlchan, _Lynxchan2);
 
-      var _super35 = _createSuper(Kohlchan);
+      var _super34 = _createSuper(Kohlchan);
 
       function Kohlchan(prot, dm) {
-        var _this109;
+        var _this108;
 
         _classCallCheck(this, Kohlchan);
 
-        _this109 = _super35.call(this, prot, dm);
-        _this109.kohlchan = true;
-        _this109.qFormRules = '#rules_row';
-        _this109.qPostImg = '.imgLink > img, .de-img-link > img';
-        _this109.hasTextLinks = true;
-        _this109.markupBB = true;
-        _this109.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this109;
+        _this108 = _super34.call(this, prot, dm);
+        _this108.kohlchan = true;
+        _this108.qFormRules = '#rules_row';
+        _this108.qPostImg = '.imgLink > img, .de-img-link > img';
+        _this108.hasTextLinks = true;
+        _this108.markupBB = true;
+        _this108.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this108;
       }
 
       _createClass(Kohlchan, [{
@@ -29832,25 +29754,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Kohlchan;
     }(Lynxchan);
 
-    ibDomains['kohlchan.net'] = Kohlchan;
-    ibDomains['kohlchan.top'] = Kohlchan;
-    ibDomains['kohlchanagb7ih5g.onion'] = Kohlchan;
-    ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = Kohlchan;
-    ibDomains['kohlkanal.net'] = Kohlchan;
+    ibDomains['kohlchan.net'] = ibDomains['kohlchan.top'] = ibDomains['kohlchanagb7ih5g.onion'] = ibDomains['kohlchanvwpfx6hthoti5fvqsjxgcwm3tmddvpduph5fqntv5affzfqd.onion'] = ibDomains['kohlkanal.net'] = Kohlchan;
 
-    var Kropyvach = function (_Vichan2) {
-      _inherits(Kropyvach, _Vichan2);
+    var Kropyvach = function (_Vichan) {
+      _inherits(Kropyvach, _Vichan);
 
-      var _super36 = _createSuper(Kropyvach);
+      var _super35 = _createSuper(Kropyvach);
 
       function Kropyvach(prot, dm) {
-        var _this110;
+        var _this109;
 
         _classCallCheck(this, Kropyvach);
 
-        _this110 = _super36.call(this, prot, dm);
-        _this110.markupBB = true;
-        return _this110;
+        _this109 = _super35.call(this, prot, dm);
+        _this109.markupBB = true;
+        return _this109;
       }
 
       _createClass(Kropyvach, [{
@@ -29870,40 +29788,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['kropyva.ch'] = Kropyvach;
 
-    var Kurisach = function (_Kusaba5) {
-      _inherits(Kurisach, _Kusaba5);
+    var Lainchan = function (_Vichan2) {
+      _inherits(Lainchan, _Vichan2);
 
-      var _super37 = _createSuper(Kurisach);
-
-      function Kurisach(prot, dm) {
-        var _this111;
-
-        _classCallCheck(this, Kurisach);
-
-        _this111 = _super37.call(this, prot, dm);
-        _this111.hasCatalog = true;
-        _this111.ru = true;
-        return _this111;
-      }
-
-      return _createClass(Kurisach);
-    }(Kusaba);
-
-    ibDomains['kurisa.ch'] = Kurisach;
-
-    var Lainchan = function (_Vichan3) {
-      _inherits(Lainchan, _Vichan3);
-
-      var _super38 = _createSuper(Lainchan);
+      var _super36 = _createSuper(Lainchan);
 
       function Lainchan(prot, dm) {
-        var _this112;
+        var _this110;
 
         _classCallCheck(this, Lainchan);
 
-        _this112 = _super38.call(this, prot, dm);
-        _this112.qOPost = '.op';
-        return _this112;
+        _this110 = _super36.call(this, prot, dm);
+        _this110.qOPost = '.op';
+        return _this110;
       }
 
       _createClass(Lainchan, [{
@@ -29933,15 +29830,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['lainchan.org'] = Lainchan;
 
-    var Niuchan = function (_Kusaba6) {
-      _inherits(Niuchan, _Kusaba6);
+    var Niuchan = function (_Kusaba5) {
+      _inherits(Niuchan, _Kusaba5);
 
-      var _super39 = _createSuper(Niuchan);
+      var _super37 = _createSuper(Niuchan);
 
       function Niuchan() {
         _classCallCheck(this, Niuchan);
 
-        return _super39.apply(this, arguments);
+        return _super37.apply(this, arguments);
       }
 
       _createClass(Niuchan, [{
@@ -29959,12 +29856,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Nowere = function (_BaseBoard15) {
       _inherits(Nowere, _BaseBoard15);
 
-      var _super40 = _createSuper(Nowere);
+      var _super38 = _createSuper(Nowere);
 
       function Nowere() {
         _classCallCheck(this, Nowere);
 
-        return _super40.apply(this, arguments);
+        return _super38.apply(this, arguments);
       }
 
       _createClass(Nowere, [{
@@ -29988,20 +29885,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ponyach = function (_BaseBoard16) {
       _inherits(Ponyach, _BaseBoard16);
 
-      var _super41 = _createSuper(Ponyach);
+      var _super39 = _createSuper(Ponyach);
 
       function Ponyach(prot, dm) {
-        var _this113;
+        var _this111;
 
         _classCallCheck(this, Ponyach);
 
-        _this113 = _super41.call(this, prot, dm);
-        _this113.qBan = 'font[color="#FF0000"]';
-        _this113.qImgInfo = '.filesize[style="display: inline;"]';
-        _this113.formParent = 'replythread';
-        _this113.jsonSubmit = true;
-        _this113.multiFile = true;
-        return _this113;
+        _this111 = _super39.call(this, prot, dm);
+        _this111.qBan = 'font[color="#FF0000"]';
+        _this111.qImgInfo = '.filesize[style="display: inline;"]';
+        _this111.formParent = 'replythread';
+        _this111.jsonSubmit = true;
+        _this111.multiFile = true;
+        return _this111;
       }
 
       _createClass(Ponyach, [{
@@ -30062,17 +29959,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Ponychan = function (_Tinyboard3) {
       _inherits(Ponychan, _Tinyboard3);
 
-      var _super42 = _createSuper(Ponychan);
+      var _super40 = _createSuper(Ponychan);
 
       function Ponychan(prot, dm) {
-        var _this114;
+        var _this112;
 
         _classCallCheck(this, Ponychan);
 
-        _this114 = _super42.call(this, prot, dm);
-        _this114.qOPost = '.opContainer';
-        _this114.jsonSubmit = false;
-        return _this114;
+        _this112 = _super40.call(this, prot, dm);
+        _this112.qOPost = '.opContainer';
+        _this112.jsonSubmit = false;
+        return _this112;
       }
 
       _createClass(Ponychan, [{
@@ -30105,18 +30002,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Synch = function (_Tinyboard4) {
       _inherits(Synch, _Tinyboard4);
 
-      var _super43 = _createSuper(Synch);
+      var _super41 = _createSuper(Synch);
 
       function Synch(prot, dm) {
-        var _this115;
+        var _this113;
 
         _classCallCheck(this, Synch);
 
-        _this115 = _super43.call(this, prot, dm);
-        _this115.qImgInfo = '.unimportant';
-        _this115.qPages = '.pagination';
-        _this115.markupBB = true;
-        return _this115;
+        _this113 = _super41.call(this, prot, dm);
+        _this113.qImgInfo = '.unimportant';
+        _this113.qPages = '.pagination';
+        _this113.markupBB = true;
+        return _this113;
       }
 
       _createClass(Synch, [{
@@ -30170,28 +30067,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Synch;
     }(Tinyboard);
 
-    ibDomains['syn-ch.ru'] = Synch;
-    ibDomains['syn-ch.com'] = Synch;
-    ibDomains['syn-ch.org'] = Synch;
+    ibDomains['syn-ch.ru'] = ibDomains['syn-ch.com'] = ibDomains['syn-ch.com.ua'] = ibDomains['syn-ch.org'] = Synch;
 
     var Warosu = function (_BaseBoard17) {
       _inherits(Warosu, _BaseBoard17);
 
-      var _super44 = _createSuper(Warosu);
+      var _super42 = _createSuper(Warosu);
 
       function Warosu(prot, dm) {
-        var _this116;
+        var _this114;
 
         _classCallCheck(this, Warosu);
 
-        _this116 = _super44.call(this, prot, dm);
-        _this116.qDForm = '.content';
-        _this116.qForm = '.subreply';
-        _this116.qPostRef = '.js';
-        _this116.qImgInfo = 'span';
-        _this116.qOPost = 'div[itemscope]';
-        _this116.res = 'thread/';
-        return _this116;
+        _this114 = _super42.call(this, prot, dm);
+        _this114.qDForm = '.content';
+        _this114.qForm = '.subreply';
+        _this114.qPostRef = '.js';
+        _this114.qImgInfo = 'span';
+        _this114.qOPost = 'div[itemscope]';
+        _this114.res = 'thread/';
+        return _this114;
       }
 
       _createClass(Warosu, [{
@@ -30263,7 +30158,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this117 = this;
+      var _this115 = this;
 
       this.hasListeners = false;
 
@@ -30278,7 +30173,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this117.hasListeners = true;
+          _this115.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -30560,77 +30455,75 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         while (1) {
           switch (_context36.prev = _context36.next) {
             case 0:
-              console.log(1);
               Logger.initLogger();
 
               if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-                _context36.next = 4;
+                _context36.next = 3;
                 break;
               }
 
               return _context36.abrupt("return");
 
-            case 4:
+            case 3:
               formEl = $q(aib.qDForm + ', form[de-form]');
 
               if (formEl) {
-                _context36.next = 8;
+                _context36.next = 7;
                 break;
               }
 
               runFrames();
               return _context36.abrupt("return");
 
-            case 8:
+            case 7:
               if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-                _context36.next = 10;
+                _context36.next = 9;
                 break;
               }
 
               return _context36.abrupt("return");
 
-            case 10:
+            case 9:
               Logger.log('Imageboard check');
 
               if (locStorage) {
-                _context36.next = 15;
-                break;
-              }
-
-              if (checkStorage()) {
                 _context36.next = 14;
                 break;
               }
 
+              if (checkStorage()) {
+                _context36.next = 13;
+                break;
+              }
+
               return _context36.abrupt("return");
 
-            case 14:
+            case 13:
               initNavFuncs();
 
-            case 15:
-              _context36.next = 17;
+            case 14:
+              _context36.next = 16;
               return dataPromise || readData();
 
-            case 17:
+            case 16:
               _yield = _context36.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
               if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
-                _context36.next = 22;
+                _context36.next = 21;
                 break;
               }
 
               return _context36.abrupt("return");
 
-            case 22:
-              console.log(2);
+            case 21:
               docBody.classList.add('de-runned');
               Logger.log('Storage loading');
               addSVGIcons();
 
               if (!Cfg.disabled) {
-                _context36.next = 30;
+                _context36.next = 28;
                 break;
               }
 
@@ -30638,14 +30531,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               scriptCSS();
               return _context36.abrupt("return");
 
-            case 30:
+            case 28:
               if ('toJSON' in aProto) {
                 delete aProto.toJSON;
               }
 
               initStorageEvent();
               DollchanAPI.initAPI();
-              console.log(3);
 
               if (localData) {
                 aib.prot = 'http:';
@@ -30680,25 +30572,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               Logger.log('Replace delform');
               pByEl = new Map();
               pByNum = new Map();
-              _context36.prev = 46;
+              _context36.prev = 43;
               DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 
               if (!Thread.first) {
                 console.error('No threads detected!');
               }
 
-              _context36.next = 56;
+              _context36.next = 53;
               break;
 
-            case 51:
-              _context36.prev = 51;
-              _context36.t0 = _context36["catch"](46);
+            case 48:
+              _context36.prev = 48;
+              _context36.t0 = _context36["catch"](43);
               console.error('Delform parsing error:', getErrorMessage(_context36.t0));
               $show(docBody);
               return _context36.abrupt("return");
 
-            case 56:
-              console.log(4);
+            case 53:
               Logger.log('Parse delform');
 
               if (aib.t) {
@@ -30710,7 +30601,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
 
-              console.log(41);
               pr = new PostForm($q(aib.qForm));
               Logger.log('Parse postform');
 
@@ -30719,21 +30609,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 Logger.log('Init keybinds');
               }
 
-              console.log(411);
               initPage();
               Logger.log('Init page');
-              console.log(42);
               Panel.initPanel(formEl);
               Logger.log('Add panel');
               embedPostMsgImages(DelForm.first.el);
-              console.log(421);
               Logger.log('Image-links');
               DelForm.first.addStuff();
               readViewedPosts();
-              console.log(43);
               scriptCSS();
               Logger.log('Apply CSS');
-              console.log(5);
               $show(docBody);
               Logger.log('Display page');
               toggleInfinityScroll();
@@ -30761,12 +30646,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               Logger.finish();
 
-            case 89:
+            case 79:
             case "end":
               return _context36.stop();
           }
         }
-      }, _callee26, null, [[46, 51]]);
+      }, _callee26, null, [[43, 48]]);
     }));
     return _runMain.apply(this, arguments);
   }
