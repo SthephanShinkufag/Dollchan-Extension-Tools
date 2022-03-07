@@ -2003,6 +2003,16 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['ponychan.net'] = Ponychan;
 
+	class Rfch extends Vichan {
+		get css() {
+			return `${ super.css }
+				#coll-hide, #coll-show { display: none; }
+				form[name="post"], form[name="post"] > table > tbody > tr:first-child
+					{ display: block !important; }`;
+		}
+	}
+	ibDomains['rfch.rocks'] = Rfch;
+
 	class Synch extends Tinyboard {
 		constructor(prot, dm) {
 			super(prot, dm);

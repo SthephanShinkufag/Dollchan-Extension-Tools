@@ -14048,6 +14048,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       params.referrer = doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+      params.referrerPolicy = 'unsafe-url';
 
       if (params.data) {
         params.body = params.data;
@@ -29999,17 +30000,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['ponychan.net'] = Ponychan;
 
+    var Rfch = function (_Vichan3) {
+      _inherits(Rfch, _Vichan3);
+
+      var _super41 = _createSuper(Rfch);
+
+      function Rfch() {
+        _classCallCheck(this, Rfch);
+
+        return _super41.apply(this, arguments);
+      }
+
+      _createClass(Rfch, [{
+        key: "css",
+        get: function get() {
+          return "".concat(_get(_getPrototypeOf(Rfch.prototype), "css", this), "\n\t\t\t\t#coll-hide, #coll-show { display: none; }\n\t\t\t\tform[name=\"post\"], form[name=\"post\"] > table > tbody > tr:first-child\n\t\t\t\t\t{ display: block !important; }");
+        }
+      }]);
+
+      return Rfch;
+    }(Vichan);
+
+    ibDomains['rfch.rocks'] = Rfch;
+
     var Synch = function (_Tinyboard4) {
       _inherits(Synch, _Tinyboard4);
 
-      var _super41 = _createSuper(Synch);
+      var _super42 = _createSuper(Synch);
 
       function Synch(prot, dm) {
         var _this113;
 
         _classCallCheck(this, Synch);
 
-        _this113 = _super41.call(this, prot, dm);
+        _this113 = _super42.call(this, prot, dm);
         _this113.qImgInfo = '.unimportant';
         _this113.qPages = '.pagination';
         _this113.markupBB = true;
@@ -30072,14 +30096,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var Warosu = function (_BaseBoard17) {
       _inherits(Warosu, _BaseBoard17);
 
-      var _super42 = _createSuper(Warosu);
+      var _super43 = _createSuper(Warosu);
 
       function Warosu(prot, dm) {
         var _this114;
 
         _classCallCheck(this, Warosu);
 
-        _this114 = _super42.call(this, prot, dm);
+        _this114 = _super43.call(this, prot, dm);
         _this114.qDForm = '.content';
         _this114.qForm = '.subreply';
         _this114.qPostRef = '.js';

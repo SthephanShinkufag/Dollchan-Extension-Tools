@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '71b4a3f';
+const commit = 'd4201ea';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6770,6 +6770,7 @@ function $ajax(url, params = null, isCORS = false) {
 		}
 		params.referrer =
 			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+		params.referrerPolicy = 'unsafe-url';
 		if(params.data) {
 			params.body = params.data;
 			delete params.data;
@@ -17669,6 +17670,16 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['ponychan.net'] = Ponychan;
+
+	class Rfch extends Vichan {
+		get css() {
+			return `${ super.css }
+				#coll-hide, #coll-show { display: none; }
+				form[name="post"], form[name="post"] > table > tbody > tr:first-child
+					{ display: block !important; }`;
+		}
+	}
+	ibDomains['rfch.rocks'] = Rfch;
 
 	class Synch extends Tinyboard {
 		constructor(prot, dm) {
