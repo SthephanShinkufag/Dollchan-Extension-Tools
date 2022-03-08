@@ -4,7 +4,7 @@
 =========================================================================================================== */
 
 function getSubmitError(dc) {
-	if(!dc.body?.hasChildNodes() || $q(aib.qDForm, dc)) {
+	if(!dc.body?.hasChildNodes() || $q(aib.qDelForm, dc)) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
@@ -69,7 +69,7 @@ function checkUpload(data) {
 		if(postNum) {
 			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
-			const dForm = $q(aib.qDForm, data);
+			const dForm = $q(aib.qDelForm, data);
 			if(dForm) {
 				deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
@@ -100,7 +100,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q(`[de-form] ${ aib.qRPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
+	const els = $Q(`[de-form] ${ aib.qPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {

@@ -40,8 +40,7 @@ class ImagesNavigBtns {
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
-				this._btns.addEventListener('mouseout', this);
-				this._btns.addEventListener('click', this);
+				['mouseout', 'click'].forEach(e => this._btns.addEventListener(e, this));
 			}
 			if(!this._isHidden) {
 				clearTimeout(this._hideTmt);
@@ -123,8 +122,7 @@ class ImagesViewer {
 			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
-			docBody.addEventListener('mousemove', this, true);
-			docBody.addEventListener('mouseup', this, true);
+			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this, true));
 			break;
 		case 'mousemove': {
 			const { clientX: curX, clientY: curY } = e;
@@ -140,8 +138,7 @@ class ImagesViewer {
 			return;
 		}
 		case 'mouseup':
-			docBody.removeEventListener('mousemove', this, true);
-			docBody.removeEventListener('mouseup', this, true);
+			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this, true));
 			return;
 		case 'click': {
 			const el = e.target;
@@ -333,9 +330,8 @@ class ImagesViewer {
 		this._elStyle = el.style;
 		this.data = data;
 		this._parentEl = el;
-		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
-		el.addEventListener('mousedown', this, true);
-		el.addEventListener('click', this, true);
+		['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(
+			e => el.addEventListener(e, this, true));
 		data.srcBtnEvents(this);
 		if(data.inPview && !data.post.isSticky) {
 			data.post.toggleSticky(true);
@@ -1033,7 +1029,7 @@ function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.img
 		if(parent instanceof AbstractPost) {
 			processPostImgInfoLinks(parent, addSrc, imgNames);
 		} else {
-			const posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+			const posts = $Q(aib.qPost + ', ' + aib.qOPost + ', .de-oppost', parent);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
 			}

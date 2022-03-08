@@ -242,7 +242,7 @@ class FileInput {
 				}
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
-			return;
+			break;
 		}
 		case 'click': {
 			const parent = el.parentNode;
@@ -315,9 +315,7 @@ class FileInput {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			e.preventDefault();
-			e.stopPropagation();
-			return;
+			break;
 		}
 		case 'dragenter':
 			if(isThumb) {
@@ -349,10 +347,10 @@ class FileInput {
 			if(FileInput._isThumbMode) {
 				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			}
-			e.preventDefault();
-			e.stopPropagation();
 		}
 		}
+		e.preventDefault();
+		e.stopPropagation();
 	}
 	hideInp() {
 		if(FileInput._isThumbMode) {
@@ -436,8 +434,7 @@ class FileInput {
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
-		this._thumb.addEventListener('click', this);
-		this._thumb.addEventListener('dragenter', this);
+		['click', 'dragenter'].forEach(e => this._thumb.addEventListener(e, this));
 		this._thumb.append(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
@@ -519,8 +516,6 @@ class FileInput {
 	_toggleDragEvents(el, isAdd) {
 		const name = isAdd ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', e => e.preventDefault());
-		el[name]('dragenter', this);
-		el[name]('dragleave', this);
-		el[name]('drop', this);
+		['dragenter', 'dragleave', 'drop'].forEach(e => el[name](e, this));
 	}
 }

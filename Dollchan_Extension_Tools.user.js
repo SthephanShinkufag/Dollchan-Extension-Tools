@@ -6879,7 +6879,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = regeneratorRuntime.mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '71b4a3f';
+  var commit = 'ff8841e';
 
   var defaultCfg = {
     disabled: 0,
@@ -9381,7 +9381,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var Panel = Object.create({
     isVidEnabled: false,
     initPanel: function initPanel(formEl) {
-      var _pr;
+      var _pr,
+          _this10 = this;
 
       var imgLen = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
@@ -9390,20 +9391,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this._el.addEventListener('click', this, true);
 
-      this._el.addEventListener('mouseover', this);
-
-      this._el.addEventListener('mouseout', this);
-
+      ['mouseover', 'mouseout'].forEach(function (e) {
+        return _this10._el.addEventListener(e, _this10);
+      });
       this._buttons = $id('de-panel-buttons');
       this.isNew = true;
     },
     removeMain: function removeMain() {
+      var _this11 = this;
+
       this._el.removeEventListener('click', this, true);
 
-      this._el.removeEventListener('mouseover', this);
-
-      this._el.removeEventListener('mouseout', this);
-
+      ['mouseover', 'mouseout'].forEach(function (e) {
+        return _this11._el.removeEventListener(e, _this11);
+      });
       delete this._pcountEl;
       delete this._icountEl;
       delete this._acountEl;
@@ -9411,7 +9412,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     handleEvent: function handleEvent(e) {
       var _this$_menu,
-          _this10 = this;
+          _this12 = this;
 
       if ('isTrusted' in e && !e.isTrusted) {
         return;
@@ -9571,18 +9572,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               this._menuTO = setTimeout(function () {
-                _this10._menu = addMenu(el);
+                _this12._menu = addMenu(el);
 
-                _this10._menu.onover = function () {
-                  return clearTimeout(_this10._hideTO);
+                _this12._menu.onover = function () {
+                  return clearTimeout(_this12._hideTO);
                 };
 
-                _this10._menu.onout = function () {
-                  return _this10._prepareToHide(null);
+                _this12._menu.onout = function () {
+                  return _this12._prepareToHide(null);
                 };
 
-                _this10._menu.onremove = function () {
-                  return _this10._menu = null;
+                _this12._menu.onremove = function () {
+                  return _this12._menu = null;
                 };
               }, Cfg.linksOver);
           }
@@ -9678,11 +9679,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<a id=\"de-panel-".concat(id, "\" class=\"de-abtn de-panel-button\" title=\"").concat(title || Lng.panelBtn[id][lang], "\" href=\"").concat(href || '#', "\">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</a>");
     },
     _prepareToHide: function _prepareToHide(rt) {
-      var _this11 = this;
+      var _this13 = this;
 
       if (!Cfg.expandPanel && !$q('.de-win-active') && (!rt || !this._el.contains(rt.farthestViewportElement || rt))) {
         this._hideTO = setTimeout(function () {
-          return $hide(_this11._buttons);
+          return $hide(_this13._buttons);
         }, 500);
       }
     }
@@ -9704,6 +9705,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _Y: 0,
       _Z: 0,
       handleEvent: function handleEvent(e) {
+        var _this14 = this;
+
         if (!Cfg[name + 'WinDrag']) {
           return;
         }
@@ -9722,9 +9725,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               this._Z = this._wStyle.zIndex = ++topWinZ;
             }
 
-            docBody.addEventListener('mouseleave', this);
-            docBody.addEventListener('mousemove', this);
-            docBody.addEventListener('mouseup', this);
+            ['mouseleave', 'mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.addEventListener(e, _this14);
+            });
             e.preventDefault();
             return;
 
@@ -9750,9 +9753,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 'mouseleave':
           case 'mouseup':
-            docBody.removeEventListener('mouseleave', this);
-            docBody.removeEventListener('mousemove', this);
-            docBody.removeEventListener('mouseup', this);
+            ['mouseleave', 'mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.removeEventListener(e, _this14);
+            });
             saveCfg(name + 'WinX', this._X);
             saveCfg(name + 'WinY', this._Y);
         }
@@ -9777,6 +9780,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(WinResizer, [{
       key: "handleEvent",
       value: function handleEvent(e) {
+        var _this15 = this;
+
         var val, x, y;
         var _Post$sizing = Post.sizing,
             maxX = _Post$sizing.wWidth,
@@ -9813,8 +9818,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
 
             this.win.setAttribute('style', val);
-            docBody.addEventListener('mousemove', this);
-            docBody.addEventListener('mouseup', this);
+            ['mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.addEventListener(e, _this15);
+            });
             e.preventDefault();
             return;
 
@@ -9830,8 +9836,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return;
 
           default:
-            docBody.removeEventListener('mousemove', this);
-            docBody.removeEventListener('mouseup', this);
+            ['mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.removeEventListener(e, _this15);
+            });
             saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 
             if (this.win.classList.contains('de-win-fixed')) {
@@ -10665,7 +10672,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } 
 
 
-              posts = $Q(aib.qRPost, form);
+              posts = $Q(aib.qPost, form);
               cnt = posts.length + 1 - _entry.cnt;
               countEl.textContent = cnt;
 
@@ -10957,15 +10964,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var CfgWindow = {
     initCfgWindow: function initCfgWindow(body) {
-      var _this12 = this;
+      var _this16 = this;
 
-      body.addEventListener('click', this);
-      body.addEventListener('mouseover', this);
-      body.addEventListener('mouseout', this);
-      body.addEventListener('change', this);
-      body.addEventListener('keyup', this);
-      body.addEventListener('keydown', this);
-      body.addEventListener('scroll', this); 
+      ['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(function (e) {
+        return body.addEventListener(e, _this16);
+      }); 
 
       var div = $bEnd(body, "<div id=\"de-cfg-bar\">".concat(this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (pr.form || pr.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info'), "</div><div id=\"de-cfg-buttons\">").concat(this._getSel('language'), "</div>")); 
 
@@ -11013,7 +11016,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         el.insertAdjacentHTML('beforeend', "<hr><small>".concat(Lng.descrGlobal[lang], "</small>"));
       }) : '', 
       !nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], function () {
-        var list = _this12._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + " (".concat(aib.dm, ")"), Lng.myPosts[lang] + " (".concat(aib.dm, ")")]); 
+        var list = _this16._getList([Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang], Lng.panelBtn.fav[lang], Lng.hidPostThr[lang] + " (".concat(aib.dm, ")"), Lng.myPosts[lang] + " (".concat(aib.dm, ")")]); 
 
 
         $popup('cfg-file', "<b>".concat(Lng.fileImpExp[lang], ":</b><hr><!--\n\t\t\t\t\t--><div class=\"de-list\">").concat(Lng.fileToData[lang], ":<div class=\"de-depend\"><!--\n\t\t\t\t\t\t--><input type=\"file\" accept=\".json\" id=\"de-import-file\"></div></div><hr><!--\n\t\t\t\t\t--><div class=\"de-list\"><a id=\"de-export-file\" href=\"#\">").concat(Lng.dataToFile[lang], ":<!--\n\t\t\t\t\t--><div class=\"de-depend\">").concat(list, "</div></div>")); 
@@ -11194,7 +11197,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }(), true);
       }) : '', 
       $button(Lng.reset[lang] + '…', Lng.resetCfg[lang], function () {
-        return $popup('cfg-reset', "<b>".concat(Lng.resetData[lang], ":</b><hr>") + "<div class=\"de-list\"><b>".concat(aib.dm, ":</b>").concat(_this12._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]), "</div><hr>") + "<div class=\"de-list\"><b>".concat(Lng.allDomains[lang], ":</b>").concat(_this12._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]), "</div><hr>")).append($button(Lng.clear[lang], '', function (e) {
+        return $popup('cfg-reset', "<b>".concat(Lng.resetData[lang], ":</b><hr>") + "<div class=\"de-list\"><b>".concat(aib.dm, ":</b>").concat(_this16._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]]), "</div><hr>") + "<div class=\"de-list\"><b>".concat(Lng.allDomains[lang], ":</b>").concat(_this16._getList([Lng.panelBtn.cfg[lang], Lng.panelBtn.fav[lang]]), "</div><hr>")).append($button(Lng.clear[lang], '', function (e) {
           var els = $Q('input[type="checkbox"]', e.target.parentNode);
 
           for (var i = 1, len = els.length; i < len; ++i) {
@@ -11546,11 +11549,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               var temp = KeyEditListener.getEditMarkup(keys);
               var el = $popup('edit-hotkeys', temp[1]);
               var fn = new KeyEditListener(el, keys, temp[0]);
-              el.addEventListener('focus', fn, true);
-              el.addEventListener('blur', fn, true);
-              el.addEventListener('click', fn, true);
-              el.addEventListener('keydown', fn, true);
-              el.addEventListener('keyup', fn, true);
+              ['focus', 'blur', 'click', 'keydown', 'keyup'].forEach(function (e) {
+                return el.addEventListener(e, fn, true);
+              });
             });
             break;
 
@@ -11969,6 +11970,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Menu = function () {
     function Menu(parentEl, html, clickFn) {
+      var _this17 = this;
+
       var isFixed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
       _classCallCheck(this, Menu);
@@ -11988,8 +11991,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._clickFn = clickFn;
       this._el = el;
       this.parentEl = parentEl;
-      el.addEventListener('mouseover', this, true);
-      el.addEventListener('mouseout', this, true);
+      ['mouseover', 'mouseout'].forEach(function (e) {
+        return el.addEventListener(e, _this17, true);
+      });
       el.addEventListener('click', this);
       parentEl.addEventListener('mouseout', this);
     }
@@ -11997,7 +12001,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(Menu, [{
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this13 = this;
+        var _this18 = this;
 
         var isOverEvent = false;
 
@@ -12034,7 +12038,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 } else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
                   this._closeTO = setTimeout(function () {
-                    return _this13.removeMenu();
+                    return _this18.removeMenu();
                   }, 75);
 
                   if (this.onout) {
@@ -12048,6 +12052,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "removeMenu",
       value: function removeMenu() {
+        var _this19 = this;
+
         if (!this._el) {
           return;
         }
@@ -12056,10 +12062,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.onremove();
         }
 
-        this._el.removeEventListener('mouseover', this, true);
-
-        this._el.removeEventListener('mouseout', this, true);
-
+        ['mouseover', 'mouseout'].forEach(function (e) {
+          return _this19._el.removeEventListener(e, _this19, true);
+        });
         this.parentEl.removeEventListener('mouseout', this);
 
         this._el.removeEventListener('click', this);
@@ -12205,19 +12210,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     enableHotKeys: function enableHotKeys() {
-      var _this14 = this;
+      var _this20 = this;
 
       if (!this.enabled) {
         this.enabled = true;
         this._paused = false;
         Promise.resolve(this.readKeys()).then(function (keys) {
-          if (_this14.enabled) {
+          if (_this20.enabled) {
             var _keys = _slicedToArray(keys, 5);
 
-            _this14.gKeys = _keys[2];
-            _this14.ntKeys = _keys[3];
-            _this14.tKeys = _keys[4];
-            doc.addEventListener('keydown', _this14, true);
+            _this20.gKeys = _keys[2];
+            _this20.ntKeys = _keys[3];
+            _this20.tKeys = _keys[4];
+            doc.addEventListener('keydown', _this20, true);
           }
         });
       }
@@ -12511,7 +12516,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._paused = true;
     },
     readKeys: function readKeys() {
-      var _this15 = this;
+      var _this21 = this;
 
       return _asyncToGenerator( regeneratorRuntime.mark(function _callee6() {
         var str, keys, tKeys, mapFunc;
@@ -12530,7 +12535,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   break;
                 }
 
-                return _context8.abrupt("return", _this15.getDefaultKeys());
+                return _context8.abrupt("return", _this21.getDefaultKeys());
 
               case 5:
                 try {
@@ -12542,11 +12547,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   break;
                 }
 
-                return _context8.abrupt("return", _this15.getDefaultKeys());
+                return _context8.abrupt("return", _this21.getDefaultKeys());
 
               case 8:
-                if (keys[0] !== _this15.version) {
-                  tKeys = _this15.getDefaultKeys();
+                if (keys[0] !== _this21.version) {
+                  tKeys = _this21.getDefaultKeys();
 
                   switch (keys[0]) {
                     case 1:
@@ -12573,7 +12578,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       keys[2][18] = tKeys[2][18];
                   }
 
-                  keys[0] = _this15.version;
+                  keys[0] = _this21.version;
                   setStored('DESU_keys', JSON.stringify(keys));
                 }
 
@@ -12976,7 +12981,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     isLoading: false,
     popupId: null,
     downloadThread: function downloadThread(imgOnly) {
-      var _this16 = this;
+      var _this22 = this;
 
       var progress, counter;
       var current = 1;
@@ -12994,7 +12999,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
 
       this._thrPool = new TasksPool(4, function (num, data) {
-        return _this16.loadImgData(data[0]).then(function (imgData) {
+        return _this22.loadImgData(data[0]).then(function (imgData) {
           var _data4 = _slicedToArray(data, 4),
               url = _data4[0],
               fName = _data4[1],
@@ -13022,13 +13027,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               $popup('err-files', Lng.loadErrors[lang] + warnings);
 
               if (imgOnly) {
-                return _this16.getDataFromImg(el).then(function (data) {
+                return _this22.getDataFromImg(el).then(function (data) {
                   return tar.addFile(thumbName, data);
                 }, emptyFn);
               }
             }
 
-            return imgOnly ? null : _this16.getDataFromImg(el).then(function (data) {
+            return imgOnly ? null : _this22.getDataFromImg(el).then(function (data) {
               el.src = thumbName;
               tar.addFile(thumbName, data);
             }, function () {
@@ -13062,7 +13067,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var title = delSymbols(Thread.first.op.title.trim());
         downloadBlob(tar.get(), "".concat(docName).concat(imgOnly ? '-images' : '').concat(title ? ' - ' + title : '', ".tar"));
         closePopup('load-files');
-        _this16._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
+        _this22._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
       });
       els.forEach(function (el) {
         var parentLink = el.closest('a');
@@ -13070,7 +13075,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (parentLink) {
           var url = parentLink.href;
 
-          _this16._thrPool.runTask([url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
+          _this22._thrPool.runTask([url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
         }
       });
 
@@ -13090,7 +13095,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             el.href = aib.getAbsLink(el.href);
           }
         });
-        $Q(aib.qRPost, dc).forEach(function (el, i) {
+        $Q(aib.qPost, dc).forEach(function (el, i) {
           return el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t);
         });
         var files = [];
@@ -13128,7 +13133,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           files.push(fName);
 
-          _this16._thrPool.runTask([url, fName, el, null]);
+          _this22._thrPool.runTask([url, fName, el, null]);
 
           count++;
         });
@@ -13182,7 +13187,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
     },
     preloadImages: function preloadImages(data) {
-      var _this17 = this;
+      var _this23 = this;
 
       if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
         return;
@@ -13200,7 +13205,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return console.error('File detector error:', "line: ".concat(err.lineno, " - ").concat(err.message));
         });
         preloadPool = new TasksPool(mReqs, function (num, data) {
-          return _this17.loadImgData(data[0]).then(function (imageData) {
+          return _this23.loadImgData(data[0]).then(function (imageData) {
             var _data5 = _slicedToArray(data, 6),
                 url = _data5[0],
                 parentLink = _data5[1],
@@ -13233,24 +13238,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               if (rarJpgFinder) {
                 rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
-                  return _this17._addImgFileIcon(nameLink, fName, info);
+                  return _this23._addImgFileIcon(nameLink, fName, info);
                 });
               }
             }
 
-            if (_this17.popupId) {
-              $popup(_this17.popupId, "".concat(Lng.loadImage[lang], ": ").concat(cImg, "/").concat(len), true);
+            if (_this23.popupId) {
+              $popup(_this23.popupId, "".concat(Lng.loadImage[lang], ": ").concat(cImg, "/").concat(len), true);
             }
 
             cImg++;
           });
         }, function () {
-          _this17.isLoading = false;
+          _this23.isLoading = false;
 
-          if (_this17.afterFn) {
-            _this17.afterFn();
+          if (_this23.afterFn) {
+            _this23.afterFn();
 
-            _this17.afterFn = _this17.popupId = null;
+            _this23.afterFn = _this23.popupId = null;
           }
 
           if (rarJpgFinder) {
@@ -13414,25 +13419,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(DateTime, [{
       key: "genRFunc",
       value: function genRFunc(rPattern) {
-        var _this18 = this;
+        var _this24 = this;
 
         return function (dtime) {
-          return rPattern.replace('_o', (_this18.diff < 0 ? '' : '+') + _this18.diff).replace('_s', function () {
-            return _this18.pad2(dtime.getSeconds());
+          return rPattern.replace('_o', (_this24.diff < 0 ? '' : '+') + _this24.diff).replace('_s', function () {
+            return _this24.pad2(dtime.getSeconds());
           }).replace('_i', function () {
-            return _this18.pad2(dtime.getMinutes());
+            return _this24.pad2(dtime.getMinutes());
           }).replace('_h', function () {
-            return _this18.pad2(dtime.getHours());
+            return _this24.pad2(dtime.getHours());
           }).replace('_d', function () {
-            return _this18.pad2(dtime.getDate());
+            return _this24.pad2(dtime.getDate());
           }).replace('_w', function () {
-            return _this18.arrW[dtime.getDay()];
+            return _this24.arrW[dtime.getDay()];
           }).replace('_n', function () {
-            return _this18.pad2(dtime.getMonth() + 1);
+            return _this24.pad2(dtime.getMonth() + 1);
           }).replace('_m', function () {
-            return _this18.arrM[dtime.getMonth()];
+            return _this24.arrM[dtime.getMonth()];
           }).replace('_M', function () {
-            return _this18.arrFM[dtime.getMonth()];
+            return _this24.arrFM[dtime.getMonth()];
           }).replace('_y', function () {
             return ('' + dtime.getFullYear()).substring(2);
           }).replace('_Y', function () {
@@ -13480,7 +13485,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "fix",
       value: function fix(txt) {
-        var _this19 = this;
+        var _this25 = this;
 
         if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
           return txt;
@@ -13492,7 +13497,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           for (var i = 0; i < 7; ++i) {
             var a = i + 1 < 1 || arguments.length <= i + 1 ? undefined : arguments[i + 1];
 
-            switch (_this19.pattern[i]) {
+            switch (_this25.pattern[i]) {
               case 's':
                 second = a;
                 break;
@@ -13524,8 +13529,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-          dtime.setHours(dtime.getHours() + _this19.diff);
-          return _this19.genDateTime(dtime);
+          dtime.setHours(dtime.getHours() + _this25.diff);
+          return _this25.genDateTime(dtime);
         });
       }
     }], [{
@@ -14371,7 +14376,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "".concat(url).concat(url.includes('?') ? '&' : '?', "nocache=").concat(Math.random());
     },
     runCachedAjax: function runCachedAjax(url, useCache) {
-      var _this20 = this;
+      var _this26 = this;
 
       var _ref14 = this._data.get(url) || {},
           hasCacheControl = _ref14.hasCacheControl,
@@ -14381,7 +14386,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return $ajax(ajaxURL, useCache && params || {
         useTimeout: true
       }, aib._4chan).then(function (xhr) {
-        return _this20.saveData(url, xhr) ? xhr : $ajax(_this20.fixURL(url), useCache && params, aib._4chan);
+        return _this26.saveData(url, xhr) ? xhr : $ajax(_this26.fixURL(url), useCache && params, aib._4chan);
       });
     },
     saveData: function saveData(url, xhr) {
@@ -14470,7 +14475,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   };
 
   function getAjaxResponseEl(text, needForm) {
-    return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $createDoc(text)) : $createDoc(text);
+    return !text.includes('</html>') ? null : needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
   }
 
   function ajaxLoad(url) {
@@ -14539,7 +14544,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Pages = {
     addPage: function addPage() {
-      var _this21 = this;
+      var _this27 = this;
 
       var needThreads = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var pageNum = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DelForm.last.pageNum + 1;
@@ -14558,7 +14563,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             while (1) {
               switch (_context10.prev = _context10.next) {
                 case 0:
-                  newForm = _this21._addForm(formEl, pageNum);
+                  newForm = _this27._addForm(formEl, pageNum);
 
                   if (!newForm.firstThr) {
                     _context10.next = 16;
@@ -14570,12 +14575,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     break;
                   }
 
-                  return _context10.abrupt("return", _this21._updateForms(DelForm.last));
+                  return _context10.abrupt("return", _this27._updateForms(DelForm.last));
 
                 case 4:
                   $hide(newForm.el);
                   _context10.next = 7;
-                  return _this21._updateForms(DelForm.last);
+                  return _this27._updateForms(DelForm.last);
 
                 case 7:
                   firstForm = DelForm.first;
@@ -14601,18 +14606,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   firstForm.next = firstForm.lastThr.next = null;
                   newForm.el.remove();
 
-                  _this21._endAdding();
+                  _this27._endAdding();
 
                   if (needThreads) {
-                    _this21.addPage(needThreads, pageNum + 1);
+                    _this27.addPage(needThreads, pageNum + 1);
                   }
 
                   return _context10.abrupt("return", CancelablePromise.reject(new CancelError()));
 
                 case 16:
-                  _this21._endAdding();
+                  _this27._endAdding();
 
-                  _this21.addPage();
+                  _this27.addPage();
 
                   return _context10.abrupt("return", CancelablePromise.reject(new CancelError()));
 
@@ -14628,17 +14633,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return _ref15.apply(this, arguments);
         };
       }()).then(function () {
-        return _this21._endAdding();
+        return _this27._endAdding();
       })["catch"](function (err) {
         if (!(err instanceof CancelError)) {
           $popup('add-page', getErrorMessage(err));
 
-          _this21._endAdding();
+          _this27._endAdding();
         }
       });
     },
     loadPages: function loadPages(count) {
-      var _this22 = this;
+      var _this28 = this;
 
       return _asyncToGenerator( regeneratorRuntime.mark(function _callee9() {
         var _iterator5, _step5, form, i, len, first;
@@ -14649,10 +14654,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 $popup('load-pages', Lng.loading[lang], true);
 
-                if (_this22._addingPromise) {
-                  _this22._addingPromise.cancelPromise();
+                if (_this28._addingPromise) {
+                  _this28._addingPromise.cancelPromise();
 
-                  _this22._endAdding();
+                  _this28._endAdding();
                 }
 
                 PviewsCache.purge();
@@ -14706,7 +14711,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 _context11.prev = 23;
-                _context11.t0 = _this22;
+                _context11.t0 = _this28;
                 _context11.next = 27;
                 return ajaxLoad(aib.getPageUrl(aib.b, i));
 
@@ -14740,7 +14745,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 DelForm.first = first.next;
                 first.el.remove();
                 _context11.next = 44;
-                return _this22._updateForms(DelForm.first);
+                return _this28._updateForms(DelForm.first);
 
               case 44:
                 closePopup('load-pages');
@@ -14812,13 +14817,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   function toggleInfinityScroll() {
     if (!aib.t) {
-      var evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
-
-      if (Cfg.inftyScroll) {
-        doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
-      } else {
-        doc.defaultView.removeEventListener(evtName, toggleInfinityScroll.onwheel);
-      }
+      doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener']('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', toggleInfinityScroll.onwheel);
     }
   }
 
@@ -16069,11 +16068,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(SpellsRunner, [{
       key: "endSpells",
       value: function endSpells() {
-        var _this23 = this;
+        var _this29 = this;
 
         if (this._endPromise) {
           this._endPromise.then(function () {
-            return _this23._savePostsHelper();
+            return _this29._savePostsHelper();
           });
         } else {
           this._savePostsHelper();
@@ -16082,13 +16081,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "runSpells",
       value: function runSpells(post) {
-        var _this24 = this;
+        var _this30 = this;
 
         var res = new SpellsInterpreter(post, this._spells).runInterpreter();
 
         if (res instanceof Promise) {
           res = res.then(function (val) {
-            return _this24._checkRes(post, val);
+            return _this30._checkRes(post, val);
           });
           this._endPromise = this._endPromise ? this._endPromise.then(function () {
             return res;
@@ -16204,7 +16203,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(SpellsInterpreter, [{
       key: "runInterpreter",
       value: function runInterpreter() {
-        var _this25 = this;
+        var _this31 = this;
 
         var rv, stopCheck;
 
@@ -16245,7 +16244,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               this._ctx.push(len, scope, ++i, isNegScope);
 
               return val.then(function (v) {
-                return _this25._asyncContinue(v);
+                return _this31._asyncContinue(v);
               });
             }
 
@@ -16821,7 +16820,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var PostForm = function () {
     function PostForm(form) {
-      var _this26 = this;
+      var _this32 = this;
 
       var oeForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var ignoreForm = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -16903,7 +16902,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (Cfg.addSageBtn && this.mail) {
         PostForm.hideField(this.mail.closest('label') || this.mail);
         setTimeout(function () {
-          return _this26.toggleSage();
+          return _this32.toggleSage();
         }, 0);
       }
 
@@ -16941,14 +16940,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "sageBtn",
       get: function get() {
-        var _this27 = this;
+        var _this33 = this;
 
         var value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg></span>');
 
         value.onclick = function () {
           toggleCfg('sageReply');
 
-          _this27.toggleSage();
+          _this33.toggleSage();
         };
 
         Object.defineProperty(this, 'sageBtn', {
@@ -16964,6 +16963,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "addMarkupPanel",
       value: function addMarkupPanel() {
+        var _this34 = this;
+
         var el = $id('de-txt-panel');
 
         if (!Cfg.addTextBtns) {
@@ -16973,8 +16974,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (!el) {
           el = $add('<span id="de-txt-panel"></span>');
-          el.addEventListener('click', this);
-          el.addEventListener('mouseover', this);
+          ['click', 'mouseover'].forEach(function (e) {
+            return el.addEventListener(e, _this34);
+          });
         }
 
         el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
@@ -17110,7 +17112,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "setPlaceholders",
       value: function setPlaceholders() {
-        if (aib.kusaba || !aib.multiFile && Cfg.fileInputs === 2) {
+        if (aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {
           return;
         }
 
@@ -17244,7 +17246,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initAjaxPosting",
       value: function _initAjaxPosting() {
-        var _this28 = this;
+        var _this35 = this;
 
         var el;
 
@@ -17255,7 +17257,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.form.onsubmit = function (e) {
           e.preventDefault();
           $popup('upload', Lng.sending[lang], true);
-          html5Submit(_this28.form, _this28.subm, true).then(checkUpload)["catch"](function (err) {
+          html5Submit(_this35.form, _this35.subm, true).then(checkUpload)["catch"](function (err) {
             return $popup('upload', getErrorMessage(err));
           });
         };
@@ -17263,7 +17265,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initCaptcha",
       value: function _initCaptcha() {
-        var _this29 = this;
+        var _this36 = this;
 
         var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
 
@@ -17275,9 +17277,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.cap = new Captcha(capEl, this.tNum);
 
         var updCapFn = function updCapFn() {
-          _this29.cap.addCaptcha();
+          _this36.cap.addCaptcha();
 
-          _this29.cap.updateOutdated();
+          _this36.cap.updateOutdated();
         };
 
         this.txta.addEventListener('focus', updCapFn);
@@ -17287,13 +17289,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         this.form.addEventListener('click', function () {
-          return _this29.cap.addCaptcha();
+          return _this36.cap.addCaptcha();
         }, true);
       }
     }, {
       key: "_initFileInputs",
       value: function _initFileInputs() {
-        var _this30 = this;
+        var _this37 = this;
 
         var fileEl = $q(aib.qFormFile, this.form);
 
@@ -17309,29 +17311,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         deWindow.addEventListener('load', function () {
           return setTimeout(function () {
-            return !_this30.files.filesCount && _this30.files.clearInputs();
+            return !_this37.files.filesCount && _this37.files.clearInputs();
           }, 0);
         });
       }
     }, {
       key: "_initSubmit",
       value: function _initSubmit() {
-        var _this31 = this;
+        var _this38 = this;
 
         this.subm.addEventListener('click', function (e) {
-          if (Cfg.warnSubjTrip && _this31.subj && /#.|##./.test(_this31.subj.value)) {
+          if (Cfg.warnSubjTrip && _this38.subj && /#.|##./.test(_this38.subj.value)) {
             e.preventDefault();
             $popup('upload', Lng.subjHasTrip[lang]);
             return;
           }
 
-          var val = _this31.txta.value;
+          var val = _this38.txta.value;
 
           if (Spells.outreps) {
             val = Spells.outReplace(val);
           }
 
-          if (_this31.tNum && pByNum.get(_this31.tNum).subj === 'Dollchan Extension Tools') {
+          if (_this38.tNum && pByNum.get(_this38.tNum).subj === 'Dollchan Extension Tools') {
             var temp = "\n\n".concat(PostForm._wrapText(aib.markupTags[5], "".concat('-'.repeat(50), "\n").concat(nav.ua, "\nv").concat(version, ".").concat(commit).concat(nav.isESNext ? '.es6' : '', " [").concat(nav.scriptHandler, "]"))[1]);
 
             if (!val.includes(temp)) {
@@ -17339,23 +17341,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
 
-          _this31.txta.value = val;
+          _this38.txta.value = val;
 
-          _this31.toggleSage();
+          _this38.toggleSage();
 
           if (Cfg.ajaxPosting) {
             $popup('upload', Lng.checking[lang], true);
           }
 
-          if (_this31.video && (val = _this31.video.value) && (val = val.match(Videos.ytReg))) {
-            _this31.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+          if (_this38.video && (val = _this38.video.value) && (val = val.match(Videos.ytReg))) {
+            _this38.video.value = 'http://www.youtube.com/watch?v=' + val[1];
           }
 
-          if (_this31.isQuick) {
-            $hide(_this31.pForm);
-            $hide(_this31.qArea);
+          if (_this38.isQuick) {
+            $hide(_this38.pForm);
+            $hide(_this38.qArea);
 
-            _this31._pBtn[+_this31.isBottom].after(_this31.pForm);
+            _this38._pBtn[+_this38.isBottom].after(_this38.pForm);
           }
 
           updater.pauseUpdater();
@@ -17364,7 +17366,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initTextarea",
       value: function _initTextarea() {
-        var _this32 = this;
+        var _this39 = this;
 
         var el = this.txta;
 
@@ -17408,7 +17410,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     file = _step20.value;
-                    inputs = _this32.files._inputs;
+                    inputs = _this39.files._inputs;
                     i = 0, len = inputs.length;
 
                   case 6:
@@ -17470,10 +17472,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           _el: el,
           _elStyle: style,
           handleEvent: function handleEvent(e) {
+            var _this40 = this;
+
             switch (e.type) {
               case 'mousedown':
-                docBody.addEventListener('mousemove', this);
-                docBody.addEventListener('mouseup', this);
+                ['mousemove', 'mouseup'].forEach(function (e) {
+                  return docBody.addEventListener(e, _this40);
+                });
                 e.preventDefault();
                 return;
 
@@ -17489,8 +17494,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
               default:
-                docBody.removeEventListener('mousemove', this);
-                docBody.removeEventListener('mouseup', this);
+                ['mousemove', 'mouseup'].forEach(function (e) {
+                  return docBody.removeEventListener(e, _this40);
+                });
                 saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
                 saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
             }
@@ -17500,7 +17506,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_makeHideableContainer",
       value: function _makeHideableContainer() {
-        var _this33 = this;
+        var _this41 = this;
 
         (this.pForm = $add('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
         var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
@@ -17508,11 +17514,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 
         this._pBtn[0].firstElementChild.onclick = function (e) {
-          return _this33.showMainReply(false, e);
+          return _this41.showMainReply(false, e);
         };
 
         this._pBtn[1].firstElementChild.onclick = function (e) {
-          return _this33.showMainReply(true, e);
+          return _this41.showMainReply(true, e);
         };
 
         this.qArea = $add("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
@@ -17522,7 +17528,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_makeWindow",
       value: function _makeWindow() {
-        var _this34 = this;
+        var _this42 = this;
 
         makeDraggable('reply', this.qArea, $aBegin(this.qArea, "<div class=\"de-win-head\">\n\t\t\t<span class=\"de-win-title\"></span>\n\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t<svg class=\"de-win-btn-clear\"><use xlink:href=\"#de-symbol-unavail\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class=\"de-resizer de-resizer-top\"></div>\n\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t<div class=\"de-resizer de-resizer-right\"></div>\n\t\t<div class=\"de-resizer de-resizer-bottom\"></div>"));
         var buttons = $q('.de-win-buttons', this.qArea);
@@ -17553,11 +17559,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         clearBtn.onclick = function () {
           saveCfg('sageReply', 0);
 
-          _this34.toggleSage();
+          _this42.toggleSage();
 
-          _this34.files.clearInputs();
+          _this42.files.clearInputs();
 
-          [_this34.txta, _this34.name, _this34.mail, _this34.subj, _this34.video, _this34.cap && _this34.cap.textEl].forEach(function (el) {
+          [_this42.txta, _this42.name, _this42.mail, _this42.subj, _this42.video, _this42.cap && _this42.cap.textEl].forEach(function (el) {
             return el && (el.value = '');
           });
         };
@@ -17566,17 +17572,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           toggleCfg('replyWinDrag');
 
           if (Cfg.replyWinDrag) {
-            _this34.qArea.className = aib.cReply + ' de-win';
-            updateWinZ(_this34.qArea.style);
+            _this42.qArea.className = aib.cReply + ' de-win';
+            updateWinZ(_this42.qArea.style);
           } else {
-            _this34.qArea.className = aib.cReply + ' de-win-inpost';
+            _this42.qArea.className = aib.cReply + ' de-win-inpost';
 
-            _this34.txta.focus();
+            _this42.txta.focus();
           }
         };
 
         closeBtn.onclick = function () {
-          return _this34.closeReply();
+          return _this42.closeReply();
         };
       }
     }, {
@@ -17695,7 +17701,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   function getSubmitError(dc) {
     var _dc$body;
 
-    if (!((_dc$body = dc.body) !== null && _dc$body !== void 0 && _dc$body.hasChildNodes()) || $q(aib.qDForm, dc)) {
+    if (!((_dc$body = dc.body) !== null && _dc$body !== void 0 && _dc$body.hasChildNodes()) || $q(aib.qDelForm, dc)) {
       return null;
     }
 
@@ -17791,7 +17797,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (postNum) {
         deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
       } else if (isDocument) {
-        var dForm = $q(aib.qDForm, data);
+        var dForm = $q(aib.qDelForm, data);
 
         if (dForm) {
           deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
@@ -17851,7 +17857,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return _context34.abrupt("return");
 
             case 5:
-              els = $Q("[de-form] ".concat(aib.qRPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
+              els = $Q("[de-form] ".concat(aib.qPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
               threads = new Set();
               isThr = aib.t;
 
@@ -18635,7 +18641,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "addUrlFile",
       value: function () {
         var _addUrlFile = _asyncToGenerator( regeneratorRuntime.mark(function _callee13(url) {
-          var _this35 = this;
+          var _this43 = this;
 
           var file,
               _args16 = arguments;
@@ -18668,7 +18674,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     closePopup('file-loading');
-                    _this35._isTxtEditable = _this35._isTxtEditName = false;
+                    _this43._isTxtEditable = _this43._isTxtEditName = false;
                     var name = ((_file = file) === null || _file === void 0 ? void 0 : _file.name) || getFileName(url);
                     var type = ((_file2 = file) === null || _file2 === void 0 ? void 0 : _file2.type) || getFileMime(name);
 
@@ -18701,7 +18707,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       }
                     }
 
-                    _this35.imgFile = {
+                    _this43.imgFile = {
                       data: data.buffer,
                       name: name,
                       type: type || getFileMime(name)
@@ -18709,19 +18715,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                     if (!file) {
                       file = new Blob([data], {
-                        type: _this35.imgFile.type
+                        type: _this43.imgFile.type
                       });
                       file.name = name;
                     }
 
-                    _this35._parent._files[_this35._parent._inputs.indexOf(_this35)] = file;
-                    DollchanAPI.notify('filechange', _this35._parent._files);
+                    _this43._parent._files[_this43._parent._inputs.indexOf(_this43)] = file;
+                    DollchanAPI.notify('filechange', _this43._parent._files);
 
                     if (FileInput._isThumbMode) {
-                      $hide(_this35._txtWrap);
+                      $hide(_this43._txtWrap);
                     }
 
-                    _this35._onFileChange(true);
+                    _this43._onFileChange(true);
                   });
 
                 case 6:
@@ -18825,7 +18831,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this36 = this;
+        var _this44 = this;
 
         var el = e.target;
         var thumb = this._thumb;
@@ -18846,17 +18852,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   for (var i = 0; i < allowedLen; ++i) {
                     FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
                       if (! --j) {
-                        _this36._removeFileHelper();
+                        _this44._removeFileHelper();
                       }
                     });
 
-                    _this36._parent._files[curInpIdx + i] = el.files[i];
+                    _this44._parent._files[curInpIdx + i] = el.files[i];
                   }
                 })();
               } else {
                 if (filesLen > 0) {
                   setTimeout(function () {
-                    return _this36._onFileChange(false);
+                    return _this44._onFileChange(false);
                   }, 20);
                   this._parent._files[curInpIdx] = el.files[0];
                 } else {
@@ -18866,7 +18872,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               DollchanAPI.notify('filechange', this._parent._files);
-              return;
+              break;
             }
 
           case 'click':
@@ -18948,18 +18954,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   var file = this._input.files[0];
                   readFile(file).then(function (_ref28) {
                     var data = _ref28.data;
-                    _this36.imgFile = {
+                    _this44.imgFile = {
                       data: data,
                       name: newName,
                       type: file.type,
                       isConstName: true
                     };
 
-                    _this36._removeFileHelper(); 
+                    _this44._removeFileHelper(); 
 
 
                     if (FileInput._isThumbMode) {
-                      _this36._addThumbTitle(newName, data.byteLength);
+                      _this44._addThumbTitle(newName, data.byteLength);
                     }
                   });
                   return;
@@ -18972,9 +18978,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 this._txtInput.blur();
               }
 
-              e.preventDefault();
-              e.stopPropagation();
-              return;
+              break;
             }
 
           case 'dragenter':
@@ -19021,11 +19025,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return thumb.classList.remove('de-file-drag');
                 }, 10);
               }
-
-              e.preventDefault();
-              e.stopPropagation();
             }
         }
+
+        e.preventDefault();
+        e.stopPropagation();
       }
     }, {
       key: "hideInp",
@@ -19071,23 +19075,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_addRarJpeg",
       value: function _addRarJpeg() {
-        var _this37 = this;
+        var _this45 = this;
 
         var el = this._parent.rarInput;
 
         el.onchange = function (e) {
-          $hide(_this37._btnRar);
-          var myBtn = _this37._rarMsg = $aBegin(_this37._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+          $hide(_this45._btnRar);
+          var myBtn = _this45._rarMsg = $aBegin(_this45._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
           var file = e.target.files[0];
           readFile(file).then(function (_ref29) {
             var data = _ref29.data;
 
-            if (_this37._rarMsg === myBtn) {
+            if (_this45._rarMsg === myBtn) {
               myBtn.className = 'de-file-rarmsg';
-              var origFileName = _this37.imgFile ? _this37.imgFile.name : _this37._input.files[0].name;
+              var origFileName = _this45.imgFile ? _this45.imgFile.name : _this45._input.files[0].name;
               myBtn.title = origFileName + ' + ' + file.name;
               myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
-              _this37.extraFile = data;
+              _this45.extraFile = data;
             }
           });
         };
@@ -19111,6 +19115,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initThumbs",
       value: function _initThumbs() {
+        var _this46 = this;
+
         var fileTr = this._parent.fileTr;
         $hide(fileTr);
         $hide(this._txtWrap);
@@ -19118,10 +19124,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ? '<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' : '<div class="de-file-txt-area"></div>');
         (isTr ? txtArea.lastChild : txtArea).append(this._txtWrap);
         this._thumb = $bEnd(this._parent.thumbsEl, "<div class=\"de-file de-file-off\"><div class=\"de-file-img\"><div class=\"de-file-img\" title=\"".concat(Lng.youCanDrag[lang], "\"></div></div></div>"));
-
-        this._thumb.addEventListener('click', this);
-
-        this._thumb.addEventListener('dragenter', this);
+        ['click', 'dragenter'].forEach(function (e) {
+          return _this46._thumb.addEventListener(e, _this46);
+        });
 
         this._thumb.append(this._utils);
 
@@ -19205,7 +19210,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showFileThumb",
       value: function _showFileThumb() {
-        var _this38 = this;
+        var _this47 = this;
 
         var imgFile = this.imgFile;
 
@@ -19221,8 +19226,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           readFile(file).then(function (_ref30) {
             var data = _ref30.data;
 
-            if (_this38._input.files[0] === file) {
-              _this38._addNewThumb(data, file.name, file.type, file.size);
+            if (_this47._input.files[0] === file) {
+              _this47._addNewThumb(data, file.name, file.type, file.size);
             }
           });
         }
@@ -19237,13 +19242,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_toggleDragEvents",
       value: function _toggleDragEvents(el, isAdd) {
+        var _this48 = this;
+
         var name = isAdd ? 'addEventListener' : 'removeEventListener';
         el[name]('dragover', function (e) {
           return e.preventDefault();
         });
-        el[name]('dragenter', this);
-        el[name]('dragleave', this);
-        el[name]('drop', this);
+        ['dragenter', 'dragleave', 'drop'].forEach(function (e) {
+          return el[name](e, _this48);
+        });
       }
     }], [{
       key: "_isThumbMode",
@@ -19354,18 +19361,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "initCapPromise",
       value: function initCapPromise() {
-        var _this39 = this;
+        var _this49 = this;
 
         var initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
 
         if (initPromise) {
           initPromise.then(function () {
-            return _this39.showCaptcha();
+            return _this49.showCaptcha();
           }, function (err) {
             if (err instanceof AjaxError) {
-              _this39._setUpdateError(err);
+              _this49._setUpdateError(err);
             } else {
-              _this39.hasCaptcha = false;
+              _this49.hasCaptcha = false;
             }
           });
         } else if (this.hasCaptcha) {
@@ -19375,28 +19382,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "initImage",
       value: function initImage(img) {
-        var _this40 = this;
+        var _this50 = this;
 
         img.title = Lng.refresh[lang];
         img.alt = Lng.loading[lang];
         img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 
         img.onclick = function () {
-          return _this40.refreshCaptcha(true);
+          return _this50.refreshCaptcha(true);
         };
       }
     }, {
       key: "initTextEl",
       value: function initTextEl() {
+        var _this51 = this;
+
         this.textEl.autocomplete = 'off';
 
-        if (!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2)) {
+        if (!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
           this.textEl.placeholder = Lng.cap[lang];
         }
 
-        this.textEl.addEventListener('keypress', this);
+        ['keypress', 'focus'].forEach(function (e) {
+          return _this51.textEl.addEventListener(e, _this51);
+        });
         this.textEl.onkeypress = null;
-        this.textEl.addEventListener('focus', this);
         this.textEl.onfocus = null;
       }
     }, {
@@ -19442,7 +19452,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "refreshCaptcha",
       value: function refreshCaptcha(isFocus) {
-        var _this41 = this;
+        var _this52 = this;
 
         var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -19466,9 +19476,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if (updatePromise) {
             updatePromise.then(function () {
-              return _this41._updateTextEl(isFocus);
+              return _this52._updateTextEl(isFocus);
             }, function (err) {
-              return _this41._setUpdateError(err);
+              return _this52._setUpdateError(err);
             });
           }
         } else if (this._isRecap) {
@@ -19529,16 +19539,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_setUpdateError",
       value: function _setUpdateError(e) {
-        var _this42 = this;
+        var _this53 = this;
 
         if (e) {
           this.parentEl = e.toString();
           this.isAdded = false;
 
           this.parentEl.onclick = function () {
-            _this42.parentEl.onclick = null;
+            _this53.parentEl.onclick = null;
 
-            _this42.addCaptcha();
+            _this53.addCaptcha();
           };
 
           $show(this.parentEl);
@@ -19710,7 +19720,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this43 = this;
+        var _this54 = this;
 
         var temp;
         var el = nav.fixEventEl(e.target);
@@ -19888,8 +19898,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (!this._hasEvents) {
           this._hasEvents = true;
-          this.el.addEventListener('click', this, true);
-          this.el.addEventListener('mouseout', this, true);
+          ['click', 'mouseout'].forEach(function (e) {
+            return _this54.el.addEventListener(e, _this54, true);
+          });
         } 
 
 
@@ -20002,7 +20013,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             } else {
               this._linkDelay = setTimeout(function () {
-                return _this43.kid = Pview.showPview(_this43, el);
+                return _this54.kid = Pview.showPview(_this54, el);
               }, Cfg.linksOver);
             }
 
@@ -20068,14 +20079,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_addMenu",
       value: function _addMenu(el, isOutEvent, html) {
-        var _this44 = this;
+        var _this55 = this;
 
         if (!this.menu || this.menu.parentEl !== el) {
           if (isOutEvent) {
             clearTimeout(this._menuDelay);
           } else {
             this._menuDelay = setTimeout(function () {
-              return _this44._showMenu(el, html);
+              return _this55._showMenu(el, html);
             }, Cfg.linksOver);
           }
         }
@@ -20096,7 +20107,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_clickMenu",
       value: function _clickMenu(el, e) {
-        var _this45 = this;
+        var _this56 = this;
 
         var isHide = !this.isHidden;
         var num = this.num;
@@ -20235,7 +20246,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               $Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + num, "\"]")).forEach(function (el) {
                 var post = aib.getPostOfEl(el);
 
-                if (post.el !== _this45.el) {
+                if (post.el !== _this56.el) {
                   el.classList.toggle('de-ref-you', isAdd);
                   post.el.classList.toggle('de-mypost-reply', isAdd);
                 }
@@ -20265,7 +20276,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_getFullMsg",
       value: function _getFullMsg(truncEl, isInit) {
-        var _this46 = this;
+        var _this57 = this;
 
         if (aib.deleteTruncMsg) {
           aib.deleteTruncMsg(this, truncEl, isInit);
@@ -20280,15 +20291,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var sourceEl;
           var maybeSpells = new Maybe(SpellsRunner);
 
-          if (_this46.isOp) {
+          if (_this57.isOp) {
             sourceEl = form;
           } else {
-            var posts = $Q(aib.qRPost, form);
+            var posts = $Q(aib.qPost, form);
 
             for (var i = 0, len = posts.length; i < len; ++i) {
               var post = posts[i];
 
-              if (_this46.num === aib.getPNum(post)) {
+              if (_this57.num === aib.getPNum(post)) {
                 sourceEl = post;
                 break;
               }
@@ -20296,7 +20307,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           if (sourceEl) {
-            _this46.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+            _this57.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
 
             truncEl.remove();
           }
@@ -20309,18 +20320,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showMenu",
       value: function _showMenu(el, html) {
-        var _this47 = this;
+        var _this58 = this;
 
         if (this._menu) {
           this._menu.removeMenu();
         }
 
         this._menu = new Menu(el, html, function (el, e) {
-          return (_this47 instanceof Pview ? pByNum.get(_this47.num) || _this47 : _this47)._clickMenu(el, e);
+          return (_this58 instanceof Pview ? pByNum.get(_this58.num) || _this58 : _this58)._clickMenu(el, e);
         }, false);
 
         this._menu.onremove = function () {
-          return _this47._menu = null;
+          return _this58._menu = null;
         };
       }
     }]);
@@ -20334,50 +20345,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super4 = _createSuper(Post);
 
     function Post(el, thr, num, count, isOp, prev) {
-      var _this48;
+      var _this59;
 
       _classCallCheck(this, Post);
 
-      _this48 = _super4.call(this, thr, num, isOp);
-      _this48.count = count;
-      _this48.el = el;
-      _this48.isDeleted = false;
-      _this48.isHidden = false;
-      _this48.isOmitted = false;
-      _this48.isViewed = false;
-      _this48.next = null;
-      _this48.prev = prev;
-      _this48.spellHidden = false;
-      _this48.userToggled = false;
-      _this48._selRange = null;
-      _this48._selText = '';
+      _this59 = _super4.call(this, thr, num, isOp);
+      _this59.count = count;
+      _this59.el = el;
+      _this59.isDeleted = false;
+      _this59.isHidden = false;
+      _this59.isOmitted = false;
+      _this59.isViewed = false;
+      _this59.next = null;
+      _this59.prev = prev;
+      _this59.spellHidden = false;
+      _this59.userToggled = false;
+      _this59._selRange = null;
+      _this59._selText = '';
 
       if (prev) {
-        prev.next = _assertThisInitialized(_this48);
+        prev.next = _assertThisInitialized(_this59);
       }
 
-      pByEl.set(el, _assertThisInitialized(_this48));
-      pByNum.set(num, _assertThisInitialized(_this48));
+      pByEl.set(el, _assertThisInitialized(_this59));
+      pByNum.set(num, _assertThisInitialized(_this59));
       var isMyPost = MyPosts.has(num);
 
       if (isMyPost) {
-        _this48.el.classList.add('de-mypost');
-      } else if (localData && _this48.el.classList.contains('de-mypost')) {
+        _this59.el.classList.add('de-mypost');
+      } else if (localData && _this59.el.classList.contains('de-mypost')) {
         MyPosts.set(num, thr.num);
         isMyPost = true;
       }
 
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this48.sage = aib.getSage(el);
-      _this48.btns = $aEnd(_this48._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this48.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
-      _this48.counterEl = isOp ? null : $q('.de-post-counter', _this48.btns);
+      _this59.sage = aib.getSage(el);
+      _this59.btns = $aEnd(_this59._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this59.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
+      _this59.counterEl = isOp ? null : $q('.de-post-counter', _this59.btns);
 
-      if (Cfg.expandTrunc && _this48.trunc) {
-        _this48._getFullMsg(_this48.trunc, true);
+      if (Cfg.expandTrunc && _this59.trunc) {
+        _this59._getFullMsg(_this59.trunc, true);
       }
 
-      el.addEventListener('mouseover', _assertThisInitialized(_this48), true);
-      return _this48;
+      el.addEventListener('mouseover', _assertThisInitialized(_this59), true);
+      return _this59;
     }
 
     _createClass(Post, [{
@@ -20621,7 +20632,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "setVisib",
       value: function setVisib(isHide) {
-        var _this49 = this;
+        var _this60 = this;
 
         var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -20642,7 +20653,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
               var yOffset = deWindow.pageYOffset;
 
-              _this49.hideContent(e.type === 'mouseout');
+              _this60.hideContent(e.type === 'mouseout');
 
               scrollTo(deWindow.pageXOffset, yOffset);
             };
@@ -20651,7 +20662,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (Cfg.strikeHidd) {
           setTimeout(function () {
-            return _this49._strikePostNum(isHide);
+            return _this60._strikePostNum(isHide);
           }, 50);
         }
 
@@ -20875,20 +20886,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super5 = _createSuper(PostContent);
 
     function PostContent(post) {
-      var _this50;
+      var _this61;
 
       _classCallCheck(this, PostContent);
 
-      _this50 = _super5.call(this, post);
+      _this61 = _super5.call(this, post);
 
-      if (_this50._isInited) {
-        return _possibleConstructorReturn(_this50);
+      if (_this61._isInited) {
+        return _possibleConstructorReturn(_this61);
       }
 
-      _this50._isInited = true;
-      _this50.el = post.el;
-      _this50.post = post;
-      return _this50;
+      _this61._isInited = true;
+      _this61.el = post.el;
+      _this61.post = post;
+      return _this61;
     }
 
     _createClass(PostContent, [{
@@ -21013,20 +21024,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "set",
       value: function set(note) {
-        var _this51 = this;
+        var _this62 = this;
 
         this.text = note;
         var text;
 
         if (this.isHideThr) {
           this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-            return _this51._post.hideContent(e.type === 'mouseout');
+            return _this62._post.hideContent(e.type === 'mouseout');
           };
 
           this._aEl.onclick = function (e) {
             e.preventDefault();
 
-            _this51._post.setUserVisib(!_this51._post.isHidden);
+            _this62._post.setUserVisib(!_this62._post.isHidden);
           };
 
           text = (this._post.title ? "(".concat(this._post.title, ") ") : '') + (note ? "[autohide: ".concat(note, "]") : '');
@@ -21110,54 +21121,54 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super6 = _createSuper(Pview);
 
     function Pview(parent, link, pNum, tNum) {
-      var _this52;
+      var _this63;
 
       _classCallCheck(this, Pview);
 
-      _this52 = _super6.call(this, parent.thr, pNum, pNum === tNum);
-      _this52.isSticky = false;
-      _this52.parent = parent;
-      _this52.remoteThr = null;
-      _this52.tNum = tNum;
-      _this52._isCached = false;
-      _this52._isLeft = false;
-      _this52._isTop = false;
-      _this52._link = link;
-      _this52._newPos = null;
-      _this52._offsetTop = 0;
-      _this52._readDelay = 0;
+      _this63 = _super6.call(this, parent.thr, pNum, pNum === tNum);
+      _this63.isSticky = false;
+      _this63.parent = parent;
+      _this63.remoteThr = null;
+      _this63.tNum = tNum;
+      _this63._isCached = false;
+      _this63._isLeft = false;
+      _this63._isTop = false;
+      _this63._link = link;
+      _this63._newPos = null;
+      _this63._offsetTop = 0;
+      _this63._readDelay = 0;
       var post = pByNum.get(pNum);
 
       if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-        _this52._buildPview(post);
+        _this63._buildPview(post);
 
-        return _possibleConstructorReturn(_this52);
+        return _possibleConstructorReturn(_this63);
       }
 
-      _this52._isCached = true;
-      _this52.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+      _this63._isCached = true;
+      _this63.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 
-      if (PviewsCache.has(_this52.board + tNum)) {
-        post = PviewsCache.get(_this52.board + tNum).getPost(pNum);
+      if (PviewsCache.has(_this63.board + tNum)) {
+        post = PviewsCache.get(_this63.board + tNum).getPost(pNum);
 
         if (post) {
-          _this52._buildPview(post);
+          _this63._buildPview(post);
         } else {
-          _this52._showPview(_this52.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this63._showPview(_this63.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
 
-        return _possibleConstructorReturn(_this52);
+        return _possibleConstructorReturn(_this63);
       }
 
-      _this52._showPview(_this52.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>"))); 
+      _this63._showPview(_this63.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>"))); 
 
 
-      _this52._loadPromise = ajaxPostsLoad(_this52.board, tNum, false, false).then(function (pBuilder) {
-        return _this52._onload(pBuilder);
+      _this63._loadPromise = ajaxPostsLoad(_this63.board, tNum, false, false).then(function (pBuilder) {
+        return _this63._onload(pBuilder);
       }, function (err) {
-        return _this52._onerror(err);
+        return _this63._onerror(err);
       });
-      return _this52;
+      return _this63;
     }
 
     _createClass(Pview, [{
@@ -21276,11 +21287,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "markToDel",
       value: function markToDel() {
-        var _this53 = this;
+        var _this64 = this;
 
         clearTimeout(Pview._delTO);
         Pview._delTO = setTimeout(function () {
-          return _this53.deleteNonSticky();
+          return _this64.deleteNonSticky();
         }, Cfg.linksOut);
       }
     }, {
@@ -21549,12 +21560,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showMenu",
       value: function _showMenu(el, html) {
-        var _this54 = this;
+        var _this65 = this;
 
         _get(_getPrototypeOf(Pview.prototype), "_showMenu", this).call(this, el, html);
 
         this._menu.onover = function () {
-          return _this54.mouseEnter();
+          return _this65.mouseEnter();
         };
 
         this._menu.onout = function () {
@@ -21564,8 +21575,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showPview",
       value: function _showPview(el) {
-        el.addEventListener('mouseover', this, true);
-        el.addEventListener('mouseout', this, true);
+        var _this66 = this;
+
+        ['mouseover', 'mouseout'].forEach(function (e) {
+          return el.addEventListener(e, _this66, true);
+        });
         this.thr.form.el.append(el);
 
         this._setPosition(this._link, false);
@@ -21764,7 +21778,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "thr",
       get: function get() {
-        var _this55 = this;
+        var _this67 = this;
 
         var value = null;
 
@@ -21776,7 +21790,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           };
           Object.defineProperty(value, 'title', {
             get: function get() {
-              return _this55.title;
+              return _this67.title;
             }
           });
         }
@@ -21797,17 +21811,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super7 = _createSuper(PviewsCache);
 
     function PviewsCache(pBuilder, board, tNum) {
-      var _this56;
+      var _this68;
 
       _classCallCheck(this, PviewsCache);
 
-      _this56 = _super7.call(this, board + tNum);
+      _this68 = _super7.call(this, board + tNum);
 
-      if (_this56._isInited) {
-        return _possibleConstructorReturn(_this56);
+      if (_this68._isInited) {
+        return _possibleConstructorReturn(_this68);
       }
 
-      _this56._isInited = true;
+      _this68._isInited = true;
       var lPByNum = new Map();
       var thrUrl = aib.getThrUrl(board, tNum);
       lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
@@ -21817,14 +21831,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       DelForm.tNums.add(tNum);
-      _this56._b = board;
-      _this56._posts = lPByNum;
+      _this68._b = board;
+      _this68._posts = lPByNum;
 
       if (Cfg.linksNavig) {
         RefMap.gen(lPByNum);
       }
 
-      return _this56;
+      return _this68;
     }
 
     _createClass(PviewsCache, [{
@@ -21878,6 +21892,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(ImagesNavigBtns, [{
       key: "handleEvent",
       value: function handleEvent(e) {
+        var _this69 = this;
+
         switch (e.type) {
           case 'mousemove':
             {
@@ -21896,10 +21912,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           case 'mouseover':
             if (!this.hasEvents) {
               this.hasEvents = true;
-
-              this._btns.addEventListener('mouseout', this);
-
-              this._btns.addEventListener('click', this);
+              ['mouseout', 'click'].forEach(function (e) {
+                return _this69._btns.addEventListener(e, _this69);
+              });
             }
 
             if (!this._isHidden) {
@@ -21971,11 +21986,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_setHideTmt",
       value: function _setHideTmt() {
-        var _this57 = this;
+        var _this70 = this;
 
         clearTimeout(this._hideTmt);
         this._hideTmt = setTimeout(function () {
-          return _this57.hideBtns();
+          return _this70.hideBtns();
         }, 2e3);
       }
     }]);
@@ -22018,6 +22033,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
+        var _this71 = this;
+
         switch (e.type) {
           case 'mousedown':
             if (this.data.isVideo && ExpandableImage.isControlClick(e)) {
@@ -22026,8 +22043,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             this._oldX = e.clientX;
             this._oldY = e.clientY;
-            docBody.addEventListener('mousemove', this, true);
-            docBody.addEventListener('mouseup', this, true);
+            ['mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.addEventListener(e, _this71, true);
+            });
             break;
 
           case 'mousemove':
@@ -22049,8 +22067,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
 
           case 'mouseup':
-            docBody.removeEventListener('mousemove', this, true);
-            docBody.removeEventListener('mouseup', this, true);
+            ['mousemove', 'mouseup'].forEach(function (e) {
+              return docBody.removeEventListener(e, _this71, true);
+            });
             return;
 
           case 'click':
@@ -22274,7 +22293,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showFullImg",
       value: function _showFullImg(data) {
-        var _this58 = this;
+        var _this72 = this;
 
         var _data$computeFullSize = data.computeFullSize(),
             _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
@@ -22283,9 +22302,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             minSize = _data$computeFullSize2[2];
 
         this._fullEl = data.getFullImg(false, function (el) {
-          return _this58._resizeFullImg(el);
+          return _this72._resizeFullImg(el);
         }, function (el) {
-          return _this58._rotateFullImg(el);
+          return _this72._rotateFullImg(el);
         });
         this._width = width;
         this._height = height;
@@ -22302,9 +22321,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._elStyle = el.style;
         this.data = data;
         this._parentEl = el;
-        el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
-        el.addEventListener('mousedown', this, true);
-        el.addEventListener('click', this, true);
+        ['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(function (e) {
+          return el.addEventListener(e, _this72, true);
+        });
         data.srcBtnEvents(this);
 
         if (data.inPview && !data.post.isSticky) {
@@ -22421,20 +22440,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "checkForRedirect",
       value: function checkForRedirect(fullEl) {
-        var _this59 = this;
+        var _this73 = this;
 
         if (!aib.getImgRedirectSrc || this.redirected) {
           return;
         }
 
         aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-          _this59.redirected = true;
-          Object.defineProperty(_this59, 'src', {
+          _this73.redirected = true;
+          Object.defineProperty(_this73, 'src', {
             value: newSrc
           });
-          $q('img, video', fullEl).src = _this59.el.src = _this59.el.parentNode.href = getImgNameLink(_this59.el).href = newSrc;
+          $q('img, video', fullEl).src = _this73.el.src = _this73.el.parentNode.href = getImgNameLink(_this73.el).href = newSrc;
 
-          if (!_this59.isVideo) {
+          if (!_this73.isVideo) {
             $q('a', fullEl).href = newSrc;
           }
         });
@@ -22535,7 +22554,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "expandImg",
       value: function expandImg(inPost, e) {
-        var _this60 = this;
+        var _this74 = this;
 
         if (e && !e.bubbles) {
           return;
@@ -22571,7 +22590,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._fullEl = this.getFullImg(true, null, null);
 
         this._fullEl.addEventListener('click', function (e) {
-          return _this60.collapseImg(e);
+          return _this74.collapseImg(e);
         }, true);
 
         this.srcBtnEvents(this);
@@ -22623,7 +22642,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getFullImg",
       value: function getFullImg(inPost, onsizechange, onrotate) {
-        var _this61 = this;
+        var _this75 = this;
 
         var wrapEl, name, origSrc;
 
@@ -22663,11 +22682,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             var newW = img.naturalWidth,
                 newH = img.naturalHeight;
-            var ar = _this61._size ? _this61._size[1] / _this61._size[0] : newH / newW;
+            var ar = _this75._size ? _this75._size[1] / _this75._size[0] : newH / newW;
             var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
 
-            if (!_this61._size || isRotated) {
-              _this61._size = isRotated ? [newH, newW] : [newW, newH];
+            if (!_this75._size || isRotated) {
+              _this75._size = isRotated ? [newH, newW] : [newW, newH];
             }
 
             var parentEl = img.parentNode.parentNode;
@@ -22723,7 +22742,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (!this._size) {
           videoEl.addEventListener('loadedmetadata', function (_ref35) {
             var el = _ref35.target;
-            _this61._size = [el.videoWidth, el.videoHeight];
+            _this75._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
         } 
@@ -22783,7 +22802,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             var loadedTitle = decodeURIComponent(escape(str));
 
-            _this61.el.setAttribute('de-metatitle', loadedTitle);
+            _this75.el.setAttribute('de-metatitle', loadedTitle);
 
             if (str) {
               $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replaceAll('.', ' ');
@@ -22825,7 +22844,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "srcBtnEvents",
       value: function srcBtnEvents(_ref37) {
-        var _this62 = this;
+        var _this76 = this;
 
         var _fullEl = _ref37._fullEl;
 
@@ -22836,15 +22855,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var srcBtnEl = $q('.de-btn-img', _fullEl);
         srcBtnEl.addEventListener('mouseover', function () {
           return srcBtnEl.odelay = setTimeout(function () {
-            var menuHtml = !_this62.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
-            new Menu(srcBtnEl, menuHtml, !_this62.isVideo ? emptyFn : function (optiontEl) {
+            var menuHtml = !_this76.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
+            new Menu(srcBtnEl, menuHtml, !_this76.isVideo ? emptyFn : function (optiontEl) {
               if (!optiontEl.classList.contains('de-menu-getframe')) {
                 return;
               }
 
               ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
                 $popup('upload', Lng.sending[lang], true);
-                var name = cutFileExt(_this62.name) + '.png';
+                var name = cutFileExt(_this76.name) + '.png';
                 var blob = new Blob([arr], {
                   type: 'image/png'
                 });
@@ -23231,7 +23250,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     },
     _getHashHelper: function _getHashHelper(_ref40) {
-      var _this63 = this;
+      var _this77 = this;
 
       return _asyncToGenerator( regeneratorRuntime.mark(function _callee15() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
@@ -23241,12 +23260,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 el = _ref40.el, src = _ref40.src;
 
-                if (!(src in _this63._storage)) {
+                if (!(src in _this77._storage)) {
                   _context20.next = 3;
                   break;
                 }
 
-                return _context20.abrupt("return", _this63._storage[src]);
+                return _context20.abrupt("return", _this77._storage[src]);
 
               case 3:
                 if (el.complete) {
@@ -23274,7 +23293,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 9:
                 val = -1;
                 w = el.naturalWidth, h = el.naturalHeight;
-                cnv = _this63._canvas;
+                cnv = _this77._canvas;
                 cnv.width = w;
                 cnv.height = h;
                 ctx = cnv.getContext('2d');
@@ -23288,7 +23307,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 _context20.next = 20;
                 return new Promise(function (resolve) {
-                  return _this63._workers.runWorker([buffer, w, h], [buffer], function (val) {
+                  return _this77._workers.runWorker([buffer, w, h], [buffer], function (val) {
                     return resolve(val);
                   });
                 });
@@ -23301,7 +23320,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
               case 22:
-                _this63._storage[src] = val;
+                _this77._storage[src] = val;
                 return _context20.abrupt("return", val);
 
               case 24:
@@ -23331,7 +23350,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (parent instanceof AbstractPost) {
         processPostImgInfoLinks(parent, addSrc, imgNames);
       } else {
-        var posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+        var posts = $Q(aib.qPost + ', ' + aib.qOPost + ', .de-oppost', parent);
 
         for (var i = 0, len = posts.length; i < len; ++i) {
           processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
@@ -23410,7 +23429,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _classCallCheck(this, DOMPostsBuilder);
 
       this._form = form;
-      this._posts = $Q(aib.qRPost, form);
+      this._posts = $Q(aib.qPost, form);
       this.length = this._posts.length;
       this.postersCount = '';
       this._isArchived = isArchived;
@@ -24350,6 +24369,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Thread = function () {
     function Thread(el, num, prev, form) {
+      var _this78 = this;
+
       _classCallCheck(this, Thread);
 
       this.hasNew = false;
@@ -24359,7 +24380,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.loadCount = 0;
       this.next = null;
       this.num = num;
-      var els = $Q(aib.qRPost, el);
+      var els = $Q(aib.qPost, el);
       var len = els.length;
       var omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
       this.pcount = omt + len;
@@ -24389,8 +24410,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\">[<a class=\"de-thr-updater-link de-abtn\" href=\"#\"></a>") + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
-      this.btns.addEventListener('click', this);
-      this.btns.addEventListener('mouseover', this);
+      ['click', 'mouseover'].forEach(function (e) {
+        return _this78.btns.addEventListener(e, _this78);
+      });
 
       var _ref41 = _toConsumableArray(this.btns.children);
 
@@ -24575,7 +24597,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "loadPosts",
       value: function loadPosts(task) {
-        var _this64 = this;
+        var _this79 = this;
 
         var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -24585,7 +24607,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-          return _this64._loadFromBuilder(task, isSmartScroll, pBuilder);
+          return _this79._loadFromBuilder(task, isSmartScroll, pBuilder);
         }, function (err) {
           return $popup('load-thr', getErrorMessage(err));
         });
@@ -24594,10 +24616,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "loadNewPosts",
       value: function loadNewPosts() {
-        var _this65 = this;
+        var _this80 = this;
 
         return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-          return pBuilder ? _this65._loadNewFromBuilder(pBuilder) : {
+          return pBuilder ? _this80._loadNewFromBuilder(pBuilder) : {
             newCount: 0,
             locked: false
           };
@@ -24752,7 +24774,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var temp = doc.createElement('template');
           temp.innerHTML = aib.fixHTML(html.join(''));
           fragm = temp.content;
-          var posts = $Q(aib.qRPost, fragm);
+          var posts = $Q(aib.qPost, fragm);
 
           for (var _i19 = 0, len = posts.length; _i19 < len; ++_i19) {
             last = this._addPost(fragm, posts[_i19], begin + _i19 + 1, last, maybeVParser);
@@ -25072,7 +25094,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_toggleReplies",
       value: function _toggleReplies() {
-        var _this66 = this;
+        var _this81 = this;
 
         var isHide = !this.last.isOmitted;
         var post = this.op;
@@ -25085,7 +25107,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " de-abtn");
         this.btns.children.forEach(function (el) {
-          return el !== _this66.btnReplies && $toggle(el, !isHide);
+          return el !== _this81.btnReplies && $toggle(el, !isHide);
         });
         $del($q(aib.qOmitted + ', .de-omitted', this.el));
         i = this.pcount - 1 - (isHide ? 0 : i);
@@ -25126,12 +25148,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     handleEvent: function handleEvent(e) {
-      var _this67 = this;
+      var _this82 = this;
 
       switch (e.type) {
         case 'scroll':
           deWindow.requestAnimationFrame(function () {
-            return _this67._checkThreads();
+            return _this82._checkThreads();
           });
           break;
 
@@ -25152,10 +25174,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     initThrNav: function initThrNav() {
+      var _this83 = this;
+
       var el = $bEnd(docBody, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
-      el.addEventListener('mouseover', this, true);
-      el.addEventListener('mouseout', this, true);
-      el.addEventListener('click', this, true);
+      ['mouseover', 'mouseout', 'click'].forEach(function (e) {
+        return el.addEventListener(e, _this83, true);
+      });
       this._el = el;
       this._thrs = new Set();
     },
@@ -25188,28 +25212,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     _expandCollapse: function _expandCollapse(isExpand, rt) {
-      var _this68 = this;
+      var _this84 = this;
 
       if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
         clearTimeout(this._toggleTO);
         this._toggleTO = setTimeout(function () {
-          return _this68._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+          return _this84._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
         }, Cfg.linksOver);
       }
     },
     _findCurrentThread: function _findCurrentThread() {
-      var _this69 = this;
+      var _this85 = this;
 
       Object.defineProperty(this, '_findCurrentThread', {
         value: 'elementsFromPoint' in doc ? function () {
           return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-            return _this69._thrs.has(el);
+            return _this85._thrs.has(el);
           });
         } : function () {
           var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 
           while (el) {
-            if (_this69._thrs.has(el)) {
+            if (_this85._thrs.has(el)) {
               return el;
             }
 
@@ -25263,7 +25287,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       playAudio: function playAudio() {
-        var _this70 = this;
+        var _this86 = this;
 
         this.stopAudio();
 
@@ -25274,7 +25298,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         this._playInterval = setInterval(function () {
-          return _this70._el.play();
+          return _this86._el.play();
         }, this.repeatMS);
       },
       stopAudio: function stopAudio() {
@@ -25297,11 +25321,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     };
     var counter = {
       count: function count(delayMS, useCounter, callback) {
-        var _this71 = this;
+        var _this87 = this;
 
         if (!this._enabled || !useCounter) {
           this._countingTO = setTimeout(function () {
-            _this71._countingTO = null;
+            _this87._countingTO = null;
             callback();
           }, delayMS);
           return;
@@ -25315,11 +25339,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           seconds--;
 
           if (seconds === 0) {
-            _this71._stopCounter();
+            _this87._stopCounter();
 
             callback();
           } else {
-            _this71._set(seconds);
+            _this87._set(seconds);
           }
         }, 1e3);
       },
@@ -25378,7 +25402,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
 
       initIcons: function initIcons() {
-        var _this72 = this;
+        var _this88 = this;
 
         if (this._isInited) {
           return;
@@ -25389,7 +25413,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         icon.onload = function (e) {
           try {
-            _this72._initIconsHelper(e.target);
+            _this88._initIconsHelper(e.target);
           } catch (err) {
             console.warn('Icon error:', err);
           }
@@ -25407,7 +25431,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         icon.src = this._iconEl.href;
       },
       startBlink: function startBlink(isError) {
-        var _this73 = this;
+        var _this89 = this;
 
         var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 
@@ -25421,9 +25445,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._currentIcon = iconUrl;
         this._blinkInterv = setInterval(function () {
-          _this73._isOrigIcon = !_this73._isOrigIcon;
+          _this89._isOrigIcon = !_this89._isOrigIcon;
 
-          _this73._setIcon(_this73._isOrigIcon ? _this73.originalIcon : _this73._currentIcon);
+          _this89._setIcon(_this89._isOrigIcon ? _this89.originalIcon : _this89._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
@@ -25511,7 +25535,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return canvas.toDataURL('image/png');
       },
       _initIconsHelper: function _initIconsHelper(icon) {
-        var _this74 = this;
+        var _this90 = this;
 
         var canvas = doc.createElement('canvas');
         var ctx = canvas.getContext('2d');
@@ -25541,12 +25565,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._getIconNew = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this74._iconsNew[id] || (_this74._iconsNew[id] = _this74._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+          return _this90._iconsNew[id] || (_this90._iconsNew[id] = _this90._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
         };
 
         this._getIconYou = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this74._iconsYou[id] || (_this74._iconsYou[id] = _this74._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+          return _this90._iconsYou[id] || (_this90._iconsYou[id] = _this90._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
         };
 
         this._hasIcons = true;
@@ -25583,7 +25607,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       showNotif: function showNotif() {
-        var _this75 = this;
+        var _this91 = this;
 
         var lngQuantity = function lngQuantity(num) {
           var new10 = num % 10;
@@ -25600,7 +25624,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         notif.onshow = function () {
           return setTimeout(function () {
-            return notif === _this75._notifEl && _this75.closeNotif();
+            return notif === _this91._notifEl && _this91.closeNotif();
           }, 12e3);
         };
 
@@ -25611,7 +25635,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         notif.onerror = function () {
           deWindow.focus();
 
-          _this75._requestPermission();
+          _this91._requestPermission();
         };
 
         this._notifEl = notif;
@@ -25620,14 +25644,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _granted: true,
       _notifEl: null,
       _requestPermission: function _requestPermission() {
-        var _this76 = this;
+        var _this92 = this;
 
         this._granted = false;
         Notification.requestPermission(function (state) {
           if (state.toLowerCase() === 'denied') {
             saveCfg('desktNotif', 0);
           } else {
-            _this76._granted = true;
+            _this92._granted = true;
           }
         });
       }
@@ -25758,7 +25782,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._makeStep();
       },
       _makeStep: function _makeStep() {
-        var _this77 = this;
+        var _this93 = this;
 
         var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -25768,7 +25792,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               if (needSleep) {
                 this._state = 1;
                 counter.count(this._delay, !doc.hidden, function () {
-                  return _this77._makeStep();
+                  return _this93._makeStep();
                 });
                 return;
               }
@@ -25780,9 +25804,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               this._loadPromise = Thread.first.loadNewPosts().then(function (_ref42) {
                 var newCount = _ref42.newCount,
                     locked = _ref42.locked;
-                return _this77._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+                return _this93._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
-                return _this77._handleNewPosts(0, err);
+                return _this93._handleNewPosts(0, err);
               });
               return;
 
@@ -26042,7 +26066,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var el = this.el;
 
         if (Cfg.ajaxPosting && !localData) {
-          var delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
+          var delBtn = aib.qDelBtn ? $q(aib.qDelBtn, el) : null;
 
           if (delBtn) {
             el.onsubmit = function (e) {
@@ -26409,12 +26433,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     function BaseBoard(prot, dm) {
       _classCallCheck(this, BaseBoard);
 
+      this._02ch = false;
+      this._2channel = false;
+      this._4chan = false;
+      this.dobrochan = false;
+      this.kohlchan = false;
+      this.makaba = false; 
+
       this.cReply = 'reply';
       this.qBan = null;
       this.qClosed = null;
-      this.qDelBut = 'input[type="submit"]';
+      this.qDelBtn = 'input[type="submit"]';
+      this.qDelForm = '#delform, form[name="delform"]';
       this.qDelPassw = 'input[type="password"], input[name="password"]';
-      this.qDForm = '#delform, form[name="delform"]';
       this.qError = 'h1, h2, font[size="5"]';
       this.qForm = '#postform';
       this.qFormFile = 'tr input[type="file"]';
@@ -26431,7 +26462,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.qImgInfo = '.filesize';
       this.qOmitted = '.omittedposts';
       this.qOPost = '.oppost';
+      this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
       this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+      this.qPost = '.reply';
       this.qPostHeader = '.de-post-btns';
       this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
       this.qPostMsg = 'blockquote';
@@ -26440,15 +26473,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.qPostTrip = '.postertrip';
       this.qPostRef = '.reflink';
       this.qPostsParent = null;
-      this.qRPost = '.reply';
-      this.qTrunc = '.abbrev, .abbr, .shortened';
-      this._qOPostEnd = 'form > table, div > table, div[id^="repl"]'; 
+      this.qTrunc = '.abbrev, .abbr, .shortened'; 
 
       this.anchor = '#';
       this.b = '';
       this.dm = dm;
       this.docExt = null;
       this.firstPage = 0;
+      this.formHeaders = false;
       this.formParent = 'parent';
       this.hasAltCaptcha = false;
       this.hasArchive = false;
@@ -26467,14 +26499,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.res = 'res/';
       this.ru = false;
       this.t = false;
-      this.timePattern = 'w+dd+m+yyyy+hh+ii+ss'; 
-
-      this._02ch = false;
-      this._2channel = false;
-      this._4chan = false;
-      this.dobrochan = false;
-      this.kohlchan = false;
-      this.makaba = false;
+      this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
     }
 
     _createClass(BaseBoard, [{
@@ -26830,7 +26855,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         op = thr.ownerDocument.createElement('div');
         op.classList.add('de-oppost');
         var el;
-        var opEnd = $q(this._qOPostEnd, thr);
+        var opEnd = $q(this.qOPostEnd, thr);
 
         while ((el = thr.firstChild) && el !== opEnd) {
           op.append(el);
@@ -26852,7 +26877,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getPostElOfEl",
       value: function getPostElOfEl(el) {
-        var sel = this.qRPost + ', [de-thread], .de-pview';
+        var sel = this.qPost + ', [de-thread], .de-pview';
 
         while (el && !nav.matchesSelector(el, sel)) {
           el = el.parentElement;
@@ -26960,17 +26985,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super10 = _createSuper(Kusaba);
 
       function Kusaba(prot, dm) {
-        var _this78;
+        var _this94;
 
         _classCallCheck(this, Kusaba);
 
-        _this78 = _super10.call(this, prot, dm);
-        _this78.kusaba = true;
-        _this78.qError = 'h1, h2, div[style*="1.25em"]';
-        _this78.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-        _this78.formParent = 'replythread';
-        _this78.markupBB = true;
-        return _this78;
+        _this94 = _super10.call(this, prot, dm);
+        _this94.qError = 'h1, h2, div[style*="1.25em"]';
+        _this94.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+        _this94.formHeaders = true;
+        _this94.formParent = 'replythread';
+        _this94.markupBB = true;
+        return _this94;
       }
 
       _createClass(Kusaba, [{
@@ -27022,36 +27047,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super11 = _createSuper(Tinyboard);
 
       function Tinyboard(prot, dm) {
-        var _this79;
+        var _this95;
 
         _classCallCheck(this, Tinyboard);
 
-        _this79 = _super11.call(this, prot, dm);
-        _this79.cReply = 'post reply';
-        _this79.qClosed = '.fa-lock';
-        _this79.qDForm = 'form[name*="postcontrols"]';
-        _this79.qForm = 'form[name="post"]';
-        _this79.qFormPassw = 'input[name="password"]:not([type="hidden"])';
-        _this79.qFormRedir = null;
-        _this79.qImgInfo = '.fileinfo';
-        _this79.qOmitted = '.omitted';
-        _this79.qPages = '.pages';
-        _this79.qPostHeader = '.intro';
-        _this79.qPostMsg = '.body';
-        _this79.qPostName = '.name';
-        _this79.qPostRef = '.post_no + a';
-        _this79.qPostSubj = '.subject';
-        _this79.qPostTrip = '.trip';
-        _this79.qTrunc = '.toolong';
-        _this79._origInputs = null;
-        _this79._qOPostEnd = '.post.reply';
-        _this79.firstPage = 1;
-        _this79.formParent = 'thread';
-        _this79.hasCatalog = true;
-        _this79.hasRefererErr = true;
-        _this79.jsonSubmit = true;
-        _this79.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-        return _this79;
+        _this95 = _super11.call(this, prot, dm);
+        _this95.cReply = 'post reply';
+        _this95.qClosed = '.fa-lock';
+        _this95.qDelForm = 'form[name*="postcontrols"]';
+        _this95.qForm = 'form[name="post"]';
+        _this95.qFormPassw = 'input[name="password"]:not([type="hidden"])';
+        _this95.qFormRedir = null;
+        _this95.qImgInfo = '.fileinfo';
+        _this95.qOmitted = '.omitted';
+        _this95.qOPostEnd = '.post.reply';
+        _this95.qPages = '.pages';
+        _this95.qPostHeader = '.intro';
+        _this95.qPostMsg = '.body';
+        _this95.qPostName = '.name';
+        _this95.qPostRef = '.post_no + a';
+        _this95.qPostSubj = '.subject';
+        _this95.qPostTrip = '.trip';
+        _this95.qTrunc = '.toolong';
+        _this95.firstPage = 1;
+        _this95.formParent = 'thread';
+        _this95.hasCatalog = true;
+        _this95.hasRefererErr = true;
+        _this95.jsonSubmit = true;
+        _this95.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+        _this95._origInputs = null;
+        return _this95;
       }
 
       _createClass(Tinyboard, [{
@@ -27073,7 +27098,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         key: "changeReplyMode",
         value: function () {
           var _changeReplyMode = _asyncToGenerator( regeneratorRuntime.mark(function _callee16(form, tNum) {
-            var _this80 = this;
+            var _this96 = this;
 
             var pageInp, query, errFn;
             return regeneratorRuntime.wrap(function _callee16$(_context26) {
@@ -27106,7 +27131,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                     this._origInputs = [doc.createElement('div'), pr.subm.value];
                     $Q(query, form).forEach(function (el) {
-                      return _this80._origInputs[0].append(el);
+                      return _this96._origInputs[0].append(el);
                     });
                     _context26.next = 17;
                     break;
@@ -27132,14 +27157,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     $popup('load-form', Lng.loading[lang], true);
                     _context26.next = 21;
                     return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-                      var loadedForm = $q(_this80.qForm, loadedDoc);
+                      var loadedForm = $q(_this96.qForm, loadedDoc);
 
                       if (!loadedForm) {
                         errFn();
                         return;
                       }
 
-                      pr.subm.value = $q(_this80.qFormSubm, loadedDoc).value;
+                      pr.subm.value = $q(_this96.qFormSubm, loadedDoc).value;
                       $delAll(query, form);
                       $Q(query, loadedForm).forEach(function (el) {
                         return form.append(doc.adoptNode(el));
@@ -27180,10 +27205,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "fixVideo",
         value: function fixVideo(isPost, data) {
-          var _this81 = this;
+          var _this97 = this;
 
           return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-            var value = [isPost ? data : _this81.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+            var value = [isPost ? data : _this97.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
             el.remove();
             return value;
           });
@@ -27217,7 +27242,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "init",
         value: function init() {
-          $script('window.FormData = void 0');
+          $script('window.FormData = void 0;');
           var formEl = $q('form[name="post"]');
 
           if (formEl) {
@@ -27247,15 +27272,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super12 = _createSuper(Vichan);
 
       function Vichan(prot, dm) {
-        var _this82;
+        var _this98;
 
         _classCallCheck(this, Vichan);
 
-        _this82 = _super12.call(this, prot, dm);
-        _this82.qDelPassw = '#password';
-        _this82.qPostImg = '.post-image[alt]:not(.deleted)';
-        _this82.multiFile = true;
-        return _this82;
+        _this98 = _super12.call(this, prot, dm);
+        _this98.qDelPassw = '#password';
+        _this98.qPostImg = '.post-image[alt]:not(.deleted)';
+        _this98.multiFile = true;
+        return _this98;
       }
 
       _createClass(Vichan, [{
@@ -27313,15 +27338,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super13 = _createSuper(TinyIB);
 
       function TinyIB(prot, dm) {
-        var _this83;
+        var _this99;
 
         _classCallCheck(this, TinyIB);
 
-        _this83 = _super13.call(this, prot, dm);
-        _this83.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-        _this83.qPostImg = 'img.thumb, video.thumb';
-        _this83.qPostMsg = '.message';
-        return _this83;
+        _this99 = _super13.call(this, prot, dm);
+        _this99.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+        _this99.qPostImg = 'img.thumb, video.thumb';
+        _this99.qPostMsg = '.message';
+        return _this99;
       }
 
       _createClass(TinyIB, [{
@@ -27381,16 +27406,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super14 = _createSuper(newTinyIB);
 
       function newTinyIB(prot, dm) {
-        var _this84;
+        var _this100;
 
         _classCallCheck(this, newTinyIB);
 
-        _this84 = _super14.call(this, prot, dm);
-        _this84.hasCatalog = true;
-        _this84.markupBB = true;
-        _this84.multiFile = true;
-        _this84.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-        return _this84;
+        _this100 = _super14.call(this, prot, dm);
+        _this100.hasCatalog = true;
+        _this100.markupBB = true;
+        _this100.multiFile = true;
+        _this100.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+        return _this100;
       }
 
       _createClass(newTinyIB, [{
@@ -27427,39 +27452,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super15 = _createSuper(Lynxchan);
 
       function Lynxchan(prot, dm) {
-        var _this85;
+        var _this101;
 
         _classCallCheck(this, Lynxchan);
 
-        _this85 = _super15.call(this, prot, dm);
-        _this85.cReply = 'innerPost';
-        _this85.qDForm = 'form[action$="contentActions.js"]';
-        _this85.qDelBut = '#deleteFormButton';
-        _this85.qError = '#errorLabel, #labelMessage';
-        _this85.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
-        _this85.qFormPassw = 'input[name="password"]';
-        _this85.qFormRules = '.form-post > .small';
-        _this85.qFormSubm = '#formButton, #de-postform-submit';
-        _this85.qImgInfo = '.uploadDetails';
-        _this85.qOmitted = '.labelOmission';
-        _this85.qOPost = '.innerOP';
-        _this85.qPages = '#divPages';
-        _this85.qPostHeader = '.postInfo, .de-post-btns';
-        _this85.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-        _this85.qPostMsg = '.divMessage';
-        _this85.qPostRef = '.linkQuote';
-        _this85.qPostSubj = '.labelSubject';
-        _this85.qPostsParent = '.divPosts';
-        _this85.qRPost = '.innerPost, .markedPost';
-        _this85.qTrunc = '.contentOmissionIndicator';
-        _this85._qOPostEnd = '.divPosts';
-        _this85.firstPage = 1;
-        _this85.formParent = 'threadId';
-        _this85.hasCatalog = true;
-        _this85.jsonSubmit = true;
-        _this85.multiFile = true;
-        _this85._hasNewAPI = false;
-        return _this85;
+        _this101 = _super15.call(this, prot, dm);
+        _this101.cReply = 'innerPost';
+        _this101.qDelBtn = '#deleteFormButton';
+        _this101.qDelForm = 'form[action$="contentActions.js"]';
+        _this101.qError = '#errorLabel, #labelMessage';
+        _this101.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
+        _this101.qFormPassw = 'input[name="password"]';
+        _this101.qFormRules = '.form-post > .small';
+        _this101.qFormSubm = '#formButton, #de-postform-submit';
+        _this101.qImgInfo = '.uploadDetails';
+        _this101.qOmitted = '.labelOmission';
+        _this101.qOPost = '.innerOP';
+        _this101.qOPostEnd = '.divPosts';
+        _this101.qPages = '#divPages';
+        _this101.qPost = '.innerPost, .markedPost';
+        _this101.qPostHeader = '.postInfo, .de-post-btns';
+        _this101.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+        _this101.qPostMsg = '.divMessage';
+        _this101.qPostRef = '.linkQuote';
+        _this101.qPostSubj = '.labelSubject';
+        _this101.qPostsParent = '.divPosts';
+        _this101.qTrunc = '.contentOmissionIndicator';
+        _this101.firstPage = 1;
+        _this101.formParent = 'threadId';
+        _this101.hasCatalog = true;
+        _this101.jsonSubmit = true;
+        _this101.multiFile = true;
+        _this101._hasNewAPI = false;
+        return _this101;
       }
 
       _createClass(Lynxchan, [{
@@ -27789,28 +27814,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super16 = _createSuper(FoolFuuka);
 
       function FoolFuuka(prot, dm) {
-        var _this86;
+        var _this102;
 
         _classCallCheck(this, FoolFuuka);
 
-        _this86 = _super16.call(this, prot, dm);
-        _this86.cReply = 'post_wrapper';
-        _this86.qDForm = '#main';
-        _this86.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
-        _this86.qOmitted = '.omitted_text';
-        _this86.qPages = '.paginate > ul > li:nth-last-child(3)';
-        _this86.qPostHeader = 'header';
-        _this86.qPostImg = '.post_image, .thread_image';
-        _this86.qPostMsg = '.text';
-        _this86.qPostRef = '.post_data > a[data-function="quote"]';
-        _this86.qPostSubj = '.post_title';
-        _this86.qPostsParent = '.posts';
-        _this86.qRPost = '.post[id]';
-        _this86._qOPostEnd = '.posts';
-        _this86.docExt = '';
-        _this86.firstPage = 1;
-        _this86.res = 'thread/';
-        return _this86;
+        _this102 = _super16.call(this, prot, dm);
+        _this102.cReply = 'post_wrapper';
+        _this102.qDelForm = '#main';
+        _this102.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+        _this102.qOmitted = '.omitted_text';
+        _this102.qOPostEnd = '.posts';
+        _this102.qPages = '.paginate > ul > li:nth-last-child(3)';
+        _this102.qPost = '.post[id]';
+        _this102.qPostHeader = 'header';
+        _this102.qPostImg = '.post_image, .thread_image';
+        _this102.qPostMsg = '.text';
+        _this102.qPostRef = '.post_data > a[data-function="quote"]';
+        _this102.qPostSubj = '.post_title';
+        _this102.qPostsParent = '.posts';
+        _this102.docExt = '';
+        _this102.firstPage = 1;
+        _this102.res = 'thread/';
+        return _this102;
       }
 
       _createClass(FoolFuuka, [{
@@ -27880,49 +27905,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]); 
 
-    var _0chan = function (_Kusaba) {
-      _inherits(_0chan, _Kusaba);
+    var _02ch = function (_Kusaba) {
+      _inherits(_02ch, _Kusaba);
 
-      var _super17 = _createSuper(_0chan);
-
-      function _0chan(prot, dm) {
-        var _this87;
-
-        _classCallCheck(this, _0chan);
-
-        _this87 = _super17.call(this, prot, dm);
-        _this87.qDForm = '#delform_instant';
-        _this87.hasCatalog = true;
-        return _this87;
-      }
-
-      _createClass(_0chan, [{
-        key: "css",
-        get: function get() {
-          return ".content > hr, .extrabtns { display: none; }\n\t\t\t\tform { position: initial; }";
-        }
-      }]);
-
-      return _0chan;
-    }(Kusaba);
-
-    ibDomains['2.0-chan.ru'] = _0chan;
-
-    var _02ch = function (_Kusaba2) {
-      _inherits(_02ch, _Kusaba2);
-
-      var _super18 = _createSuper(_02ch);
+      var _super17 = _createSuper(_02ch);
 
       function _02ch(prot, dm) {
-        var _this88;
+        var _this103;
 
         _classCallCheck(this, _02ch);
 
-        _this88 = _super18.call(this, prot, dm);
-        _this88._02ch = true;
-        _this88.hasCatalog = true;
-        _this88._capUpdPromise = null;
-        return _this88;
+        _this103 = _super17.call(this, prot, dm);
+        _this103._02ch = true;
+        _this103.hasCatalog = true;
+        _this103._capUpdPromise = null;
+        return _this103;
       }
 
       _createClass(_02ch, [{
@@ -27942,27 +27939,82 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     ibDomains['02ch.su'] = _02ch;
 
+    var _0chan = function (_Kusaba2) {
+      _inherits(_0chan, _Kusaba2);
+
+      var _super18 = _createSuper(_0chan);
+
+      function _0chan(prot, dm) {
+        var _this104;
+
+        _classCallCheck(this, _0chan);
+
+        _this104 = _super18.call(this, prot, dm);
+        _this104.qDelForm = '#delform_instant';
+        _this104.qPostHeader = '.posthead';
+        _this104.formHeaders = false;
+        _this104.hasCatalog = true;
+        _this104.multiFile = true;
+        _this104.ru = true;
+        return _this104;
+      }
+
+      _createClass(_0chan, [{
+        key: "captchaInit",
+        get: function get() {
+          $script("Captcha.init(); Captcha.initForm(document.getElementById(\"postform\"));");
+          return null;
+        }
+      }, {
+        key: "captchaUpdate",
+        get: function get() {
+          $script('var captchaTimeout = 29.5;Captcha.state = "init";');
+          return null;
+        }
+      }, {
+        key: "css",
+        get: function get() {
+          return ".content > hr, .embed-wrap, .extrabtns, .postbutt { display: none; }\n\t\t\t\tform { position: initial; }";
+        }
+      }, {
+        key: "fixFileInputs",
+        value: function fixFileInputs(el) {
+          var str = '><input type="file" name="file"></div>';
+          el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+        }
+      }, {
+        key: "getTNum",
+        value: function getTNum(thr) {
+          return +thr.getAttribute('data-threadid');
+        }
+      }]);
+
+      return _0chan;
+    }(Kusaba);
+
+    ibDomains['2.0-chan.ru'] = _0chan;
+
     var _2__ch = function (_BaseBoard6) {
       _inherits(_2__ch, _BaseBoard6);
 
       var _super19 = _createSuper(_2__ch);
 
       function _2__ch(prot, dm) {
-        var _this89;
+        var _this105;
 
         _classCallCheck(this, _2__ch);
 
-        _this89 = _super19.call(this, prot, dm);
-        _this89.qPages = 'table[border="1"] td > a:last-of-type';
-        _this89.qPostImg = 'img.thumb';
-        _this89._qOPostEnd = 'table:not(.postfiles)';
-        _this89.docExt = '.html';
-        _this89.hasPicWrap = true;
-        _this89.jsonSubmit = true;
-        _this89.markupBB = true;
-        _this89.multiFile = true;
-        _this89.ru = true;
-        return _this89;
+        _this105 = _super19.call(this, prot, dm);
+        _this105.qOPostEnd = 'table:not(.postfiles)';
+        _this105.qPages = 'table[border="1"] td > a:last-of-type';
+        _this105.qPostImg = 'img.thumb';
+        _this105.docExt = '.html';
+        _this105.hasPicWrap = true;
+        _this105.jsonSubmit = true;
+        _this105.markupBB = true;
+        _this105.multiFile = true;
+        _this105.ru = true;
+        return _this105;
       }
 
       _createClass(_2__ch, [{
@@ -28043,9 +28095,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             $replace(btnEl, '<input type="submit" value="Отправить">');
           }
 
-          var dFormEl = $q(this.qDForm);
-          $delAll('input[type="hidden"]', dFormEl);
-          dFormEl.append($q('.userdelete'));
+          var delFormEl = $q(this.qDelForm);
+          $delAll('input[type="hidden"]', delFormEl);
+          delFormEl.append($q('.userdelete'));
           return false;
         }
       }]);
@@ -28062,47 +28114,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super20 = _createSuper(Makaba);
 
       function Makaba(prot, dm) {
-        var _this90;
+        var _this106;
 
         _classCallCheck(this, Makaba);
 
-        _this90 = _super20.call(this, prot, dm);
-        _this90.makaba = true;
-        _this90.cReply = 'de-reply-class';
-        _this90.qBan = '.post__pomyanem';
-        _this90.qClosed = '.sticky-img[src$="locked.png"]';
-        _this90.qDForm = '#posts-form';
-        _this90.qFormFile = '.postform__raw.filer input[type="file"]';
-        _this90.qFormRedir = null;
-        _this90.qFormRules = '.rules';
-        _this90.qFormSubm = '#submit';
-        _this90.qFormTd = '.postform__raw';
-        _this90.qFormTr = '.postform__raw';
-        _this90.qFormTxta = '#shampoo';
-        _this90.qImgInfo = '.post__file-attr';
-        _this90.qOmitted = '.thread__missed';
-        _this90.qOPost = '.post_type_oppost';
-        _this90.qPostHeader = '.post__details';
-        _this90.qPostImg = '.post__file-preview';
-        _this90.qPostMsg = '.post__message';
-        _this90.qPostName = '.post__anon, .post__email';
-        _this90.qPostRef = '.post__reflink:nth-child(2)';
-        _this90.qPostSubj = '.post__title';
-        _this90.qRPost = '.post_type_reply[data-num]';
-        _this90.qTrunc = null;
-        _this90.formParent = 'thread';
-        _this90.hasAltCaptcha = true;
-        _this90.hasArchive = true;
-        _this90.hasCatalog = true;
-        _this90.hasOPNum = true;
-        _this90.hasPicWrap = true;
-        _this90.JsonBuilder = MakabaPostsBuilder;
-        _this90.jsonSubmit = true;
-        _this90.markupBB = true;
-        _this90.multiFile = true;
-        _this90.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-        _this90._capUpdPromise = null;
-        return _this90;
+        _this106 = _super20.call(this, prot, dm);
+        _this106.makaba = true;
+        _this106.cReply = 'de-reply-class';
+        _this106.qBan = '.post__pomyanem';
+        _this106.qClosed = '.sticky-img[src$="locked.png"]';
+        _this106.qDelForm = '#posts-form';
+        _this106.qFormFile = '.postform__raw.filer input[type="file"]';
+        _this106.qFormRedir = null;
+        _this106.qFormRules = '.rules';
+        _this106.qFormSubm = '#submit';
+        _this106.qFormTd = '.postform__raw';
+        _this106.qFormTr = '.postform__raw';
+        _this106.qFormTxta = '#shampoo';
+        _this106.qImgInfo = '.post__file-attr';
+        _this106.qOmitted = '.thread__missed';
+        _this106.qOPost = '.post_type_oppost';
+        _this106.qPost = '.post_type_reply[data-num]';
+        _this106.qPostHeader = '.post__details';
+        _this106.qPostImg = '.post__file-preview';
+        _this106.qPostMsg = '.post__message';
+        _this106.qPostName = '.post__anon, .post__email';
+        _this106.qPostRef = '.post__reflink:nth-child(2)';
+        _this106.qPostSubj = '.post__title';
+        _this106.qTrunc = null;
+        _this106.formParent = 'thread';
+        _this106.hasAltCaptcha = true;
+        _this106.hasArchive = true;
+        _this106.hasCatalog = true;
+        _this106.hasOPNum = true;
+        _this106.hasPicWrap = true;
+        _this106.JsonBuilder = MakabaPostsBuilder;
+        _this106.jsonSubmit = true;
+        _this106.markupBB = true;
+        _this106.multiFile = true;
+        _this106.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+        _this106._capUpdPromise = null;
+        return _this106;
       }
 
       _createClass(Makaba, [{
@@ -28153,7 +28205,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "reportForm",
         get: function get() {
-          var _this91 = this;
+          var _this107 = this;
 
           var value = function value(pNum, tNum) {
             return $q('input[type="button"]', $popup('edit-report', "<input name=\"comment\" value=\"\" placeholder=\"".concat(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang], "\" type=\"text\"> <input value=\"OK\" type=\"button\">"))).onclick = function (e) {
@@ -28166,7 +28218,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               var formData = new FormData();
               formData.append('task', 'report');
-              formData.append('board', _this91.b);
+              formData.append('board', _this107.b);
               formData.append('thread', tNum);
               formData.append('posts', pNum);
               formData.append('comment', inpEl.value);
@@ -28195,7 +28247,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaInit",
         value: function captchaInit(cap) {
-          var _this92 = this;
+          var _this108 = this;
 
           var box = $q('.captcha-box, .captcha');
 
@@ -28214,7 +28266,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 inp = _ref47[1];
 
             _img2.onclick = function () {
-              return _this92.updateCaptcha(cap);
+              return _this108.updateCaptcha(cap);
             };
 
             inp.tabIndex = 999;
@@ -28364,13 +28416,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this.qImgInfo = '.file-attr';
             this.qOmitted = '.mess-post';
             this.qOPost = '.oppost';
+            this.qPost = '.post.reply[data-num]';
             this.qPostHeader = '.post-details';
             this.qPostImg = '.preview';
             this.qPostMsg = '.post-message';
             this.qPostName = '.ananimas, .post-email';
             this.qPostRef = '.reflink';
             this.qPostSubj = '.post-title';
-            this.qRPost = '.post.reply[data-num]';
             this.hasArchive = false;
             var css = this.css;
             Object.defineProperty(this, 'css', {
@@ -28444,22 +28496,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super21 = _createSuper(_2chan);
 
       function _2chan(prot, dm) {
-        var _this93;
+        var _this109;
 
         _classCallCheck(this, _2chan);
 
-        _this93 = _super21.call(this, prot, dm);
-        _this93.qDForm = 'form:not([enctype])';
-        _this93.qForm = '#fm';
-        _this93.qFormRedir = null;
-        _this93.qFormRules = '.chui';
-        _this93.qOmitted = 'font[color="#707070"]';
-        _this93.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-        _this93.qPostRef = '.del';
-        _this93.qRPost = 'td:nth-child(2)';
-        _this93.docExt = '.htm';
-        _this93.formParent = 'resto';
-        return _this93;
+        _this109 = _super21.call(this, prot, dm);
+        _this109.qDelForm = 'form:not([enctype])';
+        _this109.qForm = '#fm';
+        _this109.qFormRedir = null;
+        _this109.qFormRules = '.chui';
+        _this109.qOmitted = 'font[color="#707070"]';
+        _this109.qPost = 'td:nth-child(2)';
+        _this109.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+        _this109.qPostRef = '.del';
+        _this109.docExt = '.htm';
+        _this109.formParent = 'resto';
+        return _this109;
       }
 
       _createClass(_2chan, [{
@@ -28521,14 +28573,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super22 = _createSuper(_2channel);
 
       function _2channel(prot, dm) {
-        var _this94;
+        var _this110;
 
         _classCallCheck(this, _2channel);
 
-        _this94 = _super22.call(this, prot, dm);
-        _this94._2channel = true;
-        _this94.hasAltCaptcha = false;
-        return _this94;
+        _this110 = _super22.call(this, prot, dm);
+        _this110._2channel = true;
+        _this110.hasAltCaptcha = false;
+        return _this110;
       }
 
       _createClass(_2channel, [{
@@ -28641,15 +28693,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super23 = _createSuper(_2chRip);
 
       function _2chRip(prot, dm) {
-        var _this95;
+        var _this111;
 
         _classCallCheck(this, _2chRip);
 
-        _this95 = _super23.call(this, prot, dm);
-        _this95.jsonSubmit = true;
-        _this95.ru = true;
-        _this95._capUpdPromise = null;
-        return _this95;
+        _this111 = _super23.call(this, prot, dm);
+        _this111.jsonSubmit = true;
+        _this111.ru = true;
+        _this111._capUpdPromise = null;
+        return _this111;
       }
 
       _createClass(_2chRip, [{
@@ -28694,19 +28746,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super24 = _createSuper(_410chan);
 
       function _410chan(prot, dm) {
-        var _this96;
+        var _this112;
 
         _classCallCheck(this, _410chan);
 
-        _this96 = _super24.call(this, prot, dm);
-        _this96.qFormRedir = 'input#noko';
-        _this96.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-        _this96.ru = true;
-        _this96.hasCatalog = true;
-        _this96.markupBB = false;
-        _this96.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-        _this96._capUpdPromise = null;
-        return _this96;
+        _this112 = _super24.call(this, prot, dm);
+        _this112.qFormRedir = 'input#noko';
+        _this112.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+        _this112.hasCatalog = true;
+        _this112.markupBB = false;
+        _this112.ru = true;
+        _this112.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+        _this112._capUpdPromise = null;
+        return _this112;
       }
 
       _createClass(_410chan, [{
@@ -28727,7 +28779,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var _this97 = this;
+          var _this113 = this;
 
           return cap.updateHelper("/api_adaptive.php?board=".concat(this.b), function (xhr) {
             if (xhr.responseText === '1') {
@@ -28743,7 +28795,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var img = $q('img', cap.parentEl);
             var src = img.getAttribute('src');
             img.src = '';
-            img.src = _this97.getCaptchaSrc(src);
+            img.src = _this113.getCaptchaSrc(src);
           });
         }
       }, {
@@ -28771,39 +28823,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super25 = _createSuper(_4chan);
 
       function _4chan(prot, dm) {
-        var _this98;
+        var _this114;
 
         _classCallCheck(this, _4chan);
 
-        _this98 = _super25.call(this, prot, dm);
-        _this98._4chan = true;
-        _this98.cReply = 'post reply';
-        _this98.qBan = 'strong[style="color: red;"]';
-        _this98.qClosed = '.archivedIcon';
-        _this98.qDelBut = '.deleteform > input[type="submit"]';
-        _this98.qError = '#errmsg';
-        _this98.qForm = 'form[name="post"]';
-        _this98.qFormRedir = null;
-        _this98.qImgInfo = '.fileText';
-        _this98.qOmitted = '.summary.desktop';
-        _this98.qOPost = '.op';
-        _this98.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-        _this98.qPostHeader = '.postInfo';
-        _this98.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-        _this98.qPostName = '.name';
-        _this98.qPostRef = '.postInfo > .postNum';
-        _this98.qPostSubj = '.subject';
-        _this98._qOPostEnd = '.replyContainer';
-        _this98.anchor = '#p';
-        _this98.docExt = '';
-        _this98.firstPage = 1;
-        _this98.formParent = 'resto';
-        _this98.hasCatalog = true;
-        _this98.hasTextLinks = true;
-        _this98.JsonBuilder = _4chanPostsBuilder;
-        _this98.res = 'thread/';
-        _this98.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-        return _this98;
+        _this114 = _super25.call(this, prot, dm);
+        _this114._4chan = true;
+        _this114.cReply = 'post reply';
+        _this114.qBan = 'strong[style="color: red;"]';
+        _this114.qClosed = '.archivedIcon';
+        _this114.qDelBtn = '.deleteform > input[type="submit"]';
+        _this114.qError = '#errmsg';
+        _this114.qForm = 'form[name="post"]';
+        _this114.qFormRedir = null;
+        _this114.qImgInfo = '.fileText';
+        _this114.qOmitted = '.summary.desktop';
+        _this114.qOPost = '.op';
+        _this114.qOPostEnd = '.replyContainer';
+        _this114.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+        _this114.qPostHeader = '.postInfo';
+        _this114.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+        _this114.qPostName = '.name';
+        _this114.qPostRef = '.postInfo > .postNum';
+        _this114.qPostSubj = '.subject';
+        _this114.anchor = '#p';
+        _this114.docExt = '';
+        _this114.firstPage = 1;
+        _this114.formParent = 'resto';
+        _this114.hasCatalog = true;
+        _this114.hasTextLinks = true;
+        _this114.JsonBuilder = _4chanPostsBuilder;
+        _this114.res = 'thread/';
+        _this114.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+        return _this114;
       }
 
       _createClass(_4chan, [{
@@ -28981,25 +29033,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super27 = _createSuper(Arhivach);
 
       function Arhivach(prot, dm) {
-        var _this99;
+        var _this115;
 
         _classCallCheck(this, Arhivach);
 
-        _this99 = _super27.call(this, prot, dm);
-        _this99.cReply = 'post';
-        _this99.qDelBut = null;
-        _this99.qDelPassw = null;
-        _this99.qDForm = 'body > .container-fluid';
-        _this99.qPostHeader = '.post_head';
-        _this99.qPostImg = '.post_image > img';
-        _this99.qPostMsg = '.post_comment_body';
-        _this99.qPostRef = '.post_id, .post_head > b';
-        _this99.qPostSubj = '.post_subject';
-        _this99.qRPost = '.post[postid]:not([postid=""])';
-        _this99.docExt = '';
-        _this99.hasOPNum = true;
-        _this99.res = 'thread/';
-        return _this99;
+        _this115 = _super27.call(this, prot, dm);
+        _this115.cReply = 'post';
+        _this115.qDelBtn = null;
+        _this115.qDelForm = 'body > .container-fluid';
+        _this115.qDelPassw = null;
+        _this115.qPost = '.post[postid]:not([postid=""])';
+        _this115.qPostHeader = '.post_head';
+        _this115.qPostImg = '.post_image > img';
+        _this115.qPostMsg = '.post_comment_body';
+        _this115.qPostRef = '.post_id, .post_head > b';
+        _this115.qPostSubj = '.post_subject';
+        _this115.docExt = '';
+        _this115.hasOPNum = true;
+        _this115.res = 'thread/';
+        return _this115;
       }
 
       _createClass(Arhivach, [{
@@ -29079,14 +29131,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "init",
         value: function init() {
-          var _this100 = this;
+          var _this116 = this;
 
           defaultCfg.ajaxUpdThr = 0;
           setTimeout(function () {
             var delPosts = $Q('.post_deleted');
 
             for (var i = 0, len = delPosts.length; i < len; ++i) {
-              var post = pByNum.get(_this100.getPNum(delPosts[i]));
+              var post = pByNum.get(_this116.getPNum(delPosts[i]));
 
               if (post) {
                 post.thr.deletePosts(post, false, false);
@@ -29110,13 +29162,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super28 = _createSuper(CrystalCafe);
 
       function CrystalCafe(prot, dm) {
-        var _this101;
+        var _this117;
 
         _classCallCheck(this, CrystalCafe);
 
-        _this101 = _super28.call(this, prot, dm);
-        _this101.qRPost = '.post.reply';
-        return _this101;
+        _this117 = _super28.call(this, prot, dm);
+        _this117.qPost = '.post.reply';
+        return _this117;
       }
 
       _createClass(CrystalCafe, [{
@@ -29147,30 +29199,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super29 = _createSuper(Dobrochan);
 
       function Dobrochan(prot, dm) {
-        var _this102;
+        var _this118;
 
         _classCallCheck(this, Dobrochan);
 
-        _this102 = _super29.call(this, prot, dm);
-        _this102.dobrochan = true;
-        _this102.qClosed = 'img[src="/images/locked.png"]';
-        _this102.qDForm = 'form[action*="delete"]';
-        _this102.qError = '.post-error, h2';
-        _this102.qFormRedir = 'select[name="goto"]';
-        _this102.qImgInfo = '.fileinfo';
-        _this102.qOmitted = '.abbrev > span:last-of-type';
-        _this102.qPages = '.pages > tbody > tr > td';
-        _this102.qPostMsg = '.postbody';
-        _this102.qPostSubj = '.replytitle';
-        _this102.qTrunc = '.abbrev > span:first-of-type';
-        _this102.anchor = '#i';
-        _this102.formParent = 'thread_id';
-        _this102.hasPicWrap = true;
-        _this102.JsonBuilder = DobrochanPostsBuilder;
-        _this102.multiFile = true;
-        _this102.ru = true;
-        _this102.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this102;
+        _this118 = _super29.call(this, prot, dm);
+        _this118.dobrochan = true;
+        _this118.qClosed = 'img[src="/images/locked.png"]';
+        _this118.qDelForm = 'form[action*="delete"]';
+        _this118.qError = '.post-error, h2';
+        _this118.qFormRedir = 'select[name="goto"]';
+        _this118.qImgInfo = '.fileinfo';
+        _this118.qOmitted = '.abbrev > span:last-of-type';
+        _this118.qPages = '.pages > tbody > tr > td';
+        _this118.qPostMsg = '.postbody';
+        _this118.qPostSubj = '.replytitle';
+        _this118.qTrunc = '.abbrev > span:first-of-type';
+        _this118.anchor = '#i';
+        _this118.formParent = 'thread_id';
+        _this118.hasPicWrap = true;
+        _this118.JsonBuilder = DobrochanPostsBuilder;
+        _this118.multiFile = true;
+        _this118.ru = true;
+        _this118.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this118;
       }
 
       _createClass(Dobrochan, [{
@@ -29321,13 +29373,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super30 = _createSuper(Endchan);
 
       function Endchan(prot, dm) {
-        var _this103;
+        var _this119;
 
         _classCallCheck(this, Endchan);
 
-        _this103 = _super30.call(this, prot, dm);
-        _this103.qTrunc = '.contentOmissionIndicator > p';
-        return _this103;
+        _this119 = _super30.call(this, prot, dm);
+        _this119.qTrunc = '.contentOmissionIndicator > p';
+        return _this119;
       }
 
       _createClass(Endchan, [{
@@ -29362,29 +29414,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super31 = _createSuper(Ernstchan);
 
       function Ernstchan(prot, dm) {
-        var _this104;
+        var _this120;
 
         _classCallCheck(this, Ernstchan);
 
-        _this104 = _super31.call(this, prot, dm);
-        _this104.cReply = 'post';
-        _this104.qError = '.error > .info';
-        _this104.qFormRedir = 'input[name="gb2"][value="thread"]';
-        _this104.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-        _this104.qOPost = '.thread_OP';
-        _this104.qPages = '.pagelist > li:nth-last-child(2)';
-        _this104.qPostHeader = '.post_head';
-        _this104.qPostMsg = '.text';
-        _this104.qPostSubj = '.subject';
-        _this104.qPostTrip = '.tripcode';
-        _this104.qRPost = '.thread_reply';
-        _this104.qTrunc = '.tldr';
-        _this104.docExt = '';
-        _this104.firstPage = 1;
-        _this104.markupBB = true;
-        _this104.multiFile = true;
-        _this104.res = 'thread/';
-        return _this104;
+        _this120 = _super31.call(this, prot, dm);
+        _this120.cReply = 'post';
+        _this120.qError = '.error > .info';
+        _this120.qFormRedir = 'input[name="gb2"][value="thread"]';
+        _this120.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+        _this120.qOPost = '.thread_OP';
+        _this120.qPages = '.pagelist > li:nth-last-child(2)';
+        _this120.qPost = '.thread_reply';
+        _this120.qPostHeader = '.post_head';
+        _this120.qPostMsg = '.text';
+        _this120.qPostSubj = '.subject';
+        _this120.qPostTrip = '.tripcode';
+        _this120.qTrunc = '.tldr';
+        _this120.docExt = '';
+        _this120.firstPage = 1;
+        _this120.markupBB = true;
+        _this120.multiFile = true;
+        _this120.res = 'thread/';
+        return _this120;
       }
 
       _createClass(Ernstchan, [{
@@ -29435,13 +29487,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super32 = _createSuper(Gensokyo);
 
       function Gensokyo(prot, dm) {
-        var _this105;
+        var _this121;
 
         _classCallCheck(this, Gensokyo);
 
-        _this105 = _super32.call(this, prot, dm);
-        _this105.hasRefererErr = true;
-        return _this105;
+        _this121 = _super32.call(this, prot, dm);
+        _this121.hasRefererErr = true;
+        return _this121;
       }
 
       return _createClass(Gensokyo);
@@ -29455,14 +29507,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super33 = _createSuper(Iichan);
 
       function Iichan(prot, dm) {
-        var _this106;
+        var _this122;
 
         _classCallCheck(this, Iichan);
 
-        _this106 = _super33.call(this, prot, dm);
-        _this106.hasArchive = true;
-        _this106.hasCatalog = true;
-        return _this106;
+        _this122 = _super33.call(this, prot, dm);
+        _this122.hasArchive = true;
+        _this122.hasCatalog = true;
+        return _this122;
       }
 
       _createClass(Iichan, [{
@@ -29507,11 +29559,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "stormWallFixCaptcha",
         value: function stormWallFixCaptcha(url, img) {
-          var _this107 = this;
+          var _this123 = this;
 
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this107.stormWallHelper(url, null, emptyFn, function () {
+              _this123.stormWallHelper(url, null, emptyFn, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -29593,18 +29645,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super34 = _createSuper(Kohlchan);
 
       function Kohlchan(prot, dm) {
-        var _this108;
+        var _this124;
 
         _classCallCheck(this, Kohlchan);
 
-        _this108 = _super34.call(this, prot, dm);
-        _this108.kohlchan = true;
-        _this108.qFormRules = '#rules_row';
-        _this108.qPostImg = '.imgLink > img, .de-img-link > img';
-        _this108.hasTextLinks = true;
-        _this108.markupBB = true;
-        _this108.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this108;
+        _this124 = _super34.call(this, prot, dm);
+        _this124.kohlchan = true;
+        _this124.qFormRules = '#rules_row';
+        _this124.qPostImg = '.imgLink > img, .de-img-link > img';
+        _this124.hasTextLinks = true;
+        _this124.markupBB = true;
+        _this124.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this124;
       }
 
       _createClass(Kohlchan, [{
@@ -29763,13 +29815,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super35 = _createSuper(Kropyvach);
 
       function Kropyvach(prot, dm) {
-        var _this109;
+        var _this125;
 
         _classCallCheck(this, Kropyvach);
 
-        _this109 = _super35.call(this, prot, dm);
-        _this109.markupBB = true;
-        return _this109;
+        _this125 = _super35.call(this, prot, dm);
+        _this125.markupBB = true;
+        return _this125;
       }
 
       _createClass(Kropyvach, [{
@@ -29795,13 +29847,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super36 = _createSuper(Lainchan);
 
       function Lainchan(prot, dm) {
-        var _this110;
+        var _this126;
 
         _classCallCheck(this, Lainchan);
 
-        _this110 = _super36.call(this, prot, dm);
-        _this110.qOPost = '.op';
-        return _this110;
+        _this126 = _super36.call(this, prot, dm);
+        _this126.qOPost = '.op';
+        return _this126;
       }
 
       _createClass(Lainchan, [{
@@ -29889,17 +29941,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super39 = _createSuper(Ponyach);
 
       function Ponyach(prot, dm) {
-        var _this111;
+        var _this127;
 
         _classCallCheck(this, Ponyach);
 
-        _this111 = _super39.call(this, prot, dm);
-        _this111.qBan = 'font[color="#FF0000"]';
-        _this111.qImgInfo = '.filesize[style="display: inline;"]';
-        _this111.formParent = 'replythread';
-        _this111.jsonSubmit = true;
-        _this111.multiFile = true;
-        return _this111;
+        _this127 = _super39.call(this, prot, dm);
+        _this127.qBan = 'font[color="#FF0000"]';
+        _this127.qImgInfo = '.filesize[style="display: inline;"]';
+        _this127.formParent = 'replythread';
+        _this127.jsonSubmit = true;
+        _this127.multiFile = true;
+        return _this127;
       }
 
       _createClass(Ponyach, [{
@@ -29963,14 +30015,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super40 = _createSuper(Ponychan);
 
       function Ponychan(prot, dm) {
-        var _this112;
+        var _this128;
 
         _classCallCheck(this, Ponychan);
 
-        _this112 = _super40.call(this, prot, dm);
-        _this112.qOPost = '.opContainer';
-        _this112.jsonSubmit = false;
-        return _this112;
+        _this128 = _super40.call(this, prot, dm);
+        _this128.qOPost = '.opContainer';
+        _this128.jsonSubmit = false;
+        return _this128;
       }
 
       _createClass(Ponychan, [{
@@ -30029,15 +30081,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super42 = _createSuper(Synch);
 
       function Synch(prot, dm) {
-        var _this113;
+        var _this129;
 
         _classCallCheck(this, Synch);
 
-        _this113 = _super42.call(this, prot, dm);
-        _this113.qImgInfo = '.unimportant';
-        _this113.qPages = '.pagination';
-        _this113.markupBB = true;
-        return _this113;
+        _this129 = _super42.call(this, prot, dm);
+        _this129.qImgInfo = '.unimportant';
+        _this129.qPages = '.pagination';
+        _this129.markupBB = true;
+        return _this129;
       }
 
       _createClass(Synch, [{
@@ -30099,18 +30151,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super43 = _createSuper(Warosu);
 
       function Warosu(prot, dm) {
-        var _this114;
+        var _this130;
 
         _classCallCheck(this, Warosu);
 
-        _this114 = _super43.call(this, prot, dm);
-        _this114.qDForm = '.content';
-        _this114.qForm = '.subreply';
-        _this114.qPostRef = '.js';
-        _this114.qImgInfo = 'span';
-        _this114.qOPost = 'div[itemscope]';
-        _this114.res = 'thread/';
-        return _this114;
+        _this130 = _super43.call(this, prot, dm);
+        _this130.qDelForm = '.content';
+        _this130.qForm = '.subreply';
+        _this130.qPostRef = '.js';
+        _this130.qImgInfo = 'span';
+        _this130.qOPost = 'div[itemscope]';
+        _this130.res = 'thread/';
+        return _this130;
       }
 
       _createClass(Warosu, [{
@@ -30182,7 +30234,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this115 = this;
+      var _this131 = this;
 
       this.hasListeners = false;
 
@@ -30197,7 +30249,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this115.hasListeners = true;
+          _this131.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -30398,7 +30450,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function updateCSS() {
-    var x = "\n\t.de-video-obj { width: ".concat(Cfg.YTubeWidth, "px; height: ").concat(Cfg.YTubeHeigh, "px; }\n\t.de-new-post { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)', " !important; }\n\t.de-selected, .de-input-error { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)', " !important; }\n\t").concat(Cfg.markMyPosts ? ".de-mypost { ".concat(nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)', " !important; }\n\t\t.de-mypost-reply:not(.de-pview) { position: relative; }\n\t\t.de-mypost-reply::before { content: \"\"; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }") : '', "\n\t").concat(Cfg.markMyLinks ? ".de-ref-del.de-ref-you::after { content: \" (Del)(You)\"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: \" (OP)(You)\"; }\n\t\t\t.de-ref-you::after { content: \" (You)\"; }" : '.de-post-counter-you { display: none; }', "\n\t").concat(Cfg.postBtnsCSS === 0 ? ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }" : ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ".concat(Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack, "; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }"), "\n\t.de-fullimg-wrap-inpost > .de-fullimg { ").concat(Cfg.resizeImgs ? "max-width: 100%;".concat(Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto', "; }\n\t").concat(Cfg.maskImgs ? "".concat(aib.qPostImg, ", .de-img-embed, .de-video-obj { opacity: ").concat(Cfg.maskVisib / 100, " !important; }\n\t\t\t").concat(aib.qPostImg.split(', ').join(':hover, '), ":hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }") : '', "\n\t").concat(Cfg.imgNames === 1 ? '.de-img-name { max-width: 165px; overflow: hidden; }' : '', "\n\t").concat(Cfg.imgNames === 1 || Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' : Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '', "\n\t").concat(Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '', "\n\t").concat(aib.qPostMsg, " { max-width: ").concat(Cfg.limitPostMsg, "px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }\n\t").concat(Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '', "\n\t").concat(Cfg.noSpoilers === 1 ? ".spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }" : '', "\n\t").concat(Cfg.noSpoilers === 2 ? ".spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }" : '', "\n\t").concat(Cfg.addSageBtn ? '' : '#de-sagebtn, ', "\n\t").concat(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ', "\n\t").concat(Cfg.imgNavBtns ? '' : '.de-img-btn, ', "\n\t").concat(Cfg.imgInfoLink ? '' : '.de-fullimg-info, ', "\n\t").concat(Cfg.noPostNames ? "".concat(aib.qPostName, ", ").concat(aib.qPostTrip, ", ") : '', "\n\t").concat(Cfg.noBoardRule ? "".concat(aib.qFormRules, ", ") : '', "\n\t").concat(Cfg.panelCounter ? '' : '#de-panel-info, ', "\n\t").concat(Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '', "\n\t").concat(Cfg.showHideBtn ? '' : '.de-btn-hide, ', "\n\t").concat(Cfg.showRepBtn ? '' : '.de-btn-reply, ', "\n\t").concat(Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ', "\n\t").concat(Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ', "\n\t").concat(Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ', "\n\t").concat(Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ', "\n\t").concat(!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '', "body > hr, .postarea, .theader { display: none !important; }\r\n");
+    var x = "\n\t.de-video-obj { width: ".concat(Cfg.YTubeWidth, "px; height: ").concat(Cfg.YTubeHeigh, "px; }\n\t.de-new-post { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(107,134,97,.7); border-right: 4px solid rgba(107,134,97,.7)' : 'box-shadow: 6px 0 2px -2px rgba(107,134,97,.8), -6px 0 2px -2px rgba(107,134,97,.8)', " !important; }\n\t.de-selected, .de-input-error { ").concat(nav.isPresto ? 'border-left: 4px solid rgba(220,0,0,.7); border-right: 4px solid rgba(220,0,0,.7)' : 'box-shadow: 6px 0 2px -2px rgba(220,0,0,.8), -6px 0 2px -2px rgba(220,0,0,.8)', " !important; }\n\t").concat(Cfg.markMyPosts ? ".de-mypost { ".concat(nav.isPresto ? 'border-left: 4px solid rgba(97,107,134,.7); border-right: 4px solid rgba(97,107,134,.7)' : 'box-shadow: 6px 0 2px -2px rgba(97,107,134,.8), -6px 0 2px -2px rgba(97,107,134,.8)', " !important; }\n\t\t.de-mypost-reply:not(.de-pview) { position: relative; }\n\t\t.de-mypost-reply::before { content: \"\"; position: absolute; top: -0; bottom: 0; left: -1px; border-left: 5px dotted rgba(97,107,134,.8) !important; }") : '', "\n\t").concat(Cfg.markMyLinks ? ".de-ref-del.de-ref-you::after { content: \" (Del)(You)\"; }\n\t\t\t.de-ref-op.de-ref-you::after { content: \" (OP)(You)\"; }\n\t\t\t.de-ref-you::after { content: \" (You)\"; }" : '.de-post-counter-you { display: none; }', "\n\t").concat(Cfg.postBtnsCSS === 0 ? ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-unhide { fill: rgba(0,0,0,0); color: currentColor; }\n\t\t\t.de-btn-fav-sel, .de-btn-hide-user, .de-btn-sage, .de-btn-stick-on, .de-btn-unhide-user { fill: rgba(0,0,0,0); color: #F00; }" : ".de-btn-expthr, .de-btn-fav, .de-btn-hide, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-unhide { color: #F5F5F5; }\n\t\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user { fill: ".concat(Cfg.postBtnsCSS === 1 && !nav.isPresto ? 'url(#de-btn-back-gradient)' : Cfg.postBtnsBack, "; }\n\t\t\t.de-btn-fav-sel { color: #FFE100; }\n\t\t\t.de-btn-hide-user { color: #BFFFBF; }\n\t\t\t.de-btn-sage { fill: #4B4B4B; }\n\t\t\t.de-btn-stick-on { color: #BFFFBF; }\n\t\t\t.de-btn-unhide-user { color: #FFBFBF; }"), "\n\t.de-fullimg-wrap-inpost > .de-fullimg { ").concat(Cfg.resizeImgs ? "max-width: 100%;".concat(Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '') : 'width: auto', "; }\n\t").concat(Cfg.maskImgs ? "".concat(aib.qPostImg, ", .de-img-embed, .de-video-obj { opacity: ").concat(Cfg.maskVisib / 100, " !important; }\n\t\t\t").concat(aib.qPostImg.split(', ').join(':hover, '), ":hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }\n\t\t\t.de-video-obj:not(.de-video-obj-inline) { clear: both; }") : '', "\n\t").concat(Cfg.imgNames === 1 ? '.de-img-name { max-width: 165px; overflow: hidden; }' : '', "\n\t").concat(Cfg.imgNames === 1 || Cfg.imgNames === 3 ? '.de-img-name { display: inline-block; white-space: nowrap; vertical-align: bottom; text-overflow: ellipsis; }' : Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '', "\n\t").concat(Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '', "\n\t").concat(aib.qPostMsg, " { max-width: ").concat(Cfg.limitPostMsg, "px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }\n\t").concat(Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '', "\n\t").concat(Cfg.noSpoilers === 1 ? ".spoiler, s { color: #F5F5F5 !important; background-color: #888 !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: #F5F5F5 !important; background-color: #888 !important; }" : '', "\n\t").concat(Cfg.noSpoilers === 2 ? ".spoiler, s { color: inherit !important; }\n\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }" : '', "\n\t").concat(Cfg.addSageBtn ? '' : '#de-sagebtn, ', "\n\t").concat(Cfg.delHiddPost === 1 || Cfg.delHiddPost === 3 ? '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + hr, .de-thr-hid + div + br + hr, .de-thr-hid + div + div + hr, ' : '.de-thr-hid:not([style="display: none;"]) + div + br, ', "\n\t").concat(Cfg.imgNavBtns ? '' : '.de-img-btn, ', "\n\t").concat(Cfg.imgInfoLink ? '' : '.de-fullimg-info, ', "\n\t").concat(Cfg.noPostNames ? "".concat(aib.qPostName, ", ").concat(aib.qPostTrip, ", ") : '', "\n\t").concat(Cfg.noBoardRule ? "".concat(aib.qFormRules, ", ") : '', "\n\t").concat(Cfg.panelCounter ? '' : '#de-panel-info, ', "\n\t").concat(Cfg.removeHidd ? '.de-link-backref.de-link-hid, .de-link-backref.de-link-hid + .de-refcomma, ' : '', "\n\t").concat(Cfg.showHideBtn ? '' : '.de-btn-hide, ', "\n\t").concat(Cfg.showRepBtn ? '' : '.de-btn-reply, ', "\n\t").concat(Cfg.thrBtns || aib.t ? '' : '.de-thr-updater, ', "\n\t").concat(Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ', "\n\t").concat(Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ', "\n\t").concat(Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ', "\n\t").concat(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ? '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '', "body > hr, .postarea, .theader { display: none !important; }\r\n");
     $id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
     $id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
   }
@@ -30489,7 +30541,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return _context36.abrupt("return");
 
             case 3:
-              formEl = $q(aib.qDForm + ', form[de-form]');
+              formEl = $q(aib.qDelForm + ', form[de-form]');
 
               if (formEl) {
                 _context36.next = 7;

@@ -95,7 +95,7 @@ const ContentLoader = {
 					el.href = aib.getAbsLink(el.href);
 				}
 			});
-			$Q(aib.qRPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			$Q(aib.qPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');

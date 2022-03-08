@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'd4201ea';
+const commit = 'ff8841e';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3044,15 +3044,13 @@ const Panel = Object.create({
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
-		this._el.addEventListener('mouseover', this);
-		this._el.addEventListener('mouseout', this);
+		['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
-		this._el.removeEventListener('mouseover', this);
-		this._el.removeEventListener('mouseout', this);
+		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
@@ -3276,9 +3274,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
-				docBody.addEventListener('mouseleave', this);
-				docBody.addEventListener('mousemove', this);
-				docBody.addEventListener('mouseup', this);
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 				e.preventDefault();
 				return;
 			case 'mousemove': {
@@ -3302,9 +3298,7 @@ function makeDraggable(name, win, head) {
 			}
 			case 'mouseleave':
 			case 'mouseup':
-				docBody.removeEventListener('mouseleave', this);
-				docBody.removeEventListener('mousemove', this);
-				docBody.removeEventListener('mouseup', this);
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 				saveCfg(name + 'WinX', this._X);
 				saveCfg(name + 'WinY', this._Y);
 			}
@@ -3345,8 +3339,7 @@ class WinResizer {
 			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
-			docBody.addEventListener('mousemove', this);
-			docBody.addEventListener('mouseup', this);
+			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 			e.preventDefault();
 			return;
 		case 'mousemove':
@@ -3365,8 +3358,7 @@ class WinResizer {
 			}
 			return;
 		default: // mouseup
-			docBody.removeEventListener('mousemove', this);
-			docBody.removeEventListener('mouseup', this);
+			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
@@ -4057,7 +4049,7 @@ function showFavoritesWindow(body, favObj) {
 					}
 				}
 				// Updating a counter of new posts
-				const posts = $Q(aib.qRPost, form);
+				const posts = $Q(aib.qPost, form);
 				const cnt = posts.length + 1 - entry.cnt;
 				countEl.textContent = cnt;
 				if(cnt === 0) {
@@ -4233,13 +4225,8 @@ function showFavoritesWindow(body, favObj) {
 
 const CfgWindow = {
 	initCfgWindow(body) {
-		body.addEventListener('click', this);
-		body.addEventListener('mouseover', this);
-		body.addEventListener('mouseout', this);
-		body.addEventListener('change', this);
-		body.addEventListener('keyup', this);
-		body.addEventListener('keydown', this);
-		body.addEventListener('scroll', this);
+		['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(
+			e => body.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
 		let div = $bEnd(body, `<div id="de-cfg-bar">${
@@ -4649,11 +4636,8 @@ const CfgWindow = {
 					const temp = KeyEditListener.getEditMarkup(keys);
 					const el = $popup('edit-hotkeys', temp[1]);
 					const fn = new KeyEditListener(el, keys, temp[0]);
-					el.addEventListener('focus', fn, true);
-					el.addEventListener('blur', fn, true);
-					el.addEventListener('click', fn, true);
-					el.addEventListener('keydown', fn, true);
-					el.addEventListener('keyup', fn, true);
+					['focus', 'blur', 'click', 'keydown', 'keyup'].forEach(
+						e => el.addEventListener(e, fn, true));
 				});
 				break;
 			case 'de-cfg-button-updnow':
@@ -5207,8 +5191,7 @@ class Menu {
 		this._clickFn = clickFn;
 		this._el = el;
 		this.parentEl = parentEl;
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
@@ -5304,8 +5287,7 @@ class Menu {
 		if(this.onremove) {
 			this.onremove();
 		}
-		this._el.removeEventListener('mouseover', this, true);
-		this._el.removeEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this, true));
 		this.parentEl.removeEventListener('mouseout', this);
 		this._el.removeEventListener('click', this);
 		this._el.remove();
@@ -6032,7 +6014,7 @@ const ContentLoader = {
 					el.href = aib.getAbsLink(el.href);
 				}
 			});
-			$Q(aib.qRPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
+			$Q(aib.qPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
 				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
@@ -7034,7 +7016,8 @@ const AjaxCache = {
 };
 
 function getAjaxResponseEl(text, needForm) {
-	return !text.includes('</html>') ? null : needForm ? $q(aib.qDForm, $createDoc(text)) : $createDoc(text);
+	return !text.includes('</html>') ? null :
+		needForm ? $q(aib.qDelForm, $createDoc(text)) : $createDoc(text);
 }
 
 function ajaxLoad(url, needForm = true, useCache = false, checkArch = false) {
@@ -7218,12 +7201,8 @@ const Pages = {
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
-		const evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
-		if(Cfg.inftyScroll) {
-			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
-		} else {
-			doc.defaultView.removeEventListener(evtName, toggleInfinityScroll.onwheel);
-		}
+		doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener'](
+			'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', toggleInfinityScroll.onwheel);
 	}
 }
 toggleInfinityScroll.onwheel = e => {
@@ -8732,8 +8711,7 @@ class PostForm {
 		}
 		if(!el) {
 			el = $add('<span id="de-txt-panel"></span>');
-			el.addEventListener('click', this);
-			el.addEventListener('mouseover', this);
+			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
@@ -8830,7 +8808,7 @@ class PostForm {
 		}
 	}
 	setPlaceholders() {
-		if(aib.kusaba || !aib.multiFile && Cfg.fileInputs === 2) {
+		if(aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {
 			return;
 		}
 		this._setPlaceholder('name');
@@ -9090,8 +9068,7 @@ class PostForm {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					docBody.addEventListener('mousemove', this);
-					docBody.addEventListener('mouseup', this);
+					['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 					e.preventDefault();
 					return;
 				case 'mousemove': {
@@ -9101,8 +9078,7 @@ class PostForm {
 					return;
 				}
 				default: // mouseup
-					docBody.removeEventListener('mousemove', this);
-					docBody.removeEventListener('mouseup', this);
+					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
 					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
 				}
@@ -9201,7 +9177,7 @@ class PostForm {
 =========================================================================================================== */
 
 function getSubmitError(dc) {
-	if(!dc.body?.hasChildNodes() || $q(aib.qDForm, dc)) {
+	if(!dc.body?.hasChildNodes() || $q(aib.qDelForm, dc)) {
 		return null;
 	}
 	const err = [...$Q(aib.qError, dc)].map(str => str.innerHTML + '\n').join('')
@@ -9266,7 +9242,7 @@ function checkUpload(data) {
 		if(postNum) {
 			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
 		} else if(isDocument) {
-			const dForm = $q(aib.qDForm, data);
+			const dForm = $q(aib.qDelForm, data);
 			if(dForm) {
 				deWindow.location.assign(aib.getThrUrl(aib.b, aib.getTNum(dForm)));
 			}
@@ -9297,7 +9273,7 @@ async function checkDelete(data) {
 		updater.sendErrNotif();
 		return;
 	}
-	const els = $Q(`[de-form] ${ aib.qRPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
+	const els = $Q(`[de-form] ${ aib.qPost.split(', ').join(' input:checked, [de-form] ') } input:checked`);
 	const threads = new Set();
 	const isThr = aib.t;
 	for(let i = 0, len = els.length; i < len; ++i) {
@@ -9871,7 +9847,7 @@ class FileInput {
 				}
 			}
 			DollchanAPI.notify('filechange', this._parent._files);
-			return;
+			break;
 		}
 		case 'click': {
 			const parent = el.parentNode;
@@ -9944,9 +9920,7 @@ class FileInput {
 				this._input.click();
 				this._txtInput.blur();
 			}
-			e.preventDefault();
-			e.stopPropagation();
-			return;
+			break;
 		}
 		case 'dragenter':
 			if(isThumb) {
@@ -9978,10 +9952,10 @@ class FileInput {
 			if(FileInput._isThumbMode) {
 				setTimeout(() => thumb.classList.remove('de-file-drag'), 10);
 			}
-			e.preventDefault();
-			e.stopPropagation();
 		}
 		}
+		e.preventDefault();
+		e.stopPropagation();
 	}
 	hideInp() {
 		if(FileInput._isThumbMode) {
@@ -10065,8 +10039,7 @@ class FileInput {
 		this._thumb = $bEnd(this._parent.thumbsEl,
 			`<div class="de-file de-file-off"><div class="de-file-img"><div class="de-file-img" title="${
 				Lng.youCanDrag[lang] }"></div></div></div>`);
-		this._thumb.addEventListener('click', this);
-		this._thumb.addEventListener('dragenter', this);
+		['click', 'dragenter'].forEach(e => this._thumb.addEventListener(e, this));
 		this._thumb.append(this._utils);
 		this._toggleDragEvents(this._thumb, true);
 		if(this.hasFile) {
@@ -10148,9 +10121,7 @@ class FileInput {
 	_toggleDragEvents(el, isAdd) {
 		const name = isAdd ? 'addEventListener' : 'removeEventListener';
 		el[name]('dragover', e => e.preventDefault());
-		el[name]('dragenter', this);
-		el[name]('dragleave', this);
-		el[name]('drop', this);
+		['dragenter', 'dragleave', 'drop'].forEach(e => el[name](e, this));
 	}
 }
 
@@ -10241,12 +10212,11 @@ class Captcha {
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
-		if(!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2)) {
+		if(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
 			this.textEl.placeholder = Lng.cap[lang];
 		}
-		this.textEl.addEventListener('keypress', this);
+		['keypress', 'focus'].forEach(e => this.textEl.addEventListener(e, this));
 		this.textEl.onkeypress = null;
-		this.textEl.addEventListener('focus', this);
 		this.textEl.onfocus = null;
 	}
 	showCaptcha(isUpdateImage = false) {
@@ -10577,8 +10547,7 @@ class AbstractPost {
 		}
 		if(!this._hasEvents) {
 			this._hasEvents = true;
-			this.el.addEventListener('click', this, true);
-			this.el.addEventListener('mouseout', this, true);
+			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
 		if(el.classList.contains('de-video-link')) {
@@ -10847,7 +10816,7 @@ class AbstractPost {
 			if(this.isOp) {
 				sourceEl = form;
 			} else {
-				const posts = $Q(aib.qRPost, form);
+				const posts = $Q(aib.qPost, form);
 				for(let i = 0, len = posts.length; i < len; ++i) {
 					const post = posts[i];
 					if(this.num === aib.getPNum(post)) {
@@ -11783,8 +11752,7 @@ class Pview extends AbstractPost {
 		this._menu.onout = () => Pview.top.markToDel();
 	}
 	_showPview(el) {
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));
 		this.thr.form.el.append(el);
 		this._setPosition(this._link, false);
 		if(Cfg.animation) {
@@ -11928,8 +11896,7 @@ class ImagesNavigBtns {
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
-				this._btns.addEventListener('mouseout', this);
-				this._btns.addEventListener('click', this);
+				['mouseout', 'click'].forEach(e => this._btns.addEventListener(e, this));
 			}
 			if(!this._isHidden) {
 				clearTimeout(this._hideTmt);
@@ -12011,8 +11978,7 @@ class ImagesViewer {
 			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
-			docBody.addEventListener('mousemove', this, true);
-			docBody.addEventListener('mouseup', this, true);
+			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this, true));
 			break;
 		case 'mousemove': {
 			const { clientX: curX, clientY: curY } = e;
@@ -12028,8 +11994,7 @@ class ImagesViewer {
 			return;
 		}
 		case 'mouseup':
-			docBody.removeEventListener('mousemove', this, true);
-			docBody.removeEventListener('mouseup', this, true);
+			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this, true));
 			return;
 		case 'click': {
 			const el = e.target;
@@ -12221,9 +12186,8 @@ class ImagesViewer {
 		this._elStyle = el.style;
 		this.data = data;
 		this._parentEl = el;
-		el.addEventListener('onwheel' in el ? 'wheel' : 'mousewheel', this, true);
-		el.addEventListener('mousedown', this, true);
-		el.addEventListener('click', this, true);
+		['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(
+			e => el.addEventListener(e, this, true));
 		data.srcBtnEvents(this);
 		if(data.inPview && !data.post.isSticky) {
 			data.post.toggleSticky(true);
@@ -12921,7 +12885,7 @@ function processImgInfoLinks(parent, addSrc = Cfg.imgSrcBtns, imgNames = Cfg.img
 		if(parent instanceof AbstractPost) {
 			processPostImgInfoLinks(parent, addSrc, imgNames);
 		} else {
-			const posts = $Q(aib.qRPost + ', ' + aib.qOPost + ', .de-oppost', parent);
+			const posts = $Q(aib.qPost + ', ' + aib.qOPost + ', .de-oppost', parent);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				processPostImgInfoLinks(pByEl.get(posts[i]), addSrc, imgNames);
 			}
@@ -12987,7 +12951,7 @@ function embedPostMsgImages(el) {
 class DOMPostsBuilder {
 	constructor(form, isArchived) {
 		this._form = form;
-		this._posts = $Q(aib.qRPost, form);
+		this._posts = $Q(aib.qPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
 		this._isArchived = isArchived;
@@ -13714,7 +13678,7 @@ class Thread {
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
-		const els = $Q(aib.qRPost, el);
+		const els = $Q(aib.qPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.pcount = omt + len;
@@ -13741,8 +13705,7 @@ class Thread {
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
 			'</div>');
-		this.btns.addEventListener('click', this);
-		this.btns.addEventListener('mouseover', this);
+		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
@@ -13994,7 +13957,7 @@ class Thread {
 			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
-			const posts = $Q(aib.qRPost, fragm);
+			const posts = $Q(aib.qPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.runSpells(last);
@@ -14285,9 +14248,7 @@ const thrNavPanel = {
 				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>
 			</div>
 		</div>`);
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
-		el.addEventListener('click', this, true);
+		['mouseover', 'mouseout', 'click'].forEach(e => el.addEventListener(e, this, true));
 		this._el = el;
 		this._thrs = new Set();
 	},
@@ -15067,7 +15028,7 @@ class DelForm {
 	addStuff() {
 		const { el } = this;
 		if(Cfg.ajaxPosting && !localData) {
-			const delBtn = aib.qDelBut ? $q(aib.qDelBut, el) : null;
+			const delBtn = aib.qDelBtn ? $q(aib.qDelBtn, el) : null;
 			if(delBtn) {
 				el.onsubmit = e => e.preventDefault();
 				delBtn.onclick = e => {
@@ -15289,13 +15250,21 @@ function initNavFuncs() {
 
 class BaseBoard {
 	constructor(prot, dm) {
+		// Imageboard-specific booleans
+		this._02ch = false;
+		this._2channel = false;
+		this._4chan = false;
+		this.dobrochan = false;
+		this.kohlchan = false;
+		this.makaba = false;
+
 		// Query paths
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]';
+		this.qDelBtn = 'input[type="submit"]';
+		this.qDelForm = '#delform, form[name="delform"]';
 		this.qDelPassw = 'input[type="password"], input[name="password"]';
-		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
 		this.qFormFile = 'tr input[type="file"]';
@@ -15310,7 +15279,9 @@ class BaseBoard {
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
+		this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+		this.qPost = '.reply';
 		this.qPostHeader = '.de-post-btns';
 		this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qPostMsg = 'blockquote';
@@ -15319,9 +15290,7 @@ class BaseBoard {
 		this.qPostTrip = '.postertrip';
 		this.qPostRef = '.reflink';
 		this.qPostsParent = null;
-		this.qRPost = '.reply';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
-		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 
 		// Other propertioes
 		this.anchor = '#';
@@ -15329,6 +15298,7 @@ class BaseBoard {
 		this.dm = dm;
 		this.docExt = null;
 		this.firstPage = 0;
+		this.formHeaders = false;
 		this.formParent = 'parent';
 		this.hasAltCaptcha = false;
 		this.hasArchive = false;
@@ -15348,14 +15318,6 @@ class BaseBoard {
 		this.ru = false;
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-
-		// Imageboard-specific booleans
-		this._02ch = false;
-		this._2channel = false;
-		this._4chan = false;
-		this.dobrochan = false;
-		this.kohlchan = false;
-		this.makaba = false;
 	}
 	get qFormMail() {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -15592,7 +15554,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.classList.add('de-oppost');
 		let el;
-		const opEnd = $q(this._qOPostEnd, thr);
+		const opEnd = $q(this.qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.append(el);
 		}
@@ -15606,7 +15568,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qRPost + ', [de-thread], .de-pview';
+		const sel = this.qPost + ', [de-thread], .de-pview';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}
@@ -15680,11 +15642,10 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kusaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.kusaba = true;
-
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
+			this.formHeaders = true;
 			this.formParent = 'replythread';
 			this.markupBB = true;
 		}
@@ -15723,12 +15684,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
-			this.qDForm = 'form[name*="postcontrols"]';
+			this.qDelForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
 			this.qFormPassw = 'input[name="password"]:not([type="hidden"])';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
+			this.qOPostEnd = '.post.reply';
 			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
 			this.qPostMsg = '.body';
@@ -15737,8 +15699,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.trip';
 			this.qTrunc = '.toolong';
-			this._origInputs = null;
-			this._qOPostEnd = '.post.reply';
 
 			this.firstPage = 1;
 			this.formParent = 'thread';
@@ -15746,6 +15706,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasRefererErr = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+			this._origInputs = null;
 		}
 		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
@@ -15840,7 +15801,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
-			$script('window.FormData = void 0');
+			$script('window.FormData = void 0;');
 			const formEl = $q('form[name="post"]');
 			if(formEl) {
 				formEl.insertAdjacentHTML('beforeend',
@@ -15969,8 +15930,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'innerPost';
-			this.qDForm = 'form[action$="contentActions.js"]';
-			this.qDelBut = '#deleteFormButton';
+			this.qDelBtn = '#deleteFormButton';
+			this.qDelForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
 			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
@@ -15979,16 +15940,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.uploadDetails';
 			this.qOmitted = '.labelOmission';
 			this.qOPost = '.innerOP';
+			this.qOPostEnd = '.divPosts';
 			this.qPages = '#divPages';
+			this.qPost = '.innerPost, .markedPost';
 			this.qPostHeader = '.postInfo, .de-post-btns';
 			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 			this.qPostMsg = '.divMessage';
 			this.qPostRef = '.linkQuote';
 			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
-			this.qRPost = '.innerPost, .markedPost';
 			this.qTrunc = '.contentOmissionIndicator';
-			this._qOPostEnd = '.divPosts';
 
 			this.firstPage = 1;
 			this.formParent = 'threadId';
@@ -16172,18 +16133,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post_wrapper';
-			this.qDForm = '#main';
+			this.qDelForm = '#main';
 			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
 			this.qOmitted = '.omitted_text';
+			this.qOPostEnd = '.posts';
 			this.qPages = '.paginate > ul > li:nth-last-child(3)';
+			this.qPost = '.post[id]';
 			this.qPostHeader = 'header';
 			this.qPostImg = '.post_image, .thread_image';
 			this.qPostMsg = '.text';
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
 			this.qPostsParent = '.posts';
-			this.qRPost = '.post[id]';
-			this._qOPostEnd = '.posts';
 
 			this.docExt = '';
 			this.firstPage = 1;
@@ -16232,21 +16193,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _0chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qDForm = '#delform_instant';
-
-			this.hasCatalog = true;
-		}
-		get css() {
-			return `.content > hr, .extrabtns { display: none; }
-				form { position: initial; }`;
-		}
-	}
-	ibDomains['2.0-chan.ru'] = _0chan;
-
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -16266,13 +16212,47 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['02ch.su'] = _02ch;
 
+	class _0chan extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qDelForm = '#delform_instant';
+			this.qPostHeader = '.posthead';
+
+			this.formHeaders = false;
+			this.hasCatalog = true;
+			this.multiFile = true;
+			this.ru = true;
+		}
+		get captchaInit() {
+			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
+			return null;
+		}
+		get captchaUpdate() {
+			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			return null;
+		}
+		get css() {
+			return `.content > hr, .embed-wrap, .extrabtns, .postbutt { display: none; }
+				form { position: initial; }`;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getTNum(thr) {
+			return +thr.getAttribute('data-threadid');
+		}
+	}
+	ibDomains['2.0-chan.ru'] = _0chan;
+
 	class _2__ch extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qOPostEnd = 'table:not(.postfiles)';
 			this.qPages = 'table[border="1"] td > a:last-of-type';
 			this.qPostImg = 'img.thumb';
-			this._qOPostEnd = 'table:not(.postfiles)';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
@@ -16330,9 +16310,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(btnEl) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
-			const dFormEl = $q(this.qDForm);
-			$delAll('input[type="hidden"]', dFormEl);
-			dFormEl.append($q('.userdelete'));
+			const delFormEl = $q(this.qDelForm);
+			$delAll('input[type="hidden"]', delFormEl);
+			delFormEl.append($q('.userdelete'));
 			return false;
 		}
 	}
@@ -16346,7 +16326,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
-			this.qDForm = '#posts-form';
+			this.qDelForm = '#posts-form';
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules';
@@ -16357,13 +16337,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.post__file-attr';
 			this.qOmitted = '.thread__missed';
 			this.qOPost = '.post_type_oppost';
+			this.qPost = '.post_type_reply[data-num]';
 			this.qPostHeader = '.post__details';
 			this.qPostImg = '.post__file-preview';
 			this.qPostMsg = '.post__message';
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
-			this.qRPost = '.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -16590,13 +16570,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qImgInfo = '.file-attr';
 				this.qOmitted = '.mess-post';
 				this.qOPost = '.oppost';
+				this.qPost = '.post.reply[data-num]';
 				this.qPostHeader = '.post-details';
 				this.qPostImg = '.preview';
 				this.qPostMsg = '.post-message';
 				this.qPostName = '.ananimas, .post-email';
 				this.qPostRef = '.reflink';
 				this.qPostSubj = '.post-title';
-				this.qRPost = '.post.reply[data-num]';
 				this.hasArchive = false;
 				const { css } = this;
 				Object.defineProperty(this, 'css', {
@@ -16668,14 +16648,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qDForm = 'form:not([enctype])';
+			this.qDelForm = 'form:not([enctype])';
 			this.qForm = '#fm';
 			this.qFormRedir = null;
 			this.qFormRules = '.chui';
 			this.qOmitted = 'font[color="#707070"]';
+			this.qPost = 'td:nth-child(2)';
 			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
 			this.qPostRef = '.del';
-			this.qRPost = 'td:nth-child(2)';
 
 			this.docExt = '.htm';
 			this.formParent = 'resto';
@@ -16831,9 +16811,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-			this.ru = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
+			this.ru = true;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 			this._capUpdPromise = null;
 		}
@@ -16884,20 +16864,20 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'post reply';
 			this.qBan = 'strong[style="color: red;"]';
 			this.qClosed = '.archivedIcon';
-			this.qDelBut = '.deleteform > input[type="submit"]';
+			this.qDelBtn = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
 			this.qForm = 'form[name="post"]';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileText';
 			this.qOmitted = '.summary.desktop';
 			this.qOPost = '.op';
+			this.qOPostEnd = '.replyContainer';
 			this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
 			this.qPostHeader = '.postInfo';
 			this.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
 			this.qPostName = '.name';
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
-			this._qOPostEnd = '.replyContainer';
 
 			this.anchor = '#p';
 			this.docExt = '';
@@ -17021,15 +17001,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post';
-			this.qDelBut = null;
+			this.qDelBtn = null;
+			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
-			this.qDForm = 'body > .container-fluid';
+			this.qPost = '.post[postid]:not([postid=""])';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qPostSubj = '.post_subject';
-			this.qRPost = '.post[postid]:not([postid=""])';
 
 			this.docExt = '';
 			this.hasOPNum = true;
@@ -17106,7 +17086,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qRPost = '.post.reply';
+			this.qPost = '.post.reply';
 		}
 		get qImgNameLink() {
 			return '.fileinfo > a[title]';
@@ -17126,7 +17106,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.dobrochan = true;
 
 			this.qClosed = 'img[src="/images/locked.png"]';
-			this.qDForm = 'form[action*="delete"]';
+			this.qDelForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
 			this.qFormRedir = 'select[name="goto"]';
 			this.qImgInfo = '.fileinfo';
@@ -17280,12 +17260,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
+			this.qPost = '.thread_reply';
 			this.qPostHeader = '.post_head';
 			this.qPostMsg = '.text';
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.tripcode';
-			this.qRPost = '.thread_reply';
 			this.qTrunc = '.tldr';
+
 			this.docExt = '';
 			this.firstPage = 1;
 			this.markupBB = true;
@@ -17730,7 +17711,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qDForm = '.content';
+			this.qDelForm = '.content';
 			this.qForm = '.subreply';
 			this.qPostRef = '.js';
 			this.qImgInfo = 'span';
@@ -18635,7 +18616,7 @@ function updateCSS() {
 	${ Cfg.thrBtns === 1 || Cfg.thrBtns === 2 && !aib.t ? '' : '.de-thr-buttons > svg, ' }
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
-	${ !aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2) ?
+	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
 		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
@@ -18697,7 +18678,7 @@ async function runMain(checkDomains, dataPromise) {
 	if(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true))) {
 		return;
 	}
-	let formEl = $q(aib.qDForm + ', form[de-form]');
+	let formEl = $q(aib.qDelForm + ', form[de-form]');
 	if(!formEl) {
 		runFrames();
 		return;

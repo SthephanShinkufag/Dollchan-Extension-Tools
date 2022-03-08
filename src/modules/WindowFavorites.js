@@ -320,7 +320,7 @@ function showFavoritesWindow(body, favObj) {
 					}
 				}
 				// Updating a counter of new posts
-				const posts = $Q(aib.qRPost, form);
+				const posts = $Q(aib.qPost, form);
 				const cnt = posts.length + 1 - entry.cnt;
 				countEl.textContent = cnt;
 				if(cnt === 0) {

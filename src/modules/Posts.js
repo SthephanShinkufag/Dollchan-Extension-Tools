@@ -206,8 +206,7 @@ class AbstractPost {
 		}
 		if(!this._hasEvents) {
 			this._hasEvents = true;
-			this.el.addEventListener('click', this, true);
-			this.el.addEventListener('mouseout', this, true);
+			['click', 'mouseout'].forEach(e => this.el.addEventListener(e, this, true));
 		}
 		// Mouseover/mouseout on YouTube links
 		if(el.classList.contains('de-video-link')) {
@@ -476,7 +475,7 @@ class AbstractPost {
 			if(this.isOp) {
 				sourceEl = form;
 			} else {
-				const posts = $Q(aib.qRPost, form);
+				const posts = $Q(aib.qPost, form);
 				for(let i = 0, len = posts.length; i < len; ++i) {
 					const post = posts[i];
 					if(this.num === aib.getPNum(post)) {

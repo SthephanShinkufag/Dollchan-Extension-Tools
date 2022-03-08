@@ -370,8 +370,7 @@ class Pview extends AbstractPost {
 		this._menu.onout = () => Pview.top.markToDel();
 	}
 	_showPview(el) {
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));
 		this.thr.form.el.append(el);
 		this._setPosition(this._link, false);
 		if(Cfg.animation) {

@@ -131,12 +131,8 @@ const Pages = {
 
 function toggleInfinityScroll() {
 	if(!aib.t) {
-		const evtName = 'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel';
-		if(Cfg.inftyScroll) {
-			doc.defaultView.addEventListener(evtName, toggleInfinityScroll.onwheel);
-		} else {
-			doc.defaultView.removeEventListener(evtName, toggleInfinityScroll.onwheel);
-		}
+		doc.defaultView[Cfg.inftyScroll ? 'addEventListener' : 'removeEventListener'](
+			'onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', toggleInfinityScroll.onwheel);
 	}
 }
 toggleInfinityScroll.onwheel = e => {

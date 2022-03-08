@@ -5,7 +5,7 @@
 class DOMPostsBuilder {
 	constructor(form, isArchived) {
 		this._form = form;
-		this._posts = $Q(aib.qRPost, form);
+		this._posts = $Q(aib.qPost, form);
 		this.length = this._posts.length;
 		this.postersCount = '';
 		this._isArchived = isArchived;

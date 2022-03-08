@@ -31,9 +31,7 @@ function makeDraggable(name, win, head) {
 				if(this._Z < topWinZ) {
 					this._Z = this._wStyle.zIndex = ++topWinZ;
 				}
-				docBody.addEventListener('mouseleave', this);
-				docBody.addEventListener('mousemove', this);
-				docBody.addEventListener('mouseup', this);
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 				e.preventDefault();
 				return;
 			case 'mousemove': {
@@ -57,9 +55,7 @@ function makeDraggable(name, win, head) {
 			}
 			case 'mouseleave':
 			case 'mouseup':
-				docBody.removeEventListener('mouseleave', this);
-				docBody.removeEventListener('mousemove', this);
-				docBody.removeEventListener('mouseup', this);
+				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 				saveCfg(name + 'WinX', this._X);
 				saveCfg(name + 'WinY', this._Y);
 			}
@@ -100,8 +96,7 @@ class WinResizer {
 			case 'right': val = `left: ${ cr.left }px; ${ y + z }`;
 			}
 			this.win.setAttribute('style', val);
-			docBody.addEventListener('mousemove', this);
-			docBody.addEventListener('mouseup', this);
+			['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 			e.preventDefault();
 			return;
 		case 'mousemove':
@@ -120,8 +115,7 @@ class WinResizer {
 			}
 			return;
 		default: // mouseup
-			docBody.removeEventListener('mousemove', this);
-			docBody.removeEventListener('mouseup', this);
+			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);

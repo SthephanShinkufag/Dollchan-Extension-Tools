@@ -11,7 +11,7 @@ class Thread {
 		this.loadCount = 0;
 		this.next = null;
 		this.num = num;
-		const els = $Q(aib.qRPost, el);
+		const els = $Q(aib.qPost, el);
 		const len = els.length;
 		const omt = aib.t ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 		this.pcount = omt + len;
@@ -38,8 +38,7 @@ class Thread {
 			<span class="de-thr-updater">[<a class="de-thr-updater-link de-abtn" href="#"></a>` +
 			(!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') +
 			'</div>');
-		this.btns.addEventListener('click', this);
-		this.btns.addEventListener('mouseover', this);
+		['click', 'mouseover'].forEach(e => this.btns.addEventListener(e, this));
 		[this.btnHide,, this.btnFav, this.btnUpd] = [...this.btns.children];
 		if(!aib.t && Cfg.hideReplies) {
 			this.btnReplies = $bEnd(this.btns,
@@ -291,7 +290,7 @@ class Thread {
 			const temp = doc.createElement('template');
 			temp.innerHTML = aib.fixHTML(html.join(''));
 			fragm = temp.content;
-			const posts = $Q(aib.qRPost, fragm);
+			const posts = $Q(aib.qPost, fragm);
 			for(let i = 0, len = posts.length; i < len; ++i) {
 				last = this._addPost(fragm, posts[i], begin + i + 1, last, maybeVParser);
 				newVisCount -= maybeSpells.value.runSpells(last);
@@ -582,9 +581,7 @@ const thrNavPanel = {
 				<svg viewBox="0 0 24 24"><use xlink:href="#de-symbol-thr-nav-down"/></svg>
 			</div>
 		</div>`);
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
-		el.addEventListener('click', this, true);
+		['mouseover', 'mouseout', 'click'].forEach(e => el.addEventListener(e, this, true));
 		this._el = el;
 		this._thrs = new Set();
 	},

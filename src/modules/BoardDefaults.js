@@ -4,13 +4,21 @@
 
 class BaseBoard {
 	constructor(prot, dm) {
+		// Imageboard-specific booleans
+		this._02ch = false;
+		this._2channel = false;
+		this._4chan = false;
+		this.dobrochan = false;
+		this.kohlchan = false;
+		this.makaba = false;
+
 		// Query paths
 		this.cReply = 'reply';
 		this.qBan = null;
 		this.qClosed = null;
-		this.qDelBut = 'input[type="submit"]';
+		this.qDelBtn = 'input[type="submit"]';
+		this.qDelForm = '#delform, form[name="delform"]';
 		this.qDelPassw = 'input[type="password"], input[name="password"]';
-		this.qDForm = '#delform, form[name="delform"]';
 		this.qError = 'h1, h2, font[size="5"]';
 		this.qForm = '#postform';
 		this.qFormFile = 'tr input[type="file"]';
@@ -25,7 +33,9 @@ class BaseBoard {
 		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
+		this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 		this.qPages = 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type';
+		this.qPost = '.reply';
 		this.qPostHeader = '.de-post-btns';
 		this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
 		this.qPostMsg = 'blockquote';
@@ -34,9 +44,7 @@ class BaseBoard {
 		this.qPostTrip = '.postertrip';
 		this.qPostRef = '.reflink';
 		this.qPostsParent = null;
-		this.qRPost = '.reply';
 		this.qTrunc = '.abbrev, .abbr, .shortened';
-		this._qOPostEnd = 'form > table, div > table, div[id^="repl"]';
 
 		// Other propertioes
 		this.anchor = '#';
@@ -44,6 +52,7 @@ class BaseBoard {
 		this.dm = dm;
 		this.docExt = null;
 		this.firstPage = 0;
+		this.formHeaders = false;
 		this.formParent = 'parent';
 		this.hasAltCaptcha = false;
 		this.hasArchive = false;
@@ -63,14 +72,6 @@ class BaseBoard {
 		this.ru = false;
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-
-		// Imageboard-specific booleans
-		this._02ch = false;
-		this._2channel = false;
-		this._4chan = false;
-		this.dobrochan = false;
-		this.kohlchan = false;
-		this.makaba = false;
 	}
 	get qFormMail() {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
@@ -307,7 +308,7 @@ class BaseBoard {
 		op = thr.ownerDocument.createElement('div');
 		op.classList.add('de-oppost');
 		let el;
-		const opEnd = $q(this._qOPostEnd, thr);
+		const opEnd = $q(this.qOPostEnd, thr);
 		while((el = thr.firstChild) && (el !== opEnd)) {
 			op.append(el);
 		}
@@ -321,7 +322,7 @@ class BaseBoard {
 		return +post.id.match(/\d+/);
 	}
 	getPostElOfEl(el) {
-		const sel = this.qRPost + ', [de-thread], .de-pview';
+		const sel = this.qPost + ', [de-thread], .de-pview';
 		while(el && !nav.matchesSelector(el, sel)) {
 			el = el.parentElement;
 		}

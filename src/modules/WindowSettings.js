@@ -4,13 +4,8 @@
 
 const CfgWindow = {
 	initCfgWindow(body) {
-		body.addEventListener('click', this);
-		body.addEventListener('mouseover', this);
-		body.addEventListener('mouseout', this);
-		body.addEventListener('change', this);
-		body.addEventListener('keyup', this);
-		body.addEventListener('keydown', this);
-		body.addEventListener('scroll', this);
+		['click', 'mouseover', 'mouseout', 'change', 'keyup', 'keydown', 'scroll'].forEach(
+			e => body.addEventListener(e, this));
 
 		// Create tab bar and bottom buttons
 		let div = $bEnd(body, `<div id="de-cfg-bar">${
@@ -420,11 +415,8 @@ const CfgWindow = {
 					const temp = KeyEditListener.getEditMarkup(keys);
 					const el = $popup('edit-hotkeys', temp[1]);
 					const fn = new KeyEditListener(el, keys, temp[0]);
-					el.addEventListener('focus', fn, true);
-					el.addEventListener('blur', fn, true);
-					el.addEventListener('click', fn, true);
-					el.addEventListener('keydown', fn, true);
-					el.addEventListener('keyup', fn, true);
+					['focus', 'blur', 'click', 'keydown', 'keyup'].forEach(
+						e => el.addEventListener(e, fn, true));
 				});
 				break;
 			case 'de-cfg-button-updnow':

@@ -88,8 +88,7 @@ class Menu {
 		this._clickFn = clickFn;
 		this._el = el;
 		this.parentEl = parentEl;
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => el.addEventListener(e, this, true));
 		el.addEventListener('click', this);
 		parentEl.addEventListener('mouseout', this);
 	}
@@ -185,8 +184,7 @@ class Menu {
 		if(this.onremove) {
 			this.onremove();
 		}
-		this._el.removeEventListener('mouseover', this, true);
-		this._el.removeEventListener('mouseout', this, true);
+		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this, true));
 		this.parentEl.removeEventListener('mouseout', this);
 		this._el.removeEventListener('click', this);
 		this._el.remove();

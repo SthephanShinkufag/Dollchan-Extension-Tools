@@ -12,11 +12,10 @@ function getImageBoard(checkDomains, checkEngines) {
 	class Kusaba extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this.kusaba = true;
-
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
+			this.formHeaders = true;
 			this.formParent = 'replythread';
 			this.markupBB = true;
 		}
@@ -55,12 +54,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
-			this.qDForm = 'form[name*="postcontrols"]';
+			this.qDelForm = 'form[name*="postcontrols"]';
 			this.qForm = 'form[name="post"]';
 			this.qFormPassw = 'input[name="password"]:not([type="hidden"])';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
+			this.qOPostEnd = '.post.reply';
 			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
 			this.qPostMsg = '.body';
@@ -69,8 +69,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.trip';
 			this.qTrunc = '.toolong';
-			this._origInputs = null;
-			this._qOPostEnd = '.post.reply';
 
 			this.firstPage = 1;
 			this.formParent = 'thread';
@@ -78,6 +76,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasRefererErr = true;
 			this.jsonSubmit = true;
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+			this._origInputs = null;
 		}
 		get qImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
@@ -172,7 +171,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
 		}
 		init() {
-			$script('window.FormData = void 0');
+			$script('window.FormData = void 0;');
 			const formEl = $q('form[name="post"]');
 			if(formEl) {
 				formEl.insertAdjacentHTML('beforeend',
@@ -301,8 +300,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'innerPost';
-			this.qDForm = 'form[action$="contentActions.js"]';
-			this.qDelBut = '#deleteFormButton';
+			this.qDelBtn = '#deleteFormButton';
+			this.qDelForm = 'form[action$="contentActions.js"]';
 			this.qError = '#errorLabel, #labelMessage';
 			this.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
 			this.qFormPassw = 'input[name="password"]';
@@ -311,16 +310,16 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.uploadDetails';
 			this.qOmitted = '.labelOmission';
 			this.qOPost = '.innerOP';
+			this.qOPostEnd = '.divPosts';
 			this.qPages = '#divPages';
+			this.qPost = '.innerPost, .markedPost';
 			this.qPostHeader = '.postInfo, .de-post-btns';
 			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
 			this.qPostMsg = '.divMessage';
 			this.qPostRef = '.linkQuote';
 			this.qPostSubj = '.labelSubject';
 			this.qPostsParent = '.divPosts';
-			this.qRPost = '.innerPost, .markedPost';
 			this.qTrunc = '.contentOmissionIndicator';
-			this._qOPostEnd = '.divPosts';
 
 			this.firstPage = 1;
 			this.formParent = 'threadId';
@@ -504,18 +503,18 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post_wrapper';
-			this.qDForm = '#main';
+			this.qDelForm = '#main';
 			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
 			this.qOmitted = '.omitted_text';
+			this.qOPostEnd = '.posts';
 			this.qPages = '.paginate > ul > li:nth-last-child(3)';
+			this.qPost = '.post[id]';
 			this.qPostHeader = 'header';
 			this.qPostImg = '.post_image, .thread_image';
 			this.qPostMsg = '.text';
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
 			this.qPostsParent = '.posts';
-			this.qRPost = '.post[id]';
-			this._qOPostEnd = '.posts';
 
 			this.docExt = '';
 			this.firstPage = 1;
@@ -564,21 +563,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _0chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
-
-			this.qDForm = '#delform_instant';
-
-			this.hasCatalog = true;
-		}
-		get css() {
-			return `.content > hr, .extrabtns { display: none; }
-				form { position: initial; }`;
-		}
-	}
-	ibDomains['2.0-chan.ru'] = _0chan;
-
 	class _02ch extends Kusaba {
 		constructor(prot, dm) {
 			super(prot, dm);
@@ -598,13 +582,47 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['02ch.su'] = _02ch;
 
+	class _0chan extends Kusaba {
+		constructor(prot, dm) {
+			super(prot, dm);
+
+			this.qDelForm = '#delform_instant';
+			this.qPostHeader = '.posthead';
+
+			this.formHeaders = false;
+			this.hasCatalog = true;
+			this.multiFile = true;
+			this.ru = true;
+		}
+		get captchaInit() {
+			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
+			return null;
+		}
+		get captchaUpdate() {
+			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			return null;
+		}
+		get css() {
+			return `.content > hr, .embed-wrap, .extrabtns, .postbutt { display: none; }
+				form { position: initial; }`;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getTNum(thr) {
+			return +thr.getAttribute('data-threadid');
+		}
+	}
+	ibDomains['2.0-chan.ru'] = _0chan;
+
 	class _2__ch extends BaseBoard {
 		constructor(prot, dm) {
 			super(prot, dm);
 
+			this.qOPostEnd = 'table:not(.postfiles)';
 			this.qPages = 'table[border="1"] td > a:last-of-type';
 			this.qPostImg = 'img.thumb';
-			this._qOPostEnd = 'table:not(.postfiles)';
 
 			this.docExt = '.html';
 			this.hasPicWrap = true;
@@ -662,9 +680,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(btnEl) {
 				$replace(btnEl, '<input type="submit" value="Отправить">');
 			}
-			const dFormEl = $q(this.qDForm);
-			$delAll('input[type="hidden"]', dFormEl);
-			dFormEl.append($q('.userdelete'));
+			const delFormEl = $q(this.qDelForm);
+			$delAll('input[type="hidden"]', delFormEl);
+			delFormEl.append($q('.userdelete'));
 			return false;
 		}
 	}
@@ -678,7 +696,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
-			this.qDForm = '#posts-form';
+			this.qDelForm = '#posts-form';
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules';
@@ -689,13 +707,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qImgInfo = '.post__file-attr';
 			this.qOmitted = '.thread__missed';
 			this.qOPost = '.post_type_oppost';
+			this.qPost = '.post_type_reply[data-num]';
 			this.qPostHeader = '.post__details';
 			this.qPostImg = '.post__file-preview';
 			this.qPostMsg = '.post__message';
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
 			this.qPostSubj = '.post__title';
-			this.qRPost = '.post_type_reply[data-num]';
 			this.qTrunc = null;
 
 			this.formParent = 'thread';
@@ -922,13 +940,13 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qImgInfo = '.file-attr';
 				this.qOmitted = '.mess-post';
 				this.qOPost = '.oppost';
+				this.qPost = '.post.reply[data-num]';
 				this.qPostHeader = '.post-details';
 				this.qPostImg = '.preview';
 				this.qPostMsg = '.post-message';
 				this.qPostName = '.ananimas, .post-email';
 				this.qPostRef = '.reflink';
 				this.qPostSubj = '.post-title';
-				this.qRPost = '.post.reply[data-num]';
 				this.hasArchive = false;
 				const { css } = this;
 				Object.defineProperty(this, 'css', {
@@ -1000,14 +1018,14 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qDForm = 'form:not([enctype])';
+			this.qDelForm = 'form:not([enctype])';
 			this.qForm = '#fm';
 			this.qFormRedir = null;
 			this.qFormRules = '.chui';
 			this.qOmitted = 'font[color="#707070"]';
+			this.qPost = 'td:nth-child(2)';
 			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
 			this.qPostRef = '.del';
-			this.qRPost = 'td:nth-child(2)';
 
 			this.docExt = '.htm';
 			this.formParent = 'resto';
@@ -1163,9 +1181,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
-			this.ru = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
+			this.ru = true;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 			this._capUpdPromise = null;
 		}
@@ -1216,20 +1234,20 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'post reply';
 			this.qBan = 'strong[style="color: red;"]';
 			this.qClosed = '.archivedIcon';
-			this.qDelBut = '.deleteform > input[type="submit"]';
+			this.qDelBtn = '.deleteform > input[type="submit"]';
 			this.qError = '#errmsg';
 			this.qForm = 'form[name="post"]';
 			this.qFormRedir = null;
 			this.qImgInfo = '.fileText';
 			this.qOmitted = '.summary.desktop';
 			this.qOPost = '.op';
+			this.qOPostEnd = '.replyContainer';
 			this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
 			this.qPostHeader = '.postInfo';
 			this.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
 			this.qPostName = '.name';
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
-			this._qOPostEnd = '.replyContainer';
 
 			this.anchor = '#p';
 			this.docExt = '';
@@ -1353,15 +1371,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.cReply = 'post';
-			this.qDelBut = null;
+			this.qDelBtn = null;
+			this.qDelForm = 'body > .container-fluid';
 			this.qDelPassw = null;
-			this.qDForm = 'body > .container-fluid';
+			this.qPost = '.post[postid]:not([postid=""])';
 			this.qPostHeader = '.post_head';
 			this.qPostImg = '.post_image > img';
 			this.qPostMsg = '.post_comment_body';
 			this.qPostRef = '.post_id, .post_head > b';
 			this.qPostSubj = '.post_subject';
-			this.qRPost = '.post[postid]:not([postid=""])';
 
 			this.docExt = '';
 			this.hasOPNum = true;
@@ -1438,7 +1456,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qRPost = '.post.reply';
+			this.qPost = '.post.reply';
 		}
 		get qImgNameLink() {
 			return '.fileinfo > a[title]';
@@ -1458,7 +1476,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.dobrochan = true;
 
 			this.qClosed = 'img[src="/images/locked.png"]';
-			this.qDForm = 'form[action*="delete"]';
+			this.qDelForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
 			this.qFormRedir = 'select[name="goto"]';
 			this.qImgInfo = '.fileinfo';
@@ -1612,12 +1630,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
 			this.qOPost = '.thread_OP';
 			this.qPages = '.pagelist > li:nth-last-child(2)';
+			this.qPost = '.thread_reply';
 			this.qPostHeader = '.post_head';
 			this.qPostMsg = '.text';
 			this.qPostSubj = '.subject';
 			this.qPostTrip = '.tripcode';
-			this.qRPost = '.thread_reply';
 			this.qTrunc = '.tldr';
+
 			this.docExt = '';
 			this.firstPage = 1;
 			this.markupBB = true;
@@ -2062,7 +2081,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qDForm = '.content';
+			this.qDelForm = '.content';
 			this.qForm = '.subreply';
 			this.qPostRef = '.js';
 			this.qImgInfo = 'span';

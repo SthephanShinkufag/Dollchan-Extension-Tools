@@ -135,8 +135,7 @@ class PostForm {
 		}
 		if(!el) {
 			el = $add('<span id="de-txt-panel"></span>');
-			el.addEventListener('click', this);
-			el.addEventListener('mouseover', this);
+			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
@@ -233,7 +232,7 @@ class PostForm {
 		}
 	}
 	setPlaceholders() {
-		if(aib.kusaba || !aib.multiFile && Cfg.fileInputs === 2) {
+		if(aib.formHeaders || !aib.multiFile && Cfg.fileInputs === 2) {
 			return;
 		}
 		this._setPlaceholder('name');
@@ -493,8 +492,7 @@ class PostForm {
 			handleEvent(e) {
 				switch(e.type) {
 				case 'mousedown':
-					docBody.addEventListener('mousemove', this);
-					docBody.addEventListener('mouseup', this);
+					['mousemove', 'mouseup'].forEach(e => docBody.addEventListener(e, this));
 					e.preventDefault();
 					return;
 				case 'mousemove': {
@@ -504,8 +502,7 @@ class PostForm {
 					return;
 				}
 				default: // mouseup
-					docBody.removeEventListener('mousemove', this);
-					docBody.removeEventListener('mouseup', this);
+					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
 					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
 					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
 				}

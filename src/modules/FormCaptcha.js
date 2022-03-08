@@ -85,12 +85,11 @@ class Captcha {
 	}
 	initTextEl() {
 		this.textEl.autocomplete = 'off';
-		if(!aib.kusaba && (aib.multiFile || Cfg.fileInputs !== 2)) {
+		if(!aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2)) {
 			this.textEl.placeholder = Lng.cap[lang];
 		}
-		this.textEl.addEventListener('keypress', this);
+		['keypress', 'focus'].forEach(e => this.textEl.addEventListener(e, this));
 		this.textEl.onkeypress = null;
-		this.textEl.addEventListener('focus', this);
 		this.textEl.onfocus = null;
 	}
 	showCaptcha(isUpdateImage = false) {

@@ -48,15 +48,13 @@ const Panel = Object.create({
 		</div>`);
 		this._el = $id('de-panel');
 		this._el.addEventListener('click', this, true);
-		this._el.addEventListener('mouseover', this);
-		this._el.addEventListener('mouseout', this);
+		['mouseover', 'mouseout'].forEach(e => this._el.addEventListener(e, this));
 		this._buttons = $id('de-panel-buttons');
 		this.isNew = true;
 	},
 	removeMain() {
 		this._el.removeEventListener('click', this, true);
-		this._el.removeEventListener('mouseover', this);
-		this._el.removeEventListener('mouseout', this);
+		['mouseover', 'mouseout'].forEach(e => this._el.removeEventListener(e, this));
 		delete this._pcountEl;
 		delete this._icountEl;
 		delete this._acountEl;
