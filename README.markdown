@@ -16,7 +16,7 @@
 **Dollchan Extension** is the userscript and extension that combines various options & features, making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way. If you have visited sites like [4chan.org](http://4chan.org/) or [2ch.hk](https://2ch.hk/), then you probably already heard about it.
 
 It provides such functions:
-- Sending posts without rebooting.
+- Sending posts without reloading page.
 - Thread updater with different types of alerts<br>(for example, blinking favicon or desktop notification when new posts appear).
 - Hiding posts and threads by a wide choice of expressions and rules.
 - Saving threads entirely with the originals of pictures.
