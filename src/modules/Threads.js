@@ -543,7 +543,7 @@ class Thread {
 		}
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
-		this.btns.children.forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
+		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {

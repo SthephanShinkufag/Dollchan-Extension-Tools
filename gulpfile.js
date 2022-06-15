@@ -1,4 +1,4 @@
-/* eslint no-var: "error", prefer-const: "error", prefer-template: "error" */
+/* eslint no-undef: "off" */
 
 const browserify   = require('browserify');
 const { spawn }    = require('child_process');

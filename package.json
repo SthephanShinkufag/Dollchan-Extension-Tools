@@ -27,13 +27,13 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/core": "^7.17.4",
-		"@babel/preset-env": "^7.16.11",
+		"@babel/core": "^7.18.5",
+		"@babel/preset-env": "^7.18.2",
 		"babelify": "^10.0.0",
 		"browserify": "^17.0.0",
-		"core-js": "^3.21.1",
+		"core-js": "^3.23.1",
 		"element-polyfill": "^1.1.0",
-		"eslint": "^8.14.0",
+		"eslint": "^8.17.0",
 		"eslint-config-google": "^0.14.0",
 		"gulp": "^4.0.2",
 		"gulp-file": "^0.4.0",

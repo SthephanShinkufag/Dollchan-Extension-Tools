@@ -9,6 +9,7 @@
 	"parserOptions": {
 		"ecmaVersion": "latest"
 	},
+	"root": true,
 	"rules": {
 		"arrow-parens": ["error", "as-needed"],
 		"camelcase": "off",

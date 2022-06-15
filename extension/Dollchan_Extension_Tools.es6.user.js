@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '0d2aefe';
+const commit = '30e8648';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -14203,7 +14203,7 @@ class Thread {
 		}
 		this.btnReplies.firstElementChild.className =
 			`${ isHide ? 'de-replies-show' : 'de-replies-hide' } de-abtn`;
-		this.btns.children.forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
+		[...this.btns.children].forEach(el => el !== this.btnReplies && $toggle(el, !isHide));
 		$del($q(aib.qOmitted + ', .de-omitted', this.el));
 		i = this.pcount - 1 - (isHide ? 0 : i);
 		if(i) {
