@@ -603,12 +603,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		get css() {
-			return `.content > hr, .embed-wrap, .extrabtns, .postbutt { display: none; }
+			return `.content > hr, .extrabtns, .postbutt, .replymode { display: none; }
 				form { position: initial; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		fixVideo(isPost, data) {
+			$Q('.video-embed', isPost ? data.el : data).forEach(el => {
+				(isPost ? data : this.getPostOfEl(el)).msg
+					.prepend($q('.de-video-link', el), doc.createElement('br'));
+				const parent = el.parentNode;
+				el.remove();
+				if(!parent.firstElementChild) {
+					parent.remove();
+				}
+			});
+			return [];
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-threadid');
@@ -954,8 +966,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					get          : () => `${ css }
 						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
 						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before,
-						.thread-nav > :not(.search), .toolbar-area { display: none !important; }
+						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
+						.toolbar-area { display: none !important; }
 						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
 							display: none !important; }` : '' }
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }

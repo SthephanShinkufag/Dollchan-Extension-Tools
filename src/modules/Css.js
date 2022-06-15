@@ -349,7 +349,7 @@ function scriptCSS() {
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
 	.de-popup-msg > hr { margin: 0 !important; }
 	.de-post-hiddencontent { display: none !important; }
-	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
+	.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
 	.de-pview-info { padding: 3px 6px !important; }
 	.de-ref-del::after { content: " (Del)"; }
 	.de-ref-op::after { content: " (OP)"; }

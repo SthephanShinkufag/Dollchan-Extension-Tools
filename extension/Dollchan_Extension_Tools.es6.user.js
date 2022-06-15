@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'ff8841e';
+const commit = '0d2aefe';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2531,9 +2531,6 @@ async function readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if(aib.prot !== 'http:') { // Vocaroo doesnʼt support https
-		Cfg.addVocaroo = 0;
-	}
 	if(aib.dobrochan && !Cfg.useDobrAPI) {
 		aib.JsonBuilder = null;
 	}
@@ -2568,10 +2565,6 @@ async function readCfg() {
 	}
 	if(!Cfg.stats) {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
-	}
-	if(Cfg.addYouTube !== undefined) {
-		Cfg.embedYTube = Cfg.addYouTube === 0 ? 0 : Cfg.addYouTube === 1 ? 2 : 1;
-		delete Cfg.addYouTube;
 	}
 	lang = Cfg.language;
 	if(val.commit !== commit && !localData) {
@@ -15505,11 +15498,11 @@ class BaseBoard {
 			let m = src.match(Videos.ytReg);
 			if(m) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-				$del(el);
+				el.remove();
 			}
 			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-				$del(el);
+				el.remove();
 			}
 		}
 		return videos;
@@ -16233,12 +16226,24 @@ function getImageBoard(checkDomains, checkEngines) {
 			return null;
 		}
 		get css() {
-			return `.content > hr, .embed-wrap, .extrabtns, .postbutt { display: none; }
+			return `.content > hr, .extrabtns, .postbutt, .replymode { display: none; }
 				form { position: initial; }`;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
 			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		fixVideo(isPost, data) {
+			$Q('.video-embed', isPost ? data.el : data).forEach(el => {
+				(isPost ? data : this.getPostOfEl(el)).msg
+					.prepend($q('.de-video-link', el), doc.createElement('br'));
+				const parent = el.parentNode;
+				el.remove();
+				if(!parent.firstElementChild) {
+					parent.remove();
+				}
+			});
+			return [];
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-threadid');
@@ -16584,8 +16589,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					get          : () => `${ css }
 						#ABU-alert-wait, .ABU-refmap, .fa-media-icon, .kupi-passcode-suka, .logo + hr,
 						.media-expand-button, #media-thumbnail, .message-byte-len, .nav-arrows, .norm-reply,
-						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before,
-						.thread-nav > :not(.search), .toolbar-area { display: none !important; }
+						.postform-hr, .postpanel > :not(img), .posts > hr, .reflink::before, .thread-nav,
+						.toolbar-area { display: none !important; }
 						${ Cfg.addSageBtn ? `.box[onclick="ToggleSage()"] {
 							display: none !important; }` : '' }
 						${ Cfg.imgNames === 2 ? `.filesize { display: inline !important; }
@@ -18521,7 +18526,7 @@ function scriptCSS() {
 	.de-popup-msg { display: inline-block; white-space: pre-wrap; }
 	.de-popup-msg > hr { margin: 0 !important; }
 	.de-post-hiddencontent { display: none !important; }
-	.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
+	.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }
 	.de-pview-info { padding: 3px 6px !important; }
 	.de-ref-del::after { content: " (Del)"; }
 	.de-ref-op::after { content: " (OP)"; }

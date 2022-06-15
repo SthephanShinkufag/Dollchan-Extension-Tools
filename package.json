@@ -1,9 +1,9 @@
 {
 	"name": "Dollchan-Extension-Tools",
 	"version": "22.2.17",
-	"author": "Sthephan Shinkufag @ FreeDollChan",
+	"author": "SthephanShi",
 	"description": "Doing some profit for imageboards",
-	"homepage": "http://www.freedollchan.org/scripts/",
+	"homepage": "https://dollchan.net/",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -33,7 +33,7 @@
 		"browserify": "^17.0.0",
 		"core-js": "^3.21.1",
 		"element-polyfill": "^1.1.0",
-		"eslint": "^8.9.0",
+		"eslint": "^8.14.0",
 		"eslint-config-google": "^0.14.0",
 		"gulp": "^4.0.2",
 		"gulp-file": "^0.4.0",

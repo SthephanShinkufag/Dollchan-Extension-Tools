@@ -259,11 +259,11 @@ class BaseBoard {
 			let m = src.match(Videos.ytReg);
 			if(m) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, true]);
-				$del(el);
+				el.remove();
 			}
 			if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
 				videos.push([isPost ? data : this.getPostOfEl(el), m, false]);
-				$del(el);
+				el.remove();
 			}
 		}
 		return videos;
