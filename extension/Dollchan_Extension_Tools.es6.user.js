@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '30e8648';
+const commit = '3c1d7fd';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6738,7 +6738,7 @@ function $ajax(url, params = null, isCORS = false) {
 	const needTO = params ? params.useTimeout : false;
 	const WAITING_TIME = 5e3;
 	if(((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) &&
-		(nav.canUseFetchBlob || !url.startsWith('blob'))
+		(nav.canUseFetch || !url.startsWith('blob'))
 	) {
 		if(!params) {
 			params = {};
@@ -6753,69 +6753,32 @@ function $ajax(url, params = null, isCORS = false) {
 		if(isCORS) {
 			params.mode = 'cors';
 		}
-		url = aib.getAbsLink(url);
-		// Chrome-extension: avoid CORS in content script. Sending data to background.js
-		if(isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
-			if(params.body) {
-				// Converting image as Uint8Array to text data for sending in POST request from background.js
-				let textData = '';
-				const arrData = params.body.arr;
-				for(let i = 0, len = arrData.length; i < len; ++i) {
-					textData += String.fromCharCode(arrData[i]);
-				}
-				params.body.arr = textData;
-			}
-			chrome.runtime.sendMessage({ 'de-messsage': 'corsRequest', url, params }, res => {
-				const { answer } = res;
-				if(res.isError || !aib.isAjaxStatusOK(res.status)) {
-					reject(res.statusText ?
-						new AjaxError(res.status, res.statusText) : getErrorMessage(answer));
-					return;
-				}
-				const obj = {};
-				switch(params.responseType) {
-				case 'arraybuffer':
-				case 'blob': { // Converting text data from the background.js response to arraybuffer/blob
-					const buf = new ArrayBuffer(answer.length);
-					const bufView = new Uint8Array(buf);
-					for(let i = 0, len = answer.length; i < len; ++i) {
-						bufView[i] = answer.charCodeAt(i);
-					}
-					obj.response = params.responseType === 'blob' ? new Blob([buf]) : buf;
-					break;
-				}
-				default: obj.responseText = answer;
-				}
-				resolve(obj);
-			});
-		} else {
-			const controller = new AbortController();
-			params.signal = controller.signal;
-			const loadTO = needTO && setTimeout(() => {
-				reject(AjaxError.Timeout);
-				try {
-					controller.abort();
-				} catch(err) {}
-			}, WAITING_TIME);
-			cancelFn = () => {
-				if(needTO) {
-					clearTimeout(loadTO);
-				}
+		const controller = new AbortController();
+		params.signal = controller.signal;
+		const loadTO = needTO && setTimeout(() => {
+			reject(AjaxError.Timeout);
+			try {
 				controller.abort();
-			};
-			fetch(url, params).then(async res => {
-				if(!aib.isAjaxStatusOK(res.status)) {
-					reject(new AjaxError(res.status, res.statusText));
-					return;
-				}
-				switch(params.responseType) {
-				case 'arraybuffer': res.response = await res.arrayBuffer(); break;
-				case 'blob': res.response = await res.blob(); break;
-				default: res.responseText = await res.text();
-				}
-				resolve(res);
-			}).catch(err => reject(getErrorMessage(err)));
-		}
+			} catch(err) {}
+		}, WAITING_TIME);
+		cancelFn = () => {
+			if(needTO) {
+				clearTimeout(loadTO);
+			}
+			controller.abort();
+		};
+		fetch(aib.getAbsLink(url), params).then(async res => {
+			if(!aib.isAjaxStatusOK(res.status)) {
+				reject(new AjaxError(res.status, res.statusText));
+				return;
+			}
+			switch(params.responseType) {
+			case 'arraybuffer': res.response = await res.arrayBuffer(); break;
+			case 'blob': res.response = await res.blob(); break;
+			default: res.responseText = await res.text();
+			}
+			resolve(res);
+		}).catch(err => reject(getErrorMessage(err)));
 	} else if((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
 		let gmxhr;
 		const timeoutFn = () => {
@@ -8941,8 +8904,7 @@ class PostForm {
 		this.form.onsubmit = e => {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
-			html5Submit(this.form, this.subm, true).then(checkUpload)
-				.catch(err => $popup('upload', getErrorMessage(err)));
+			html5Submit(this.form, this.subm, true).then(checkSubmit).catch(showSubmitError);
 		};
 	}
 	_initCaptcha() {
@@ -9178,7 +9140,20 @@ function getSubmitError(dc) {
 	return aib.isIgnoreError(err) ? null : err;
 }
 
-function checkUpload(data) {
+function showSubmitError(error) {
+	if(pr.isQuick) {
+		pr.setReply(true, false);
+	}
+	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
+		pr.refreshCap(true);
+	}
+	$popup('upload', error.toString());
+	updater.sendErrNotif();
+	updater.continueUpdater();
+	DollchanAPI.notify('submitform', { success: false, error });
+}
+
+function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
 	const isDocument = data instanceof HTMLDocument;
@@ -9201,16 +9176,7 @@ function checkUpload(data) {
 		error = getSubmitError(data);
 	}
 	if(error) {
-		if(pr.isQuick) {
-			pr.setReply(true, false);
-		}
-		if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-			pr.refreshCap(true);
-		}
-		$popup('upload', error.toString());
-		updater.sendErrNotif();
-		updater.continueUpdater();
-		DollchanAPI.notify('submitform', { success: false, error });
+		showSubmitError(error);
 		return;
 	}
 	const { tNum } = pr;
@@ -12594,11 +12560,8 @@ class ExpandableImage {
 					$popup('upload', Lng.sending[lang], true);
 					const name = cutFileExt(this.name) + '.png';
 					const blob = new Blob([arr], { type: 'image/png' });
-					let formData;
-					if(!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
-						formData = new FormData();
-						formData.append('file', blob, name);
-					}
+					const formData = new FormData();
+					formData.append('file', blob, name);
 					const ajaxParams = { data: formData || { arr, name }, method: 'POST' };
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
@@ -15143,7 +15106,6 @@ function initNavFuncs() {
 	}
 	nav = {
 		canUseFetch,
-		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,

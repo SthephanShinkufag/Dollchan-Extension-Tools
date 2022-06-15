@@ -12,7 +12,20 @@ function getSubmitError(dc) {
 	return aib.isIgnoreError(err) ? null : err;
 }
 
-function checkUpload(data) {
+function showSubmitError(error) {
+	if(pr.isQuick) {
+		pr.setReply(true, false);
+	}
+	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
+		pr.refreshCap(true);
+	}
+	$popup('upload', error.toString());
+	updater.sendErrNotif();
+	updater.continueUpdater();
+	DollchanAPI.notify('submitform', { success: false, error });
+}
+
+function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
 	const isDocument = data instanceof HTMLDocument;
@@ -35,16 +48,7 @@ function checkUpload(data) {
 		error = getSubmitError(data);
 	}
 	if(error) {
-		if(pr.isQuick) {
-			pr.setReply(true, false);
-		}
-		if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-			pr.refreshCap(true);
-		}
-		$popup('upload', error.toString());
-		updater.sendErrNotif();
-		updater.continueUpdater();
-		DollchanAPI.notify('submitform', { success: false, error });
+		showSubmitError(error);
 		return;
 	}
 	const { tNum } = pr;

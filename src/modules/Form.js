@@ -372,8 +372,7 @@ class PostForm {
 		this.form.onsubmit = e => {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
-			html5Submit(this.form, this.subm, true).then(checkUpload)
-				.catch(err => $popup('upload', getErrorMessage(err)));
+			html5Submit(this.form, this.subm, true).then(checkSubmit).catch(showSubmitError);
 		};
 	}
 	_initCaptcha() {

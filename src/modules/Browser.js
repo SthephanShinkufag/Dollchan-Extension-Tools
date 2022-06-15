@@ -91,7 +91,6 @@ function initNavFuncs() {
 	}
 	nav = {
 		canUseFetch,
-		canUseFetchBlob  : canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
 		canUseNativeXHR  : true,
 		firefoxVer       : isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
 		hasGlobalStorage : hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,

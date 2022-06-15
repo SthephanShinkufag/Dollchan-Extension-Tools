@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '30e8648';
+  var commit = '3c1d7fd';
 
   var defaultCfg = {
     disabled: 0,
@@ -14307,7 +14307,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var needTO = params ? params.useTimeout : false;
     var WAITING_TIME = 5e3;
 
-    if (((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) && (nav.canUseFetchBlob || !url.startsWith('blob'))) {
+    if (((isCORS ? !nav.hasGMXHR : !nav.canUseNativeXHR) || aib.hasRefererErr && nav.canUseFetch) && (nav.canUseFetch || !url.startsWith('blob'))) {
       if (!params) {
         params = {};
       }
@@ -14324,134 +14324,83 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         params.mode = 'cors';
       }
 
-      url = aib.getAbsLink(url); 
+      var controller = new AbortController();
+      params.signal = controller.signal;
+      var loadTO = needTO && setTimeout(function () {
+        reject(AjaxError.Timeout);
 
-      if (isCORS && nav.isChrome && nav.scriptHandler === 'WebExtension') {
-        if (params.body) {
-          var textData = '';
-          var arrData = params.body.arr;
+        try {
+          controller.abort();
+        } catch (err) {}
+      }, WAITING_TIME);
 
-          for (var i = 0, len = arrData.length; i < len; ++i) {
-            textData += String.fromCharCode(arrData[i]);
-          }
-
-          params.body.arr = textData;
+      cancelFn = function cancelFn() {
+        if (needTO) {
+          clearTimeout(loadTO);
         }
 
-        chrome.runtime.sendMessage({
-          'de-messsage': 'corsRequest',
-          url: url,
-          params: params
-        }, function (res) {
-          var answer = res.answer;
+        controller.abort();
+      };
 
-          if (res.isError || !aib.isAjaxStatusOK(res.status)) {
-            reject(res.statusText ? new AjaxError(res.status, res.statusText) : getErrorMessage(answer));
-            return;
-          }
-
-          var obj = {};
-
-          switch (params.responseType) {
-            case 'arraybuffer':
-            case 'blob':
-              {
-                var buf = new ArrayBuffer(answer.length);
-                var bufView = new Uint8Array(buf);
-
-                for (var _i10 = 0, _len8 = answer.length; _i10 < _len8; ++_i10) {
-                  bufView[_i10] = answer.charCodeAt(_i10);
-                }
-
-                obj.response = params.responseType === 'blob' ? new Blob([buf]) : buf;
-                break;
-              }
-
-            default:
-              obj.responseText = answer;
-          }
-
-          resolve(obj);
-        });
-      } else {
-        var controller = new AbortController();
-        params.signal = controller.signal;
-        var loadTO = needTO && setTimeout(function () {
-          reject(AjaxError.Timeout);
-
-          try {
-            controller.abort();
-          } catch (err) {}
-        }, WAITING_TIME);
-
-        cancelFn = function cancelFn() {
-          if (needTO) {
-            clearTimeout(loadTO);
-          }
-
-          controller.abort();
-        };
-
-        fetch(url, params).then( function () {
-          var _ref12 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee7(res) {
-            return _regeneratorRuntime().wrap(function _callee7$(_context9) {
-              while (1) {
-                switch (_context9.prev = _context9.next) {
-                  case 0:
-                    if (aib.isAjaxStatusOK(res.status)) {
-                      _context9.next = 3;
-                      break;
-                    }
-
-                    reject(new AjaxError(res.status, res.statusText));
-                    return _context9.abrupt("return");
-
-                  case 3:
-                    _context9.t0 = params.responseType;
-                    _context9.next = _context9.t0 === 'arraybuffer' ? 6 : _context9.t0 === 'blob' ? 10 : 14;
+      fetch(aib.getAbsLink(url), params).then( function () {
+        var _ref12 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee7(res) {
+          return _regeneratorRuntime().wrap(function _callee7$(_context9) {
+            while (1) {
+              switch (_context9.prev = _context9.next) {
+                case 0:
+                  if (aib.isAjaxStatusOK(res.status)) {
+                    _context9.next = 3;
                     break;
+                  }
 
-                  case 6:
-                    _context9.next = 8;
-                    return res.arrayBuffer();
+                  reject(new AjaxError(res.status, res.statusText));
+                  return _context9.abrupt("return");
 
-                  case 8:
-                    res.response = _context9.sent;
-                    return _context9.abrupt("break", 17);
+                case 3:
+                  _context9.t0 = params.responseType;
+                  _context9.next = _context9.t0 === 'arraybuffer' ? 6 : _context9.t0 === 'blob' ? 10 : 14;
+                  break;
 
-                  case 10:
-                    _context9.next = 12;
-                    return res.blob();
+                case 6:
+                  _context9.next = 8;
+                  return res.arrayBuffer();
 
-                  case 12:
-                    res.response = _context9.sent;
-                    return _context9.abrupt("break", 17);
+                case 8:
+                  res.response = _context9.sent;
+                  return _context9.abrupt("break", 17);
 
-                  case 14:
-                    _context9.next = 16;
-                    return res.text();
+                case 10:
+                  _context9.next = 12;
+                  return res.blob();
 
-                  case 16:
-                    res.responseText = _context9.sent;
+                case 12:
+                  res.response = _context9.sent;
+                  return _context9.abrupt("break", 17);
 
-                  case 17:
-                    resolve(res);
+                case 14:
+                  _context9.next = 16;
+                  return res.text();
 
-                  case 18:
-                  case "end":
-                    return _context9.stop();
-                }
+                case 16:
+                  res.responseText = _context9.sent;
+
+                case 17:
+                  resolve(res);
+
+                case 18:
+                case "end":
+                  return _context9.stop();
               }
-            }, _callee7);
-          }));
+            }
+          }, _callee7);
+        }));
 
-          return function (_x7) {
-            return _ref12.apply(this, arguments);
-          };
-        }())["catch"](function (err) {
-          return reject(getErrorMessage(err));
-        });
-      }
+        return function (_x7) {
+          return _ref12.apply(this, arguments);
+        };
+      }())["catch"](function (err) {
+        return reject(getErrorMessage(err));
+      });
     } else if ((isCORS || !nav.canUseNativeXHR) && nav.hasGMXHR) {
       var _params;
 
@@ -15707,19 +15656,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       sp = sp.sort();
 
-      for (var _i11 = 0, _len9 = sp.length - 1; _i11 < _len9; ++_i11) {
-        var j = _i11 + 1;
+      for (var _i10 = 0, _len8 = sp.length - 1; _i10 < _len8; ++_i10) {
+        var j = _i10 + 1;
 
-        if (sp[_i11][0] === sp[j][0] && sp[_i11][1] <= sp[j][1] && sp[_i11][1] >= sp[j][1] && (sp[_i11][2] === null || 
-        sp[_i11][2] === undefined || 
-        sp[_i11][2] <= sp[j][2] && sp[_i11][2] >= sp[j][2])) {
+        if (sp[_i10][0] === sp[j][0] && sp[_i10][1] <= sp[j][1] && sp[_i10][1] >= sp[j][1] && (sp[_i10][2] === null || 
+        sp[_i10][2] === undefined || 
+        sp[_i10][2] <= sp[j][2] && sp[_i10][2] >= sp[j][2])) {
           sp.splice(j, 1);
-          _i11--;
-          _len9--; 
-        } else if (sp[_i11][0] === 0xFF) {
-          sp.push(sp.splice(_i11, 1)[0]);
-          _i11--;
-          _len9--;
+          _i10--;
+          _len8--; 
+        } else if (sp[_i10][0] === 0xFF) {
+          sp.push(sp.splice(_i10, 1)[0]);
+          _i10--;
+          _len8--;
         }
       }
     },
@@ -16175,8 +16124,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               var val = 0;
               var arr = m[1].split(/, */);
 
-              for (var _i12 = 0, len = arr.length; _i12 < len; ++_i12) {
-                switch (arr[_i12]) {
+              for (var _i11 = 0, len = arr.length; _i11 < len; ++_i11) {
+                switch (arr[_i11]) {
                   case 'samelines':
                     val |= 1;
                     break;
@@ -16944,11 +16893,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var keys = 0;
             var pop = 0;
 
-            for (var _i13 = 0, _n2 = len / 4; _i13 < len; keys++) {
-              x = arr[_i13];
+            for (var _i12 = 0, _n2 = len / 4; _i12 < len; keys++) {
+              x = arr[_i12];
               var _j = 0;
 
-              while (arr[_i13++] === x) {
+              while (arr[_i12++] === x) {
                 _j++;
               }
 
@@ -17002,8 +16951,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var capsw = 0;
             var casew = 0;
 
-            for (var _i14 = 0; _i14 < len; ++_i14) {
-              x = arr[_i14];
+            for (var _i13 = 0; _i13 < len; ++_i13) {
+              x = arr[_i13];
 
               if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
                 continue;
@@ -17064,8 +17013,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
-        for (var _arr2 = val[1], _i15 = _arr2.length - 1; _i15 >= 0; --_i15) {
-          if (num >= _arr2[_i15][0] && num <= _arr2[_i15][1]) {
+        for (var _arr2 = val[1], _i14 = _arr2.length - 1; _i14 >= 0; --_i14) {
+          if (num >= _arr2[_i14][0] && num <= _arr2[_i14][1]) {
             return true;
           }
         }
@@ -17517,9 +17466,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.form.onsubmit = function (e) {
           e.preventDefault();
           $popup('upload', Lng.sending[lang], true);
-          html5Submit(_this35.form, _this35.subm, true).then(checkUpload)["catch"](function (err) {
-            return $popup('upload', getErrorMessage(err));
-          });
+          html5Submit(_this35.form, _this35.subm, true).then(checkSubmit)["catch"](showSubmitError);
         };
       }
     }, {
@@ -17971,7 +17918,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return aib.isIgnoreError(err) ? null : err;
   }
 
-  function checkUpload(data) {
+  function showSubmitError(error) {
+    if (pr.isQuick) {
+      pr.setReply(true, false);
+    }
+
+    if (/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
+      pr.refreshCap(true);
+    }
+
+    $popup('upload', error.toString());
+    updater.sendErrNotif();
+    updater.continueUpdater();
+    DollchanAPI.notify('submitform', {
+      success: false,
+      error: error
+    });
+  }
+
+  function checkSubmit(data) {
     var error = null;
     var postNum = null;
     var isDocument = data instanceof HTMLDocument;
@@ -18004,21 +17969,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     if (error) {
-      if (pr.isQuick) {
-        pr.setReply(true, false);
-      }
-
-      if (/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-        pr.refreshCap(true);
-      }
-
-      $popup('upload', error.toString());
-      updater.sendErrNotif();
-      updater.continueUpdater();
-      DollchanAPI.notify('submitform', {
-        success: false,
-        error: error
-      });
+      showSubmitError(error);
       return;
     }
 
@@ -23127,13 +23078,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 var blob = new Blob([arr], {
                   type: 'image/png'
                 });
-                var formData;
-
-                if (!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
-                  formData = new FormData();
-                  formData.append('file', blob, name);
-                }
-
+                var formData = new FormData();
+                formData.append('file', blob, name);
                 var ajaxParams = {
                   data: formData || {
                     arr: arr,
@@ -23345,8 +23291,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
 
-        for (var _i16 = 0, _len10 = els.length; _i16 < _len10; ++_i16) {
-          var _el8 = els[_i16];
+        for (var _i15 = 0, _len9 = els.length; _i15 < _len9; ++_i15) {
+          var _el8 = els[_i15];
           last = new EmbeddedImage(post, _el8, last);
           filesMap.set(_el8, last);
 
@@ -23486,9 +23432,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var values = 256 / (levels - 1);
       var hash = 0;
 
-      for (var _i17 = 0; _i17 < newh; ++_i17) {
+      for (var _i16 = 0; _i16 < newh; ++_i16) {
         for (var _j3 = 0; _j3 < neww; ++_j3) {
-          var temp = _i17 / (newh - 1) * (oldh - 1);
+          var temp = _i16 / (newh - 1) * (oldh - 1);
           var l = Math.min(temp | 0, oldh - 2);
           var u = temp - l;
           temp = _j3 / (neww - 1) * (oldw - 1);
@@ -23723,7 +23669,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getRefLinks",
       value: _regeneratorRuntime().mark(function getRefLinks(i, thrUrl) {
-        var msg, links, _i18, len, link, tc, lNum, url;
+        var msg, links, _i17, len, link, tc, lNum, url;
 
         return _regeneratorRuntime().wrap(function getRefLinks$(_context21) {
           while (1) {
@@ -23731,15 +23677,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
                 links = $Q('a', msg);
-                _i18 = 0, len = links.length;
+                _i17 = 0, len = links.length;
 
               case 3:
-                if (!(_i18 < len)) {
+                if (!(_i17 < len)) {
                   _context21.next = 16;
                   break;
                 }
 
-                link = links[_i18];
+                link = links[_i17];
                 tc = link.textContent;
 
                 if (!(tc[0] === '>' && tc[1] === '>')) {
@@ -23765,7 +23711,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
               case 13:
-                ++_i18;
+                ++_i17;
                 _context21.next = 3;
                 break;
 
@@ -25036,8 +24982,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           fragm = temp.content;
           var posts = $Q(aib.qPost, fragm);
 
-          for (var _i19 = 0, len = posts.length; _i19 < len; ++_i19) {
-            last = this._addPost(fragm, posts[_i19], begin + _i19 + 1, last, maybeVParser);
+          for (var _i18 = 0, len = posts.length; _i18 < len; ++_i18) {
+            last = this._addPost(fragm, posts[_i18], begin + _i18 + 1, last, maybeVParser);
             newVisCount -= maybeSpells.value.runSpells(last);
             embedPostMsgImages(last.el);
           }
@@ -26553,7 +26499,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     nav = {
       canUseFetch: canUseFetch,
-      canUseFetchBlob: canUseFetch && !(isChrome && scriptHandler === 'WebExtension'),
       canUseNativeXHR: true,
       firefoxVer: isFirefox ? +(ua.match(/Firefox\/(\d+)/) || [0, 0])[1] : 0,
       hasGlobalStorage: hasOldGM || hasNewGM || hasWebStorage || hasPrestoStorage,
@@ -30496,8 +30441,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 
-    for (var _i20 = ibEngines.length - 1; _i20 >= 0; --_i20) {
-      var _ibEngines$_i = _slicedToArray(ibEngines[_i20], 2),
+    for (var _i19 = ibEngines.length - 1; _i19 >= 0; --_i19) {
+      var _ibEngines$_i = _slicedToArray(ibEngines[_i19], 2),
           path = _ibEngines$_i[0],
           Ctor = _ibEngines$_i[1];
 

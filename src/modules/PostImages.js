@@ -745,11 +745,8 @@ class ExpandableImage {
 					$popup('upload', Lng.sending[lang], true);
 					const name = cutFileExt(this.name) + '.png';
 					const blob = new Blob([arr], { type: 'image/png' });
-					let formData;
-					if(!nav.isChrome || nav.scriptHandler !== 'WebExtension') {
-						formData = new FormData();
-						formData.append('file', blob, name);
-					}
+					const formData = new FormData();
+					formData.append('file', blob, name);
 					const ajaxParams = { data: formData || { arr, name }, method: 'POST' };
 					const frameLinkHtml = `<a class="de-menu-item de-list" href="${
 						deWindow.URL.createObjectURL(blob) }" download="${ name }" target="_blank">${
