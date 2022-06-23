@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '1dd93a9';
+  var commit = '66c0956';
 
   var defaultCfg = {
     disabled: 0,
@@ -15226,7 +15226,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var wipeMsg = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
       var spell = (neg ? '!#' : '#') + this.names[type] + (scope ? "[".concat(scope[0]).concat(scope[1] ? ",".concat(scope[1] === -1 ? '' : scope[1]) : '', "]") : '');
 
-      if (!val) {
+      if (!val && val !== 0) {
         return spell;
       }
 
@@ -16208,7 +16208,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }], [{
       key: "_getScope",
       value: function _getScope(str) {
-        var m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+        var m = str.match(/^\[([a-z0-9/-]+)(?:(,)|,(\s*[0-9]+))?\]/);
         return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
       }
     }, {
@@ -23427,7 +23427,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var newh = 8;
       var neww = 8;
-      var levels = 3;
+      var levels = 4;
       var areas = 256 / levels;
       var values = 256 / (levels - 1);
       var hash = 0;

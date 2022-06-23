@@ -954,7 +954,7 @@ const ImagesHashStorage = Object.create({
 		}
 		const newh = 8;
 		const neww = 8;
-		const levels = 3;
+		const levels = 4;
 		const areas = 256 / levels;
 		const values = 256 / (levels - 1);
 		let hash = 0;

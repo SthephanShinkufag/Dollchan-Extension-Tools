@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '1dd93a9';
+const commit = '66c0956';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -7316,7 +7316,7 @@ const Spells = Object.create({
 	decompileSpell(type, neg, val, scope, wipeMsg = null) {
 		let spell = (neg ? '!#' : '#') + this.names[type] +
 			(scope ? `[${ scope[0] }${ scope[1] ? `,${ scope[1] === -1 ? '' : scope[1] }` : '' }]` : '');
-		if(!val) {
+		if(!val && val !== 0) {
 			return spell;
 		}
 		switch(type) {
@@ -7695,7 +7695,7 @@ class SpellsCodegen {
 	}
 
 	static _getScope(str) {
-		const m = str.match(/^\[([a-z0-9/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		const m = str.match(/^\[([a-z0-9/-]+)(?:(,)|,(\s*[0-9]+))?\]/);
 		return m ? [m[0].length, [m[1], m[3] ? +m[3] : m[2] ? -1 : false]] : null;
 	}
 	static _getText(str, haveBracket) {
@@ -7858,7 +7858,7 @@ class SpellsCodegen {
 				}
 				lastType = this.TYPE_NOT;
 				break;
-			case '/': {
+			case '/': { // "//" Comment
 				i++;
 				this._col++;
 				if(sList[i] === '/') {
@@ -12769,7 +12769,7 @@ const ImagesHashStorage = Object.create({
 		}
 		const newh = 8;
 		const neww = 8;
-		const levels = 3;
+		const levels = 4;
 		const areas = 256 / levels;
 		const values = 256 / (levels - 1);
 		let hash = 0;
