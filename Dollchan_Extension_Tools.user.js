@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '66c0956';
+  var commit = '44a4c26';
 
   var defaultCfg = {
     disabled: 0,
@@ -15207,6 +15207,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
+        if (spells[1] && Cfg.sortSpells) {
+          this._sort(spells[1]);
+        }
+
         saveCfg('spells', JSON.stringify(spells));
         this.setSpells(spells, true);
 
@@ -15654,7 +15658,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }
 
-      sp = sp.sort();
+      sp = sp.sort().sort(function (a, b) {
+        return (
+          a[2] && !b[2] || a[2] && b[2] && (a[2][0] > b[2][0] || a[2][1] > b[2][1]) ? 1 : 0
+        );
+      });
 
       for (var _i10 = 0, _len8 = sp.length - 1; _i10 < _len8; ++_i10) {
         var j = _i10 + 1;

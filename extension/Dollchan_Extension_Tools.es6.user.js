@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '66c0956';
+const commit = '44a4c26';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -7301,6 +7301,9 @@ const Spells = Object.create({
 					chk.checked = false;
 				}
 			}
+			if(spells[1] && Cfg.sortSpells) {
+				this._sort(spells[1]);
+			}
 			saveCfg('spells', JSON.stringify(spells));
 			this.setSpells(spells, true);
 			if(fld) {
@@ -7643,7 +7646,9 @@ const Spells = Object.create({
 				sp.splice(i, 0, temp);
 			}
 		}
-		sp = sp.sort();
+		sp = sp.sort().sort((a, b) =>
+			// Sort spells by scope
+			a[2] && !b[2] || a[2] && b[2] && (a[2][0] > b[2][0] || a[2][1] > b[2][1]) ? 1 : 0);
 		for(let i = 0, len = sp.length - 1; i < len; ++i) {
 			// Removes duplicates and weaker spells
 			const j = i + 1;
