@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '3c1d7fd';
+  var commit = '1dd93a9';
 
   var defaultCfg = {
     disabled: 0,
@@ -22862,7 +22862,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var parent = this._getImageParent;
 
         if (this.el.className !== 'de-img-embed') {
-          var nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
+          var nameEl = $q(aib.qPostImgNameLink, parent) || $q('a', parent);
           origSrc = nameEl.getAttribute('de-href') || nameEl.href;
           name = this.name;
         } else {
@@ -23204,7 +23204,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "nameLink",
       get: function get() {
-        var value = $q(aib.qImgNameLink, this._getImageParent);
+        var value = $q(aib.qPostImgNameLink, this._getImageParent);
         Object.defineProperty(this, 'nameLink', {
           value: value
         });
@@ -23540,7 +23540,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   });
 
   function getImgNameLink(el) {
-    return $q(aib.qImgNameLink, aib.getImgWrap(el));
+    return $q(aib.qPostImgNameLink, aib.getImgWrap(el));
   }
 
   function addImgButtons(link) {
@@ -24087,7 +24087,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._json = json;
       this._board = board;
       this._posts = json.threads[0].posts;
-      this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
+      this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count - (aib._isBeta ? 1 : 0);
       this.postersCount = json.unique_posters;
     }
 
@@ -26666,7 +26666,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.qFormTr = 'tr';
       this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; 
 
-      this.qImgInfo = '.filesize';
       this.qOmitted = '.omittedposts';
       this.qOPost = '.oppost';
       this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
@@ -26674,6 +26673,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.qPost = '.reply';
       this.qPostHeader = '.de-post-btns';
       this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+      this.qPostImgInfo = '.filesize';
       this.qPostMsg = 'blockquote';
       this.qPostName = '.postername, .commentpostername';
       this.qPostSubj = '.filetitle';
@@ -26725,19 +26725,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])', '[name="subject"]', '[name="field3"]');
       }
     }, {
-      key: "qImgNameLink",
+      key: "qMsgImgLink",
       get: function get() {
-        var value = $match(this.qImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
-        Object.defineProperty(this, 'qImgNameLink', {
+        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
+        Object.defineProperty(this, 'qMsgImgLink', {
           value: value
         });
         return value;
       }
     }, {
-      key: "qMsgImgLink",
+      key: "qPostImgNameLink",
       get: function get() {
-        var value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
-        Object.defineProperty(this, 'qMsgImgLink', {
+        var value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a', '[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]', '[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]', ', [href^="blob:"]');
+        Object.defineProperty(this, 'qPostImgNameLink', {
           value: value
         });
         return value;
@@ -27023,13 +27023,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getImgInfo",
       value: function getImgInfo(wrap) {
-        var el = $q(this.qImgInfo, wrap);
+        var el = $q(this.qPostImgInfo, wrap);
         return el ? el.textContent : '';
       }
     }, {
       key: "getImgRealName",
       value: function getImgRealName(wrap) {
-        var el = $q(this.qImgNameLink, wrap);
+        var el = $q(this.qPostImgNameLink, wrap);
         return el ? el.title || el.textContent : '';
       }
     }, {
@@ -27265,11 +27265,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this95.qForm = 'form[name="post"]';
         _this95.qFormPassw = 'input[name="password"]:not([type="hidden"])';
         _this95.qFormRedir = null;
-        _this95.qImgInfo = '.fileinfo';
         _this95.qOmitted = '.omitted';
         _this95.qOPostEnd = '.post.reply';
         _this95.qPages = '.pages';
         _this95.qPostHeader = '.intro';
+        _this95.qPostImgInfo = '.fileinfo';
         _this95.qPostMsg = '.body';
         _this95.qPostName = '.name';
         _this95.qPostRef = '.post_no + a';
@@ -27287,7 +27287,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(Tinyboard, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return 'p.fileinfo > a:first-of-type';
         }
@@ -27423,7 +27423,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getImgRealName",
         value: function getImgRealName(wrap) {
-          var el = $q('.postfilename', wrap) || $q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
+          var el = $q('.postfilename', wrap) || $q('.unimportant > a[download]', wrap) || $q(this.qPostImgNameLink, wrap);
           return el.title || el.textContent;
         }
       }, {
@@ -27672,7 +27672,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this101.qFormPassw = 'input[name="password"]';
         _this101.qFormRules = '.form-post > .small';
         _this101.qFormSubm = '#formButton, #de-postform-submit';
-        _this101.qImgInfo = '.uploadDetails';
         _this101.qOmitted = '.labelOmission';
         _this101.qOPost = '.innerOP';
         _this101.qOPostEnd = '.divPosts';
@@ -27680,6 +27679,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this101.qPost = '.innerPost, .markedPost';
         _this101.qPostHeader = '.postInfo, .de-post-btns';
         _this101.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+        _this101.qPostImgInfo = '.uploadDetails';
         _this101.qPostMsg = '.divMessage';
         _this101.qPostRef = '.linkQuote';
         _this101.qPostSubj = '.labelSubject';
@@ -27695,7 +27695,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(Lynxchan, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.originalNameLink';
         }
@@ -28028,13 +28028,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this102 = _super16.call(this, prot, dm);
         _this102.cReply = 'post_wrapper';
         _this102.qDelForm = '#main';
-        _this102.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
         _this102.qOmitted = '.omitted_text';
         _this102.qOPostEnd = '.posts';
         _this102.qPages = '.paginate > ul > li:nth-last-child(3)';
         _this102.qPost = '.post[id]';
         _this102.qPostHeader = 'header';
         _this102.qPostImg = '.post_image, .thread_image';
+        _this102.qPostImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
         _this102.qPostMsg = '.text';
         _this102.qPostRef = '.post_data > a[data-function="quote"]';
         _this102.qPostSubj = '.post_title';
@@ -28046,7 +28046,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(FoolFuuka, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.post_file_filename';
         }
@@ -28346,7 +28346,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this107.cReply = 'de-reply-class';
         _this107.qBan = '.post__pomyanem';
         _this107.qClosed = '.sticky-img[src$="locked.png"]';
-        _this107.qDelForm = '#posts-form';
+        _this107.qDelForm = '#posts-form, #js-posts';
         _this107.qFormFile = '.postform__raw.filer input[type="file"]';
         _this107.qFormRedir = null;
         _this107.qFormRules = '.rules';
@@ -28354,12 +28354,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this107.qFormTd = '.postform__raw';
         _this107.qFormTr = '.postform__raw';
         _this107.qFormTxta = '#shampoo';
-        _this107.qImgInfo = '.post__file-attr';
         _this107.qOmitted = '.thread__missed';
         _this107.qOPost = '.post_type_oppost';
         _this107.qPost = '.post_type_reply[data-num]';
         _this107.qPostHeader = '.post__details';
         _this107.qPostImg = '.post__file-preview';
+        _this107.qPostImgInfo = '.post__file-attr';
         _this107.qPostMsg = '.post__message';
         _this107.qPostName = '.post__anon, .post__email';
         _this107.qPostRef = '.post__reflink:nth-child(2)';
@@ -28377,6 +28377,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this107.multiFile = true;
         _this107.timePattern = 'dd+nn+yy+w+hh+ii+ss';
         _this107._capUpdPromise = null;
+        _this107._isBeta = false;
         return _this107;
       }
 
@@ -28396,7 +28397,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return 'input[name="subject"]';
         }
       }, {
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.file-attr > .desktop, .post__file-attr > .desktop';
         }
@@ -28597,7 +28598,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPostWrap",
         value: function getPostWrap(el) {
-          return el.parentNode;
+          return this._isBeta ? el : el.parentNode;
         }
       }, {
         key: "getSage",
@@ -28636,12 +28637,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this.qFormRules = '.rules-area';
             this.qFormTd = 'td';
             this.qFormTr = 'tr';
-            this.qImgInfo = '.file-attr';
             this.qOmitted = '.mess-post';
             this.qOPost = '.oppost';
             this.qPost = '.post.reply[data-num]';
             this.qPostHeader = '.post-details';
             this.qPostImg = '.preview';
+            this.qPostImgInfo = '.file-attr';
             this.qPostMsg = '.post-message';
             this.qPostName = '.ananimas, .post-email';
             this.qPostRef = '.reflink';
@@ -28655,6 +28656,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             });
           } else {
+            if ($id('js-posts')) {
+              this._isBeta = true;
+              $Q('.thread__missed').forEach(function (el) {
+                return el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, function (m, i) {
+                  return " ".concat(i - 1, " \u043F\u043E\u0441\u0442\u043E\u0432");
+                });
+              });
+            }
+
             var infEl = $q('.postform .filer__limits');
             var optEl = $q('.postform .options');
 
@@ -28684,7 +28694,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "observeContent",
         value: function observeContent(checkDomains, dataPromise) {
-          if ($q('#posts-form > .thread, form[de-form] > .thread')) {
+          if ($q('#posts-form > .thread, #js-posts > .thread, form[de-form] > .thread')) {
             return true;
           }
 
@@ -28696,7 +28706,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               runMain(checkDomains, dataPromise);
             }
           });
-          var el = $q('#posts-form, form[de-form]');
+          var el = $q('#posts-form, #js-posts, form[de-form]');
 
           if (el) {
             initObserver.observe(el, {
@@ -28738,7 +28748,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(_2chan, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
         }
@@ -29059,13 +29069,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this115.qError = '#errmsg';
         _this115.qForm = 'form[name="post"]';
         _this115.qFormRedir = null;
-        _this115.qImgInfo = '.fileText';
         _this115.qOmitted = '.summary.desktop';
         _this115.qOPost = '.op';
         _this115.qOPostEnd = '.replyContainer';
         _this115.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
         _this115.qPostHeader = '.postInfo';
         _this115.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+        _this115.qPostImgInfo = '.fileText';
         _this115.qPostName = '.name';
         _this115.qPostRef = '.postInfo > .postNum';
         _this115.qPostSubj = '.subject';
@@ -29087,7 +29097,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return 'input[name="sub"]';
         }
       }, {
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.fileText > a';
         }
@@ -29149,13 +29159,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getImgInfo",
         value: function getImgInfo(wrap) {
-          var el = $q(this.qImgInfo, wrap);
+          var el = $q(this.qPostImgInfo, wrap);
           return el ? el.lastChild.textContent : '';
         }
       }, {
         key: "getImgRealName",
         value: function getImgRealName(wrap) {
-          var el = $q(this.qImgNameLink, wrap);
+          var el = $q(this.qPostImgNameLink, wrap);
           return el ? el.title || el.parentNode.title || el.textContent : '';
         }
       }, {
@@ -29278,7 +29288,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(Arhivach, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.img_filename';
         }
@@ -29395,14 +29405,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(CrystalCafe, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.fileinfo > a[title]';
         }
       }, {
         key: "getImgInfo",
         value: function getImgInfo(wrap) {
-          return $q(this.qImgNameLink, wrap).title;
+          return $q(this.qPostImgNameLink, wrap).title;
         }
       }, {
         key: "getTNum",
@@ -29432,9 +29442,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this119.qDelForm = 'form[action*="delete"]';
         _this119.qError = '.post-error, h2';
         _this119.qFormRedir = 'select[name="goto"]';
-        _this119.qImgInfo = '.fileinfo';
         _this119.qOmitted = '.abbrev > span:last-of-type';
         _this119.qPages = '.pages > tbody > tr > td';
+        _this119.qPostImgInfo = '.fileinfo';
         _this119.qPostMsg = '.postbody';
         _this119.qPostSubj = '.replytitle';
         _this119.qTrunc = '.abbrev > span:first-of-type';
@@ -29663,7 +29673,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(Ernstchan, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.filename > a';
         }
@@ -30170,7 +30180,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _this128 = _super39.call(this, prot, dm);
         _this128.qBan = 'font[color="#FF0000"]';
-        _this128.qImgInfo = '.filesize[style="display: inline;"]';
+        _this128.qPostImgInfo = '.filesize[style="display: inline;"]';
         _this128.formParent = 'replythread';
         _this128.jsonSubmit = true;
         _this128.multiFile = true;
@@ -30178,7 +30188,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       _createClass(Ponyach, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return 'a:first-of-type';
         }
@@ -30309,14 +30319,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _classCallCheck(this, Synch);
 
         _this130 = _super42.call(this, prot, dm);
-        _this130.qImgInfo = '.unimportant';
         _this130.qPages = '.pagination';
+        _this130.qPostImgInfo = '.unimportant';
         _this130.markupBB = true;
         return _this130;
       }
 
       _createClass(Synch, [{
-        key: "qImgNameLink",
+        key: "qPostImgNameLink",
         get: function get() {
           return '.file-info > a';
         }
@@ -30381,8 +30391,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _this131 = _super43.call(this, prot, dm);
         _this131.qDelForm = '.content';
         _this131.qForm = '.subreply';
+        _this131.qPostImgInfo = 'span';
         _this131.qPostRef = '.js';
-        _this131.qImgInfo = 'span';
         _this131.qOPost = 'div[itemscope]';
         _this131.res = 'thread/';
         return _this131;

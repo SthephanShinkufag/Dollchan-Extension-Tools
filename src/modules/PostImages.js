@@ -560,7 +560,7 @@ class ExpandableImage {
 		const src = this._getImageSrc();
 		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
-			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
+			const nameEl = $q(aib.qPostImgNameLink, parent) || $q('a', parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
 		} else {
@@ -812,7 +812,7 @@ class AttachedImage extends ExpandableImage {
 		return value;
 	}
 	get nameLink() {
-		const value = $q(aib.qImgNameLink, this._getImageParent);
+		const value = $q(aib.qPostImgNameLink, this._getImageParent);
 		Object.defineProperty(this, 'nameLink', { value });
 		return value;
 	}
@@ -1012,7 +1012,7 @@ const ImagesHashStorage = Object.create({
 });
 
 function getImgNameLink(el) {
-	return $q(aib.qImgNameLink, aib.getImgWrap(el));
+	return $q(aib.qPostImgNameLink, aib.getImgWrap(el));
 }
 
 function addImgButtons(link) {

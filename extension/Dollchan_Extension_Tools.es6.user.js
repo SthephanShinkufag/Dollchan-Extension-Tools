@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '3c1d7fd';
+const commit = '1dd93a9';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12375,7 +12375,7 @@ class ExpandableImage {
 		const src = this._getImageSrc();
 		const parent = this._getImageParent;
 		if(this.el.className !== 'de-img-embed') {
-			const nameEl = $q(aib.qImgNameLink, parent) || $q('a', parent);
+			const nameEl = $q(aib.qPostImgNameLink, parent) || $q('a', parent);
 			origSrc = nameEl.getAttribute('de-href') || nameEl.href;
 			({ name } = this);
 		} else {
@@ -12627,7 +12627,7 @@ class AttachedImage extends ExpandableImage {
 		return value;
 	}
 	get nameLink() {
-		const value = $q(aib.qImgNameLink, this._getImageParent);
+		const value = $q(aib.qPostImgNameLink, this._getImageParent);
 		Object.defineProperty(this, 'nameLink', { value });
 		return value;
 	}
@@ -12827,7 +12827,7 @@ const ImagesHashStorage = Object.create({
 });
 
 function getImgNameLink(el) {
-	return $q(aib.qImgNameLink, aib.getImgWrap(el));
+	return $q(aib.qPostImgNameLink, aib.getImgWrap(el));
 }
 
 function addImgButtons(link) {
@@ -13255,7 +13255,7 @@ class MakabaPostsBuilder {
 		this._json = json;
 		this._board = board;
 		this._posts = json.threads[0].posts;
-		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
+		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count - (aib._isBeta ? 1 : 0);
 		this.postersCount = json.unique_posters;
 	}
 	get isClosed() {
@@ -15231,7 +15231,6 @@ class BaseBoard {
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
 		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Makaba
-		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
 		this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
@@ -15239,6 +15238,7 @@ class BaseBoard {
 		this.qPost = '.reply';
 		this.qPostHeader = '.de-post-btns';
 		this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+		this.qPostImgInfo = '.filesize';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
 		this.qPostSubj = '.filetitle';
@@ -15286,18 +15286,18 @@ class BaseBoard {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
-	get qImgNameLink() {
-		const value = $match(this.qImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
-			', [href^="blob:"]');
-		Object.defineProperty(this, 'qImgNameLink', { value });
-		return value;
-	}
 	get qMsgImgLink() { // Sets here only
 		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
+		return value;
+	}
+	get qPostImgNameLink() {
+		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
+		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}
 	get qThread() {
@@ -15484,11 +15484,11 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qImgInfo, wrap);
+		const el = $q(this.qPostImgInfo, wrap);
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		const el = $q(this.qImgNameLink, wrap);
+		const el = $q(this.qPostImgNameLink, wrap);
 		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {
@@ -15643,11 +15643,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qForm = 'form[name="post"]';
 			this.qFormPassw = 'input[name="password"]:not([type="hidden"])';
 			this.qFormRedir = null;
-			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.omitted';
 			this.qOPostEnd = '.post.reply';
 			this.qPages = '.pages';
 			this.qPostHeader = '.intro';
+			this.qPostImgInfo = '.fileinfo';
 			this.qPostMsg = '.body';
 			this.qPostName = '.name';
 			this.qPostRef = '.post_no + a';
@@ -15663,7 +15663,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.timePattern = 'nn+dd+yy++w++hh+ii+ss';
 			this._origInputs = null;
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return 'p.fileinfo > a:first-of-type';
 		}
 		get css() {
@@ -15743,7 +15743,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getImgRealName(wrap) {
 			const el = $q('.postfilename', wrap) ||
-				$q('.unimportant > a[download]', wrap) || $q(this.qImgNameLink, wrap);
+				$q('.unimportant > a[download]', wrap) || $q(this.qPostImgNameLink, wrap);
 			return el.title || el.textContent;
 		}
 		getPageUrl(board, page) {
@@ -15892,7 +15892,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormPassw = 'input[name="password"]';
 			this.qFormRules = '.form-post > .small';
 			this.qFormSubm = '#formButton, #de-postform-submit';
-			this.qImgInfo = '.uploadDetails';
 			this.qOmitted = '.labelOmission';
 			this.qOPost = '.innerOP';
 			this.qOPostEnd = '.divPosts';
@@ -15900,6 +15899,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qPost = '.innerPost, .markedPost';
 			this.qPostHeader = '.postInfo, .de-post-btns';
 			this.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+			this.qPostImgInfo = '.uploadDetails';
 			this.qPostMsg = '.divMessage';
 			this.qPostRef = '.linkQuote';
 			this.qPostSubj = '.labelSubject';
@@ -15914,7 +15914,7 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this._hasNewAPI = false;
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.originalNameLink';
 		}
 		get qThread() {
@@ -16089,13 +16089,13 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.cReply = 'post_wrapper';
 			this.qDelForm = '#main';
-			this.qImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
 			this.qOmitted = '.omitted_text';
 			this.qOPostEnd = '.posts';
 			this.qPages = '.paginate > ul > li:nth-last-child(3)';
 			this.qPost = '.post[id]';
 			this.qPostHeader = 'header';
 			this.qPostImg = '.post_image, .thread_image';
+			this.qPostImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
 			this.qPostMsg = '.text';
 			this.qPostRef = '.post_data > a[data-function="quote"]';
 			this.qPostSubj = '.post_title';
@@ -16105,7 +16105,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.firstPage = 1;
 			this.res = 'thread/';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.post_file_filename';
 		}
 		get qThread() {
@@ -16293,7 +16293,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.cReply = 'de-reply-class';
 			this.qBan = '.post__pomyanem';
 			this.qClosed = '.sticky-img[src$="locked.png"]';
-			this.qDelForm = '#posts-form';
+			this.qDelForm = '#posts-form, #js-posts';
 			this.qFormFile = '.postform__raw.filer input[type="file"]';
 			this.qFormRedir = null;
 			this.qFormRules = '.rules';
@@ -16301,12 +16301,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormTd = '.postform__raw';
 			this.qFormTr = '.postform__raw';
 			this.qFormTxta = '#shampoo';
-			this.qImgInfo = '.post__file-attr';
 			this.qOmitted = '.thread__missed';
 			this.qOPost = '.post_type_oppost';
 			this.qPost = '.post_type_reply[data-num]';
 			this.qPostHeader = '.post__details';
 			this.qPostImg = '.post__file-preview';
+			this.qPostImgInfo = '.post__file-attr';
 			this.qPostMsg = '.post__message';
 			this.qPostName = '.post__anon, .post__email';
 			this.qPostRef = '.post__reflink:nth-child(2)';
@@ -16325,6 +16325,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.timePattern = 'dd+nn+yy+w+hh+ii+ss';
 			this._capUpdPromise = null;
+			this._isBeta = false;
 		}
 		get qFormMail() {
 			return 'input[name="email"]';
@@ -16335,7 +16336,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="subject"]';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.file-attr > .desktop, .post__file-attr > .desktop';
 		}
 		get css() {
@@ -16506,7 +16507,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +post.getAttribute('data-num');
 		}
 		getPostWrap(el) {
-			return el.parentNode;
+			return this._isBeta ? el : el.parentNode;
 		}
 		getSage(post) {
 			this.getSage = !$q('span[id^="id_tag_"]') ? super.getSage : post => {
@@ -16534,12 +16535,12 @@ function getImageBoard(checkDomains, checkEngines) {
 				this.qFormRules = '.rules-area';
 				this.qFormTd = 'td';
 				this.qFormTr = 'tr';
-				this.qImgInfo = '.file-attr';
 				this.qOmitted = '.mess-post';
 				this.qOPost = '.oppost';
 				this.qPost = '.post.reply[data-num]';
 				this.qPostHeader = '.post-details';
 				this.qPostImg = '.preview';
+				this.qPostImgInfo = '.file-attr';
 				this.qPostMsg = '.post-message';
 				this.qPostName = '.ananimas, .post-email';
 				this.qPostRef = '.reflink';
@@ -16559,6 +16560,11 @@ function getImageBoard(checkDomains, checkEngines) {
 							.file-attr { margin-bottom: 1px; }` : '' }`
 				});
 			} else {
+				if($id('js-posts')) { // Fix counters in beta.2ch.hk
+					this._isBeta = true;
+					$Q('.thread__missed').forEach(el =>
+						el.innerHTML = el.innerHTML.replace(/ (\d+) постов/, (m, i) => ` ${ i - 1 } постов`));
+				}
 				const infEl = $q('.postform .filer__limits');
 				const optEl = $q('.postform .options');
 				if(infEl && optEl) {
@@ -16593,7 +16599,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return false;
 		}
 		observeContent(checkDomains, dataPromise) {
-			if($q('#posts-form > .thread, form[de-form] > .thread')) {
+			if($q('#posts-form > .thread, #js-posts > .thread, form[de-form] > .thread')) {
 				return true;
 			}
 			const initObserver = new MutationObserver(mutations => {
@@ -16602,7 +16608,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					runMain(checkDomains, dataPromise);
 				}
 			});
-			const el = $q('#posts-form, form[de-form]');
+			const el = $q('#posts-form, #js-posts, form[de-form]');
 			if(el) {
 				initObserver.observe(el, { childList: true });
 			}
@@ -16627,7 +16633,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.docExt = '.htm';
 			this.formParent = 'resto';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 		}
 		get qThread() {
@@ -16835,13 +16841,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qError = '#errmsg';
 			this.qForm = 'form[name="post"]';
 			this.qFormRedir = null;
-			this.qImgInfo = '.fileText';
 			this.qOmitted = '.summary.desktop';
 			this.qOPost = '.op';
 			this.qOPostEnd = '.replyContainer';
 			this.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
 			this.qPostHeader = '.postInfo';
 			this.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+			this.qPostImgInfo = '.fileText';
 			this.qPostName = '.name';
 			this.qPostRef = '.postInfo > .postNum';
 			this.qPostSubj = '.subject';
@@ -16859,7 +16865,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		get qFormSubj() {
 			return 'input[name="sub"]';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.fileText > a';
 		}
 		get captchaUpdate() {
@@ -16909,11 +16915,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return [];
 		}
 		getImgInfo(wrap) {
-			const el = $q(this.qImgInfo, wrap);
+			const el = $q(this.qPostImgInfo, wrap);
 			return el ? el.lastChild.textContent : '';
 		}
 		getImgRealName(wrap) {
-			const el = $q(this.qImgNameLink, wrap);
+			const el = $q(this.qPostImgNameLink, wrap);
 			return el ? el.title || el.parentNode.title || el.textContent : '';
 		}
 		getJsonApiUrl(board, tNum) {
@@ -16982,7 +16988,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasOPNum = true;
 			this.res = 'thread/';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.img_filename';
 		}
 		get qThread() {
@@ -17055,11 +17061,11 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qPost = '.post.reply';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.fileinfo > a[title]';
 		}
 		getImgInfo(wrap) {
-			return $q(this.qImgNameLink, wrap).title;
+			return $q(this.qPostImgNameLink, wrap).title;
 		}
 		getTNum(thr) {
 			return +thr.id.match(/\d+/);
@@ -17076,9 +17082,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelForm = 'form[action*="delete"]';
 			this.qError = '.post-error, h2';
 			this.qFormRedir = 'select[name="goto"]';
-			this.qImgInfo = '.fileinfo';
 			this.qOmitted = '.abbrev > span:last-of-type';
 			this.qPages = '.pages > tbody > tr > td';
+			this.qPostImgInfo = '.fileinfo';
 			this.qPostMsg = '.postbody';
 			this.qPostSubj = '.replytitle';
 			this.qTrunc = '.abbrev > span:first-of-type';
@@ -17240,7 +17246,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 			this.res = 'thread/';
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.filename > a';
 		}
 		get css() {
@@ -17558,13 +17564,13 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(prot, dm);
 
 			this.qBan = 'font[color="#FF0000"]';
-			this.qImgInfo = '.filesize[style="display: inline;"]';
+			this.qPostImgInfo = '.filesize[style="display: inline;"]';
 
 			this.formParent = 'replythread';
 			this.jsonSubmit = true;
 			this.multiFile = true;
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return 'a:first-of-type';
 		}
 		getImgInfo(wrap) {
@@ -17633,12 +17639,12 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(prot, dm) {
 			super(prot, dm);
 
-			this.qImgInfo = '.unimportant';
 			this.qPages = '.pagination';
+			this.qPostImgInfo = '.unimportant';
 
 			this.markupBB = true;
 		}
-		get qImgNameLink() {
+		get qPostImgNameLink() {
 			return '.file-info > a';
 		}
 		get css() {
@@ -17680,8 +17686,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
+			this.qPostImgInfo = 'span';
 			this.qPostRef = '.js';
-			this.qImgInfo = 'span';
 			this.qOPost = 'div[itemscope]';
 
 			this.res = 'thread/';

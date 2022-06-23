@@ -30,7 +30,6 @@ class BaseBoard {
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
 		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Makaba
-		this.qImgInfo = '.filesize';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
 		this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
@@ -38,6 +37,7 @@ class BaseBoard {
 		this.qPost = '.reply';
 		this.qPostHeader = '.de-post-btns';
 		this.qPostImg = '.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]';
+		this.qPostImgInfo = '.filesize';
 		this.qPostMsg = 'blockquote';
 		this.qPostName = '.postername, .commentpostername';
 		this.qPostSubj = '.filetitle';
@@ -85,18 +85,18 @@ class BaseBoard {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
-	get qImgNameLink() {
-		const value = $match(this.qImgInfo.split(', ').join(' a, ') + ' a',
-			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
-			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
-			', [href^="blob:"]');
-		Object.defineProperty(this, 'qImgNameLink', { value });
-		return value;
-	}
 	get qMsgImgLink() { // Sets here only
 		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
+		return value;
+	}
+	get qPostImgNameLink() {
+		const value = $match(this.qPostImgInfo.split(', ').join(' a, ') + ' a',
+			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]', '[href$=".webm"]',
+			'[href$=".webp"]', '[href$=".mp4"]', '[href$=".m4v"]', '[href$=".ogv"]', '[href$=".apng"]',
+			', [href^="blob:"]');
+		Object.defineProperty(this, 'qPostImgNameLink', { value });
 		return value;
 	}
 	get qThread() {
@@ -283,11 +283,11 @@ class BaseBoard {
 		return tNum ? temp.replace(/mainpage|res\d+/, 'res' + tNum) : temp.replace(/res\d+/, 'mainpage');
 	}
 	getImgInfo(wrap) {
-		const el = $q(this.qImgInfo, wrap);
+		const el = $q(this.qPostImgInfo, wrap);
 		return el ? el.textContent : '';
 	}
 	getImgRealName(wrap) {
-		const el = $q(this.qImgNameLink, wrap);
+		const el = $q(this.qPostImgNameLink, wrap);
 		return el ? el.title || el.textContent : '';
 	}
 	getImgSrcLink(img) {

@@ -353,7 +353,7 @@ class MakabaPostsBuilder {
 		this._json = json;
 		this._board = board;
 		this._posts = json.threads[0].posts;
-		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count;
+		this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count - (aib._isBeta ? 1 : 0);
 		this.postersCount = json.unique_posters;
 	}
 	get isClosed() {
