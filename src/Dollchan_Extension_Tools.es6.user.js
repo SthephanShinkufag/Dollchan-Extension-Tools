@@ -16521,12 +16521,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
-			console.log(json);
 			let error = null;
 			let postNum = null;
 			if(json.result === 1) {
 				postNum = +json.num;
-			} else if(json.Status === 'Redirect') {
+			} else if(json.result === 'Redirect') {
 				postNum = +json.Target;
 			} else {
 				error = Lng.error[lang] + ': ' + json.error.message;
@@ -18596,7 +18595,7 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
