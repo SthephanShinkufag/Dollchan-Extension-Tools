@@ -16495,7 +16495,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -16521,14 +16521,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		getSubmitData(json) {
+			console.log(json);
 			let error = null;
 			let postNum = null;
-			if(json.Status === 'OK') {
-				postNum = +json.Num;
+			if(json.result === 1) {
+				postNum = +json.num;
 			} else if(json.Status === 'Redirect') {
 				postNum = +json.Target;
 			} else {
-				error = Lng.error[lang] + ': ' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.error.message;
 			}
 			return { error, postNum };
 		}
