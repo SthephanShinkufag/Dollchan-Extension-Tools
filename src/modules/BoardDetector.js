@@ -803,21 +803,25 @@ function getImageBoard(checkDomains, checkEngines) {
 					inpEl.classList.add('de-input-error');
 					return;
 				}
-				const formData = new FormData();
-				formData.append('task', 'report');
-				formData.append('board', this.b);
-				formData.append('thread', tNum);
-				formData.append('posts', pNum);
-				formData.append('comment', inpEl.value);
+				var formData = new FormData();
+				var data = {'board': this.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
+				for (var key in data) {
+					formData.append(key, data[key]);
+				}
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
-				$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(xhr => {
+				$ajax('/user/report', {
+					method: 'POST',
+					data: formData,
+					success() {},
+					contentType: false,
+					processData: false
+				}).then(xhr => {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
 					} catch(err) {}
-					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
-						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+					$popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
@@ -905,7 +909,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -930,15 +934,19 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 			return this.getSage(post);
 		}
+		fixHTMLHelper(str) {
+			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig, "<a href=\"$2$3\"$1>$2$3</a>");
+		}
 		getSubmitData(json) {
 			let error = null;
 			let postNum = null;
-			if(json.Status === 'OK') {
-				postNum = +json.Num;
-			} else if(json.Status === 'Redirect') {
-				postNum = +json.Target;
+			if(json.result === 1) {
+				postNum = +json.num;
+				if(json.thread > 0) {
+					postNum = +json.thread;
+				}
 			} else {
-				error = Lng.error[lang] + ': ' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.error.message;
 			}
 			return { error, postNum };
 		}

@@ -10470,8 +10470,8 @@ class AbstractPost {
 					const num = +temp.id.match(/\d+/);
 					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 						const obj = JSON.parse(xhr.responseText);
-						if(obj.Status !== 'OK') {
-							$popup('err-2chlike', obj.Reason);
+						if(obj.result !== 1) {
+							$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
 							return;
 						}
 						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
@@ -16393,21 +16393,25 @@ function getImageBoard(checkDomains, checkEngines) {
 					inpEl.classList.add('de-input-error');
 					return;
 				}
-				const formData = new FormData();
-				formData.append('task', 'report');
-				formData.append('board', this.b);
-				formData.append('thread', tNum);
-				formData.append('posts', pNum);
-				formData.append('comment', inpEl.value);
+				var formData = new FormData();
+				var data = {'board': this.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
+				for (var key in data) {
+					formData.append(key, data[key]);
+				}
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
-				$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(xhr => {
+				$ajax('/user/report', {
+					method: 'POST',
+					data: formData,
+					success() {},
+					contentType: false,
+					processData: false
+				}).then(xhr => {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
 					} catch(err) {}
-					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
-						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+					$popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
@@ -16495,7 +16499,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {
@@ -16520,15 +16524,27 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 			return this.getSage(post);
 		}
+		fixHTMLHelper(str) {
+			str = str.replace(/<a href="https?:\/\/[^>]+>https?:\/\/[^<]+<\/a>[^<$\s\n]+/ig, function (match) {
+				try {
+					match = match.replace(/<\/a>/ig, "") + "</a>"
+					var newUrl = '"' + match.match( /(?:>)https?:\/\/[^<]+/ig )[ 0 ].substring(1);
+					match = match.replace( /"https?:\/\/[^"]+/ig, newUrl );
+				} catch (err) {}
+				return match;
+			});
+			return str;
+		}
 		getSubmitData(json) {
 			let error = null;
 			let postNum = null;
-			if(json.Status === 'OK') {
-				postNum = +json.Num;
-			} else if(json.Status === 'Redirect') {
-				postNum = +json.Target;
+			if(json.result === 1) {
+				postNum = +json.num;
+				if(json.thread > 0) {
+					postNum = +json.thread;
+				}
 			} else {
-				error = Lng.error[lang] + ': ' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.error.message;
 			}
 			return { error, postNum };
 		}
@@ -18595,7 +18611,7 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
