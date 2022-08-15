@@ -16527,12 +16527,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		getSubmitData(json) {
 			let error = null;
 			let postNum = null;
-			if(json.Status === 'OK') {
-				postNum = +json.Num;
-			} else if(json.Status === 'Redirect') {
-				postNum = +json.Target;
+			if(json.result === 1) {
+				postNum = +json.num;
+				if(json.thread > 0) {
+					postNum = +json.thread;
+				}
 			} else {
-				error = Lng.error[lang] + ': ' + json.Reason;
+				error = Lng.error[lang] + ': ' + json.error.message;
 			}
 			return { error, postNum };
 		}
