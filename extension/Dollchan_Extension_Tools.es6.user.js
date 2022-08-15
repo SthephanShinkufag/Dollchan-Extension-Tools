@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '44a4c26';
+const commit = '34697cc';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16525,15 +16525,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		fixHTMLHelper(str) {
-			str = str.replace(/<a href="https?:\/\/[^>]+>https?:\/\/[^<]+<\/a>[^<$\s\n]+/ig, function (match) {
-				try {
-					match = match.replace(/<\/a>/ig, "") + "</a>"
-					var newUrl = '"' + match.match( /(?:>)https?:\/\/[^<]+/ig )[ 0 ].substring(1);
-					match = match.replace( /"https?:\/\/[^"]+/ig, newUrl );
-				} catch (err) {}
-				return match;
-			});
-			return str;
+			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig, "<a href=\"$2$3\"$1>$2$3</a>");
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -18611,7 +18603,7 @@ function updateCSS() {
 	${ Cfg.ajaxPosting ? '' : '.de-file-btn-rar, .de-file-btn-txt, ' }
 	${ Cfg.fileInputs ? '' : '.de-file-txt-wrap, .de-file-btn-txt, ' }
 	${ !aib.formHeaders && (aib.multiFile || Cfg.fileInputs !== 2) ?
-		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .theader { display: none !important; }\r\n`;
+		'#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child, ' : '' }body > hr, .postarea, .theader { display: none !important; }\r\n`;
 	$id('de-css-dynamic').textContent = (x + aib.css).replace(/[\r\n\t]+/g, '\r\n\t');
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
