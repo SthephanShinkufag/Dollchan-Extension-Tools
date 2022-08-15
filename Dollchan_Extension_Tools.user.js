@@ -28619,6 +28619,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return this.getSage(post);
         }
       }, {
+        key: "fixHTMLHelper",
+        value: function fixHTMLHelper(str) {
+          str = str.replace(/<a href="https?:\/\/[^>]+>https?:\/\/[^<]+<\/a>[^<$\s\n]+/ig, function (match) {
+            try {
+              match = match.replace(/<\/a>/ig, "") + "</a>"
+              var newUrl = '"' + match.match( /(?:>)https?:\/\/[^<]+/ig )[ 0 ].substring(1);
+              match = match.replace( /"https?:\/\/[^"]+/ig, newUrl );
+            } catch (err) {}
+            return match;
+          });
+          return str;
+        }
+      }, {
         key: "getSubmitData",
         value: function getSubmitData(json) {
           var error = null;

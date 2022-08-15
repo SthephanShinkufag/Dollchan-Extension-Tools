@@ -934,6 +934,17 @@ function getImageBoard(checkDomains, checkEngines) {
 			};
 			return this.getSage(post);
 		}
+		fixHTMLHelper(str) {
+			str = str.replace(/<a href="https?:\/\/[^>]+>https?:\/\/[^<]+<\/a>[^<$\s\n]+/ig, function (match) {
+				try {
+					match = match.replace(/<\/a>/ig, "") + "</a>"
+					var newUrl = '"' + match.match( /(?:>)https?:\/\/[^<]+/ig )[ 0 ].substring(1);
+					match = match.replace( /"https?:\/\/[^"]+/ig, newUrl );
+				} catch (err) {}
+				return match;
+			});
+			return str;
+		}
 		getSubmitData(json) {
 			let error = null;
 			let postNum = null;
