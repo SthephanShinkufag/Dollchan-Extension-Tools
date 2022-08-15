@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '34697cc';
+const commit = '02507ad';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16356,6 +16356,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				.oekaki-height, .oekaki-width { width: 36px !important; }
 				.post_type_reply { max-width: 100%; }
 				.postform { width: auto; }
+				.postarea { display: initial !important; }
 				.postform__sticker-btn, .postform__sticker-prev { bottom: ` +
 					`${ !Cfg.txtBtnsLoc || !Cfg.addTextBtns ? 3 :
 					Cfg.addTextBtns === 1 ? 28 : Cfg.addTextBtns === 2 ? 19 : 25 }px !important; }
