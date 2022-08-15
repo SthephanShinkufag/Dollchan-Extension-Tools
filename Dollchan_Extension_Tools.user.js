@@ -28621,15 +28621,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "fixHTMLHelper",
         value: function fixHTMLHelper(str) {
-          str = str.replace(/<a href="https?:\/\/[^>]+>https?:\/\/[^<]+<\/a>[^<$\s\n]+/ig, function (match) {
-            try {
-              match = match.replace(/<\/a>/ig, "") + "</a>"
-              var newUrl = '"' + match.match( /(?:>)https?:\/\/[^<]+/ig )[ 0 ].substring(1);
-              match = match.replace( /"https?:\/\/[^"]+/ig, newUrl );
-            } catch (err) {}
-            return match;
-          });
-          return str;
+          return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig, "<a href=\"$2$3\"$1>$2$3</a>");
         }
       }, {
         key: "getSubmitData",
