@@ -909,7 +909,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		fixFileInputs(el) {
 			el.innerHTML = Array.from({ length: 8 }, (val, i) =>
-				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="formimages[]"></div>`
+				`<div${ i ? ' style="display: none;"' : '' }><input type="file" name="file[]"></div>`
 			).join('');
 		}
 		getBanId(postEl) {

@@ -28581,7 +28581,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           el.innerHTML = Array.from({
             length: 8
           }, function (val, i) {
-            return "<div".concat(i ? ' style="display: none;"' : '', "><input type=\"file\" name=\"formimages[]\"></div>");
+            return "<div".concat(i ? ' style="display: none;"' : '', "><input type=\"file\" name=\"file[]\"></div>");
           }).join('');
         }
       }, {
