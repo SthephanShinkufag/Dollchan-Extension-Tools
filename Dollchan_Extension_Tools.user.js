@@ -28449,16 +28449,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               var formData = new FormData();
-              formData.append('task', 'report');
-              formData.append('board', _this108.b);
-              formData.append('thread', tNum);
-              formData.append('posts', pNum);
-              formData.append('comment', inpEl.value);
+              var data = {'board': _this108.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
+              for (var key in data) {
+                formData.append(key, data[key]);
+              }
               closePopup('edit-report');
               $popup('report', Lng.sending[lang], true);
-              $ajax('/makaba/makaba.fcgi?json=1', {
+              $ajax('/user/report', {
                 method: 'POST',
-                data: formData
+                data: formData,
+                success() {},
+                contentType: false,
+                processData: false
               }).then(function (xhr) {
                 var obj;
 
@@ -28466,7 +28468,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   obj = JSON.parse(xhr.responseText);
                 } catch (err) {}
 
-                $popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText : (obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+                $popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
               });
             };
           };

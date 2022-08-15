@@ -16393,21 +16393,25 @@ function getImageBoard(checkDomains, checkEngines) {
 					inpEl.classList.add('de-input-error');
 					return;
 				}
-				const formData = new FormData();
-				formData.append('task', 'report');
-				formData.append('board', this.b);
-				formData.append('thread', tNum);
-				formData.append('posts', pNum);
-				formData.append('comment', inpEl.value);
+				var formData = new FormData();
+				var data = {'board': this.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
+				for (var key in data) {
+					formData.append(key, data[key]);
+				}
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
-				$ajax('/makaba/makaba.fcgi?json=1', { method: 'POST', data: formData }).then(xhr => {
+				$ajax('/user/report', {
+					method: 'POST',
+					data: formData,
+					success() {},
+					contentType: false,
+					processData: false
+				}).then(xhr => {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
 					} catch(err) {}
-					$popup('report', !obj ? Lng.error[lang] + ': ' + xhr.responseText :
-						(obj.message || Lng.succReported[lang]) + ': ' + obj.message_title);
+					$popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
