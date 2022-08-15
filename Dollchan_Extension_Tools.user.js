@@ -20046,8 +20046,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               $ajax("/api/".concat(task, "?board=").concat(aib.b, "&num=").concat(num)).then(function (xhr) {
                 var obj = JSON.parse(xhr.responseText);
 
-                if (obj.Status !== 'OK') {
-                  $popup('err-2chlike', obj.Reason);
+                if (obj.result !== 1) {
+                  $popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
                   return;
                 }
 

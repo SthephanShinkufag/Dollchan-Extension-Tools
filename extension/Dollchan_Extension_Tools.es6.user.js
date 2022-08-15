@@ -10470,8 +10470,8 @@ class AbstractPost {
 					const num = +temp.id.match(/\d+/);
 					$ajax(`/api/${ task }?board=${ aib.b }&num=${ num }`).then(xhr => {
 						const obj = JSON.parse(xhr.responseText);
-						if(obj.Status !== 'OK') {
-							$popup('err-2chlike', obj.Reason);
+						if(obj.result !== 1) {
+							$popup('err-2chlike', Lng.error[lang] + ': ' + obj.error.message);
 							return;
 						}
 						temp.classList.add(`${ task }-div-checked`, `post__rate_${ task }d`);
