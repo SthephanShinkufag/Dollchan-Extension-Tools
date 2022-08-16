@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'f33650b';
+const commit = 'd3c4141';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8667,7 +8667,7 @@ class PostForm {
 	addMarkupPanel() {
 		let el = $id('de-txt-panel');
 		if(!Cfg.addTextBtns) {
-			$del(el);
+			aib.removeFormButtons(el);
 			return;
 		}
 		if(!el) {
@@ -8675,7 +8675,7 @@ class PostForm {
 			['click', 'mouseover'].forEach(e => el.addEventListener(e, this));
 		}
 		el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
+		aib.insertFormButtons(this, el);
 		const id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
 		const val = ['B', 'i', 'U', 'S', '%', 'C', 'x\u00b2', 'x\u2082'];
 		const mode = Cfg.addTextBtns;
@@ -15542,6 +15542,12 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
+	insertFormButtons(postForm, el) {
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
+	}
+	removeFormButtons(el) {
+		$del(el);
+	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
@@ -16609,6 +16615,15 @@ function getImageBoard(checkDomains, checkEngines) {
 				initObserver.observe(el, { childList: true });
 			}
 			return false;
+		}
+		insertFormButtons(postForm, el) {
+			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+			const posEl = formEl.parentNode;
+			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+			posEl.nextSibling.appendChild(el);
+		}
+		removeFormButtons(el) {
+			$del(el.parentNode);
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;

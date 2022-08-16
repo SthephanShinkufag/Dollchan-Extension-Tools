@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'f33650b';
+  var commit = 'd3c4141';
 
   var defaultCfg = {
     disabled: 0,
@@ -17185,7 +17185,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var el = $id('de-txt-panel');
 
         if (!Cfg.addTextBtns) {
-          $del(el);
+          aib.removeFormButtons(el);
           return;
         }
 
@@ -17197,7 +17197,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         el.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-        (Cfg.txtBtnsLoc ? $id('de-resizer-text') || this.txta : this.subm).after(el);
+        aib.insertFormButtons(this, el);
         var id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub'];
         var val = ['B', 'i', 'U', 'S', '%', 'C', "x\xB2", "x\u2082"];
         var mode = Cfg.addTextBtns;
@@ -27141,6 +27141,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return $bBegin(msg, playerHtml);
       }
     }, {
+      key: "insertFormButtons",
+      value: function insertFormButtons(postForm, el) {
+        (Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
+      }
+    }, {
+      key: "removeFormButtons",
+      value: function removeFormButtons(el) {
+        $del(el);
+      }
+    }, {
       key: "isAjaxStatusOK",
       value: function isAjaxStatusOK(status) {
         return status === 200 || status === 206;
@@ -28733,6 +28743,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           return false;
+        }
+      }, {
+        key: "insertFormButtons",
+        value: function insertFormButtons(postForm, el) {
+          var formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+          var posEl = formEl.parentNode;
+          posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+          posEl.nextSibling.appendChild(el);
+        }
+      }, {
+        key: "removeFormButtons",
+        value: function removeFormButtons(el) {
+          $del(el.parentNode);
         }
       }]);
 

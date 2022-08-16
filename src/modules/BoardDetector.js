@@ -1039,6 +1039,15 @@ function getImageBoard(checkDomains, checkEngines) {
 			}
 			return false;
 		}
+		insertFormButtons(postForm, el) {
+			const formEl = Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm;
+			const posEl = formEl.parentNode;
+			posEl.insertAdjacentHTML('afterend', '<div class="postform__raw"></div>');
+			posEl.nextSibling.appendChild(el);
+		}
+		removeFormButtons(el) {
+			$del(el.parentNode);
+		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
