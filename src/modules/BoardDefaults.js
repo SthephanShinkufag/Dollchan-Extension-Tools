@@ -6,7 +6,6 @@ class BaseBoard {
 	constructor(prot, dm) {
 		// Imageboard-specific booleans
 		this._02ch = false;
-		this._2channel = false;
 		this._4chan = false;
 		this.dobrochan = false;
 		this.kohlchan = false;

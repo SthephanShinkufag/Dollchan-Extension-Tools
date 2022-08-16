@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '02507ad';
+  var commit = 'da0892b';
 
   var defaultCfg = {
     disabled: 0,
@@ -24095,7 +24095,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._json = json;
       this._board = board;
       this._posts = json.threads[0].posts;
-      this.length = aib._2channel ? json.counter_posts - 1 : json.posts_count - (aib._isBeta ? 1 : 0);
+      this.length = json.posts_count - 1;
       this.postersCount = json.unique_posters;
     }
 
@@ -24132,8 +24132,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var data = this._posts[i + 1];
         var num = data.num;
         var board = this._board;
-        var isNew = this._isNew;
-        var p = isNew ? 'post__' : '';
 
         var _switch = function _switch(val, obj) {
           return val in obj ? obj[val] : obj['@@default'];
@@ -24143,7 +24141,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var filesHTML = '';
 
         if ((_data$files = data.files) !== null && _data$files !== void 0 && _data$files.length) {
-          filesHTML = "<div class=\"".concat(isNew ? 'post__images post__images_type_' : 'images images-').concat(data.files.length === 1 ? 'single' : 'multi', "\">");
+          filesHTML = "<div class=\"post__images post__images_type_".concat(data.files.length === 1 ? 'single' : 'multi', "\">");
 
           for (var _iterator27 = _createForOfIteratorHelperLoose(data.files), _step27; !(_step27 = _iterator27()).done;) {
             var file = _step27.value;
@@ -24153,37 +24151,41 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _file$displayname = file.displayname,
                 dispName = _file$displayname === void 0 ? file.name : _file$displayname;
             var isVideo = file.type === 6 || file.type === 10;
-            var imgClass = isNew ? "post__file-preview".concat(isVideo ? ' post__file-webm' : '').concat(data.nsfw ? ' post__file-nsfw' : '') : "img preview".concat(isVideo ? ' webm-file' : '');
-            filesHTML += "<figure class=\"".concat(p, "image\">\n\t\t\t\t\t<figcaption class=\"").concat(p, "file-attr\">\n\t\t\t\t\t\t<a id=\"title-").concat(imgId, "\" class=\"desktop\" target=\"_blank\" href=\"") + "".concat(file.type === 100
-            ? file.install : file.path, "\"") + "".concat(dispName === fullname ? '' : " title=\"".concat(fullname, "\""), ">").concat(dispName, "</a>\n\t\t\t\t\t\t<span class=\"").concat(isNew ? 'post__filezise' : 'filesize', "\">(").concat(file.size, "\u041A\u0431, ") + "".concat(file.width, "x").concat(file.height).concat(isVideo ? ', ' + file.duration : '', ")</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id=\"exlink-").concat(imgId, "\"").concat(isNew ? '' : 'class="image-link"', ">\n\t\t\t\t\t\t<a ").concat(isNew ? 'class="post__image-link" ' : '', "href=\"").concat(file.path, "\">\n\t\t\t\t\t\t\t<img class=\"").concat(imgClass, "\" src=\"").concat(file.thumbnail, "\" alt=\"").concat(file.width, "x") + "".concat(file.height, "\" width=\"").concat(file.tn_width, "\" height=\"").concat(file.tn_height, "\">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>");
+            var imgClass = "post__file-preview".concat(isVideo ? ' post__file-webm' : '').concat(data.nsfw ? ' post__file-nsfw' : '');
+            filesHTML += "<figure class=\"post__image\">\n\t\t\t\t\t<figcaption class=\"post__file-attr\">\n\t\t\t\t\t\t<a id=\"title-".concat(imgId, "\" class=\"desktop\" target=\"_blank\" href=\"") + "".concat(file.type === 100
+            ? file.install : file.path, "\"") + "".concat(dispName === fullname ? '' : " title=\"".concat(fullname, "\""), ">").concat(dispName, "</a>\n\t\t\t\t\t\t<span class=\"post__filezise\">(").concat(file.size, "\u041A\u0431, ") + "".concat(file.width, "x").concat(file.height).concat(isVideo ? ', ' + file.duration : '', ")</span>\n\t\t\t\t\t</figcaption>\n\t\t\t\t\t<div id=\"exlink-").concat(imgId, "\">\n\t\t\t\t\t\t<a class=\"post__image-link\" href=\"").concat(file.path, "\">\n\t\t\t\t\t\t\t<img class=\"").concat(imgClass, "\" src=\"").concat(file.thumbnail, "\" alt=\"").concat(file.width, "x") + "".concat(file.height, "\" width=\"").concat(file.tn_width, "\" height=\"").concat(file.tn_height, "\">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</div>\n\t\t\t\t</figure>");
           }
 
           filesHTML += '</div>';
         } 
 
 
-        var emailEl = data.email ? "<a href=\"".concat(data.email, "\" class=\"").concat(isNew ? 'post__' : 'post-', "email\">").concat(data.name, "</a>") : "<span class=\"".concat(isNew ? 'post__anon' : 'ananimas', "\">").concat(data.name, "</span>");
+        var emailEl = data.email ? "<a href=\"".concat(data.email, "\" class=\"post__email\">").concat(data.name, "</a>") : "<span class=\"post__anon\">".concat(data.name, "</span>");
         var tripEl = !data.trip ? '' : "<span class=\"".concat(_switch(data.trip, {
-          '!!%adm%!!': "".concat(p, "adm\">## ").concat(aib._2channel ? 'Admin' : 'Abu', " ##"),
-          '!!%mod%!!': "".concat(p, "mod\">## Mod ##"),
-          '!!%Inquisitor%!!': "".concat(p, "inquisitor\">## Applejack ##"),
-          '!!%coder%!!': "".concat(p, "mod\">## \u041A\u043E\u0434\u0435\u0440 ##"),
-          '!!%curunir%!!': "".concat(p, "mod\">## Curunir ##"),
-          '@@default': "".concat(data.trip_style ? data.trip_style : isNew ? 'post__trip' : 'postertrip', "\">") + data.trip
+          '!!%adm%!!': "post__adm\">## Abu ##",
+          '!!%mod%!!': "post__mod\">## Mod ##",
+          '!!%Inquisitor%!!': "post__inquisitor\">## Applejack ##",
+          '!!%coder%!!': "post__mod\">## \u041A\u043E\u0434\u0435\u0440 ##",
+          '!!%curunir%!!': "post__mod\">## Curunir ##",
+          '@@default': "".concat(data.trip_style ? data.trip_style : 'post__trip', "\">") + data.trip
         }), "</span>");
         var refHref = "/".concat(board, "/res/").concat(parseInt(data.parent) || num, ".html#").concat(num);
         var rate = '';
 
         if (this._hasLikes) {
-          var likes = "<div id=\"like-div".concat(num, "\" class=\"").concat(isNew ? "post__detailpart post__rate post__rate_type_like\" title=\"\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F\">\n\t\t\t\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"post__rate-icon icon\">\n\t\t\t\t\t\t<use xlink:href=\"#icon__thunder\"></use></svg>" : 'like-div"> <span class="like-icon"> <i class="fa fa-bolt"></i></span>', " <span id=\"like-count").concat(num, "\"").concat(isNew ? '' : 'class="like-count"', ">");
+          var likes = "<div id=\"like-div".concat(num, "\" class=\"post__rate post__rate_type_like\" title=\"\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F\">\n\t\t\t\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"post__rate-icon icon\">\n\t\t\t\t\t\t<use xlink:href=\"#icon__thunder\"></use></svg> <span id=\"like-count").concat(num, "\">");
           var dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
           rate = "".concat(likes).concat(data.likes || 0, "</span></div>\n\t\t\t\t").concat(dislikes).concat(data.dislikes || 0, "</span></div>");
         }
 
         var isOp = i === -1;
-        var wrapClass = !isNew ? 'post-wrapper' : isOp ? 'thread__oppost' : 'thread__post';
-        var timeReflink = "<span class=\"".concat(isNew ? 'post__time' : 'posttime', "\">").concat(data.date, "</span>\n\t\t\t<span class=\"").concat(isNew ? 'post__detailpart' : 'reflink', "\">") + "<a id=\"".concat(num, "\" ").concat(isNew ? 'class="post__reflink" ' : '', "href=\"").concat(refHref, "\">") + "".concat(aib._2channel ? 'No.' : '№', "</a>") + "<a class=\"".concat(isNew ? 'post__reflink ' : '', "postbtn-reply-href\" href=\"").concat(refHref, "\"") + " name=\"".concat(num, "\">").concat(num, "</a>\n\t\t\t</span>");
-        return "<div id=\"post-".concat(num, "\" class=\"").concat(wrapClass, "\">\n\t\t\t<div class=\"post ").concat(isNew ? 'post_type_' : '').concat(isOp ? 'oppost' : 'reply') + "".concat(filesHTML ? ' post_withimg' : '', "\" id=\"post-body-").concat(num, "\" data-num=\"").concat(num, "\">\n\t\t\t\t<div id=\"post-details-").concat(num, "\" class=\"").concat(isNew ? 'post__details' : 'post-details', "\">\n\t\t\t\t\t<input type=\"checkbox\" name=\"delete\" value=\"").concat(num, "\">\n\t\t\t\t\t").concat(!data.subject ? '' : "<span class=\"".concat(isNew ? 'post__' : 'post-', "title\">") + "".concat(data.subject + (data.tags ? " /".concat(data.tags, "/") : ''), "</span>"), "\n\t\t\t\t\t").concat(emailEl, "\n\t\t\t\t\t").concat(data.icon ? "<span class=\"".concat(isNew ? 'post__' : 'post-', "icon\">") + "".concat(data.icon, "</span>") : '', "\n\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t").concat(data.op === 1 ? "<span class=\"".concat(p, "ophui\"># OP</span>&nbsp;") : '', "\n\t\t\t\t\t").concat(isNew ? timeReflink : "<span class=\"posttime-reflink\">\n\t\t\t\t\t\t".concat(timeReflink, "\n\t\t\t\t\t</span>"), "\n\t\t\t\t\t").concat(rate, "\n\t\t\t\t</div>\n\t\t\t\t").concat(filesHTML, "\n\t\t\t\t").concat(this._getPostMsg(data), "\n\t\t\t</div>\n\t\t</div>");
+        var reflink = "<a id=\"".concat(num, "\" class=\"post__reflink\" href=\"").concat(refHref, "\">\u2116</a>") + "<a class=\"post__reflink postbtn-reply-href\" href=\"".concat(refHref, "\"") + " name=\"".concat(num, "\">").concat(num, "</a>");
+
+        var w = function w(el) {
+          return "<span class=\"post__detailpart\">".concat(el, "</span>");
+        };
+
+        return "<div id=\"post-".concat(num, "\" class=\"post post_type_").concat(isOp ? 'oppost' : 'reply') + "".concat(filesHTML ? ' post_withimg' : '', "\" data-num=\"").concat(num, "\">\n\t\t\t<div id=\"post-details-").concat(num, "\" class=\"post__details\">\n\t\t\t\t<input class=\"turnmeoff\" type=\"checkbox\" name=\"delete\" value=\"").concat(num, "\">\n\t\t\t\t").concat(!data.subject ? '' : w("<span class=\"post__title\">" + "".concat(data.subject + (data.tags ? " /".concat(data.tags, "/") : ''), "</span>")), "\n\t\t\t\t").concat(w("\n\t\t\t\t\t".concat(emailEl, "\n\t\t\t\t\t").concat(data.icon ? "<span class=\"post__icon\">" + "".concat(data.icon, "</span>") : '', "\n\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t").concat(data.op === 1 ? "<span class=\"post__ophui\"># OP</span>&nbsp;" : '', "\n\t\t\t\t")), "\n\t\t\t\t").concat(w("<span class=\"post__time\">".concat(data.date, "</span>")), "\n\t\t\t\t").concat(w(reflink), "\n\t\t\t\t").concat(rate ? w(rate) : '', "\n\t\t\t</div>\n\t\t\t").concat(filesHTML, "\n\t\t\t").concat(this._getPostMsg(data), "\n\t\t</div>");
       }
     }, {
       key: "bannedPostsData",
@@ -24243,15 +24245,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return value;
       }
     }, {
-      key: "_isNew",
-      get: function get() {
-        var value = !!$q('.post_type_oppost');
-        Object.defineProperty(this, '_isNew', {
-          value: value
-        });
-        return value;
-      }
-    }, {
       key: "_getPostMsg",
       value: function _getPostMsg(data) {
         var _switch = function _switch(val, obj) {
@@ -24259,13 +24252,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         };
 
         var comment = data.comment.replace(/<script /ig, '<!--<textarea ').replace(/<\/script>/ig, '</textarea>-->');
-        var p = this._isNew ? 'post__' : '';
-        var tag = aib._2channel ? 'blockquote' : 'article';
-        return "<".concat(tag, " id=\"m").concat(data.num, "\" class=\"").concat(this._isNew ? 'post__' : 'post-', "message\">") + "".concat(comment).concat(_switch(data.banned, {
-          1: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"),
-          2: "<br><span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D.)</span>"),
+        return "<article id=\"m".concat(data.num, "\" class=\"post__message\">") + "".concat(comment).concat(_switch(data.banned, {
+          1: "<br><span class=\"post__pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>",
+          2: "<br><span class=\"post__pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D.)</span>",
           '@@default': ''
-        }), "</").concat(tag, ">");
+        }), "</article>");
       }
     }]);
 
@@ -26649,7 +26640,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _classCallCheck(this, BaseBoard);
 
       this._02ch = false;
-      this._2channel = false;
       this._4chan = false;
       this.dobrochan = false;
       this.kohlchan = false;
@@ -28835,8 +28825,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _classCallCheck(this, _2channel);
 
         _this111 = _super22.call(this, prot, dm);
-        _this111._2channel = true;
         _this111.hasAltCaptcha = false;
+        _this111.JsonBuilder = null;
         return _this111;
       }
 

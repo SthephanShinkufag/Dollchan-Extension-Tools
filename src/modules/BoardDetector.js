@@ -1093,9 +1093,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	class _2channel extends Makaba {
 		constructor(prot, dm) {
 			super(prot, dm);
-			this._2channel = true;
 
 			this.hasAltCaptcha = false;
+			this.JsonBuilder = null;
 		}
 		get reportForm() {
 			return null;
