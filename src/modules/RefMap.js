@@ -102,6 +102,9 @@ class RefMap {
 				post.ref.hideRef();
 			}
 		}
+		if(!isHidden && Cfg.removeHidd) {
+			$toggle(this._el, true);
+		}
 	}
 	getElByNum(num) {
 		return $q(`a[href$="${ num }"]`, this._el);

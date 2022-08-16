@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'da0892b';
+const commit = 'f33650b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -13498,6 +13498,9 @@ class RefMap {
 				post.ref.hideRef();
 			}
 		}
+		if(!isHidden && Cfg.removeHidd) {
+			$toggle(this._el, true);
+		}
 	}
 	getElByNum(num) {
 		return $q(`a[href$="${ num }"]`, this._el);
@@ -16326,6 +16329,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return `.js-post-findimg, .js-post-saveimg, .media-expand-button, .media-thumbnail, .newpost,
 					.post__btn:not(.icon_type_active), .post__number, .post__refmap, .postform-hr,
 					.thread-nav > :not(.search) { display: none !important; }
+				.de-refmap { margin: 0 4px 4px; }
 				#down-nav-arrow, #up-nav-arrow { z-index: 0; }
 				.postform__raw_flex { flex-direction: column; align-items: flex-start; }
 				.de-pview > .post__details { margin-left: 4px; }
