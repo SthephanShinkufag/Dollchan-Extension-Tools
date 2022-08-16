@@ -354,6 +354,12 @@ class BaseBoard {
 	insertYtPlayer(msg, playerHtml) { // Dobrochan
 		return $bBegin(msg, playerHtml);
 	}
+	insertFormButtons(postForm, el) {
+		(Cfg.txtBtnsLoc ? $id('de-resizer-text') || postForm.txta : postForm.subm).after(el);
+	}
+	removeFormButtons(el) {
+		$del(el);
+	}
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
