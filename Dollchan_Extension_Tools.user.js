@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'd3c4141';
+  var commit = '05f2c1d';
 
   var defaultCfg = {
     disabled: 0,
@@ -28755,7 +28755,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "removeFormButtons",
         value: function removeFormButtons(el) {
-          $del(el.parentNode);
+          $del(el === null || el === void 0 ? void 0 : el.parentNode);
         }
       }]);
 

@@ -1046,7 +1046,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			posEl.nextSibling.appendChild(el);
 		}
 		removeFormButtons(el) {
-			$del(el.parentNode);
+			$del(el?.parentNode);
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
