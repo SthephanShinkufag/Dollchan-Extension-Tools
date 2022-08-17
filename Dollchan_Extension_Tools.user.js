@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '05f2c1d';
+  var commit = '3d4bbd4';
 
   var defaultCfg = {
     disabled: 0,
@@ -8902,10 +8902,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return _getStoredObj.apply(this, arguments);
   }
 
-  function saveCfgObj(dm, obj) {
+  function saveCfgObj(dm, fn) {
     getStoredObj('DESU_Config').then(function (val) {
-      if (obj) {
-        val[dm] = obj;
+      var res = fn(val[dm]);
+
+      if (res) {
+        val[dm] = res;
       } else {
         delete val[dm];
       }
@@ -8918,7 +8920,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   function saveCfg(id, val) {
     if (Cfg[id] !== val) {
       Cfg[id] = val;
-      saveCfgObj(aib.dm, Cfg);
+      saveCfgObj(aib.dm, function (cfg) {
+        cfg[id] = val;
+        return cfg;
+      });
     }
   } 
 
@@ -9093,10 +9098,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     for (var post = firstPost; post; post = post.next) {
       var _post = post,
-          num = _post.num; 
+          _num = _post.num; 
 
-      if (post.isOp && num in favBrd) {
-        var entry = favBrd[num];
+      if (post.isOp && _num in favBrd) {
+        var entry = favBrd[_num];
         var _post2 = post,
             thr = _post2.thr;
         post.toggleFavBtn(true);
@@ -9124,15 +9129,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         updateFav = [aib.host, aib.b, aib.t, [thr.pcount, thr.last.num], 'update'];
       }
 
-      if (HiddenPosts.has(num)) {
-        HiddenPosts.hideHidden(post, num);
+      if (HiddenPosts.has(_num)) {
+        HiddenPosts.hideHidden(post, _num);
         continue;
       }
 
       var hideData = void 0;
 
       if (post.isOp) {
-        if (HiddenThreads.has(num)) {
+        if (HiddenThreads.has(_num)) {
           hideData = [true, null];
         } else if (spellsHide) {
           var _sVis;
@@ -9243,6 +9248,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.__cachedTime = null;
       this._cachedStorage = null;
       this._cacheTO = null;
+      this._onReadNew = null;
+      this._onAfterSave = null;
     }
 
     _createClass(PostsStorage, [{
@@ -9274,7 +9281,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function removeStorage(num) {
         var board = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : aib.b;
 
-        var storage = this._readStorage();
+        var storage = this._readStorage(true);
 
         var bStorage = storage[board];
 
@@ -9293,27 +9300,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function set(num, thrNum) {
         var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
-        var storage = this._readStorage();
+        var storage = this._readStorage(true);
 
+        this._removeOldItems(storage);
+
+        (storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
+
+        this._saveStorage();
+      }
+    }, {
+      key: "_removeOldItems",
+      value: function _removeOldItems(storage) {
         if (storage && storage.$count > 5e3) {
           var minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 
           for (var board in storage) {
             if ($hasProp(storage, board)) {
-              var _data3 = storage[board];
+              var data = storage[board];
 
-              for (var key in _data3) {
-                if ($hasProp(_data3, key) && _data3[key][0] < minDate) {
-                  delete _data3[key];
+              for (var key in data) {
+                if ($hasProp(data, key) && data[key][0] < minDate) {
+                  delete data[key];
                 }
               }
             }
           }
         }
-
-        (storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
-
-        this._saveStorage();
       }
     }, {
       key: "_cachedTime",
@@ -9323,19 +9335,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_readStorage",
       value: function _readStorage() {
-        if (this._cachedStorage) {
+        var ignoreCache = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+        if (!ignoreCache && this._cachedStorage) {
           return this._cachedStorage;
         }
 
         var data = locStorage[this.storageName];
+        var rv = {};
 
         if (data) {
           try {
-            return this._cachedStorage = JSON.parse(data);
+            rv = this._cachedStorage = JSON.parse(data);
           } catch (err) {}
         }
 
-        return this._cachedStorage = {};
+        this._cachedStorage = rv;
+
+        if (this._onReadNew) {
+          this._onReadNew(rv);
+        }
+
+        return rv;
       }
     }, {
       key: "_saveStorage",
@@ -9349,15 +9370,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
 
             _this6.purge();
+
+            if (_this6._onAfterSave) {
+              _this6._onAfterSave();
+            }
           }, 0);
-        }
-      }
-    }], [{
-      key: "_migrateOld",
-      value: function _migrateOld(newName, oldName) {
-        if ($hasProp(locStorage, oldName)) {
-          locStorage[newName] = locStorage[oldName];
-          locStorage.removeItem(oldName);
         }
       }
     }]);
@@ -9390,14 +9407,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         } else {
           post.setUserVisib(!!uHideData, false);
         }
-      }
-    }, {
-      key: "_readStorage",
-      value: function _readStorage() {
-        PostsStorage._migrateOld(this.storageName, 'de-threads-new'); 
-
-
-        return _get(_getPrototypeOf(HiddenPostsClass.prototype), "_readStorage", this).call(this);
       }
     }]);
 
@@ -9444,14 +9453,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         locStorage[this.storageName] = JSON.stringify(data);
         this.purge();
       }
-    }, {
-      key: "_readStorage",
-      value: function _readStorage() {
-        PostsStorage._migrateOld(this.storageName, ''); 
-
-
-        return _get(_getPrototypeOf(HiddenThreadsClass.prototype), "_readStorage", this).call(this);
-      }
     }]);
 
     return HiddenThreadsClass;
@@ -9469,6 +9470,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _this9 = _super3.call(this);
       _this9.storageName = 'de-myposts';
       _this9._cachedData = null;
+
+      _this9._onReadNew = function (newStorage) {
+        _this9._cachedData = newStorage[aib.b] ? new Set(Object.keys(newStorage[aib.b]).map(function (val) {
+          return +val;
+        })) : new Set();
+      };
+
+      _this9._onAfterSave = function () {
+        return sendStorageEvent('__de-mypost', 1);
+      };
+
       return _this9;
     }
 
@@ -9476,6 +9488,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "has",
       value: function has(num) {
         return this._cachedData.has(num);
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.purge();
+
+        for (var _iterator2 = _createForOfIteratorHelperLoose(this._cachedData), _step2; !(_step2 = _iterator2()).done;) {
+          var _pByNum$_num;
+
+          var _num2 = _step2.value;
+          (_pByNum$_num = pByNum[_num2]) === null || _pByNum$_num === void 0 ? void 0 : _pByNum$_num.changeMyMark(true);
+        }
       }
     }, {
       key: "purge",
@@ -9497,24 +9521,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         _get(_getPrototypeOf(MyPostsClass.prototype), "set", this).call(this, num, thrNum);
 
         this._cachedData.add(+num);
-
-        sendStorageEvent('__de-mypost', 1);
-      }
-    }, {
-      key: "_readStorage",
-      value: function _readStorage() {
-        if (this._cachedData && this._cachedStorage) {
-          return this._cachedStorage;
-        }
-
-        PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
-
-        var rv = _get(_getPrototypeOf(MyPostsClass.prototype), "_readStorage", this).call(this);
-
-        this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(function (val) {
-          return +val;
-        })) : new Set();
-        return rv;
       }
     }]);
 
@@ -9549,7 +9555,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
         case '__de-mypost':
-          MyPosts.purge();
+          MyPosts.update();
           return;
 
         case '__de-webmvolume':
@@ -9634,7 +9640,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           })();
 
       }
-    });
+    }, false);
   }
 
 
@@ -9737,8 +9743,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               isPreImg = !isPreImg;
 
               if (!e.ctrlKey) {
-                for (var _iterator2 = _createForOfIteratorHelperLoose(DelForm), _step2; !(_step2 = _iterator2()).done;) {
-                  var _el2 = _step2.value.el;
+                for (var _iterator3 = _createForOfIteratorHelperLoose(DelForm), _step3; !(_step3 = _iterator3()).done;) {
+                  var _el2 = _step3.value.el;
                   ContentLoader.preloadImages(_el2);
                 }
               }
@@ -10644,9 +10650,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var el = els[i];
         var host = el.getAttribute('de-host');
         var board = el.getAttribute('de-board');
-        var num = +el.getAttribute('de-num');
-        removeFavEntry(favObj, host, board, num);
-        toggleThrFavBtn(host, board, num, false);
+
+        var _num3 = +el.getAttribute('de-num');
+
+        removeFavEntry(favObj, host, board, _num3);
+        toggleThrFavBtn(host, board, _num3, false);
       }
 
       saveRenewFavorites(favObj);
@@ -10794,7 +10802,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
     }), 
     $button(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee2() {
-      var favObj, isUpdate, last404, myposts, els, _i2, _len2, el, _host, _board, num, _entry, _ref4, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len3, tc;
+      var favObj, isUpdate, last404, myposts, els, _i2, _len2, el, _host, _board, _num4, _entry, _ref4, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len3, tc;
 
       return _regeneratorRuntime().wrap(function _callee2$(_context3) {
         while (1) {
@@ -10829,8 +10837,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               el = els[_i2];
               _host = el.getAttribute('de-host');
               _board = el.getAttribute('de-board');
-              num = el.getAttribute('de-num');
-              _entry = favObj[_host][_board][num]; 
+              _num4 = el.getAttribute('de-num');
+              _entry = favObj[_host][_board][_num4]; 
 
               if (!(_host !== aib.host || _entry.err === 'Closed' || _entry.err === 'Archived')) {
                 _context3.next = 18;
@@ -10854,7 +10862,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               _context3.next = 27;
-              return ajaxLoad(aib.getThrUrl(_board, num));
+              return ajaxLoad(aib.getThrUrl(_board, _num4));
 
             case 27:
               form = _context3.sent;
@@ -10863,7 +10871,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 30:
               _context3.next = 32;
-              return ajaxLoad(aib.getThrUrl(_board, num), true, false, true);
+              return ajaxLoad(aib.getThrUrl(_board, _num4), true, false, true);
 
             case 32:
               _yield$ajaxLoad = _context3.sent;
@@ -10890,7 +10898,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 break;
               }
 
-              Thread.removeSavedData(_board, num); 
+              Thread.removeSavedData(_board, _num4); 
 
               _context3.next = 49;
               break;
@@ -11237,7 +11245,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       div.append( 
       getEditButton('cfg', function (fn) {
         return fn(Cfg, true, function (data) {
-          saveCfgObj(aib.dm, data);
+          saveCfgObj(aib.dm, function (_) {
+            return data;
+          });
           deWindow.location.reload();
         });
       }), 
@@ -11247,7 +11257,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.load[lang], "\"> ").concat(Lng.loadGlobal[lang], "</div>")).firstElementChild.onclick = function () {
           return getStoredObj('DESU_Config').then(function (data) {
             if (data && 'global' in data && !$isEmpty(data.global)) {
-              saveCfgObj(aib.dm, data.global);
+              saveCfgObj(aib.dm, function (_) {
+                return data.global;
+              });
               deWindow.location.reload();
             } else {
               $popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -11268,7 +11280,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
 
             data.global = obj;
-            saveCfgObj('global', data.global);
+            saveCfgObj('global', function (_) {
+              return data.global;
+            });
             toggleWindow('cfg', true);
           });
         };
@@ -11579,8 +11593,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 'imgNames':
             if (Cfg.imgNames) {
-              for (var _iterator3 = _createForOfIteratorHelperLoose(DelForm), _step3; !(_step3 = _iterator3()).done;) {
-                var _el3 = _step3.value.el;
+              for (var _iterator4 = _createForOfIteratorHelperLoose(DelForm), _step4; !(_step4 = _iterator4()).done;) {
+                var _el3 = _step4.value.el;
                 processImgInfoLinks(_el3, 0, Cfg.imgNames);
               }
             } else {
@@ -11725,8 +11739,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 'imgSrcBtns':
             if (Cfg.imgSrcBtns) {
-              for (var _iterator4 = _createForOfIteratorHelperLoose(DelForm), _step4; !(_step4 = _iterator4()).done;) {
-                var _el4 = _step4.value.el;
+              for (var _iterator5 = _createForOfIteratorHelperLoose(DelForm), _step5; !(_step5 = _iterator5()).done;) {
+                var _el4 = _step5.value.el;
                 processImgInfoLinks(_el4, 1, 0);
                 $Q('.de-img-embed').forEach(function (el) {
                   return addImgButtons(el.parentNode.nextSibling.nextSibling);
@@ -13260,11 +13274,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this._thrPool = new TasksPool(4, function (num, data) {
         return _this22.loadImgData(data[0]).then(function (imgData) {
-          var _data4 = _slicedToArray(data, 4),
-              url = _data4[0],
-              fName = _data4[1],
-              el = _data4[2],
-              parentLink = _data4[3];
+          var _data3 = _slicedToArray(data, 4),
+              url = _data3[0],
+              fName = _data3[1],
+              el = _data3[2],
+              parentLink = _data3[3];
 
           var safeName = delSymbols(fName, '_');
           progress.value = counter.innerHTML = current++;
@@ -13466,13 +13480,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
         preloadPool = new TasksPool(mReqs, function (num, data) {
           return _this23.loadImgData(data[0]).then(function (imageData) {
-            var _data5 = _slicedToArray(data, 6),
-                url = _data5[0],
-                parentLink = _data5[1],
-                iType = _data5[2],
-                isRepToOrig = _data5[3],
-                el = _data5[4],
-                isVideo = _data5[5];
+            var _data4 = _slicedToArray(data, 6),
+                url = _data4[0],
+                parentLink = _data4[1],
+                iType = _data4[2],
+                isRepToOrig = _data4[3],
+                el = _data4[4],
+                isVideo = _data4[5];
 
             if (imageData) {
               var fName = decodeURIComponent(getFileName(url));
@@ -14052,12 +14066,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function setLinkData(link, data) {
         var isCloned = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-        var _data6 = _slicedToArray(data, 5),
-            title = _data6[0],
-            author = _data6[1],
-            views = _data6[2],
-            publ = _data6[3],
-            duration = _data6[4];
+        var _data5 = _slicedToArray(data, 5),
+            title = _data5[0],
+            author = _data5[1],
+            views = _data5[2],
+            publ = _data5[3],
+            duration = _data5[4];
 
         if (Panel.isVidEnabled && !isCloned) {
           var clonedLink = $q(".de-entry > .de-video-link[href=\"".concat(link.href, "\"]:not(title)"));
@@ -14855,7 +14869,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this28 = this;
 
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee9() {
-        var _iterator5, _step5, form, i, len, first;
+        var _iterator6, _step6, form, i, len, first;
 
         return _regeneratorRuntime().wrap(function _callee9$(_context11) {
           while (1) {
@@ -14881,15 +14895,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 DelForm.tNums = new Set();
-                _iterator5 = _createForOfIteratorHelperLoose(DelForm);
+                _iterator6 = _createForOfIteratorHelperLoose(DelForm);
 
               case 11:
-                if ((_step5 = _iterator5()).done) {
+                if ((_step6 = _iterator6()).done) {
                   _context11.next = 20;
                   break;
                 }
 
-                form = _step5.value;
+                form = _step6.value;
                 $Q('a[href^="blob:"]', form.el).forEach(function (el) {
                   return URL.revokeObjectURL(el.href);
                 });
@@ -15063,11 +15077,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return '';
       }
 
-      var _data7 = data,
-          _data8 = _slicedToArray(_data7, 4),
-          s = _data8[1],
-          reps = _data8[2],
-          oreps = _data8[3];
+      var _data6 = data,
+          _data7 = _slicedToArray(_data6, 4),
+          s = _data7[1],
+          reps = _data7[2],
+          oreps = _data7[3];
 
       var str = s ? this._decompileSpells(s, '')[0].join('\n') : '';
 
@@ -15077,15 +15091,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         if (reps) {
-          for (var _iterator6 = _createForOfIteratorHelperLoose(reps), _step6; !(_step6 = _iterator6()).done;) {
-            var rep = _step6.value;
+          for (var _iterator7 = _createForOfIteratorHelperLoose(reps), _step7; !(_step7 = _iterator7()).done;) {
+            var rep = _step7.value;
             str += this._decompileRep(rep, false) + '\n';
           }
         }
 
         if (oreps) {
-          for (var _iterator7 = _createForOfIteratorHelperLoose(oreps), _step7; !(_step7 = _iterator7()).done;) {
-            var orep = _step7.value;
+          for (var _iterator8 = _createForOfIteratorHelperLoose(oreps), _step8; !(_step8 = _iterator8()).done;) {
+            var orep = _step8.value;
             str += this._decompileRep(orep, true) + '\n';
           }
         }
@@ -15337,8 +15351,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       saveCfg('hideBySpell', 0);
     },
     outReplace: function outReplace(txt) {
-      for (var _iterator8 = _createForOfIteratorHelperLoose(this.outreps), _step8; !(_step8 = _iterator8()).done;) {
-        var orep = _step8.value;
+      for (var _iterator9 = _createForOfIteratorHelperLoose(this.outreps), _step9; !(_step9 = _iterator9()).done;) {
+        var orep = _step9.value;
         txt = txt.replace(orep[0], orep[1]);
       }
 
@@ -15361,8 +15375,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return null;
     },
     replace: function replace(txt) {
-      for (var _iterator9 = _createForOfIteratorHelperLoose(this.reps), _step9; !(_step9 = _iterator9()).done;) {
-        var rep = _step9.value;
+      for (var _iterator10 = _createForOfIteratorHelperLoose(this.reps), _step10; !(_step10 = _iterator10()).done;) {
+        var rep = _step10.value;
         txt = txt.replace(rep[0], rep[1]);
       }
 
@@ -15505,8 +15519,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     _initHiders: function _initHiders(data) {
       if (data) {
-        for (var _iterator10 = _createForOfIteratorHelperLoose(data), _step10; !(_step10 = _iterator10()).done;) {
-          var item = _step10.value;
+        for (var _iterator11 = _createForOfIteratorHelperLoose(data), _step11; !(_step11 = _iterator11()).done;) {
+          var item = _step11.value;
           var val = item[1];
 
           if (val) {
@@ -15531,8 +15545,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     _initReps: function _initReps(data) {
       if (data) {
-        for (var _iterator11 = _createForOfIteratorHelperLoose(data), _step11; !(_step11 = _iterator11()).done;) {
-          var item = _step11.value;
+        for (var _iterator12 = _createForOfIteratorHelperLoose(data), _step12; !(_step12 = _iterator12()).done;) {
+          var item = _step12.value;
           item[0] = strToRegExp(item[0], false);
         }
       }
@@ -15549,12 +15563,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _optimizeReps: function _optimizeReps(data) {
       var rv = [];
 
-      for (var _iterator12 = _createForOfIteratorHelperLoose(data), _step12; !(_step12 = _iterator12()).done;) {
-        var _step12$value = _slicedToArray(_step12.value, 4),
-            r0 = _step12$value[0],
-            r1 = _step12$value[1],
-            r2 = _step12$value[2],
-            r3 = _step12$value[3];
+      for (var _iterator13 = _createForOfIteratorHelperLoose(data), _step13; !(_step13 = _iterator13()).done;) {
+        var _step13$value = _slicedToArray(_step13.value, 4),
+            r0 = _step13$value[0],
+            r1 = _step13$value[1],
+            r2 = _step13$value[2],
+            r3 = _step13$value[3];
 
         if (!r0 || r0 === aib.b && (r1 === -1 ? !aib.t : !r1 || +r1 === aib.t)) {
           rv.push([r2, r3]);
@@ -16532,14 +16546,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function _getMsg() {
         var rv = [];
 
-        for (var _iterator13 = _createForOfIteratorHelperLoose(this._triggeredSpellsStack), _step13; !(_step13 = _iterator13()).done;) {
-          var spellEls = _step13.value;
+        for (var _iterator14 = _createForOfIteratorHelperLoose(this._triggeredSpellsStack), _step14; !(_step14 = _iterator14()).done;) {
+          var spellEls = _step14.value;
 
-          for (var _iterator14 = _createForOfIteratorHelperLoose(spellEls), _step14; !(_step14 = _iterator14()).done;) {
-            var _step14$value = _slicedToArray(_step14.value, 3),
-                isNeg = _step14$value[0],
-                spell = _step14$value[1],
-                wipeMsg = _step14$value[2];
+          for (var _iterator15 = _createForOfIteratorHelperLoose(spellEls), _step15; !(_step15 = _iterator15()).done;) {
+            var _step15$value = _slicedToArray(_step15.value, 3),
+                isNeg = _step15$value[0],
+                spell = _step15$value[1],
+                wipeMsg = _step15$value[2];
 
             rv.push(Spells.decompileSpell(spell[0] & 0xFF, isNeg, spell[1], spell[2], wipeMsg));
           }
@@ -16623,21 +16637,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "_ihash",
       value: function () {
         var _ihash2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee11(val) {
-          var _iterator15, _step15, image;
+          var _iterator16, _step16, image;
 
           return _regeneratorRuntime().wrap(function _callee11$(_context13) {
             while (1) {
               switch (_context13.prev = _context13.next) {
                 case 0:
-                  _iterator15 = _createForOfIteratorHelperLoose(this._post.images);
+                  _iterator16 = _createForOfIteratorHelperLoose(this._post.images);
 
                 case 1:
-                  if ((_step15 = _iterator15()).done) {
+                  if ((_step16 = _iterator16()).done) {
                     _context13.next = 14;
                     break;
                   }
 
-                  image = _step15.value;
+                  image = _step16.value;
                   _context13.t0 = image instanceof AttachedImage;
 
                   if (!_context13.t0) {
@@ -16696,8 +16710,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return images.hasAttachments;
         }
 
-        for (var _iterator16 = _createForOfIteratorHelperLoose(images), _step16; !(_step16 = _iterator16()).done;) {
-          var image = _step16.value;
+        for (var _iterator17 = _createForOfIteratorHelperLoose(images), _step17; !(_step17 = _iterator17()).done;) {
+          var image = _step17.value;
 
           if (!(image instanceof AttachedImage)) {
             continue;
@@ -16761,8 +16775,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_imgn",
       value: function _imgn(val) {
-        for (var _iterator17 = _createForOfIteratorHelperLoose(this._post.images), _step17; !(_step17 = _iterator17()).done;) {
-          var image = _step17.value;
+        for (var _iterator18 = _createForOfIteratorHelperLoose(this._post.images), _step18; !(_step18 = _iterator18()).done;) {
+          var image = _step18.value;
 
           if (image instanceof AttachedImage && val.test(image.name)) {
             return true;
@@ -16834,11 +16848,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return false;
         }
 
-        for (var _iterator18 = _createForOfIteratorHelperLoose(videos.vData), _step18; !(_step18 = _iterator18()).done;) {
-          var siteData = _step18.value;
+        for (var _iterator19 = _createForOfIteratorHelperLoose(videos.vData), _step19; !(_step19 = _iterator19()).done;) {
+          var siteData = _step19.value;
 
-          for (var _iterator19 = _createForOfIteratorHelperLoose(siteData), _step19; !(_step19 = _iterator19()).done;) {
-            var data = _step19.value;
+          for (var _iterator20 = _createForOfIteratorHelperLoose(siteData), _step20; !(_step20 = _iterator20()).done;) {
+            var data = _step20.value;
 
             if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
               return true;
@@ -17609,22 +17623,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var _ref20 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee12(e) {
             var _e$clipboardData;
 
-            var files, _iterator20, _step20, file, inputs, i, len, input;
+            var files, _iterator21, _step21, file, inputs, i, len, input;
 
             return _regeneratorRuntime().wrap(function _callee12$(_context14) {
               while (1) {
                 switch (_context14.prev = _context14.next) {
                   case 0:
                     files = e === null || e === void 0 ? void 0 : (_e$clipboardData = e.clipboardData) === null || _e$clipboardData === void 0 ? void 0 : _e$clipboardData.files;
-                    _iterator20 = _createForOfIteratorHelperLoose(files);
+                    _iterator21 = _createForOfIteratorHelperLoose(files);
 
                   case 2:
-                    if ((_step20 = _iterator20()).done) {
+                    if ((_step21 = _iterator21()).done) {
                       _context14.next = 17;
                       break;
                     }
 
-                    file = _step20.value;
+                    file = _step21.value;
                     inputs = _this39.files._inputs;
                     i = 0, len = inputs.length;
 
@@ -17864,8 +17878,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         var value = pr.passw.value = Cfg.passwValue;
 
-        for (var _iterator21 = _createForOfIteratorHelperLoose(DelForm), _step21; !(_step21 = _iterator21()).done;) {
-          var passEl = _step21.value.passEl;
+        for (var _iterator22 = _createForOfIteratorHelperLoose(DelForm), _step22; !(_step22 = _iterator22()).done;) {
+          var passEl = _step22.value.passEl;
 
           if (passEl) {
             passEl.value = value;
@@ -18009,8 +18023,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       success: true,
       num: postNum
     });
-    Cfg.stats[tNum ? 'reply' : 'op']++;
-    saveCfgObj(aib.dm, Cfg);
+    var statsParam = tNum ? 'reply' : 'op';
+    Cfg.stats[statsParam]++;
+    saveCfgObj(aib.dm, function (lCfg) {
+      lCfg.stats[statsParam]++;
+      return lCfg;
+    });
 
     if (!tNum) {
       if (postNum) {
@@ -18403,9 +18421,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var needProgress,
           data,
           hasFiles,
-          _iterator37,
-          _step37,
-          _step37$value,
+          _iterator38,
+          _step38,
+          _step38$value,
           name,
           value,
           type,
@@ -18428,15 +18446,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               needProgress = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
               data = new FormData();
               hasFiles = false;
-              _iterator37 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
+              _iterator38 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
-              if ((_step37 = _iterator37()).done) {
+              if ((_step38 = _iterator38()).done) {
                 _context35.next = 30;
                 break;
               }
 
-              _step37$value = _step37.value, name = _step37$value.name, value = _step37$value.value, type = _step37$value.type, el = _step37$value.el;
+              _step38$value = _step38.value, name = _step38$value.name, value = _step38$value.value, type = _step38$value.type, el = _step38$value.el;
               val = value;
 
               if (!(name === 'de-file-txt')) {
@@ -18753,8 +18771,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function changeMode() {
         var isThumbMode = Cfg.fileInputs === 2;
 
-        for (var _iterator22 = _createForOfIteratorHelperLoose(this._inputs), _step22; !(_step22 = _iterator22()).done;) {
-          var inp = _step22.value;
+        for (var _iterator23 = _createForOfIteratorHelperLoose(this._inputs), _step23; !(_step23 = _iterator23()).done;) {
+          var inp = _step23.value;
           inp.changeMode(isThumbMode);
         }
 
@@ -18763,8 +18781,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "clearInputs",
       value: function clearInputs() {
-        for (var _iterator23 = _createForOfIteratorHelperLoose(this._inputs), _step23; !(_step23 = _iterator23()).done;) {
-          var inp = _step23.value;
+        for (var _iterator24 = _createForOfIteratorHelperLoose(this._inputs), _step24; !(_step24 = _iterator24()).done;) {
+          var inp = _step24.value;
           inp.clearInp();
         }
 
@@ -20042,8 +20060,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             if (c.contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div' || (temp = el.parentNode) && ((c = temp.classList).contains('post__rate') || c[0] === 'like-div' || c[0] === 'dislike-div') || (temp = temp.parentNode) && ((c = temp.className) === 'like-div' || c === 'dislike-div')) {
               var task = temp.id.split('-')[0];
-              var num = +temp.id.match(/\d+/);
-              $ajax("/api/".concat(task, "?board=").concat(aib.b, "&num=").concat(num)).then(function (xhr) {
+
+              var _num5 = +temp.id.match(/\d+/);
+
+              $ajax("/api/".concat(task, "?board=").concat(aib.b, "&num=").concat(_num5)).then(function (xhr) {
                 var obj = JSON.parse(xhr.responseText);
 
                 if (obj.result !== 1) {
@@ -20052,7 +20072,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 temp.classList.add("".concat(task, "-div-checked"), "post__rate_".concat(task, "d"));
-                var countEl = $q(".".concat(task, "-count, #").concat(task, "-count").concat(num), temp);
+                var countEl = $q(".".concat(task, "-count, #").concat(task, "-count").concat(_num5), temp);
                 countEl.textContent = +countEl.textContent + 1;
               }, function () {
                 return $popup('err-2chlike', Lng.noConnect[lang]);
@@ -20296,16 +20316,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         closePopup('load-fullmsg');
       }
     }, {
+      key: "changeMyMark",
+      value: function changeMyMark(val) {
+        var _this55 = this;
+
+        this.el.classList.toggle('de-mypost', val);
+        $Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + num, "\"]")).forEach(function (el) {
+          var post = aib.getPostOfEl(el);
+
+          if (post.el !== _this55.el) {
+            el.classList.toggle('de-ref-you', val);
+            post.el.classList.toggle('de-mypost-reply', val);
+          }
+        });
+      }
+    }, {
       key: "_addMenu",
       value: function _addMenu(el, isOutEvent, html) {
-        var _this55 = this;
+        var _this56 = this;
 
         if (!this.menu || this.menu.parentEl !== el) {
           if (isOutEvent) {
             clearTimeout(this._menuDelay);
           } else {
             this._menuDelay = setTimeout(function () {
-              return _this55._showMenu(el, html);
+              return _this56._showMenu(el, html);
             }, Cfg.linksOver);
           }
         }
@@ -20326,8 +20361,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_clickMenu",
       value: function _clickMenu(el, e) {
-        var _this56 = this;
-
         var isHide = !this.isHidden;
         var num = this.num;
 
@@ -20461,15 +20494,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 MyPosts.removeStorage(num);
               }
 
-              this.el.classList.toggle('de-mypost', isAdd);
-              $Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + num, "\"]")).forEach(function (el) {
-                var post = aib.getPostOfEl(el);
-
-                if (post.el !== _this56.el) {
-                  el.classList.toggle('de-ref-you', isAdd);
-                  post.el.classList.toggle('de-mypost-reply', isAdd);
-                }
-              });
+              this.changeMyMark(isAdd);
               return;
             }
 
@@ -20826,21 +20851,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         if (isSave) {
-          var num = this.num;
-          HiddenPosts.set(num, this.thr.num, isHide);
+          var _num6 = this.num;
+          HiddenPosts.set(_num6, this.thr.num, isHide);
 
           if (this.isOp) {
             if (isHide) {
-              HiddenThreads.set(num, num, this.title);
+              HiddenThreads.set(_num6, _num6, this.title);
             } else {
-              HiddenThreads.removeStorage(num);
+              HiddenThreads.removeStorage(_num6);
             }
           }
 
           sendStorageEvent('__de-post', {
             hide: isHide,
             brd: aib.b,
-            num: num,
+            num: _num6,
             thrNum: this.thr.num,
             title: this.isOp ? this.title : ''
           });
@@ -20919,8 +20944,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var isExpand = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : !this.images.expanded;
         var isExpandVideos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-        for (var _iterator24 = _createForOfIteratorHelperLoose(this.images), _step24; !(_step24 = _iterator24()).done;) {
-          var image = _step24.value;
+        for (var _iterator25 = _createForOfIteratorHelperLoose(this.images), _step25; !(_step25 = _iterator25()).done;) {
+          var image = _step25.value;
 
           if ((image.isImage || isExpandVideos && image.isVideo) && image.expanded ^ isExpand) {
             if (isExpand) {
@@ -23578,8 +23603,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return;
     }
 
-    for (var _iterator25 = _createForOfIteratorHelperLoose(post.images), _step25; !(_step25 = _iterator25()).done;) {
-      var image = _step25.value;
+    for (var _iterator26 = _createForOfIteratorHelperLoose(post.images), _step26; !(_step26 = _iterator26()).done;) {
+      var image = _step26.value;
       var link = image.nameLink;
 
       if (!link) {
@@ -24012,16 +24037,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         var filesHTML = '';
 
-        for (var _iterator26 = _createForOfIteratorHelperLoose(data.files), _step26; !(_step26 = _iterator26()).done;) {
-          var _step26$value = _step26.value,
-              file_id = _step26$value.file_id,
-              metadata = _step26$value.metadata,
-              rating = _step26$value.rating,
-              size = _step26$value.size,
-              src = _step26$value.src,
-              thumb = _step26$value.thumb,
-              thumb_height = _step26$value.thumb_height,
-              thumb_width = _step26$value.thumb_width;
+        for (var _iterator27 = _createForOfIteratorHelperLoose(data.files), _step27; !(_step27 = _iterator27()).done;) {
+          var _step27$value = _step27.value,
+              file_id = _step27$value.file_id,
+              metadata = _step27$value.metadata,
+              rating = _step27$value.rating,
+              size = _step27$value.size,
+              src = _step27$value.src,
+              thumb = _step27$value.thumb,
+              thumb_height = _step27$value.thumb_height,
+              thumb_width = _step27$value.thumb_width;
           var fileName = void 0,
               fullFileName = void 0;
           var th = thumb;
@@ -24143,8 +24168,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if ((_data$files = data.files) !== null && _data$files !== void 0 && _data$files.length) {
           filesHTML = "<div class=\"post__images post__images_type_".concat(data.files.length === 1 ? 'single' : 'multi', "\">");
 
-          for (var _iterator27 = _createForOfIteratorHelperLoose(data.files), _step27; !(_step27 = _iterator27()).done;) {
-            var file = _step27.value;
+          for (var _iterator28 = _createForOfIteratorHelperLoose(data.files), _step28; !(_step28 = _iterator28()).done;) {
+            var file = _step28.value;
             var imgId = num + '-' + file.md5;
             var _file$fullname = file.fullname,
                 fullname = _file$fullname === void 0 ? file.name : _file$fullname,
@@ -24173,7 +24198,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var rate = '';
 
         if (this._hasLikes) {
-          var likes = "<div id=\"like-div".concat(num, "\" class=\"post__rate post__rate_type_like\" title=\"\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F\">\n\t\t\t\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"post__rate-icon icon\">\n\t\t\t\t\t\t<use xlink:href=\"#icon__thunder\"></use></svg> <span id=\"like-count").concat(num, "\">");
+          var likes = "<div id=\"like-div".concat(num, "\" class=\"post__detailpart post__rate post__rate_type_like\" title=\"\u041C\u043D\u0435 \u044D\u0442\u043E \u043D\u0440\u0430\u0432\u0438\u0442\u0441\u044F\">\n\t\t\t\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"post__rate-icon icon\">\n\t\t\t\t\t\t<use xlink:href=\"#icon__thunder\"></use></svg> <span id=\"like-count").concat(num, "\">");
           var dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
           rate = "".concat(likes).concat(data.likes || 0, "</span></div>\n\t\t\t\t").concat(dislikes).concat(data.dislikes || 0, "</span></div>");
         }
@@ -24185,41 +24210,41 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return "<span class=\"post__detailpart\">".concat(el, "</span>");
         };
 
-        return "<div id=\"post-".concat(num, "\" class=\"post post_type_").concat(isOp ? 'oppost' : 'reply') + "".concat(filesHTML ? ' post_withimg' : '', "\" data-num=\"").concat(num, "\">\n\t\t\t<div id=\"post-details-").concat(num, "\" class=\"post__details\">\n\t\t\t\t<input class=\"turnmeoff\" type=\"checkbox\" name=\"delete\" value=\"").concat(num, "\">\n\t\t\t\t").concat(!data.subject ? '' : w("<span class=\"post__title\">" + "".concat(data.subject + (data.tags ? " /".concat(data.tags, "/") : ''), "</span>")), "\n\t\t\t\t").concat(w("\n\t\t\t\t\t".concat(emailEl, "\n\t\t\t\t\t").concat(data.icon ? "<span class=\"post__icon\">" + "".concat(data.icon, "</span>") : '', "\n\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t").concat(data.op === 1 ? "<span class=\"post__ophui\"># OP</span>&nbsp;" : '', "\n\t\t\t\t")), "\n\t\t\t\t").concat(w("<span class=\"post__time\">".concat(data.date, "</span>")), "\n\t\t\t\t").concat(w(reflink), "\n\t\t\t\t").concat(rate ? w(rate) : '', "\n\t\t\t</div>\n\t\t\t").concat(filesHTML, "\n\t\t\t").concat(this._getPostMsg(data), "\n\t\t</div>");
+        return "<div id=\"post-".concat(num, "\" class=\"post post_type_").concat(isOp ? 'oppost' : 'reply') + "".concat(filesHTML ? ' post_withimg' : '', "\" data-num=\"").concat(num, "\">\n\t\t\t<div id=\"post-details-").concat(num, "\" class=\"post__details\">\n\t\t\t\t<input class=\"turnmeoff\" type=\"checkbox\" name=\"delete\" value=\"").concat(num, "\">\n\t\t\t\t").concat(!data.subject ? '' : w("<span class=\"post__title\">" + "".concat(data.subject + (data.tags ? " /".concat(data.tags, "/") : ''), "</span>")), "\n\t\t\t\t").concat(w("\n\t\t\t\t\t".concat(emailEl, "\n\t\t\t\t\t").concat(data.icon ? "<span class=\"post__icon\">" + "".concat(data.icon, "</span>") : '', "\n\t\t\t\t\t").concat(tripEl, "\n\t\t\t\t\t").concat(data.op === 1 ? "<span class=\"post__ophui\"># OP</span>&nbsp;" : '', "\n\t\t\t\t")), "\n\t\t\t\t").concat(w("<span class=\"post__time\">".concat(data.date, "</span>")), "\n\t\t\t\t").concat(w(reflink), "\n\t\t\t\t").concat(rate, "\n\t\t\t</div>\n\t\t\t").concat(filesHTML, "\n\t\t\t").concat(this._getPostMsg(data), "\n\t\t</div>");
       }
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        var p, _iterator28, _step28, _step28$value, banned, num;
+        var p, _iterator29, _step29, _step29$value, banned, _num7;
 
         return _regeneratorRuntime().wrap(function bannedPostsData$(_context25) {
           while (1) {
             switch (_context25.prev = _context25.next) {
               case 0:
                 p = this._isNew ? 'post__' : '';
-                _iterator28 = _createForOfIteratorHelperLoose(this._posts);
+                _iterator29 = _createForOfIteratorHelperLoose(this._posts);
 
               case 2:
-                if ((_step28 = _iterator28()).done) {
+                if ((_step29 = _iterator29()).done) {
                   _context25.next = 15;
                   break;
                 }
 
-                _step28$value = _step28.value, banned = _step28$value.banned, num = _step28$value.num;
+                _step29$value = _step29.value, banned = _step29$value.banned, _num7 = _step29$value.num;
                 _context25.t0 = banned;
                 _context25.next = _context25.t0 === 1 ? 7 : _context25.t0 === 2 ? 10 : 13;
                 break;
 
               case 7:
                 _context25.next = 9;
-                return [1, num, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
+                return [1, _num7, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
 
               case 9:
                 return _context25.abrupt("break", 13);
 
               case 10:
                 _context25.next = 12;
-                return [2, num, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
+                return [2, _num7, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
 
               case 12:
                 return _context25.abrupt("break", 13);
@@ -24321,9 +24346,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._isHidden = true;
 
-        for (var _iterator29 = _createForOfIteratorHelperLoose(this._set), _step29; !(_step29 = _iterator29()).done;) {
-          var num = _step29.value;
-          var post = pByNum.get(num);
+        for (var _iterator30 = _createForOfIteratorHelperLoose(this._set), _step30; !(_step30 = _iterator30()).done;) {
+          var _num8 = _step30.value;
+          var post = pByNum.get(_num8);
 
           if (post && !post.isHidden) {
             if (isForced) {
@@ -24341,9 +24366,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function initPostRef(tUrl, strNums) {
         var html = '';
 
-        for (var _iterator30 = _createForOfIteratorHelperLoose(this._set), _step30; !(_step30 = _iterator30()).done;) {
-          var num = _step30.value;
-          html += this._getHTML(num, tUrl, strNums === null || strNums === void 0 ? void 0 : strNums.has(num));
+        for (var _iterator31 = _createForOfIteratorHelperLoose(this._set), _step31; !(_step31 = _iterator31()).done;) {
+          var _num9 = _step31.value;
+          html += this._getHTML(_num9, tUrl, strNums === null || strNums === void 0 ? void 0 : strNums.has(_num9));
         }
 
         this._createEl(html, false);
@@ -24403,9 +24428,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._isHidden = false;
 
-        for (var _iterator31 = _createForOfIteratorHelperLoose(this._set), _step31; !(_step31 = _iterator31()).done;) {
-          var num = _step31.value;
-          var post = pByNum.get(num);
+        for (var _iterator32 = _createForOfIteratorHelperLoose(this._set), _step32; !(_step32 = _iterator32()).done;) {
+          var _num10 = _step32.value;
+          var post = pByNum.get(_num10);
 
           if (post && post.isHidden && !post.spellHidden) {
             if (isForced) {
@@ -24458,15 +24483,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: function gen(posts) {
         var tNums = DelForm.tNums;
 
-        for (var _iterator32 = _createForOfIteratorHelperLoose(posts), _step32; !(_step32 = _iterator32()).done;) {
-          var _step32$value = _slicedToArray(_step32.value, 2),
-              pNum = _step32$value[0],
-              post = _step32$value[1];
+        for (var _iterator33 = _createForOfIteratorHelperLoose(posts), _step33; !(_step33 = _iterator33()).done;) {
+          var _step33$value = _slicedToArray(_step33.value, 2),
+              pNum = _step33$value[0],
+              post = _step33$value[1];
 
-          for (var _iterator33 = _createForOfIteratorHelperLoose(post.refLinks()), _step33; !(_step33 = _iterator33()).done;) {
-            var _step33$value = _slicedToArray(_step33.value, 2),
-                link = _step33$value[0],
-                lNum = _step33$value[1];
+          for (var _iterator34 = _createForOfIteratorHelperLoose(post.refLinks()), _step34; !(_step34 = _iterator34()).done;) {
+            var _step34$value = _slicedToArray(_step34.value, 2),
+                link = _step34$value[0],
+                lNum = _step34$value[1];
 
             if (MyPosts.has(lNum)) {
               link.classList.add('de-ref-you');
@@ -24949,11 +24974,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return;
         }
 
-        for (var _iterator34 = _createForOfIteratorHelperLoose(pBuilder.bannedPostsData()), _step34; !(_step34 = _iterator34()).done;) {
-          var _step34$value = _slicedToArray(_step34.value, 3),
-              banId = _step34$value[0],
-              bNum = _step34$value[1],
-              bEl = _step34$value[2];
+        for (var _iterator35 = _createForOfIteratorHelperLoose(pBuilder.bannedPostsData()), _step35; !(_step35 = _iterator35()).done;) {
+          var _step35$value = _slicedToArray(_step35.value, 3),
+              banId = _step35$value[0],
+              bNum = _step35$value[1],
+              bEl = _step35$value[2];
 
           var post = bNum ? pByNum.get(bNum) : this.op;
 
@@ -25215,17 +25240,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           for (; i < len && post;) {
             var _post6 = post,
-                num = _post6.num,
+                _num11 = _post6.num,
                 prev = _post6.prev;
             var iNum = pBuilder.getPNum(i);
 
-            if (num === iNum) {
+            if (_num11 === iNum) {
               i++;
               post = post.nextNotDeleted;
               continue;
             }
 
-            if (num <= iNum) {
+            if (_num11 <= iNum) {
               if (!firstChangedPost) {
                 firstChangedPost = post;
               }
@@ -25243,7 +25268,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             do {
               cnt++;
               i++;
-            } while (pBuilder.getPNum(i) < num);
+            } while (pBuilder.getPNum(i) < _num11);
 
             var res = this._importPosts(prev, pBuilder, i - cnt, i, maybeVParser, maybeSpells);
 
@@ -26225,11 +26250,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var threads = DelForm.getThreads(this.el);
 
       for (var i = 0, len = threads.length; i < len; ++i) {
-        var num = aib.getTNum(threads[i]);
+        var _num12 = aib.getTNum(threads[i]);
 
-        if (!DelForm.tNums.has(num)) {
-          DelForm.tNums.add(num);
-          thr = new Thread(threads[i], num, thr, this);
+        if (!DelForm.tNums.has(_num12)) {
+          DelForm.tNums.add(_num12);
+          thr = new Thread(threads[i], _num12, thr, this);
 
           if (this.firstThr === null) {
             this.firstThr = thr;
@@ -26248,7 +26273,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         el.remove();
-        console.log('Repeated thread: ' + num);
+        console.log('Repeated thread: ' + _num12);
       }
 
       if (this.firstThr === null) {
@@ -29982,8 +30007,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var files = [new File([new Blob([ContentLoader.getDataFromCanvas($q('.wPaint-canvas', oekakiEl))], mime)], 'oekaki.png', mime)].concat(_toConsumableArray(data.getAll('files').slice(0, -1)));
             data["delete"]('files');
 
-            for (var _iterator35 = _createForOfIteratorHelperLoose(files), _step35; !(_step35 = _iterator35()).done;) {
-              var file = _step35.value;
+            for (var _iterator36 = _createForOfIteratorHelperLoose(files), _step36; !(_step36 = _iterator36()).done;) {
+              var file = _step36.value;
               data.append('files', file);
             }
           }
@@ -30555,8 +30580,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (data) {
             rv = {};
 
-            for (var _iterator36 = _createForOfIteratorHelperLoose(data), _step36; !(_step36 = _iterator36()).done;) {
-              var aName = _step36.value;
+            for (var _iterator37 = _createForOfIteratorHelperLoose(data), _step37; !(_step37 = _iterator37()).done;) {
+              var aName = _step37.value;
               rv[aName] = DollchanAPI._register(aName.toLowerCase());
             }
           }
@@ -30608,7 +30633,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var currentVer = version.split('.');
       var src = "".concat(gitRaw).concat(nav.isESNext ? 'src/' : '', "Dollchan_Extension_Tools.").concat(nav.isESNext ? 'es6.' : '', "user.js");
-      saveCfgObj('lastUpd', Date.now());
+      saveCfgObj('lastUpd', function (_) {
+        return Date.now();
+      });
       var link = "<a style=\"color: blue; font-weight: bold;\" href=\"".concat(src, "\">");
       var chLogLink = "<a target=\"_blank\" href=\"".concat(gitWiki).concat(lang === 1 ? 'versions-en' : 'versions', "\">\r\n").concat(Lng.changeLog[lang], "<a>");
 
@@ -30640,7 +30667,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       if (!localData) {
         Cfg.stats.view++;
-        saveCfgObj(aib.dm, Cfg);
+        saveCfgObj(aib.dm, function (lCfg) {
+          lCfg.stats.view++;
+          return lCfg;
+        });
       }
     } else {
       thrNavPanel.initThrNav();

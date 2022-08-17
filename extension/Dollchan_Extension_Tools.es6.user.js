@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '05f2c1d';
+const commit = '3d4bbd4';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2482,10 +2482,11 @@ async function getStoredObj(id) {
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
-function saveCfgObj(dm, obj) {
+function saveCfgObj(dm, fn) {
 	getStoredObj('DESU_Config').then(val => {
-		if(obj) {
-			val[dm] = obj;
+		const res = fn(val[dm]);
+		if(res) {
+			val[dm] = res;
 		} else {
 			delete val[dm];
 		}
@@ -2497,7 +2498,10 @@ function saveCfgObj(dm, obj) {
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		saveCfgObj(aib.dm, Cfg);
+		saveCfgObj(aib.dm, cfg => {
+			cfg[id] = val;
+			return cfg;
+		});
 	}
 }
 
@@ -2736,6 +2740,8 @@ class PostsStorage {
 		this.__cachedTime = null;
 		this._cachedStorage = null;
 		this._cacheTO = null;
+		this._onReadNew = null;
+		this._onAfterSave = null;
 	}
 	get(num) {
 		const storage = this._readStorage()[aib.b];
@@ -2753,7 +2759,7 @@ class PostsStorage {
 		this._cacheTO = this.__cachedTime = this._cachedStorage = null;
 	}
 	removeStorage(num, board = aib.b) {
-		const storage = this._readStorage();
+		const storage = this._readStorage(true);
 		const bStorage = storage[board];
 		if(bStorage && $hasProp(bStorage, num)) {
 			delete bStorage[num];
@@ -2764,7 +2770,13 @@ class PostsStorage {
 		}
 	}
 	set(num, thrNum, data = true) {
-		const storage = this._readStorage();
+		const storage = this._readStorage(true);
+		this._removeOldItems(storage);
+		(storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
+		this._saveStorage();
+	}
+
+	_removeOldItems(storage) {
 		if(storage && storage.$count > 5e3) {
 			const minDate = Date.now() - 5 * 24 * 3600 * 1e3;
 			for(const board in storage) {
@@ -2778,30 +2790,26 @@ class PostsStorage {
 				}
 			}
 		}
-		(storage[aib.b] || (storage[aib.b] = {}))[num] = [this._cachedTime, thrNum, data];
-		this._saveStorage();
-	}
-
-	static _migrateOld(newName, oldName) {
-		if($hasProp(locStorage, oldName)) {
-			locStorage[newName] = locStorage[oldName];
-			locStorage.removeItem(oldName);
-		}
 	}
 	get _cachedTime() {
 		return this.__cachedTime || (this.__cachedTime = Date.now());
 	}
-	_readStorage() {
-		if(this._cachedStorage) {
+	_readStorage(ignoreCache = false) {
+		if(!ignoreCache && this._cachedStorage) {
 			return this._cachedStorage;
 		}
 		const data = locStorage[this.storageName];
+		let rv = {};
 		if(data) {
 			try {
-				return (this._cachedStorage = JSON.parse(data));
+				rv = (this._cachedStorage = JSON.parse(data));
 			} catch(err) {}
 		}
-		return (this._cachedStorage = {});
+		this._cachedStorage = rv;
+		if (this._onReadNew) {
+			this._onReadNew(rv);
+		}
+		return rv;
 	}
 	_saveStorage() {
 		if(this._cacheTO === null) {
@@ -2810,6 +2818,9 @@ class PostsStorage {
 					locStorage[this.storageName] = JSON.stringify(this._cachedStorage);
 				}
 				this.purge();
+				if(this._onAfterSave) {
+					this._onAfterSave();
+				}
 			}, 0);
 		}
 	}
@@ -2827,11 +2838,6 @@ const HiddenPosts = new class HiddenPostsClass extends PostsStorage {
 		} else {
 			post.setUserVisib(!!uHideData, false);
 		}
-	}
-
-	_readStorage() {
-		PostsStorage._migrateOld(this.storageName, 'de-threads-new'); // Old storage has wrong name
-		return super._readStorage();
 	}
 }();
 
@@ -2857,11 +2863,6 @@ const HiddenThreads = new class HiddenThreadsClass extends PostsStorage {
 		locStorage[this.storageName] = JSON.stringify(data);
 		this.purge();
 	}
-
-	_readStorage() {
-		PostsStorage._migrateOld(this.storageName, ''); // Old storage has wrong name
-		return super._readStorage();
-	}
 }();
 
 const MyPosts = new class MyPostsClass extends PostsStorage {
@@ -2869,9 +2870,19 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		super();
 		this.storageName = 'de-myposts';
 		this._cachedData = null;
+		this._onReadNew = newStorage => {
+			this._cachedData = newStorage[aib.b] ? new Set(Object.keys(newStorage[aib.b]).map(val => +val)) : new Set();
+		};
+		this._onAfterSave = () => sendStorageEvent('__de-mypost', 1);
 	}
 	has(num) {
 		return this._cachedData.has(num);
+	}
+	update() {
+		this.purge();
+		for (const num of this._cachedData) {
+			pByNum[num]?.changeMyMark(true);
+		}
 	}
 	purge() {
 		super.purge();
@@ -2884,17 +2895,6 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 	set(num, thrNum) {
 		super.set(num, thrNum);
 		this._cachedData.add(+num);
-		sendStorageEvent('__de-mypost', 1);
-	}
-
-	_readStorage() {
-		if(this._cachedData && this._cachedStorage) {
-			return this._cachedStorage;
-		}
-		PostsStorage._migrateOld(this.storageName, 'de-myposts-new');
-		const rv = super._readStorage();
-		this._cachedData = rv[aib.b] ? new Set(Object.keys(rv[aib.b]).map(val => +val)) : new Set();
-		return rv;
 	}
 }();
 
@@ -2920,7 +2920,7 @@ function initStorageEvent() {
 			updateFavWindow(...data);
 			return;
 		}
-		case '__de-mypost': MyPosts.purge(); return;
+		case '__de-mypost': MyPosts.update(); return;
 		case '__de-webmvolume':
 			val = +val || 0;
 			Cfg.webmVolume = val;
@@ -2984,7 +2984,7 @@ function initStorageEvent() {
 			$show(docBody);
 		})();
 		}
-	});
+	}, false);
 }
 
 /* ==[ Panel.js ]=============================================================================================
@@ -4238,7 +4238,7 @@ const CfgWindow = {
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, data);
+				saveCfgObj(aib.dm, _=> data);
 				deWindow.location.reload();
 			})),
 
@@ -4250,7 +4250,7 @@ const CfgWindow = {
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
 				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, data.global);
+						saveCfgObj(aib.dm, _ => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -4270,7 +4270,7 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', data.global);
+					saveCfgObj('global', _ => data.global);
 					toggleWindow('cfg', true);
 				});
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
@@ -9200,8 +9200,12 @@ function checkSubmit(data) {
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
-	Cfg.stats[tNum ? 'reply' : 'op']++;
-	saveCfgObj(aib.dm, Cfg);
+	const statsParam = tNum ? 'reply' : 'op';
+	Cfg.stats[statsParam]++;
+	saveCfgObj(aib.dm, lCfg => {
+		lCfg.stats[statsParam]++;
+		return lCfg;
+	});
 	if(!tNum) {
 		if(postNum) {
 			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
@@ -10641,6 +10645,16 @@ class AbstractPost {
 		}
 		closePopup('load-fullmsg');
 	}
+	changeMyMark(val) {
+		this.el.classList.toggle('de-mypost', val);
+		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
+			const post = aib.getPostOfEl(el);
+			if(post.el !== this.el) {
+				el.classList.toggle('de-ref-you', val);
+				post.el.classList.toggle('de-mypost-reply', val);
+			}
+		});
+	}
 
 	_addMenu(el, isOutEvent, html) {
 		if(!this.menu || this.menu.parentEl !== el) {
@@ -10743,14 +10757,7 @@ class AbstractPost {
 			} else {
 				MyPosts.removeStorage(num);
 			}
-			this.el.classList.toggle('de-mypost', isAdd);
-			$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
-				const post = aib.getPostOfEl(el);
-				if(post.el !== this.el) {
-					el.classList.toggle('de-ref-you', isAdd);
-					post.el.classList.toggle('de-mypost-reply', isAdd);
-				}
-			});
+			this.changeMyMark(isAdd);
 			return;
 		}
 		case 'post-reply': {
@@ -13328,7 +13335,7 @@ class MakabaPostsBuilder {
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
-			const likes = `<div id="like-div${ num }" class="post__rate post__rate_type_like" title="Мне это нравится">
+			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
 					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
 						<use xlink:href="#icon__thunder"></use></svg> <span id="like-count${ num }">`;
 			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
@@ -13355,7 +13362,7 @@ class MakabaPostsBuilder {
 				`) }
 				${ w(`<span class="post__time">${ data.date }</span>`) }
 				${ w(reflink) }
-				${ rate ? w(rate) : '' }
+				${ rate }
 			</div>
 			${ filesHTML }
 			${ this._getPostMsg(data) }
@@ -17829,7 +17836,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const currentVer = version.split('.');
 		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
 			nav.isESNext ? 'es6.' : '' }user.js`;
-		saveCfgObj('lastUpd', Date.now());
+		saveCfgObj('lastUpd', _ => Date.now());
 		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 		const chLogLink = `<a target="_blank" href="${ gitWiki }${
 			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
@@ -17860,7 +17867,10 @@ function initPage() {
 		}
 		if(!localData) {
 			Cfg.stats.view++;
-			saveCfgObj(aib.dm, Cfg);
+			saveCfgObj(aib.dm, lCfg => {
+				lCfg.stats.view++;
+				return lCfg;
+			});
 		}
 	} else {
 		thrNavPanel.initThrNav();

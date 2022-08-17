@@ -67,8 +67,12 @@ function checkSubmit(data) {
 	}
 	pr.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
-	Cfg.stats[tNum ? 'reply' : 'op']++;
-	saveCfgObj(aib.dm, Cfg);
+	const statsParam = tNum ? 'reply' : 'op';
+	Cfg.stats[statsParam]++;
+	saveCfgObj(aib.dm, lCfg => {
+		lCfg.stats[statsParam]++;
+		return lCfg;
+	});
 	if(!tNum) {
 		if(postNum) {
 			deWindow.location.assign(aib.getThrUrl(aib.b, postNum));
