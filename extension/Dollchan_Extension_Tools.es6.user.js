@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'd3c4141';
+const commit = '05f2c1d';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -16623,7 +16623,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			posEl.nextSibling.appendChild(el);
 		}
 		removeFormButtons(el) {
-			$del(el.parentNode);
+			$del(el?.parentNode);
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
