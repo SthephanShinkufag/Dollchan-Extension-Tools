@@ -421,7 +421,7 @@ class MakabaPostsBuilder {
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
-			const likes = `<div id="like-div${ num }" class="post__rate post__rate_type_like" title="Мне это нравится">
+			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
 					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
 						<use xlink:href="#icon__thunder"></use></svg> <span id="like-count${ num }">`;
 			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
@@ -448,7 +448,7 @@ class MakabaPostsBuilder {
 				`) }
 				${ w(`<span class="post__time">${ data.date }</span>`) }
 				${ w(reflink) }
-				${ rate ? w(rate) : '' }
+				${ rate }
 			</div>
 			${ filesHTML }
 			${ this._getPostMsg(data) }

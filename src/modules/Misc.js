@@ -78,7 +78,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const currentVer = version.split('.');
 		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
 			nav.isESNext ? 'es6.' : '' }user.js`;
-		saveCfgObj('lastUpd', Date.now());
+		saveCfgObj('lastUpd', _ => Date.now());
 		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 		const chLogLink = `<a target="_blank" href="${ gitWiki }${
 			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
@@ -109,7 +109,10 @@ function initPage() {
 		}
 		if(!localData) {
 			Cfg.stats.view++;
-			saveCfgObj(aib.dm, Cfg);
+			saveCfgObj(aib.dm, lCfg => {
+				lCfg.stats.view++;
+				return lCfg;
+			});
 		}
 	} else {
 		thrNavPanel.initThrNav();

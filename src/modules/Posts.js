@@ -336,6 +336,16 @@ class AbstractPost {
 		}
 		closePopup('load-fullmsg');
 	}
+	changeMyMark(val) {
+		this.el.classList.toggle('de-mypost', val);
+		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
+			const post = aib.getPostOfEl(el);
+			if(post.el !== this.el) {
+				el.classList.toggle('de-ref-you', val);
+				post.el.classList.toggle('de-mypost-reply', val);
+			}
+		});
+	}
 
 	_addMenu(el, isOutEvent, html) {
 		if(!this.menu || this.menu.parentEl !== el) {
@@ -438,14 +448,7 @@ class AbstractPost {
 			} else {
 				MyPosts.removeStorage(num);
 			}
-			this.el.classList.toggle('de-mypost', isAdd);
-			$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
-				const post = aib.getPostOfEl(el);
-				if(post.el !== this.el) {
-					el.classList.toggle('de-ref-you', isAdd);
-					post.el.classList.toggle('de-mypost-reply', isAdd);
-				}
-			});
+			this.changeMyMark(isAdd);
 			return;
 		}
 		case 'post-reply': {

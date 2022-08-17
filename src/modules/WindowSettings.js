@@ -24,7 +24,7 @@ const CfgWindow = {
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, data);
+				saveCfgObj(aib.dm, _=> data);
 				deWindow.location.reload();
 			})),
 
@@ -36,7 +36,7 @@ const CfgWindow = {
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
 				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, data.global);
+						saveCfgObj(aib.dm, _ => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -56,7 +56,7 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', data.global);
+					saveCfgObj('global', _ => data.global);
 					toggleWindow('cfg', true);
 				});
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
