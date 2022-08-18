@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '3d4bbd4';
+const commit = '31a9726';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2571,6 +2571,7 @@ async function readCfg() {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	lang = Cfg.language;
+	val[aib.dm] = Cfg;
 	if(val.commit !== commit && !localData) {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));

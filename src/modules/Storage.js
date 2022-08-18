@@ -161,6 +161,7 @@ async function readCfg() {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	lang = Cfg.language;
+	val[aib.dm] = Cfg;
 	if(val.commit !== commit && !localData) {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));
