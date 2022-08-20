@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '3d4bbd4';
+  var commit = '31a9726';
 
   var defaultCfg = {
     disabled: 0,
@@ -9029,6 +9029,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               lang = Cfg.language;
+              val[aib.dm] = Cfg;
 
               if (val.commit !== commit && !localData) {
                 if (doc.readyState === 'loading') {
@@ -9056,7 +9057,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }, emptyFn);
               }
 
-            case 23:
+            case 24:
             case "end":
               return _context33.stop();
           }
