@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '31a9726';
+const commit = '5706fcf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -17216,7 +17216,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 	}
-	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = Dobrochan;
+	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
