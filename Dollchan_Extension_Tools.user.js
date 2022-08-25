@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '31a9726';
+  var commit = '5706fcf';
 
   var defaultCfg = {
     disabled: 0,
@@ -29665,7 +29665,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return Dobrochan;
     }(BaseBoard);
 
-    ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = Dobrochan;
+    ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
     var Endchan = function (_Lynxchan) {
       _inherits(Endchan, _Lynxchan);
