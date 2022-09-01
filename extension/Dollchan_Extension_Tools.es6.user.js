@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '5706fcf';
+const commit = '9e1ce1f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12646,8 +12646,8 @@ class AttachedImage extends ExpandableImage {
 	}
 	get weight() {
 		let value = 0;
-		if(this.info) {
-			const w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
+		if(this.info && this.nameLink) {
+			const w = this.info.replace(this.nameLink.innerText, "").match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
 			const w1 = w[1].replace(',', '.');
 			value = w[2] === 'M' ? (w1 * 1e3) | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
 		}
