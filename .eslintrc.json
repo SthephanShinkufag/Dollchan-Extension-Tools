@@ -12,6 +12,7 @@
 	"root": true,
 	"rules": {
 		"arrow-parens": ["error", "as-needed"],
+		"arrow-spacing": "error",
 		"camelcase": "off",
 		"comma-dangle": ["error", "never"],
 		"dot-notation": "error",
@@ -66,6 +67,7 @@
 		"no-undef": "error",
 		"no-unsafe-optional-chaining": "error",
 		"no-useless-concat": "error",
+		"no-unused-vars":  ["error", { "vars": "all", "args": "after-used" }],
 		"object-curly-newline": ["error", { "multiline": true }],
 		"object-curly-spacing": ["error", "always"],
 		"object-property-newline": ["error", { "allowAllPropertiesOnSameLine": true }],

@@ -338,7 +338,7 @@ class AbstractPost {
 	}
 	changeMyMark(val) {
 		this.el.classList.toggle('de-mypost', val);
-		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
+		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + this.num }"]`).forEach(el => {
 			const post = aib.getPostOfEl(el);
 			if(post.el !== this.el) {
 				el.classList.toggle('de-ref-you', val);

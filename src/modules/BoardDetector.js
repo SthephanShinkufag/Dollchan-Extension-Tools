@@ -805,25 +805,28 @@ function getImageBoard(checkDomains, checkEngines) {
 					inpEl.classList.add('de-input-error');
 					return;
 				}
-				var formData = new FormData();
-				var data = {'board': this.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
-				for (var key in data) {
-					formData.append(key, data[key]);
+				const formData = new FormData();
+				const data = { board: this.b, thread: tNum, post: pNum, comment: inpEl.value };
+				for(const key in data) {
+					if($hasProp(data, key)) {
+						formData.append(key, data[key]);
+					}
 				}
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
 				$ajax('/user/report', {
-					method: 'POST',
-					data: formData,
+					method      : 'POST',
+					data        : formData,
 					success() {},
-					contentType: false,
-					processData: false
+					contentType : false,
+					processData : false
 				}).then(xhr => {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
 					} catch(err) {}
-					$popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
+					$popup('report', obj.result === 1 ? Lng.succReported[lang] :
+						Lng.error[lang] + ': ' + obj.error.message);
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
@@ -937,7 +940,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig, "<a href=\"$2$3\"$1>$2$3</a>");
+			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig,
+				'<a href="$2$3"$1>$2$3</a>');
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -1631,7 +1635,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 	}
-	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
+	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] =
+		ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {

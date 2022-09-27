@@ -393,11 +393,11 @@ class PostsStorage {
 		let rv = {};
 		if(data) {
 			try {
-				rv = (this._cachedStorage = JSON.parse(data));
+				rv = this._cachedStorage = JSON.parse(data);
 			} catch(err) {}
 		}
 		this._cachedStorage = rv;
-		if (this._onReadNew) {
+		if(this._onReadNew) {
 			this._onReadNew(rv);
 		}
 		return rv;
@@ -462,7 +462,8 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		this.storageName = 'de-myposts';
 		this._cachedData = null;
 		this._onReadNew = newStorage => {
-			this._cachedData = newStorage[aib.b] ? new Set(Object.keys(newStorage[aib.b]).map(val => +val)) : new Set();
+			this._cachedData = newStorage[aib.b] ?
+				new Set(Object.keys(newStorage[aib.b]).map(val => +val)) : new Set();
 		};
 		this._onAfterSave = () => sendStorageEvent('__de-mypost', 1);
 	}
@@ -471,7 +472,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 	}
 	update() {
 		this.purge();
-		for (const num of this._cachedData) {
+		for(const num of this._cachedData) {
 			pByNum[num]?.changeMyMark(true);
 		}
 	}

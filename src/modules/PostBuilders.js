@@ -380,12 +380,14 @@ class MakabaPostsBuilder {
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files?.length) {
-			filesHTML = `<div class="post__images post__images_type_${data.files.length === 1 ? 'single' : 'multi' }">`;
+			filesHTML = `<div class="post__images post__images_type_${
+				data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name } = file;
 				const isVideo = file.type === 6 || file.type === 10;
-				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${data.nsfw ? ' post__file-nsfw' : '' }`;
+				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
+					data.nsfw ? ' post__file-nsfw' : '' }`;
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
@@ -421,7 +423,8 @@ class MakabaPostsBuilder {
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
-			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
+			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate` +
+				` post__rate_type_like" title="Мне это нравится">
 					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
 						<use xlink:href="#icon__thunder"></use></svg> <span id="like-count${ num }">`;
 			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
@@ -432,7 +435,7 @@ class MakabaPostsBuilder {
 		const reflink = `<a id="${ num }" class="post__reflink" href="${ refHref }">№</a>` +
 				`<a class="post__reflink postbtn-reply-href" href="${ refHref }"` +
 					` name="${ num }">${ num }</a>`;
-		const w = el => `<span class="post__detailpart">${el}</span>`;
+		const w = el => `<span class="post__detailpart">${ el }</span>`;
 		return `<div id="post-${ num }" class="post post_type_${ isOp ? 'oppost' : 'reply' }` +
 			`${ filesHTML ? ' post_withimg' : '' }" data-num="${ num }">
 			<div id="post-details-${ num }" class="post__details">

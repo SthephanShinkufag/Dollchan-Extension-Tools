@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '5706fcf';
+const commit = '9e1ce1f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -978,9 +978,9 @@ const Lng = {
 		'Report thread',
 		'Скарга на тред'],
 	markMyPost: [
-		'Пометить пост как мой',
-		'Mark post as mine',
-		'Відмітити пост як мій'
+		'Пометить как мой пост',
+		'Mark as my post',
+		'Відмітити як мій пост'
 	],
 	deleteMyPost: [
 		'Убрать из моих постов',
@@ -2803,11 +2803,11 @@ class PostsStorage {
 		let rv = {};
 		if(data) {
 			try {
-				rv = (this._cachedStorage = JSON.parse(data));
+				rv = this._cachedStorage = JSON.parse(data);
 			} catch(err) {}
 		}
 		this._cachedStorage = rv;
-		if (this._onReadNew) {
+		if(this._onReadNew) {
 			this._onReadNew(rv);
 		}
 		return rv;
@@ -2872,7 +2872,8 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 		this.storageName = 'de-myposts';
 		this._cachedData = null;
 		this._onReadNew = newStorage => {
-			this._cachedData = newStorage[aib.b] ? new Set(Object.keys(newStorage[aib.b]).map(val => +val)) : new Set();
+			this._cachedData = newStorage[aib.b] ?
+				new Set(Object.keys(newStorage[aib.b]).map(val => +val)) : new Set();
 		};
 		this._onAfterSave = () => sendStorageEvent('__de-mypost', 1);
 	}
@@ -2881,7 +2882,7 @@ const MyPosts = new class MyPostsClass extends PostsStorage {
 	}
 	update() {
 		this.purge();
-		for (const num of this._cachedData) {
+		for(const num of this._cachedData) {
 			pByNum[num]?.changeMyMark(true);
 		}
 	}
@@ -4239,7 +4240,7 @@ const CfgWindow = {
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, _=> data);
+				saveCfgObj(aib.dm, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -4251,7 +4252,7 @@ const CfgWindow = {
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
 				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, _ => data.global);
+						saveCfgObj(aib.dm, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -4271,7 +4272,7 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', _ => data.global);
+					saveCfgObj('global', () => data.global);
 					toggleWindow('cfg', true);
 				});
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
@@ -10648,7 +10649,7 @@ class AbstractPost {
 	}
 	changeMyMark(val) {
 		this.el.classList.toggle('de-mypost', val);
-		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + num }"]`).forEach(el => {
+		$Q(`[de-form] ${ aib.qPostMsg } a[href$="${ aib.anchor + this.num }"]`).forEach(el => {
 			const post = aib.getPostOfEl(el);
 			if(post.el !== this.el) {
 				el.classList.toggle('de-ref-you', val);
@@ -13295,12 +13296,14 @@ class MakabaPostsBuilder {
 		// --- FILE ---
 		let filesHTML = '';
 		if(data.files?.length) {
-			filesHTML = `<div class="post__images post__images_type_${data.files.length === 1 ? 'single' : 'multi' }">`;
+			filesHTML = `<div class="post__images post__images_type_${
+				data.files.length === 1 ? 'single' : 'multi' }">`;
 			for(const file of data.files) {
 				const imgId = num + '-' + file.md5;
 				const { fullname = file.name, displayname: dispName = file.name } = file;
 				const isVideo = file.type === 6 || file.type === 10;
-				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${data.nsfw ? ' post__file-nsfw' : '' }`;
+				const imgClass = `post__file-preview${ isVideo ? ' post__file-webm' : '' }${
+					data.nsfw ? ' post__file-nsfw' : '' }`;
 				filesHTML += `<figure class="post__image">
 					<figcaption class="post__file-attr">
 						<a id="title-${ imgId }" class="desktop" target="_blank" href="` +
@@ -13336,7 +13339,8 @@ class MakabaPostsBuilder {
 		const refHref = `/${ board }/res/${ parseInt(data.parent) || num }.html#${ num }`;
 		let rate = '';
 		if(this._hasLikes) {
-			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate post__rate_type_like" title="Мне это нравится">
+			const likes = `<div id="like-div${ num }" class="post__detailpart post__rate` +
+				` post__rate_type_like" title="Мне это нравится">
 					<svg xmlns="http://www.w3.org/2000/svg" class="post__rate-icon icon">
 						<use xlink:href="#icon__thunder"></use></svg> <span id="like-count${ num }">`;
 			const dislikes = likes.replaceAll('like', 'dislike').replace('icon__thunder', 'icon__thumbdown');
@@ -13347,7 +13351,7 @@ class MakabaPostsBuilder {
 		const reflink = `<a id="${ num }" class="post__reflink" href="${ refHref }">№</a>` +
 				`<a class="post__reflink postbtn-reply-href" href="${ refHref }"` +
 					` name="${ num }">${ num }</a>`;
-		const w = el => `<span class="post__detailpart">${el}</span>`;
+		const w = el => `<span class="post__detailpart">${ el }</span>`;
 		return `<div id="post-${ num }" class="post post_type_${ isOp ? 'oppost' : 'reply' }` +
 			`${ filesHTML ? ' post_withimg' : '' }" data-num="${ num }">
 			<div id="post-details-${ num }" class="post__details">
@@ -16390,25 +16394,28 @@ function getImageBoard(checkDomains, checkEngines) {
 					inpEl.classList.add('de-input-error');
 					return;
 				}
-				var formData = new FormData();
-				var data = {'board': this.b, 'thread': tNum, 'post': pNum, 'comment': inpEl.value};
-				for (var key in data) {
-					formData.append(key, data[key]);
+				const formData = new FormData();
+				const data = { board: this.b, thread: tNum, post: pNum, comment: inpEl.value };
+				for(const key in data) {
+					if($hasProp(data, key)) {
+						formData.append(key, data[key]);
+					}
 				}
 				closePopup('edit-report');
 				$popup('report', Lng.sending[lang], true);
 				$ajax('/user/report', {
-					method: 'POST',
-					data: formData,
+					method      : 'POST',
+					data        : formData,
 					success() {},
-					contentType: false,
-					processData: false
+					contentType : false,
+					processData : false
 				}).then(xhr => {
 					let obj;
 					try {
 						obj = JSON.parse(xhr.responseText);
 					} catch(err) {}
-					$popup('report', obj.result === 1 ? Lng.succReported[lang] : Lng.error[lang] + ': ' + obj.error.message);
+					$popup('report', obj.result === 1 ? Lng.succReported[lang] :
+						Lng.error[lang] + ': ' + obj.error.message);
 				});
 			});
 			Object.defineProperty(this, 'reportForm', { value });
@@ -16522,7 +16529,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.getSage(post);
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig, "<a href=\"$2$3\"$1>$2$3</a>");
+			return str.replace(/<a href="https?:\/\/[^"]*"([^>]*)>(https?:\/\/[^<]+)<\/a>([^<$\s\n]+)/ig,
+				'<a href="$2$3"$1>$2$3</a>');
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -17216,7 +17224,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
 		}
 	}
-	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] = ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
+	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] =
+		ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
 		constructor(prot, dm) {
@@ -17837,7 +17846,7 @@ function checkForUpdates(isManual, lastUpdateTime) {
 		const currentVer = version.split('.');
 		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
 			nav.isESNext ? 'es6.' : '' }user.js`;
-		saveCfgObj('lastUpd', _ => Date.now());
+		saveCfgObj('lastUpd', () => Date.now());
 		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 		const chLogLink = `<a target="_blank" href="${ gitWiki }${
 			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
