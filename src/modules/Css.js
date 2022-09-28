@@ -326,7 +326,7 @@ function scriptCSS() {
 	:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }
 
 	/* Other */
-	.de-abtn { text-decoration: none !important; outline: none; }
+	.de-abtn { text-decoration: none !important; outline: none; border: none; padding: 0; margin: 0; background-color: transparent; color: inherit;}
 	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }

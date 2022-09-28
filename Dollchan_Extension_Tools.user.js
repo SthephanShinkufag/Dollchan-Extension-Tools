@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '67e1c58';
+  var commit = '4fe4853';
 
   var defaultCfg = {
     disabled: 0,
@@ -9931,59 +9931,64 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 el = nav.fixEventEl(e.target);
                 el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
                 _context2.t0 = e.type;
-                _context2.next = _context2.t0 === 'click' ? 7 : _context2.t0 === 'mouseover' ? 55 : 79;
+                _context2.next = _context2.t0 === 'click' ? 7 : _context2.t0 === 'mouseover' ? 57 : 81;
                 break;
 
               case 7:
-                if (el.classList.contains('de-panel-button')) {
-                  e.preventDefault();
+                if (!(el.tagName.toLowerCase() === 'a')) {
+                  _context2.next = 9;
+                  break;
                 }
 
+                return _context2.abrupt("return");
+
+              case 9:
+                e.preventDefault();
                 _context2.t1 = el.id;
-                _context2.next = _context2.t1 === 'de-panel-logo' ? 11 : _context2.t1 === 'de-panel-cfg' ? 15 : _context2.t1 === 'de-panel-hid' ? 17 : _context2.t1 === 'de-panel-fav' ? 19 : _context2.t1 === 'de-panel-vid' ? 21 : _context2.t1 === 'de-panel-refresh' ? 24 : _context2.t1 === 'de-panel-goup' ? 26 : _context2.t1 === 'de-panel-godown' ? 28 : _context2.t1 === 'de-panel-expimg' ? 30 : _context2.t1 === 'de-panel-preimg' ? 35 : _context2.t1 === 'de-panel-maskimg' ? 39 : _context2.t1 === 'de-panel-upd-on' ? 44 : _context2.t1 === 'de-panel-upd-warn' ? 44 : _context2.t1 === 'de-panel-upd-off' ? 44 : _context2.t1 === 'de-panel-audio-on' ? 46 : _context2.t1 === 'de-panel-audio-off' ? 46 : _context2.t1 === 'de-panel-savethr' ? 49 : _context2.t1 === 'de-panel-enable' ? 50 : 54;
+                _context2.next = _context2.t1 === 'de-panel-logo' ? 13 : _context2.t1 === 'de-panel-cfg' ? 17 : _context2.t1 === 'de-panel-hid' ? 19 : _context2.t1 === 'de-panel-fav' ? 21 : _context2.t1 === 'de-panel-vid' ? 23 : _context2.t1 === 'de-panel-refresh' ? 26 : _context2.t1 === 'de-panel-goup' ? 28 : _context2.t1 === 'de-panel-godown' ? 30 : _context2.t1 === 'de-panel-expimg' ? 32 : _context2.t1 === 'de-panel-preimg' ? 37 : _context2.t1 === 'de-panel-maskimg' ? 41 : _context2.t1 === 'de-panel-upd-on' ? 46 : _context2.t1 === 'de-panel-upd-warn' ? 46 : _context2.t1 === 'de-panel-upd-off' ? 46 : _context2.t1 === 'de-panel-audio-on' ? 48 : _context2.t1 === 'de-panel-audio-off' ? 48 : _context2.t1 === 'de-panel-savethr' ? 51 : _context2.t1 === 'de-panel-enable' ? 52 : 56;
                 break;
 
-              case 11:
+              case 13:
                 if (Cfg.expandPanel && !$q('.de-win-active')) {
                   $hide(_this12._buttons);
                 }
 
-                _context2.next = 14;
+                _context2.next = 16;
                 return toggleCfg('expandPanel');
 
-              case 14:
-                return _context2.abrupt("return");
-
-              case 15:
-                toggleWindow('cfg', false);
+              case 16:
                 return _context2.abrupt("return");
 
               case 17:
-                toggleWindow('hid', false);
+                toggleWindow('cfg', false);
                 return _context2.abrupt("return");
 
               case 19:
-                toggleWindow('fav', false);
+                toggleWindow('hid', false);
                 return _context2.abrupt("return");
 
               case 21:
+                toggleWindow('fav', false);
+                return _context2.abrupt("return");
+
+              case 23:
                 _this12.isVidEnabled = !_this12.isVidEnabled;
                 toggleWindow('vid', false);
                 return _context2.abrupt("return");
 
-              case 24:
+              case 26:
                 deWindow.location.reload();
                 return _context2.abrupt("return");
 
-              case 26:
+              case 28:
                 scrollTo(0, 0);
                 return _context2.abrupt("return");
 
-              case 28:
+              case 30:
                 scrollTo(0, docBody.scrollHeight || docBody.offsetHeight);
                 return _context2.abrupt("return");
 
-              case 30:
+              case 32:
                 el.classList.toggle('de-panel-button-active');
                 isExpImg = !isExpImg;
                 $del($q('.de-fullimg-center'));
@@ -9994,7 +9999,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 return _context2.abrupt("return");
 
-              case 35:
+              case 37:
                 el.classList.toggle('de-panel-button-active');
                 isPreImg = !isPreImg;
 
@@ -10007,20 +10012,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 return _context2.abrupt("return");
 
-              case 39:
+              case 41:
                 el.classList.toggle('de-panel-button-active');
-                _context2.next = 42;
+                _context2.next = 44;
                 return toggleCfg('maskImgs');
 
-              case 42:
+              case 44:
                 updateCSS();
                 return _context2.abrupt("return");
 
-              case 44:
+              case 46:
                 updater.toggle();
                 return _context2.abrupt("return");
 
-              case 46:
+              case 48:
                 if (updater.toggleAudio(0)) {
                   updater.enableUpdater();
                   el.id = 'de-panel-audio-on';
@@ -10031,68 +10036,60 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $del($q('.de-menu'));
                 return _context2.abrupt("return");
 
-              case 49:
+              case 51:
                 return _context2.abrupt("return");
 
-              case 50:
-                _context2.next = 52;
+              case 52:
+                _context2.next = 54;
                 return toggleCfg('disabled');
 
-              case 52:
+              case 54:
                 deWindow.location.reload();
                 return _context2.abrupt("return");
 
-              case 54:
+              case 56:
                 return _context2.abrupt("return");
 
-              case 55:
+              case 57:
                 if (!Cfg.expandPanel) {
                   clearTimeout(_this12._hideTO);
                   $show(_this12._buttons);
                 }
 
                 _context2.t2 = el.id;
-                _context2.next = _context2.t2 === 'de-panel-cfg' ? 59 : _context2.t2 === 'de-panel-hid' ? 61 : _context2.t2 === 'de-panel-fav' ? 63 : _context2.t2 === 'de-panel-vid' ? 65 : _context2.t2 === 'de-panel-goback' ? 67 : _context2.t2 === 'de-panel-gonext' ? 69 : _context2.t2 === 'de-panel-maskimg' ? 71 : _context2.t2 === 'de-panel-refresh' ? 73 : _context2.t2 === 'de-panel-savethr' ? 75 : _context2.t2 === 'de-panel-audio-off' ? 75 : 78;
+                _context2.next = _context2.t2 === 'de-panel-cfg' ? 61 : _context2.t2 === 'de-panel-hid' ? 63 : _context2.t2 === 'de-panel-fav' ? 65 : _context2.t2 === 'de-panel-vid' ? 67 : _context2.t2 === 'de-panel-goback' ? 69 : _context2.t2 === 'de-panel-gonext' ? 71 : _context2.t2 === 'de-panel-maskimg' ? 73 : _context2.t2 === 'de-panel-refresh' ? 75 : _context2.t2 === 'de-panel-savethr' ? 77 : _context2.t2 === 'de-panel-audio-off' ? 77 : 80;
                 break;
 
-              case 59:
-                KeyEditListener.setTitle(el, 10);
-                return _context2.abrupt("break", 78);
-
               case 61:
-                KeyEditListener.setTitle(el, 7);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 10);
+                return _context2.abrupt("break", 80);
 
               case 63:
-                KeyEditListener.setTitle(el, 6);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 7);
+                return _context2.abrupt("break", 80);
 
               case 65:
-                KeyEditListener.setTitle(el, 18);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 6);
+                return _context2.abrupt("break", 80);
 
               case 67:
-                KeyEditListener.setTitle(el, 4);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 18);
+                return _context2.abrupt("break", 80);
 
               case 69:
-                KeyEditListener.setTitle(el, 17);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 4);
+                return _context2.abrupt("break", 80);
 
               case 71:
-                KeyEditListener.setTitle(el, 9);
-                return _context2.abrupt("break", 78);
+                KeyEditListener.setTitle(el, 17);
+                return _context2.abrupt("break", 80);
 
               case 73:
-                if (!aib.t) {
-                  _context2.next = 75;
-                  break;
-                }
-
-                return _context2.abrupt("return");
+                KeyEditListener.setTitle(el, 9);
+                return _context2.abrupt("break", 80);
 
               case 75:
-                if (!(((_this12$_menu = _this12._menu) === null || _this12$_menu === void 0 ? void 0 : _this12$_menu.parentEl) === el)) {
+                if (!aib.t) {
                   _context2.next = 77;
                   break;
                 }
@@ -10100,6 +10097,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context2.abrupt("return");
 
               case 77:
+                if (!(((_this12$_menu = _this12._menu) === null || _this12$_menu === void 0 ? void 0 : _this12$_menu.parentEl) === el)) {
+                  _context2.next = 79;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 79:
                 _this12._menuTO = setTimeout(function () {
                   _this12._menu = addMenu(el);
 
@@ -10116,10 +10121,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   };
                 }, Cfg.linksOver);
 
-              case 78:
+              case 80:
                 return _context2.abrupt("return");
 
-              case 79:
+              case 81:
                 _this12._prepareToHide(nav.fixEventEl(e.relatedTarget));
 
                 switch (el.id) {
@@ -10130,7 +10135,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     _this12._menuTO = 0;
                 }
 
-              case 81:
+              case 83:
               case "end":
                 return _context2.stop();
             }
@@ -10178,9 +10183,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     _getButton: function _getButton(id) {
       var page, href, title, useId;
+      var tag = 'button';
 
       switch (id) {
         case 'goback':
+          tag = 'a';
           page = Math.max(aib.page - 1, 0);
           href = aib.getPageUrl(aib.b, page);
 
@@ -10192,6 +10199,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           break;
 
         case 'gonext':
+          tag = 'a';
           page = aib.page + 1;
           href = aib.getPageUrl(aib.b, page);
           title = Lng.panelBtn.gonext[lang].replace('%s', page);
@@ -10208,10 +10216,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           break;
 
         case 'catalog':
+          tag = 'a';
           href = aib.catalogUrl;
       }
 
-      return "<a id=\"de-panel-".concat(id, "\" class=\"de-abtn de-panel-button\" title=\"").concat(title || Lng.panelBtn[id][lang], "\" href=\"").concat(href || '#', "\">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</a>");
+      return "<".concat(tag, " id=\"de-panel-").concat(id, "\" class=\"de-abtn de-panel-button\"\n\t\t\ttitle=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? 'href="' + href + '"' : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
     },
     _prepareToHide: function _prepareToHide(rt) {
       var _this13 = this;
@@ -31816,7 +31825,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     var p = Math.max(Cfg.minImgSize || 0, 50);
-    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; }\n\n\t/* Embedders */\n\t").concat(cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 144px; height: 144px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
+    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; }\n\n\t/* Embedders */\n\t").concat(cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; border: none; padding: 0; margin: 0; background-color: transparent; color: inherit;}\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 144px; height: 144px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';

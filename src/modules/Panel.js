@@ -68,9 +68,10 @@ const Panel = Object.create({
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
-			if (el.classList.contains('de-panel-button')) {
-				e.preventDefault();
+			if (el.tagName.toLowerCase() === 'a') {
+				return;
 			}
+			e.preventDefault();
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
@@ -202,8 +203,10 @@ const Panel = Object.create({
 	},
 	_getButton(id) {
 		let page, href, title, useId;
+		let tag = 'button';
 		switch(id) {
 		case 'goback':
+			tag = 'a';
 			page = Math.max(aib.page - 1, 0);
 			href = aib.getPageUrl(aib.b, page);
 			if(!aib.t) {
@@ -212,6 +215,7 @@ const Panel = Object.create({
 			useId = 'arrow';
 			break;
 		case 'gonext':
+			tag = 'a';
 			page = aib.page + 1;
 			href = aib.getPageUrl(aib.b, page);
 			title = Lng.panelBtn.gonext[lang].replace('%s', page);
@@ -225,17 +229,18 @@ const Panel = Object.create({
 			useId = 'upd';
 			break;
 		case 'catalog':
+			tag = 'a';
 			href = aib.catalogUrl;
 		}
-		return `<a id="de-panel-${ id }" class="de-abtn de-panel-button" title="${
-			title || Lng.panelBtn[id][lang] }" href="${ href || '#' }">
+		return `<${tag} id="de-panel-${ id }" class="de-abtn de-panel-button"
+			title="${title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': ''}>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
 				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
 				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
 			</svg>
-		</a>`;
+		</${tag}>`;
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
