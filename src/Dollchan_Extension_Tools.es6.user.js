@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'cb9e9fb';
+const commit = '4fe4853';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3270,7 +3270,7 @@ const Panel = Object.create({
 			href = aib.catalogUrl;
 		}
 		return `<${tag} id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${title || Lng.panelBtn[id][lang] }" ${ href ? "href=" + href : ''}>
+			title="${title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': ''}>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `

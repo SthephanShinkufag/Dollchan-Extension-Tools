@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'cb9e9fb';
+  var commit = '4fe4853';
 
   var defaultCfg = {
     disabled: 0,
@@ -10220,7 +10220,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           href = aib.catalogUrl;
       }
 
-      return "<".concat(tag, " id=\"de-panel-").concat(id, "\" class=\"de-abtn de-panel-button\"\n\t\t\ttitle=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? "href=" + href : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
+      return "<".concat(tag, " id=\"de-panel-").concat(id, "\" class=\"de-abtn de-panel-button\"\n\t\t\ttitle=\"").concat(title || Lng.panelBtn[id][lang], "\" ").concat(href ? 'href="' + href + '"' : '', ">\n\t\t\t<svg class=\"de-panel-svg\">\n\t\t\t").concat(id !== 'audio-off' ? "\n\t\t\t\t<use xlink:href=\"#de-symbol-panel-".concat(useId || id, "\"/>") : "\n\t\t\t\t<use class=\"de-use-audio-off\" xlink:href=\"#de-symbol-panel-audio-off\"/>\n\t\t\t\t<use class=\"de-use-audio-on\" xlink:href=\"#de-symbol-panel-audio-on\"/>", "\n\t\t\t</svg>\n\t\t</").concat(tag, ">");
     },
     _prepareToHide: function _prepareToHide(rt) {
       var _this13 = this;

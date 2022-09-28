@@ -233,7 +233,7 @@ const Panel = Object.create({
 			href = aib.catalogUrl;
 		}
 		return `<${tag} id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${title || Lng.panelBtn[id][lang] }" ${ href ? "href=" + href : ''}>
+			title="${title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': ''}>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
