@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '34ce555';
+const commit = '67e1c58';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -8959,8 +8959,8 @@ class PostForm {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
 			try {
-				await html5Submit(this.form, this.subm, true);
-				await checkSubmit();
+				const data = await html5Submit(this.form, this.subm, true);
+				await checkSubmit(data);
 			} catch(e) {
 				showSubmitError(e);
 			}

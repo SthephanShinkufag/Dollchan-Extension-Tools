@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '34ce555';
+  var commit = '67e1c58';
 
   var defaultCfg = {
     disabled: 0,
@@ -18178,6 +18178,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this.form.onsubmit = function () {
           var _ref27 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee28(e) {
+            var data;
             return _regeneratorRuntime().wrap(function _callee28$(_context30) {
               while (1) {
                 switch (_context30.prev = _context30.next) {
@@ -18189,24 +18190,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     return html5Submit(_this40.form, _this40.subm, true);
 
                   case 5:
-                    _context30.next = 7;
-                    return checkSubmit();
+                    data = _context30.sent;
+                    _context30.next = 8;
+                    return checkSubmit(data);
 
-                  case 7:
-                    _context30.next = 12;
+                  case 8:
+                    _context30.next = 13;
                     break;
 
-                  case 9:
-                    _context30.prev = 9;
+                  case 10:
+                    _context30.prev = 10;
                     _context30.t0 = _context30["catch"](2);
                     showSubmitError(_context30.t0);
 
-                  case 12:
+                  case 13:
                   case "end":
                     return _context30.stop();
                 }
               }
-            }, _callee28, null, [[2, 9]]);
+            }, _callee28, null, [[2, 10]]);
           }));
 
           return function (_x19) {

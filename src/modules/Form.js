@@ -373,8 +373,8 @@ class PostForm {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
 			try {
-				await html5Submit(this.form, this.subm, true);
-				await checkSubmit();
+				const data = await html5Submit(this.form, this.subm, true);
+				await checkSubmit(data);
 			} catch(e) {
 				showSubmitError(e);
 			}
