@@ -60,7 +60,7 @@ const Spells = Object.create({
 		this._initSpells();
 		return this.reps;
 	},
-	addSpell(type, arg, isNeg) {
+	async addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld?.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -118,12 +118,12 @@ const Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				saveCfg('hideBySpell', 1);
+				await saveCfg('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				saveCfg('hideBySpell', 0);
+				await saveCfg('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -131,8 +131,8 @@ const Spells = Object.create({
 			if(spells[1] && Cfg.sortSpells) {
 				this._sort(spells[1]);
 			}
-			saveCfg('spells', JSON.stringify(spells));
-			this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
 			}
@@ -209,7 +209,7 @@ const Spells = Object.create({
 		default: return `${ spell }(${ String(val) })`;
 		}
 	},
-	disableSpells() {
+	async disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -217,7 +217,7 @@ const Spells = Object.create({
 			outreps : { configurable, value },
 			reps    : { configurable, value }
 		});
-		saveCfg('hideBySpell', 0);
+		await saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(const orep of this.outreps) {
@@ -244,13 +244,13 @@ const Spells = Object.create({
 		}
 		return txt;
 	},
-	setSpells(spells, sync) {
+	async setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disableSpells();
+			await this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
@@ -264,21 +264,21 @@ const Spells = Object.create({
 			SpellsRunner.unhideAll();
 		}
 	},
-	toggle() {
+	async toggle() {
 		let spells;
 		const fld = $id('de-spell-txt');
 		const val = fld.value;
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
-			this.setSpells(spells, true);
-			saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disableSpells();
-				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				await this.disableSpells();
+				await saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -349,7 +349,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disableSpells();
+			/*await*/ this.disableSpells();
 		}
 	},
 	_initHiders(data) {

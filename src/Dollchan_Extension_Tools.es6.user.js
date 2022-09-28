@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '9e1ce1f';
+const commit = '67e1c58';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2442,22 +2442,26 @@ function setStored(id, value) {
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
-		const obj = {};
-		obj[id] = value;
-		chrome.storage.sync.set(obj, () => {
-			if(chrome.runtime.lastError) {
-				// Store into storage.local if the storage.sync limit is exceeded
-				chrome.storage.local.set(obj, emptyFn);
-				chrome.storage.sync.remove(id, emptyFn);
-			} else {
-				chrome.storage.local.remove(id, emptyFn);
-			}
+		return new Promise((resolve, _) => {
+			const obj = {};
+			obj[id] = value;
+			chrome.storage.sync.set(obj, () => {
+				if(chrome.runtime.lastError) {
+					// Store into storage.local if the storage.sync limit is exceeded
+					chrome.storage.local.set(obj, emptyFn);
+					chrome.storage.sync.remove(id, emptyFn);
+				} else {
+					chrome.storage.local.remove(id, emptyFn);
+				}
+				resolve();
+			});
 		});
 	} else if(nav.hasPrestoStorage) {
 		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
+	return null;
 }
 
 // Removes data from the global storage
@@ -2481,33 +2485,75 @@ async function getStoredObj(id) {
 	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
-// Replaces the domain config with an object. Removes the domain config, if there is no object.
-function saveCfgObj(dm, fn) {
-	getStoredObj('DESU_Config').then(val => {
-		const res = fn(val[dm]);
-		if(res) {
-			val[dm] = res;
-		} else {
-			delete val[dm];
+async function saveCfgObjHelper(dm, fn) {
+	const val = await getStoredObj('DESU_Config');
+	const res = fn(val[dm]);
+	if(res) {
+		val[dm] = res;
+	} else {
+		delete val[dm];
+	}
+	const rv = setStored('DESU_Config', JSON.stringify(val));
+	if (rv) {
+		await rv;
+	}
+}
+
+const saveCfgObjQueue = [];
+let saveCfgBusy = false;
+
+async function saveCfgQueue() {
+	while (saveCfgObjQueue.length > 0) {
+		const [[qDm, qFn, qRes, qRej]] = saveCfgObjQueue.splice(0, 1);
+		try {
+			await saveCfgObjHelper(qDm, qFn);
+			qRes();
+		} catch(e) {
+			qRej(e);
 		}
-		setStored('DESU_Config', JSON.stringify(val));
-	});
+	}
+	saveCfgBusy = false;
+}
+
+// Replaces the domain config with an object. Removes the domain config, if there is no object.
+async function saveCfgObj(dm, fn) {
+	if(saveCfgBusy) {
+		await new Promise((res, rej) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
+		return;
+	}
+	saveCfgBusy = true;
+	await saveCfgObjHelper(dm, fn);
+	if (saveCfgObjQueue.length > 0) {
+		saveCfgQueue(); // run asynchronously without await
+	} else {
+		saveCfgBusy = false;
+	}
 }
 
 // Saves the value for a particular config option
-function saveCfg(id, val) {
-	if(Cfg[id] !== val) {
-		Cfg[id] = val;
-		saveCfgObj(aib.dm, cfg => {
-			cfg[id] = val;
+async function saveCfg(...args) {
+	let isChanged = false;
+	for(let i = 0; i < args.length; i += 2) {
+		const id = args[i];
+		const val = args[i + 1];
+		if (Cfg[id] !== val) {
+			Cfg[id] = val;
+			isChanged = true;
+		}
+	}
+	if (isChanged) {
+		await saveCfgObj(aib.dm, cfg => {
+			for(let i = 0; i < args.length; i += 2) {
+				cfg[args[i]] = args[i + 1];
+			}
 			return cfg;
 		});
 	}
 }
 
 // Toggles a particular config option (1|0)
-function toggleCfg(id) {
-	saveCfg(id, +!Cfg[id]);
+async function toggleCfg(id) {
+	await saveCfg(id, +!Cfg[id]);
 }
 
 function readData() {
@@ -2956,7 +3002,7 @@ function initStorageEvent() {
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
 			return;
-		case '__de-spells': (() => {
+		case '__de-spells': (async () => {
 			try {
 				data = JSON.parse(val);
 			} catch(err) {
@@ -2969,7 +3015,7 @@ function initStorageEvent() {
 			}
 			$hide(docBody);
 			if(data.data) {
-				Spells.setSpells(data.data, false);
+				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
@@ -2977,7 +3023,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disableSpells();
+				await Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';
@@ -3051,7 +3097,7 @@ const Panel = Object.create({
 		delete this._acountEl;
 		$id('de-main').remove();
 	},
-	handleEvent(e) {
+	async handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -3059,23 +3105,26 @@ const Panel = Object.create({
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
+			if (el.classList.contains('de-panel-button')) {
+				e.preventDefault();
+			}
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide(this._buttons);
 				}
-				toggleCfg('expandPanel');
+				await toggleCfg('expandPanel');
 				return;
-			case 'de-panel-cfg': toggleWindow('cfg', false); break;
-			case 'de-panel-hid': toggleWindow('hid', false); break;
-			case 'de-panel-fav': toggleWindow('fav', false); break;
+			case 'de-panel-cfg': toggleWindow('cfg', false); return;
+			case 'de-panel-hid': toggleWindow('hid', false); return;
+			case 'de-panel-fav': toggleWindow('fav', false); return;
 			case 'de-panel-vid':
 				this.isVidEnabled = !this.isVidEnabled;
 				toggleWindow('vid', false);
-				break;
-			case 'de-panel-refresh': deWindow.location.reload(); break;
-			case 'de-panel-goup': scrollTo(0, 0); break;
-			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
+				return;
+			case 'de-panel-refresh': deWindow.location.reload(); return;
+			case 'de-panel-goup': scrollTo(0, 0); return;
+			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); return;
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;
@@ -3083,7 +3132,7 @@ const Panel = Object.create({
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
-				break;
+				return;
 			case 'de-panel-preimg':
 				el.classList.toggle('de-panel-button-active');
 				isPreImg = !isPreImg;
@@ -3092,17 +3141,17 @@ const Panel = Object.create({
 						ContentLoader.preloadImages(el);
 					}
 				}
-				break;
+				return;
 			case 'de-panel-maskimg':
 				el.classList.toggle('de-panel-button-active');
-				toggleCfg('maskImgs');
+				await toggleCfg('maskImgs');
 				updateCSS();
-				break;
+				return;
 			case 'de-panel-upd-on':
 			case 'de-panel-upd-warn':
 			case 'de-panel-upd-off':
 				updater.toggle();
-				break;
+				return;
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
 				if(updater.toggleAudio(0)) {
@@ -3112,16 +3161,14 @@ const Panel = Object.create({
 					el.id = 'de-panel-audio-off';
 				}
 				$del($q('.de-menu'));
-				break;
-			case 'de-panel-savethr': break;
+				return;
+			case 'de-panel-savethr': return;
 			case 'de-panel-enable':
-				toggleCfg('disabled');
+				await toggleCfg('disabled');
 				deWindow.location.reload();
-				break;
+				return;
 			default: return;
 			}
-			e.preventDefault();
-			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
 				clearTimeout(this._hideTO);
@@ -3255,7 +3302,7 @@ function makeDraggable(name, win, head) {
 		_X      : 0,
 		_Y      : 0,
 		_Z      : 0,
-		handleEvent(e) {
+		async handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
 			}
@@ -3294,8 +3341,7 @@ function makeDraggable(name, win, head) {
 			case 'mouseleave':
 			case 'mouseup':
 				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-				saveCfg(name + 'WinX', this._X);
-				saveCfg(name + 'WinY', this._Y);
+				await saveCfg(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
 	});
@@ -3312,7 +3358,7 @@ class WinResizer {
 		this.tStyle = target.style;
 		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
 	}
-	handleEvent(e) {
+	async handleEvent(e) {
 		let val, x, y;
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
 		const { width } = this.wStyle;
@@ -3354,16 +3400,16 @@ class WinResizer {
 			return;
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+			await saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
 				return;
 			}
 			if(this.vertical) {
-				saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
+				await saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
 					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
-				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
+				await saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
@@ -3422,8 +3468,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		$q('.de-win-btn-toggle', el).onclick = () => {
-			toggleCfg(name + 'WinDrag');
+		$q('.de-win-btn-toggle', el).onclick = async () => {
+			await toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
 				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);
@@ -4239,8 +4285,8 @@ const CfgWindow = {
 
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, () => data);
+			getEditButton('cfg', fn => fn(Cfg, true, async data => {
+				await saveCfgObj(aib.dm, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -4250,18 +4296,20 @@ const CfgWindow = {
 				// "Load" button. Applies global settings for current domain.
 				$bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, () => data.global);
+						await saveCfgObj(aib.dm, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 					}
-				});
+				};
 				// "Save" button. Copies the domain settings into global.
 				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					const obj = {};
 					const com = data[aib.dm];
 					for(const i in com) {
@@ -4272,9 +4320,9 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', () => data.global);
+					await saveCfgObj('global', () => data.global);
 					toggleWindow('cfg', true);
-				});
+				};
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
 			}) : '',
 
@@ -4430,17 +4478,17 @@ const CfgWindow = {
 	},
 
 	// Event handler for Setting window and its controls.
-	handleEvent(e) {
+	async handleEvent(e) {
 		const { type, target: el } = e;
 		const tag = el.tagName;
 		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
-			saveCfg('cfgTab', info);
+			await saveCfg('cfgTab', info);
 		}
 		if(type === 'change' && tag === 'SELECT') {
 			const info = el.getAttribute('info');
-			saveCfg(info, el.selectedIndex);
+			await saveCfg(info, el.selectedIndex);
 			this._updateDependant();
 			switch(info) {
 			case 'language':
@@ -4518,7 +4566,7 @@ const CfgWindow = {
 		}
 		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
 			const info = el.getAttribute('info');
-			toggleCfg(info);
+			await toggleCfg(info);
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
@@ -4531,10 +4579,10 @@ const CfgWindow = {
 			case 'removeHidd':
 			case 'noBoardRule':
 			case 'userCSS': updateCSS(); break;
-			case 'hideBySpell': Spells.toggle(); break;
+			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
 				if(Cfg.sortSpells) {
-					Spells.toggle();
+					await Spells.toggle();
 				}
 				break;
 			case 'hideRefPsts':
@@ -4571,7 +4619,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(el); break;
+			case 'correctTime': await DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -4601,8 +4649,8 @@ const CfgWindow = {
 				pr.addMarkupPanel();
 				updateCSS();
 				break;
-			case 'userPassw': PostForm.setUserPassw(); break;
-			case 'userName': PostForm.setUserName(); break;
+			case 'userPassw': await PostForm.setUserPassw(); break;
+			case 'userName': await PostForm.setUserName(); break;
 			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
@@ -4620,7 +4668,7 @@ const CfgWindow = {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-				PostForm.setUserPassw();
+				await PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
 				e.preventDefault();
@@ -4676,34 +4724,34 @@ const CfgWindow = {
 				const isCheck = checkCSSColor(el.value);
 				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
-					saveCfg('postBtnsBack', el.value);
+					await saveCfg('postBtnsBack', el.value);
 					updateCSS();
 				}
 				break;
 			}
 			case 'limitPostMsg':
-				saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				await saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
-			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'minImgSize': await saveCfg('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor': await saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
-			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'minWebmWidth': await saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'maskVisib':
-				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				await saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
 				break;
-			case 'linksOver': saveCfg('linksOver', +el.value | 0); break;
-			case 'linksOut': saveCfg('linksOut', +el.value | 0); break;
-			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
-			case 'passwValue': PostForm.setUserPassw(); break;
-			case 'nameValue': PostForm.setUserName(); break;
-			default: saveCfg(info, el.value);
+			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
+			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
+			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
+			case 'passwValue': await PostForm.setUserPassw(); break;
+			case 'nameValue': await PostForm.setUserName(); break;
+			default: await saveCfg(info, el.value);
 			}
 			return;
 		}
@@ -4720,9 +4768,9 @@ const CfgWindow = {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
 					e.preventDefault();
-					saveCfg('hideBySpell', 1);
+					await saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
-					Spells.toggle();
+					await Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
 					e.preventDefault();
@@ -4730,7 +4778,7 @@ const CfgWindow = {
 						return;
 					}
 					$id('de-spell-txt').value = '';
-					Spells.toggle();
+					await Spells.toggle();
 				}
 			}
 			return;
@@ -4770,8 +4818,8 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, inputEl => {
-						saveCfg('userCSSTxt', inputEl.value);
+					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
+						await saveCfg('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),
@@ -5474,8 +5522,7 @@ const HotKeys = {
 				$toggle($id('de-panel-buttons'));
 				break;
 			case 9: // Mask/unmask images
-				toggleCfg('maskImgs');
-				updateCSS();
+				toggleCfg('maskImgs').then(() => updateCSS());
 				break;
 			case 10: // Open/close "Settings"
 				toggleWindow('cfg', false);
@@ -6272,10 +6319,10 @@ class DateTime {
 			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
 			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	}
-	static toggleSettings(el) {
+	static async toggleSettings(el) {
 		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
 			$popup('err-correcttime', Lng.cTimeError[lang]);
-			saveCfg('correctTime', 0);
+			await saveCfg('correctTime', 0);
 			el.checked = false;
 		}
 	}
@@ -7148,7 +7195,7 @@ const Pages = {
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
 		if(pr.passw) {
-			PostForm.setUserPassw();
+			await PostForm.setUserPassw();
 		}
 		embedPostMsgImages(newForm.el);
 		if(HotKeys.enabled) {
@@ -7235,7 +7282,7 @@ const Spells = Object.create({
 		this._initSpells();
 		return this.reps;
 	},
-	addSpell(type, arg, isNeg) {
+	async addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld?.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -7293,12 +7340,12 @@ const Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				saveCfg('hideBySpell', 1);
+				await saveCfg('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				saveCfg('hideBySpell', 0);
+				await saveCfg('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -7306,8 +7353,8 @@ const Spells = Object.create({
 			if(spells[1] && Cfg.sortSpells) {
 				this._sort(spells[1]);
 			}
-			saveCfg('spells', JSON.stringify(spells));
-			this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
 			}
@@ -7384,7 +7431,7 @@ const Spells = Object.create({
 		default: return `${ spell }(${ String(val) })`;
 		}
 	},
-	disableSpells() {
+	async disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -7392,7 +7439,7 @@ const Spells = Object.create({
 			outreps : { configurable, value },
 			reps    : { configurable, value }
 		});
-		saveCfg('hideBySpell', 0);
+		await saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(const orep of this.outreps) {
@@ -7419,13 +7466,13 @@ const Spells = Object.create({
 		}
 		return txt;
 	},
-	setSpells(spells, sync) {
+	async setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disableSpells();
+			await this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
@@ -7439,21 +7486,21 @@ const Spells = Object.create({
 			SpellsRunner.unhideAll();
 		}
 	},
-	toggle() {
+	async toggle() {
 		let spells;
 		const fld = $id('de-spell-txt');
 		const val = fld.value;
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
-			this.setSpells(spells, true);
-			saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disableSpells();
-				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				await this.disableSpells();
+				await saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -7524,7 +7571,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disableSpells();
+			/*await*/ this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -8624,20 +8671,20 @@ class PostForm {
 		$toggle(next && (next.style.display !== 'none') ||
 			el.previousElementSibling ? el : el.closest(aib.qFormTr));
 	}
-	static setUserName() {
+	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
 		if(el) {
-			saveCfg('nameValue', el.value);
+			await saveCfg('nameValue', el.value);
 		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
-	static setUserPassw() {
+	static async setUserPassw() {
 		if(!Cfg.userPassw) {
 			return;
 		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
-			saveCfg('passwValue', el.value);
+			await saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
@@ -8656,8 +8703,8 @@ class PostForm {
 	get sageBtn() {
 		const value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg></span>');
-		value.onclick = () => {
-			toggleCfg('sageReply');
+		value.onclick = async () => {
+			await toggleCfg('sageReply');
 			this.toggleSage();
 		};
 		Object.defineProperty(this, 'sageBtn', { value });
@@ -8908,10 +8955,15 @@ class PostForm {
 		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
 			aib.disableRedirection(el);
 		}
-		this.form.onsubmit = e => {
+		this.form.onsubmit = async e => {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
-			html5Submit(this.form, this.subm, true).then(checkSubmit).catch(showSubmitError);
+			try {
+				const data = await html5Submit(this.form, this.subm, true);
+				await checkSubmit(data);
+			} catch(e) {
+				showSubmitError(e);
+			}
 		};
 	}
 	_initCaptcha() {
@@ -9019,8 +9071,7 @@ class PostForm {
 				const { width, height } = s;
 				s.setProperty('width', width + 'px', 'important');
 				s.setProperty('height', height + 'px', 'important');
-				saveCfg('textaWidth', parseInt(width, 10));
-				saveCfg('textaHeight', parseInt(height, 10));
+				/*await*/ saveCfg('textaWidth', parseInt(width, 10), 'textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -9041,8 +9092,7 @@ class PostForm {
 				}
 				default: // mouseup
 					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
-					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+					/*await*/ saveCfg('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
 				}
 			}
 		});
@@ -9087,15 +9137,15 @@ class PostForm {
 			}
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
-		clearBtn.onclick = () => {
-			saveCfg('sageReply', 0);
+		clearBtn.onclick = async () => {
+			await saveCfg('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
 		};
-		toggleBtn.onclick = () => {
-			toggleCfg('replyWinDrag');
+		toggleBtn.onclick = async () => {
+			await toggleCfg('replyWinDrag');
 			if(Cfg.replyWinDrag) {
 				this.qArea.className = aib.cReply + ' de-win';
 				updateWinZ(this.qArea.style);
@@ -9160,7 +9210,7 @@ function showSubmitError(error) {
 	DollchanAPI.notify('submitform', { success: false, error });
 }
 
-function checkSubmit(data) {
+async function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
 	const isDocument = data instanceof HTMLDocument;
@@ -9204,7 +9254,7 @@ function checkSubmit(data) {
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
-	saveCfgObj(aib.dm, lCfg => {
+	await saveCfgObj(aib.dm, lCfg => {
 		lCfg.stats[statsParam]++;
 		return lCfg;
 	});
@@ -10509,7 +10559,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
-			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
+			case 'de-btn-sage': /*await*/ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
@@ -10676,7 +10726,7 @@ class AbstractPost {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	_clickMenu(el, e) {
+	async _clickMenu(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -10694,37 +10744,37 @@ class AbstractPost {
 				nav.matchesSelector(end, aib.qPostSubj)
 			)) {
 				if(this._selText.includes('\n')) {
-					Spells.addSpell(1 /* #exp */,
+					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
-					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
+					await Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.append(this._selRange.cloneContents());
-				Spells.addSpell(2 /* #exph */,
+				await Spells.addSpell(2 /* #exph */,
 					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
-		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		}
 		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
+			await Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
 			return;
-		case 'hide-ihash':
-			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
-				if(hash !== -1) {
-					Spells.addSpell(4 /* #ihash */, hash, false);
-				}
-			});
+		case 'hide-ihash': {
+			const hash = await ImagesHashStorage.getHash(this.images.firstAttach);
+			if(hash !== -1) {
+				await Spells.addSpell(4 /* #ihash */, hash, false);
+			}
 			return;
-		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		}
+		case 'hide-noimg': await Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
@@ -10732,24 +10782,23 @@ class AbstractPost {
 			}
 			return;
 		}
-		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': await Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
 			this.ref.toggleRef(isHide, true);
 			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
 		case 'img-load': {
+			e.preventDefault();
 			$popup('file-loading', Lng.loading[lang], true);
 			const url = el.href;
-			ContentLoader.loadImgData(url, false).then(data => {
-				if(!data) {
-					$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-					return;
-				}
-				closePopup('file-loading');
-				downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
-			});
-			e.preventDefault();
+			const data = await ContentLoader.loadImgData(url, false)
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 			return;
 		}
 		case 'post-markmy': {
@@ -12485,10 +12534,10 @@ class ExpandableImage {
 		}
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', ({ target: el, isTrusted }) => {
+		videoEl.addEventListener('volumechange', async ({ target: el, isTrusted }) => {
 			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
@@ -14547,11 +14596,11 @@ function initThreadUpdater(title, enableUpdate) {
 		get canShow() {
 			return Cfg.desktNotif && this._granted;
 		},
-		checkPermission() {
+		async checkPermission() {
 			if(Cfg.desktNotif && ('permission' in Notification)) {
 				switch(Notification.permission.toLowerCase()) {
 				case 'default': this._requestPermission(); break;
-				case 'denied': saveCfg('desktNotif', 0);
+				case 'denied': await saveCfg('desktNotif', 0);
 				}
 			}
 		},
@@ -14592,9 +14641,9 @@ function initThreadUpdater(title, enableUpdate) {
 		_notifEl : null,
 		_requestPermission() {
 			this._granted = false;
-			Notification.requestPermission(state => {
+			Notification.requestPermission(async state => {
 				if(state.toLowerCase() === 'denied') {
-					saveCfg('desktNotif', 0);
+					await saveCfg('desktNotif', 0);
 				} else {
 					this._granted = true;
 				}
@@ -17211,8 +17260,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(deWindow.location.pathname === '/settings') {
-				$q('input[type="button"]').addEventListener('click',
-					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
+				$q('input[type="button"]').addEventListener('click', async () => {
+					await readCfg();
+					await saveCfg('__hanarating', $id('rating').value);
+				});
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
@@ -17829,45 +17880,49 @@ const DollchanAPI = {
 };
 
 // Checking for Dollchan updates from github
-function checkForUpdates(isManual, lastUpdateTime) {
+async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			return Promise.reject(new Error('Itʼs not time for an update yet'));
+			throw new Error('Itʼs not time for an update yet');
 		}
 	}
-	return $ajax(
-		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true
-	).then(({ responseText }) => {
-		const v = responseText.match(/const version = '([0-9.]+)';/);
-		const remoteVer = v?.[1]?.split('.');
-		if(!remoteVer) {
-			return Promise.reject(new Error('Canʼt get remote version'));
+	let responseText;
+	try {
+		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true));
+	} catch(e) {
+		if (isManual) {
+			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
+		} else {
+			throw new Error(Lng.noConnect[lang]);
 		}
-		const currentVer = version.split('.');
-		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
-			nav.isESNext ? 'es6.' : '' }user.js`;
-		saveCfgObj('lastUpd', () => Date.now());
-		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
-		const chLogLink = `<a target="_blank" href="${ gitWiki }${
-			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
-		for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
-			if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-				return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
-			} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
-				break;
-			}
+	}
+	const v = responseText.match(/const version = '([0-9.]+)';/);
+	const remoteVer = v?.[1]?.split('.');
+	if(!remoteVer) {
+		throw new Error('Canʼt get remote version');
+	}
+	const currentVer = version.split('.');
+	const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+		nav.isESNext ? 'es6.' : '' }user.js`;
+	await saveCfgObj('lastUpd', () => Date.now());
+	const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+	const chLogLink = `<a target="_blank" href="${ gitWiki }${
+		lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
+	for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
+		if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
+			return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
+		} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
+			break;
 		}
-		if(isManual) {
-			const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
-			const vc = version + '.' + c;
-			return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
-					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
-		}
-		return Promise.reject(new Error());
-	}, () => isManual ? `<div style="color: red; font-weigth: bold;">${
-		Lng.noConnect[lang] }</div>` : Promise.reject(new Error(Lng.noConnect[lang]))
-	);
+	}
+	if(isManual) {
+		const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+		const vc = version + '.' + c;
+		return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+			`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+				Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
+	}
+	throw new Error();
 }
 
 function initPage() {

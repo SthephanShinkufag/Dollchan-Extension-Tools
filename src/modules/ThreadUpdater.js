@@ -268,11 +268,11 @@ function initThreadUpdater(title, enableUpdate) {
 		get canShow() {
 			return Cfg.desktNotif && this._granted;
 		},
-		checkPermission() {
+		async checkPermission() {
 			if(Cfg.desktNotif && ('permission' in Notification)) {
 				switch(Notification.permission.toLowerCase()) {
 				case 'default': this._requestPermission(); break;
-				case 'denied': saveCfg('desktNotif', 0);
+				case 'denied': await saveCfg('desktNotif', 0);
 				}
 			}
 		},
@@ -313,9 +313,9 @@ function initThreadUpdater(title, enableUpdate) {
 		_notifEl : null,
 		_requestPermission() {
 			this._granted = false;
-			Notification.requestPermission(state => {
+			Notification.requestPermission(async state => {
 				if(state.toLowerCase() === 'denied') {
-					saveCfg('desktNotif', 0);
+					await saveCfg('desktNotif', 0);
 				} else {
 					this._granted = true;
 				}

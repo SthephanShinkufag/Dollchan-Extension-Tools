@@ -23,8 +23,8 @@ const CfgWindow = {
 
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, () => data);
+			getEditButton('cfg', fn => fn(Cfg, true, async data => {
+				await saveCfgObj(aib.dm, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -34,18 +34,20 @@ const CfgWindow = {
 				// "Load" button. Applies global settings for current domain.
 				$bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, () => data.global);
+						await saveCfgObj(aib.dm, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 					}
-				});
+				};
 				// "Save" button. Copies the domain settings into global.
 				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					const obj = {};
 					const com = data[aib.dm];
 					for(const i in com) {
@@ -56,9 +58,9 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', () => data.global);
+					await saveCfgObj('global', () => data.global);
 					toggleWindow('cfg', true);
-				});
+				};
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
 			}) : '',
 
@@ -214,17 +216,17 @@ const CfgWindow = {
 	},
 
 	// Event handler for Setting window and its controls.
-	handleEvent(e) {
+	async handleEvent(e) {
 		const { type, target: el } = e;
 		const tag = el.tagName;
 		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
-			saveCfg('cfgTab', info);
+			await saveCfg('cfgTab', info);
 		}
 		if(type === 'change' && tag === 'SELECT') {
 			const info = el.getAttribute('info');
-			saveCfg(info, el.selectedIndex);
+			await saveCfg(info, el.selectedIndex);
 			this._updateDependant();
 			switch(info) {
 			case 'language':
@@ -302,7 +304,7 @@ const CfgWindow = {
 		}
 		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
 			const info = el.getAttribute('info');
-			toggleCfg(info);
+			await toggleCfg(info);
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
@@ -315,10 +317,10 @@ const CfgWindow = {
 			case 'removeHidd':
 			case 'noBoardRule':
 			case 'userCSS': updateCSS(); break;
-			case 'hideBySpell': Spells.toggle(); break;
+			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
 				if(Cfg.sortSpells) {
-					Spells.toggle();
+					await Spells.toggle();
 				}
 				break;
 			case 'hideRefPsts':
@@ -355,7 +357,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(el); break;
+			case 'correctTime': await DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -385,8 +387,8 @@ const CfgWindow = {
 				pr.addMarkupPanel();
 				updateCSS();
 				break;
-			case 'userPassw': PostForm.setUserPassw(); break;
-			case 'userName': PostForm.setUserName(); break;
+			case 'userPassw': await PostForm.setUserPassw(); break;
+			case 'userName': await PostForm.setUserName(); break;
 			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
@@ -404,7 +406,7 @@ const CfgWindow = {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-				PostForm.setUserPassw();
+				await PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
 				e.preventDefault();
@@ -460,34 +462,34 @@ const CfgWindow = {
 				const isCheck = checkCSSColor(el.value);
 				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
-					saveCfg('postBtnsBack', el.value);
+					await saveCfg('postBtnsBack', el.value);
 					updateCSS();
 				}
 				break;
 			}
 			case 'limitPostMsg':
-				saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				await saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
-			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'minImgSize': await saveCfg('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor': await saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
-			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'minWebmWidth': await saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'maskVisib':
-				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				await saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
 				break;
-			case 'linksOver': saveCfg('linksOver', +el.value | 0); break;
-			case 'linksOut': saveCfg('linksOut', +el.value | 0); break;
-			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
-			case 'passwValue': PostForm.setUserPassw(); break;
-			case 'nameValue': PostForm.setUserName(); break;
-			default: saveCfg(info, el.value);
+			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
+			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
+			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
+			case 'passwValue': await PostForm.setUserPassw(); break;
+			case 'nameValue': await PostForm.setUserName(); break;
+			default: await saveCfg(info, el.value);
 			}
 			return;
 		}
@@ -504,9 +506,9 @@ const CfgWindow = {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
 					e.preventDefault();
-					saveCfg('hideBySpell', 1);
+					await saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
-					Spells.toggle();
+					await Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
 					e.preventDefault();
@@ -514,7 +516,7 @@ const CfgWindow = {
 						return;
 					}
 					$id('de-spell-txt').value = '';
-					Spells.toggle();
+					await Spells.toggle();
 				}
 			}
 			return;
@@ -554,8 +556,8 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, inputEl => {
-						saveCfg('userCSSTxt', inputEl.value);
+					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
+						await saveCfg('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),

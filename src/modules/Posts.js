@@ -198,7 +198,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
-			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
+			case 'de-btn-sage': /*await*/ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
@@ -365,7 +365,7 @@ class AbstractPost {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	_clickMenu(el, e) {
+	async _clickMenu(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -383,37 +383,37 @@ class AbstractPost {
 				nav.matchesSelector(end, aib.qPostSubj)
 			)) {
 				if(this._selText.includes('\n')) {
-					Spells.addSpell(1 /* #exp */,
+					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
-					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
+					await Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.append(this._selRange.cloneContents());
-				Spells.addSpell(2 /* #exph */,
+				await Spells.addSpell(2 /* #exph */,
 					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
-		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		}
 		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
+			await Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
 			return;
-		case 'hide-ihash':
-			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
-				if(hash !== -1) {
-					Spells.addSpell(4 /* #ihash */, hash, false);
-				}
-			});
+		case 'hide-ihash': {
+			const hash = await ImagesHashStorage.getHash(this.images.firstAttach);
+			if(hash !== -1) {
+				await Spells.addSpell(4 /* #ihash */, hash, false);
+			}
 			return;
-		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		}
+		case 'hide-noimg': await Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
@@ -421,24 +421,23 @@ class AbstractPost {
 			}
 			return;
 		}
-		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': await Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
 			this.ref.toggleRef(isHide, true);
 			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
 		case 'img-load': {
+			e.preventDefault();
 			$popup('file-loading', Lng.loading[lang], true);
 			const url = el.href;
-			ContentLoader.loadImgData(url, false).then(data => {
-				if(!data) {
-					$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-					return;
-				}
-				closePopup('file-loading');
-				downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
-			});
-			e.preventDefault();
+			const data = await ContentLoader.loadImgData(url, false)
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 			return;
 		}
 		case 'post-markmy': {

@@ -656,10 +656,10 @@ class ExpandableImage {
 		}
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', ({ target: el, isTrusted }) => {
+		videoEl.addEventListener('volumechange', async ({ target: el, isTrusted }) => {
 			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
 		});

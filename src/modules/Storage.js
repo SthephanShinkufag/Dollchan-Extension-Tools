@@ -32,22 +32,26 @@ function setStored(id, value) {
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
-		const obj = {};
-		obj[id] = value;
-		chrome.storage.sync.set(obj, () => {
-			if(chrome.runtime.lastError) {
-				// Store into storage.local if the storage.sync limit is exceeded
-				chrome.storage.local.set(obj, emptyFn);
-				chrome.storage.sync.remove(id, emptyFn);
-			} else {
-				chrome.storage.local.remove(id, emptyFn);
-			}
+		return new Promise((resolve, _) => {
+			const obj = {};
+			obj[id] = value;
+			chrome.storage.sync.set(obj, () => {
+				if(chrome.runtime.lastError) {
+					// Store into storage.local if the storage.sync limit is exceeded
+					chrome.storage.local.set(obj, emptyFn);
+					chrome.storage.sync.remove(id, emptyFn);
+				} else {
+					chrome.storage.local.remove(id, emptyFn);
+				}
+				resolve();
+			});
 		});
 	} else if(nav.hasPrestoStorage) {
 		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
+	return null;
 }
 
 // Removes data from the global storage
@@ -71,33 +75,75 @@ async function getStoredObj(id) {
 	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
-// Replaces the domain config with an object. Removes the domain config, if there is no object.
-function saveCfgObj(dm, fn) {
-	getStoredObj('DESU_Config').then(val => {
-		const res = fn(val[dm]);
-		if(res) {
-			val[dm] = res;
-		} else {
-			delete val[dm];
+async function saveCfgObjHelper(dm, fn) {
+	const val = await getStoredObj('DESU_Config');
+	const res = fn(val[dm]);
+	if(res) {
+		val[dm] = res;
+	} else {
+		delete val[dm];
+	}
+	const rv = setStored('DESU_Config', JSON.stringify(val));
+	if (rv) {
+		await rv;
+	}
+}
+
+const saveCfgObjQueue = [];
+let saveCfgBusy = false;
+
+async function saveCfgQueue() {
+	while (saveCfgObjQueue.length > 0) {
+		const [[qDm, qFn, qRes, qRej]] = saveCfgObjQueue.splice(0, 1);
+		try {
+			await saveCfgObjHelper(qDm, qFn);
+			qRes();
+		} catch(e) {
+			qRej(e);
 		}
-		setStored('DESU_Config', JSON.stringify(val));
-	});
+	}
+	saveCfgBusy = false;
+}
+
+// Replaces the domain config with an object. Removes the domain config, if there is no object.
+async function saveCfgObj(dm, fn) {
+	if(saveCfgBusy) {
+		await new Promise((res, rej) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
+		return;
+	}
+	saveCfgBusy = true;
+	await saveCfgObjHelper(dm, fn);
+	if (saveCfgObjQueue.length > 0) {
+		saveCfgQueue(); // run asynchronously without await
+	} else {
+		saveCfgBusy = false;
+	}
 }
 
 // Saves the value for a particular config option
-function saveCfg(id, val) {
-	if(Cfg[id] !== val) {
-		Cfg[id] = val;
-		saveCfgObj(aib.dm, cfg => {
-			cfg[id] = val;
+async function saveCfg(...args) {
+	let isChanged = false;
+	for(let i = 0; i < args.length; i += 2) {
+		const id = args[i];
+		const val = args[i + 1];
+		if (Cfg[id] !== val) {
+			Cfg[id] = val;
+			isChanged = true;
+		}
+	}
+	if (isChanged) {
+		await saveCfgObj(aib.dm, cfg => {
+			for(let i = 0; i < args.length; i += 2) {
+				cfg[args[i]] = args[i + 1];
+			}
 			return cfg;
 		});
 	}
 }
 
 // Toggles a particular config option (1|0)
-function toggleCfg(id) {
-	saveCfg(id, +!Cfg[id]);
+async function toggleCfg(id) {
+	await saveCfg(id, +!Cfg[id]);
 }
 
 function readData() {
@@ -546,7 +592,7 @@ function initStorageEvent() {
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
 			return;
-		case '__de-spells': (() => {
+		case '__de-spells': (async () => {
 			try {
 				data = JSON.parse(val);
 			} catch(err) {
@@ -559,7 +605,7 @@ function initStorageEvent() {
 			}
 			$hide(docBody);
 			if(data.data) {
-				Spells.setSpells(data.data, false);
+				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
@@ -567,7 +613,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disableSpells();
+				await Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';

@@ -143,8 +143,7 @@ const HotKeys = {
 				$toggle($id('de-panel-buttons'));
 				break;
 			case 9: // Mask/unmask images
-				toggleCfg('maskImgs');
-				updateCSS();
+				toggleCfg('maskImgs').then(() => updateCSS());
 				break;
 			case 10: // Open/close "Settings"
 				toggleWindow('cfg', false);

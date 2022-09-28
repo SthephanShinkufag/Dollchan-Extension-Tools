@@ -120,7 +120,7 @@ const Pages = {
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
 		if(pr.passw) {
-			PostForm.setUserPassw();
+			await PostForm.setUserPassw();
 		}
 		embedPostMsgImages(newForm.el);
 		if(HotKeys.enabled) {
