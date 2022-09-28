@@ -117,8 +117,8 @@ class PostForm {
 	get sageBtn() {
 		const value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' +
 			'<use xlink:href="#de-symbol-post-sage"/></svg></span>');
-		value.onclick = () => {
-			toggleCfg('sageReply');
+		value.onclick = async () => {
+			await toggleCfg('sageReply');
 			this.toggleSage();
 		};
 		Object.defineProperty(this, 'sageBtn', { value });
@@ -558,8 +558,8 @@ class PostForm {
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
 				el => el && (el.value = ''));
 		};
-		toggleBtn.onclick = () => {
-			toggleCfg('replyWinDrag');
+		toggleBtn.onclick = async () => {
+			await toggleCfg('replyWinDrag');
 			if(Cfg.replyWinDrag) {
 				this.qArea.className = aib.cReply + ' de-win';
 				updateWinZ(this.qArea.style);

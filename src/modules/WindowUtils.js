@@ -183,8 +183,8 @@ function toggleWindow(name, isUpdate, data, noAnim) {
 			}
 		};
 		el.lastElementChild.onclick = () => toggleWindow(name, false);
-		$q('.de-win-btn-toggle', el).onclick = () => {
-			toggleCfg(name + 'WinDrag');
+		$q('.de-win-btn-toggle', el).onclick = async () => {
+			await toggleCfg(name + 'WinDrag');
 			const isDrag = Cfg[name + 'WinDrag'];
 			if(!isDrag) {
 				const temp = $q('.de-win-active.de-win-fixed', win.parentNode);

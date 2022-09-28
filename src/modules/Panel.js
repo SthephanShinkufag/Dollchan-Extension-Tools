@@ -60,7 +60,7 @@ const Panel = Object.create({
 		delete this._acountEl;
 		$id('de-main').remove();
 	},
-	handleEvent(e) {
+	async handleEvent(e) {
 		if('isTrusted' in e && !e.isTrusted) {
 			return;
 		}
@@ -68,23 +68,26 @@ const Panel = Object.create({
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
+			if (el.classList.contains('de-panel-button')) {
+				e.preventDefault();
+			}
 			switch(el.id) {
 			case 'de-panel-logo':
 				if(Cfg.expandPanel && !$q('.de-win-active')) {
 					$hide(this._buttons);
 				}
-				toggleCfg('expandPanel');
+				await toggleCfg('expandPanel');
 				return;
-			case 'de-panel-cfg': toggleWindow('cfg', false); break;
-			case 'de-panel-hid': toggleWindow('hid', false); break;
-			case 'de-panel-fav': toggleWindow('fav', false); break;
+			case 'de-panel-cfg': toggleWindow('cfg', false); return;
+			case 'de-panel-hid': toggleWindow('hid', false); return;
+			case 'de-panel-fav': toggleWindow('fav', false); return;
 			case 'de-panel-vid':
 				this.isVidEnabled = !this.isVidEnabled;
 				toggleWindow('vid', false);
-				break;
-			case 'de-panel-refresh': deWindow.location.reload(); break;
-			case 'de-panel-goup': scrollTo(0, 0); break;
-			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); break;
+				return;
+			case 'de-panel-refresh': deWindow.location.reload(); return;
+			case 'de-panel-goup': scrollTo(0, 0); return;
+			case 'de-panel-godown': scrollTo(0, docBody.scrollHeight || docBody.offsetHeight); return;
 			case 'de-panel-expimg':
 				el.classList.toggle('de-panel-button-active');
 				isExpImg = !isExpImg;
@@ -92,7 +95,7 @@ const Panel = Object.create({
 				for(let post = Thread.first.op; post; post = post.next) {
 					post.toggleImages(isExpImg, false);
 				}
-				break;
+				return;
 			case 'de-panel-preimg':
 				el.classList.toggle('de-panel-button-active');
 				isPreImg = !isPreImg;
@@ -101,17 +104,17 @@ const Panel = Object.create({
 						ContentLoader.preloadImages(el);
 					}
 				}
-				break;
+				return;
 			case 'de-panel-maskimg':
 				el.classList.toggle('de-panel-button-active');
-				toggleCfg('maskImgs');
+				await toggleCfg('maskImgs');
 				updateCSS();
-				break;
+				return;
 			case 'de-panel-upd-on':
 			case 'de-panel-upd-warn':
 			case 'de-panel-upd-off':
 				updater.toggle();
-				break;
+				return;
 			case 'de-panel-audio-on':
 			case 'de-panel-audio-off':
 				if(updater.toggleAudio(0)) {
@@ -121,16 +124,14 @@ const Panel = Object.create({
 					el.id = 'de-panel-audio-off';
 				}
 				$del($q('.de-menu'));
-				break;
-			case 'de-panel-savethr': break;
+				return;
+			case 'de-panel-savethr': return;
 			case 'de-panel-enable':
-				toggleCfg('disabled');
+				await toggleCfg('disabled');
 				deWindow.location.reload();
-				break;
+				return;
 			default: return;
 			}
-			e.preventDefault();
-			return;
 		case 'mouseover':
 			if(!Cfg.expandPanel) {
 				clearTimeout(this._hideTO);

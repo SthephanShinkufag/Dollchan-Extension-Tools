@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'a8cf67f';
+  var commit = '34ce555';
 
   var defaultCfg = {
     disabled: 0,
@@ -7991,12 +7991,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _readFile() {
-    _readFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee42(file, asText) {
-      return _regeneratorRuntime().wrap(function _callee42$(_context52) {
+    _readFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee46(file, asText) {
+      return _regeneratorRuntime().wrap(function _callee46$(_context56) {
         while (1) {
-          switch (_context52.prev = _context52.next) {
+          switch (_context56.prev = _context56.next) {
             case 0:
-              return _context52.abrupt("return", new Promise(function (resolve) {
+              return _context56.abrupt("return", new Promise(function (resolve) {
                 var fr = new FileReader();
 
                 fr.onload = function (e) {
@@ -8014,10 +8014,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 1:
             case "end":
-              return _context52.stop();
+              return _context56.stop();
           }
         }
-      }, _callee42);
+      }, _callee46);
     }));
     return _readFile.apply(this, arguments);
   }
@@ -8749,39 +8749,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _getStored() {
-    _getStored = _asyncToGenerator( _regeneratorRuntime().mark(function _callee43(id) {
+    _getStored = _asyncToGenerator( _regeneratorRuntime().mark(function _callee47(id) {
       var value;
-      return _regeneratorRuntime().wrap(function _callee43$(_context53) {
+      return _regeneratorRuntime().wrap(function _callee47$(_context57) {
         while (1) {
-          switch (_context53.prev = _context53.next) {
+          switch (_context57.prev = _context57.next) {
             case 0:
               if (!nav.hasNewGM) {
-                _context53.next = 7;
+                _context57.next = 7;
                 break;
               }
 
-              _context53.next = 3;
+              _context57.next = 3;
               return GM.getValue(id);
 
             case 3:
-              value = _context53.sent;
-              return _context53.abrupt("return", value);
+              value = _context57.sent;
+              return _context57.abrupt("return", value);
 
             case 7:
               if (!nav.hasOldGM) {
-                _context53.next = 11;
+                _context57.next = 11;
                 break;
               }
 
-              return _context53.abrupt("return", GM_getValue(id));
+              return _context57.abrupt("return", GM_getValue(id));
 
             case 11:
               if (!nav.hasWebStorage) {
-                _context53.next = 15;
+                _context57.next = 15;
                 break;
               }
 
-              return _context53.abrupt("return", new Promise(function (resolve) {
+              return _context57.abrupt("return", new Promise(function (resolve) {
                 return chrome.storage.local.get(id, function (obj) {
                   if (Object.keys(obj).length) {
                     resolve(obj[id]);
@@ -8795,21 +8795,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 15:
               if (!nav.hasPrestoStorage) {
-                _context53.next = 17;
+                _context57.next = 17;
                 break;
               }
 
-              return _context53.abrupt("return", prestoStorage.getItem(id));
+              return _context57.abrupt("return", prestoStorage.getItem(id));
 
             case 17:
-              return _context53.abrupt("return", locStorage[id]);
+              return _context57.abrupt("return", locStorage[id]);
 
             case 18:
             case "end":
-              return _context53.stop();
+              return _context57.stop();
           }
         }
-      }, _callee43);
+      }, _callee47);
     }));
     return _getStored.apply(this, arguments);
   }
@@ -8864,45 +8864,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _getStoredObj() {
-    _getStoredObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee44(id) {
-      return _regeneratorRuntime().wrap(function _callee44$(_context54) {
+    _getStoredObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee48(id) {
+      return _regeneratorRuntime().wrap(function _callee48$(_context58) {
         while (1) {
-          switch (_context54.prev = _context54.next) {
+          switch (_context58.prev = _context58.next) {
             case 0:
-              _context54.t1 = JSON;
-              _context54.next = 3;
+              _context58.t1 = JSON;
+              _context58.next = 3;
               return getStored(id);
 
             case 3:
-              _context54.t2 = _context54.sent;
+              _context58.t2 = _context58.sent;
 
-              if (_context54.t2) {
-                _context54.next = 6;
+              if (_context58.t2) {
+                _context58.next = 6;
                 break;
               }
 
-              _context54.t2 = '{}';
+              _context58.t2 = '{}';
 
             case 6:
-              _context54.t3 = _context54.t2;
-              _context54.t0 = _context54.t1.parse.call(_context54.t1, _context54.t3);
+              _context58.t3 = _context58.t2;
+              _context58.t0 = _context58.t1.parse.call(_context58.t1, _context58.t3);
 
-              if (_context54.t0) {
-                _context54.next = 10;
+              if (_context58.t0) {
+                _context58.next = 10;
                 break;
               }
 
-              _context54.t0 = {};
+              _context58.t0 = {};
 
             case 10:
-              return _context54.abrupt("return", _context54.t0);
+              return _context58.abrupt("return", _context58.t0);
 
             case 11:
             case "end":
-              return _context54.stop();
+              return _context58.stop();
           }
         }
-      }, _callee44);
+      }, _callee48);
     }));
     return _getStoredObj.apply(this, arguments);
   }
@@ -8912,17 +8912,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _saveCfgObjHelper() {
-    _saveCfgObjHelper = _asyncToGenerator( _regeneratorRuntime().mark(function _callee45(dm, fn) {
+    _saveCfgObjHelper = _asyncToGenerator( _regeneratorRuntime().mark(function _callee49(dm, fn) {
       var val, res, rv;
-      return _regeneratorRuntime().wrap(function _callee45$(_context55) {
+      return _regeneratorRuntime().wrap(function _callee49$(_context59) {
         while (1) {
-          switch (_context55.prev = _context55.next) {
+          switch (_context59.prev = _context59.next) {
             case 0:
-              _context55.next = 2;
+              _context59.next = 2;
               return getStoredObj('DESU_Config');
 
             case 2:
-              val = _context55.sent;
+              val = _context59.sent;
               res = fn(val[dm]);
 
               if (res) {
@@ -8934,19 +8934,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               rv = setStored('DESU_Config', JSON.stringify(val));
 
               if (!rv) {
-                _context55.next = 9;
+                _context59.next = 9;
                 break;
               }
 
-              _context55.next = 9;
+              _context59.next = 9;
               return rv;
 
             case 9:
             case "end":
-              return _context55.stop();
+              return _context59.stop();
           }
         }
-      }, _callee45);
+      }, _callee49);
     }));
     return _saveCfgObjHelper.apply(this, arguments);
   }
@@ -8960,35 +8960,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _saveCfgQueue() {
-    _saveCfgQueue = _asyncToGenerator( _regeneratorRuntime().mark(function _callee46() {
+    _saveCfgQueue = _asyncToGenerator( _regeneratorRuntime().mark(function _callee50() {
       var _saveCfgObjQueue$spli, _saveCfgObjQueue$spli2, _saveCfgObjQueue$spli3, qDm, qFn, qRes, qRej;
 
-      return _regeneratorRuntime().wrap(function _callee46$(_context56) {
+      return _regeneratorRuntime().wrap(function _callee50$(_context60) {
         while (1) {
-          switch (_context56.prev = _context56.next) {
+          switch (_context60.prev = _context60.next) {
             case 0:
               if (!(saveCfgObjQueue.length > 0)) {
-                _context56.next = 13;
+                _context60.next = 13;
                 break;
               }
 
               _saveCfgObjQueue$spli = saveCfgObjQueue.splice(0, 1), _saveCfgObjQueue$spli2 = _slicedToArray(_saveCfgObjQueue$spli, 1), _saveCfgObjQueue$spli3 = _slicedToArray(_saveCfgObjQueue$spli2[0], 4), qDm = _saveCfgObjQueue$spli3[0], qFn = _saveCfgObjQueue$spli3[1], qRes = _saveCfgObjQueue$spli3[2], qRej = _saveCfgObjQueue$spli3[3];
-              _context56.prev = 2;
-              _context56.next = 5;
+              _context60.prev = 2;
+              _context60.next = 5;
               return saveCfgObjHelper(qDm, qFn);
 
             case 5:
               qRes();
-              _context56.next = 11;
+              _context60.next = 11;
               break;
 
             case 8:
-              _context56.prev = 8;
-              _context56.t0 = _context56["catch"](2);
-              qRej(_context56.t0);
+              _context60.prev = 8;
+              _context60.t0 = _context60["catch"](2);
+              qRej(_context60.t0);
 
             case 11:
-              _context56.next = 0;
+              _context60.next = 0;
               break;
 
             case 13:
@@ -8996,10 +8996,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 14:
             case "end":
-              return _context56.stop();
+              return _context60.stop();
           }
         }
-      }, _callee46, null, [[2, 8]]);
+      }, _callee50, null, [[2, 8]]);
     }));
     return _saveCfgQueue.apply(this, arguments);
   }
@@ -9010,27 +9010,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _saveCfgObj() {
-    _saveCfgObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee47(dm, fn) {
-      return _regeneratorRuntime().wrap(function _callee47$(_context57) {
+    _saveCfgObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee51(dm, fn) {
+      return _regeneratorRuntime().wrap(function _callee51$(_context61) {
         while (1) {
-          switch (_context57.prev = _context57.next) {
+          switch (_context61.prev = _context61.next) {
             case 0:
               if (!saveCfgBusy) {
-                _context57.next = 4;
+                _context61.next = 4;
                 break;
               }
 
-              _context57.next = 3;
+              _context61.next = 3;
               return new Promise(function (res, rej) {
                 saveCfgObjQueue.push([dm, fn, res, rej]);
               });
 
             case 3:
-              return _context57.abrupt("return");
+              return _context61.abrupt("return");
 
             case 4:
               saveCfgBusy = true;
-              _context57.next = 7;
+              _context61.next = 7;
               return saveCfgObjHelper(dm, fn);
 
             case 7:
@@ -9042,10 +9042,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 8:
             case "end":
-              return _context57.stop();
+              return _context61.stop();
           }
         }
-      }, _callee47);
+      }, _callee51);
     }));
     return _saveCfgObj.apply(this, arguments);
   }
@@ -9056,7 +9056,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _saveCfg() {
-    _saveCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee48() {
+    _saveCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52() {
       var _len2,
           args,
           _key2,
@@ -9064,14 +9064,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           i,
           id,
           val,
-          _args58 = arguments;
+          _args62 = arguments;
 
-      return _regeneratorRuntime().wrap(function _callee48$(_context58) {
+      return _regeneratorRuntime().wrap(function _callee52$(_context62) {
         while (1) {
-          switch (_context58.prev = _context58.next) {
+          switch (_context62.prev = _context62.next) {
             case 0:
-              for (_len2 = _args58.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                args[_key2] = _args58[_key2];
+              for (_len2 = _args62.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = _args62[_key2];
               }
 
               isChanged = false;
@@ -9087,11 +9087,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!isChanged) {
-                _context58.next = 6;
+                _context62.next = 6;
                 break;
               }
 
-              _context58.next = 6;
+              _context62.next = 6;
               return saveCfgObj(aib.dm, function (cfg) {
                 for (var _i20 = 0; _i20 < args.length; _i20 += 2) {
                   cfg[args[_i20]] = args[_i20 + 1];
@@ -9102,10 +9102,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 6:
             case "end":
-              return _context58.stop();
+              return _context62.stop();
           }
         }
-      }, _callee48);
+      }, _callee52);
     }));
     return _saveCfg.apply(this, arguments);
   }
@@ -9115,20 +9115,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _toggleCfg() {
-    _toggleCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee49(id) {
-      return _regeneratorRuntime().wrap(function _callee49$(_context59) {
+    _toggleCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(id) {
+      return _regeneratorRuntime().wrap(function _callee53$(_context63) {
         while (1) {
-          switch (_context59.prev = _context59.next) {
+          switch (_context63.prev = _context63.next) {
             case 0:
-              _context59.next = 2;
+              _context63.next = 2;
               return saveCfg(id, +!Cfg[id]);
 
             case 2:
             case "end":
-              return _context59.stop();
+              return _context63.stop();
           }
         }
-      }, _callee49);
+      }, _callee53);
     }));
     return _toggleCfg.apply(this, arguments);
   }
@@ -9144,17 +9144,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _readCfg() {
-    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee50() {
+    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee54() {
       var obj, val, isGlobal;
-      return _regeneratorRuntime().wrap(function _callee50$(_context60) {
+      return _regeneratorRuntime().wrap(function _callee54$(_context64) {
         while (1) {
-          switch (_context60.prev = _context60.next) {
+          switch (_context64.prev = _context64.next) {
             case 0:
-              _context60.next = 2;
+              _context64.next = 2;
               return getStoredObj('DESU_Config');
 
             case 2:
-              val = _context60.sent;
+              val = _context64.sent;
 
               if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
                 isGlobal = nav.hasGlobalStorage && !!val.global;
@@ -9260,10 +9260,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 24:
             case "end":
-              return _context60.stop();
+              return _context64.stop();
           }
         }
-      }, _callee50);
+      }, _callee54);
     }));
     return _readCfg.apply(this, arguments);
   }
@@ -9909,197 +9909,234 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       $id('de-main').remove();
     },
     handleEvent: function handleEvent(e) {
-      var _this$_menu,
-          _this12 = this;
+      var _this12 = this;
 
-      if ('isTrusted' in e && !e.isTrusted) {
-        return;
-      }
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee2() {
+        var _this12$_menu;
 
-      var el = nav.fixEventEl(e.target);
-      el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
+        var el, post, _iterator3, _step3, _el2;
 
-      switch (e.type) {
-        case 'click':
-          switch (el.id) {
-            case 'de-panel-logo':
-              if (Cfg.expandPanel && !$q('.de-win-active')) {
-                $hide(this._buttons);
-              }
-
-              toggleCfg('expandPanel');
-              return;
-
-            case 'de-panel-cfg':
-              toggleWindow('cfg', false);
-              break;
-
-            case 'de-panel-hid':
-              toggleWindow('hid', false);
-              break;
-
-            case 'de-panel-fav':
-              toggleWindow('fav', false);
-              break;
-
-            case 'de-panel-vid':
-              this.isVidEnabled = !this.isVidEnabled;
-              toggleWindow('vid', false);
-              break;
-
-            case 'de-panel-refresh':
-              deWindow.location.reload();
-              break;
-
-            case 'de-panel-goup':
-              scrollTo(0, 0);
-              break;
-
-            case 'de-panel-godown':
-              scrollTo(0, docBody.scrollHeight || docBody.offsetHeight);
-              break;
-
-            case 'de-panel-expimg':
-              el.classList.toggle('de-panel-button-active');
-              isExpImg = !isExpImg;
-              $del($q('.de-fullimg-center'));
-
-              for (var post = Thread.first.op; post; post = post.next) {
-                post.toggleImages(isExpImg, false);
-              }
-
-              break;
-
-            case 'de-panel-preimg':
-              el.classList.toggle('de-panel-button-active');
-              isPreImg = !isPreImg;
-
-              if (!e.ctrlKey) {
-                for (var _iterator3 = _createForOfIteratorHelperLoose(DelForm), _step3; !(_step3 = _iterator3()).done;) {
-                  var _el2 = _step3.value.el;
-                  ContentLoader.preloadImages(_el2);
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (!('isTrusted' in e && !e.isTrusted)) {
+                  _context2.next = 2;
+                  break;
                 }
-              }
 
-              break;
+                return _context2.abrupt("return");
 
-            case 'de-panel-maskimg':
-              el.classList.toggle('de-panel-button-active');
-              toggleCfg('maskImgs');
-              updateCSS();
-              break;
+              case 2:
+                el = nav.fixEventEl(e.target);
+                el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
+                _context2.t0 = e.type;
+                _context2.next = _context2.t0 === 'click' ? 7 : _context2.t0 === 'mouseover' ? 55 : 79;
+                break;
 
-            case 'de-panel-upd-on':
-            case 'de-panel-upd-warn':
-            case 'de-panel-upd-off':
-              updater.toggle();
-              break;
+              case 7:
+                if (el.classList.contains('de-panel-button')) {
+                  e.preventDefault();
+                }
 
-            case 'de-panel-audio-on':
-            case 'de-panel-audio-off':
-              if (updater.toggleAudio(0)) {
-                updater.enableUpdater();
-                el.id = 'de-panel-audio-on';
-              } else {
-                el.id = 'de-panel-audio-off';
-              }
+                _context2.t1 = el.id;
+                _context2.next = _context2.t1 === 'de-panel-logo' ? 11 : _context2.t1 === 'de-panel-cfg' ? 15 : _context2.t1 === 'de-panel-hid' ? 17 : _context2.t1 === 'de-panel-fav' ? 19 : _context2.t1 === 'de-panel-vid' ? 21 : _context2.t1 === 'de-panel-refresh' ? 24 : _context2.t1 === 'de-panel-goup' ? 26 : _context2.t1 === 'de-panel-godown' ? 28 : _context2.t1 === 'de-panel-expimg' ? 30 : _context2.t1 === 'de-panel-preimg' ? 35 : _context2.t1 === 'de-panel-maskimg' ? 39 : _context2.t1 === 'de-panel-upd-on' ? 44 : _context2.t1 === 'de-panel-upd-warn' ? 44 : _context2.t1 === 'de-panel-upd-off' ? 44 : _context2.t1 === 'de-panel-audio-on' ? 46 : _context2.t1 === 'de-panel-audio-off' ? 46 : _context2.t1 === 'de-panel-savethr' ? 49 : _context2.t1 === 'de-panel-enable' ? 50 : 54;
+                break;
 
-              $del($q('.de-menu'));
-              break;
+              case 11:
+                if (Cfg.expandPanel && !$q('.de-win-active')) {
+                  $hide(_this12._buttons);
+                }
 
-            case 'de-panel-savethr':
-              break;
+                _context2.next = 14;
+                return toggleCfg('expandPanel');
 
-            case 'de-panel-enable':
-              toggleCfg('disabled');
-              deWindow.location.reload();
-              break;
+              case 14:
+                return _context2.abrupt("return");
 
-            default:
-              return;
+              case 15:
+                toggleWindow('cfg', false);
+                return _context2.abrupt("return");
+
+              case 17:
+                toggleWindow('hid', false);
+                return _context2.abrupt("return");
+
+              case 19:
+                toggleWindow('fav', false);
+                return _context2.abrupt("return");
+
+              case 21:
+                _this12.isVidEnabled = !_this12.isVidEnabled;
+                toggleWindow('vid', false);
+                return _context2.abrupt("return");
+
+              case 24:
+                deWindow.location.reload();
+                return _context2.abrupt("return");
+
+              case 26:
+                scrollTo(0, 0);
+                return _context2.abrupt("return");
+
+              case 28:
+                scrollTo(0, docBody.scrollHeight || docBody.offsetHeight);
+                return _context2.abrupt("return");
+
+              case 30:
+                el.classList.toggle('de-panel-button-active');
+                isExpImg = !isExpImg;
+                $del($q('.de-fullimg-center'));
+
+                for (post = Thread.first.op; post; post = post.next) {
+                  post.toggleImages(isExpImg, false);
+                }
+
+                return _context2.abrupt("return");
+
+              case 35:
+                el.classList.toggle('de-panel-button-active');
+                isPreImg = !isPreImg;
+
+                if (!e.ctrlKey) {
+                  for (_iterator3 = _createForOfIteratorHelperLoose(DelForm); !(_step3 = _iterator3()).done;) {
+                    _el2 = _step3.value.el;
+                    ContentLoader.preloadImages(_el2);
+                  }
+                }
+
+                return _context2.abrupt("return");
+
+              case 39:
+                el.classList.toggle('de-panel-button-active');
+                _context2.next = 42;
+                return toggleCfg('maskImgs');
+
+              case 42:
+                updateCSS();
+                return _context2.abrupt("return");
+
+              case 44:
+                updater.toggle();
+                return _context2.abrupt("return");
+
+              case 46:
+                if (updater.toggleAudio(0)) {
+                  updater.enableUpdater();
+                  el.id = 'de-panel-audio-on';
+                } else {
+                  el.id = 'de-panel-audio-off';
+                }
+
+                $del($q('.de-menu'));
+                return _context2.abrupt("return");
+
+              case 49:
+                return _context2.abrupt("return");
+
+              case 50:
+                _context2.next = 52;
+                return toggleCfg('disabled');
+
+              case 52:
+                deWindow.location.reload();
+                return _context2.abrupt("return");
+
+              case 54:
+                return _context2.abrupt("return");
+
+              case 55:
+                if (!Cfg.expandPanel) {
+                  clearTimeout(_this12._hideTO);
+                  $show(_this12._buttons);
+                }
+
+                _context2.t2 = el.id;
+                _context2.next = _context2.t2 === 'de-panel-cfg' ? 59 : _context2.t2 === 'de-panel-hid' ? 61 : _context2.t2 === 'de-panel-fav' ? 63 : _context2.t2 === 'de-panel-vid' ? 65 : _context2.t2 === 'de-panel-goback' ? 67 : _context2.t2 === 'de-panel-gonext' ? 69 : _context2.t2 === 'de-panel-maskimg' ? 71 : _context2.t2 === 'de-panel-refresh' ? 73 : _context2.t2 === 'de-panel-savethr' ? 75 : _context2.t2 === 'de-panel-audio-off' ? 75 : 78;
+                break;
+
+              case 59:
+                KeyEditListener.setTitle(el, 10);
+                return _context2.abrupt("break", 78);
+
+              case 61:
+                KeyEditListener.setTitle(el, 7);
+                return _context2.abrupt("break", 78);
+
+              case 63:
+                KeyEditListener.setTitle(el, 6);
+                return _context2.abrupt("break", 78);
+
+              case 65:
+                KeyEditListener.setTitle(el, 18);
+                return _context2.abrupt("break", 78);
+
+              case 67:
+                KeyEditListener.setTitle(el, 4);
+                return _context2.abrupt("break", 78);
+
+              case 69:
+                KeyEditListener.setTitle(el, 17);
+                return _context2.abrupt("break", 78);
+
+              case 71:
+                KeyEditListener.setTitle(el, 9);
+                return _context2.abrupt("break", 78);
+
+              case 73:
+                if (!aib.t) {
+                  _context2.next = 75;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 75:
+                if (!(((_this12$_menu = _this12._menu) === null || _this12$_menu === void 0 ? void 0 : _this12$_menu.parentEl) === el)) {
+                  _context2.next = 77;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 77:
+                _this12._menuTO = setTimeout(function () {
+                  _this12._menu = addMenu(el);
+
+                  _this12._menu.onover = function () {
+                    return clearTimeout(_this12._hideTO);
+                  };
+
+                  _this12._menu.onout = function () {
+                    return _this12._prepareToHide(null);
+                  };
+
+                  _this12._menu.onremove = function () {
+                    return _this12._menu = null;
+                  };
+                }, Cfg.linksOver);
+
+              case 78:
+                return _context2.abrupt("return");
+
+              case 79:
+                _this12._prepareToHide(nav.fixEventEl(e.relatedTarget));
+
+                switch (el.id) {
+                  case 'de-panel-refresh':
+                  case 'de-panel-savethr':
+                  case 'de-panel-audio-off':
+                    clearTimeout(_this12._menuTO);
+                    _this12._menuTO = 0;
+                }
+
+              case 81:
+              case "end":
+                return _context2.stop();
+            }
           }
-
-          e.preventDefault();
-          return;
-
-        case 'mouseover':
-          if (!Cfg.expandPanel) {
-            clearTimeout(this._hideTO);
-            $show(this._buttons);
-          }
-
-          switch (el.id) {
-            case 'de-panel-cfg':
-              KeyEditListener.setTitle(el, 10);
-              break;
-
-            case 'de-panel-hid':
-              KeyEditListener.setTitle(el, 7);
-              break;
-
-            case 'de-panel-fav':
-              KeyEditListener.setTitle(el, 6);
-              break;
-
-            case 'de-panel-vid':
-              KeyEditListener.setTitle(el, 18);
-              break;
-
-            case 'de-panel-goback':
-              KeyEditListener.setTitle(el, 4);
-              break;
-
-            case 'de-panel-gonext':
-              KeyEditListener.setTitle(el, 17);
-              break;
-
-            case 'de-panel-maskimg':
-              KeyEditListener.setTitle(el, 9);
-              break;
-
-            case 'de-panel-refresh':
-              if (aib.t) {
-                return;
-              }
-
-
-            case 'de-panel-savethr':
-            case 'de-panel-audio-off':
-              if (((_this$_menu = this._menu) === null || _this$_menu === void 0 ? void 0 : _this$_menu.parentEl) === el) {
-                return;
-              }
-
-              this._menuTO = setTimeout(function () {
-                _this12._menu = addMenu(el);
-
-                _this12._menu.onover = function () {
-                  return clearTimeout(_this12._hideTO);
-                };
-
-                _this12._menu.onout = function () {
-                  return _this12._prepareToHide(null);
-                };
-
-                _this12._menu.onremove = function () {
-                  return _this12._menu = null;
-                };
-              }, Cfg.linksOver);
-          }
-
-          return;
-
-        default:
-          this._prepareToHide(nav.fixEventEl(e.relatedTarget));
-
-          switch (el.id) {
-            case 'de-panel-refresh':
-            case 'de-panel-savethr':
-            case 'de-panel-audio-off':
-              clearTimeout(this._menuTO);
-              this._menuTO = 0;
-          }
-
-      }
+        }, _callee2);
+      }))();
     },
     updateCounter: function updateCounter(postCount, imgsCount, postersCount) {
       this._pcountEl.textContent = postCount;
@@ -10205,23 +10242,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       handleEvent: function handleEvent(e) {
         var _this14 = this;
 
-        return _asyncToGenerator( _regeneratorRuntime().mark(function _callee2() {
+        return _asyncToGenerator( _regeneratorRuntime().mark(function _callee3() {
           var curX, curY, maxX, maxY, cr, x, y, width;
-          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) {
-              switch (_context2.prev = _context2.next) {
+              switch (_context3.prev = _context3.next) {
                 case 0:
                   if (Cfg[name + 'WinDrag']) {
-                    _context2.next = 2;
+                    _context3.next = 2;
                     break;
                   }
 
-                  return _context2.abrupt("return");
+                  return _context3.abrupt("return");
 
                 case 2:
                   curX = e.clientX, curY = e.clientY;
-                  _context2.t0 = e.type;
-                  _context2.next = _context2.t0 === 'mousedown' ? 6 : _context2.t0 === 'mousemove' ? 14 : _context2.t0 === 'mouseleave' ? 26 : _context2.t0 === 'mouseup' ? 26 : 29;
+                  _context3.t0 = e.type;
+                  _context3.next = _context3.t0 === 'mousedown' ? 6 : _context3.t0 === 'mousemove' ? 14 : _context3.t0 === 'mouseleave' ? 26 : _context3.t0 === 'mouseup' ? 26 : 29;
                   break;
 
                 case 6:
@@ -10238,7 +10275,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     return docBody.addEventListener(e, _this14);
                   });
                   e.preventDefault();
-                  return _context2.abrupt("return");
+                  return _context3.abrupt("return");
 
                 case 14:
                   maxX = Post.sizing.wWidth - _this14._win.offsetWidth;
@@ -10254,21 +10291,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   _this14._oldX = curX;
                   _this14._oldY = curY;
-                  return _context2.abrupt("return");
+                  return _context3.abrupt("return");
 
                 case 26:
                   ['mouseleave', 'mousemove', 'mouseup'].forEach(function (e) {
                     return docBody.removeEventListener(e, _this14);
                   });
-                  _context2.next = 29;
+                  _context3.next = 29;
                   return saveCfg(name + 'WinX', _this14._X, name + 'WinY', _this14._Y);
 
                 case 29:
                 case "end":
-                  return _context2.stop();
+                  return _context3.stop();
               }
             }
-          }, _callee2);
+          }, _callee3);
         }))();
       }
     });
@@ -10291,21 +10328,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(WinResizer, [{
       key: "handleEvent",
       value: function () {
-        var _handleEvent = _asyncToGenerator( _regeneratorRuntime().mark(function _callee3(e) {
+        var _handleEvent = _asyncToGenerator( _regeneratorRuntime().mark(function _callee4(e) {
           var _this15 = this;
 
           var val, x, y, _Post$sizing, maxX, maxY, width, cr, z;
 
-          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
-              switch (_context3.prev = _context3.next) {
+              switch (_context4.prev = _context4.next) {
                 case 0:
                   _Post$sizing = Post.sizing, maxX = _Post$sizing.wWidth, maxY = _Post$sizing.wHeight;
                   width = this.wStyle.width;
                   cr = this.win.getBoundingClientRect();
                   z = "; z-index: ".concat(this.wStyle.zIndex).concat(width ? '; width:' + width : '');
-                  _context3.t0 = e.type;
-                  _context3.next = _context3.t0 === 'mousedown' ? 7 : _context3.t0 === 'mousemove' ? 22 : 24;
+                  _context4.t0 = e.type;
+                  _context4.next = _context4.t0 === 'mousedown' ? 7 : _context4.t0 === 'mousemove' ? 22 : 24;
                   break;
 
                 case 7:
@@ -10317,21 +10354,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     y = Cfg[this.name + 'WinY'];
                   }
 
-                  _context3.t1 = this.dir;
-                  _context3.next = _context3.t1 === 'top' ? 11 : _context3.t1 === 'bottom' ? 13 : _context3.t1 === 'left' ? 15 : _context3.t1 === 'right' ? 17 : 18;
+                  _context4.t1 = this.dir;
+                  _context4.next = _context4.t1 === 'top' ? 11 : _context4.t1 === 'bottom' ? 13 : _context4.t1 === 'left' ? 15 : _context4.t1 === 'right' ? 17 : 18;
                   break;
 
                 case 11:
                   val = "".concat(x, "; bottom: ").concat(maxY - cr.bottom, "px").concat(z);
-                  return _context3.abrupt("break", 18);
+                  return _context4.abrupt("break", 18);
 
                 case 13:
                   val = "".concat(x, "; top: ").concat(cr.top, "px").concat(z);
-                  return _context3.abrupt("break", 18);
+                  return _context4.abrupt("break", 18);
 
                 case 15:
                   val = "right: ".concat(maxX - cr.right, "px; ").concat(y + z);
-                  return _context3.abrupt("break", 18);
+                  return _context4.abrupt("break", 18);
 
                 case 17:
                   val = "left: ".concat(cr.left, "px; ").concat(y + z);
@@ -10342,7 +10379,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     return docBody.addEventListener(e, _this15);
                   });
                   e.preventDefault();
-                  return _context3.abrupt("return");
+                  return _context4.abrupt("return");
 
                 case 22:
                   if (this.vertical) {
@@ -10353,39 +10390,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     this.tStyle.setProperty('width', Math.max(parseInt(this.tStyle.width, 10) + (this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) : (val > maxX - 20 ? maxX : val) - cr.right), this.name === 'reply' ? 275 : 400) + 'px', 'important');
                   }
 
-                  return _context3.abrupt("return");
+                  return _context4.abrupt("return");
 
                 case 24:
                   ['mousemove', 'mouseup'].forEach(function (e) {
                     return docBody.removeEventListener(e, _this15);
                   });
-                  _context3.next = 27;
+                  _context4.next = 27;
                   return saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 
                 case 27:
                   if (!this.win.classList.contains('de-win-fixed')) {
-                    _context3.next = 30;
+                    _context4.next = 30;
                     break;
                   }
 
                   this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
-                  return _context3.abrupt("return");
+                  return _context4.abrupt("return");
 
                 case 30:
                   if (!this.vertical) {
-                    _context3.next = 35;
+                    _context4.next = 35;
                     break;
                   }
 
-                  _context3.next = 33;
+                  _context4.next = 33;
                   return saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' : cr.bottom > maxY - 26 ? 'bottom: 25px' : "top: ".concat(cr.top, "px"));
 
                 case 33:
-                  _context3.next = 37;
+                  _context4.next = 37;
                   break;
 
                 case 35:
-                  _context3.next = 37;
+                  _context4.next = 37;
                   return saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' : cr.right > maxX - 1 ? 'right: 0' : "left: ".concat(cr.left, "px"));
 
                 case 37:
@@ -10393,10 +10430,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 38:
                 case "end":
-                  return _context3.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee3, this);
+          }, _callee4, this);
         }));
 
         function handleEvent(_x10) {
@@ -10460,25 +10497,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return toggleWindow(name, false);
       };
 
-      $q('.de-win-btn-toggle', el).onclick = function () {
-        toggleCfg(name + 'WinDrag');
-        var isDrag = Cfg[name + 'WinDrag'];
+      $q('.de-win-btn-toggle', el).onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee5() {
+        var isDrag, temp, width;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.next = 2;
+                return toggleCfg(name + 'WinDrag');
 
-        if (!isDrag) {
-          var temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+              case 2:
+                isDrag = Cfg[name + 'WinDrag'];
 
-          if (temp) {
-            toggleWindow(temp.id.substr(7), false);
+                if (!isDrag) {
+                  temp = $q('.de-win-active.de-win-fixed', win.parentNode);
+
+                  if (temp) {
+                    toggleWindow(temp.id.substr(7), false);
+                  }
+                }
+
+                win.classList.toggle('de-win', isDrag);
+                win.classList.toggle('de-win-fixed', !isDrag);
+                width = win.style.width;
+                win.style.cssText = "".concat(isDrag ? "".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'right: 0; bottom: 25px').concat(width ? '; width: ' + width : '');
+                updateWinZ(win.style);
+
+              case 9:
+              case "end":
+                return _context5.stop();
+            }
           }
-        }
-
-        win.classList.toggle('de-win', isDrag);
-        win.classList.toggle('de-win-fixed', !isDrag);
-        var width = win.style.width;
-        win.style.cssText = "".concat(isDrag ? "".concat(Cfg[name + 'WinX'], "; ").concat(Cfg[name + 'WinY']) : 'right: 0; bottom: 25px').concat(width ? '; width: ' + width : '');
-        updateWinZ(win.style);
-      };
-
+        }, _callee5);
+      }));
       makeDraggable(name, win, $q('.de-win-head', win));
     }
 
@@ -10717,23 +10768,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
     }), 
     $button(Lng.clear[lang], Lng.clrDeleted[lang], function () {
-      var _ref2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee4(e) {
+      var _ref3 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee6(e) {
         var els, _loop2, i, len;
 
-        return _regeneratorRuntime().wrap(function _callee4$(_context5) {
+        return _regeneratorRuntime().wrap(function _callee6$(_context7) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
                 els = $Q('.de-entry[info]', e.target.parentNode.parentNode);
                 _loop2 = _regeneratorRuntime().mark(function _loop2(i, len) {
                   var _els$i$getAttribute$s, _els$i$getAttribute$s2, board, tNum;
 
-                  return _regeneratorRuntime().wrap(function _loop2$(_context4) {
+                  return _regeneratorRuntime().wrap(function _loop2$(_context6) {
                     while (1) {
-                      switch (_context4.prev = _context4.next) {
+                      switch (_context6.prev = _context6.next) {
                         case 0:
                           _els$i$getAttribute$s = els[i].getAttribute('info').split(';'), _els$i$getAttribute$s2 = _slicedToArray(_els$i$getAttribute$s, 2), board = _els$i$getAttribute$s2[0], tNum = _els$i$getAttribute$s2[1];
-                          _context4.next = 3;
+                          _context6.next = 3;
                           return $ajax(aib.getThrUrl(board, tNum))["catch"](function (err) {
                             if (err.code === 404) {
                               HiddenThreads.removeStorage(tNum, board);
@@ -10743,7 +10794,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                         case 3:
                         case "end":
-                          return _context4.stop();
+                          return _context6.stop();
                       }
                     }
                   }, _loop2);
@@ -10752,15 +10803,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 if (!(i < len)) {
-                  _context5.next = 8;
+                  _context7.next = 8;
                   break;
                 }
 
-                return _context5.delegateYield(_loop2(i, len), "t0", 5);
+                return _context7.delegateYield(_loop2(i, len), "t0", 5);
 
               case 5:
                 ++i;
-                _context5.next = 3;
+                _context7.next = 3;
                 break;
 
               case 8:
@@ -10768,14 +10819,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 9:
               case "end":
-                return _context5.stop();
+                return _context7.stop();
             }
           }
-        }, _callee4);
+        }, _callee6);
       }));
 
       return function (_x11) {
-        return _ref2.apply(this, arguments);
+        return _ref3.apply(this, arguments);
       };
     }()), 
     $button(Lng.remove[lang], Lng.delEntries[lang], function () {
@@ -10900,11 +10951,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return;
     }
 
-    var _ref3 = _toConsumableArray(el.children),
-        iconEl = _ref3[0],
-        youEl = _ref3[1],
-        newEl = _ref3[2],
-        oldEl = _ref3[3];
+    var _ref4 = _toConsumableArray(el.children),
+        iconEl = _ref4[0],
+        youEl = _ref4[1],
+        newEl = _ref4[2],
+        oldEl = _ref4[3];
 
     $hide(youEl);
     $hide(newEl);
@@ -11083,25 +11134,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return fn(favObj, true, saveRenewFavorites);
       });
     }), 
-    $button(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee5() {
-      var favObj, isUpdate, last404, myposts, els, _i2, _len3, el, _host, _board, num, _entry, _ref5, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len4, tc;
+    $button(Lng.refresh[lang], Lng.infoCount[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee7() {
+      var favObj, isUpdate, last404, myposts, els, _i2, _len3, el, _host, _board, num, _entry, _ref6, titleEl, youEl, countEl, iconEl, form, isArchived, _yield$ajaxLoad, _yield$ajaxLoad2, posts, cnt, j, links, a, _len4, tc;
 
-      return _regeneratorRuntime().wrap(function _callee5$(_context6) {
+      return _regeneratorRuntime().wrap(function _callee7$(_context8) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context8.prev = _context8.next) {
             case 0:
-              _context6.next = 2;
+              _context8.next = 2;
               return readFavorites();
 
             case 2:
-              favObj = _context6.sent;
+              favObj = _context8.sent;
 
               if (favObj[aib.host]) {
-                _context6.next = 5;
+                _context8.next = 5;
                 break;
               }
 
-              return _context6.abrupt("return");
+              return _context8.abrupt("return");
 
             case 5:
               isUpdate = false;
@@ -11112,7 +11163,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 10:
               if (!(_i2 < _len3)) {
-                _context6.next = 64;
+                _context8.next = 64;
                 break;
               }
 
@@ -11123,82 +11174,82 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               _entry = favObj[_host][_board][num]; 
 
               if (!(_host !== aib.host || _entry.err === 'Closed' || _entry.err === 'Archived')) {
-                _context6.next = 18;
+                _context8.next = 18;
                 break;
               }
 
-              return _context6.abrupt("continue", 61);
+              return _context8.abrupt("continue", 61);
 
             case 18:
-              _ref5 = _toConsumableArray(el.lastElementChild.children), titleEl = _ref5[0], youEl = _ref5[1], countEl = _ref5[2];
+              _ref6 = _toConsumableArray(el.lastElementChild.children), titleEl = _ref6[0], youEl = _ref6[1], countEl = _ref6[2];
               iconEl = titleEl.firstElementChild; 
 
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
               titleEl.title = Lng.updating[lang];
               form = void 0, isArchived = void 0;
-              _context6.prev = 23;
+              _context8.prev = 23;
 
               if (aib.hasArchive) {
-                _context6.next = 30;
+                _context8.next = 30;
                 break;
               }
 
-              _context6.next = 27;
+              _context8.next = 27;
               return ajaxLoad(aib.getThrUrl(_board, num));
 
             case 27:
-              form = _context6.sent;
-              _context6.next = 36;
+              form = _context8.sent;
+              _context8.next = 36;
               break;
 
             case 30:
-              _context6.next = 32;
+              _context8.next = 32;
               return ajaxLoad(aib.getThrUrl(_board, num), true, false, true);
 
             case 32:
-              _yield$ajaxLoad = _context6.sent;
+              _yield$ajaxLoad = _context8.sent;
               _yield$ajaxLoad2 = _slicedToArray(_yield$ajaxLoad, 2);
               form = _yield$ajaxLoad2[0];
               isArchived = _yield$ajaxLoad2[1];
 
             case 36:
               last404 = false;
-              _context6.next = 56;
+              _context8.next = 56;
               break;
 
             case 39:
-              _context6.prev = 39;
-              _context6.t0 = _context6["catch"](23);
+              _context8.prev = 39;
+              _context8.t0 = _context8["catch"](23);
 
-              if (!(_context6.t0 instanceof AjaxError && _context6.t0.code === 404)) {
-                _context6.next = 49;
+              if (!(_context8.t0 instanceof AjaxError && _context8.t0.code === 404)) {
+                _context8.next = 49;
                 break;
               }
 
               if (!last404) {
-                _context6.next = 46;
+                _context8.next = 46;
                 break;
               }
 
               Thread.removeSavedData(_board, num); 
 
-              _context6.next = 49;
+              _context8.next = 49;
               break;
 
             case 46:
               last404 = true;
               --_i2; 
 
-              return _context6.abrupt("continue", 61);
+              return _context8.abrupt("continue", 61);
 
             case 49:
               last404 = false;
               $hide(countEl);
               $hide(youEl);
               iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-unavail');
-              _entry.err = titleEl.title = getErrorMessage(_context6.t0);
+              _entry.err = titleEl.title = getErrorMessage(_context8.t0);
               isUpdate = true;
-              return _context6.abrupt("continue", 61);
+              return _context8.abrupt("continue", 61);
 
             case 56:
               if (aib.qClosed && $q(aib.qClosed, form)) {
@@ -11259,7 +11310,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 61:
               ++_i2;
-              _context6.next = 10;
+              _context8.next = 10;
               break;
 
             case 64:
@@ -11271,27 +11322,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 66:
             case "end":
-              return _context6.stop();
+              return _context8.stop();
           }
         }
-      }, _callee5, null, [[23, 39]]);
+      }, _callee7, null, [[23, 39]]);
     }))), 
-    $button(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee6() {
+    $button(Lng.page[lang], Lng.infoPage[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee8() {
       var els, len, thrInfo, _i3, el, iconEl, titleEl, endPage, infoLoaded, updateInf, page, _tNums, form, _els, _i4, _len5, _i5, inf, _i6, _inf;
 
-      return _regeneratorRuntime().wrap(function _callee6$(_context7) {
+      return _regeneratorRuntime().wrap(function _callee8$(_context9) {
         while (1) {
-          switch (_context7.prev = _context7.next) {
+          switch (_context9.prev = _context9.next) {
             case 0:
               els = $Q('.de-fav-current > .de-fav-entries > .de-entry');
               len = els.length;
 
               if (len) {
-                _context7.next = 4;
+                _context9.next = 4;
                 break;
               }
 
-              return _context7.abrupt("return");
+              return _context9.abrupt("return");
 
             case 4:
               $popup('load-pages', Lng.loading[lang], true); 
@@ -11330,30 +11381,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 11:
               if (!(page < endPage)) {
-                _context7.next = 30;
+                _context9.next = 30;
                 break;
               }
 
               _tNums = new Set();
-              _context7.prev = 13;
-              _context7.next = 16;
+              _context9.prev = 13;
+              _context9.next = 16;
               return ajaxLoad(aib.getPageUrl(aib.b, page));
 
             case 16:
-              form = _context7.sent;
+              form = _context9.sent;
               _els = DelForm.getThreads(form);
 
               for (_i4 = 0, _len5 = _els.length; _i4 < _len5; ++_i4) {
                 _tNums.add(aib.getTNum(_els[_i4]));
               }
 
-              _context7.next = 24;
+              _context9.next = 24;
               break;
 
             case 21:
-              _context7.prev = 21;
-              _context7.t0 = _context7["catch"](13);
-              return _context7.abrupt("continue", 27);
+              _context9.prev = 21;
+              _context9.t0 = _context9["catch"](13);
+              return _context9.abrupt("continue", 27);
 
             case 24:
               for (_i5 = 0; _i5 < len; ++_i5) {
@@ -11367,15 +11418,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!(infoLoaded === len)) {
-                _context7.next = 27;
+                _context9.next = 27;
                 break;
               }
 
-              return _context7.abrupt("break", 30);
+              return _context9.abrupt("break", 30);
 
             case 27:
               ++page;
-              _context7.next = 11;
+              _context9.next = 11;
               break;
 
             case 30:
@@ -11391,17 +11442,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 32:
             case "end":
-              return _context7.stop();
+              return _context9.stop();
           }
         }
-      }, _callee6, null, [[13, 21]]);
+      }, _callee8, null, [[13, 21]]);
     }))), 
-    $button(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee7() {
+    $button(Lng.clear[lang], Lng.clrDeleted[lang], _asyncToGenerator( _regeneratorRuntime().mark(function _callee9() {
       var last404, els, parent, _loop3, _i7, _len6;
 
-      return _regeneratorRuntime().wrap(function _callee7$(_context9) {
+      return _regeneratorRuntime().wrap(function _callee9$(_context11) {
         while (1) {
-          switch (_context9.prev = _context9.next) {
+          switch (_context11.prev = _context11.next) {
             case 0:
               last404 = false;
               els = $Q('.de-entry');
@@ -11409,16 +11460,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               parent.classList.add('de-fav-table-unfold');
               _loop3 = _regeneratorRuntime().mark(function _loop3(_i8, _len6) {
                 var el, iconEl, titleEl;
-                return _regeneratorRuntime().wrap(function _loop3$(_context8) {
+                return _regeneratorRuntime().wrap(function _loop3$(_context10) {
                   while (1) {
-                    switch (_context8.prev = _context8.next) {
+                    switch (_context10.prev = _context10.next) {
                       case 0:
                         el = els[_i8];
                         iconEl = $q('.de-fav-inf-icon', el);
                         titleEl = iconEl.parentNode;
                         iconEl.setAttribute('class', 'de-fav-inf-icon de-fav-wait');
                         titleEl.title = Lng.updating[lang];
-                        _context8.next = 7;
+                        _context10.next = 7;
                         return $ajax(el.getAttribute('de-url'), null, true).then(function (xhr) {
                           switch (el.getAttribute('de-host')) {
                             case '2ch.hk':
@@ -11460,7 +11511,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                       case 8:
                       case "end":
-                        return _context8.stop();
+                        return _context10.stop();
                     }
                   }
                 }, _loop3);
@@ -11469,15 +11520,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 6:
               if (!(_i7 < _len6)) {
-                _context9.next = 11;
+                _context11.next = 11;
                 break;
               }
 
-              return _context9.delegateYield(_loop3(_i7, _len6), "t0", 8);
+              return _context11.delegateYield(_loop3(_i7, _len6), "t0", 8);
 
             case 8:
               ++_i7;
-              _context9.next = 6;
+              _context11.next = 6;
               break;
 
             case 11:
@@ -11487,10 +11538,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 13:
             case "end":
-              return _context9.stop();
+              return _context11.stop();
           }
         }
-      }, _callee7);
+      }, _callee9);
     })))); 
 
     var delBtns = $bEnd(body, '<div id="de-fav-del-confirm" style="display: none;"></div>');
@@ -11527,12 +11578,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       div.append( 
       getEditButton('cfg', function (fn) {
         return fn(Cfg, true, function () {
-          var _ref8 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee8(data) {
-            return _regeneratorRuntime().wrap(function _callee8$(_context10) {
+          var _ref9 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee10(data) {
+            return _regeneratorRuntime().wrap(function _callee10$(_context12) {
               while (1) {
-                switch (_context10.prev = _context10.next) {
+                switch (_context12.prev = _context12.next) {
                   case 0:
-                    _context10.next = 2;
+                    _context12.next = 2;
                     return saveCfgObj(aib.dm, function () {
                       return data;
                     });
@@ -11542,45 +11593,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 3:
                   case "end":
-                    return _context10.stop();
+                    return _context12.stop();
                 }
               }
-            }, _callee8);
+            }, _callee10);
           }));
 
           return function (_x12) {
-            return _ref8.apply(this, arguments);
+            return _ref9.apply(this, arguments);
           };
         }());
       }), 
       nav.hasGlobalStorage ? $button(Lng.global[lang], Lng.globalCfg[lang], function () {
         var el = $popup('cfg-global', "<b>".concat(Lng.globalCfg[lang], ":</b>")); 
 
-        $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.load[lang], "\"> ").concat(Lng.loadGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee9() {
+        $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.load[lang], "\"> ").concat(Lng.loadGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee11() {
           var data;
-          return _regeneratorRuntime().wrap(function _callee9$(_context11) {
+          return _regeneratorRuntime().wrap(function _callee11$(_context13) {
             while (1) {
-              switch (_context11.prev = _context11.next) {
+              switch (_context13.prev = _context13.next) {
                 case 0:
-                  _context11.next = 2;
+                  _context13.next = 2;
                   return getStoredObj('DESU_Config');
 
                 case 2:
-                  data = _context11.sent;
+                  data = _context13.sent;
 
                   if (!(data && 'global' in data && !$isEmpty(data.global))) {
-                    _context11.next = 9;
+                    _context13.next = 9;
                     break;
                   }
 
-                  _context11.next = 6;
+                  _context13.next = 6;
                   return saveCfgObj(aib.dm, function () {
                     return data.global;
                   });
 
                 case 6:
                   deWindow.location.reload();
-                  _context11.next = 10;
+                  _context13.next = 10;
                   break;
 
                 case 9:
@@ -11588,23 +11639,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 10:
                 case "end":
-                  return _context11.stop();
+                  return _context13.stop();
               }
             }
-          }, _callee9);
+          }, _callee11);
         })); 
 
-        div = $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.save[lang], "\"> ").concat(Lng.saveGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee10() {
+        div = $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.save[lang], "\"> ").concat(Lng.saveGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee12() {
           var data, obj, com, i;
-          return _regeneratorRuntime().wrap(function _callee10$(_context12) {
+          return _regeneratorRuntime().wrap(function _callee12$(_context14) {
             while (1) {
-              switch (_context12.prev = _context12.next) {
+              switch (_context14.prev = _context14.next) {
                 case 0:
-                  _context12.next = 2;
+                  _context14.next = 2;
                   return getStoredObj('DESU_Config');
 
                 case 2:
-                  data = _context12.sent;
+                  data = _context14.sent;
                   obj = {};
                   com = data[aib.dm];
 
@@ -11615,7 +11666,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
 
                   data.global = obj;
-                  _context12.next = 9;
+                  _context14.next = 9;
                   return saveCfgObj('global', function () {
                     return data.global;
                   });
@@ -11625,10 +11676,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 10:
                 case "end":
-                  return _context12.stop();
+                  return _context14.stop();
               }
             }
-          }, _callee10);
+          }, _callee12);
         }));
         el.insertAdjacentHTML('beforeend', "<hr><small>".concat(Lng.descrGlobal[lang], "</small>"));
       }) : '', 
@@ -11645,8 +11696,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return;
           }
 
-          readFile(file, true).then(function (_ref11) {
-            var data = _ref11.data;
+          readFile(file, true).then(function (_ref12) {
+            var data = _ref12.data;
             var obj;
 
             try {
@@ -11706,11 +11757,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var els = $Q('input', expFile.nextElementSibling);
         els[0].checked = true;
         expFile.addEventListener('click', function () {
-          var _ref12 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee11(e) {
+          var _ref13 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee13(e) {
             var name, nameDm, d, val, valDm, i, len, cfgData;
-            return _regeneratorRuntime().wrap(function _callee11$(_context13) {
+            return _regeneratorRuntime().wrap(function _callee13$(_context15) {
               while (1) {
-                switch (_context13.prev = _context13.next) {
+                switch (_context15.prev = _context15.next) {
                   case 0:
                     name = [];
                     nameDm = [];
@@ -11721,61 +11772,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 6:
                     if (!(i < len)) {
-                      _context13.next = 38;
+                      _context15.next = 38;
                       break;
                     }
 
                     if (els[i].checked) {
-                      _context13.next = 9;
+                      _context15.next = 9;
                       break;
                     }
 
-                    return _context13.abrupt("continue", 35);
+                    return _context15.abrupt("continue", 35);
 
                   case 9:
-                    _context13.t0 = i;
-                    _context13.next = _context13.t0 === 0 ? 12 : _context13.t0 === 1 ? 18 : _context13.t0 === 2 ? 30 : _context13.t0 === 3 ? 33 : 35;
+                    _context15.t0 = i;
+                    _context15.next = _context15.t0 === 0 ? 12 : _context15.t0 === 1 ? 18 : _context15.t0 === 2 ? 30 : _context15.t0 === 3 ? 33 : 35;
                     break;
 
                   case 12:
                     name.push('Cfg');
-                    _context13.next = 15;
+                    _context15.next = 15;
                     return Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
 
                   case 15:
-                    cfgData = _context13.sent;
+                    cfgData = _context15.sent;
                     val.push("\"settings\":".concat(cfgData[0]), "\"hotkeys\":".concat(cfgData[1] || '""'));
-                    return _context13.abrupt("break", 35);
+                    return _context15.abrupt("break", 35);
 
                   case 18:
                     name.push('Fav');
-                    _context13.t1 = val;
-                    _context13.t2 = "\"favorites\":";
-                    _context13.next = 23;
+                    _context15.t1 = val;
+                    _context15.t2 = "\"favorites\":";
+                    _context15.next = 23;
                     return getStored('DESU_Favorites');
 
                   case 23:
-                    _context13.t3 = _context13.sent;
+                    _context15.t3 = _context15.sent;
 
-                    if (_context13.t3) {
-                      _context13.next = 26;
+                    if (_context15.t3) {
+                      _context15.next = 26;
                       break;
                     }
 
-                    _context13.t3 = '{}';
+                    _context15.t3 = '{}';
 
                   case 26:
-                    _context13.t4 = _context13.t3;
-                    _context13.t5 = _context13.t2.concat.call(_context13.t2, _context13.t4);
+                    _context15.t4 = _context15.t3;
+                    _context15.t5 = _context15.t2.concat.call(_context15.t2, _context15.t4);
 
-                    _context13.t1.push.call(_context13.t1, _context13.t5);
+                    _context15.t1.push.call(_context15.t1, _context15.t5);
 
-                    return _context13.abrupt("break", 35);
+                    return _context15.abrupt("break", 35);
 
                   case 30:
                     nameDm.push('Hid');
                     valDm.push("\"posts\":".concat(locStorage['de-posts'] || '{}'), "\"threads\":".concat(locStorage['de-threads'] || '{}'));
-                    return _context13.abrupt("break", 35);
+                    return _context15.abrupt("break", 35);
 
                   case 33:
                     nameDm.push('You');
@@ -11783,7 +11834,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 35:
                     ++i;
-                    _context13.next = 6;
+                    _context15.next = 6;
                     break;
 
                   case 38:
@@ -11802,14 +11853,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 41:
                   case "end":
-                    return _context13.stop();
+                    return _context15.stop();
                 }
               }
-            }, _callee11);
+            }, _callee13);
           }));
 
           return function (_x13) {
-            return _ref12.apply(this, arguments);
+            return _ref13.apply(this, arguments);
           };
         }(), true);
       }) : '', 
@@ -11858,18 +11909,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     handleEvent: function handleEvent(e) {
       var _this17 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee12() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee14() {
         var type, el, tag, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
 
-        return _regeneratorRuntime().wrap(function _callee12$(_context14) {
+        return _regeneratorRuntime().wrap(function _callee14$(_context16) {
           while (1) {
-            switch (_context14.prev = _context14.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
                 type = e.type, el = e.target;
                 tag = el.tagName;
 
                 if (!(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab'))) {
-                  _context14.next = 7;
+                  _context16.next = 7;
                   break;
                 }
 
@@ -11877,24 +11928,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 _this17._clickTab(info);
 
-                _context14.next = 7;
+                _context16.next = 7;
                 return saveCfg('cfgTab', info);
 
               case 7:
                 if (!(type === 'change' && tag === 'SELECT')) {
-                  _context14.next = 49;
+                  _context16.next = 49;
                   break;
                 }
 
                 _info = el.getAttribute('info');
-                _context14.next = 11;
+                _context16.next = 11;
                 return saveCfg(_info, el.selectedIndex);
 
               case 11:
                 _this17._updateDependant();
 
-                _context14.t0 = _info;
-                _context14.next = _context14.t0 === 'language' ? 15 : _context14.t0 === 'delHiddPost' ? 22 : _context14.t0 === 'postBtnsCSS' ? 26 : _context14.t0 === 'thrBtns' ? 29 : _context14.t0 === 'noSpoilers' ? 29 : _context14.t0 === 'resizeImgs' ? 29 : _context14.t0 === 'expandImgs' ? 31 : _context14.t0 === 'imgNames' ? 34 : _context14.t0 === 'fileInputs' ? 37 : _context14.t0 === 'addPostForm' ? 41 : _context14.t0 === 'addTextBtns' ? 44 : _context14.t0 === 'scriptStyle' ? 45 : _context14.t0 === 'panelCounter' ? 45 : _context14.t0 === 'favThrOrder' ? 47 : 48;
+                _context16.t0 = _info;
+                _context16.next = _context16.t0 === 'language' ? 15 : _context16.t0 === 'delHiddPost' ? 22 : _context16.t0 === 'postBtnsCSS' ? 26 : _context16.t0 === 'thrBtns' ? 29 : _context16.t0 === 'noSpoilers' ? 29 : _context16.t0 === 'resizeImgs' ? 29 : _context16.t0 === 'expandImgs' ? 31 : _context16.t0 === 'imgNames' ? 34 : _context16.t0 === 'fileInputs' ? 37 : _context16.t0 === 'addPostForm' ? 41 : _context16.t0 === 'addTextBtns' ? 44 : _context16.t0 === 'scriptStyle' ? 45 : _context16.t0 === 'panelCounter' ? 45 : _context16.t0 === 'favThrOrder' ? 47 : 48;
                 break;
 
               case 15:
@@ -11918,7 +11969,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 Panel.initPanel(DelForm.first.el);
                 toggleWindow('cfg', false);
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 22:
                 isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
@@ -11930,7 +11981,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 26:
                 updateCSS();
@@ -11940,16 +11991,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   addSVGIcons();
                 }
 
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 29:
                 updateCSS();
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 31:
                 updateCSS();
                 AttachedImage.closeImg();
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 34:
                 if (Cfg.imgNames) {
@@ -11964,18 +12015,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 37:
                 pr.files.changeMode();
                 pr.setPlaceholders();
                 updateCSS();
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 41:
                 pr.isBottom = Cfg.addPostForm === 1;
                 pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 44:
                 pr.addMarkupPanel();
@@ -11983,7 +12034,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 45:
                 _this17._updateCSS();
 
-                return _context14.abrupt("break", 48);
+                return _context16.abrupt("break", 48);
 
               case 47:
                 readFavorites().then(function (favObj) {
@@ -11993,47 +12044,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 });
 
               case 48:
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 49:
                 if (!(type === 'click' && tag === 'INPUT' && el.type === 'checkbox')) {
-                  _context14.next = 115;
+                  _context16.next = 115;
                   break;
                 }
 
                 _info2 = el.getAttribute('info');
-                _context14.next = 53;
+                _context16.next = 53;
                 return toggleCfg(_info2);
 
               case 53:
                 _this17._updateDependant();
 
-                _context14.t1 = _info2;
-                _context14.next = _context14.t1 === 'expandTrunc' ? 57 : _context14.t1 === 'widePosts' ? 57 : _context14.t1 === 'showHideBtn' ? 57 : _context14.t1 === 'showRepBtn' ? 57 : _context14.t1 === 'noPostNames' ? 57 : _context14.t1 === 'imgNavBtns' ? 57 : _context14.t1 === 'strikeHidd' ? 57 : _context14.t1 === 'removeHidd' ? 57 : _context14.t1 === 'noBoardRule' ? 57 : _context14.t1 === 'userCSS' ? 57 : _context14.t1 === 'hideBySpell' ? 59 : _context14.t1 === 'sortSpells' ? 62 : _context14.t1 === 'hideRefPsts' ? 66 : _context14.t1 === 'ajaxUpdThr' ? 68 : _context14.t1 === 'updCount' ? 70 : _context14.t1 === 'desktNotif' ? 72 : _context14.t1 === 'markNewPosts' ? 74 : _context14.t1 === 'useDobrAPI' ? 76 : _context14.t1 === 'markMyPosts' ? 78 : _context14.t1 === 'markMyLinks' ? 78 : _context14.t1 === 'correctTime' ? 81 : _context14.t1 === 'imgInfoLink' ? 84 : _context14.t1 === 'imgSrcBtns' ? 88 : _context14.t1 === 'addSageBtn' ? 90 : _context14.t1 === 'altCaptcha' ? 94 : _context14.t1 === 'txtBtnsLoc' ? 96 : _context14.t1 === 'userPassw' ? 99 : _context14.t1 === 'userName' ? 102 : _context14.t1 === 'noPassword' ? 105 : _context14.t1 === 'noName' ? 107 : _context14.t1 === 'noSubj' ? 109 : _context14.t1 === 'inftyScroll' ? 111 : _context14.t1 === 'hotKeys' ? 113 : 114;
+                _context16.t1 = _info2;
+                _context16.next = _context16.t1 === 'expandTrunc' ? 57 : _context16.t1 === 'widePosts' ? 57 : _context16.t1 === 'showHideBtn' ? 57 : _context16.t1 === 'showRepBtn' ? 57 : _context16.t1 === 'noPostNames' ? 57 : _context16.t1 === 'imgNavBtns' ? 57 : _context16.t1 === 'strikeHidd' ? 57 : _context16.t1 === 'removeHidd' ? 57 : _context16.t1 === 'noBoardRule' ? 57 : _context16.t1 === 'userCSS' ? 57 : _context16.t1 === 'hideBySpell' ? 59 : _context16.t1 === 'sortSpells' ? 62 : _context16.t1 === 'hideRefPsts' ? 66 : _context16.t1 === 'ajaxUpdThr' ? 68 : _context16.t1 === 'updCount' ? 70 : _context16.t1 === 'desktNotif' ? 72 : _context16.t1 === 'markNewPosts' ? 74 : _context16.t1 === 'useDobrAPI' ? 76 : _context16.t1 === 'markMyPosts' ? 78 : _context16.t1 === 'markMyLinks' ? 78 : _context16.t1 === 'correctTime' ? 81 : _context16.t1 === 'imgInfoLink' ? 84 : _context16.t1 === 'imgSrcBtns' ? 88 : _context16.t1 === 'addSageBtn' ? 90 : _context16.t1 === 'altCaptcha' ? 94 : _context16.t1 === 'txtBtnsLoc' ? 96 : _context16.t1 === 'userPassw' ? 99 : _context16.t1 === 'userName' ? 102 : _context16.t1 === 'noPassword' ? 105 : _context16.t1 === 'noName' ? 107 : _context16.t1 === 'noSubj' ? 109 : _context16.t1 === 'inftyScroll' ? 111 : _context16.t1 === 'hotKeys' ? 113 : 114;
                 break;
 
               case 57:
                 updateCSS();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 59:
-                _context14.next = 61;
+                _context16.next = 61;
                 return Spells.toggle();
 
               case 61:
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 62:
                 if (!Cfg.sortSpells) {
-                  _context14.next = 65;
+                  _context16.next = 65;
                   break;
                 }
 
-                _context14.next = 65;
+                _context16.next = 65;
                 return Spells.toggle();
 
               case 65:
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 66:
                 for (_post3 = Thread.first.op; _post3; _post3 = _post3.next) {
@@ -12044,7 +12095,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 }
 
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 68:
                 if (aib.t) {
@@ -12055,26 +12106,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 }
 
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 70:
                 updater.toggleCounter(Cfg.updCount);
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 72:
                 if (Cfg.desktNotif) {
                   Notification.requestPermission();
                 }
 
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 74:
                 Post.clearMarks();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 76:
                 aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 78:
                 if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
@@ -12083,14 +12134,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 81:
-                _context14.next = 83;
+                _context16.next = 83;
                 return DateTime.toggleSettings(el);
 
               case 83:
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 84:
                 img = $q('.de-fullimg-wrap');
@@ -12100,7 +12151,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 88:
                 if (Cfg.imgSrcBtns) {
@@ -12115,7 +12166,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   $delAll('.de-btn-img');
                 }
 
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 90:
                 PostForm.hideField(pr.mail.closest('label') || pr.mail);
@@ -12123,46 +12174,46 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return pr.toggleSage();
                 }, 0);
                 updateCSS();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 94:
                 pr.cap.initCapPromise();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 96:
                 pr.addMarkupPanel();
                 updateCSS();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 99:
-                _context14.next = 101;
+                _context16.next = 101;
                 return PostForm.setUserPassw();
 
               case 101:
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 102:
-                _context14.next = 104;
+                _context16.next = 104;
                 return PostForm.setUserName();
 
               case 104:
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 105:
                 $toggle(pr.passw.closest(aib.qFormTr));
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 107:
                 PostForm.hideField(pr.name);
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 109:
                 PostForm.hideField(pr.subj);
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 111:
                 toggleInfinityScroll();
-                return _context14.abrupt("break", 114);
+                return _context16.abrupt("break", 114);
 
               case 113:
                 if (Cfg.hotKeys) {
@@ -12172,35 +12223,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
               case 114:
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 115:
                 if (!(type === 'click' && tag === 'INPUT' && el.type === 'button')) {
-                  _context14.next = 137;
+                  _context16.next = 137;
                   break;
                 }
 
-                _context14.t2 = el.id;
-                _context14.next = _context14.t2 === 'de-cfg-button-pass' ? 119 : _context14.t2 === 'de-cfg-button-keys' ? 123 : _context14.t2 === 'de-cfg-button-updnow' ? 128 : _context14.t2 === 'de-cfg-button-donate' ? 131 : _context14.t2 === 'de-cfg-button-debug' ? 133 : 137;
+                _context16.t2 = el.id;
+                _context16.next = _context16.t2 === 'de-cfg-button-pass' ? 119 : _context16.t2 === 'de-cfg-button-keys' ? 123 : _context16.t2 === 'de-cfg-button-updnow' ? 128 : _context16.t2 === 'de-cfg-button-donate' ? 131 : _context16.t2 === 'de-cfg-button-debug' ? 133 : 137;
                 break;
 
               case 119:
                 $q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-                _context14.next = 122;
+                _context16.next = 122;
                 return PostForm.setUserPassw();
 
               case 122:
-                return _context14.abrupt("break", 137);
+                return _context16.abrupt("break", 137);
 
               case 123:
                 e.preventDefault();
 
                 if (!$id('de-popup-edit-hotkeys')) {
-                  _context14.next = 126;
+                  _context16.next = 126;
                   break;
                 }
 
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 126:
                 Promise.resolve(HotKeys.readKeys()).then(function (keys) {
@@ -12211,7 +12262,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     return el.addEventListener(e, fn, true);
                   });
                 });
-                return _context14.abrupt("break", 137);
+                return _context16.abrupt("break", 137);
 
               case 128:
                 $popup('updavail', Lng.loading[lang], true);
@@ -12220,11 +12271,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }).then(function (html) {
                   return $popup('updavail', html);
                 }, emptyFn);
-                return _context14.abrupt("break", 137);
+                return _context16.abrupt("break", 137);
 
               case 131:
                 showDonateMsg();
-                return _context14.abrupt("break", 137);
+                return _context16.abrupt("break", 137);
 
               case 133:
                 perf = {};
@@ -12256,13 +12307,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 137:
                 if (!(type === 'keyup' && tag === 'INPUT' && el.type === 'text')) {
-                  _context14.next = 189;
+                  _context16.next = 189;
                   break;
                 }
 
                 _info3 = el.getAttribute('info');
-                _context14.t3 = _info3;
-                _context14.next = _context14.t3 === 'postBtnsBack' ? 142 : _context14.t3 === 'limitPostMsg' ? 149 : _context14.t3 === 'minImgSize' ? 153 : _context14.t3 === 'zoomFactor' ? 156 : _context14.t3 === 'webmVolume' ? 159 : _context14.t3 === 'minWebmWidth' ? 164 : _context14.t3 === 'maskVisib' ? 167 : _context14.t3 === 'linksOver' ? 171 : _context14.t3 === 'linksOut' ? 174 : _context14.t3 === 'ytApiKey' ? 177 : _context14.t3 === 'passwValue' ? 180 : _context14.t3 === 'nameValue' ? 183 : 186;
+                _context16.t3 = _info3;
+                _context16.next = _context16.t3 === 'postBtnsBack' ? 142 : _context16.t3 === 'limitPostMsg' ? 149 : _context16.t3 === 'minImgSize' ? 153 : _context16.t3 === 'zoomFactor' ? 156 : _context16.t3 === 'webmVolume' ? 159 : _context16.t3 === 'minWebmWidth' ? 164 : _context16.t3 === 'maskVisib' ? 167 : _context16.t3 === 'linksOver' ? 171 : _context16.t3 === 'linksOut' ? 174 : _context16.t3 === 'ytApiKey' ? 177 : _context16.t3 === 'passwValue' ? 180 : _context16.t3 === 'nameValue' ? 183 : 186;
                 break;
 
               case 142:
@@ -12270,178 +12321,178 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 el.classList.toggle('de-input-error', !isCheck);
 
                 if (!isCheck) {
-                  _context14.next = 148;
+                  _context16.next = 148;
                   break;
                 }
 
-                _context14.next = 147;
+                _context16.next = 147;
                 return saveCfg('postBtnsBack', el.value);
 
               case 147:
                 updateCSS();
 
               case 148:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 149:
-                _context14.next = 151;
+                _context16.next = 151;
                 return saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
 
               case 151:
                 updateCSS();
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 153:
-                _context14.next = 155;
+                _context16.next = 155;
                 return saveCfg('minImgSize', Math.max(+el.value, 1));
 
               case 155:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 156:
-                _context14.next = 158;
+                _context16.next = 158;
                 return saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 
               case 158:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 159:
                 val = Math.min(+el.value || 0, 100);
-                _context14.next = 162;
+                _context16.next = 162;
                 return saveCfg('webmVolume', val);
 
               case 162:
                 sendStorageEvent('__de-webmvolume', val);
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 164:
-                _context14.next = 166;
+                _context16.next = 166;
                 return saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
 
               case 166:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 167:
-                _context14.next = 169;
+                _context16.next = 169;
                 return saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 
               case 169:
                 updateCSS();
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 171:
-                _context14.next = 173;
+                _context16.next = 173;
                 return saveCfg('linksOver', +el.value | 0);
 
               case 173:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 174:
-                _context14.next = 176;
+                _context16.next = 176;
                 return saveCfg('linksOut', +el.value | 0);
 
               case 176:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 177:
-                _context14.next = 179;
+                _context16.next = 179;
                 return saveCfg('ytApiKey', el.value.trim());
 
               case 179:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 180:
-                _context14.next = 182;
+                _context16.next = 182;
                 return PostForm.setUserPassw();
 
               case 182:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 183:
-                _context14.next = 185;
+                _context16.next = 185;
                 return PostForm.setUserName();
 
               case 185:
-                return _context14.abrupt("break", 188);
+                return _context16.abrupt("break", 188);
 
               case 186:
-                _context14.next = 188;
+                _context16.next = 188;
                 return saveCfg(_info3, el.value);
 
               case 188:
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 189:
                 if (!(tag === 'A')) {
-                  _context14.next = 218;
+                  _context16.next = 218;
                   break;
                 }
 
                 if (!(el.id === 'de-btn-spell-add')) {
-                  _context14.next = 200;
+                  _context16.next = 200;
                   break;
                 }
 
-                _context14.t4 = e.type;
-                _context14.next = _context14.t4 === 'click' ? 194 : _context14.t4 === 'mouseover' ? 196 : _context14.t4 === 'mouseout' ? 198 : 199;
+                _context16.t4 = e.type;
+                _context16.next = _context16.t4 === 'click' ? 194 : _context16.t4 === 'mouseover' ? 196 : _context16.t4 === 'mouseout' ? 198 : 199;
                 break;
 
               case 194:
                 e.preventDefault();
-                return _context14.abrupt("break", 199);
+                return _context16.abrupt("break", 199);
 
               case 196:
                 el.odelay = setTimeout(function () {
                   return addMenu(el);
                 }, Cfg.linksOver);
-                return _context14.abrupt("break", 199);
+                return _context16.abrupt("break", 199);
 
               case 198:
                 clearTimeout(el.odelay);
 
               case 199:
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 200:
                 if (!(type === 'click')) {
-                  _context14.next = 217;
+                  _context16.next = 217;
                   break;
                 }
 
-                _context14.t5 = el.id;
-                _context14.next = _context14.t5 === 'de-btn-spell-apply' ? 204 : _context14.t5 === 'de-btn-spell-clear' ? 211 : 217;
+                _context16.t5 = el.id;
+                _context16.next = _context16.t5 === 'de-btn-spell-apply' ? 204 : _context16.t5 === 'de-btn-spell-clear' ? 211 : 217;
                 break;
 
               case 204:
                 e.preventDefault();
-                _context14.next = 207;
+                _context16.next = 207;
                 return saveCfg('hideBySpell', 1);
 
               case 207:
                 $q('input[info="hideBySpell"]').checked = true;
-                _context14.next = 210;
+                _context16.next = 210;
                 return Spells.toggle();
 
               case 210:
-                return _context14.abrupt("break", 217);
+                return _context16.abrupt("break", 217);
 
               case 211:
                 e.preventDefault();
 
                 if (confirm(Lng.clear[lang] + '?')) {
-                  _context14.next = 214;
+                  _context16.next = 214;
                   break;
                 }
 
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 214:
                 $id('de-spell-txt').value = '';
-                _context14.next = 217;
+                _context16.next = 217;
                 return Spells.toggle();
 
               case 217:
-                return _context14.abrupt("return");
+                return _context16.abrupt("return");
 
               case 218:
                 if (tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
@@ -12450,10 +12501,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 219:
               case "end":
-                return _context14.stop();
+                return _context16.stop();
             }
           }
-        }, _callee12);
+        }, _callee14);
       }))();
     },
     _clickTab: function _clickTab(info) {
@@ -12484,12 +12535,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (id === 'common') {
           $q('input[info="userCSS"]').parentNode.after(getEditButton('css', function (fn) {
             return fn(Cfg.userCSSTxt, false, function () {
-              var _ref13 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee13(inputEl) {
-                return _regeneratorRuntime().wrap(function _callee13$(_context15) {
+              var _ref14 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee15(inputEl) {
+                return _regeneratorRuntime().wrap(function _callee15$(_context17) {
                   while (1) {
-                    switch (_context15.prev = _context15.next) {
+                    switch (_context17.prev = _context17.next) {
                       case 0:
-                        _context15.next = 2;
+                        _context17.next = 2;
                         return saveCfg('userCSSTxt', inputEl.value);
 
                       case 2:
@@ -12498,14 +12549,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                       case 4:
                       case "end":
-                        return _context15.stop();
+                        return _context17.stop();
                     }
                   }
-                }, _callee13);
+                }, _callee15);
               }));
 
               return function (_x14) {
-                return _ref13.apply(this, arguments);
+                return _ref14.apply(this, arguments);
               };
             }());
           }, 'de-cfg-button'));
@@ -12897,8 +12948,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     switch (el.id) {
       case 'de-btn-spell-add':
-        return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref14) {
-          var s = _ref14.textContent;
+        return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref15) {
+          var s = _ref15.textContent;
           return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
         });
 
@@ -13127,8 +13178,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 9:
-            toggleCfg('maskImgs');
-            updateCSS();
+            toggleCfg('maskImgs').then(function () {
+              return updateCSS();
+            });
             break;
 
           case 10:
@@ -13272,24 +13324,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     readKeys: function readKeys() {
       var _this22 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee14() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee16() {
         var str, keys, tKeys, mapFunc;
-        return _regeneratorRuntime().wrap(function _callee14$(_context16) {
+        return _regeneratorRuntime().wrap(function _callee16$(_context18) {
           while (1) {
-            switch (_context16.prev = _context16.next) {
+            switch (_context18.prev = _context18.next) {
               case 0:
-                _context16.next = 2;
+                _context18.next = 2;
                 return getStored('DESU_keys');
 
               case 2:
-                str = _context16.sent;
+                str = _context18.sent;
 
                 if (str) {
-                  _context16.next = 5;
+                  _context18.next = 5;
                   break;
                 }
 
-                return _context16.abrupt("return", _this22.getDefaultKeys());
+                return _context18.abrupt("return", _this22.getDefaultKeys());
 
               case 5:
                 try {
@@ -13297,11 +13349,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 } catch (err) {}
 
                 if (keys) {
-                  _context16.next = 8;
+                  _context18.next = 8;
                   break;
                 }
 
-                return _context16.abrupt("return", _this22.getDefaultKeys());
+                return _context18.abrupt("return", _this22.getDefaultKeys());
 
               case 8:
                 if (keys[0] !== _this22.version) {
@@ -13348,14 +13400,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   setStored('DESU_keys', JSON.stringify(keys));
                 }
 
-                return _context16.abrupt("return", keys);
+                return _context18.abrupt("return", keys);
 
               case 11:
               case "end":
-                return _context16.stop();
+                return _context18.stop();
             }
           }
-        }, _callee14);
+        }, _callee16);
       }))();
     },
     resume: function resume(keys) {
@@ -14295,18 +14347,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "toggleSettings",
       value: function () {
-        var _toggleSettings = _asyncToGenerator( _regeneratorRuntime().mark(function _callee15(el) {
-          return _regeneratorRuntime().wrap(function _callee15$(_context17) {
+        var _toggleSettings = _asyncToGenerator( _regeneratorRuntime().mark(function _callee17(el) {
+          return _regeneratorRuntime().wrap(function _callee17$(_context19) {
             while (1) {
-              switch (_context17.prev = _context17.next) {
+              switch (_context19.prev = _context19.next) {
                 case 0:
                   if (!(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern)))) {
-                    _context17.next = 5;
+                    _context19.next = 5;
                     break;
                   }
 
                   $popup('err-correcttime', Lng.cTimeError[lang]);
-                  _context17.next = 4;
+                  _context19.next = 4;
                   return saveCfg('correctTime', 0);
 
                 case 4:
@@ -14314,10 +14366,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 5:
                 case "end":
-                  return _context17.stop();
+                  return _context19.stop();
               }
             }
-          }, _callee15);
+          }, _callee17);
         }));
 
         function toggleSettings(_x15) {
@@ -14656,12 +14708,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "_titlesLoaderHelper",
-      value: function _titlesLoaderHelper(_ref15, num) {
-        var _ref16 = _slicedToArray(_ref15, 4),
-            link = _ref16[0],
-            isYtube = _ref16[1],
-            videoObj = _ref16[2],
-            id = _ref16[3];
+      value: function _titlesLoaderHelper(_ref16, num) {
+        var _ref17 = _slicedToArray(_ref16, 4),
+            link = _ref17[0],
+            isYtube = _ref17[1],
+            videoObj = _ref17[2],
+            id = _ref17[3];
 
         for (var _len7 = arguments.length, data = new Array(_len7 > 2 ? _len7 - 2 : 0), _key3 = 2; _key3 < _len7; _key3++) {
           data[_key3 - 2] = arguments[_key3];
@@ -14862,60 +14914,60 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
 
       fetch(aib.getAbsLink(url), params).then( function () {
-        var _ref17 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee16(res) {
-          return _regeneratorRuntime().wrap(function _callee16$(_context18) {
+        var _ref18 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee18(res) {
+          return _regeneratorRuntime().wrap(function _callee18$(_context20) {
             while (1) {
-              switch (_context18.prev = _context18.next) {
+              switch (_context20.prev = _context20.next) {
                 case 0:
                   if (aib.isAjaxStatusOK(res.status)) {
-                    _context18.next = 3;
+                    _context20.next = 3;
                     break;
                   }
 
                   reject(new AjaxError(res.status, res.statusText));
-                  return _context18.abrupt("return");
+                  return _context20.abrupt("return");
 
                 case 3:
-                  _context18.t0 = params.responseType;
-                  _context18.next = _context18.t0 === 'arraybuffer' ? 6 : _context18.t0 === 'blob' ? 10 : 14;
+                  _context20.t0 = params.responseType;
+                  _context20.next = _context20.t0 === 'arraybuffer' ? 6 : _context20.t0 === 'blob' ? 10 : 14;
                   break;
 
                 case 6:
-                  _context18.next = 8;
+                  _context20.next = 8;
                   return res.arrayBuffer();
 
                 case 8:
-                  res.response = _context18.sent;
-                  return _context18.abrupt("break", 17);
+                  res.response = _context20.sent;
+                  return _context20.abrupt("break", 17);
 
                 case 10:
-                  _context18.next = 12;
+                  _context20.next = 12;
                   return res.blob();
 
                 case 12:
-                  res.response = _context18.sent;
-                  return _context18.abrupt("break", 17);
+                  res.response = _context20.sent;
+                  return _context20.abrupt("break", 17);
 
                 case 14:
-                  _context18.next = 16;
+                  _context20.next = 16;
                   return res.text();
 
                 case 16:
-                  res.responseText = _context18.sent;
+                  res.responseText = _context20.sent;
 
                 case 17:
                   resolve(res);
 
                 case 18:
                 case "end":
-                  return _context18.stop();
+                  return _context20.stop();
               }
             }
-          }, _callee16);
+          }, _callee18);
         }));
 
         return function (_x16) {
-          return _ref17.apply(this, arguments);
+          return _ref18.apply(this, arguments);
         };
       }())["catch"](function (err) {
         return reject(getErrorMessage(err));
@@ -15003,8 +15055,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         xhr.withCredentials = true;
       }
 
-      xhr.onreadystatechange = function (_ref18) {
-        var target = _ref18.target;
+      xhr.onreadystatechange = function (_ref19) {
+        var target = _ref19.target;
 
         if (needTO) {
           clearTimeout(_loadTO2);
@@ -15106,9 +15158,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     runCachedAjax: function runCachedAjax(url, useCache) {
       var _this27 = this;
 
-      var _ref19 = this._data.get(url) || {},
-          hasCacheControl = _ref19.hasCacheControl,
-          params = _ref19.params;
+      var _ref20 = this._data.get(url) || {},
+          hasCacheControl = _ref20.hasCacheControl,
+          params = _ref20.params;
 
       var ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
       return $ajax(ajaxURL, useCache && params || {
@@ -15285,29 +15337,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       DelForm.last.el.insertAdjacentHTML('beforeend', "<div class=\"de-addpage-wait\"><hr><center style=\"font-size: 1.5em\"><svg class=\"de-wait\">\n\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>".concat(Lng.loading[lang], "</center></div>"));
       MyPosts.purge();
       this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then( function () {
-        var _ref20 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee17(formEl) {
+        var _ref21 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee19(formEl) {
           var newForm, firstForm, thr, oldLastThr;
-          return _regeneratorRuntime().wrap(function _callee17$(_context19) {
+          return _regeneratorRuntime().wrap(function _callee19$(_context21) {
             while (1) {
-              switch (_context19.prev = _context19.next) {
+              switch (_context21.prev = _context21.next) {
                 case 0:
                   newForm = _this28._addForm(formEl, pageNum);
 
                   if (!newForm.firstThr) {
-                    _context19.next = 16;
+                    _context21.next = 16;
                     break;
                   }
 
                   if (needThreads) {
-                    _context19.next = 4;
+                    _context21.next = 4;
                     break;
                   }
 
-                  return _context19.abrupt("return", _this28._updateForms(DelForm.last));
+                  return _context21.abrupt("return", _this28._updateForms(DelForm.last));
 
                 case 4:
                   $hide(newForm.el);
-                  _context19.next = 7;
+                  _context21.next = 7;
                   return _this28._updateForms(DelForm.last);
 
                 case 7:
@@ -15340,25 +15392,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     _this28.addPage(needThreads, pageNum + 1);
                   }
 
-                  return _context19.abrupt("return", CancelablePromise.reject(new CancelError()));
+                  return _context21.abrupt("return", CancelablePromise.reject(new CancelError()));
 
                 case 16:
                   _this28._endAdding();
 
                   _this28.addPage();
 
-                  return _context19.abrupt("return", CancelablePromise.reject(new CancelError()));
+                  return _context21.abrupt("return", CancelablePromise.reject(new CancelError()));
 
                 case 19:
                 case "end":
-                  return _context19.stop();
+                  return _context21.stop();
               }
             }
-          }, _callee17);
+          }, _callee19);
         }));
 
         return function (_x17) {
-          return _ref20.apply(this, arguments);
+          return _ref21.apply(this, arguments);
         };
       }()).then(function () {
         return _this28._endAdding();
@@ -15373,12 +15425,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     loadPages: function loadPages(count) {
       var _this29 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee18() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee20() {
         var _iterator6, _step6, form, i, len, first;
 
-        return _regeneratorRuntime().wrap(function _callee18$(_context20) {
+        return _regeneratorRuntime().wrap(function _callee20$(_context22) {
           while (1) {
-            switch (_context20.prev = _context20.next) {
+            switch (_context22.prev = _context22.next) {
               case 0:
                 $popup('load-pages', Lng.loading[lang], true);
 
@@ -15404,7 +15456,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 11:
                 if ((_step6 = _iterator6()).done) {
-                  _context20.next = 20;
+                  _context22.next = 20;
                   break;
                 }
 
@@ -15415,17 +15467,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $hide(form.el);
 
                 if (!(form === DelForm.last)) {
-                  _context20.next = 17;
+                  _context22.next = 17;
                   break;
                 }
 
-                return _context20.abrupt("break", 20);
+                return _context22.abrupt("break", 20);
 
               case 17:
                 form.el.remove();
 
               case 18:
-                _context20.next = 11;
+                _context22.next = 11;
                 break;
 
               case 20:
@@ -15434,45 +15486,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 22:
                 if (!(i < len)) {
-                  _context20.next = 38;
+                  _context22.next = 38;
                   break;
                 }
 
-                _context20.prev = 23;
-                _context20.t0 = _this29;
-                _context20.next = 27;
+                _context22.prev = 23;
+                _context22.t0 = _this29;
+                _context22.next = 27;
                 return ajaxLoad(aib.getPageUrl(aib.b, i));
 
               case 27:
-                _context20.t1 = _context20.sent;
-                _context20.t2 = i;
+                _context22.t1 = _context22.sent;
+                _context22.t2 = i;
 
-                _context20.t0._addForm.call(_context20.t0, _context20.t1, _context20.t2);
+                _context22.t0._addForm.call(_context22.t0, _context22.t1, _context22.t2);
 
-                _context20.next = 35;
+                _context22.next = 35;
                 break;
 
               case 32:
-                _context20.prev = 32;
-                _context20.t3 = _context20["catch"](23);
-                $popup('load-pages', getErrorMessage(_context20.t3));
+                _context22.prev = 32;
+                _context22.t3 = _context22["catch"](23);
+                $popup('load-pages', getErrorMessage(_context22.t3));
 
               case 35:
                 ++i;
-                _context20.next = 22;
+                _context22.next = 22;
                 break;
 
               case 38:
                 first = DelForm.first;
 
                 if (!(first !== DelForm.last)) {
-                  _context20.next = 45;
+                  _context22.next = 45;
                   break;
                 }
 
                 DelForm.first = first.next;
                 first.el.remove();
-                _context20.next = 44;
+                _context22.next = 44;
                 return _this29._updateForms(DelForm.first);
 
               case 44:
@@ -15480,10 +15532,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 45:
               case "end":
-                return _context20.stop();
+                return _context22.stop();
             }
           }
-        }, _callee18, null, [[23, 32]]);
+        }, _callee20, null, [[23, 32]]);
       }))();
     },
     _isAdding: false,
@@ -15509,26 +15561,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._addingPromise = null;
     },
     _updateForms: function _updateForms(newForm) {
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee19() {
-        return _regeneratorRuntime().wrap(function _callee19$(_context21) {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee21() {
+        return _regeneratorRuntime().wrap(function _callee21$(_context23) {
           while (1) {
-            switch (_context21.prev = _context21.next) {
+            switch (_context23.prev = _context23.next) {
               case 0:
-                _context21.t0 = readPostsData;
-                _context21.t1 = newForm.firstThr.op;
-                _context21.next = 4;
+                _context23.t0 = readPostsData;
+                _context23.t1 = newForm.firstThr.op;
+                _context23.next = 4;
                 return readFavorites();
 
               case 4:
-                _context21.t2 = _context21.sent;
-                (0, _context21.t0)(_context21.t1, _context21.t2);
+                _context23.t2 = _context23.sent;
+                (0, _context23.t0)(_context23.t1, _context23.t2);
 
                 if (!pr.passw) {
-                  _context21.next = 9;
+                  _context23.next = 9;
                   break;
                 }
 
-                _context21.next = 9;
+                _context23.next = 9;
                 return PostForm.setUserPassw();
 
               case 9:
@@ -15540,10 +15592,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 11:
               case "end":
-                return _context21.stop();
+                return _context23.stop();
             }
           }
-        }, _callee19);
+        }, _callee21);
       }))();
     }
   };
@@ -15661,11 +15713,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     addSpell: function addSpell(type, arg, isNeg) {
       var _this30 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee20() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee22() {
         var fld, val, chk, spells, idx, isAdded, scope, sScope, sArg;
-        return _regeneratorRuntime().wrap(function _callee20$(_context22) {
+        return _regeneratorRuntime().wrap(function _callee22$(_context24) {
           while (1) {
-            switch (_context22.prev = _context22.next) {
+            switch (_context24.prev = _context24.next) {
               case 0:
                 fld = $id('de-spell-txt');
                 val = fld === null || fld === void 0 ? void 0 : fld.value;
@@ -15673,7 +15725,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 spells = val && _this30.parseText(val);
 
                 if (!(!val || spells)) {
-                  _context22.next = 28;
+                  _context24.next = 28;
                   break;
                 }
 
@@ -15729,11 +15781,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 if (!isAdded) {
-                  _context22.next = 16;
+                  _context24.next = 16;
                   break;
                 }
 
-                _context22.next = 13;
+                _context24.next = 13;
                 return saveCfg('hideBySpell', 1);
 
               case 13:
@@ -15741,16 +15793,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   chk.checked = true;
                 }
 
-                _context22.next = 20;
+                _context24.next = 20;
                 break;
 
               case 16:
                 if (!(!spells[1] && !spells[2] && !spells[3])) {
-                  _context22.next = 20;
+                  _context24.next = 20;
                   break;
                 }
 
-                _context22.next = 19;
+                _context24.next = 19;
                 return saveCfg('hideBySpell', 0);
 
               case 19:
@@ -15763,11 +15815,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   _this30._sort(spells[1]);
                 }
 
-                _context22.next = 23;
+                _context24.next = 23;
                 return saveCfg('spells', JSON.stringify(spells));
 
               case 23:
-                _context22.next = 25;
+                _context24.next = 25;
                 return _this30.setSpells(spells, true);
 
               case 25:
@@ -15776,7 +15828,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 Pview.updatePosition(true);
-                return _context22.abrupt("return");
+                return _context24.abrupt("return");
 
               case 28:
                 if (chk) {
@@ -15785,10 +15837,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 29:
               case "end":
-                return _context22.stop();
+                return _context24.stop();
             }
           }
-        }, _callee20);
+        }, _callee22);
       }))();
     },
     decompileSpell: function decompileSpell(type, neg, val, scope) {
@@ -15809,10 +15861,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return spell;
             }
 
-            var _ref21 = wipeMsg || [],
-                _ref22 = _slicedToArray(_ref21, 2),
-                msgBit = _ref22[0],
-                msgData = _ref22[1];
+            var _ref22 = wipeMsg || [],
+                _ref23 = _slicedToArray(_ref22, 2),
+                msgBit = _ref23[0],
+                msgData = _ref23[1];
 
             var names = [];
             var bits = {
@@ -15885,11 +15937,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     disableSpells: function disableSpells() {
       var _this31 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee21() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee23() {
         var value, configurable;
-        return _regeneratorRuntime().wrap(function _callee21$(_context23) {
+        return _regeneratorRuntime().wrap(function _callee23$(_context25) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context25.prev = _context25.next) {
               case 0:
                 value = null;
                 configurable = true;
@@ -15907,15 +15959,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     value: value
                   }
                 });
-                _context23.next = 5;
+                _context25.next = 5;
                 return saveCfg('hideBySpell', 0);
 
               case 5:
               case "end":
-                return _context23.stop();
+                return _context25.stop();
             }
           }
-        }, _callee21);
+        }, _callee23);
       }))();
     },
     outReplace: function outReplace(txt) {
@@ -15953,27 +16005,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     setSpells: function setSpells(spells, sync) {
       var _this32 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee22() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee24() {
         var sRunner, post;
-        return _regeneratorRuntime().wrap(function _callee22$(_context24) {
+        return _regeneratorRuntime().wrap(function _callee24$(_context26) {
           while (1) {
-            switch (_context24.prev = _context24.next) {
+            switch (_context26.prev = _context26.next) {
               case 0:
                 if (sync) {
                   _this32._sync(spells);
                 }
 
                 if (Cfg.hideBySpell) {
-                  _context24.next = 6;
+                  _context26.next = 6;
                   break;
                 }
 
                 SpellsRunner.unhideAll();
-                _context24.next = 5;
+                _context26.next = 5;
                 return _this32.disableSpells();
 
               case 5:
-                return _context24.abrupt("return");
+                return _context26.abrupt("return");
 
               case 6:
                 _this32._optimize(spells);
@@ -15992,55 +16044,55 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 8:
               case "end":
-                return _context24.stop();
+                return _context26.stop();
             }
           }
-        }, _callee22);
+        }, _callee24);
       }))();
     },
     toggle: function toggle() {
       var _this33 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee23() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee25() {
         var spells, fld, val;
-        return _regeneratorRuntime().wrap(function _callee23$(_context25) {
+        return _regeneratorRuntime().wrap(function _callee25$(_context27) {
           while (1) {
-            switch (_context25.prev = _context25.next) {
+            switch (_context27.prev = _context27.next) {
               case 0:
                 fld = $id('de-spell-txt');
                 val = fld.value;
 
                 if (!(val && (spells = _this33.parseText(val)))) {
-                  _context25.next = 11;
+                  _context27.next = 11;
                   break;
                 }
 
                 closePopup('err-spell');
-                _context25.next = 6;
+                _context27.next = 6;
                 return _this33.setSpells(spells, true);
 
               case 6:
-                _context25.next = 8;
+                _context27.next = 8;
                 return saveCfg('spells', JSON.stringify(spells));
 
               case 8:
                 fld.value = _this33.list;
-                _context25.next = 20;
+                _context27.next = 20;
                 break;
 
               case 11:
                 if (val) {
-                  _context25.next = 19;
+                  _context27.next = 19;
                   break;
                 }
 
                 closePopup('err-spell');
                 SpellsRunner.unhideAll();
-                _context25.next = 16;
+                _context27.next = 16;
                 return _this33.disableSpells();
 
               case 16:
-                _context25.next = 18;
+                _context27.next = 18;
                 return saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 
               case 18:
@@ -16051,10 +16103,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 20:
               case "end":
-                return _context25.stop();
+                return _context27.stop();
             }
           }
-        }, _callee23);
+        }, _callee25);
       }))();
     },
     _decompileRep: function _decompileRep(rep, isOrep) {
@@ -16958,11 +17010,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "_checkRes",
-      value: function _checkRes(post, _ref23) {
-        var _ref24 = _slicedToArray(_ref23, 3),
-            hasNumSpell = _ref24[0],
-            val = _ref24[1],
-            msg = _ref24[2];
+      value: function _checkRes(post, _ref24) {
+        var _ref25 = _slicedToArray(_ref24, 3),
+            hasNumSpell = _ref25[0],
+            val = _ref25[1],
+            msg = _ref25[2];
 
         this.hasNumSpell |= hasNumSpell;
 
@@ -17264,58 +17316,58 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_ihash",
       value: function () {
-        var _ihash2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee24(val) {
+        var _ihash2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee26(val) {
           var _iterator16, _step16, image;
 
-          return _regeneratorRuntime().wrap(function _callee24$(_context26) {
+          return _regeneratorRuntime().wrap(function _callee26$(_context28) {
             while (1) {
-              switch (_context26.prev = _context26.next) {
+              switch (_context28.prev = _context28.next) {
                 case 0:
                   _iterator16 = _createForOfIteratorHelperLoose(this._post.images);
 
                 case 1:
                   if ((_step16 = _iterator16()).done) {
-                    _context26.next = 14;
+                    _context28.next = 14;
                     break;
                   }
 
                   image = _step16.value;
-                  _context26.t0 = image instanceof AttachedImage;
+                  _context28.t0 = image instanceof AttachedImage;
 
-                  if (!_context26.t0) {
-                    _context26.next = 10;
+                  if (!_context28.t0) {
+                    _context28.next = 10;
                     break;
                   }
 
-                  _context26.next = 7;
+                  _context28.next = 7;
                   return ImagesHashStorage.getHash(image);
 
                 case 7:
-                  _context26.t1 = _context26.sent;
-                  _context26.t2 = val;
-                  _context26.t0 = _context26.t1 === _context26.t2;
+                  _context28.t1 = _context28.sent;
+                  _context28.t2 = val;
+                  _context28.t0 = _context28.t1 === _context28.t2;
 
                 case 10:
-                  if (!_context26.t0) {
-                    _context26.next = 12;
+                  if (!_context28.t0) {
+                    _context28.next = 12;
                     break;
                   }
 
-                  return _context26.abrupt("return", true);
+                  return _context28.abrupt("return", true);
 
                 case 12:
-                  _context26.next = 1;
+                  _context28.next = 1;
                   break;
 
                 case 14:
-                  return _context26.abrupt("return", false);
+                  return _context28.abrupt("return", false);
 
                 case 15:
                 case "end":
-                  return _context26.stop();
+                  return _context28.stop();
               }
             }
-          }, _callee24, this);
+          }, _callee26, this);
         }));
 
         function _ihash(_x18) {
@@ -17802,13 +17854,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var _this38 = this;
 
         var value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg></span>');
+        value.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee27() {
+          return _regeneratorRuntime().wrap(function _callee27$(_context29) {
+            while (1) {
+              switch (_context29.prev = _context29.next) {
+                case 0:
+                  _context29.next = 2;
+                  return toggleCfg('sageReply');
 
-        value.onclick = function () {
-          toggleCfg('sageReply');
+                case 2:
+                  _this38.toggleSage();
 
-          _this38.toggleSage();
-        };
-
+                case 3:
+                case "end":
+                  return _context29.stop();
+              }
+            }
+          }, _callee27);
+        }));
         Object.defineProperty(this, 'sageBtn', {
           value: value
         });
@@ -18114,40 +18177,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         this.form.onsubmit = function () {
-          var _ref25 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee25(e) {
-            return _regeneratorRuntime().wrap(function _callee25$(_context27) {
+          var _ref27 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee28(e) {
+            return _regeneratorRuntime().wrap(function _callee28$(_context30) {
               while (1) {
-                switch (_context27.prev = _context27.next) {
+                switch (_context30.prev = _context30.next) {
                   case 0:
                     e.preventDefault();
                     $popup('upload', Lng.sending[lang], true);
-                    _context27.prev = 2;
-                    _context27.next = 5;
+                    _context30.prev = 2;
+                    _context30.next = 5;
                     return html5Submit(_this40.form, _this40.subm, true);
 
                   case 5:
-                    _context27.next = 7;
+                    _context30.next = 7;
                     return checkSubmit();
 
                   case 7:
-                    _context27.next = 12;
+                    _context30.next = 12;
                     break;
 
                   case 9:
-                    _context27.prev = 9;
-                    _context27.t0 = _context27["catch"](2);
-                    showSubmitError(_context27.t0);
+                    _context30.prev = 9;
+                    _context30.t0 = _context30["catch"](2);
+                    showSubmitError(_context30.t0);
 
                   case 12:
                   case "end":
-                    return _context27.stop();
+                    return _context30.stop();
                 }
               }
-            }, _callee25, null, [[2, 9]]);
+            }, _callee28, null, [[2, 9]]);
           }));
 
           return function (_x19) {
-            return _ref25.apply(this, arguments);
+            return _ref27.apply(this, arguments);
           };
         }();
       }
@@ -18280,21 +18343,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }); 
 
         el.addEventListener('paste', function () {
-          var _ref26 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee26(e) {
+          var _ref28 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee29(e) {
             var _e$clipboardData;
 
             var files, _iterator21, _step21, file, inputs, i, len, input;
 
-            return _regeneratorRuntime().wrap(function _callee26$(_context28) {
+            return _regeneratorRuntime().wrap(function _callee29$(_context31) {
               while (1) {
-                switch (_context28.prev = _context28.next) {
+                switch (_context31.prev = _context31.next) {
                   case 0:
                     files = e === null || e === void 0 ? void 0 : (_e$clipboardData = e.clipboardData) === null || _e$clipboardData === void 0 ? void 0 : _e$clipboardData.files;
                     _iterator21 = _createForOfIteratorHelperLoose(files);
 
                   case 2:
                     if ((_step21 = _iterator21()).done) {
-                      _context28.next = 17;
+                      _context31.next = 17;
                       break;
                     }
 
@@ -18304,48 +18367,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 6:
                     if (!(i < len)) {
-                      _context28.next = 15;
+                      _context31.next = 15;
                       break;
                     }
 
                     input = inputs[i];
 
                     if (input.hasFile) {
-                      _context28.next = 12;
+                      _context31.next = 12;
                       break;
                     }
 
-                    _context28.next = 11;
+                    _context31.next = 11;
                     return input.addUrlFile(URL.createObjectURL(file), file);
 
                   case 11:
-                    return _context28.abrupt("break", 15);
+                    return _context31.abrupt("break", 15);
 
                   case 12:
                     ++i;
-                    _context28.next = 6;
+                    _context31.next = 6;
                     break;
 
                   case 15:
-                    _context28.next = 2;
+                    _context31.next = 2;
                     break;
 
                   case 17:
                   case "end":
-                    return _context28.stop();
+                    return _context31.stop();
                 }
               }
-            }, _callee26);
+            }, _callee29);
           }));
 
           return function (_x20) {
-            return _ref26.apply(this, arguments);
+            return _ref28.apply(this, arguments);
           };
         }()); 
 
         if (nav.isFirefox || nav.isWebkit) {
-          el.addEventListener('mouseup', function (_ref27) {
-            var target = _ref27.target;
+          el.addEventListener('mouseup', function (_ref29) {
+            var target = _ref29.target;
             var s = target.style;
             var width = s.width,
                 height = s.height;
@@ -18422,8 +18485,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         makeDraggable('reply', this.qArea, $aBegin(this.qArea, "<div class=\"de-win-head\">\n\t\t\t<span class=\"de-win-title\"></span>\n\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t<svg class=\"de-win-btn-clear\"><use xlink:href=\"#de-symbol-unavail\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class=\"de-resizer de-resizer-top\"></div>\n\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t<div class=\"de-resizer de-resizer-right\"></div>\n\t\t<div class=\"de-resizer de-resizer-bottom\"></div>"));
         var buttons = $q('.de-win-buttons', this.qArea);
 
-        buttons.onmouseover = function (_ref28) {
-          var target = _ref28.target;
+        buttons.onmouseover = function (_ref30) {
+          var target = _ref30.target;
           var el = target.parentNode;
 
           switch (nav.fixEventEl(target).classList[0]) {
@@ -18440,17 +18503,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         };
 
-        var _ref29 = _toConsumableArray(buttons.children),
-            clearBtn = _ref29[0],
-            toggleBtn = _ref29[1],
-            closeBtn = _ref29[2];
+        var _ref31 = _toConsumableArray(buttons.children),
+            clearBtn = _ref31[0],
+            toggleBtn = _ref31[1],
+            closeBtn = _ref31[2];
 
-        clearBtn.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee27() {
-          return _regeneratorRuntime().wrap(function _callee27$(_context29) {
+        clearBtn.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee30() {
+          return _regeneratorRuntime().wrap(function _callee30$(_context32) {
             while (1) {
-              switch (_context29.prev = _context29.next) {
+              switch (_context32.prev = _context32.next) {
                 case 0:
-                  _context29.next = 2;
+                  _context32.next = 2;
                   return saveCfg('sageReply', 0);
 
                 case 2:
@@ -18464,24 +18527,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 5:
                 case "end":
-                  return _context29.stop();
+                  return _context32.stop();
               }
             }
-          }, _callee27);
+          }, _callee30);
         }));
+        toggleBtn.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee31() {
+          return _regeneratorRuntime().wrap(function _callee31$(_context33) {
+            while (1) {
+              switch (_context33.prev = _context33.next) {
+                case 0:
+                  _context33.next = 2;
+                  return toggleCfg('replyWinDrag');
 
-        toggleBtn.onclick = function () {
-          toggleCfg('replyWinDrag');
+                case 2:
+                  if (Cfg.replyWinDrag) {
+                    _this47.qArea.className = aib.cReply + ' de-win';
+                    updateWinZ(_this47.qArea.style);
+                  } else {
+                    _this47.qArea.className = aib.cReply + ' de-win-inpost';
 
-          if (Cfg.replyWinDrag) {
-            _this47.qArea.className = aib.cReply + ' de-win';
-            updateWinZ(_this47.qArea.style);
-          } else {
-            _this47.qArea.className = aib.cReply + ' de-win-inpost';
+                    _this47.txta.focus();
+                  }
 
-            _this47.txta.focus();
-          }
-        };
+                case 3:
+                case "end":
+                  return _context33.stop();
+              }
+            }
+          }, _callee31);
+        }));
 
         closeBtn.onclick = function () {
           return _this47.closeReply();
@@ -18528,20 +18603,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "setUserName",
       value: function () {
-        var _setUserName = _asyncToGenerator( _regeneratorRuntime().mark(function _callee28() {
+        var _setUserName = _asyncToGenerator( _regeneratorRuntime().mark(function _callee32() {
           var el;
-          return _regeneratorRuntime().wrap(function _callee28$(_context30) {
+          return _regeneratorRuntime().wrap(function _callee32$(_context34) {
             while (1) {
-              switch (_context30.prev = _context30.next) {
+              switch (_context34.prev = _context34.next) {
                 case 0:
                   el = $q('input[info="nameValue"]');
 
                   if (!el) {
-                    _context30.next = 4;
+                    _context34.next = 4;
                     break;
                   }
 
-                  _context30.next = 4;
+                  _context34.next = 4;
                   return saveCfg('nameValue', el.value);
 
                 case 4:
@@ -18549,10 +18624,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 5:
                 case "end":
-                  return _context30.stop();
+                  return _context34.stop();
               }
             }
-          }, _callee28);
+          }, _callee32);
         }));
 
         function setUserName() {
@@ -18564,29 +18639,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "setUserPassw",
       value: function () {
-        var _setUserPassw = _asyncToGenerator( _regeneratorRuntime().mark(function _callee29() {
+        var _setUserPassw = _asyncToGenerator( _regeneratorRuntime().mark(function _callee33() {
           var el, value, _iterator22, _step22, passEl;
 
-          return _regeneratorRuntime().wrap(function _callee29$(_context31) {
+          return _regeneratorRuntime().wrap(function _callee33$(_context35) {
             while (1) {
-              switch (_context31.prev = _context31.next) {
+              switch (_context35.prev = _context35.next) {
                 case 0:
                   if (Cfg.userPassw) {
-                    _context31.next = 2;
+                    _context35.next = 2;
                     break;
                   }
 
-                  return _context31.abrupt("return");
+                  return _context35.abrupt("return");
 
                 case 2:
                   el = $q('input[info="passwValue"]');
 
                   if (!el) {
-                    _context31.next = 6;
+                    _context35.next = 6;
                     break;
                   }
 
-                  _context31.next = 6;
+                  _context35.next = 6;
                   return saveCfg('passwValue', el.value);
 
                 case 6:
@@ -18602,10 +18677,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 8:
                 case "end":
-                  return _context31.stop();
+                  return _context35.stop();
               }
             }
-          }, _callee29);
+          }, _callee33);
         }));
 
         function setUserPassw() {
@@ -18691,33 +18766,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _checkSubmit() {
-    _checkSubmit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee51(data) {
+    _checkSubmit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee55(data) {
       var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _pr2, tNum, _pByNum$get, thr, statsParam, dForm;
 
-      return _regeneratorRuntime().wrap(function _callee51$(_context61) {
+      return _regeneratorRuntime().wrap(function _callee55$(_context65) {
         while (1) {
-          switch (_context61.prev = _context61.next) {
+          switch (_context65.prev = _context65.next) {
             case 0:
               error = null;
               postNum = null;
               isDocument = data instanceof HTMLDocument;
 
               if (!aib.getSubmitData) {
-                _context61.next = 12;
+                _context65.next = 12;
                 break;
               }
 
               if (!aib.jsonSubmit) {
-                _context61.next = 9;
+                _context65.next = 9;
                 break;
               }
 
               if (!((_aib$captchaAfterSubm = (_aib3 = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib3, data))) {
-                _context61.next = 7;
+                _context65.next = 7;
                 break;
               }
 
-              return _context61.abrupt("return");
+              return _context65.abrupt("return");
 
             case 7:
               _data = (isDocument ? data.body.textContent : data).trim();
@@ -18735,7 +18810,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 postNum = _aib$getSubmitData.postNum;
               }
 
-              _context61.next = 13;
+              _context65.next = 13;
               break;
 
             case 12:
@@ -18743,12 +18818,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 13:
               if (!error) {
-                _context61.next = 16;
+                _context65.next = 16;
                 break;
               }
 
               showSubmitError(error);
-              return _context61.abrupt("return");
+              return _context65.abrupt("return");
 
             case 16:
               _pr2 = pr, tNum = _pr2.tNum;
@@ -18779,7 +18854,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               });
               statsParam = tNum ? 'reply' : 'op';
               Cfg.stats[statsParam]++;
-              _context61.next = 25;
+              _context65.next = 25;
               return saveCfgObj(aib.dm, function (lCfg) {
                 lCfg.stats[statsParam]++;
                 return lCfg;
@@ -18787,7 +18862,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 25:
               if (tNum) {
-                _context61.next = 28;
+                _context65.next = 28;
                 break;
               }
 
@@ -18801,7 +18876,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
 
-              return _context61.abrupt("return");
+              return _context65.abrupt("return");
 
             case 28:
               if (aib.t) {
@@ -18831,10 +18906,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 31:
             case "end":
-              return _context61.stop();
+              return _context65.stop();
           }
         }
-      }, _callee51);
+      }, _callee55);
     }));
     return _checkSubmit.apply(this, arguments);
   }
@@ -18845,22 +18920,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _checkDelete() {
-    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52(data) {
+    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee56(data) {
       var err, els, threads, isThr, i, len, el;
-      return _regeneratorRuntime().wrap(function _callee52$(_context62) {
+      return _regeneratorRuntime().wrap(function _callee56$(_context66) {
         while (1) {
-          switch (_context62.prev = _context62.next) {
+          switch (_context66.prev = _context66.next) {
             case 0:
               err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
 
               if (!err) {
-                _context62.next = 5;
+                _context66.next = 5;
                 break;
               }
 
               $popup('delete', Lng.errDelete[lang] + ':\n' + err);
               updater.sendErrNotif();
-              return _context62.abrupt("return");
+              return _context66.abrupt("return");
 
             case 5:
               els = $Q("[de-form] ".concat(aib.qPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
@@ -18877,22 +18952,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!isThr) {
-                _context62.next = 15;
+                _context66.next = 15;
                 break;
               }
 
               Post.clearMarks();
-              _context62.next = 13;
+              _context66.next = 13;
               return Thread.first.loadNewPosts()["catch"](function (err) {
                 return infoLoadErrors(err);
               });
 
             case 13:
-              _context62.next = 17;
+              _context66.next = 17;
               break;
 
             case 15:
-              _context62.next = 17;
+              _context66.next = 17;
               return Promise.all(_toConsumableArray(threads).map(function (thr) {
                 return thr.loadPosts('new', false, false);
               }));
@@ -18902,10 +18977,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 18:
             case "end":
-              return _context62.stop();
+              return _context66.stop();
           }
         }
-      }, _callee52);
+      }, _callee56);
     }));
     return _checkDelete.apply(this, arguments);
   }
@@ -18935,9 +19010,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   function getFormElements(form, submitter) {
     var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, img, files, _j2, _jlen, dirname;
 
-    return _regeneratorRuntime().wrap(function getFormElements$(_context32) {
+    return _regeneratorRuntime().wrap(function getFormElements$(_context36) {
       while (1) {
-        switch (_context32.prev = _context32.next) {
+        switch (_context36.prev = _context36.next) {
           case 0:
             controls = $Q('button, input, keygen, object, select, textarea', form);
 
@@ -18949,7 +19024,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 3:
             if (!(i < len)) {
-              _context32.next = 65;
+              _context36.next = 65;
               break;
             }
 
@@ -18959,15 +19034,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             name = field.getAttribute('name');
 
             if (!(field.closest('datalist') || isFormElDisabled(field) || field !== submitter && (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
-              _context32.next = 10;
+              _context36.next = 10;
               break;
             }
 
-            return _context32.abrupt("continue", 62);
+            return _context36.abrupt("continue", 62);
 
           case 10:
             if (!(tagName === 'select')) {
-              _context32.next = 23;
+              _context36.next = 23;
               break;
             }
 
@@ -18976,18 +19051,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 13:
             if (!(j < jlen)) {
-              _context32.next = 21;
+              _context36.next = 21;
               break;
             }
 
             option = options[j];
 
             if (!(option.selected && !isFormElDisabled(option))) {
-              _context32.next = 18;
+              _context36.next = 18;
               break;
             }
 
-            _context32.next = 18;
+            _context36.next = 18;
             return {
               type: type,
               el: field,
@@ -18997,28 +19072,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 18:
             ++j;
-            _context32.next = 13;
+            _context36.next = 13;
             break;
 
           case 21:
-            _context32.next = 51;
+            _context36.next = 51;
             break;
 
           case 23:
             if (!(tagName === 'input')) {
-              _context32.next = 51;
+              _context36.next = 51;
               break;
             }
 
-            _context32.t0 = type;
-            _context32.next = _context32.t0 === 'image' ? 27 : _context32.t0 === 'checkbox' ? 28 : _context32.t0 === 'radio' ? 28 : _context32.t0 === 'file' ? 31 : 51;
+            _context36.t0 = type;
+            _context36.next = _context36.t0 === 'image' ? 27 : _context36.t0 === 'checkbox' ? 28 : _context36.t0 === 'radio' ? 28 : _context36.t0 === 'file' ? 31 : 51;
             break;
 
           case 27:
             throw new Error('input[type="image"] is not supported');
 
           case 28:
-            _context32.next = 30;
+            _context36.next = 30;
             return {
               type: type,
               el: field,
@@ -19027,13 +19102,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 30:
-            return _context32.abrupt("continue", 62);
+            return _context36.abrupt("continue", 62);
 
           case 31:
             img = void 0;
 
             if (!field.files.length) {
-              _context32.next = 43;
+              _context36.next = 43;
               break;
             }
 
@@ -19042,11 +19117,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 35:
             if (!(_j2 < _jlen)) {
-              _context32.next = 41;
+              _context36.next = 41;
               break;
             }
 
-            _context32.next = 38;
+            _context36.next = 38;
             return {
               name: name,
               type: type,
@@ -19056,20 +19131,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 38:
             ++_j2;
-            _context32.next = 35;
+            _context36.next = 35;
             break;
 
           case 41:
-            _context32.next = 50;
+            _context36.next = 50;
             break;
 
           case 43:
             if (!(field.obj && (img = field.obj.imgFile))) {
-              _context32.next = 48;
+              _context36.next = 48;
               break;
             }
 
-            _context32.next = 46;
+            _context36.next = 46;
             return {
               name: name,
               type: type,
@@ -19080,11 +19155,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 46:
-            _context32.next = 50;
+            _context36.next = 50;
             break;
 
           case 48:
-            _context32.next = 50;
+            _context36.next = 50;
             return {
               el: field,
               name: fixName(name),
@@ -19093,15 +19168,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 50:
-            return _context32.abrupt("continue", 62);
+            return _context36.abrupt("continue", 62);
 
           case 51:
             if (!(type === 'textarea')) {
-              _context32.next = 56;
+              _context36.next = 56;
               break;
             }
 
-            _context32.next = 54;
+            _context36.next = 54;
             return {
               type: type,
               el: field,
@@ -19110,11 +19185,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 54:
-            _context32.next = 58;
+            _context36.next = 58;
             break;
 
           case 56:
-            _context32.next = 58;
+            _context36.next = 58;
             return {
               type: type,
               el: field,
@@ -19126,11 +19201,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             dirname = field.getAttribute('dirname');
 
             if (!dirname) {
-              _context32.next = 62;
+              _context36.next = 62;
               break;
             }
 
-            _context32.next = 62;
+            _context36.next = 62;
             return {
               el: field,
               name: fixName(dirname),
@@ -19140,12 +19215,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 62:
             ++i;
-            _context32.next = 3;
+            _context36.next = 3;
             break;
 
           case 65:
           case "end":
-            return _context32.stop();
+            return _context36.stop();
         }
       }
     }, _marked);
@@ -19158,14 +19233,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var progress = $id('de-uploadprogress');
     var counterWrap = progress.nextElementSibling;
 
-    var _ref31 = _toConsumableArray(counterWrap.children),
-        counterEl = _ref31[0],
-        totalEl = _ref31[1],
-        speedEl = _ref31[2];
+    var _ref34 = _toConsumableArray(counterWrap.children),
+        counterEl = _ref34[0],
+        totalEl = _ref34[1],
+        speedEl = _ref34[2];
 
-    return function (_ref32) {
-      var total = _ref32.total,
-          i = _ref32.loaded;
+    return function (_ref35) {
+      var total = _ref35.total,
+          i = _ref35.loaded;
 
       if (!isInited) {
         progress.setAttribute('max', total);
@@ -19186,7 +19261,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _html5Submit() {
-    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(form, submitter) {
+    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee57(form, submitter) {
       var needProgress,
           data,
           hasFiles,
@@ -19206,20 +19281,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           cleanData,
           ajaxParams,
           url,
-          _args63 = arguments;
+          _args67 = arguments;
 
-      return _regeneratorRuntime().wrap(function _callee53$(_context63) {
+      return _regeneratorRuntime().wrap(function _callee57$(_context67) {
         while (1) {
-          switch (_context63.prev = _context63.next) {
+          switch (_context67.prev = _context67.next) {
             case 0:
-              needProgress = _args63.length > 2 && _args63[2] !== undefined ? _args63[2] : false;
+              needProgress = _args67.length > 2 && _args67[2] !== undefined ? _args67[2] : false;
               data = new FormData();
               hasFiles = false;
               _iterator38 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
               if ((_step38 = _iterator38()).done) {
-                _context63.next = 30;
+                _context67.next = 30;
                 break;
               }
 
@@ -19227,15 +19302,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               val = value;
 
               if (!(name === 'de-file-txt')) {
-                _context63.next = 9;
+                _context67.next = 9;
                 break;
               }
 
-              return _context63.abrupt("continue", 28);
+              return _context67.abrupt("continue", 28);
 
             case 9:
               if (!(type === 'file')) {
-                _context63.next = 27;
+                _context67.next = 27;
                 break;
               }
 
@@ -19246,31 +19321,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               mime = value.type;
 
               if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
-                _context63.next = 26;
+                _context67.next = 26;
                 break;
               }
 
-              _context63.t0 = cleanFile;
-              _context63.next = 18;
+              _context67.t0 = cleanFile;
+              _context67.next = 18;
               return readFile(value);
 
             case 18:
-              _context63.t1 = _context63.sent.data;
-              _context63.t2 = el.obj ? el.obj.extraFile : null;
-              cleanData = (0, _context63.t0)(_context63.t1, _context63.t2);
+              _context67.t1 = _context67.sent.data;
+              _context67.t2 = el.obj ? el.obj.extraFile : null;
+              cleanData = (0, _context67.t0)(_context67.t1, _context67.t2);
 
               if (cleanData) {
-                _context63.next = 23;
+                _context67.next = 23;
                 break;
               }
 
-              return _context63.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
+              return _context67.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
             case 23:
               val = new File(cleanData, newFileName, {
                 type: mime
               });
-              _context63.next = 27;
+              _context67.next = 27;
               break;
 
             case 26:
@@ -19284,16 +19359,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               data.append(name, val);
 
             case 28:
-              _context63.next = 4;
+              _context67.next = 4;
               break;
 
             case 30:
               if (!aib.sendHTML5Post) {
-                _context63.next = 32;
+                _context67.next = 32;
                 break;
               }
 
-              return _context63.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
+              return _context67.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
             case 32:
               ajaxParams = {
@@ -19306,8 +19381,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               url = form.action;
-              return _context63.abrupt("return", $ajax(url, ajaxParams).then(function (_ref61) {
-                var text = _ref61.responseText;
+              return _context67.abrupt("return", $ajax(url, ajaxParams).then(function (_ref64) {
+                var text = _ref64.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text);
               })["catch"](function (err) {
                 return Promise.reject(err);
@@ -19315,10 +19390,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 36:
             case "end":
-              return _context63.stop();
+              return _context67.stop();
           }
         }
-      }, _callee53);
+      }, _callee57);
     }));
     return _html5Submit.apply(this, arguments);
   }
@@ -19597,22 +19672,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._thumb = null;
       this._utils = $add("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
 
-      var _ref33 = _toConsumableArray(this._utils.children);
+      var _ref36 = _toConsumableArray(this._utils.children);
 
-      this._btnRar = _ref33[0];
-      this._btnSpoil = _ref33[1];
-      this._btnTxt = _ref33[2];
-      this._btnRen = _ref33[3];
-      this._btnDel = _ref33[4];
+      this._btnRar = _ref36[0];
+      this._btnSpoil = _ref36[1];
+      this._btnTxt = _ref36[2];
+      this._btnRen = _ref36[3];
+      this._btnDel = _ref36[4];
 
       this._utils.addEventListener('click', this);
 
       this._txtWrap = $add("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
 
-      var _ref34 = _toConsumableArray(this._txtWrap.children);
+      var _ref37 = _toConsumableArray(this._txtWrap.children);
 
-      this._txtInput = _ref34[0];
-      this._txtAddBtn = _ref34[1];
+      this._txtInput = _ref37[0];
+      this._txtAddBtn = _ref37[1];
 
       this._txtWrap.addEventListener('click', this);
 
@@ -19646,27 +19721,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(FileInput, [{
       key: "addUrlFile",
       value: function () {
-        var _addUrlFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee30(url) {
+        var _addUrlFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee34(url) {
           var _this48 = this;
 
           var file,
-              _args33 = arguments;
-          return _regeneratorRuntime().wrap(function _callee30$(_context33) {
+              _args37 = arguments;
+          return _regeneratorRuntime().wrap(function _callee34$(_context37) {
             while (1) {
-              switch (_context33.prev = _context33.next) {
+              switch (_context37.prev = _context37.next) {
                 case 0:
-                  file = _args33.length > 1 && _args33[1] !== undefined ? _args33[1] : null;
+                  file = _args37.length > 1 && _args37[1] !== undefined ? _args37[1] : null;
 
                   if (url) {
-                    _context33.next = 3;
+                    _context37.next = 3;
                     break;
                   }
 
-                  return _context33.abrupt("return", Promise.reject(new Error('URL is null')));
+                  return _context37.abrupt("return", Promise.reject(new Error('URL is null')));
 
                 case 3:
                   $popup('file-loading', Lng.loading[lang], true);
-                  _context33.next = 6;
+                  _context37.next = 6;
                   return ContentLoader.loadImgData(url, false).then(function (data) {
                     var _file, _file2;
 
@@ -19737,14 +19812,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
 
                 case 6:
-                  return _context33.abrupt("return", _context33.sent);
+                  return _context37.abrupt("return", _context37.sent);
 
                 case 7:
                 case "end":
-                  return _context33.stop();
+                  return _context37.stop();
               }
             }
-          }, _callee30);
+          }, _callee34);
         }));
 
         function addUrlFile(_x25) {
@@ -19958,8 +20033,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
 
                   var file = this._input.files[0];
-                  readFile(file).then(function (_ref35) {
-                    var data = _ref35.data;
+                  readFile(file).then(function (_ref38) {
+                    var data = _ref38.data;
                     _this49.imgFile = {
                       data: data,
                       name: newName,
@@ -20089,8 +20164,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           $hide(_this50._btnRar);
           var myBtn = _this50._rarMsg = $aBegin(_this50._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
           var file = e.target.files[0];
-          readFile(file).then(function (_ref36) {
-            var data = _ref36.data;
+          readFile(file).then(function (_ref39) {
+            var data = _ref39.data;
 
             if (_this50._rarMsg === myBtn) {
               myBtn.className = 'de-file-rarmsg';
@@ -20229,8 +20304,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var file = this._input.files[0];
 
         if (file) {
-          readFile(file).then(function (_ref37) {
-            var data = _ref37.data;
+          readFile(file).then(function (_ref40) {
+            var data = _ref40.data;
 
             if (_this52._input.files[0] === file) {
               _this52._addNewThumb(data, file.name, file.type, file.size);
@@ -20266,8 +20341,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_readDroppedFile",
       value: function _readDroppedFile(inputObj, file) {
-        return readFile(file).then(function (_ref38) {
-          var data = _ref38.data;
+        return readFile(file).then(function (_ref41) {
+          var data = _ref41.data;
           inputObj.imgFile = {
             data: data,
             name: file.name,
@@ -20643,16 +20718,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "refLinks",
       value: _regeneratorRuntime().mark(function refLinks() {
         var links, lNum, i, len, link, tc;
-        return _regeneratorRuntime().wrap(function refLinks$(_context34) {
+        return _regeneratorRuntime().wrap(function refLinks$(_context38) {
           while (1) {
-            switch (_context34.prev = _context34.next) {
+            switch (_context38.prev = _context38.next) {
               case 0:
                 links = $Q('a', this.msg);
                 i = 0, len = links.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context34.next = 12;
+                  _context38.next = 12;
                   break;
                 }
 
@@ -20660,24 +20735,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 tc = link.textContent;
 
                 if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
-                  _context34.next = 7;
+                  _context38.next = 7;
                   break;
                 }
 
-                return _context34.abrupt("continue", 9);
+                return _context38.abrupt("continue", 9);
 
               case 7:
-                _context34.next = 9;
+                _context38.next = 9;
                 return [link, lNum];
 
               case 9:
                 ++i;
-                _context34.next = 2;
+                _context38.next = 2;
                 break;
 
               case 12:
               case "end":
-                return _context34.stop();
+                return _context38.stop();
             }
           }
         }, refLinks, this);
@@ -21128,17 +21203,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_clickMenu",
       value: function () {
-        var _clickMenu2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee31(el, e) {
+        var _clickMenu2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee35(el, e) {
           var isHide, num, _this$_selRange, start, end, inMsgSel, _this$images$firstAtt, w, wi, h, hash, words, post, url, data, isAdd, isPview, task;
 
-          return _regeneratorRuntime().wrap(function _callee31$(_context35) {
+          return _regeneratorRuntime().wrap(function _callee35$(_context39) {
             while (1) {
-              switch (_context35.prev = _context35.next) {
+              switch (_context39.prev = _context39.next) {
                 case 0:
                   isHide = !this.isHidden;
                   num = this.num;
-                  _context35.t0 = el.getAttribute('info');
-                  _context35.next = _context35.t0 === 'hide-sel' ? 5 : _context35.t0 === 'hide-name' ? 24 : _context35.t0 === 'hide-trip' ? 27 : _context35.t0 === 'hide-img' ? 30 : _context35.t0 === 'hide-imgn' ? 34 : _context35.t0 === 'hide-ihash' ? 37 : _context35.t0 === 'hide-noimg' ? 44 : _context35.t0 === 'hide-text' ? 47 : _context35.t0 === 'hide-notext' ? 50 : _context35.t0 === 'hide-refs' ? 53 : _context35.t0 === 'hide-refsonly' ? 56 : _context35.t0 === 'img-load' ? 59 : _context35.t0 === 'post-markmy' ? 71 : _context35.t0 === 'post-reply' ? 75 : _context35.t0 === 'post-report' ? 79 : _context35.t0 === 'thr-exp' ? 81 : 83;
+                  _context39.t0 = el.getAttribute('info');
+                  _context39.next = _context39.t0 === 'hide-sel' ? 5 : _context39.t0 === 'hide-name' ? 24 : _context39.t0 === 'hide-trip' ? 27 : _context39.t0 === 'hide-img' ? 30 : _context39.t0 === 'hide-imgn' ? 34 : _context39.t0 === 'hide-ihash' ? 37 : _context39.t0 === 'hide-noimg' ? 44 : _context39.t0 === 'hide-text' ? 47 : _context39.t0 === 'hide-notext' ? 50 : _context39.t0 === 'hide-refs' ? 53 : _context39.t0 === 'hide-refsonly' ? 56 : _context39.t0 === 'img-load' ? 59 : _context39.t0 === 'post-markmy' ? 71 : _context39.t0 === 'post-reply' ? 75 : _context39.t0 === 'post-report' ? 79 : _context39.t0 === 'thr-exp' ? 81 : 83;
                   break;
 
                 case 5:
@@ -21155,101 +21230,101 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   inMsgSel = "".concat(aib.qPostMsg, ", ").concat(aib.qPostMsg, " *");
 
                   if (!(nav.matchesSelector(start, inMsgSel) && nav.matchesSelector(end, inMsgSel) || nav.matchesSelector(start, aib.qPostSubj) && nav.matchesSelector(end, aib.qPostSubj))) {
-                    _context35.next = 19;
+                    _context39.next = 19;
                     break;
                   }
 
                   if (!this._selText.includes('\n')) {
-                    _context35.next = 15;
+                    _context39.next = 15;
                     break;
                   }
 
-                  _context35.next = 13;
+                  _context39.next = 13;
                   return Spells.addSpell(1
                   , "/".concat(escapeRegExp(this._selText).replace(/\r?\n/g, '\\n'), "/"), false);
 
                 case 13:
-                  _context35.next = 17;
+                  _context39.next = 17;
                   break;
 
                 case 15:
-                  _context35.next = 17;
+                  _context39.next = 17;
                   return Spells.addSpell(0
                   , this._selText.toLowerCase(), false);
 
                 case 17:
-                  _context35.next = 23;
+                  _context39.next = 23;
                   break;
 
                 case 19:
                   dummy.innerHTML = '';
                   dummy.append(this._selRange.cloneContents());
-                  _context35.next = 23;
+                  _context39.next = 23;
                   return Spells.addSpell(2
                   , "/".concat(escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')), "/"), false);
 
                 case 23:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 24:
-                  _context35.next = 26;
+                  _context39.next = 26;
                   return Spells.addSpell(6
                   , this.posterName, false);
 
                 case 26:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 27:
-                  _context35.next = 29;
+                  _context39.next = 29;
                   return Spells.addSpell(7
                   , this.posterTrip, false);
 
                 case 29:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 30:
                   _this$images$firstAtt = this.images.firstAttach, w = _this$images$firstAtt.weight, wi = _this$images$firstAtt.width, h = _this$images$firstAtt.height;
-                  _context35.next = 33;
+                  _context39.next = 33;
                   return Spells.addSpell(8
                   , [0, [w, w], [wi, wi, h, h]], false);
 
                 case 33:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 34:
-                  _context35.next = 36;
+                  _context39.next = 36;
                   return Spells.addSpell(3
                   , "/".concat(escapeRegExp(this.images.firstAttach.name), "/"), false);
 
                 case 36:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 37:
-                  _context35.next = 39;
+                  _context39.next = 39;
                   return ImagesHashStorage.getHash(this.images.firstAttach);
 
                 case 39:
-                  hash = _context35.sent;
+                  hash = _context39.sent;
 
                   if (!(hash !== -1)) {
-                    _context35.next = 43;
+                    _context39.next = 43;
                     break;
                   }
 
-                  _context35.next = 43;
+                  _context39.next = 43;
                   return Spells.addSpell(4
                   , hash, false);
 
                 case 43:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 44:
-                  _context35.next = 46;
+                  _context39.next = 46;
                   return Spells.addSpell(0x108
                   , '', true);
 
                 case 46:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 47:
                   words = Post.getWrds(this.text);
@@ -21258,53 +21333,53 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     Post.findSameText(num, !isHide, words, post);
                   }
 
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 50:
-                  _context35.next = 52;
+                  _context39.next = 52;
                   return Spells.addSpell(0x10B
                   , '', true);
 
                 case 52:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 53:
                   this.ref.toggleRef(isHide, true);
                   this.setUserVisib(isHide);
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 56:
-                  _context35.next = 58;
+                  _context39.next = 58;
                   return Spells.addSpell(0
                   , '>>' + num, false);
 
                 case 58:
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 59:
                   e.preventDefault();
                   $popup('file-loading', Lng.loading[lang], true);
                   url = el.href;
-                  _context35.next = 64;
+                  _context39.next = 64;
                   return ContentLoader.loadImgData(url, false);
 
                 case 64:
-                  data = _context35.sent;
+                  data = _context39.sent;
 
                   if (data) {
-                    _context35.next = 68;
+                    _context39.next = 68;
                     break;
                   }
 
                   $popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 68:
                   closePopup('file-loading');
                   downloadBlob(new Blob([data], {
                     type: getFileMime(url)
                   }), el.getAttribute('download'));
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 71:
                   isAdd = !MyPosts.has(num);
@@ -21316,17 +21391,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
 
                   this.changeMyMark(isAdd);
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 75:
                   isPview = this instanceof Pview;
                   pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
                   quotedText = '';
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 79:
                   aib.reportForm(num, this.thr.num);
-                  return _context35.abrupt("return");
+                  return _context39.abrupt("return");
 
                 case 81:
                   task = +el.textContent.match(/\d+/);
@@ -21334,10 +21409,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 83:
                 case "end":
-                  return _context35.stop();
+                  return _context39.stop();
               }
             }
-          }, _callee31, this);
+          }, _callee35, this);
         }));
 
         function _clickMenu(_x26, _x27) {
@@ -22397,13 +22472,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_buildPview",
       value: function () {
-        var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee32(post) {
+        var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee36(post) {
           var _yield$readFavorites$, _yield$readFavorites$2;
 
           var num, pv, isMyPost, isOp, isFav, isCached, pCountHtml, pText, btnsEl, link;
-          return _regeneratorRuntime().wrap(function _callee32$(_context36) {
+          return _regeneratorRuntime().wrap(function _callee36$(_context40) {
             while (1) {
-              switch (_context36.prev = _context36.next) {
+              switch (_context40.prev = _context40.next) {
                 case 0:
                   $del(this.el);
                   num = this.num;
@@ -22425,56 +22500,56 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   this._link.classList.add('de-link-parent');
 
                   isOp = this.isOp;
-                  _context36.t0 = isOp;
+                  _context40.t0 = isOp;
 
-                  if (!_context36.t0) {
-                    _context36.next = 30;
+                  if (!_context40.t0) {
+                    _context40.next = 30;
                     break;
                   }
 
-                  _context36.t1 = post.thr.isFav;
+                  _context40.t1 = post.thr.isFav;
 
-                  if (_context36.t1) {
-                    _context36.next = 29;
+                  if (_context40.t1) {
+                    _context40.next = 29;
                     break;
                   }
 
-                  _context36.next = 18;
+                  _context40.next = 18;
                   return readFavorites();
 
                 case 18:
-                  _context36.t3 = aib.host;
-                  _context36.t4 = _yield$readFavorites$ = _context36.sent[_context36.t3];
-                  _context36.t2 = _context36.t4 === null;
+                  _context40.t3 = aib.host;
+                  _context40.t4 = _yield$readFavorites$ = _context40.sent[_context40.t3];
+                  _context40.t2 = _context40.t4 === null;
 
-                  if (_context36.t2) {
-                    _context36.next = 23;
+                  if (_context40.t2) {
+                    _context40.next = 23;
                     break;
                   }
 
-                  _context36.t2 = _yield$readFavorites$ === void 0;
+                  _context40.t2 = _yield$readFavorites$ === void 0;
 
                 case 23:
-                  if (!_context36.t2) {
-                    _context36.next = 27;
+                  if (!_context40.t2) {
+                    _context40.next = 27;
                     break;
                   }
 
-                  _context36.t5 = void 0;
-                  _context36.next = 28;
+                  _context40.t5 = void 0;
+                  _context40.next = 28;
                   break;
 
                 case 27:
-                  _context36.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
+                  _context40.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
 
                 case 28:
-                  _context36.t1 = _context36.t5;
+                  _context40.t1 = _context40.t5;
 
                 case 29:
-                  _context36.t0 = _context36.t1;
+                  _context40.t0 = _context40.t1;
 
                 case 30:
-                  isFav = _context36.t0;
+                  isFav = _context40.t0;
                   isCached = post instanceof CacheItem;
                   pCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
                   pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
@@ -22546,10 +22621,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 37:
                 case "end":
-                  return _context36.stop();
+                  return _context40.stop();
               }
             }
-          }, _callee32, this);
+          }, _callee36, this);
         }));
 
         function _buildPview(_x28) {
@@ -22794,15 +22869,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(CacheItem, [{
       key: "refLinks",
       value: _regeneratorRuntime().mark(function refLinks() {
-        return _regeneratorRuntime().wrap(function refLinks$(_context37) {
+        return _regeneratorRuntime().wrap(function refLinks$(_context41) {
           while (1) {
-            switch (_context37.prev = _context37.next) {
+            switch (_context41.prev = _context41.next) {
               case 0:
-                return _context37.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
+                return _context41.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
 
               case 1:
               case "end":
-                return _context37.stop();
+                return _context41.stop();
             }
           }
         }, refLinks, this);
@@ -22946,11 +23021,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var btns = $bEnd(docBody, "<div style=\"display: none;\">\n\t\t\t<div id=\"de-img-btn-prev\" class=\"de-img-btn\" de-title=\"".concat(Lng.prevImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-next\" class=\"de-img-btn\" de-title=\"").concat(Lng.nextImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-auto\" class=\"de-img-btn de-img-btn-none\" title=\"").concat(Lng.autoPlayOn[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-auto\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-rotate\" class=\"de-img-btn\" title=\"").concat(Lng.rotateImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-rotate\"/></svg></div></div>"));
 
-      var _ref39 = _toConsumableArray(btns.children);
+      var _ref42 = _toConsumableArray(btns.children);
 
-      this.prevBtn = _ref39[0];
-      this.nextBtn = _ref39[1];
-      this.autoBtn = _ref39[2];
+      this.prevBtn = _ref42[0];
+      this.nextBtn = _ref42[1];
+      this.autoBtn = _ref42[2];
       this._btns = btns;
       this._btnsStyle = btns.style;
       this._hideTmt = 0;
@@ -23740,8 +23815,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
 
-          imgEl.onload = imgEl.onerror = function (_ref40) {
-            var img = _ref40.target;
+          imgEl.onload = imgEl.onerror = function (_ref43) {
+            var img = _ref43.target;
 
             if (!(img.naturalHeight + img.naturalWidth)) {
               if (!img.onceLoaded) {
@@ -23803,8 +23878,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         videoEl.addEventListener('ended', function () {
           return AttachedImage.viewer.navigate(true, true);
         });
-        videoEl.addEventListener('error', function (_ref41) {
-          var el = _ref41.target;
+        videoEl.addEventListener('error', function (_ref44) {
+          var el = _ref44.target;
 
           if (!el.onceLoaded) {
             el.load();
@@ -23813,8 +23888,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
 
         if (!this._size) {
-          videoEl.addEventListener('loadedmetadata', function (_ref42) {
-            var el = _ref42.target;
+          videoEl.addEventListener('loadedmetadata', function (_ref45) {
+            var el = _ref45.target;
             _this80._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
@@ -23825,21 +23900,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return videoEl.dispatchEvent(new CustomEvent('volumechange'));
         }, 150);
         videoEl.addEventListener('volumechange', function () {
-          var _ref44 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee33(_ref43) {
+          var _ref47 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee37(_ref46) {
             var el, isTrusted, val;
-            return _regeneratorRuntime().wrap(function _callee33$(_context38) {
+            return _regeneratorRuntime().wrap(function _callee37$(_context42) {
               while (1) {
-                switch (_context38.prev = _context38.next) {
+                switch (_context42.prev = _context42.next) {
                   case 0:
-                    el = _ref43.target, isTrusted = _ref43.isTrusted;
+                    el = _ref46.target, isTrusted = _ref46.isTrusted;
                     val = el.muted ? 0 : Math.round(el.volume * 100);
 
                     if (!(isTrusted && val !== Cfg.webmVolume)) {
-                      _context38.next = 6;
+                      _context42.next = 6;
                       break;
                     }
 
-                    _context38.next = 5;
+                    _context42.next = 5;
                     return saveCfg('webmVolume', val);
 
                   case 5:
@@ -23847,14 +23922,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 6:
                   case "end":
-                    return _context38.stop();
+                    return _context42.stop();
                 }
               }
-            }, _callee33);
+            }, _callee37);
           }));
 
           return function (_x29) {
-            return _ref44.apply(this, arguments);
+            return _ref47.apply(this, arguments);
           };
         }()); 
 
@@ -23939,10 +24014,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "srcBtnEvents",
-      value: function srcBtnEvents(_ref45) {
+      value: function srcBtnEvents(_ref48) {
         var _this81 = this;
 
-        var _fullEl = _ref45._fullEl;
+        var _fullEl = _ref48._fullEl;
 
         if (!Cfg.imgSrcBtns) {
           return;
@@ -24297,11 +24372,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return value;
     },
 
-    _genImgHash: function _genImgHash(_ref46) {
-      var _ref47 = _slicedToArray(_ref46, 3),
-          arrBuf = _ref47[0],
-          oldw = _ref47[1],
-          oldh = _ref47[2];
+    _genImgHash: function _genImgHash(_ref49) {
+      var _ref50 = _slicedToArray(_ref49, 3),
+          arrBuf = _ref50[0],
+          oldw = _ref50[1],
+          oldh = _ref50[2];
 
       var buf = new Uint8Array(arrBuf);
       var size = oldw * oldh;
@@ -24340,31 +24415,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         hash: hash
       };
     },
-    _getHashHelper: function _getHashHelper(_ref48) {
+    _getHashHelper: function _getHashHelper(_ref51) {
       var _this82 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee34() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee38() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
-        return _regeneratorRuntime().wrap(function _callee34$(_context39) {
+        return _regeneratorRuntime().wrap(function _callee38$(_context43) {
           while (1) {
-            switch (_context39.prev = _context39.next) {
+            switch (_context43.prev = _context43.next) {
               case 0:
-                el = _ref48.el, src = _ref48.src;
+                el = _ref51.el, src = _ref51.src;
 
                 if (!(src in _this82._storage)) {
-                  _context39.next = 3;
+                  _context43.next = 3;
                   break;
                 }
 
-                return _context39.abrupt("return", _this82._storage[src]);
+                return _context43.abrupt("return", _this82._storage[src]);
 
               case 3:
                 if (el.complete) {
-                  _context39.next = 6;
+                  _context43.next = 6;
                   break;
                 }
 
-                _context39.next = 6;
+                _context43.next = 6;
                 return new Promise(function (resolve) {
                   return el.addEventListener('load', function () {
                     return resolve();
@@ -24375,11 +24450,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 el.removeAttribute('loading');
 
                 if (!(el.naturalWidth + el.naturalHeight === 0)) {
-                  _context39.next = 9;
+                  _context43.next = 9;
                   break;
                 }
 
-                return _context39.abrupt("return", -1);
+                return _context43.abrupt("return", -1);
 
               case 9:
                 val = -1;
@@ -24392,11 +24467,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
                 if (!buffer) {
-                  _context39.next = 22;
+                  _context43.next = 22;
                   break;
                 }
 
-                _context39.next = 20;
+                _context43.next = 20;
                 return new Promise(function (resolve) {
                   return _this82._workers.runWorker([buffer, w, h], [buffer], function (val) {
                     return resolve(val);
@@ -24404,7 +24479,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 });
 
               case 20:
-                data = _context39.sent;
+                data = _context43.sent;
 
                 if (data && 'hash' in data) {
                   val = data.hash;
@@ -24412,14 +24487,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 22:
                 _this82._storage[src] = val;
-                return _context39.abrupt("return", val);
+                return _context43.abrupt("return", val);
 
               case 24:
               case "end":
-                return _context39.stop();
+                return _context43.stop();
             }
           }
-        }, _callee34);
+        }, _callee38);
       }))();
     }
   });
@@ -24556,9 +24631,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: _regeneratorRuntime().mark(function getRefLinks(i, thrUrl) {
         var msg, links, _i17, len, link, tc, lNum, url;
 
-        return _regeneratorRuntime().wrap(function getRefLinks$(_context40) {
+        return _regeneratorRuntime().wrap(function getRefLinks$(_context44) {
           while (1) {
-            switch (_context40.prev = _context40.next) {
+            switch (_context44.prev = _context44.next) {
               case 0:
                 msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
                 links = $Q('a', msg);
@@ -24566,7 +24641,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 if (!(_i17 < len)) {
-                  _context40.next = 16;
+                  _context44.next = 16;
                   break;
                 }
 
@@ -24574,18 +24649,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 tc = link.textContent;
 
                 if (!(tc[0] === '>' && tc[1] === '>')) {
-                  _context40.next = 13;
+                  _context44.next = 13;
                   break;
                 }
 
                 lNum = parseInt(tc.substr(2), 10);
 
                 if (!lNum) {
-                  _context40.next = 13;
+                  _context44.next = 13;
                   break;
                 }
 
-                _context40.next = 11;
+                _context44.next = 11;
                 return [link, lNum];
 
               case 11:
@@ -24597,12 +24672,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 13:
                 ++_i17;
-                _context40.next = 3;
+                _context44.next = 3;
                 break;
 
               case 16:
               case "end":
-                return _context40.stop();
+                return _context44.stop();
             }
           }
         }, getRefLinks, this);
@@ -24611,32 +24686,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
         var banEls, i, len, banEl, postEl;
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context41) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context45) {
           while (1) {
-            switch (_context41.prev = _context41.next) {
+            switch (_context45.prev = _context45.next) {
               case 0:
                 banEls = $Q(aib.qBan, this._form);
                 i = 0, len = banEls.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context41.next = 10;
+                  _context45.next = 10;
                   break;
                 }
 
                 banEl = banEls[i];
                 postEl = aib.getPostElOfEl(banEl);
-                _context41.next = 7;
+                _context45.next = 7;
                 return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
               case 7:
                 ++i;
-                _context41.next = 2;
+                _context45.next = 2;
                 break;
 
               case 10:
               case "end":
-                return _context41.stop();
+                return _context45.stop();
             }
           }
         }, bannedPostsData, this);
@@ -24789,12 +24864,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context42) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context46) {
           while (1) {
-            switch (_context42.prev = _context42.next) {
+            switch (_context46.prev = _context46.next) {
               case 0:
               case "end":
-                return _context42.stop();
+                return _context46.stop();
             }
           }
         }, bannedPostsData);
@@ -24946,12 +25021,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context43) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context47) {
           while (1) {
-            switch (_context43.prev = _context43.next) {
+            switch (_context47.prev = _context47.next) {
               case 0:
               case "end":
-                return _context43.stop();
+                return _context47.stop();
             }
           }
         }, bannedPostsData);
@@ -25069,45 +25144,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: _regeneratorRuntime().mark(function bannedPostsData() {
         var p, _iterator29, _step29, _step29$value, banned, num;
 
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context44) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context48) {
           while (1) {
-            switch (_context44.prev = _context44.next) {
+            switch (_context48.prev = _context48.next) {
               case 0:
                 p = this._isNew ? 'post__' : '';
                 _iterator29 = _createForOfIteratorHelperLoose(this._posts);
 
               case 2:
                 if ((_step29 = _iterator29()).done) {
-                  _context44.next = 15;
+                  _context48.next = 15;
                   break;
                 }
 
                 _step29$value = _step29.value, banned = _step29$value.banned, num = _step29$value.num;
-                _context44.t0 = banned;
-                _context44.next = _context44.t0 === 1 ? 7 : _context44.t0 === 2 ? 10 : 13;
+                _context48.t0 = banned;
+                _context48.next = _context48.t0 === 1 ? 7 : _context48.t0 === 2 ? 10 : 13;
                 break;
 
               case 7:
-                _context44.next = 9;
+                _context48.next = 9;
                 return [1, num, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
 
               case 9:
-                return _context44.abrupt("break", 13);
+                return _context48.abrupt("break", 13);
 
               case 10:
-                _context44.next = 12;
+                _context48.next = 12;
                 return [2, num, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
 
               case 12:
-                return _context44.abrupt("break", 13);
+                return _context48.abrupt("break", 13);
 
               case 13:
-                _context44.next = 2;
+                _context48.next = 2;
                 break;
 
               case 15:
               case "end":
-                return _context44.stop();
+                return _context48.stop();
             }
           }
         }, bannedPostsData, this);
@@ -25500,11 +25575,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return _this83.btns.addEventListener(e, _this83);
       });
 
-      var _ref49 = _toConsumableArray(this.btns.children);
+      var _ref52 = _toConsumableArray(this.btns.children);
 
-      this.btnHide = _ref49[0];
-      this.btnFav = _ref49[2];
-      this.btnUpd = _ref49[3];
+      this.btnHide = _ref52[0];
+      this.btnFav = _ref52[2];
+      this.btnUpd = _ref52[3];
 
       if (!aib.t && Cfg.hideReplies) {
         this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -26677,35 +26752,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       checkPermission: function checkPermission() {
         var _this96 = this;
 
-        return _asyncToGenerator( _regeneratorRuntime().mark(function _callee35() {
-          return _regeneratorRuntime().wrap(function _callee35$(_context45) {
+        return _asyncToGenerator( _regeneratorRuntime().mark(function _callee39() {
+          return _regeneratorRuntime().wrap(function _callee39$(_context49) {
             while (1) {
-              switch (_context45.prev = _context45.next) {
+              switch (_context49.prev = _context49.next) {
                 case 0:
                   if (!(Cfg.desktNotif && 'permission' in Notification)) {
-                    _context45.next = 8;
+                    _context49.next = 8;
                     break;
                   }
 
-                  _context45.t0 = Notification.permission.toLowerCase();
-                  _context45.next = _context45.t0 === 'default' ? 4 : _context45.t0 === 'denied' ? 6 : 8;
+                  _context49.t0 = Notification.permission.toLowerCase();
+                  _context49.next = _context49.t0 === 'default' ? 4 : _context49.t0 === 'denied' ? 6 : 8;
                   break;
 
                 case 4:
                   _this96._requestPermission();
 
-                  return _context45.abrupt("break", 8);
+                  return _context49.abrupt("break", 8);
 
                 case 6:
-                  _context45.next = 8;
+                  _context49.next = 8;
                   return saveCfg('desktNotif', 0);
 
                 case 8:
                 case "end":
-                  return _context45.stop();
+                  return _context49.stop();
               }
             }
-          }, _callee35);
+          }, _callee39);
         }))();
       },
       closeNotif: function closeNotif() {
@@ -26757,21 +26832,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._granted = false;
         Notification.requestPermission( function () {
-          var _ref50 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee36(state) {
-            return _regeneratorRuntime().wrap(function _callee36$(_context46) {
+          var _ref53 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee40(state) {
+            return _regeneratorRuntime().wrap(function _callee40$(_context50) {
               while (1) {
-                switch (_context46.prev = _context46.next) {
+                switch (_context50.prev = _context50.next) {
                   case 0:
                     if (!(state.toLowerCase() === 'denied')) {
-                      _context46.next = 5;
+                      _context50.next = 5;
                       break;
                     }
 
-                    _context46.next = 3;
+                    _context50.next = 3;
                     return saveCfg('desktNotif', 0);
 
                   case 3:
-                    _context46.next = 6;
+                    _context50.next = 6;
                     break;
 
                   case 5:
@@ -26779,14 +26854,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 6:
                   case "end":
-                    return _context46.stop();
+                    return _context50.stop();
                 }
               }
-            }, _callee36);
+            }, _callee40);
           }));
 
           return function (_x30) {
-            return _ref50.apply(this, arguments);
+            return _ref53.apply(this, arguments);
           };
         }());
       }
@@ -26936,9 +27011,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 1:
               counter.setWait();
               this._state = 2;
-              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref51) {
-                var newCount = _ref51.newCount,
-                    locked = _ref51.locked;
+              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref54) {
+                var newCount = _ref54.newCount,
+                    locked = _ref54.locked;
                 return _this99._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
                 return _this99._handleNewPosts(0, err);
@@ -28240,16 +28315,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "changeReplyMode",
         value: function () {
-          var _changeReplyMode = _asyncToGenerator( _regeneratorRuntime().mark(function _callee37(form, tNum) {
+          var _changeReplyMode = _asyncToGenerator( _regeneratorRuntime().mark(function _callee41(form, tNum) {
             var _this102 = this;
 
             var pageInp, query, errFn;
-            return _regeneratorRuntime().wrap(function _callee37$(_context47) {
+            return _regeneratorRuntime().wrap(function _callee41$(_context51) {
               while (1) {
-                switch (_context47.prev = _context47.next) {
+                switch (_context51.prev = _context51.next) {
                   case 0:
                     if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-                      _context47.next = 5;
+                      _context51.next = 5;
                       break;
                     }
 
@@ -28262,13 +28337,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
                     }
 
-                    return _context47.abrupt("return");
+                    return _context51.abrupt("return");
 
                   case 5:
                     query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
                     if ($q('input[name="thread"]', form)) {
-                      _context47.next = 11;
+                      _context51.next = 11;
                       break;
                     }
 
@@ -28276,12 +28351,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     $Q(query, form).forEach(function (el) {
                       return _this102._origInputs[0].append(el);
                     });
-                    _context47.next = 17;
+                    _context51.next = 17;
                     break;
 
                   case 11:
                     if (tNum) {
-                      _context47.next = 17;
+                      _context51.next = 17;
                       break;
                     }
 
@@ -28289,7 +28364,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     $delAll(query, form);
                     form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
                     this._origInputs = null;
-                    return _context47.abrupt("return");
+                    return _context51.abrupt("return");
 
                   case 17:
                     errFn = function errFn() {
@@ -28298,7 +28373,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     };
 
                     $popup('load-form', Lng.loading[lang], true);
-                    _context47.next = 21;
+                    _context51.next = 21;
                     return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
                       var loadedForm = $q(_this102.qForm, loadedDoc);
 
@@ -28317,10 +28392,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 21:
                   case "end":
-                    return _context47.stop();
+                    return _context51.stop();
                 }
               }
-            }, _callee37, this);
+            }, _callee41, this);
           }));
 
           function changeReplyMode(_x31, _x32) {
@@ -28369,9 +28444,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref52) {
-          var error = _ref52.error,
-              id = _ref52.id;
+        value: function getSubmitData(_ref55) {
+          var error = _ref55.error,
+              id = _ref55.id;
           return {
             error: error,
             postNum: id && +id
@@ -28706,9 +28781,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref53) {
-          var status = _ref53.status,
-              data = _ref53.data;
+        value: function getSubmitData(_ref56) {
+          var status = _ref56.status,
+              data = _ref56.data;
           return {
             error: status === 'error' ? data : null,
             postNum: status === 'ok' ? +data : null
@@ -28764,14 +28839,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "sendHTML5Post",
         value: function () {
-          var _sendHTML5Post = _asyncToGenerator( _regeneratorRuntime().mark(function _callee40(form, data, needProgress, hasFiles) {
+          var _sendHTML5Post = _asyncToGenerator( _regeneratorRuntime().mark(function _callee44(form, data, needProgress, hasFiles) {
             var ajaxParams, getBase64, getCookies, dataObj, files, i, len, file, cookieObj, task, url;
-            return _regeneratorRuntime().wrap(function _callee40$(_context50) {
+            return _regeneratorRuntime().wrap(function _callee44$(_context54) {
               while (1) {
-                switch (_context50.prev = _context50.next) {
+                switch (_context54.prev = _context54.next) {
                   case 0:
                     if (!this._hasNewAPI) {
-                      _context50.next = 4;
+                      _context54.next = 4;
                       break;
                     }
 
@@ -28779,17 +28854,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       data: data,
                       method: 'POST'
                     };
-                    _context50.next = 27;
+                    _context54.next = 27;
                     break;
 
                   case 4:
                     getBase64 = function () {
-                      var _ref54 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee38(file) {
-                        return _regeneratorRuntime().wrap(function _callee38$(_context48) {
+                      var _ref57 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee42(file) {
+                        return _regeneratorRuntime().wrap(function _callee42$(_context52) {
                           while (1) {
-                            switch (_context48.prev = _context48.next) {
+                            switch (_context52.prev = _context52.next) {
                               case 0:
-                                return _context48.abrupt("return", new Promise(function (resolve, reject) {
+                                return _context52.abrupt("return", new Promise(function (resolve, reject) {
                                   var reader = new FileReader();
                                   reader.readAsDataURL(file);
 
@@ -28804,14 +28879,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                               case 1:
                               case "end":
-                                return _context48.stop();
+                                return _context52.stop();
                             }
                           }
-                        }, _callee38);
+                        }, _callee42);
                       }));
 
                       return function getBase64(_x37) {
-                        return _ref54.apply(this, arguments);
+                        return _ref57.apply(this, arguments);
                       };
                     }();
 
@@ -28832,10 +28907,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     };
                     files = [];
                     data.forEach( function () {
-                      var _ref55 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee39(value, key) {
-                        return _regeneratorRuntime().wrap(function _callee39$(_context49) {
+                      var _ref58 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee43(value, key) {
+                        return _regeneratorRuntime().wrap(function _callee43$(_context53) {
                           while (1) {
-                            switch (_context49.prev = _context49.next) {
+                            switch (_context53.prev = _context53.next) {
                               case 0:
                                 if (key !== 'files') {
                                   dataObj[key] = value;
@@ -28845,53 +28920,53 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                               case 1:
                               case "end":
-                                return _context49.stop();
+                                return _context53.stop();
                             }
                           }
-                        }, _callee39);
+                        }, _callee43);
                       }));
 
                       return function (_x38, _x39) {
-                        return _ref55.apply(this, arguments);
+                        return _ref58.apply(this, arguments);
                       };
                     }());
                     i = 0, len = files.length;
 
                   case 10:
                     if (!(i < len)) {
-                      _context50.next = 25;
+                      _context54.next = 25;
                       break;
                     }
 
                     file = files[i];
 
                     if (!file.type) {
-                      _context50.next = 22;
+                      _context54.next = 22;
                       break;
                     }
 
-                    _context50.t0 = dataObj.files;
-                    _context50.t1 = "data:".concat(file.type, ";base64,");
-                    _context50.next = 17;
+                    _context54.t0 = dataObj.files;
+                    _context54.t1 = "data:".concat(file.type, ";base64,");
+                    _context54.next = 17;
                     return getBase64(file).then(function (data) {
                       return data.split(',')[1];
                     });
 
                   case 17:
-                    _context50.t2 = _context50.sent;
-                    _context50.t3 = _context50.t1.concat.call(_context50.t1, _context50.t2);
-                    _context50.t4 = file.name;
-                    _context50.t5 = {
-                      content: _context50.t3,
-                      name: _context50.t4,
+                    _context54.t2 = _context54.sent;
+                    _context54.t3 = _context54.t1.concat.call(_context54.t1, _context54.t2);
+                    _context54.t4 = file.name;
+                    _context54.t5 = {
+                      content: _context54.t3,
+                      name: _context54.t4,
                       spoiler: false
                     };
 
-                    _context50.t0.push.call(_context50.t0, _context50.t5);
+                    _context54.t0.push.call(_context54.t0, _context54.t5);
 
                   case 22:
                     ++i;
-                    _context50.next = 10;
+                    _context54.next = 10;
                     break;
 
                   case 25:
@@ -28919,7 +28994,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                     task = getFileName(form.attributes.action.value);
                     url = this._hasNewAPI ? "/".concat(task, "?json=1") : '/.api/' + task.replace('.js', '');
-                    return _context50.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
+                    return _context54.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
                       return xhr.responseText;
                     })["catch"](function (err) {
                       return Promise.reject(err);
@@ -28927,10 +29002,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 31:
                   case "end":
-                    return _context50.stop();
+                    return _context54.stop();
                 }
               }
-            }, _callee40, this);
+            }, _callee44, this);
           }));
 
           function sendHTML5Post(_x33, _x34, _x35, _x36) {
@@ -29432,9 +29507,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (!img || img.tagName !== 'IMG') {
             box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
 
-            var _ref56 = _toConsumableArray(box.children),
-                _img2 = _ref56[0],
-                inp = _ref56[1];
+            var _ref59 = _toConsumableArray(box.children),
+                _img2 = _ref59[0],
+                inp = _ref59[1];
 
             _img2.onclick = function () {
               return _this115.updateCaptcha(cap);
@@ -29912,8 +29987,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref57) {
-            var id = _ref57.responseText;
+          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref60) {
+            var id = _ref60.responseText;
             $id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
             $id('captchaid').value = id;
           });
@@ -30542,24 +30617,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var _$id3;
 
           if (deWindow.location.pathname === '/settings') {
-            $q('input[type="button"]').addEventListener('click', _asyncToGenerator( _regeneratorRuntime().mark(function _callee41() {
-              return _regeneratorRuntime().wrap(function _callee41$(_context51) {
+            $q('input[type="button"]').addEventListener('click', _asyncToGenerator( _regeneratorRuntime().mark(function _callee45() {
+              return _regeneratorRuntime().wrap(function _callee45$(_context55) {
                 while (1) {
-                  switch (_context51.prev = _context51.next) {
+                  switch (_context55.prev = _context55.next) {
                     case 0:
-                      _context51.next = 2;
+                      _context55.next = 2;
                       return readCfg();
 
                     case 2:
-                      _context51.next = 4;
+                      _context55.next = 4;
                       return saveCfg('__hanarating', $id('rating').value);
 
                     case 4:
                     case "end":
-                      return _context51.stop();
+                      return _context55.stop();
                   }
                 }
-              }, _callee41);
+              }, _callee45);
             })));
             return true;
           }
@@ -31195,9 +31270,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref59) {
-          var error = _ref59.error,
-              id = _ref59.id;
+        value: function getSubmitData(_ref62) {
+          var error = _ref62.error,
+              id = _ref62.id;
           return {
             error: error,
             postNum: id && +id
@@ -31479,8 +31554,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref60) {
-      var arg = _ref60.data;
+    _handleMessage: function _handleMessage(_ref63) {
+      var arg = _ref63.data;
 
       if (!(arg !== null && arg !== void 0 && arg.name)) {
         return;
@@ -31531,50 +31606,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _checkForUpdates() {
-    _checkForUpdates = _asyncToGenerator( _regeneratorRuntime().mark(function _callee54(isManual, lastUpdateTime) {
+    _checkForUpdates = _asyncToGenerator( _regeneratorRuntime().mark(function _callee58(isManual, lastUpdateTime) {
       var _v$;
 
       var responseText, _yield$$ajax, v, remoteVer, currentVer, src, link, chLogLink, i, len, c, vc;
 
-      return _regeneratorRuntime().wrap(function _callee54$(_context64) {
+      return _regeneratorRuntime().wrap(function _callee58$(_context68) {
         while (1) {
-          switch (_context64.prev = _context64.next) {
+          switch (_context68.prev = _context68.next) {
             case 0:
               if (isManual) {
-                _context64.next = 3;
+                _context68.next = 3;
                 break;
               }
 
               if (!(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24)) {
-                _context64.next = 3;
+                _context68.next = 3;
                 break;
               }
 
               throw new Error('Itʼs not time for an update yet');
 
             case 3:
-              _context64.prev = 3;
-              _context64.next = 6;
+              _context68.prev = 3;
+              _context68.next = 6;
               return $ajax(gitRaw + 'src/modules/Wrap.js', {
                 'Content-Type': 'text/plain'
               }, true);
 
             case 6:
-              _yield$$ajax = _context64.sent;
+              _yield$$ajax = _context68.sent;
               responseText = _yield$$ajax.responseText;
-              _context64.next = 17;
+              _context68.next = 17;
               break;
 
             case 10:
-              _context64.prev = 10;
-              _context64.t0 = _context64["catch"](3);
+              _context68.prev = 10;
+              _context68.t0 = _context68["catch"](3);
 
               if (!isManual) {
-                _context64.next = 16;
+                _context68.next = 16;
                 break;
               }
 
-              return _context64.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
+              return _context68.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
 
             case 16:
               throw new Error(Lng.noConnect[lang]);
@@ -31584,7 +31659,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               remoteVer = v === null || v === void 0 ? void 0 : (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
 
               if (remoteVer) {
-                _context64.next = 21;
+                _context68.next = 21;
                 break;
               }
 
@@ -31593,7 +31668,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 21:
               currentVer = version.split('.');
               src = "".concat(gitRaw).concat(nav.isESNext ? 'src/' : '', "Dollchan_Extension_Tools.").concat(nav.isESNext ? 'es6.' : '', "user.js");
-              _context64.next = 25;
+              _context68.next = 25;
               return saveCfgObj('lastUpd', function () {
                 return Date.now();
               });
@@ -31605,49 +31680,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 28:
               if (!(i < len)) {
-                _context64.next = 38;
+                _context68.next = 38;
                 break;
               }
 
               if (!((+remoteVer[i] || 0) > (+currentVer[i] || 0))) {
-                _context64.next = 33;
+                _context68.next = 33;
                 break;
               }
 
-              return _context64.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
+              return _context68.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
 
             case 33:
               if (!((+remoteVer[i] || 0) < (+currentVer[i] || 0))) {
-                _context64.next = 35;
+                _context68.next = 35;
                 break;
               }
 
-              return _context64.abrupt("break", 38);
+              return _context68.abrupt("break", 38);
 
             case 35:
               ++i;
-              _context64.next = 28;
+              _context68.next = 28;
               break;
 
             case 38:
               if (!isManual) {
-                _context64.next = 42;
+                _context68.next = 42;
                 break;
               }
 
               c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
               vc = version + '.' + c;
-              return _context64.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
+              return _context68.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
 
             case 42:
               throw new Error();
 
             case 43:
             case "end":
-              return _context64.stop();
+              return _context68.stop();
           }
         }
-      }, _callee54, null, [[3, 10]]);
+      }, _callee58, null, [[3, 10]]);
     }));
     return _checkForUpdates.apply(this, arguments);
   }
@@ -31819,76 +31894,76 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function _runMain() {
-    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee55(checkDomains, dataPromise) {
+    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee59(checkDomains, dataPromise) {
       var _aib$init, _aib4;
 
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
-      return _regeneratorRuntime().wrap(function _callee55$(_context65) {
+      return _regeneratorRuntime().wrap(function _callee59$(_context69) {
         while (1) {
-          switch (_context65.prev = _context65.next) {
+          switch (_context69.prev = _context69.next) {
             case 0:
               Logger.initLogger();
 
               if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-                _context65.next = 3;
+                _context69.next = 3;
                 break;
               }
 
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 3:
               formEl = $q(aib.qDelForm + ', form[de-form]');
 
               if (formEl) {
-                _context65.next = 7;
+                _context69.next = 7;
                 break;
               }
 
               runFrames();
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 7:
               if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-                _context65.next = 9;
+                _context69.next = 9;
                 break;
               }
 
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 9:
               Logger.log('Imageboard check');
 
               if (locStorage) {
-                _context65.next = 14;
+                _context69.next = 14;
                 break;
               }
 
               if (checkStorage()) {
-                _context65.next = 13;
+                _context69.next = 13;
                 break;
               }
 
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 13:
               initNavFuncs();
 
             case 14:
-              _context65.next = 16;
+              _context69.next = 16;
               return dataPromise || readData();
 
             case 16:
-              _yield = _context65.sent;
+              _yield = _context69.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
               if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
-                _context65.next = 21;
+                _context69.next = 21;
                 break;
               }
 
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 21:
               docBody.classList.add('de-runned');
@@ -31896,13 +31971,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               addSVGIcons();
 
               if (!Cfg.disabled) {
-                _context65.next = 28;
+                _context69.next = 28;
                 break;
               }
 
               Panel.initPanel(formEl);
               scriptCSS();
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 28:
               if ('toJSON' in aProto) {
@@ -31945,22 +32020,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               Logger.log('Replace delform');
               pByEl = new Map();
               pByNum = new Map();
-              _context65.prev = 43;
+              _context69.prev = 43;
               DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 
               if (!Thread.first) {
                 console.error('No threads detected!');
               }
 
-              _context65.next = 53;
+              _context69.next = 53;
               break;
 
             case 48:
-              _context65.prev = 48;
-              _context65.t0 = _context65["catch"](43);
-              console.error('Delform parsing error:', getErrorMessage(_context65.t0));
+              _context69.prev = 48;
+              _context69.t0 = _context69["catch"](43);
+              console.error('Delform parsing error:', getErrorMessage(_context69.t0));
               $show(docBody);
-              return _context65.abrupt("return");
+              return _context69.abrupt("return");
 
             case 53:
               Logger.log('Parse delform');
@@ -32021,10 +32096,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 79:
             case "end":
-              return _context65.stop();
+              return _context69.stop();
           }
         }
-      }, _callee55, null, [[43, 48]]);
+      }, _callee59, null, [[43, 48]]);
     }));
     return _runMain.apply(this, arguments);
   }
