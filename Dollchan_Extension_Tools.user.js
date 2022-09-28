@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '9e1ce1f';
+  var commit = '10962d7';
 
   var defaultCfg = {
     disabled: 0,
@@ -7991,12 +7991,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _readFile() {
-    _readFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee20(file, asText) {
-      return _regeneratorRuntime().wrap(function _callee20$(_context30) {
+    _readFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee25(file, asText) {
+      return _regeneratorRuntime().wrap(function _callee25$(_context35) {
         while (1) {
-          switch (_context30.prev = _context30.next) {
+          switch (_context35.prev = _context35.next) {
             case 0:
-              return _context30.abrupt("return", new Promise(function (resolve) {
+              return _context35.abrupt("return", new Promise(function (resolve) {
                 var fr = new FileReader();
 
                 fr.onload = function (e) {
@@ -8014,10 +8014,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 1:
             case "end":
-              return _context30.stop();
+              return _context35.stop();
           }
         }
-      }, _callee20);
+      }, _callee25);
     }));
     return _readFile.apply(this, arguments);
   }
@@ -8749,39 +8749,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _getStored() {
-    _getStored = _asyncToGenerator( _regeneratorRuntime().mark(function _callee21(id) {
+    _getStored = _asyncToGenerator( _regeneratorRuntime().mark(function _callee26(id) {
       var value;
-      return _regeneratorRuntime().wrap(function _callee21$(_context31) {
+      return _regeneratorRuntime().wrap(function _callee26$(_context36) {
         while (1) {
-          switch (_context31.prev = _context31.next) {
+          switch (_context36.prev = _context36.next) {
             case 0:
               if (!nav.hasNewGM) {
-                _context31.next = 7;
+                _context36.next = 7;
                 break;
               }
 
-              _context31.next = 3;
+              _context36.next = 3;
               return GM.getValue(id);
 
             case 3:
-              value = _context31.sent;
-              return _context31.abrupt("return", value);
+              value = _context36.sent;
+              return _context36.abrupt("return", value);
 
             case 7:
               if (!nav.hasOldGM) {
-                _context31.next = 11;
+                _context36.next = 11;
                 break;
               }
 
-              return _context31.abrupt("return", GM_getValue(id));
+              return _context36.abrupt("return", GM_getValue(id));
 
             case 11:
               if (!nav.hasWebStorage) {
-                _context31.next = 15;
+                _context36.next = 15;
                 break;
               }
 
-              return _context31.abrupt("return", new Promise(function (resolve) {
+              return _context36.abrupt("return", new Promise(function (resolve) {
                 return chrome.storage.local.get(id, function (obj) {
                   if (Object.keys(obj).length) {
                     resolve(obj[id]);
@@ -8795,21 +8795,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 15:
               if (!nav.hasPrestoStorage) {
-                _context31.next = 17;
+                _context36.next = 17;
                 break;
               }
 
-              return _context31.abrupt("return", prestoStorage.getItem(id));
+              return _context36.abrupt("return", prestoStorage.getItem(id));
 
             case 17:
-              return _context31.abrupt("return", locStorage[id]);
+              return _context36.abrupt("return", locStorage[id]);
 
             case 18:
             case "end":
-              return _context31.stop();
+              return _context36.stop();
           }
         }
-      }, _callee21);
+      }, _callee26);
     }));
     return _getStored.apply(this, arguments);
   }
@@ -8820,21 +8820,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     } else if (nav.hasOldGM) {
       GM_setValue(id, value);
     } else if (nav.hasWebStorage) {
-      var obj = {};
-      obj[id] = value;
-      chrome.storage.sync.set(obj, function () {
-        if (chrome.runtime.lastError) {
-          chrome.storage.local.set(obj, emptyFn);
-          chrome.storage.sync.remove(id, emptyFn);
-        } else {
-          chrome.storage.local.remove(id, emptyFn);
-        }
+      return new Promise(function (resolve, _) {
+        var obj = {};
+        obj[id] = value;
+        chrome.storage.sync.set(obj, function () {
+          if (chrome.runtime.lastError) {
+            chrome.storage.local.set(obj, emptyFn);
+            chrome.storage.sync.remove(id, emptyFn);
+          } else {
+            chrome.storage.local.remove(id, emptyFn);
+          }
+
+          resolve();
+        });
       });
     } else if (nav.hasPrestoStorage) {
       prestoStorage.setItem(id, value);
     } else {
       locStorage[id] = value;
     }
+
+    return null;
   } 
 
 
@@ -8859,77 +8865,148 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _getStoredObj() {
-    _getStoredObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee22(id) {
-      return _regeneratorRuntime().wrap(function _callee22$(_context32) {
+    _getStoredObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee27(id) {
+      return _regeneratorRuntime().wrap(function _callee27$(_context37) {
         while (1) {
-          switch (_context32.prev = _context32.next) {
+          switch (_context37.prev = _context37.next) {
             case 0:
-              _context32.t1 = JSON;
-              _context32.next = 3;
+              _context37.t1 = JSON;
+              _context37.next = 3;
               return getStored(id);
 
             case 3:
-              _context32.t2 = _context32.sent;
+              _context37.t2 = _context37.sent;
 
-              if (_context32.t2) {
-                _context32.next = 6;
+              if (_context37.t2) {
+                _context37.next = 6;
                 break;
               }
 
-              _context32.t2 = '{}';
+              _context37.t2 = '{}';
 
             case 6:
-              _context32.t3 = _context32.t2;
-              _context32.t0 = _context32.t1.parse.call(_context32.t1, _context32.t3);
+              _context37.t3 = _context37.t2;
+              _context37.t0 = _context37.t1.parse.call(_context37.t1, _context37.t3);
 
-              if (_context32.t0) {
-                _context32.next = 10;
+              if (_context37.t0) {
+                _context37.next = 10;
                 break;
               }
 
-              _context32.t0 = {};
+              _context37.t0 = {};
 
             case 10:
-              return _context32.abrupt("return", _context32.t0);
+              return _context37.abrupt("return", _context37.t0);
 
             case 11:
             case "end":
-              return _context32.stop();
+              return _context37.stop();
           }
         }
-      }, _callee22);
+      }, _callee27);
     }));
     return _getStoredObj.apply(this, arguments);
   }
 
-  function saveCfgObj(dm, fn) {
-    getStoredObj('DESU_Config').then(function (val) {
-      var res = fn(val[dm]);
-
-      if (res) {
-        val[dm] = res;
-      } else {
-        delete val[dm];
-      }
-
-      setStored('DESU_Config', JSON.stringify(val));
-    });
+  function saveCfgObj(_x5, _x6) {
+    return _saveCfgObj.apply(this, arguments);
   } 
 
 
-  function saveCfg(id, val) {
-    if (Cfg[id] !== val) {
-      Cfg[id] = val;
-      saveCfgObj(aib.dm, function (cfg) {
-        cfg[id] = val;
-        return cfg;
-      });
-    }
+  function _saveCfgObj() {
+    _saveCfgObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee28(dm, fn) {
+      var val, res, rv;
+      return _regeneratorRuntime().wrap(function _callee28$(_context38) {
+        while (1) {
+          switch (_context38.prev = _context38.next) {
+            case 0:
+              _context38.next = 2;
+              return getStoredObj('DESU_Config');
+
+            case 2:
+              val = _context38.sent;
+              res = fn(val[dm]);
+
+              if (res) {
+                val[dm] = res;
+              } else {
+                delete val[dm];
+              }
+
+              rv = setStored('DESU_Config', JSON.stringify(val));
+
+              if (!rv) {
+                _context38.next = 9;
+                break;
+              }
+
+              _context38.next = 9;
+              return rv;
+
+            case 9:
+            case "end":
+              return _context38.stop();
+          }
+        }
+      }, _callee28);
+    }));
+    return _saveCfgObj.apply(this, arguments);
+  }
+
+  function saveCfg(_x7, _x8) {
+    return _saveCfg.apply(this, arguments);
   } 
 
 
-  function toggleCfg(id) {
-    saveCfg(id, +!Cfg[id]);
+  function _saveCfg() {
+    _saveCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee29(id, val) {
+      return _regeneratorRuntime().wrap(function _callee29$(_context39) {
+        while (1) {
+          switch (_context39.prev = _context39.next) {
+            case 0:
+              if (!(Cfg[id] !== val)) {
+                _context39.next = 4;
+                break;
+              }
+
+              Cfg[id] = val;
+              _context39.next = 4;
+              return saveCfgObj(aib.dm, function (cfg) {
+                cfg[id] = val;
+                return cfg;
+              });
+
+            case 4:
+            case "end":
+              return _context39.stop();
+          }
+        }
+      }, _callee29);
+    }));
+    return _saveCfg.apply(this, arguments);
+  }
+
+  function toggleCfg(_x9) {
+    return _toggleCfg.apply(this, arguments);
+  }
+
+  function _toggleCfg() {
+    _toggleCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee30(id) {
+      return _regeneratorRuntime().wrap(function _callee30$(_context40) {
+        while (1) {
+          switch (_context40.prev = _context40.next) {
+            case 0:
+              _context40.next = 2;
+              return saveCfg(id, +!Cfg[id]);
+
+            case 2:
+            case "end":
+              return _context40.stop();
+          }
+        }
+      }, _callee30);
+    }));
+    return _toggleCfg.apply(this, arguments);
   }
 
   function readData() {
@@ -8943,17 +9020,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _readCfg() {
-    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee23() {
+    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee31() {
       var obj, val, isGlobal;
-      return _regeneratorRuntime().wrap(function _callee23$(_context33) {
+      return _regeneratorRuntime().wrap(function _callee31$(_context41) {
         while (1) {
-          switch (_context33.prev = _context33.next) {
+          switch (_context41.prev = _context41.next) {
             case 0:
-              _context33.next = 2;
+              _context41.next = 2;
               return getStoredObj('DESU_Config');
 
             case 2:
-              val = _context33.sent;
+              val = _context41.sent;
 
               if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
                 isGlobal = nav.hasGlobalStorage && !!val.global;
@@ -9059,10 +9136,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 24:
             case "end":
-              return _context33.stop();
+              return _context41.stop();
           }
         }
-      }, _callee23);
+      }, _callee31);
     }));
     return _readCfg.apply(this, arguments);
   }
@@ -10491,7 +10568,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee);
       }));
 
-      return function (_x5) {
+      return function (_x10) {
         return _ref.apply(this, arguments);
       };
     }()), 
@@ -11243,49 +11320,110 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       div.append( 
       getEditButton('cfg', function (fn) {
-        return fn(Cfg, true, function (data) {
-          saveCfgObj(aib.dm, function () {
-            return data;
-          });
-          deWindow.location.reload();
-        });
+        return fn(Cfg, true, function () {
+          var _ref7 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee5(data) {
+            return _regeneratorRuntime().wrap(function _callee5$(_context7) {
+              while (1) {
+                switch (_context7.prev = _context7.next) {
+                  case 0:
+                    _context7.next = 2;
+                    return saveCfgObj(aib.dm, function () {
+                      return data;
+                    });
+
+                  case 2:
+                    deWindow.location.reload();
+
+                  case 3:
+                  case "end":
+                    return _context7.stop();
+                }
+              }
+            }, _callee5);
+          }));
+
+          return function (_x11) {
+            return _ref7.apply(this, arguments);
+          };
+        }());
       }), 
       nav.hasGlobalStorage ? $button(Lng.global[lang], Lng.globalCfg[lang], function () {
         var el = $popup('cfg-global', "<b>".concat(Lng.globalCfg[lang], ":</b>")); 
 
-        $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.load[lang], "\"> ").concat(Lng.loadGlobal[lang], "</div>")).firstElementChild.onclick = function () {
-          return getStoredObj('DESU_Config').then(function (data) {
-            if (data && 'global' in data && !$isEmpty(data.global)) {
-              saveCfgObj(aib.dm, function () {
-                return data.global;
-              });
-              deWindow.location.reload();
-            } else {
-              $popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
-            }
-          });
-        }; 
+        $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.load[lang], "\"> ").concat(Lng.loadGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee6() {
+          var data;
+          return _regeneratorRuntime().wrap(function _callee6$(_context8) {
+            while (1) {
+              switch (_context8.prev = _context8.next) {
+                case 0:
+                  _context8.next = 2;
+                  return getStoredObj('DESU_Config');
 
+                case 2:
+                  data = _context8.sent;
 
-        div = $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.save[lang], "\"> ").concat(Lng.saveGlobal[lang], "</div>")).firstElementChild.onclick = function () {
-          return getStoredObj('DESU_Config').then(function (data) {
-            var obj = {};
-            var com = data[aib.dm];
+                  if (!(data && 'global' in data && !$isEmpty(data.global))) {
+                    _context8.next = 9;
+                    break;
+                  }
 
-            for (var i in com) {
-              if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]) {
-                obj[i] = com[i];
+                  _context8.next = 6;
+                  return saveCfgObj(aib.dm, function () {
+                    return data.global;
+                  });
+
+                case 6:
+                  deWindow.location.reload();
+                  _context8.next = 10;
+                  break;
+
+                case 9:
+                  $popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
+
+                case 10:
+                case "end":
+                  return _context8.stop();
               }
             }
+          }, _callee6);
+        })); 
 
-            data.global = obj;
-            saveCfgObj('global', function () {
-              return data.global;
-            });
-            toggleWindow('cfg', true);
-          });
-        };
+        div = $bEnd(el, "<div id=\"de-list\"><input type=\"button\" value=\"".concat(Lng.save[lang], "\"> ").concat(Lng.saveGlobal[lang], "</div>")).firstElementChild.onclick = _asyncToGenerator( _regeneratorRuntime().mark(function _callee7() {
+          var data, obj, com, i;
+          return _regeneratorRuntime().wrap(function _callee7$(_context9) {
+            while (1) {
+              switch (_context9.prev = _context9.next) {
+                case 0:
+                  _context9.next = 2;
+                  return getStoredObj('DESU_Config');
 
+                case 2:
+                  data = _context9.sent;
+                  obj = {};
+                  com = data[aib.dm];
+
+                  for (i in com) {
+                    if (i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' && i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]) {
+                      obj[i] = com[i];
+                    }
+                  }
+
+                  data.global = obj;
+                  _context9.next = 9;
+                  return saveCfgObj('global', function () {
+                    return data.global;
+                  });
+
+                case 9:
+                  toggleWindow('cfg', true);
+
+                case 10:
+                case "end":
+                  return _context9.stop();
+              }
+            }
+          }, _callee7);
+        }));
         el.insertAdjacentHTML('beforeend', "<hr><small>".concat(Lng.descrGlobal[lang], "</small>"));
       }) : '', 
       !nav.isPresto ? $button(Lng.file[lang], Lng.fileImpExp[lang], function () {
@@ -11301,8 +11439,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             return;
           }
 
-          readFile(file, true).then(function (_ref7) {
-            var data = _ref7.data;
+          readFile(file, true).then(function (_ref10) {
+            var data = _ref10.data;
             var obj;
 
             try {
@@ -11362,11 +11500,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var els = $Q('input', expFile.nextElementSibling);
         els[0].checked = true;
         expFile.addEventListener('click', function () {
-          var _ref8 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee5(e) {
+          var _ref11 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee8(e) {
             var name, nameDm, d, val, valDm, i, len, cfgData;
-            return _regeneratorRuntime().wrap(function _callee5$(_context7) {
+            return _regeneratorRuntime().wrap(function _callee8$(_context10) {
               while (1) {
-                switch (_context7.prev = _context7.next) {
+                switch (_context10.prev = _context10.next) {
                   case 0:
                     name = [];
                     nameDm = [];
@@ -11377,61 +11515,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 6:
                     if (!(i < len)) {
-                      _context7.next = 38;
+                      _context10.next = 38;
                       break;
                     }
 
                     if (els[i].checked) {
-                      _context7.next = 9;
+                      _context10.next = 9;
                       break;
                     }
 
-                    return _context7.abrupt("continue", 35);
+                    return _context10.abrupt("continue", 35);
 
                   case 9:
-                    _context7.t0 = i;
-                    _context7.next = _context7.t0 === 0 ? 12 : _context7.t0 === 1 ? 18 : _context7.t0 === 2 ? 30 : _context7.t0 === 3 ? 33 : 35;
+                    _context10.t0 = i;
+                    _context10.next = _context10.t0 === 0 ? 12 : _context10.t0 === 1 ? 18 : _context10.t0 === 2 ? 30 : _context10.t0 === 3 ? 33 : 35;
                     break;
 
                   case 12:
                     name.push('Cfg');
-                    _context7.next = 15;
+                    _context10.next = 15;
                     return Promise.all([getStored('DESU_Config'), getStored('DESU_keys')]);
 
                   case 15:
-                    cfgData = _context7.sent;
+                    cfgData = _context10.sent;
                     val.push("\"settings\":".concat(cfgData[0]), "\"hotkeys\":".concat(cfgData[1] || '""'));
-                    return _context7.abrupt("break", 35);
+                    return _context10.abrupt("break", 35);
 
                   case 18:
                     name.push('Fav');
-                    _context7.t1 = val;
-                    _context7.t2 = "\"favorites\":";
-                    _context7.next = 23;
+                    _context10.t1 = val;
+                    _context10.t2 = "\"favorites\":";
+                    _context10.next = 23;
                     return getStored('DESU_Favorites');
 
                   case 23:
-                    _context7.t3 = _context7.sent;
+                    _context10.t3 = _context10.sent;
 
-                    if (_context7.t3) {
-                      _context7.next = 26;
+                    if (_context10.t3) {
+                      _context10.next = 26;
                       break;
                     }
 
-                    _context7.t3 = '{}';
+                    _context10.t3 = '{}';
 
                   case 26:
-                    _context7.t4 = _context7.t3;
-                    _context7.t5 = _context7.t2.concat.call(_context7.t2, _context7.t4);
+                    _context10.t4 = _context10.t3;
+                    _context10.t5 = _context10.t2.concat.call(_context10.t2, _context10.t4);
 
-                    _context7.t1.push.call(_context7.t1, _context7.t5);
+                    _context10.t1.push.call(_context10.t1, _context10.t5);
 
-                    return _context7.abrupt("break", 35);
+                    return _context10.abrupt("break", 35);
 
                   case 30:
                     nameDm.push('Hid');
                     valDm.push("\"posts\":".concat(locStorage['de-posts'] || '{}'), "\"threads\":".concat(locStorage['de-threads'] || '{}'));
-                    return _context7.abrupt("break", 35);
+                    return _context10.abrupt("break", 35);
 
                   case 33:
                     nameDm.push('You');
@@ -11439,7 +11577,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 35:
                     ++i;
-                    _context7.next = 6;
+                    _context10.next = 6;
                     break;
 
                   case 38:
@@ -11458,14 +11596,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 41:
                   case "end":
-                    return _context7.stop();
+                    return _context10.stop();
                 }
               }
-            }, _callee5);
+            }, _callee8);
           }));
 
-          return function (_x6) {
-            return _ref8.apply(this, arguments);
+          return function (_x12) {
+            return _ref11.apply(this, arguments);
           };
         }(), true);
       }) : '', 
@@ -11512,488 +11650,575 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }));
     },
     handleEvent: function handleEvent(e) {
-      var type = e.type,
-          el = e.target;
-      var tag = el.tagName;
-
-      if (type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
-        var info = el.getAttribute('info');
-
-        this._clickTab(info);
-
-        saveCfg('cfgTab', info);
-      }
-
-      if (type === 'change' && tag === 'SELECT') {
-        var _info = el.getAttribute('info');
-
-        saveCfg(_info, el.selectedIndex);
-
-        this._updateDependant();
-
-        switch (_info) {
-          case 'language':
-            lang = el.selectedIndex;
-            Panel.removeMain();
-
-            if (pr.form) {
-              pr.addMarkupPanel();
-              pr.setPlaceholders();
-              pr.updateLanguage();
-              aib.updateSubmitBtn(pr.subm);
-
-              if (pr.files) {
-                $Q('.de-file-img, .de-file-txt-input', pr.form).forEach(function (el) {
-                  return el.title = Lng.youCanDrag[lang];
-                });
-              }
-            }
-
-            this._updateCSS();
-
-            Panel.initPanel(DelForm.first.el);
-            toggleWindow('cfg', false);
-            break;
-
-          case 'delHiddPost':
-            {
-              var isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
-
-              for (var post = Thread.first.op; post; post = post.next) {
-                if (post.isHidden && !post.isOp) {
-                  post.wrap.classList.toggle('de-hidden', isHide);
-                }
-              }
-
-              updateCSS();
-              break;
-            }
-
-          case 'postBtnsCSS':
-            updateCSS();
-
-            if (nav.isPresto) {
-              $q('.de-svg-icons').remove();
-              addSVGIcons();
-            }
-
-            break;
-
-          case 'thrBtns':
-          case 'noSpoilers':
-          case 'resizeImgs':
-            updateCSS();
-            break;
-
-          case 'expandImgs':
-            updateCSS();
-            AttachedImage.closeImg();
-            break;
-
-          case 'imgNames':
-            if (Cfg.imgNames) {
-              for (var _iterator4 = _createForOfIteratorHelperLoose(DelForm), _step4; !(_step4 = _iterator4()).done;) {
-                var _el3 = _step4.value.el;
-                processImgInfoLinks(_el3, 0, Cfg.imgNames);
-              }
-            } else {
-              $Q('.de-img-name').forEach(function (el) {
-                return el.textContent = el.getAttribute('de-img-name-old');
-              });
-            }
-
-            updateCSS();
-            break;
-
-          case 'fileInputs':
-            pr.files.changeMode();
-            pr.setPlaceholders();
-            updateCSS();
-            break;
-
-          case 'addPostForm':
-            pr.isBottom = Cfg.addPostForm === 1;
-            pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-            break;
-
-          case 'addTextBtns':
-            pr.addMarkupPanel();
-
-
-          case 'scriptStyle':
-          case 'panelCounter':
-            this._updateCSS();
-
-            break;
-
-          case 'favThrOrder':
-            readFavorites().then(function (favObj) {
-              var body = $q('#de-win-fav > .de-win-body');
-              body.innerHTML = '';
-              showFavoritesWindow(body, favObj);
-            });
-        }
-
-        return;
-      }
-
-      if (type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
-        var _info2 = el.getAttribute('info');
-
-        toggleCfg(_info2);
-
-        this._updateDependant();
-
-        switch (_info2) {
-          case 'expandTrunc':
-          case 'widePosts':
-          case 'showHideBtn':
-          case 'showRepBtn':
-          case 'noPostNames':
-          case 'imgNavBtns':
-          case 'strikeHidd':
-          case 'removeHidd':
-          case 'noBoardRule':
-          case 'userCSS':
-            updateCSS();
-            break;
-
-          case 'hideBySpell':
-            Spells.toggle();
-            break;
-
-          case 'sortSpells':
-            if (Cfg.sortSpells) {
-              Spells.toggle();
-            }
-
-            break;
-
-          case 'hideRefPsts':
-            for (var _post3 = Thread.first.op; _post3; _post3 = _post3.next) {
-              if (!Cfg.hideRefPsts) {
-                _post3.ref.unhideRef();
-              } else if (_post3.isHidden) {
-                _post3.ref.hideRef();
-              }
-            }
-
-            break;
-
-          case 'ajaxUpdThr':
-            if (aib.t) {
-              if (Cfg.ajaxUpdThr) {
-                updater.enableUpdater();
-              } else {
-                updater.disableUpdater();
-              }
-            }
-
-            break;
-
-          case 'updCount':
-            updater.toggleCounter(Cfg.updCount);
-            break;
-
-          case 'desktNotif':
-            if (Cfg.desktNotif) {
-              Notification.requestPermission();
-            }
-
-            break;
-
-          case 'markNewPosts':
-            Post.clearMarks();
-            break;
-
-          case 'useDobrAPI':
-            aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;
-            break;
-
-          case 'markMyPosts':
-          case 'markMyLinks':
-            if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
-              locStorage.removeItem('de-myposts');
-              MyPosts.purge();
-            }
-
-            updateCSS();
-            break;
-
-          case 'correctTime':
-            DateTime.toggleSettings(el);
-            break;
-
-          case 'imgInfoLink':
-            {
-              var img = $q('.de-fullimg-wrap');
-
-              if (img) {
-                img.click();
-              }
-
-              updateCSS();
-              break;
-            }
-
-          case 'imgSrcBtns':
-            if (Cfg.imgSrcBtns) {
-              for (var _iterator5 = _createForOfIteratorHelperLoose(DelForm), _step5; !(_step5 = _iterator5()).done;) {
-                var _el4 = _step5.value.el;
-                processImgInfoLinks(_el4, 1, 0);
-                $Q('.de-img-embed').forEach(function (el) {
-                  return addImgButtons(el.parentNode.nextSibling.nextSibling);
-                });
-              }
-            } else {
-              $delAll('.de-btn-img');
-            }
-
-            break;
-
-          case 'addSageBtn':
-            PostForm.hideField(pr.mail.closest('label') || pr.mail);
-            setTimeout(function () {
-              return pr.toggleSage();
-            }, 0);
-            updateCSS();
-            break;
-
-          case 'altCaptcha':
-            pr.cap.initCapPromise();
-            break;
-
-          case 'txtBtnsLoc':
-            pr.addMarkupPanel();
-            updateCSS();
-            break;
-
-          case 'userPassw':
-            PostForm.setUserPassw();
-            break;
-
-          case 'userName':
-            PostForm.setUserName();
-            break;
-
-          case 'noPassword':
-            $toggle(pr.passw.closest(aib.qFormTr));
-            break;
-
-          case 'noName':
-            PostForm.hideField(pr.name);
-            break;
-
-          case 'noSubj':
-            PostForm.hideField(pr.subj);
-            break;
-
-          case 'inftyScroll':
-            toggleInfinityScroll();
-            break;
-
-          case 'hotKeys':
-            if (Cfg.hotKeys) {
-              HotKeys.enableHotKeys();
-            } else {
-              HotKeys.disableHotKeys();
-            }
-
-        }
-
-        return;
-      }
-
-      if (type === 'click' && tag === 'INPUT' && el.type === 'button') {
-        switch (el.id) {
-          case 'de-cfg-button-pass':
-            $q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-            PostForm.setUserPassw();
-            break;
-
-          case 'de-cfg-button-keys':
-            e.preventDefault();
-
-            if ($id('de-popup-edit-hotkeys')) {
-              return;
-            }
-
-            Promise.resolve(HotKeys.readKeys()).then(function (keys) {
-              var temp = KeyEditListener.getEditMarkup(keys);
-              var el = $popup('edit-hotkeys', temp[1]);
-              var fn = new KeyEditListener(el, keys, temp[0]);
-              ['focus', 'blur', 'click', 'keydown', 'keyup'].forEach(function (e) {
-                return el.addEventListener(e, fn, true);
-              });
-            });
-            break;
-
-          case 'de-cfg-button-updnow':
-            $popup('updavail', Lng.loading[lang], true);
-            getStoredObj('DESU_Config').then(function (data) {
-              return checkForUpdates(true, data.lastUpd);
-            }).then(function (html) {
-              return $popup('updavail', html);
-            }, emptyFn);
-            break;
-
-          case 'de-cfg-button-donate':
-            showDonateMsg();
-            break;
-
-          case 'de-cfg-button-debug':
-            {
-              var perf = {};
-              var arr = Logger.getLogData(true);
-
-              for (var i = 0, len = arr.length; i < len; ++i) {
-                perf[arr[i][0]] = arr[i][1];
-              }
-
-              $popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
-                version: version + '.' + commit,
-                location: String(deWindow.location),
-                nav: nav,
-                Cfg: Cfg,
-                sSpells: Spells.list.split('\n'),
-                oSpells: sesStorage["de-spells-".concat(aib.b).concat(aib.t || '')],
-                perf: perf
-              }, function (key, value) {
-                switch (key) {
-                  case 'stats':
-                  case 'nameValue':
-                  case 'passwValue':
-                  case 'ytApiKey':
-                    return undefined;
+      var _this17 = this;
+
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee9() {
+        var type, el, tag, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
+
+        return _regeneratorRuntime().wrap(function _callee9$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                type = e.type, el = e.target;
+                tag = el.tagName;
+
+                if (!(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab'))) {
+                  _context11.next = 7;
+                  break;
                 }
 
-                return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
-              }, '\t');
-            }
-        }
-      }
+                info = el.getAttribute('info');
 
-      if (type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
-        var _info3 = el.getAttribute('info');
+                _this17._clickTab(info);
 
-        switch (_info3) {
-          case 'postBtnsBack':
-            {
-              var isCheck = checkCSSColor(el.value);
-              el.classList.toggle('de-input-error', !isCheck);
+                _context11.next = 7;
+                return saveCfg('cfgTab', info);
 
-              if (isCheck) {
-                saveCfg('postBtnsBack', el.value);
+              case 7:
+                if (!(type === 'change' && tag === 'SELECT')) {
+                  _context11.next = 49;
+                  break;
+                }
+
+                _info = el.getAttribute('info');
+                _context11.next = 11;
+                return saveCfg(_info, el.selectedIndex);
+
+              case 11:
+                _this17._updateDependant();
+
+                _context11.t0 = _info;
+                _context11.next = _context11.t0 === 'language' ? 15 : _context11.t0 === 'delHiddPost' ? 22 : _context11.t0 === 'postBtnsCSS' ? 26 : _context11.t0 === 'thrBtns' ? 29 : _context11.t0 === 'noSpoilers' ? 29 : _context11.t0 === 'resizeImgs' ? 29 : _context11.t0 === 'expandImgs' ? 31 : _context11.t0 === 'imgNames' ? 34 : _context11.t0 === 'fileInputs' ? 37 : _context11.t0 === 'addPostForm' ? 41 : _context11.t0 === 'addTextBtns' ? 44 : _context11.t0 === 'scriptStyle' ? 45 : _context11.t0 === 'panelCounter' ? 45 : _context11.t0 === 'favThrOrder' ? 47 : 48;
+                break;
+
+              case 15:
+                lang = el.selectedIndex;
+                Panel.removeMain();
+
+                if (pr.form) {
+                  pr.addMarkupPanel();
+                  pr.setPlaceholders();
+                  pr.updateLanguage();
+                  aib.updateSubmitBtn(pr.subm);
+
+                  if (pr.files) {
+                    $Q('.de-file-img, .de-file-txt-input', pr.form).forEach(function (el) {
+                      return el.title = Lng.youCanDrag[lang];
+                    });
+                  }
+                }
+
+                _this17._updateCSS();
+
+                Panel.initPanel(DelForm.first.el);
+                toggleWindow('cfg', false);
+                return _context11.abrupt("break", 48);
+
+              case 22:
+                isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
+
+                for (post = Thread.first.op; post; post = post.next) {
+                  if (post.isHidden && !post.isOp) {
+                    post.wrap.classList.toggle('de-hidden', isHide);
+                  }
+                }
+
                 updateCSS();
-              }
+                return _context11.abrupt("break", 48);
 
-              break;
+              case 26:
+                updateCSS();
+
+                if (nav.isPresto) {
+                  $q('.de-svg-icons').remove();
+                  addSVGIcons();
+                }
+
+                return _context11.abrupt("break", 48);
+
+              case 29:
+                updateCSS();
+                return _context11.abrupt("break", 48);
+
+              case 31:
+                updateCSS();
+                AttachedImage.closeImg();
+                return _context11.abrupt("break", 48);
+
+              case 34:
+                if (Cfg.imgNames) {
+                  for (_iterator4 = _createForOfIteratorHelperLoose(DelForm); !(_step4 = _iterator4()).done;) {
+                    _el3 = _step4.value.el;
+                    processImgInfoLinks(_el3, 0, Cfg.imgNames);
+                  }
+                } else {
+                  $Q('.de-img-name').forEach(function (el) {
+                    return el.textContent = el.getAttribute('de-img-name-old');
+                  });
+                }
+
+                updateCSS();
+                return _context11.abrupt("break", 48);
+
+              case 37:
+                pr.files.changeMode();
+                pr.setPlaceholders();
+                updateCSS();
+                return _context11.abrupt("break", 48);
+
+              case 41:
+                pr.isBottom = Cfg.addPostForm === 1;
+                pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
+                return _context11.abrupt("break", 48);
+
+              case 44:
+                pr.addMarkupPanel();
+
+              case 45:
+                _this17._updateCSS();
+
+                return _context11.abrupt("break", 48);
+
+              case 47:
+                readFavorites().then(function (favObj) {
+                  var body = $q('#de-win-fav > .de-win-body');
+                  body.innerHTML = '';
+                  showFavoritesWindow(body, favObj);
+                });
+
+              case 48:
+                return _context11.abrupt("return");
+
+              case 49:
+                if (!(type === 'click' && tag === 'INPUT' && el.type === 'checkbox')) {
+                  _context11.next = 109;
+                  break;
+                }
+
+                _info2 = el.getAttribute('info');
+                _context11.next = 53;
+                return toggleCfg(_info2);
+
+              case 53:
+                _this17._updateDependant();
+
+                _context11.t1 = _info2;
+                _context11.next = _context11.t1 === 'expandTrunc' ? 57 : _context11.t1 === 'widePosts' ? 57 : _context11.t1 === 'showHideBtn' ? 57 : _context11.t1 === 'showRepBtn' ? 57 : _context11.t1 === 'noPostNames' ? 57 : _context11.t1 === 'imgNavBtns' ? 57 : _context11.t1 === 'strikeHidd' ? 57 : _context11.t1 === 'removeHidd' ? 57 : _context11.t1 === 'noBoardRule' ? 57 : _context11.t1 === 'userCSS' ? 57 : _context11.t1 === 'hideBySpell' ? 59 : _context11.t1 === 'sortSpells' ? 61 : _context11.t1 === 'hideRefPsts' ? 63 : _context11.t1 === 'ajaxUpdThr' ? 65 : _context11.t1 === 'updCount' ? 67 : _context11.t1 === 'desktNotif' ? 69 : _context11.t1 === 'markNewPosts' ? 71 : _context11.t1 === 'useDobrAPI' ? 73 : _context11.t1 === 'markMyPosts' ? 75 : _context11.t1 === 'markMyLinks' ? 75 : _context11.t1 === 'correctTime' ? 78 : _context11.t1 === 'imgInfoLink' ? 80 : _context11.t1 === 'imgSrcBtns' ? 84 : _context11.t1 === 'addSageBtn' ? 86 : _context11.t1 === 'altCaptcha' ? 90 : _context11.t1 === 'txtBtnsLoc' ? 92 : _context11.t1 === 'userPassw' ? 95 : _context11.t1 === 'userName' ? 97 : _context11.t1 === 'noPassword' ? 99 : _context11.t1 === 'noName' ? 101 : _context11.t1 === 'noSubj' ? 103 : _context11.t1 === 'inftyScroll' ? 105 : _context11.t1 === 'hotKeys' ? 107 : 108;
+                break;
+
+              case 57:
+                updateCSS();
+                return _context11.abrupt("break", 108);
+
+              case 59:
+                Spells.toggle();
+                return _context11.abrupt("break", 108);
+
+              case 61:
+                if (Cfg.sortSpells) {
+                  Spells.toggle();
+                }
+
+                return _context11.abrupt("break", 108);
+
+              case 63:
+                for (_post3 = Thread.first.op; _post3; _post3 = _post3.next) {
+                  if (!Cfg.hideRefPsts) {
+                    _post3.ref.unhideRef();
+                  } else if (_post3.isHidden) {
+                    _post3.ref.hideRef();
+                  }
+                }
+
+                return _context11.abrupt("break", 108);
+
+              case 65:
+                if (aib.t) {
+                  if (Cfg.ajaxUpdThr) {
+                    updater.enableUpdater();
+                  } else {
+                    updater.disableUpdater();
+                  }
+                }
+
+                return _context11.abrupt("break", 108);
+
+              case 67:
+                updater.toggleCounter(Cfg.updCount);
+                return _context11.abrupt("break", 108);
+
+              case 69:
+                if (Cfg.desktNotif) {
+                  Notification.requestPermission();
+                }
+
+                return _context11.abrupt("break", 108);
+
+              case 71:
+                Post.clearMarks();
+                return _context11.abrupt("break", 108);
+
+              case 73:
+                aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;
+                return _context11.abrupt("break", 108);
+
+              case 75:
+                if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
+                  locStorage.removeItem('de-myposts');
+                  MyPosts.purge();
+                }
+
+                updateCSS();
+                return _context11.abrupt("break", 108);
+
+              case 78:
+                DateTime.toggleSettings(el);
+                return _context11.abrupt("break", 108);
+
+              case 80:
+                img = $q('.de-fullimg-wrap');
+
+                if (img) {
+                  img.click();
+                }
+
+                updateCSS();
+                return _context11.abrupt("break", 108);
+
+              case 84:
+                if (Cfg.imgSrcBtns) {
+                  for (_iterator5 = _createForOfIteratorHelperLoose(DelForm); !(_step5 = _iterator5()).done;) {
+                    _el4 = _step5.value.el;
+                    processImgInfoLinks(_el4, 1, 0);
+                    $Q('.de-img-embed').forEach(function (el) {
+                      return addImgButtons(el.parentNode.nextSibling.nextSibling);
+                    });
+                  }
+                } else {
+                  $delAll('.de-btn-img');
+                }
+
+                return _context11.abrupt("break", 108);
+
+              case 86:
+                PostForm.hideField(pr.mail.closest('label') || pr.mail);
+                setTimeout(function () {
+                  return pr.toggleSage();
+                }, 0);
+                updateCSS();
+                return _context11.abrupt("break", 108);
+
+              case 90:
+                pr.cap.initCapPromise();
+                return _context11.abrupt("break", 108);
+
+              case 92:
+                pr.addMarkupPanel();
+                updateCSS();
+                return _context11.abrupt("break", 108);
+
+              case 95:
+                PostForm.setUserPassw();
+                return _context11.abrupt("break", 108);
+
+              case 97:
+                PostForm.setUserName();
+                return _context11.abrupt("break", 108);
+
+              case 99:
+                $toggle(pr.passw.closest(aib.qFormTr));
+                return _context11.abrupt("break", 108);
+
+              case 101:
+                PostForm.hideField(pr.name);
+                return _context11.abrupt("break", 108);
+
+              case 103:
+                PostForm.hideField(pr.subj);
+                return _context11.abrupt("break", 108);
+
+              case 105:
+                toggleInfinityScroll();
+                return _context11.abrupt("break", 108);
+
+              case 107:
+                if (Cfg.hotKeys) {
+                  HotKeys.enableHotKeys();
+                } else {
+                  HotKeys.disableHotKeys();
+                }
+
+              case 108:
+                return _context11.abrupt("return");
+
+              case 109:
+                if (!(type === 'click' && tag === 'INPUT' && el.type === 'button')) {
+                  _context11.next = 130;
+                  break;
+                }
+
+                _context11.t2 = el.id;
+                _context11.next = _context11.t2 === 'de-cfg-button-pass' ? 113 : _context11.t2 === 'de-cfg-button-keys' ? 116 : _context11.t2 === 'de-cfg-button-updnow' ? 121 : _context11.t2 === 'de-cfg-button-donate' ? 124 : _context11.t2 === 'de-cfg-button-debug' ? 126 : 130;
+                break;
+
+              case 113:
+                $q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
+                PostForm.setUserPassw();
+                return _context11.abrupt("break", 130);
+
+              case 116:
+                e.preventDefault();
+
+                if (!$id('de-popup-edit-hotkeys')) {
+                  _context11.next = 119;
+                  break;
+                }
+
+                return _context11.abrupt("return");
+
+              case 119:
+                Promise.resolve(HotKeys.readKeys()).then(function (keys) {
+                  var temp = KeyEditListener.getEditMarkup(keys);
+                  var el = $popup('edit-hotkeys', temp[1]);
+                  var fn = new KeyEditListener(el, keys, temp[0]);
+                  ['focus', 'blur', 'click', 'keydown', 'keyup'].forEach(function (e) {
+                    return el.addEventListener(e, fn, true);
+                  });
+                });
+                return _context11.abrupt("break", 130);
+
+              case 121:
+                $popup('updavail', Lng.loading[lang], true);
+                getStoredObj('DESU_Config').then(function (data) {
+                  return checkForUpdates(true, data.lastUpd);
+                }).then(function (html) {
+                  return $popup('updavail', html);
+                }, emptyFn);
+                return _context11.abrupt("break", 130);
+
+              case 124:
+                showDonateMsg();
+                return _context11.abrupt("break", 130);
+
+              case 126:
+                perf = {};
+                arr = Logger.getLogData(true);
+
+                for (i = 0, len = arr.length; i < len; ++i) {
+                  perf[arr[i][0]] = arr[i][1];
+                }
+
+                $popup('cfg-debug', Lng.infoDebug[lang] + ':<textarea readonly class="de-editor"></textarea>').firstElementChild.value = JSON.stringify({
+                  version: version + '.' + commit,
+                  location: String(deWindow.location),
+                  nav: nav,
+                  Cfg: Cfg,
+                  sSpells: Spells.list.split('\n'),
+                  oSpells: sesStorage["de-spells-".concat(aib.b).concat(aib.t || '')],
+                  perf: perf
+                }, function (key, value) {
+                  switch (key) {
+                    case 'stats':
+                    case 'nameValue':
+                    case 'passwValue':
+                    case 'ytApiKey':
+                      return undefined;
+                  }
+
+                  return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
+                }, '\t');
+
+              case 130:
+                if (!(type === 'keyup' && tag === 'INPUT' && el.type === 'text')) {
+                  _context11.next = 180;
+                  break;
+                }
+
+                _info3 = el.getAttribute('info');
+                _context11.t3 = _info3;
+                _context11.next = _context11.t3 === 'postBtnsBack' ? 135 : _context11.t3 === 'limitPostMsg' ? 142 : _context11.t3 === 'minImgSize' ? 146 : _context11.t3 === 'zoomFactor' ? 149 : _context11.t3 === 'webmVolume' ? 152 : _context11.t3 === 'minWebmWidth' ? 157 : _context11.t3 === 'maskVisib' ? 160 : _context11.t3 === 'linksOver' ? 164 : _context11.t3 === 'linksOut' ? 167 : _context11.t3 === 'ytApiKey' ? 170 : _context11.t3 === 'passwValue' ? 173 : _context11.t3 === 'nameValue' ? 175 : 177;
+                break;
+
+              case 135:
+                isCheck = checkCSSColor(el.value);
+                el.classList.toggle('de-input-error', !isCheck);
+
+                if (!isCheck) {
+                  _context11.next = 141;
+                  break;
+                }
+
+                _context11.next = 140;
+                return saveCfg('postBtnsBack', el.value);
+
+              case 140:
+                updateCSS();
+
+              case 141:
+                return _context11.abrupt("break", 179);
+
+              case 142:
+                _context11.next = 144;
+                return saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+
+              case 144:
+                updateCSS();
+                return _context11.abrupt("break", 179);
+
+              case 146:
+                _context11.next = 148;
+                return saveCfg('minImgSize', Math.max(+el.value, 1));
+
+              case 148:
+                return _context11.abrupt("break", 179);
+
+              case 149:
+                _context11.next = 151;
+                return saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+
+              case 151:
+                return _context11.abrupt("break", 179);
+
+              case 152:
+                val = Math.min(+el.value || 0, 100);
+                _context11.next = 155;
+                return saveCfg('webmVolume', val);
+
+              case 155:
+                sendStorageEvent('__de-webmvolume', val);
+                return _context11.abrupt("break", 179);
+
+              case 157:
+                _context11.next = 159;
+                return saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
+
+              case 159:
+                return _context11.abrupt("break", 179);
+
+              case 160:
+                _context11.next = 162;
+                return saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+
+              case 162:
+                updateCSS();
+                return _context11.abrupt("break", 179);
+
+              case 164:
+                _context11.next = 166;
+                return saveCfg('linksOver', +el.value | 0);
+
+              case 166:
+                return _context11.abrupt("break", 179);
+
+              case 167:
+                _context11.next = 169;
+                return saveCfg('linksOut', +el.value | 0);
+
+              case 169:
+                return _context11.abrupt("break", 179);
+
+              case 170:
+                _context11.next = 172;
+                return saveCfg('ytApiKey', el.value.trim());
+
+              case 172:
+                return _context11.abrupt("break", 179);
+
+              case 173:
+                PostForm.setUserPassw();
+                return _context11.abrupt("break", 179);
+
+              case 175:
+                PostForm.setUserName();
+                return _context11.abrupt("break", 179);
+
+              case 177:
+                _context11.next = 179;
+                return saveCfg(_info3, el.value);
+
+              case 179:
+                return _context11.abrupt("return");
+
+              case 180:
+                if (!(tag === 'A')) {
+                  _context11.next = 207;
+                  break;
+                }
+
+                if (!(el.id === 'de-btn-spell-add')) {
+                  _context11.next = 191;
+                  break;
+                }
+
+                _context11.t4 = e.type;
+                _context11.next = _context11.t4 === 'click' ? 185 : _context11.t4 === 'mouseover' ? 187 : _context11.t4 === 'mouseout' ? 189 : 190;
+                break;
+
+              case 185:
+                e.preventDefault();
+                return _context11.abrupt("break", 190);
+
+              case 187:
+                el.odelay = setTimeout(function () {
+                  return addMenu(el);
+                }, Cfg.linksOver);
+                return _context11.abrupt("break", 190);
+
+              case 189:
+                clearTimeout(el.odelay);
+
+              case 190:
+                return _context11.abrupt("return");
+
+              case 191:
+                if (!(type === 'click')) {
+                  _context11.next = 206;
+                  break;
+                }
+
+                _context11.t5 = el.id;
+                _context11.next = _context11.t5 === 'de-btn-spell-apply' ? 195 : _context11.t5 === 'de-btn-spell-clear' ? 201 : 206;
+                break;
+
+              case 195:
+                e.preventDefault();
+                _context11.next = 198;
+                return saveCfg('hideBySpell', 1);
+
+              case 198:
+                $q('input[info="hideBySpell"]').checked = true;
+                Spells.toggle();
+                return _context11.abrupt("break", 206);
+
+              case 201:
+                e.preventDefault();
+
+                if (confirm(Lng.clear[lang] + '?')) {
+                  _context11.next = 204;
+                  break;
+                }
+
+                return _context11.abrupt("return");
+
+              case 204:
+                $id('de-spell-txt').value = '';
+                Spells.toggle();
+
+              case 206:
+                return _context11.abrupt("return");
+
+              case 207:
+                if (tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
+                  _this17._updateRowMeter(el);
+                }
+
+              case 208:
+              case "end":
+                return _context11.stop();
             }
-
-          case 'limitPostMsg':
-            saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
-            updateCSS();
-            break;
-
-          case 'minImgSize':
-            saveCfg('minImgSize', Math.max(+el.value, 1));
-            break;
-
-          case 'zoomFactor':
-            saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
-            break;
-
-          case 'webmVolume':
-            {
-              var val = Math.min(+el.value || 0, 100);
-              saveCfg('webmVolume', val);
-              sendStorageEvent('__de-webmvolume', val);
-              break;
-            }
-
-          case 'minWebmWidth':
-            saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
-            break;
-
-          case 'maskVisib':
-            saveCfg('maskVisib', Math.min(+el.value || 0, 100));
-            updateCSS();
-            break;
-
-          case 'linksOver':
-            saveCfg('linksOver', +el.value | 0);
-            break;
-
-          case 'linksOut':
-            saveCfg('linksOut', +el.value | 0);
-            break;
-
-          case 'ytApiKey':
-            saveCfg('ytApiKey', el.value.trim());
-            break;
-
-          case 'passwValue':
-            PostForm.setUserPassw();
-            break;
-
-          case 'nameValue':
-            PostForm.setUserName();
-            break;
-
-          default:
-            saveCfg(_info3, el.value);
-        }
-
-        return;
-      }
-
-      if (tag === 'A') {
-        if (el.id === 'de-btn-spell-add') {
-          switch (e.type) {
-            case 'click':
-              e.preventDefault();
-              break;
-
-            case 'mouseover':
-              el.odelay = setTimeout(function () {
-                return addMenu(el);
-              }, Cfg.linksOver);
-              break;
-
-            case 'mouseout':
-              clearTimeout(el.odelay);
           }
-
-          return;
-        }
-
-        if (type === 'click') {
-          switch (el.id) {
-            case 'de-btn-spell-apply':
-              e.preventDefault();
-              saveCfg('hideBySpell', 1);
-              $q('input[info="hideBySpell"]').checked = true;
-              Spells.toggle();
-              break;
-
-            case 'de-btn-spell-clear':
-              e.preventDefault();
-
-              if (!confirm(Lng.clear[lang] + '?')) {
-                return;
-              }
-
-              $id('de-spell-txt').value = '';
-              Spells.toggle();
-          }
-        }
-
-        return;
-      }
-
-      if (tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
-        this._updateRowMeter(el);
-      }
+        }, _callee9);
+      }))();
     },
     _clickTab: function _clickTab(info) {
       var el = $q(".de-cfg-tab[info=\"".concat(info, "\"]"));
@@ -12022,11 +12247,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (id === 'common') {
           $q('input[info="userCSS"]').parentNode.after(getEditButton('css', function (fn) {
-            return fn(Cfg.userCSSTxt, false, function (inputEl) {
-              saveCfg('userCSSTxt', inputEl.value);
-              updateCSS();
-              toggleWindow('cfg', true);
-            });
+            return fn(Cfg.userCSSTxt, false, function () {
+              var _ref12 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee10(inputEl) {
+                return _regeneratorRuntime().wrap(function _callee10$(_context12) {
+                  while (1) {
+                    switch (_context12.prev = _context12.next) {
+                      case 0:
+                        _context12.next = 2;
+                        return saveCfg('userCSSTxt', inputEl.value);
+
+                      case 2:
+                        updateCSS();
+                        toggleWindow('cfg', true);
+
+                      case 4:
+                      case "end":
+                        return _context12.stop();
+                    }
+                  }
+                }, _callee10);
+              }));
+
+              return function (_x13) {
+                return _ref12.apply(this, arguments);
+              };
+            }());
           }, 'de-cfg-button'));
         }
       }
@@ -12243,7 +12488,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Menu = function () {
     function Menu(parentEl, html, clickFn) {
-      var _this17 = this;
+      var _this18 = this;
 
       var isFixed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
@@ -12265,7 +12510,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._el = el;
       this.parentEl = parentEl;
       ['mouseover', 'mouseout'].forEach(function (e) {
-        return el.addEventListener(e, _this17, true);
+        return el.addEventListener(e, _this18, true);
       });
       el.addEventListener('click', this);
       parentEl.addEventListener('mouseout', this);
@@ -12274,7 +12519,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(Menu, [{
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this18 = this;
+        var _this19 = this;
 
         var isOverEvent = false;
 
@@ -12311,7 +12556,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 } else if (!rt || rt !== this.parentEl && !this.parentEl.contains(rt)) {
                   this._closeTO = setTimeout(function () {
-                    return _this18.removeMenu();
+                    return _this19.removeMenu();
                   }, 75);
 
                   if (this.onout) {
@@ -12325,7 +12570,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "removeMenu",
       value: function removeMenu() {
-        var _this19 = this;
+        var _this20 = this;
 
         if (!this._el) {
           return;
@@ -12336,7 +12581,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         ['mouseover', 'mouseout'].forEach(function (e) {
-          return _this19._el.removeEventListener(e, _this19, true);
+          return _this20._el.removeEventListener(e, _this20, true);
         });
         this.parentEl.removeEventListener('mouseout', this);
 
@@ -12416,8 +12661,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     switch (el.id) {
       case 'de-btn-spell-add':
-        return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref9) {
-          var s = _ref9.textContent;
+        return new Menu(el, "<div style=\"display: inline-block; border-right: 1px solid grey;\">".concat(fn('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,#sage'.split(',')), "</div><div style=\"display: inline-block;\">").concat(fn('#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep,<br>'.split(',')), "</div>"), function (_ref13) {
+          var s = _ref13.textContent;
           return insertText($id('de-spell-txt'), s + (!aib.t || s === '#op' || s === '#rep' || s === '#outrep' ? '' : "[".concat(aib.b, ",").concat(aib.t, "]")) + (Spells.needArg[Spells.names.indexOf(s.substr(1))] ? '(' : ''));
         });
 
@@ -12483,19 +12728,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     enableHotKeys: function enableHotKeys() {
-      var _this20 = this;
+      var _this21 = this;
 
       if (!this.enabled) {
         this.enabled = true;
         this._paused = false;
         Promise.resolve(this.readKeys()).then(function (keys) {
-          if (_this20.enabled) {
+          if (_this21.enabled) {
             var _keys = _slicedToArray(keys, 5);
 
-            _this20.gKeys = _keys[2];
-            _this20.ntKeys = _keys[3];
-            _this20.tKeys = _keys[4];
-            doc.addEventListener('keydown', _this20, true);
+            _this21.gKeys = _keys[2];
+            _this21.ntKeys = _keys[3];
+            _this21.tKeys = _keys[4];
+            doc.addEventListener('keydown', _this21, true);
           }
         });
       }
@@ -12789,26 +13034,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._paused = true;
     },
     readKeys: function readKeys() {
-      var _this21 = this;
+      var _this22 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee6() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee11() {
         var str, keys, tKeys, mapFunc;
-        return _regeneratorRuntime().wrap(function _callee6$(_context8) {
+        return _regeneratorRuntime().wrap(function _callee11$(_context13) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context13.prev = _context13.next) {
               case 0:
-                _context8.next = 2;
+                _context13.next = 2;
                 return getStored('DESU_keys');
 
               case 2:
-                str = _context8.sent;
+                str = _context13.sent;
 
                 if (str) {
-                  _context8.next = 5;
+                  _context13.next = 5;
                   break;
                 }
 
-                return _context8.abrupt("return", _this21.getDefaultKeys());
+                return _context13.abrupt("return", _this22.getDefaultKeys());
 
               case 5:
                 try {
@@ -12816,15 +13061,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 } catch (err) {}
 
                 if (keys) {
-                  _context8.next = 8;
+                  _context13.next = 8;
                   break;
                 }
 
-                return _context8.abrupt("return", _this21.getDefaultKeys());
+                return _context13.abrupt("return", _this22.getDefaultKeys());
 
               case 8:
-                if (keys[0] !== _this21.version) {
-                  tKeys = _this21.getDefaultKeys();
+                if (keys[0] !== _this22.version) {
+                  tKeys = _this22.getDefaultKeys();
 
                   switch (keys[0]) {
                     case 1:
@@ -12851,7 +13096,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       keys[2][18] = tKeys[2][18];
                   }
 
-                  keys[0] = _this21.version;
+                  keys[0] = _this22.version;
                   setStored('DESU_keys', JSON.stringify(keys));
                 }
 
@@ -12867,14 +13112,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   setStored('DESU_keys', JSON.stringify(keys));
                 }
 
-                return _context8.abrupt("return", keys);
+                return _context13.abrupt("return", keys);
 
               case 11:
               case "end":
-                return _context8.stop();
+                return _context13.stop();
             }
           }
-        }, _callee6);
+        }, _callee11);
       }))();
     },
     resume: function resume(keys) {
@@ -13254,7 +13499,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     isLoading: false,
     popupId: null,
     downloadThread: function downloadThread(imgOnly) {
-      var _this22 = this;
+      var _this23 = this;
 
       var progress, counter;
       var current = 1;
@@ -13272,7 +13517,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
 
       this._thrPool = new TasksPool(4, function (num, data) {
-        return _this22.loadImgData(data[0]).then(function (imgData) {
+        return _this23.loadImgData(data[0]).then(function (imgData) {
           var _data3 = _slicedToArray(data, 4),
               url = _data3[0],
               fName = _data3[1],
@@ -13300,13 +13545,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               $popup('err-files', Lng.loadErrors[lang] + warnings);
 
               if (imgOnly) {
-                return _this22.getDataFromImg(el).then(function (data) {
+                return _this23.getDataFromImg(el).then(function (data) {
                   return tar.addFile(thumbName, data);
                 }, emptyFn);
               }
             }
 
-            return imgOnly ? null : _this22.getDataFromImg(el).then(function (data) {
+            return imgOnly ? null : _this23.getDataFromImg(el).then(function (data) {
               el.src = thumbName;
               tar.addFile(thumbName, data);
             }, function () {
@@ -13340,7 +13585,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var title = delSymbols(Thread.first.op.title.trim());
         downloadBlob(tar.get(), "".concat(docName).concat(imgOnly ? '-images' : '').concat(title ? ' - ' + title : '', ".tar"));
         closePopup('load-files');
-        _this22._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
+        _this23._thrPool = tar = warnings = count = current = imgOnly = progress = counter = null;
       });
       els.forEach(function (el) {
         var parentLink = el.closest('a');
@@ -13348,7 +13593,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (parentLink) {
           var url = parentLink.href;
 
-          _this22._thrPool.runTask([url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
+          _this23._thrPool.runTask([url, parentLink.getAttribute('download') || getFileName(url), el, parentLink]);
         }
       });
 
@@ -13406,7 +13651,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           files.push(fName);
 
-          _this22._thrPool.runTask([url, fName, el, null]);
+          _this23._thrPool.runTask([url, fName, el, null]);
 
           count++;
         });
@@ -13460,7 +13705,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
     },
     preloadImages: function preloadImages(data) {
-      var _this23 = this;
+      var _this24 = this;
 
       if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
         return;
@@ -13478,7 +13723,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return console.error('File detector error:', "line: ".concat(err.lineno, " - ").concat(err.message));
         });
         preloadPool = new TasksPool(mReqs, function (num, data) {
-          return _this23.loadImgData(data[0]).then(function (imageData) {
+          return _this24.loadImgData(data[0]).then(function (imageData) {
             var _data4 = _slicedToArray(data, 6),
                 url = _data4[0],
                 parentLink = _data4[1],
@@ -13511,24 +13756,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               if (rarJpgFinder) {
                 rarJpgFinder.runWorker(imageData.buffer, [imageData.buffer], function (info) {
-                  return _this23._addImgFileIcon(nameLink, fName, info);
+                  return _this24._addImgFileIcon(nameLink, fName, info);
                 });
               }
             }
 
-            if (_this23.popupId) {
-              $popup(_this23.popupId, "".concat(Lng.loadImage[lang], ": ").concat(cImg, "/").concat(len), true);
+            if (_this24.popupId) {
+              $popup(_this24.popupId, "".concat(Lng.loadImage[lang], ": ").concat(cImg, "/").concat(len), true);
             }
 
             cImg++;
           });
         }, function () {
-          _this23.isLoading = false;
+          _this24.isLoading = false;
 
-          if (_this23.afterFn) {
-            _this23.afterFn();
+          if (_this24.afterFn) {
+            _this24.afterFn();
 
-            _this23.afterFn = _this23.popupId = null;
+            _this24.afterFn = _this24.popupId = null;
           }
 
           if (rarJpgFinder) {
@@ -13692,25 +13937,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(DateTime, [{
       key: "genRFunc",
       value: function genRFunc(rPattern) {
-        var _this24 = this;
+        var _this25 = this;
 
         return function (dtime) {
-          return rPattern.replace('_o', (_this24.diff < 0 ? '' : '+') + _this24.diff).replace('_s', function () {
-            return _this24.pad2(dtime.getSeconds());
+          return rPattern.replace('_o', (_this25.diff < 0 ? '' : '+') + _this25.diff).replace('_s', function () {
+            return _this25.pad2(dtime.getSeconds());
           }).replace('_i', function () {
-            return _this24.pad2(dtime.getMinutes());
+            return _this25.pad2(dtime.getMinutes());
           }).replace('_h', function () {
-            return _this24.pad2(dtime.getHours());
+            return _this25.pad2(dtime.getHours());
           }).replace('_d', function () {
-            return _this24.pad2(dtime.getDate());
+            return _this25.pad2(dtime.getDate());
           }).replace('_w', function () {
-            return _this24.arrW[dtime.getDay()];
+            return _this25.arrW[dtime.getDay()];
           }).replace('_n', function () {
-            return _this24.pad2(dtime.getMonth() + 1);
+            return _this25.pad2(dtime.getMonth() + 1);
           }).replace('_m', function () {
-            return _this24.arrM[dtime.getMonth()];
+            return _this25.arrM[dtime.getMonth()];
           }).replace('_M', function () {
-            return _this24.arrFM[dtime.getMonth()];
+            return _this25.arrFM[dtime.getMonth()];
           }).replace('_y', function () {
             return ('' + dtime.getFullYear()).substring(2);
           }).replace('_Y', function () {
@@ -13758,7 +14003,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "fix",
       value: function fix(txt) {
-        var _this25 = this;
+        var _this26 = this;
 
         if (this.disabled || !this.genDateTime && !this.getRPattern(txt)) {
           return txt;
@@ -13770,7 +14015,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           for (var i = 0; i < 7; ++i) {
             var a = i + 1 < 1 || arguments.length <= i + 1 ? undefined : arguments[i + 1];
 
-            switch (_this25.pattern[i]) {
+            switch (_this26.pattern[i]) {
               case 's':
                 second = a;
                 break;
@@ -13802,8 +14047,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           var dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-          dtime.setHours(dtime.getHours() + _this25.diff);
-          return _this25.genDateTime(dtime);
+          dtime.setHours(dtime.getHours() + _this26.diff);
+          return _this26.genDateTime(dtime);
         });
       }
     }], [{
@@ -14150,12 +14395,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "_titlesLoaderHelper",
-      value: function _titlesLoaderHelper(_ref10, num) {
-        var _ref11 = _slicedToArray(_ref10, 4),
-            link = _ref11[0],
-            isYtube = _ref11[1],
-            videoObj = _ref11[2],
-            id = _ref11[3];
+      value: function _titlesLoaderHelper(_ref14, num) {
+        var _ref15 = _slicedToArray(_ref14, 4),
+            link = _ref15[0],
+            isYtube = _ref15[1],
+            videoObj = _ref15[2],
+            id = _ref15[3];
 
         for (var _len6 = arguments.length, data = new Array(_len6 > 2 ? _len6 - 2 : 0), _key2 = 2; _key2 < _len6; _key2++) {
           data[_key2 - 2] = arguments[_key2];
@@ -14356,60 +14601,60 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
 
       fetch(aib.getAbsLink(url), params).then( function () {
-        var _ref12 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee7(res) {
-          return _regeneratorRuntime().wrap(function _callee7$(_context9) {
+        var _ref16 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee12(res) {
+          return _regeneratorRuntime().wrap(function _callee12$(_context14) {
             while (1) {
-              switch (_context9.prev = _context9.next) {
+              switch (_context14.prev = _context14.next) {
                 case 0:
                   if (aib.isAjaxStatusOK(res.status)) {
-                    _context9.next = 3;
+                    _context14.next = 3;
                     break;
                   }
 
                   reject(new AjaxError(res.status, res.statusText));
-                  return _context9.abrupt("return");
+                  return _context14.abrupt("return");
 
                 case 3:
-                  _context9.t0 = params.responseType;
-                  _context9.next = _context9.t0 === 'arraybuffer' ? 6 : _context9.t0 === 'blob' ? 10 : 14;
+                  _context14.t0 = params.responseType;
+                  _context14.next = _context14.t0 === 'arraybuffer' ? 6 : _context14.t0 === 'blob' ? 10 : 14;
                   break;
 
                 case 6:
-                  _context9.next = 8;
+                  _context14.next = 8;
                   return res.arrayBuffer();
 
                 case 8:
-                  res.response = _context9.sent;
-                  return _context9.abrupt("break", 17);
+                  res.response = _context14.sent;
+                  return _context14.abrupt("break", 17);
 
                 case 10:
-                  _context9.next = 12;
+                  _context14.next = 12;
                   return res.blob();
 
                 case 12:
-                  res.response = _context9.sent;
-                  return _context9.abrupt("break", 17);
+                  res.response = _context14.sent;
+                  return _context14.abrupt("break", 17);
 
                 case 14:
-                  _context9.next = 16;
+                  _context14.next = 16;
                   return res.text();
 
                 case 16:
-                  res.responseText = _context9.sent;
+                  res.responseText = _context14.sent;
 
                 case 17:
                   resolve(res);
 
                 case 18:
                 case "end":
-                  return _context9.stop();
+                  return _context14.stop();
               }
             }
-          }, _callee7);
+          }, _callee12);
         }));
 
-        return function (_x7) {
-          return _ref12.apply(this, arguments);
+        return function (_x14) {
+          return _ref16.apply(this, arguments);
         };
       }())["catch"](function (err) {
         return reject(getErrorMessage(err));
@@ -14497,8 +14742,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         xhr.withCredentials = true;
       }
 
-      xhr.onreadystatechange = function (_ref13) {
-        var target = _ref13.target;
+      xhr.onreadystatechange = function (_ref17) {
+        var target = _ref17.target;
 
         if (needTO) {
           clearTimeout(_loadTO2);
@@ -14598,17 +14843,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "".concat(url).concat(url.includes('?') ? '&' : '?', "nocache=").concat(Math.random());
     },
     runCachedAjax: function runCachedAjax(url, useCache) {
-      var _this26 = this;
+      var _this27 = this;
 
-      var _ref14 = this._data.get(url) || {},
-          hasCacheControl = _ref14.hasCacheControl,
-          params = _ref14.params;
+      var _ref18 = this._data.get(url) || {},
+          hasCacheControl = _ref18.hasCacheControl,
+          params = _ref18.params;
 
       var ajaxURL = hasCacheControl === false ? this.fixURL(url) : url;
       return $ajax(ajaxURL, useCache && params || {
         useTimeout: true
       }, aib._4chan).then(function (xhr) {
-        return _this26.saveData(url, xhr) ? xhr : $ajax(_this26.fixURL(url), useCache && params, aib._4chan);
+        return _this27.saveData(url, xhr) ? xhr : $ajax(_this27.fixURL(url), useCache && params, aib._4chan);
       });
     },
     saveData: function saveData(url, xhr) {
@@ -14766,7 +15011,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Pages = {
     addPage: function addPage() {
-      var _this27 = this;
+      var _this28 = this;
 
       var needThreads = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       var pageNum = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DelForm.last.pageNum + 1;
@@ -14779,30 +15024,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       DelForm.last.el.insertAdjacentHTML('beforeend', "<div class=\"de-addpage-wait\"><hr><center style=\"font-size: 1.5em\"><svg class=\"de-wait\">\n\t\t\t\t<use xlink:href=\"#de-symbol-wait\"/></svg>".concat(Lng.loading[lang], "</center></div>"));
       MyPosts.purge();
       this._addingPromise = ajaxLoad(aib.getPageUrl(aib.b, pageNum)).then( function () {
-        var _ref15 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee8(formEl) {
+        var _ref19 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee13(formEl) {
           var newForm, firstForm, thr, oldLastThr;
-          return _regeneratorRuntime().wrap(function _callee8$(_context10) {
+          return _regeneratorRuntime().wrap(function _callee13$(_context15) {
             while (1) {
-              switch (_context10.prev = _context10.next) {
+              switch (_context15.prev = _context15.next) {
                 case 0:
-                  newForm = _this27._addForm(formEl, pageNum);
+                  newForm = _this28._addForm(formEl, pageNum);
 
                   if (!newForm.firstThr) {
-                    _context10.next = 16;
+                    _context15.next = 16;
                     break;
                   }
 
                   if (needThreads) {
-                    _context10.next = 4;
+                    _context15.next = 4;
                     break;
                   }
 
-                  return _context10.abrupt("return", _this27._updateForms(DelForm.last));
+                  return _context15.abrupt("return", _this28._updateForms(DelForm.last));
 
                 case 4:
                   $hide(newForm.el);
-                  _context10.next = 7;
-                  return _this27._updateForms(DelForm.last);
+                  _context15.next = 7;
+                  return _this28._updateForms(DelForm.last);
 
                 case 7:
                   firstForm = DelForm.first;
@@ -14828,58 +15073,58 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   firstForm.next = firstForm.lastThr.next = null;
                   newForm.el.remove();
 
-                  _this27._endAdding();
+                  _this28._endAdding();
 
                   if (needThreads) {
-                    _this27.addPage(needThreads, pageNum + 1);
+                    _this28.addPage(needThreads, pageNum + 1);
                   }
 
-                  return _context10.abrupt("return", CancelablePromise.reject(new CancelError()));
+                  return _context15.abrupt("return", CancelablePromise.reject(new CancelError()));
 
                 case 16:
-                  _this27._endAdding();
+                  _this28._endAdding();
 
-                  _this27.addPage();
+                  _this28.addPage();
 
-                  return _context10.abrupt("return", CancelablePromise.reject(new CancelError()));
+                  return _context15.abrupt("return", CancelablePromise.reject(new CancelError()));
 
                 case 19:
                 case "end":
-                  return _context10.stop();
+                  return _context15.stop();
               }
             }
-          }, _callee8);
+          }, _callee13);
         }));
 
-        return function (_x8) {
-          return _ref15.apply(this, arguments);
+        return function (_x15) {
+          return _ref19.apply(this, arguments);
         };
       }()).then(function () {
-        return _this27._endAdding();
+        return _this28._endAdding();
       })["catch"](function (err) {
         if (!(err instanceof CancelError)) {
           $popup('add-page', getErrorMessage(err));
 
-          _this27._endAdding();
+          _this28._endAdding();
         }
       });
     },
     loadPages: function loadPages(count) {
-      var _this28 = this;
+      var _this29 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee9() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee14() {
         var _iterator6, _step6, form, i, len, first;
 
-        return _regeneratorRuntime().wrap(function _callee9$(_context11) {
+        return _regeneratorRuntime().wrap(function _callee14$(_context16) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
                 $popup('load-pages', Lng.loading[lang], true);
 
-                if (_this28._addingPromise) {
-                  _this28._addingPromise.cancelPromise();
+                if (_this29._addingPromise) {
+                  _this29._addingPromise.cancelPromise();
 
-                  _this28._endAdding();
+                  _this29._endAdding();
                 }
 
                 PviewsCache.purge();
@@ -14898,7 +15143,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 11:
                 if ((_step6 = _iterator6()).done) {
-                  _context11.next = 20;
+                  _context16.next = 20;
                   break;
                 }
 
@@ -14909,17 +15154,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 $hide(form.el);
 
                 if (!(form === DelForm.last)) {
-                  _context11.next = 17;
+                  _context16.next = 17;
                   break;
                 }
 
-                return _context11.abrupt("break", 20);
+                return _context16.abrupt("break", 20);
 
               case 17:
                 form.el.remove();
 
               case 18:
-                _context11.next = 11;
+                _context16.next = 11;
                 break;
 
               case 20:
@@ -14928,56 +15173,56 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 22:
                 if (!(i < len)) {
-                  _context11.next = 38;
+                  _context16.next = 38;
                   break;
                 }
 
-                _context11.prev = 23;
-                _context11.t0 = _this28;
-                _context11.next = 27;
+                _context16.prev = 23;
+                _context16.t0 = _this29;
+                _context16.next = 27;
                 return ajaxLoad(aib.getPageUrl(aib.b, i));
 
               case 27:
-                _context11.t1 = _context11.sent;
-                _context11.t2 = i;
+                _context16.t1 = _context16.sent;
+                _context16.t2 = i;
 
-                _context11.t0._addForm.call(_context11.t0, _context11.t1, _context11.t2);
+                _context16.t0._addForm.call(_context16.t0, _context16.t1, _context16.t2);
 
-                _context11.next = 35;
+                _context16.next = 35;
                 break;
 
               case 32:
-                _context11.prev = 32;
-                _context11.t3 = _context11["catch"](23);
-                $popup('load-pages', getErrorMessage(_context11.t3));
+                _context16.prev = 32;
+                _context16.t3 = _context16["catch"](23);
+                $popup('load-pages', getErrorMessage(_context16.t3));
 
               case 35:
                 ++i;
-                _context11.next = 22;
+                _context16.next = 22;
                 break;
 
               case 38:
                 first = DelForm.first;
 
                 if (!(first !== DelForm.last)) {
-                  _context11.next = 45;
+                  _context16.next = 45;
                   break;
                 }
 
                 DelForm.first = first.next;
                 first.el.remove();
-                _context11.next = 44;
-                return _this28._updateForms(DelForm.first);
+                _context16.next = 44;
+                return _this29._updateForms(DelForm.first);
 
               case 44:
                 closePopup('load-pages');
 
               case 45:
               case "end":
-                return _context11.stop();
+                return _context16.stop();
             }
           }
-        }, _callee9, null, [[23, 32]]);
+        }, _callee14, null, [[23, 32]]);
       }))();
     },
     _isAdding: false,
@@ -15003,19 +15248,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._addingPromise = null;
     },
     _updateForms: function _updateForms(newForm) {
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee10() {
-        return _regeneratorRuntime().wrap(function _callee10$(_context12) {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee15() {
+        return _regeneratorRuntime().wrap(function _callee15$(_context17) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context17.prev = _context17.next) {
               case 0:
-                _context12.t0 = readPostsData;
-                _context12.t1 = newForm.firstThr.op;
-                _context12.next = 4;
+                _context17.t0 = readPostsData;
+                _context17.t1 = newForm.firstThr.op;
+                _context17.next = 4;
                 return readFavorites();
 
               case 4:
-                _context12.t2 = _context12.sent;
-                (0, _context12.t0)(_context12.t1, _context12.t2);
+                _context17.t2 = _context17.sent;
+                (0, _context17.t0)(_context17.t1, _context17.t2);
 
                 if (pr.passw) {
                   PostForm.setUserPassw();
@@ -15029,10 +15274,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 9:
               case "end":
-                return _context12.stop();
+                return _context17.stop();
             }
           }
-        }, _callee10);
+        }, _callee15);
       }))();
     }
   };
@@ -15257,10 +15502,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return spell;
             }
 
-            var _ref16 = wipeMsg || [],
-                _ref17 = _slicedToArray(_ref16, 2),
-                msgBit = _ref17[0],
-                msgData = _ref17[1];
+            var _ref20 = wipeMsg || [],
+                _ref21 = _slicedToArray(_ref20, 2),
+                msgBit = _ref21[0],
+                msgData = _ref21[1];
 
             var names = [];
             var bits = {
@@ -16298,11 +16543,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(SpellsRunner, [{
       key: "endSpells",
       value: function endSpells() {
-        var _this29 = this;
+        var _this30 = this;
 
         if (this._endPromise) {
           this._endPromise.then(function () {
-            return _this29._savePostsHelper();
+            return _this30._savePostsHelper();
           });
         } else {
           this._savePostsHelper();
@@ -16311,13 +16556,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "runSpells",
       value: function runSpells(post) {
-        var _this30 = this;
+        var _this31 = this;
 
         var res = new SpellsInterpreter(post, this._spells).runInterpreter();
 
         if (res instanceof Promise) {
           res = res.then(function (val) {
-            return _this30._checkRes(post, val);
+            return _this31._checkRes(post, val);
           });
           this._endPromise = this._endPromise ? this._endPromise.then(function () {
             return res;
@@ -16329,11 +16574,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "_checkRes",
-      value: function _checkRes(post, _ref18) {
-        var _ref19 = _slicedToArray(_ref18, 3),
-            hasNumSpell = _ref19[0],
-            val = _ref19[1],
-            msg = _ref19[2];
+      value: function _checkRes(post, _ref22) {
+        var _ref23 = _slicedToArray(_ref22, 3),
+            hasNumSpell = _ref23[0],
+            val = _ref23[1],
+            msg = _ref23[2];
 
         this.hasNumSpell |= hasNumSpell;
 
@@ -16433,7 +16678,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(SpellsInterpreter, [{
       key: "runInterpreter",
       value: function runInterpreter() {
-        var _this31 = this;
+        var _this32 = this;
 
         var rv, stopCheck;
 
@@ -16474,7 +16719,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               this._ctx.push(len, scope, ++i, isNegScope);
 
               return val.then(function (v) {
-                return _this31._asyncContinue(v);
+                return _this32._asyncContinue(v);
               });
             }
 
@@ -16635,61 +16880,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_ihash",
       value: function () {
-        var _ihash2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee11(val) {
+        var _ihash2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee16(val) {
           var _iterator16, _step16, image;
 
-          return _regeneratorRuntime().wrap(function _callee11$(_context13) {
+          return _regeneratorRuntime().wrap(function _callee16$(_context18) {
             while (1) {
-              switch (_context13.prev = _context13.next) {
+              switch (_context18.prev = _context18.next) {
                 case 0:
                   _iterator16 = _createForOfIteratorHelperLoose(this._post.images);
 
                 case 1:
                   if ((_step16 = _iterator16()).done) {
-                    _context13.next = 14;
+                    _context18.next = 14;
                     break;
                   }
 
                   image = _step16.value;
-                  _context13.t0 = image instanceof AttachedImage;
+                  _context18.t0 = image instanceof AttachedImage;
 
-                  if (!_context13.t0) {
-                    _context13.next = 10;
+                  if (!_context18.t0) {
+                    _context18.next = 10;
                     break;
                   }
 
-                  _context13.next = 7;
+                  _context18.next = 7;
                   return ImagesHashStorage.getHash(image);
 
                 case 7:
-                  _context13.t1 = _context13.sent;
-                  _context13.t2 = val;
-                  _context13.t0 = _context13.t1 === _context13.t2;
+                  _context18.t1 = _context18.sent;
+                  _context18.t2 = val;
+                  _context18.t0 = _context18.t1 === _context18.t2;
 
                 case 10:
-                  if (!_context13.t0) {
-                    _context13.next = 12;
+                  if (!_context18.t0) {
+                    _context18.next = 12;
                     break;
                   }
 
-                  return _context13.abrupt("return", true);
+                  return _context18.abrupt("return", true);
 
                 case 12:
-                  _context13.next = 1;
+                  _context18.next = 1;
                   break;
 
                 case 14:
-                  return _context13.abrupt("return", false);
+                  return _context18.abrupt("return", false);
 
                 case 15:
                 case "end":
-                  return _context13.stop();
+                  return _context18.stop();
               }
             }
-          }, _callee11, this);
+          }, _callee16, this);
         }));
 
-        function _ihash(_x9) {
+        function _ihash(_x16) {
           return _ihash2.apply(this, arguments);
         }
 
@@ -17050,7 +17295,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var PostForm = function () {
     function PostForm(form) {
-      var _this32 = this;
+      var _this33 = this;
 
       var oeForm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var ignoreForm = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -17132,7 +17377,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (Cfg.addSageBtn && this.mail) {
         PostForm.hideField(this.mail.closest('label') || this.mail);
         setTimeout(function () {
-          return _this32.toggleSage();
+          return _this33.toggleSage();
         }, 0);
       }
 
@@ -17170,14 +17415,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "sageBtn",
       get: function get() {
-        var _this33 = this;
+        var _this34 = this;
 
         var value = $aEnd(this.subm, '<span id="de-sagebtn"><svg class="de-btn-sage">' + '<use xlink:href="#de-symbol-post-sage"/></svg></span>');
 
         value.onclick = function () {
           toggleCfg('sageReply');
 
-          _this33.toggleSage();
+          _this34.toggleSage();
         };
 
         Object.defineProperty(this, 'sageBtn', {
@@ -17193,7 +17438,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "addMarkupPanel",
       value: function addMarkupPanel() {
-        var _this34 = this;
+        var _this35 = this;
 
         var el = $id('de-txt-panel');
 
@@ -17205,7 +17450,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (!el) {
           el = $add('<span id="de-txt-panel"></span>');
           ['click', 'mouseover'].forEach(function (e) {
-            return el.addEventListener(e, _this34);
+            return el.addEventListener(e, _this35);
           });
         }
 
@@ -17476,7 +17721,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initAjaxPosting",
       value: function _initAjaxPosting() {
-        var _this35 = this;
+        var _this36 = this;
 
         var el;
 
@@ -17487,13 +17732,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.form.onsubmit = function (e) {
           e.preventDefault();
           $popup('upload', Lng.sending[lang], true);
-          html5Submit(_this35.form, _this35.subm, true).then(checkSubmit)["catch"](showSubmitError);
+          html5Submit(_this36.form, _this36.subm, true).then(checkSubmit)["catch"](showSubmitError);
         };
       }
     }, {
       key: "_initCaptcha",
       value: function _initCaptcha() {
-        var _this36 = this;
+        var _this37 = this;
 
         var capEl = $q('input[type="text"][name*="aptcha"], *[id*="captcha"], *[class*="captcha"]', this.form);
 
@@ -17505,9 +17750,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.cap = new Captcha(capEl, this.tNum);
 
         var updCapFn = function updCapFn() {
-          _this36.cap.addCaptcha();
+          _this37.cap.addCaptcha();
 
-          _this36.cap.updateOutdated();
+          _this37.cap.updateOutdated();
         };
 
         this.txta.addEventListener('focus', updCapFn);
@@ -17517,13 +17762,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         this.form.addEventListener('click', function () {
-          return _this36.cap.addCaptcha();
+          return _this37.cap.addCaptcha();
         }, true);
       }
     }, {
       key: "_initFileInputs",
       value: function _initFileInputs() {
-        var _this37 = this;
+        var _this38 = this;
 
         var fileEl = $q(aib.qFormFile, this.form);
 
@@ -17539,29 +17784,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         deWindow.addEventListener('load', function () {
           return setTimeout(function () {
-            return !_this37.files.filesCount && _this37.files.clearInputs();
+            return !_this38.files.filesCount && _this38.files.clearInputs();
           }, 0);
         });
       }
     }, {
       key: "_initSubmit",
       value: function _initSubmit() {
-        var _this38 = this;
+        var _this39 = this;
 
         this.subm.addEventListener('click', function (e) {
-          if (Cfg.warnSubjTrip && _this38.subj && /#.|##./.test(_this38.subj.value)) {
+          if (Cfg.warnSubjTrip && _this39.subj && /#.|##./.test(_this39.subj.value)) {
             e.preventDefault();
             $popup('upload', Lng.subjHasTrip[lang]);
             return;
           }
 
-          var val = _this38.txta.value;
+          var val = _this39.txta.value;
 
           if (Spells.outreps) {
             val = Spells.outReplace(val);
           }
 
-          if (_this38.tNum && pByNum.get(_this38.tNum).subj === 'Dollchan Extension Tools') {
+          if (_this39.tNum && pByNum.get(_this39.tNum).subj === 'Dollchan Extension Tools') {
             var temp = "\n\n".concat(PostForm._wrapText(aib.markupTags[5], "".concat('-'.repeat(50), "\n").concat(nav.ua, "\nv").concat(version, ".").concat(commit).concat(nav.isESNext ? '.es6' : '', " [").concat(nav.scriptHandler, "]"))[1]);
 
             if (!val.includes(temp)) {
@@ -17569,23 +17814,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
 
-          _this38.txta.value = val;
+          _this39.txta.value = val;
 
-          _this38.toggleSage();
+          _this39.toggleSage();
 
           if (Cfg.ajaxPosting) {
             $popup('upload', Lng.checking[lang], true);
           }
 
-          if (_this38.video && (val = _this38.video.value) && (val = val.match(Videos.ytReg))) {
-            _this38.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+          if (_this39.video && (val = _this39.video.value) && (val = val.match(Videos.ytReg))) {
+            _this39.video.value = 'http://www.youtube.com/watch?v=' + val[1];
           }
 
-          if (_this38.isQuick) {
-            $hide(_this38.pForm);
-            $hide(_this38.qArea);
+          if (_this39.isQuick) {
+            $hide(_this39.pForm);
+            $hide(_this39.qArea);
 
-            _this38._pBtn[+_this38.isBottom].after(_this38.pForm);
+            _this39._pBtn[+_this39.isBottom].after(_this39.pForm);
           }
 
           updater.pauseUpdater();
@@ -17594,7 +17839,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initTextarea",
       value: function _initTextarea() {
-        var _this39 = this;
+        var _this40 = this;
 
         var el = this.txta;
 
@@ -17619,72 +17864,72 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }); 
 
         el.addEventListener('paste', function () {
-          var _ref20 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee12(e) {
+          var _ref24 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee17(e) {
             var _e$clipboardData;
 
             var files, _iterator21, _step21, file, inputs, i, len, input;
 
-            return _regeneratorRuntime().wrap(function _callee12$(_context14) {
+            return _regeneratorRuntime().wrap(function _callee17$(_context19) {
               while (1) {
-                switch (_context14.prev = _context14.next) {
+                switch (_context19.prev = _context19.next) {
                   case 0:
                     files = e === null || e === void 0 ? void 0 : (_e$clipboardData = e.clipboardData) === null || _e$clipboardData === void 0 ? void 0 : _e$clipboardData.files;
                     _iterator21 = _createForOfIteratorHelperLoose(files);
 
                   case 2:
                     if ((_step21 = _iterator21()).done) {
-                      _context14.next = 17;
+                      _context19.next = 17;
                       break;
                     }
 
                     file = _step21.value;
-                    inputs = _this39.files._inputs;
+                    inputs = _this40.files._inputs;
                     i = 0, len = inputs.length;
 
                   case 6:
                     if (!(i < len)) {
-                      _context14.next = 15;
+                      _context19.next = 15;
                       break;
                     }
 
                     input = inputs[i];
 
                     if (input.hasFile) {
-                      _context14.next = 12;
+                      _context19.next = 12;
                       break;
                     }
 
-                    _context14.next = 11;
+                    _context19.next = 11;
                     return input.addUrlFile(URL.createObjectURL(file), file);
 
                   case 11:
-                    return _context14.abrupt("break", 15);
+                    return _context19.abrupt("break", 15);
 
                   case 12:
                     ++i;
-                    _context14.next = 6;
+                    _context19.next = 6;
                     break;
 
                   case 15:
-                    _context14.next = 2;
+                    _context19.next = 2;
                     break;
 
                   case 17:
                   case "end":
-                    return _context14.stop();
+                    return _context19.stop();
                 }
               }
-            }, _callee12);
+            }, _callee17);
           }));
 
-          return function (_x10) {
-            return _ref20.apply(this, arguments);
+          return function (_x17) {
+            return _ref24.apply(this, arguments);
           };
         }()); 
 
         if (nav.isFirefox || nav.isWebkit) {
-          el.addEventListener('mouseup', function (_ref21) {
-            var target = _ref21.target;
+          el.addEventListener('mouseup', function (_ref25) {
+            var target = _ref25.target;
             var s = target.style;
             var width = s.width,
                 height = s.height;
@@ -17700,12 +17945,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           _el: el,
           _elStyle: style,
           handleEvent: function handleEvent(e) {
-            var _this40 = this;
+            var _this41 = this;
 
             switch (e.type) {
               case 'mousedown':
                 ['mousemove', 'mouseup'].forEach(function (e) {
-                  return docBody.addEventListener(e, _this40);
+                  return docBody.addEventListener(e, _this41);
                 });
                 e.preventDefault();
                 return;
@@ -17723,7 +17968,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               default:
                 ['mousemove', 'mouseup'].forEach(function (e) {
-                  return docBody.removeEventListener(e, _this40);
+                  return docBody.removeEventListener(e, _this41);
                 });
                 saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
                 saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
@@ -17734,7 +17979,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_makeHideableContainer",
       value: function _makeHideableContainer() {
-        var _this41 = this;
+        var _this42 = this;
 
         (this.pForm = $add('<div id="de-pform" class="de-win-body"></div>')).append(this.form || '', this.oeForm || '');
         var html = '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>';
@@ -17742,11 +17987,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._pBtn = [this.pArea[0].firstChild, this.pArea[1].firstChild];
 
         this._pBtn[0].firstElementChild.onclick = function (e) {
-          return _this41.showMainReply(false, e);
+          return _this42.showMainReply(false, e);
         };
 
         this._pBtn[1].firstElementChild.onclick = function (e) {
-          return _this41.showMainReply(true, e);
+          return _this42.showMainReply(true, e);
         };
 
         this.qArea = $add("<div style=\"display: none; ".concat(Cfg.replyWinX, "; ").concat(Cfg.replyWinY, "; z-index: ").concat(++topWinZ, ";\" id=\"de-win-reply\" class=\"").concat(aib.cReply + (Cfg.replyWinDrag ? ' de-win' : ' de-win-inpost'), "\"></div>"));
@@ -17756,13 +18001,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_makeWindow",
       value: function _makeWindow() {
-        var _this42 = this;
+        var _this43 = this;
 
         makeDraggable('reply', this.qArea, $aBegin(this.qArea, "<div class=\"de-win-head\">\n\t\t\t<span class=\"de-win-title\"></span>\n\t\t\t<span class=\"de-win-buttons\">\n\t\t\t\t<svg class=\"de-win-btn-clear\"><use xlink:href=\"#de-symbol-unavail\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-toggle\"><use xlink:href=\"#de-symbol-win-arrow\"/></svg>\n\t\t\t\t<svg class=\"de-win-btn-close\"><use xlink:href=\"#de-symbol-win-close\"/></svg>\n\t\t\t</span>\n\t\t</div>\n\t\t<div class=\"de-resizer de-resizer-top\"></div>\n\t\t<div class=\"de-resizer de-resizer-left\"></div>\n\t\t<div class=\"de-resizer de-resizer-right\"></div>\n\t\t<div class=\"de-resizer de-resizer-bottom\"></div>"));
         var buttons = $q('.de-win-buttons', this.qArea);
 
-        buttons.onmouseover = function (_ref22) {
-          var target = _ref22.target;
+        buttons.onmouseover = function (_ref26) {
+          var target = _ref26.target;
           var el = target.parentNode;
 
           switch (nav.fixEventEl(target).classList[0]) {
@@ -17779,19 +18024,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         };
 
-        var _ref23 = _toConsumableArray(buttons.children),
-            clearBtn = _ref23[0],
-            toggleBtn = _ref23[1],
-            closeBtn = _ref23[2];
+        var _ref27 = _toConsumableArray(buttons.children),
+            clearBtn = _ref27[0],
+            toggleBtn = _ref27[1],
+            closeBtn = _ref27[2];
 
         clearBtn.onclick = function () {
           saveCfg('sageReply', 0);
 
-          _this42.toggleSage();
+          _this43.toggleSage();
 
-          _this42.files.clearInputs();
+          _this43.files.clearInputs();
 
-          [_this42.txta, _this42.name, _this42.mail, _this42.subj, _this42.video, _this42.cap && _this42.cap.textEl].forEach(function (el) {
+          [_this43.txta, _this43.name, _this43.mail, _this43.subj, _this43.video, _this43.cap && _this43.cap.textEl].forEach(function (el) {
             return el && (el.value = '');
           });
         };
@@ -17800,17 +18045,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           toggleCfg('replyWinDrag');
 
           if (Cfg.replyWinDrag) {
-            _this42.qArea.className = aib.cReply + ' de-win';
-            updateWinZ(_this42.qArea.style);
+            _this43.qArea.className = aib.cReply + ' de-win';
+            updateWinZ(_this43.qArea.style);
           } else {
-            _this42.qArea.className = aib.cReply + ' de-win-inpost';
+            _this43.qArea.className = aib.cReply + ' de-win-inpost';
 
-            _this42.txta.focus();
+            _this43.txta.focus();
           }
         };
 
         closeBtn.onclick = function () {
-          return _this42.closeReply();
+          return _this43.closeReply();
         };
       }
     }, {
@@ -18069,28 +18314,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     pr.refreshCap();
   }
 
-  function checkDelete(_x11) {
+  function checkDelete(_x18) {
     return _checkDelete.apply(this, arguments);
   } 
 
 
   function _checkDelete() {
-    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee24(data) {
+    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee32(data) {
       var err, els, threads, isThr, i, len, el;
-      return _regeneratorRuntime().wrap(function _callee24$(_context34) {
+      return _regeneratorRuntime().wrap(function _callee32$(_context42) {
         while (1) {
-          switch (_context34.prev = _context34.next) {
+          switch (_context42.prev = _context42.next) {
             case 0:
               err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
 
               if (!err) {
-                _context34.next = 5;
+                _context42.next = 5;
                 break;
               }
 
               $popup('delete', Lng.errDelete[lang] + ':\n' + err);
               updater.sendErrNotif();
-              return _context34.abrupt("return");
+              return _context42.abrupt("return");
 
             case 5:
               els = $Q("[de-form] ".concat(aib.qPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
@@ -18107,22 +18352,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!isThr) {
-                _context34.next = 15;
+                _context42.next = 15;
                 break;
               }
 
               Post.clearMarks();
-              _context34.next = 13;
+              _context42.next = 13;
               return Thread.first.loadNewPosts()["catch"](function (err) {
                 return infoLoadErrors(err);
               });
 
             case 13:
-              _context34.next = 17;
+              _context42.next = 17;
               break;
 
             case 15:
-              _context34.next = 17;
+              _context42.next = 17;
               return Promise.all(_toConsumableArray(threads).map(function (thr) {
                 return thr.loadPosts('new', false, false);
               }));
@@ -18132,10 +18377,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 18:
             case "end":
-              return _context34.stop();
+              return _context42.stop();
           }
         }
-      }, _callee24);
+      }, _callee32);
     }));
     return _checkDelete.apply(this, arguments);
   }
@@ -18165,9 +18410,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   function getFormElements(form, submitter) {
     var controls, fixName, i, len, field, tagName, type, name, options, j, jlen, option, img, files, _j2, _jlen, dirname;
 
-    return _regeneratorRuntime().wrap(function getFormElements$(_context15) {
+    return _regeneratorRuntime().wrap(function getFormElements$(_context20) {
       while (1) {
-        switch (_context15.prev = _context15.next) {
+        switch (_context20.prev = _context20.next) {
           case 0:
             controls = $Q('button, input, keygen, object, select, textarea', form);
 
@@ -18179,7 +18424,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 3:
             if (!(i < len)) {
-              _context15.next = 65;
+              _context20.next = 65;
               break;
             }
 
@@ -18189,15 +18434,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             name = field.getAttribute('name');
 
             if (!(field.closest('datalist') || isFormElDisabled(field) || field !== submitter && (tagName === 'button' || tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')) || tagName === 'input' && (type === 'checkbox' && !field.checked || type === 'radio' && !field.checked || type === 'image' && !name) || tagName === 'object')) {
-              _context15.next = 10;
+              _context20.next = 10;
               break;
             }
 
-            return _context15.abrupt("continue", 62);
+            return _context20.abrupt("continue", 62);
 
           case 10:
             if (!(tagName === 'select')) {
-              _context15.next = 23;
+              _context20.next = 23;
               break;
             }
 
@@ -18206,18 +18451,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 13:
             if (!(j < jlen)) {
-              _context15.next = 21;
+              _context20.next = 21;
               break;
             }
 
             option = options[j];
 
             if (!(option.selected && !isFormElDisabled(option))) {
-              _context15.next = 18;
+              _context20.next = 18;
               break;
             }
 
-            _context15.next = 18;
+            _context20.next = 18;
             return {
               type: type,
               el: field,
@@ -18227,28 +18472,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 18:
             ++j;
-            _context15.next = 13;
+            _context20.next = 13;
             break;
 
           case 21:
-            _context15.next = 51;
+            _context20.next = 51;
             break;
 
           case 23:
             if (!(tagName === 'input')) {
-              _context15.next = 51;
+              _context20.next = 51;
               break;
             }
 
-            _context15.t0 = type;
-            _context15.next = _context15.t0 === 'image' ? 27 : _context15.t0 === 'checkbox' ? 28 : _context15.t0 === 'radio' ? 28 : _context15.t0 === 'file' ? 31 : 51;
+            _context20.t0 = type;
+            _context20.next = _context20.t0 === 'image' ? 27 : _context20.t0 === 'checkbox' ? 28 : _context20.t0 === 'radio' ? 28 : _context20.t0 === 'file' ? 31 : 51;
             break;
 
           case 27:
             throw new Error('input[type="image"] is not supported');
 
           case 28:
-            _context15.next = 30;
+            _context20.next = 30;
             return {
               type: type,
               el: field,
@@ -18257,13 +18502,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 30:
-            return _context15.abrupt("continue", 62);
+            return _context20.abrupt("continue", 62);
 
           case 31:
             img = void 0;
 
             if (!field.files.length) {
-              _context15.next = 43;
+              _context20.next = 43;
               break;
             }
 
@@ -18272,11 +18517,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 35:
             if (!(_j2 < _jlen)) {
-              _context15.next = 41;
+              _context20.next = 41;
               break;
             }
 
-            _context15.next = 38;
+            _context20.next = 38;
             return {
               name: name,
               type: type,
@@ -18286,20 +18531,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 38:
             ++_j2;
-            _context15.next = 35;
+            _context20.next = 35;
             break;
 
           case 41:
-            _context15.next = 50;
+            _context20.next = 50;
             break;
 
           case 43:
             if (!(field.obj && (img = field.obj.imgFile))) {
-              _context15.next = 48;
+              _context20.next = 48;
               break;
             }
 
-            _context15.next = 46;
+            _context20.next = 46;
             return {
               name: name,
               type: type,
@@ -18310,11 +18555,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 46:
-            _context15.next = 50;
+            _context20.next = 50;
             break;
 
           case 48:
-            _context15.next = 50;
+            _context20.next = 50;
             return {
               el: field,
               name: fixName(name),
@@ -18323,15 +18568,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 50:
-            return _context15.abrupt("continue", 62);
+            return _context20.abrupt("continue", 62);
 
           case 51:
             if (!(type === 'textarea')) {
-              _context15.next = 56;
+              _context20.next = 56;
               break;
             }
 
-            _context15.next = 54;
+            _context20.next = 54;
             return {
               type: type,
               el: field,
@@ -18340,11 +18585,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             };
 
           case 54:
-            _context15.next = 58;
+            _context20.next = 58;
             break;
 
           case 56:
-            _context15.next = 58;
+            _context20.next = 58;
             return {
               type: type,
               el: field,
@@ -18356,11 +18601,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             dirname = field.getAttribute('dirname');
 
             if (!dirname) {
-              _context15.next = 62;
+              _context20.next = 62;
               break;
             }
 
-            _context15.next = 62;
+            _context20.next = 62;
             return {
               el: field,
               name: fixName(dirname),
@@ -18370,12 +18615,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 62:
             ++i;
-            _context15.next = 3;
+            _context20.next = 3;
             break;
 
           case 65:
           case "end":
-            return _context15.stop();
+            return _context20.stop();
         }
       }
     }, _marked);
@@ -18388,14 +18633,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var progress = $id('de-uploadprogress');
     var counterWrap = progress.nextElementSibling;
 
-    var _ref24 = _toConsumableArray(counterWrap.children),
-        counterEl = _ref24[0],
-        totalEl = _ref24[1],
-        speedEl = _ref24[2];
+    var _ref28 = _toConsumableArray(counterWrap.children),
+        counterEl = _ref28[0],
+        totalEl = _ref28[1],
+        speedEl = _ref28[2];
 
-    return function (_ref25) {
-      var total = _ref25.total,
-          i = _ref25.loaded;
+    return function (_ref29) {
+      var total = _ref29.total,
+          i = _ref29.loaded;
 
       if (!isInited) {
         progress.setAttribute('max', total);
@@ -18411,12 +18656,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     };
   }
 
-  function html5Submit(_x12, _x13) {
+  function html5Submit(_x19, _x20) {
     return _html5Submit.apply(this, arguments);
   }
 
   function _html5Submit() {
-    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee25(form, submitter) {
+    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee33(form, submitter) {
       var needProgress,
           data,
           hasFiles,
@@ -18436,20 +18681,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           cleanData,
           ajaxParams,
           url,
-          _args35 = arguments;
+          _args43 = arguments;
 
-      return _regeneratorRuntime().wrap(function _callee25$(_context35) {
+      return _regeneratorRuntime().wrap(function _callee33$(_context43) {
         while (1) {
-          switch (_context35.prev = _context35.next) {
+          switch (_context43.prev = _context43.next) {
             case 0:
-              needProgress = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
+              needProgress = _args43.length > 2 && _args43[2] !== undefined ? _args43[2] : false;
               data = new FormData();
               hasFiles = false;
               _iterator38 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
               if ((_step38 = _iterator38()).done) {
-                _context35.next = 30;
+                _context43.next = 30;
                 break;
               }
 
@@ -18457,15 +18702,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               val = value;
 
               if (!(name === 'de-file-txt')) {
-                _context35.next = 9;
+                _context43.next = 9;
                 break;
               }
 
-              return _context35.abrupt("continue", 28);
+              return _context43.abrupt("continue", 28);
 
             case 9:
               if (!(type === 'file')) {
-                _context35.next = 27;
+                _context43.next = 27;
                 break;
               }
 
@@ -18476,31 +18721,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               mime = value.type;
 
               if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
-                _context35.next = 26;
+                _context43.next = 26;
                 break;
               }
 
-              _context35.t0 = cleanFile;
-              _context35.next = 18;
+              _context43.t0 = cleanFile;
+              _context43.next = 18;
               return readFile(value);
 
             case 18:
-              _context35.t1 = _context35.sent.data;
-              _context35.t2 = el.obj ? el.obj.extraFile : null;
-              cleanData = (0, _context35.t0)(_context35.t1, _context35.t2);
+              _context43.t1 = _context43.sent.data;
+              _context43.t2 = el.obj ? el.obj.extraFile : null;
+              cleanData = (0, _context43.t0)(_context43.t1, _context43.t2);
 
               if (cleanData) {
-                _context35.next = 23;
+                _context43.next = 23;
                 break;
               }
 
-              return _context35.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
+              return _context43.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
             case 23:
               val = new File(cleanData, newFileName, {
                 type: mime
               });
-              _context35.next = 27;
+              _context43.next = 27;
               break;
 
             case 26:
@@ -18514,16 +18759,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               data.append(name, val);
 
             case 28:
-              _context35.next = 4;
+              _context43.next = 4;
               break;
 
             case 30:
               if (!aib.sendHTML5Post) {
-                _context35.next = 32;
+                _context43.next = 32;
                 break;
               }
 
-              return _context35.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
+              return _context43.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
             case 32:
               ajaxParams = {
@@ -18536,8 +18781,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               url = form.action;
-              return _context35.abrupt("return", $ajax(url, ajaxParams).then(function (_ref52) {
-                var text = _ref52.responseText;
+              return _context43.abrupt("return", $ajax(url, ajaxParams).then(function (_ref56) {
+                var text = _ref56.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text);
               })["catch"](function (err) {
                 return Promise.reject(err);
@@ -18545,10 +18790,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 36:
             case "end":
-              return _context35.stop();
+              return _context43.stop();
           }
         }
-      }, _callee25);
+      }, _callee33);
     }));
     return _html5Submit.apply(this, arguments);
   }
@@ -18827,22 +19072,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._thumb = null;
       this._utils = $add("<div class=\"de-file-utils\">\n\t\t\t<span class=\"de-file-btn-rar\" title=\"".concat(Lng.helpAddFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-rar\"/></svg></span>\n\t\t\t<input class=\"de-file-spoil\" type=\"checkbox\" title=\"") + "".concat(Lng.spoilFile[lang], "\" style=\"display: none;\">\n\t\t\t<span class=\"de-file-btn-txt\" title=\"").concat(Lng.addManually[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-txt\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-ren\" title=\"").concat(Lng.renameFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-ren\"/></svg></span>\n\t\t\t<span class=\"de-file-btn-del\" title=\"").concat(Lng.removeFile[lang], "\" style=\"display: none;\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-file-del\"/></svg></span>\n\t\t</div>"));
 
-      var _ref26 = _toConsumableArray(this._utils.children);
+      var _ref30 = _toConsumableArray(this._utils.children);
 
-      this._btnRar = _ref26[0];
-      this._btnSpoil = _ref26[1];
-      this._btnTxt = _ref26[2];
-      this._btnRen = _ref26[3];
-      this._btnDel = _ref26[4];
+      this._btnRar = _ref30[0];
+      this._btnSpoil = _ref30[1];
+      this._btnTxt = _ref30[2];
+      this._btnRen = _ref30[3];
+      this._btnDel = _ref30[4];
 
       this._utils.addEventListener('click', this);
 
       this._txtWrap = $add("<span class=\"de-file-txt-wrap\">\n\t\t\t<input type=\"text\" name=\"de-file-txt\" class=\"de-file-txt-input de-file-txt-noedit\" title=\"" + "".concat(Lng.youCanDrag[lang], "\" placeholder=\"").concat(Lng.dropFileHere[lang], "\">\n\t\t\t<input type=\"button\" class=\"de-file-txt-add\" value=\"+\" title=\"") + "".concat(Lng.add[lang], "\" style=\"display: none;\"></span>"));
 
-      var _ref27 = _toConsumableArray(this._txtWrap.children);
+      var _ref31 = _toConsumableArray(this._txtWrap.children);
 
-      this._txtInput = _ref27[0];
-      this._txtAddBtn = _ref27[1];
+      this._txtInput = _ref31[0];
+      this._txtAddBtn = _ref31[1];
 
       this._txtWrap.addEventListener('click', this);
 
@@ -18876,27 +19121,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(FileInput, [{
       key: "addUrlFile",
       value: function () {
-        var _addUrlFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee13(url) {
-          var _this43 = this;
+        var _addUrlFile = _asyncToGenerator( _regeneratorRuntime().mark(function _callee18(url) {
+          var _this44 = this;
 
           var file,
-              _args16 = arguments;
-          return _regeneratorRuntime().wrap(function _callee13$(_context16) {
+              _args21 = arguments;
+          return _regeneratorRuntime().wrap(function _callee18$(_context21) {
             while (1) {
-              switch (_context16.prev = _context16.next) {
+              switch (_context21.prev = _context21.next) {
                 case 0:
-                  file = _args16.length > 1 && _args16[1] !== undefined ? _args16[1] : null;
+                  file = _args21.length > 1 && _args21[1] !== undefined ? _args21[1] : null;
 
                   if (url) {
-                    _context16.next = 3;
+                    _context21.next = 3;
                     break;
                   }
 
-                  return _context16.abrupt("return", Promise.reject(new Error('URL is null')));
+                  return _context21.abrupt("return", Promise.reject(new Error('URL is null')));
 
                 case 3:
                   $popup('file-loading', Lng.loading[lang], true);
-                  _context16.next = 6;
+                  _context21.next = 6;
                   return ContentLoader.loadImgData(url, false).then(function (data) {
                     var _file, _file2;
 
@@ -18910,7 +19155,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     }
 
                     closePopup('file-loading');
-                    _this43._isTxtEditable = _this43._isTxtEditName = false;
+                    _this44._isTxtEditable = _this44._isTxtEditName = false;
                     var name = ((_file = file) === null || _file === void 0 ? void 0 : _file.name) || getFileName(url);
                     var type = ((_file2 = file) === null || _file2 === void 0 ? void 0 : _file2.type) || getFileMime(name);
 
@@ -18943,7 +19188,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       }
                     }
 
-                    _this43.imgFile = {
+                    _this44.imgFile = {
                       data: data.buffer,
                       name: name,
                       type: type || getFileMime(name)
@@ -18951,33 +19196,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                     if (!file) {
                       file = new Blob([data], {
-                        type: _this43.imgFile.type
+                        type: _this44.imgFile.type
                       });
                       file.name = name;
                     }
 
-                    _this43._parent._files[_this43._parent._inputs.indexOf(_this43)] = file;
-                    DollchanAPI.notify('filechange', _this43._parent._files);
+                    _this44._parent._files[_this44._parent._inputs.indexOf(_this44)] = file;
+                    DollchanAPI.notify('filechange', _this44._parent._files);
 
                     if (FileInput._isThumbMode) {
-                      $hide(_this43._txtWrap);
+                      $hide(_this44._txtWrap);
                     }
 
-                    _this43._onFileChange(true);
+                    _this44._onFileChange(true);
                   });
 
                 case 6:
-                  return _context16.abrupt("return", _context16.sent);
+                  return _context21.abrupt("return", _context21.sent);
 
                 case 7:
                 case "end":
-                  return _context16.stop();
+                  return _context21.stop();
               }
             }
-          }, _callee13);
+          }, _callee18);
         }));
 
-        function addUrlFile(_x14) {
+        function addUrlFile(_x21) {
           return _addUrlFile.apply(this, arguments);
         }
 
@@ -19067,7 +19312,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this44 = this;
+        var _this45 = this;
 
         var el = e.target;
         var thumb = this._thumb;
@@ -19088,17 +19333,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   for (var i = 0; i < allowedLen; ++i) {
                     FileInput._readDroppedFile(inpArray[curInpIdx + i], el.files[i]).then(function () {
                       if (! --j) {
-                        _this44._removeFileHelper();
+                        _this45._removeFileHelper();
                       }
                     });
 
-                    _this44._parent._files[curInpIdx + i] = el.files[i];
+                    _this45._parent._files[curInpIdx + i] = el.files[i];
                   }
                 })();
               } else {
                 if (filesLen > 0) {
                   setTimeout(function () {
-                    return _this44._onFileChange(false);
+                    return _this45._onFileChange(false);
                   }, 20);
                   this._parent._files[curInpIdx] = el.files[0];
                 } else {
@@ -19188,20 +19433,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
 
                   var file = this._input.files[0];
-                  readFile(file).then(function (_ref28) {
-                    var data = _ref28.data;
-                    _this44.imgFile = {
+                  readFile(file).then(function (_ref32) {
+                    var data = _ref32.data;
+                    _this45.imgFile = {
                       data: data,
                       name: newName,
                       type: file.type,
                       isConstName: true
                     };
 
-                    _this44._removeFileHelper(); 
+                    _this45._removeFileHelper(); 
 
 
                     if (FileInput._isThumbMode) {
-                      _this44._addThumbTitle(newName, data.byteLength);
+                      _this45._addThumbTitle(newName, data.byteLength);
                     }
                   });
                   return;
@@ -19311,23 +19556,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_addRarJpeg",
       value: function _addRarJpeg() {
-        var _this45 = this;
+        var _this46 = this;
 
         var el = this._parent.rarInput;
 
         el.onchange = function (e) {
-          $hide(_this45._btnRar);
-          var myBtn = _this45._rarMsg = $aBegin(_this45._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
+          $hide(_this46._btnRar);
+          var myBtn = _this46._rarMsg = $aBegin(_this46._utils, '<span><svg class="de-wait"><use xlink:href="#de-symbol-wait"/></svg></span>');
           var file = e.target.files[0];
-          readFile(file).then(function (_ref29) {
-            var data = _ref29.data;
+          readFile(file).then(function (_ref33) {
+            var data = _ref33.data;
 
-            if (_this45._rarMsg === myBtn) {
+            if (_this46._rarMsg === myBtn) {
               myBtn.className = 'de-file-rarmsg';
-              var origFileName = _this45.imgFile ? _this45.imgFile.name : _this45._input.files[0].name;
+              var origFileName = _this46.imgFile ? _this46.imgFile.name : _this46._input.files[0].name;
               myBtn.title = origFileName + ' + ' + file.name;
               myBtn.textContent = getFileExt(origFileName) + ' + ' + getFileExt(file.name);
-              _this45.extraFile = data;
+              _this46.extraFile = data;
             }
           });
         };
@@ -19351,7 +19596,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_initThumbs",
       value: function _initThumbs() {
-        var _this46 = this;
+        var _this47 = this;
 
         var fileTr = this._parent.fileTr;
         $hide(fileTr);
@@ -19361,7 +19606,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         (isTr ? txtArea.lastChild : txtArea).append(this._txtWrap);
         this._thumb = $bEnd(this._parent.thumbsEl, "<div class=\"de-file de-file-off\"><div class=\"de-file-img\"><div class=\"de-file-img\" title=\"".concat(Lng.youCanDrag[lang], "\"></div></div></div>"));
         ['click', 'dragenter'].forEach(function (e) {
-          return _this46._thumb.addEventListener(e, _this46);
+          return _this47._thumb.addEventListener(e, _this47);
         });
 
         this._thumb.append(this._utils);
@@ -19446,7 +19691,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showFileThumb",
       value: function _showFileThumb() {
-        var _this47 = this;
+        var _this48 = this;
 
         var imgFile = this.imgFile;
 
@@ -19459,11 +19704,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var file = this._input.files[0];
 
         if (file) {
-          readFile(file).then(function (_ref30) {
-            var data = _ref30.data;
+          readFile(file).then(function (_ref34) {
+            var data = _ref34.data;
 
-            if (_this47._input.files[0] === file) {
-              _this47._addNewThumb(data, file.name, file.type, file.size);
+            if (_this48._input.files[0] === file) {
+              _this48._addNewThumb(data, file.name, file.type, file.size);
             }
           });
         }
@@ -19478,14 +19723,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_toggleDragEvents",
       value: function _toggleDragEvents(el, isAdd) {
-        var _this48 = this;
+        var _this49 = this;
 
         var name = isAdd ? 'addEventListener' : 'removeEventListener';
         el[name]('dragover', function (e) {
           return e.preventDefault();
         });
         ['dragenter', 'dragleave', 'drop'].forEach(function (e) {
-          return el[name](e, _this48);
+          return el[name](e, _this49);
         });
       }
     }], [{
@@ -19496,8 +19741,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_readDroppedFile",
       value: function _readDroppedFile(inputObj, file) {
-        return readFile(file).then(function (_ref31) {
-          var data = _ref31.data;
+        return readFile(file).then(function (_ref35) {
+          var data = _ref35.data;
           inputObj.imgFile = {
             data: data,
             name: file.name,
@@ -19597,18 +19842,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "initCapPromise",
       value: function initCapPromise() {
-        var _this49 = this;
+        var _this50 = this;
 
         var initPromise = aib.captchaInit ? aib.captchaInit(this) : null;
 
         if (initPromise) {
           initPromise.then(function () {
-            return _this49.showCaptcha();
+            return _this50.showCaptcha();
           }, function (err) {
             if (err instanceof AjaxError) {
-              _this49._setUpdateError(err);
+              _this50._setUpdateError(err);
             } else {
-              _this49.hasCaptcha = false;
+              _this50.hasCaptcha = false;
             }
           });
         } else if (this.hasCaptcha) {
@@ -19618,20 +19863,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "initImage",
       value: function initImage(img) {
-        var _this50 = this;
+        var _this51 = this;
 
         img.title = Lng.refresh[lang];
         img.alt = Lng.loading[lang];
         img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 
         img.onclick = function () {
-          return _this50.refreshCaptcha(true);
+          return _this51.refreshCaptcha(true);
         };
       }
     }, {
       key: "initTextEl",
       value: function initTextEl() {
-        var _this51 = this;
+        var _this52 = this;
 
         this.textEl.autocomplete = 'off';
 
@@ -19640,7 +19885,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         ['keypress', 'focus'].forEach(function (e) {
-          return _this51.textEl.addEventListener(e, _this51);
+          return _this52.textEl.addEventListener(e, _this52);
         });
         this.textEl.onkeypress = null;
         this.textEl.onfocus = null;
@@ -19688,7 +19933,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "refreshCaptcha",
       value: function refreshCaptcha(isFocus) {
-        var _this52 = this;
+        var _this53 = this;
 
         var isErr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var tNum = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.tNum;
@@ -19712,9 +19957,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           if (updatePromise) {
             updatePromise.then(function () {
-              return _this52._updateTextEl(isFocus);
+              return _this53._updateTextEl(isFocus);
             }, function (err) {
-              return _this52._setUpdateError(err);
+              return _this53._setUpdateError(err);
             });
           }
         } else if (this._isRecap) {
@@ -19775,16 +20020,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_setUpdateError",
       value: function _setUpdateError(e) {
-        var _this53 = this;
+        var _this54 = this;
 
         if (e) {
           this.parentEl = e.toString();
           this.isAdded = false;
 
           this.parentEl.onclick = function () {
-            _this53.parentEl.onclick = null;
+            _this54.parentEl.onclick = null;
 
-            _this53.addCaptcha();
+            _this54.addCaptcha();
           };
 
           $show(this.parentEl);
@@ -19873,16 +20118,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "refLinks",
       value: _regeneratorRuntime().mark(function refLinks() {
         var links, lNum, i, len, link, tc;
-        return _regeneratorRuntime().wrap(function refLinks$(_context17) {
+        return _regeneratorRuntime().wrap(function refLinks$(_context22) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context22.prev = _context22.next) {
               case 0:
                 links = $Q('a', this.msg);
                 i = 0, len = links.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context17.next = 12;
+                  _context22.next = 12;
                   break;
                 }
 
@@ -19890,24 +20135,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 tc = link.textContent;
 
                 if (!(tc[0] !== '>' || tc[1] !== '>' || !(lNum = parseInt(tc.substr(2), 10)))) {
-                  _context17.next = 7;
+                  _context22.next = 7;
                   break;
                 }
 
-                return _context17.abrupt("continue", 9);
+                return _context22.abrupt("continue", 9);
 
               case 7:
-                _context17.next = 9;
+                _context22.next = 9;
                 return [link, lNum];
 
               case 9:
                 ++i;
-                _context17.next = 2;
+                _context22.next = 2;
                 break;
 
               case 12:
               case "end":
-                return _context17.stop();
+                return _context22.stop();
             }
           }
         }, refLinks, this);
@@ -19956,7 +20201,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this54 = this;
+        var _this55 = this;
 
         var temp;
         var el = nav.fixEventEl(e.target);
@@ -20135,7 +20380,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (!this._hasEvents) {
           this._hasEvents = true;
           ['click', 'mouseout'].forEach(function (e) {
-            return _this54.el.addEventListener(e, _this54, true);
+            return _this55.el.addEventListener(e, _this55, true);
           });
         } 
 
@@ -20249,7 +20494,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
             } else {
               this._linkDelay = setTimeout(function () {
-                return _this54.kid = Pview.showPview(_this54, el);
+                return _this55.kid = Pview.showPview(_this55, el);
               }, Cfg.linksOver);
             }
 
@@ -20315,13 +20560,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "changeMyMark",
       value: function changeMyMark(val) {
-        var _this55 = this;
+        var _this56 = this;
 
         this.el.classList.toggle('de-mypost', val);
         $Q("[de-form] ".concat(aib.qPostMsg, " a[href$=\"").concat(aib.anchor + this.num, "\"]")).forEach(function (el) {
           var post = aib.getPostOfEl(el);
 
-          if (post.el !== _this55.el) {
+          if (post.el !== _this56.el) {
             el.classList.toggle('de-ref-you', val);
             post.el.classList.toggle('de-mypost-reply', val);
           }
@@ -20330,14 +20575,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_addMenu",
       value: function _addMenu(el, isOutEvent, html) {
-        var _this56 = this;
+        var _this57 = this;
 
         if (!this.menu || this.menu.parentEl !== el) {
           if (isOutEvent) {
             clearTimeout(this._menuDelay);
           } else {
             this._menuDelay = setTimeout(function () {
-              return _this56._showMenu(el, html);
+              return _this57._showMenu(el, html);
             }, Cfg.linksOver);
           }
         }
@@ -20517,7 +20762,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_getFullMsg",
       value: function _getFullMsg(truncEl, isInit) {
-        var _this57 = this;
+        var _this58 = this;
 
         if (aib.deleteTruncMsg) {
           aib.deleteTruncMsg(this, truncEl, isInit);
@@ -20532,7 +20777,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           var sourceEl;
           var maybeSpells = new Maybe(SpellsRunner);
 
-          if (_this57.isOp) {
+          if (_this58.isOp) {
             sourceEl = form;
           } else {
             var posts = $Q(aib.qPost, form);
@@ -20540,7 +20785,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             for (var i = 0, len = posts.length; i < len; ++i) {
               var post = posts[i];
 
-              if (_this57.num === aib.getPNum(post)) {
+              if (_this58.num === aib.getPNum(post)) {
                 sourceEl = post;
                 break;
               }
@@ -20548,7 +20793,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
 
           if (sourceEl) {
-            _this57.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
+            _this58.updateMsg(aib.fixHTML(doc.adoptNode($q(aib.qPostMsg, sourceEl))), maybeSpells.value);
 
             truncEl.remove();
           }
@@ -20561,18 +20806,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showMenu",
       value: function _showMenu(el, html) {
-        var _this58 = this;
+        var _this59 = this;
 
         if (this._menu) {
           this._menu.removeMenu();
         }
 
         this._menu = new Menu(el, html, function (el, e) {
-          return (_this58 instanceof Pview ? pByNum.get(_this58.num) || _this58 : _this58)._clickMenu(el, e);
+          return (_this59 instanceof Pview ? pByNum.get(_this59.num) || _this59 : _this59)._clickMenu(el, e);
         }, false);
 
         this._menu.onremove = function () {
-          return _this58._menu = null;
+          return _this59._menu = null;
         };
       }
     }]);
@@ -20586,50 +20831,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super4 = _createSuper(Post);
 
     function Post(el, thr, num, count, isOp, prev) {
-      var _this59;
+      var _this60;
 
       _classCallCheck(this, Post);
 
-      _this59 = _super4.call(this, thr, num, isOp);
-      _this59.count = count;
-      _this59.el = el;
-      _this59.isDeleted = false;
-      _this59.isHidden = false;
-      _this59.isOmitted = false;
-      _this59.isViewed = false;
-      _this59.next = null;
-      _this59.prev = prev;
-      _this59.spellHidden = false;
-      _this59.userToggled = false;
-      _this59._selRange = null;
-      _this59._selText = '';
+      _this60 = _super4.call(this, thr, num, isOp);
+      _this60.count = count;
+      _this60.el = el;
+      _this60.isDeleted = false;
+      _this60.isHidden = false;
+      _this60.isOmitted = false;
+      _this60.isViewed = false;
+      _this60.next = null;
+      _this60.prev = prev;
+      _this60.spellHidden = false;
+      _this60.userToggled = false;
+      _this60._selRange = null;
+      _this60._selText = '';
 
       if (prev) {
-        prev.next = _assertThisInitialized(_this59);
+        prev.next = _assertThisInitialized(_this60);
       }
 
-      pByEl.set(el, _assertThisInitialized(_this59));
-      pByNum.set(num, _assertThisInitialized(_this59));
+      pByEl.set(el, _assertThisInitialized(_this60));
+      pByNum.set(num, _assertThisInitialized(_this60));
       var isMyPost = MyPosts.has(num);
 
       if (isMyPost) {
-        _this59.el.classList.add('de-mypost');
-      } else if (localData && _this59.el.classList.contains('de-mypost')) {
+        _this60.el.classList.add('de-mypost');
+      } else if (localData && _this60.el.classList.contains('de-mypost')) {
         MyPosts.set(num, thr.num);
         isMyPost = true;
       }
 
       el.classList.add(isOp ? 'de-oppost' : 'de-reply');
-      _this59.sage = aib.getSage(el);
-      _this59.btns = $aEnd(_this59._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this59.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
-      _this59.counterEl = isOp ? null : $q('.de-post-counter', _this59.btns);
+      _this60.sage = aib.getSage(el);
+      _this60.btns = $aEnd(_this60._pref = $q(aib.qPostRef, el), '<span class="de-post-btns">' + Post.getPostBtns(isOp, aib.t) + (_this60.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + (isOp ? '' : "<span class=\"de-post-counter\">".concat(count + 1, "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '') + '</span>');
+      _this60.counterEl = isOp ? null : $q('.de-post-counter', _this60.btns);
 
-      if (Cfg.expandTrunc && _this59.trunc) {
-        _this59._getFullMsg(_this59.trunc, true);
+      if (Cfg.expandTrunc && _this60.trunc) {
+        _this60._getFullMsg(_this60.trunc, true);
       }
 
-      el.addEventListener('mouseover', _assertThisInitialized(_this59), true);
-      return _this59;
+      el.addEventListener('mouseover', _assertThisInitialized(_this60), true);
+      return _this60;
     }
 
     _createClass(Post, [{
@@ -20873,7 +21118,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "setVisib",
       value: function setVisib(isHide) {
-        var _this60 = this;
+        var _this61 = this;
 
         var note = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
@@ -20894,7 +21139,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this._pref.onmouseover = this._pref.onmouseout = !isHide ? null : function (e) {
               var yOffset = deWindow.pageYOffset;
 
-              _this60.hideContent(e.type === 'mouseout');
+              _this61.hideContent(e.type === 'mouseout');
 
               scrollTo(deWindow.pageXOffset, yOffset);
             };
@@ -20903,7 +21148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         if (Cfg.strikeHidd) {
           setTimeout(function () {
-            return _this60._strikePostNum(isHide);
+            return _this61._strikePostNum(isHide);
           }, 50);
         }
 
@@ -21127,20 +21372,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super5 = _createSuper(PostContent);
 
     function PostContent(post) {
-      var _this61;
+      var _this62;
 
       _classCallCheck(this, PostContent);
 
-      _this61 = _super5.call(this, post);
+      _this62 = _super5.call(this, post);
 
-      if (_this61._isInited) {
-        return _possibleConstructorReturn(_this61);
+      if (_this62._isInited) {
+        return _possibleConstructorReturn(_this62);
       }
 
-      _this61._isInited = true;
-      _this61.el = post.el;
-      _this61.post = post;
-      return _this61;
+      _this62._isInited = true;
+      _this62.el = post.el;
+      _this62.post = post;
+      return _this62;
     }
 
     _createClass(PostContent, [{
@@ -21265,20 +21510,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "set",
       value: function set(note) {
-        var _this62 = this;
+        var _this63 = this;
 
         this.text = note;
         var text;
 
         if (this.isHideThr) {
           this._aEl.onmouseover = this._aEl.onmouseout = function (e) {
-            return _this62._post.hideContent(e.type === 'mouseout');
+            return _this63._post.hideContent(e.type === 'mouseout');
           };
 
           this._aEl.onclick = function (e) {
             e.preventDefault();
 
-            _this62._post.setUserVisib(!_this62._post.isHidden);
+            _this63._post.setUserVisib(!_this63._post.isHidden);
           };
 
           text = (this._post.title ? "(".concat(this._post.title, ") ") : '') + (note ? "[autohide: ".concat(note, "]") : '');
@@ -21362,54 +21607,54 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super6 = _createSuper(Pview);
 
     function Pview(parent, link, pNum, tNum) {
-      var _this63;
+      var _this64;
 
       _classCallCheck(this, Pview);
 
-      _this63 = _super6.call(this, parent.thr, pNum, pNum === tNum);
-      _this63.isSticky = false;
-      _this63.parent = parent;
-      _this63.remoteThr = null;
-      _this63.tNum = tNum;
-      _this63._isCached = false;
-      _this63._isLeft = false;
-      _this63._isTop = false;
-      _this63._link = link;
-      _this63._newPos = null;
-      _this63._offsetTop = 0;
-      _this63._readDelay = 0;
+      _this64 = _super6.call(this, parent.thr, pNum, pNum === tNum);
+      _this64.isSticky = false;
+      _this64.parent = parent;
+      _this64.remoteThr = null;
+      _this64.tNum = tNum;
+      _this64._isCached = false;
+      _this64._isLeft = false;
+      _this64._isTop = false;
+      _this64._link = link;
+      _this64._newPos = null;
+      _this64._offsetTop = 0;
+      _this64._readDelay = 0;
       var post = pByNum.get(pNum);
 
       if (post && (!post.isOp || !(parent instanceof Pview) || !parent._isCached)) {
-        _this63._buildPview(post);
+        _this64._buildPview(post);
 
-        return _possibleConstructorReturn(_this63);
+        return _possibleConstructorReturn(_this64);
       }
 
-      _this63._isCached = true;
-      _this63.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+      _this64._isCached = true;
+      _this64.board = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 
-      if (PviewsCache.has(_this63.board + tNum)) {
-        post = PviewsCache.get(_this63.board + tNum).getPost(pNum);
+      if (PviewsCache.has(_this64.board + tNum)) {
+        post = PviewsCache.get(_this64.board + tNum).getPost(pNum);
 
         if (post) {
-          _this63._buildPview(post);
+          _this64._buildPview(post);
         } else {
-          _this63._showPview(_this63.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
+          _this64._showPview(_this64.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t\t\t").concat(Lng.postNotFound[lang], "</div>")));
         }
 
-        return _possibleConstructorReturn(_this63);
+        return _possibleConstructorReturn(_this64);
       }
 
-      _this63._showPview(_this63.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>"))); 
+      _this64._showPview(_this64.el = $add("<div class=\"".concat(aib.cReply, " de-pview-info de-pview\">\n\t\t\t<svg class=\"de-wait\"><use xlink:href=\"#de-symbol-wait\"/></svg>").concat(Lng.loading[lang], "</div>"))); 
 
 
-      _this63._loadPromise = ajaxPostsLoad(_this63.board, tNum, false, false).then(function (pBuilder) {
-        return _this63._onload(pBuilder);
+      _this64._loadPromise = ajaxPostsLoad(_this64.board, tNum, false, false).then(function (pBuilder) {
+        return _this64._onload(pBuilder);
       }, function (err) {
-        return _this63._onerror(err);
+        return _this64._onerror(err);
       });
-      return _this63;
+      return _this64;
     }
 
     _createClass(Pview, [{
@@ -21528,11 +21773,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "markToDel",
       value: function markToDel() {
-        var _this64 = this;
+        var _this65 = this;
 
         clearTimeout(Pview._delTO);
         Pview._delTO = setTimeout(function () {
-          return _this64.deleteNonSticky();
+          return _this65.deleteNonSticky();
         }, Cfg.linksOut);
       }
     }, {
@@ -21565,13 +21810,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_buildPview",
       value: function () {
-        var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee14(post) {
+        var _buildPview2 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee19(post) {
           var _yield$readFavorites$, _yield$readFavorites$2;
 
           var num, pv, isMyPost, isOp, isFav, isCached, pCountHtml, pText, btnsEl, link;
-          return _regeneratorRuntime().wrap(function _callee14$(_context18) {
+          return _regeneratorRuntime().wrap(function _callee19$(_context23) {
             while (1) {
-              switch (_context18.prev = _context18.next) {
+              switch (_context23.prev = _context23.next) {
                 case 0:
                   $del(this.el);
                   num = this.num;
@@ -21593,56 +21838,56 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   this._link.classList.add('de-link-parent');
 
                   isOp = this.isOp;
-                  _context18.t0 = isOp;
+                  _context23.t0 = isOp;
 
-                  if (!_context18.t0) {
-                    _context18.next = 30;
+                  if (!_context23.t0) {
+                    _context23.next = 30;
                     break;
                   }
 
-                  _context18.t1 = post.thr.isFav;
+                  _context23.t1 = post.thr.isFav;
 
-                  if (_context18.t1) {
-                    _context18.next = 29;
+                  if (_context23.t1) {
+                    _context23.next = 29;
                     break;
                   }
 
-                  _context18.next = 18;
+                  _context23.next = 18;
                   return readFavorites();
 
                 case 18:
-                  _context18.t3 = aib.host;
-                  _context18.t4 = _yield$readFavorites$ = _context18.sent[_context18.t3];
-                  _context18.t2 = _context18.t4 === null;
+                  _context23.t3 = aib.host;
+                  _context23.t4 = _yield$readFavorites$ = _context23.sent[_context23.t3];
+                  _context23.t2 = _context23.t4 === null;
 
-                  if (_context18.t2) {
-                    _context18.next = 23;
+                  if (_context23.t2) {
+                    _context23.next = 23;
                     break;
                   }
 
-                  _context18.t2 = _yield$readFavorites$ === void 0;
+                  _context23.t2 = _yield$readFavorites$ === void 0;
 
                 case 23:
-                  if (!_context18.t2) {
-                    _context18.next = 27;
+                  if (!_context23.t2) {
+                    _context23.next = 27;
                     break;
                   }
 
-                  _context18.t5 = void 0;
-                  _context18.next = 28;
+                  _context23.t5 = void 0;
+                  _context23.next = 28;
                   break;
 
                 case 27:
-                  _context18.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
+                  _context23.t5 = (_yield$readFavorites$2 = _yield$readFavorites$[this.board]) === null || _yield$readFavorites$2 === void 0 ? void 0 : _yield$readFavorites$2[num];
 
                 case 28:
-                  _context18.t1 = _context18.t5;
+                  _context23.t1 = _context23.t5;
 
                 case 29:
-                  _context18.t0 = _context18.t1;
+                  _context23.t0 = _context23.t1;
 
                 case 30:
-                  isFav = _context18.t0;
+                  isFav = _context23.t0;
                   isCached = post instanceof CacheItem;
                   pCountHtml = (post.isDeleted ? " de-post-counter-deleted\">".concat(Lng.deleted[lang], "</span>") : "\">".concat(isOp ? '(OP)' : post.count + +!(aib.JsonBuilder && isCached), "</span>")) + (isMyPost ? '<span class="de-post-counter-you">(You)</span>' : '');
                   pText = '<svg class="de-btn-reply"><use xlink:href="#de-symbol-post-reply"/></svg>' + (isOp ? "<svg class=\"".concat(isFav ? 'de-btn-fav-sel' : 'de-btn-fav', "\">") + '<use xlink:href="#de-symbol-post-fav"></use></svg>' : '') + (post.sage ? '<svg class="de-btn-sage"><use xlink:href="#de-symbol-post-sage"/></svg>' : '') + '<svg class="de-btn-stick"><use xlink:href="#de-symbol-post-stick"/></svg>' + '<span class="de-post-counter' + pCountHtml;
@@ -21714,13 +21959,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 37:
                 case "end":
-                  return _context18.stop();
+                  return _context23.stop();
               }
             }
-          }, _callee14, this);
+          }, _callee19, this);
         }));
 
-        function _buildPview(_x15) {
+        function _buildPview(_x22) {
           return _buildPview2.apply(this, arguments);
         }
 
@@ -21801,12 +22046,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showMenu",
       value: function _showMenu(el, html) {
-        var _this65 = this;
+        var _this66 = this;
 
         _get(_getPrototypeOf(Pview.prototype), "_showMenu", this).call(this, el, html);
 
         this._menu.onover = function () {
-          return _this65.mouseEnter();
+          return _this66.mouseEnter();
         };
 
         this._menu.onout = function () {
@@ -21816,10 +22061,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showPview",
       value: function _showPview(el) {
-        var _this66 = this;
+        var _this67 = this;
 
         ['mouseover', 'mouseout'].forEach(function (e) {
-          return el.addEventListener(e, _this66, true);
+          return el.addEventListener(e, _this67, true);
         });
         this.thr.form.el.append(el);
 
@@ -21962,15 +22207,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(CacheItem, [{
       key: "refLinks",
       value: _regeneratorRuntime().mark(function refLinks() {
-        return _regeneratorRuntime().wrap(function refLinks$(_context19) {
+        return _regeneratorRuntime().wrap(function refLinks$(_context24) {
           while (1) {
-            switch (_context19.prev = _context19.next) {
+            switch (_context24.prev = _context24.next) {
               case 0:
-                return _context19.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
+                return _context24.delegateYield(this._pBuilder.getRefLinks(this.count, this._thrUrl), "t0", 1);
 
               case 1:
               case "end":
-                return _context19.stop();
+                return _context24.stop();
             }
           }
         }, refLinks, this);
@@ -22019,7 +22264,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "thr",
       get: function get() {
-        var _this67 = this;
+        var _this68 = this;
 
         var value = null;
 
@@ -22031,7 +22276,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           };
           Object.defineProperty(value, 'title', {
             get: function get() {
-              return _this67.title;
+              return _this68.title;
             }
           });
         }
@@ -22052,17 +22297,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _super7 = _createSuper(PviewsCache);
 
     function PviewsCache(pBuilder, board, tNum) {
-      var _this68;
+      var _this69;
 
       _classCallCheck(this, PviewsCache);
 
-      _this68 = _super7.call(this, board + tNum);
+      _this69 = _super7.call(this, board + tNum);
 
-      if (_this68._isInited) {
-        return _possibleConstructorReturn(_this68);
+      if (_this69._isInited) {
+        return _possibleConstructorReturn(_this69);
       }
 
-      _this68._isInited = true;
+      _this69._isInited = true;
       var lPByNum = new Map();
       var thrUrl = aib.getThrUrl(board, tNum);
       lPByNum.set(tNum, new CacheItem(pBuilder, thrUrl, 0));
@@ -22072,14 +22317,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       DelForm.tNums.add(tNum);
-      _this68._b = board;
-      _this68._posts = lPByNum;
+      _this69._b = board;
+      _this69._posts = lPByNum;
 
       if (Cfg.linksNavig) {
         RefMap.gen(lPByNum);
       }
 
-      return _this68;
+      return _this69;
     }
 
     _createClass(PviewsCache, [{
@@ -22114,11 +22359,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var btns = $bEnd(docBody, "<div style=\"display: none;\">\n\t\t\t<div id=\"de-img-btn-prev\" class=\"de-img-btn\" de-title=\"".concat(Lng.prevImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-next\" class=\"de-img-btn\" de-title=\"").concat(Lng.nextImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-arrow\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-auto\" class=\"de-img-btn de-img-btn-none\" title=\"").concat(Lng.autoPlayOn[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-auto\"/></svg></div>\n\t\t\t<div id=\"de-img-btn-rotate\" class=\"de-img-btn\" title=\"").concat(Lng.rotateImg[lang], "\">\n\t\t\t\t<svg><use xlink:href=\"#de-symbol-img-btn-rotate\"/></svg></div></div>"));
 
-      var _ref32 = _toConsumableArray(btns.children);
+      var _ref36 = _toConsumableArray(btns.children);
 
-      this.prevBtn = _ref32[0];
-      this.nextBtn = _ref32[1];
-      this.autoBtn = _ref32[2];
+      this.prevBtn = _ref36[0];
+      this.nextBtn = _ref36[1];
+      this.autoBtn = _ref36[2];
       this._btns = btns;
       this._btnsStyle = btns.style;
       this._hideTmt = 0;
@@ -22133,7 +22378,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _createClass(ImagesNavigBtns, [{
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this69 = this;
+        var _this70 = this;
 
         switch (e.type) {
           case 'mousemove':
@@ -22154,7 +22399,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             if (!this.hasEvents) {
               this.hasEvents = true;
               ['mouseout', 'click'].forEach(function (e) {
-                return _this69._btns.addEventListener(e, _this69);
+                return _this70._btns.addEventListener(e, _this70);
               });
             }
 
@@ -22227,11 +22472,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_setHideTmt",
       value: function _setHideTmt() {
-        var _this70 = this;
+        var _this71 = this;
 
         clearTimeout(this._hideTmt);
         this._hideTmt = setTimeout(function () {
-          return _this70.hideBtns();
+          return _this71.hideBtns();
         }, 2e3);
       }
     }]);
@@ -22274,7 +22519,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this71 = this;
+        var _this72 = this;
 
         switch (e.type) {
           case 'mousedown':
@@ -22285,7 +22530,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             this._oldX = e.clientX;
             this._oldY = e.clientY;
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return docBody.addEventListener(e, _this71, true);
+              return docBody.addEventListener(e, _this72, true);
             });
             break;
 
@@ -22309,7 +22554,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           case 'mouseup':
             ['mousemove', 'mouseup'].forEach(function (e) {
-              return docBody.removeEventListener(e, _this71, true);
+              return docBody.removeEventListener(e, _this72, true);
             });
             return;
 
@@ -22534,7 +22779,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_showFullImg",
       value: function _showFullImg(data) {
-        var _this72 = this;
+        var _this73 = this;
 
         var _data$computeFullSize = data.computeFullSize(),
             _data$computeFullSize2 = _slicedToArray(_data$computeFullSize, 3),
@@ -22543,9 +22788,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             minSize = _data$computeFullSize2[2];
 
         this._fullEl = data.getFullImg(false, function (el) {
-          return _this72._resizeFullImg(el);
+          return _this73._resizeFullImg(el);
         }, function (el) {
-          return _this72._rotateFullImg(el);
+          return _this73._rotateFullImg(el);
         });
         this._width = width;
         this._height = height;
@@ -22563,7 +22808,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.data = data;
         this._parentEl = el;
         ['onwheel' in el ? 'wheel' : 'mousewheel', 'mousedown', 'click'].forEach(function (e) {
-          return el.addEventListener(e, _this72, true);
+          return el.addEventListener(e, _this73, true);
         });
         data.srcBtnEvents(this);
 
@@ -22681,20 +22926,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "checkForRedirect",
       value: function checkForRedirect(fullEl) {
-        var _this73 = this;
+        var _this74 = this;
 
         if (!aib.getImgRedirectSrc || this.redirected) {
           return;
         }
 
         aib.getImgRedirectSrc(this.src).then(function (newSrc) {
-          _this73.redirected = true;
-          Object.defineProperty(_this73, 'src', {
+          _this74.redirected = true;
+          Object.defineProperty(_this74, 'src', {
             value: newSrc
           });
-          $q('img, video', fullEl).src = _this73.el.src = _this73.el.parentNode.href = getImgNameLink(_this73.el).href = newSrc;
+          $q('img, video', fullEl).src = _this74.el.src = _this74.el.parentNode.href = getImgNameLink(_this74.el).href = newSrc;
 
-          if (!_this73.isVideo) {
+          if (!_this74.isVideo) {
             $q('a', fullEl).href = newSrc;
           }
         });
@@ -22795,7 +23040,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "expandImg",
       value: function expandImg(inPost, e) {
-        var _this74 = this;
+        var _this75 = this;
 
         if (e && !e.bubbles) {
           return;
@@ -22831,7 +23076,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._fullEl = this.getFullImg(true, null, null);
 
         this._fullEl.addEventListener('click', function (e) {
-          return _this74.collapseImg(e);
+          return _this75.collapseImg(e);
         }, true);
 
         this.srcBtnEvents(this);
@@ -22883,7 +23128,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getFullImg",
       value: function getFullImg(inPost, onsizechange, onrotate) {
-        var _this75 = this;
+        var _this76 = this;
 
         var wrapEl, name, origSrc;
 
@@ -22908,8 +23153,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           wrapEl = $add("<div class=\"de-fullimg-wrap".concat(wrapClass, "\">\n\t\t\t\t").concat(waitEl, "\n\t\t\t\t<img class=\"de-fullimg\" src=\"").concat(src, "\" alt=\"").concat(src, "\">\n\t\t\t\t<div class=\"de-fullimg-info\">").concat(imgNameEl, "</a></div>\n\t\t\t</div>"));
           var imgEl = $q('.de-fullimg', wrapEl);
 
-          imgEl.onload = imgEl.onerror = function (_ref33) {
-            var img = _ref33.target;
+          imgEl.onload = imgEl.onerror = function (_ref37) {
+            var img = _ref37.target;
 
             if (!(img.naturalHeight + img.naturalWidth)) {
               if (!img.onceLoaded) {
@@ -22923,11 +23168,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             var newW = img.naturalWidth,
                 newH = img.naturalHeight;
-            var ar = _this75._size ? _this75._size[1] / _this75._size[0] : newH / newW;
+            var ar = _this76._size ? _this76._size[1] / _this76._size[0] : newH / newW;
             var isRotated = !img.scrollWidth ? false : img.scrollHeight / img.scrollWidth > 1 ? ar < 1 : ar > 1;
 
-            if (!_this75._size || isRotated) {
-              _this75._size = isRotated ? [newH, newW] : [newW, newH];
+            if (!_this76._size || isRotated) {
+              _this76._size = isRotated ? [newH, newW] : [newW, newH];
             }
 
             var parentEl = img.parentNode.parentNode;
@@ -22971,8 +23216,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         videoEl.addEventListener('ended', function () {
           return AttachedImage.viewer.navigate(true, true);
         });
-        videoEl.addEventListener('error', function (_ref34) {
-          var el = _ref34.target;
+        videoEl.addEventListener('error', function (_ref38) {
+          var el = _ref38.target;
 
           if (!el.onceLoaded) {
             el.load();
@@ -22981,9 +23226,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
 
         if (!this._size) {
-          videoEl.addEventListener('loadedmetadata', function (_ref35) {
-            var el = _ref35.target;
-            _this75._size = [el.videoWidth, el.videoHeight];
+          videoEl.addEventListener('loadedmetadata', function (_ref39) {
+            var el = _ref39.target;
+            _this76._size = [el.videoWidth, el.videoHeight];
             onsizechange(wrapEl);
           });
         } 
@@ -22992,9 +23237,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         setTimeout(function () {
           return videoEl.dispatchEvent(new CustomEvent('volumechange'));
         }, 150);
-        videoEl.addEventListener('volumechange', function (_ref36) {
-          var el = _ref36.target,
-              isTrusted = _ref36.isTrusted;
+        videoEl.addEventListener('volumechange', function (_ref40) {
+          var el = _ref40.target,
+              isTrusted = _ref40.isTrusted;
           var val = el.muted ? 0 : Math.round(el.volume * 100);
 
           if (isTrusted && val !== Cfg.webmVolume) {
@@ -23043,7 +23288,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             var loadedTitle = decodeURIComponent(escape(str));
 
-            _this75.el.setAttribute('de-metatitle', loadedTitle);
+            _this76.el.setAttribute('de-metatitle', loadedTitle);
 
             if (str) {
               $q('.de-webm-title', wrapEl).textContent = videoEl.title = loadedTitle.replaceAll('.', ' ');
@@ -23084,10 +23329,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     }, {
       key: "srcBtnEvents",
-      value: function srcBtnEvents(_ref37) {
-        var _this76 = this;
+      value: function srcBtnEvents(_ref41) {
+        var _this77 = this;
 
-        var _fullEl = _ref37._fullEl;
+        var _fullEl = _ref41._fullEl;
 
         if (!Cfg.imgSrcBtns) {
           return;
@@ -23096,15 +23341,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var srcBtnEl = $q('.de-btn-img', _fullEl);
         srcBtnEl.addEventListener('mouseover', function () {
           return srcBtnEl.odelay = setTimeout(function () {
-            var menuHtml = !_this76.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
-            new Menu(srcBtnEl, menuHtml, !_this76.isVideo ? emptyFn : function (optiontEl) {
+            var menuHtml = !_this77.isVideo ? Menu.getMenuImg(srcBtnEl) : Menu.getMenuImg(srcBtnEl, true) + "<span class=\"de-menu-item de-menu-getframe\">".concat(Lng.getFrameLinks[lang], "</span>");
+            new Menu(srcBtnEl, menuHtml, !_this77.isVideo ? emptyFn : function (optiontEl) {
               if (!optiontEl.classList.contains('de-menu-getframe')) {
                 return;
               }
 
               ContentLoader.getDataFromImg($q('video', _fullEl)).then(function (arr) {
                 $popup('upload', Lng.sending[lang], true);
-                var name = cutFileExt(_this76.name) + '.png';
+                var name = cutFileExt(_this77.name) + '.png';
                 var blob = new Blob([arr], {
                   type: 'image/png'
                 });
@@ -23442,11 +23687,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return value;
     },
 
-    _genImgHash: function _genImgHash(_ref38) {
-      var _ref39 = _slicedToArray(_ref38, 3),
-          arrBuf = _ref39[0],
-          oldw = _ref39[1],
-          oldh = _ref39[2];
+    _genImgHash: function _genImgHash(_ref42) {
+      var _ref43 = _slicedToArray(_ref42, 3),
+          arrBuf = _ref43[0],
+          oldw = _ref43[1],
+          oldh = _ref43[2];
 
       var buf = new Uint8Array(arrBuf);
       var size = oldw * oldh;
@@ -23485,31 +23730,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         hash: hash
       };
     },
-    _getHashHelper: function _getHashHelper(_ref40) {
-      var _this77 = this;
+    _getHashHelper: function _getHashHelper(_ref44) {
+      var _this78 = this;
 
-      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee15() {
+      return _asyncToGenerator( _regeneratorRuntime().mark(function _callee20() {
         var el, src, data, val, w, h, cnv, ctx, buffer;
-        return _regeneratorRuntime().wrap(function _callee15$(_context20) {
+        return _regeneratorRuntime().wrap(function _callee20$(_context25) {
           while (1) {
-            switch (_context20.prev = _context20.next) {
+            switch (_context25.prev = _context25.next) {
               case 0:
-                el = _ref40.el, src = _ref40.src;
+                el = _ref44.el, src = _ref44.src;
 
-                if (!(src in _this77._storage)) {
-                  _context20.next = 3;
+                if (!(src in _this78._storage)) {
+                  _context25.next = 3;
                   break;
                 }
 
-                return _context20.abrupt("return", _this77._storage[src]);
+                return _context25.abrupt("return", _this78._storage[src]);
 
               case 3:
                 if (el.complete) {
-                  _context20.next = 6;
+                  _context25.next = 6;
                   break;
                 }
 
-                _context20.next = 6;
+                _context25.next = 6;
                 return new Promise(function (resolve) {
                   return el.addEventListener('load', function () {
                     return resolve();
@@ -23520,16 +23765,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 el.removeAttribute('loading');
 
                 if (!(el.naturalWidth + el.naturalHeight === 0)) {
-                  _context20.next = 9;
+                  _context25.next = 9;
                   break;
                 }
 
-                return _context20.abrupt("return", -1);
+                return _context25.abrupt("return", -1);
 
               case 9:
                 val = -1;
                 w = el.naturalWidth, h = el.naturalHeight;
-                cnv = _this77._canvas;
+                cnv = _this78._canvas;
                 cnv.width = w;
                 cnv.height = h;
                 ctx = cnv.getContext('2d');
@@ -23537,34 +23782,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 buffer = ctx.getImageData(0, 0, w, h).data.buffer;
 
                 if (!buffer) {
-                  _context20.next = 22;
+                  _context25.next = 22;
                   break;
                 }
 
-                _context20.next = 20;
+                _context25.next = 20;
                 return new Promise(function (resolve) {
-                  return _this77._workers.runWorker([buffer, w, h], [buffer], function (val) {
+                  return _this78._workers.runWorker([buffer, w, h], [buffer], function (val) {
                     return resolve(val);
                   });
                 });
 
               case 20:
-                data = _context20.sent;
+                data = _context25.sent;
 
                 if (data && 'hash' in data) {
                   val = data.hash;
                 }
 
               case 22:
-                _this77._storage[src] = val;
-                return _context20.abrupt("return", val);
+                _this78._storage[src] = val;
+                return _context25.abrupt("return", val);
 
               case 24:
               case "end":
-                return _context20.stop();
+                return _context25.stop();
             }
           }
-        }, _callee15);
+        }, _callee20);
       }))();
     }
   });
@@ -23701,9 +23946,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: _regeneratorRuntime().mark(function getRefLinks(i, thrUrl) {
         var msg, links, _i17, len, link, tc, lNum, url;
 
-        return _regeneratorRuntime().wrap(function getRefLinks$(_context21) {
+        return _regeneratorRuntime().wrap(function getRefLinks$(_context26) {
           while (1) {
-            switch (_context21.prev = _context21.next) {
+            switch (_context26.prev = _context26.next) {
               case 0:
                 msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
                 links = $Q('a', msg);
@@ -23711,7 +23956,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 if (!(_i17 < len)) {
-                  _context21.next = 16;
+                  _context26.next = 16;
                   break;
                 }
 
@@ -23719,18 +23964,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 tc = link.textContent;
 
                 if (!(tc[0] === '>' && tc[1] === '>')) {
-                  _context21.next = 13;
+                  _context26.next = 13;
                   break;
                 }
 
                 lNum = parseInt(tc.substr(2), 10);
 
                 if (!lNum) {
-                  _context21.next = 13;
+                  _context26.next = 13;
                   break;
                 }
 
-                _context21.next = 11;
+                _context26.next = 11;
                 return [link, lNum];
 
               case 11:
@@ -23742,12 +23987,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 13:
                 ++_i17;
-                _context21.next = 3;
+                _context26.next = 3;
                 break;
 
               case 16:
               case "end":
-                return _context21.stop();
+                return _context26.stop();
             }
           }
         }, getRefLinks, this);
@@ -23756,32 +24001,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
         var banEls, i, len, banEl, postEl;
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context22) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context27) {
           while (1) {
-            switch (_context22.prev = _context22.next) {
+            switch (_context27.prev = _context27.next) {
               case 0:
                 banEls = $Q(aib.qBan, this._form);
                 i = 0, len = banEls.length;
 
               case 2:
                 if (!(i < len)) {
-                  _context22.next = 10;
+                  _context27.next = 10;
                   break;
                 }
 
                 banEl = banEls[i];
                 postEl = aib.getPostElOfEl(banEl);
-                _context22.next = 7;
+                _context27.next = 7;
                 return [1, postEl ? aib.getPNum(postEl) : null, doc.adoptNode(banEl)];
 
               case 7:
                 ++i;
-                _context22.next = 2;
+                _context27.next = 2;
                 break;
 
               case 10:
               case "end":
-                return _context22.stop();
+                return _context27.stop();
             }
           }
         }, bannedPostsData, this);
@@ -23934,12 +24179,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context23) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context28) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context28.prev = _context28.next) {
               case 0:
               case "end":
-                return _context23.stop();
+                return _context28.stop();
             }
           }
         }, bannedPostsData);
@@ -24091,12 +24336,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "bannedPostsData",
       value: _regeneratorRuntime().mark(function bannedPostsData() {
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context24) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context29) {
           while (1) {
-            switch (_context24.prev = _context24.next) {
+            switch (_context29.prev = _context29.next) {
               case 0:
               case "end":
-                return _context24.stop();
+                return _context29.stop();
             }
           }
         }, bannedPostsData);
@@ -24214,45 +24459,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       value: _regeneratorRuntime().mark(function bannedPostsData() {
         var p, _iterator29, _step29, _step29$value, banned, num;
 
-        return _regeneratorRuntime().wrap(function bannedPostsData$(_context25) {
+        return _regeneratorRuntime().wrap(function bannedPostsData$(_context30) {
           while (1) {
-            switch (_context25.prev = _context25.next) {
+            switch (_context30.prev = _context30.next) {
               case 0:
                 p = this._isNew ? 'post__' : '';
                 _iterator29 = _createForOfIteratorHelperLoose(this._posts);
 
               case 2:
                 if ((_step29 = _iterator29()).done) {
-                  _context25.next = 15;
+                  _context30.next = 15;
                   break;
                 }
 
                 _step29$value = _step29.value, banned = _step29$value.banned, num = _step29$value.num;
-                _context25.t0 = banned;
-                _context25.next = _context25.t0 === 1 ? 7 : _context25.t0 === 2 ? 10 : 13;
+                _context30.t0 = banned;
+                _context30.next = _context30.t0 === 1 ? 7 : _context30.t0 === 2 ? 10 : 13;
                 break;
 
               case 7:
-                _context25.next = 9;
+                _context30.next = 9;
                 return [1, num, $add("<span class=\"".concat(p, "pomyanem\">(\u0410\u0432\u0442\u043E\u0440 \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0441\u0442\u0430 \u0431\u044B\u043B \u0437\u0430\u0431\u0430\u043D\u0435\u043D.)</span>"))];
 
               case 9:
-                return _context25.abrupt("break", 13);
+                return _context30.abrupt("break", 13);
 
               case 10:
-                _context25.next = 12;
+                _context30.next = 12;
                 return [2, num, $add("<span class=\"".concat(p, "pomyanem\">") + '(Автор этого поста был предупрежден.)</span>')];
 
               case 12:
-                return _context25.abrupt("break", 13);
+                return _context30.abrupt("break", 13);
 
               case 13:
-                _context25.next = 2;
+                _context30.next = 2;
                 break;
 
               case 15:
               case "end":
-                return _context25.stop();
+                return _context30.stop();
             }
           }
         }, bannedPostsData, this);
@@ -24600,7 +24845,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var Thread = function () {
     function Thread(el, num, prev, form) {
-      var _this78 = this;
+      var _this79 = this;
 
       _classCallCheck(this, Thread);
 
@@ -24642,14 +24887,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this.btns = $bEnd(el, "<div class=\"de-thr-buttons\">".concat(Post.getPostBtns(true, true), "\n\t\t\t<span class=\"de-thr-updater\">[<a class=\"de-thr-updater-link de-abtn\" href=\"#\"></a>") + (!aib.t ? ']</span>' : '<span id="de-updater-count" style="display: none;"></span>]</span>') + '</div>');
       ['click', 'mouseover'].forEach(function (e) {
-        return _this78.btns.addEventListener(e, _this78);
+        return _this79.btns.addEventListener(e, _this79);
       });
 
-      var _ref41 = _toConsumableArray(this.btns.children);
+      var _ref45 = _toConsumableArray(this.btns.children);
 
-      this.btnHide = _ref41[0];
-      this.btnFav = _ref41[2];
-      this.btnUpd = _ref41[3];
+      this.btnHide = _ref45[0];
+      this.btnFav = _ref45[2];
+      this.btnUpd = _ref45[3];
 
       if (!aib.t && Cfg.hideReplies) {
         this.btnReplies = $bEnd(this.btns, ' <span class="de-btn-replies">[<a class="de-abtn" href="#"></a>]</span>');
@@ -24828,7 +25073,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "loadPosts",
       value: function loadPosts(task) {
-        var _this79 = this;
+        var _this80 = this;
 
         var isSmartScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var isInformUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -24838,7 +25083,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         return ajaxPostsLoad(aib.b, this.num, false).then(function (pBuilder) {
-          return _this79._loadFromBuilder(task, isSmartScroll, pBuilder);
+          return _this80._loadFromBuilder(task, isSmartScroll, pBuilder);
         }, function (err) {
           return $popup('load-thr', getErrorMessage(err));
         });
@@ -24847,10 +25092,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "loadNewPosts",
       value: function loadNewPosts() {
-        var _this80 = this;
+        var _this81 = this;
 
         return ajaxPostsLoad(aib.b, this.num, true).then(function (pBuilder) {
-          return pBuilder ? _this80._loadNewFromBuilder(pBuilder) : {
+          return pBuilder ? _this81._loadNewFromBuilder(pBuilder) : {
             newCount: 0,
             locked: false
           };
@@ -25325,7 +25570,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_toggleReplies",
       value: function _toggleReplies() {
-        var _this81 = this;
+        var _this82 = this;
 
         var isHide = !this.last.isOmitted;
         var post = this.op;
@@ -25339,7 +25584,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.btnReplies.firstElementChild.className = "".concat(isHide ? 'de-replies-show' : 'de-replies-hide', " de-abtn");
 
         _toConsumableArray(this.btns.children).forEach(function (el) {
-          return el !== _this81.btnReplies && $toggle(el, !isHide);
+          return el !== _this82.btnReplies && $toggle(el, !isHide);
         });
 
         $del($q(aib.qOmitted + ', .de-omitted', this.el));
@@ -25381,12 +25626,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     handleEvent: function handleEvent(e) {
-      var _this82 = this;
+      var _this83 = this;
 
       switch (e.type) {
         case 'scroll':
           deWindow.requestAnimationFrame(function () {
-            return _this82._checkThreads();
+            return _this83._checkThreads();
           });
           break;
 
@@ -25407,11 +25652,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     initThrNav: function initThrNav() {
-      var _this83 = this;
+      var _this84 = this;
 
       var el = $bEnd(docBody, "\n\t\t<div id=\"de-thr-navpanel\" class=\"de-thr-navpanel-hidden\" style=\"display: none;\">\n\t\t\t<svg id=\"de-thr-navarrow\"><use xlink:href=\"#de-symbol-thr-nav-arrow\"/></svg>\n\t\t\t<div id=\"de-thr-navup\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-up\"/></svg>\n\t\t\t</div>\n\t\t\t<div id=\"de-thr-navdown\">\n\t\t\t\t<svg viewBox=\"0 0 24 24\"><use xlink:href=\"#de-symbol-thr-nav-down\"/></svg>\n\t\t\t</div>\n\t\t</div>");
       ['mouseover', 'mouseout', 'click'].forEach(function (e) {
-        return el.addEventListener(e, _this83, true);
+        return el.addEventListener(e, _this84, true);
       });
       this._el = el;
       this._thrs = new Set();
@@ -25445,28 +25690,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     _expandCollapse: function _expandCollapse(isExpand, rt) {
-      var _this84 = this;
+      var _this85 = this;
 
       if (!rt || !this._el.contains(rt.farthestViewportElement || rt)) {
         clearTimeout(this._toggleTO);
         this._toggleTO = setTimeout(function () {
-          return _this84._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
+          return _this85._el.classList.toggle('de-thr-navpanel-hidden', !isExpand);
         }, Cfg.linksOver);
       }
     },
     _findCurrentThread: function _findCurrentThread() {
-      var _this85 = this;
+      var _this86 = this;
 
       Object.defineProperty(this, '_findCurrentThread', {
         value: 'elementsFromPoint' in doc ? function () {
           return doc.elementsFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2).find(function (el) {
-            return _this85._thrs.has(el);
+            return _this86._thrs.has(el);
           });
         } : function () {
           var el = doc.elementFromPoint(Post.sizing.wWidth / 2, Post.sizing.wHeight / 2);
 
           while (el) {
-            if (_this85._thrs.has(el)) {
+            if (_this86._thrs.has(el)) {
               return el;
             }
 
@@ -25520,7 +25765,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       playAudio: function playAudio() {
-        var _this86 = this;
+        var _this87 = this;
 
         this.stopAudio();
 
@@ -25531,7 +25776,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         this._playInterval = setInterval(function () {
-          return _this86._el.play();
+          return _this87._el.play();
         }, this.repeatMS);
       },
       stopAudio: function stopAudio() {
@@ -25554,11 +25799,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     };
     var counter = {
       count: function count(delayMS, useCounter, callback) {
-        var _this87 = this;
+        var _this88 = this;
 
         if (!this._enabled || !useCounter) {
           this._countingTO = setTimeout(function () {
-            _this87._countingTO = null;
+            _this88._countingTO = null;
             callback();
           }, delayMS);
           return;
@@ -25572,11 +25817,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           seconds--;
 
           if (seconds === 0) {
-            _this87._stopCounter();
+            _this88._stopCounter();
 
             callback();
           } else {
-            _this87._set(seconds);
+            _this88._set(seconds);
           }
         }, 1e3);
       },
@@ -25635,7 +25880,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       },
 
       initIcons: function initIcons() {
-        var _this88 = this;
+        var _this89 = this;
 
         if (this._isInited) {
           return;
@@ -25646,7 +25891,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         icon.onload = function (e) {
           try {
-            _this88._initIconsHelper(e.target);
+            _this89._initIconsHelper(e.target);
           } catch (err) {
             console.warn('Icon error:', err);
           }
@@ -25664,7 +25909,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         icon.src = this._iconEl.href;
       },
       startBlink: function startBlink(isError) {
-        var _this89 = this;
+        var _this90 = this;
 
         var iconUrl = !this._hasIcons ? this._emptyIcon : isError ? this._iconError : repliesToYou.size ? this._getIconYou(newPosts) : this._getIconNew(newPosts);
 
@@ -25678,9 +25923,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._currentIcon = iconUrl;
         this._blinkInterv = setInterval(function () {
-          _this89._isOrigIcon = !_this89._isOrigIcon;
+          _this90._isOrigIcon = !_this90._isOrigIcon;
 
-          _this89._setIcon(_this89._isOrigIcon ? _this89.originalIcon : _this89._currentIcon);
+          _this90._setIcon(_this90._isOrigIcon ? _this90.originalIcon : _this90._currentIcon);
         }, this._blinkMS);
       },
       stopBlink: function stopBlink() {
@@ -25768,7 +26013,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return canvas.toDataURL('image/png');
       },
       _initIconsHelper: function _initIconsHelper(icon) {
-        var _this90 = this;
+        var _this91 = this;
 
         var canvas = doc.createElement('canvas');
         var ctx = canvas.getContext('2d');
@@ -25798,12 +26043,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         this._getIconNew = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this90._iconsNew[id] || (_this90._iconsNew[id] = _this90._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
+          return _this91._iconsNew[id] || (_this91._iconsNew[id] = _this91._drawIconsNewYou(ctx, canvas, id, iconNewCircle, scale));
         };
 
         this._getIconYou = function (newPosts) {
           var id = newPosts < 10 ? newPosts : 0;
-          return _this90._iconsYou[id] || (_this90._iconsYou[id] = _this90._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
+          return _this91._iconsYou[id] || (_this91._iconsYou[id] = _this91._drawIconsNewYou(ctx, canvas, id, iconYouCircle, scale));
         };
 
         this._hasIcons = true;
@@ -25840,7 +26085,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       },
       showNotif: function showNotif() {
-        var _this91 = this;
+        var _this92 = this;
 
         var lngQuantity = function lngQuantity(num) {
           var new10 = num % 10;
@@ -25857,7 +26102,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         notif.onshow = function () {
           return setTimeout(function () {
-            return notif === _this91._notifEl && _this91.closeNotif();
+            return notif === _this92._notifEl && _this92.closeNotif();
           }, 12e3);
         };
 
@@ -25868,7 +26113,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         notif.onerror = function () {
           deWindow.focus();
 
-          _this91._requestPermission();
+          _this92._requestPermission();
         };
 
         this._notifEl = notif;
@@ -25877,14 +26122,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _granted: true,
       _notifEl: null,
       _requestPermission: function _requestPermission() {
-        var _this92 = this;
+        var _this93 = this;
 
         this._granted = false;
         Notification.requestPermission(function (state) {
           if (state.toLowerCase() === 'denied') {
             saveCfg('desktNotif', 0);
           } else {
-            _this92._granted = true;
+            _this93._granted = true;
           }
         });
       }
@@ -26015,7 +26260,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._makeStep();
       },
       _makeStep: function _makeStep() {
-        var _this93 = this;
+        var _this94 = this;
 
         var needSleep = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -26025,7 +26270,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               if (needSleep) {
                 this._state = 1;
                 counter.count(this._delay, !doc.hidden, function () {
-                  return _this93._makeStep();
+                  return _this94._makeStep();
                 });
                 return;
               }
@@ -26034,12 +26279,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 1:
               counter.setWait();
               this._state = 2;
-              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref42) {
-                var newCount = _ref42.newCount,
-                    locked = _ref42.locked;
-                return _this93._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
+              this._loadPromise = Thread.first.loadNewPosts().then(function (_ref46) {
+                var newCount = _ref46.newCount,
+                    locked = _ref46.locked;
+                return _this94._handleNewPosts(newCount, locked ? AjaxError.Locked : AjaxError.Success);
               }, function (err) {
-                return _this93._handleNewPosts(0, err);
+                return _this94._handleNewPosts(0, err);
               });
               return;
 
@@ -27226,17 +27471,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super10 = _createSuper(Kusaba);
 
       function Kusaba(prot, dm) {
-        var _this94;
+        var _this95;
 
         _classCallCheck(this, Kusaba);
 
-        _this94 = _super10.call(this, prot, dm);
-        _this94.qError = 'h1, h2, div[style*="1.25em"]';
-        _this94.qFormRedir = 'input[name="redirecttothread"][value="1"]';
-        _this94.formHeaders = true;
-        _this94.formParent = 'replythread';
-        _this94.markupBB = true;
-        return _this94;
+        _this95 = _super10.call(this, prot, dm);
+        _this95.qError = 'h1, h2, div[style*="1.25em"]';
+        _this95.qFormRedir = 'input[name="redirecttothread"][value="1"]';
+        _this95.formHeaders = true;
+        _this95.formParent = 'replythread';
+        _this95.markupBB = true;
+        return _this95;
       }
 
       _createClass(Kusaba, [{
@@ -27288,36 +27533,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super11 = _createSuper(Tinyboard);
 
       function Tinyboard(prot, dm) {
-        var _this95;
+        var _this96;
 
         _classCallCheck(this, Tinyboard);
 
-        _this95 = _super11.call(this, prot, dm);
-        _this95.cReply = 'post reply';
-        _this95.qClosed = '.fa-lock';
-        _this95.qDelForm = 'form[name*="postcontrols"]';
-        _this95.qForm = 'form[name="post"]';
-        _this95.qFormPassw = 'input[name="password"]:not([type="hidden"])';
-        _this95.qFormRedir = null;
-        _this95.qOmitted = '.omitted';
-        _this95.qOPostEnd = '.post.reply';
-        _this95.qPages = '.pages';
-        _this95.qPostHeader = '.intro';
-        _this95.qPostImgInfo = '.fileinfo';
-        _this95.qPostMsg = '.body';
-        _this95.qPostName = '.name';
-        _this95.qPostRef = '.post_no + a';
-        _this95.qPostSubj = '.subject';
-        _this95.qPostTrip = '.trip';
-        _this95.qTrunc = '.toolong';
-        _this95.firstPage = 1;
-        _this95.formParent = 'thread';
-        _this95.hasCatalog = true;
-        _this95.hasRefererErr = true;
-        _this95.jsonSubmit = true;
-        _this95.timePattern = 'nn+dd+yy++w++hh+ii+ss';
-        _this95._origInputs = null;
-        return _this95;
+        _this96 = _super11.call(this, prot, dm);
+        _this96.cReply = 'post reply';
+        _this96.qClosed = '.fa-lock';
+        _this96.qDelForm = 'form[name*="postcontrols"]';
+        _this96.qForm = 'form[name="post"]';
+        _this96.qFormPassw = 'input[name="password"]:not([type="hidden"])';
+        _this96.qFormRedir = null;
+        _this96.qOmitted = '.omitted';
+        _this96.qOPostEnd = '.post.reply';
+        _this96.qPages = '.pages';
+        _this96.qPostHeader = '.intro';
+        _this96.qPostImgInfo = '.fileinfo';
+        _this96.qPostMsg = '.body';
+        _this96.qPostName = '.name';
+        _this96.qPostRef = '.post_no + a';
+        _this96.qPostSubj = '.subject';
+        _this96.qPostTrip = '.trip';
+        _this96.qTrunc = '.toolong';
+        _this96.firstPage = 1;
+        _this96.formParent = 'thread';
+        _this96.hasCatalog = true;
+        _this96.hasRefererErr = true;
+        _this96.jsonSubmit = true;
+        _this96.timePattern = 'nn+dd+yy++w++hh+ii+ss';
+        _this96._origInputs = null;
+        return _this96;
       }
 
       _createClass(Tinyboard, [{
@@ -27338,16 +27583,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "changeReplyMode",
         value: function () {
-          var _changeReplyMode = _asyncToGenerator( _regeneratorRuntime().mark(function _callee16(form, tNum) {
-            var _this96 = this;
+          var _changeReplyMode = _asyncToGenerator( _regeneratorRuntime().mark(function _callee21(form, tNum) {
+            var _this97 = this;
 
             var pageInp, query, errFn;
-            return _regeneratorRuntime().wrap(function _callee16$(_context26) {
+            return _regeneratorRuntime().wrap(function _callee21$(_context31) {
               while (1) {
-                switch (_context26.prev = _context26.next) {
+                switch (_context31.prev = _context31.next) {
                   case 0:
                     if (!(!this._origInputs && !$q('input[name="hash"]', form))) {
-                      _context26.next = 5;
+                      _context31.next = 5;
                       break;
                     }
 
@@ -27360,26 +27605,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       form.insertAdjacentHTML('beforeend', '<input name="page" value="1" type="hidden">');
                     }
 
-                    return _context26.abrupt("return");
+                    return _context31.abrupt("return");
 
                   case 5:
                     query = 'div[style="display:none"], input[style="display:none"], ' + 'span[style="display:none"], textarea[style="display:none"], ' + 'input[type="hidden"]:not(.de-input-hidden)';
 
                     if ($q('input[name="thread"]', form)) {
-                      _context26.next = 11;
+                      _context31.next = 11;
                       break;
                     }
 
                     this._origInputs = [doc.createElement('div'), pr.subm.value];
                     $Q(query, form).forEach(function (el) {
-                      return _this96._origInputs[0].append(el);
+                      return _this97._origInputs[0].append(el);
                     });
-                    _context26.next = 17;
+                    _context31.next = 17;
                     break;
 
                   case 11:
                     if (tNum) {
-                      _context26.next = 17;
+                      _context31.next = 17;
                       break;
                     }
 
@@ -27387,7 +27632,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     $delAll(query, form);
                     form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
                     this._origInputs = null;
-                    return _context26.abrupt("return");
+                    return _context31.abrupt("return");
 
                   case 17:
                     errFn = function errFn() {
@@ -27396,16 +27641,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     };
 
                     $popup('load-form', Lng.loading[lang], true);
-                    _context26.next = 21;
+                    _context31.next = 21;
                     return ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(function (loadedDoc) {
-                      var loadedForm = $q(_this96.qForm, loadedDoc);
+                      var loadedForm = $q(_this97.qForm, loadedDoc);
 
                       if (!loadedForm) {
                         errFn();
                         return;
                       }
 
-                      pr.subm.value = $q(_this96.qFormSubm, loadedDoc).value;
+                      pr.subm.value = $q(_this97.qFormSubm, loadedDoc).value;
                       $delAll(query, form);
                       $Q(query, loadedForm).forEach(function (el) {
                         return form.append(doc.adoptNode(el));
@@ -27415,13 +27660,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 21:
                   case "end":
-                    return _context26.stop();
+                    return _context31.stop();
                 }
               }
-            }, _callee16, this);
+            }, _callee21, this);
           }));
 
-          function changeReplyMode(_x16, _x17) {
+          function changeReplyMode(_x23, _x24) {
             return _changeReplyMode.apply(this, arguments);
           }
 
@@ -27446,10 +27691,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "fixVideo",
         value: function fixVideo(isPost, data) {
-          var _this97 = this;
+          var _this98 = this;
 
           return Array.from($Q('.video-container, #ytplayer', isPost ? data.el : data), function (el) {
-            var value = [isPost ? data : _this97.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
+            var value = [isPost ? data : _this98.getPostOfEl(el), el.id === 'ytplayer' ? el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true];
             el.remove();
             return value;
           });
@@ -27467,9 +27712,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref43) {
-          var error = _ref43.error,
-              id = _ref43.id;
+        value: function getSubmitData(_ref47) {
+          var error = _ref47.error,
+              id = _ref47.id;
           return {
             error: error,
             postNum: id && +id
@@ -27513,15 +27758,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super12 = _createSuper(Vichan);
 
       function Vichan(prot, dm) {
-        var _this98;
+        var _this99;
 
         _classCallCheck(this, Vichan);
 
-        _this98 = _super12.call(this, prot, dm);
-        _this98.qDelPassw = '#password';
-        _this98.qPostImg = '.post-image[alt]:not(.deleted)';
-        _this98.multiFile = true;
-        return _this98;
+        _this99 = _super12.call(this, prot, dm);
+        _this99.qDelPassw = '#password';
+        _this99.qPostImg = '.post-image[alt]:not(.deleted)';
+        _this99.multiFile = true;
+        return _this99;
       }
 
       _createClass(Vichan, [{
@@ -27579,15 +27824,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super13 = _createSuper(TinyIB);
 
       function TinyIB(prot, dm) {
-        var _this99;
+        var _this100;
 
         _classCallCheck(this, TinyIB);
 
-        _this99 = _super13.call(this, prot, dm);
-        _this99.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
-        _this99.qPostImg = 'img.thumb, video.thumb';
-        _this99.qPostMsg = '.message';
-        return _this99;
+        _this100 = _super13.call(this, prot, dm);
+        _this100.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
+        _this100.qPostImg = 'img.thumb, video.thumb';
+        _this100.qPostMsg = '.message';
+        return _this100;
       }
 
       _createClass(TinyIB, [{
@@ -27647,16 +27892,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super14 = _createSuper(newTinyIB);
 
       function newTinyIB(prot, dm) {
-        var _this100;
+        var _this101;
 
         _classCallCheck(this, newTinyIB);
 
-        _this100 = _super14.call(this, prot, dm);
-        _this100.hasCatalog = true;
-        _this100.markupBB = true;
-        _this100.multiFile = true;
-        _this100.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-        return _this100;
+        _this101 = _super14.call(this, prot, dm);
+        _this101.hasCatalog = true;
+        _this101.markupBB = true;
+        _this101.multiFile = true;
+        _this101.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+        return _this101;
       }
 
       _createClass(newTinyIB, [{
@@ -27693,39 +27938,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super15 = _createSuper(Lynxchan);
 
       function Lynxchan(prot, dm) {
-        var _this101;
+        var _this102;
 
         _classCallCheck(this, Lynxchan);
 
-        _this101 = _super15.call(this, prot, dm);
-        _this101.cReply = 'innerPost';
-        _this101.qDelBtn = '#deleteFormButton';
-        _this101.qDelForm = 'form[action$="contentActions.js"]';
-        _this101.qError = '#errorLabel, #labelMessage';
-        _this101.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
-        _this101.qFormPassw = 'input[name="password"]';
-        _this101.qFormRules = '.form-post > .small';
-        _this101.qFormSubm = '#formButton, #de-postform-submit';
-        _this101.qOmitted = '.labelOmission';
-        _this101.qOPost = '.innerOP';
-        _this101.qOPostEnd = '.divPosts';
-        _this101.qPages = '#divPages';
-        _this101.qPost = '.innerPost, .markedPost';
-        _this101.qPostHeader = '.postInfo, .de-post-btns';
-        _this101.qPostImg = '.imgLink > img, img[src*="/.media/"]';
-        _this101.qPostImgInfo = '.uploadDetails';
-        _this101.qPostMsg = '.divMessage';
-        _this101.qPostRef = '.linkQuote';
-        _this101.qPostSubj = '.labelSubject';
-        _this101.qPostsParent = '.divPosts';
-        _this101.qTrunc = '.contentOmissionIndicator';
-        _this101.firstPage = 1;
-        _this101.formParent = 'threadId';
-        _this101.hasCatalog = true;
-        _this101.jsonSubmit = true;
-        _this101.multiFile = true;
-        _this101._hasNewAPI = false;
-        return _this101;
+        _this102 = _super15.call(this, prot, dm);
+        _this102.cReply = 'innerPost';
+        _this102.qDelBtn = '#deleteFormButton';
+        _this102.qDelForm = 'form[action$="contentActions.js"]';
+        _this102.qError = '#errorLabel, #labelMessage';
+        _this102.qForm = '.form-post, form[action$="newThread.js"], form[action$="replyThread.js"]';
+        _this102.qFormPassw = 'input[name="password"]';
+        _this102.qFormRules = '.form-post > .small';
+        _this102.qFormSubm = '#formButton, #de-postform-submit';
+        _this102.qOmitted = '.labelOmission';
+        _this102.qOPost = '.innerOP';
+        _this102.qOPostEnd = '.divPosts';
+        _this102.qPages = '#divPages';
+        _this102.qPost = '.innerPost, .markedPost';
+        _this102.qPostHeader = '.postInfo, .de-post-btns';
+        _this102.qPostImg = '.imgLink > img, img[src*="/.media/"]';
+        _this102.qPostImgInfo = '.uploadDetails';
+        _this102.qPostMsg = '.divMessage';
+        _this102.qPostRef = '.linkQuote';
+        _this102.qPostSubj = '.labelSubject';
+        _this102.qPostsParent = '.divPosts';
+        _this102.qTrunc = '.contentOmissionIndicator';
+        _this102.firstPage = 1;
+        _this102.formParent = 'threadId';
+        _this102.hasCatalog = true;
+        _this102.jsonSubmit = true;
+        _this102.multiFile = true;
+        _this102._hasNewAPI = false;
+        return _this102;
       }
 
       _createClass(Lynxchan, [{
@@ -27804,9 +28049,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref44) {
-          var status = _ref44.status,
-              data = _ref44.data;
+        value: function getSubmitData(_ref48) {
+          var status = _ref48.status,
+              data = _ref48.data;
           return {
             error: status === 'error' ? data : null,
             postNum: status === 'ok' ? +data : null
@@ -27862,14 +28107,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "sendHTML5Post",
         value: function () {
-          var _sendHTML5Post = _asyncToGenerator( _regeneratorRuntime().mark(function _callee19(form, data, needProgress, hasFiles) {
+          var _sendHTML5Post = _asyncToGenerator( _regeneratorRuntime().mark(function _callee24(form, data, needProgress, hasFiles) {
             var ajaxParams, getBase64, getCookies, dataObj, files, i, len, file, cookieObj, task, url;
-            return _regeneratorRuntime().wrap(function _callee19$(_context29) {
+            return _regeneratorRuntime().wrap(function _callee24$(_context34) {
               while (1) {
-                switch (_context29.prev = _context29.next) {
+                switch (_context34.prev = _context34.next) {
                   case 0:
                     if (!this._hasNewAPI) {
-                      _context29.next = 4;
+                      _context34.next = 4;
                       break;
                     }
 
@@ -27877,17 +28122,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       data: data,
                       method: 'POST'
                     };
-                    _context29.next = 27;
+                    _context34.next = 27;
                     break;
 
                   case 4:
                     getBase64 = function () {
-                      var _ref45 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee17(file) {
-                        return _regeneratorRuntime().wrap(function _callee17$(_context27) {
+                      var _ref49 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee22(file) {
+                        return _regeneratorRuntime().wrap(function _callee22$(_context32) {
                           while (1) {
-                            switch (_context27.prev = _context27.next) {
+                            switch (_context32.prev = _context32.next) {
                               case 0:
-                                return _context27.abrupt("return", new Promise(function (resolve, reject) {
+                                return _context32.abrupt("return", new Promise(function (resolve, reject) {
                                   var reader = new FileReader();
                                   reader.readAsDataURL(file);
 
@@ -27902,14 +28147,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                               case 1:
                               case "end":
-                                return _context27.stop();
+                                return _context32.stop();
                             }
                           }
-                        }, _callee17);
+                        }, _callee22);
                       }));
 
-                      return function getBase64(_x22) {
-                        return _ref45.apply(this, arguments);
+                      return function getBase64(_x29) {
+                        return _ref49.apply(this, arguments);
                       };
                     }();
 
@@ -27930,10 +28175,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     };
                     files = [];
                     data.forEach( function () {
-                      var _ref46 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee18(value, key) {
-                        return _regeneratorRuntime().wrap(function _callee18$(_context28) {
+                      var _ref50 = _asyncToGenerator( _regeneratorRuntime().mark(function _callee23(value, key) {
+                        return _regeneratorRuntime().wrap(function _callee23$(_context33) {
                           while (1) {
-                            switch (_context28.prev = _context28.next) {
+                            switch (_context33.prev = _context33.next) {
                               case 0:
                                 if (key !== 'files') {
                                   dataObj[key] = value;
@@ -27943,53 +28188,53 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                               case 1:
                               case "end":
-                                return _context28.stop();
+                                return _context33.stop();
                             }
                           }
-                        }, _callee18);
+                        }, _callee23);
                       }));
 
-                      return function (_x23, _x24) {
-                        return _ref46.apply(this, arguments);
+                      return function (_x30, _x31) {
+                        return _ref50.apply(this, arguments);
                       };
                     }());
                     i = 0, len = files.length;
 
                   case 10:
                     if (!(i < len)) {
-                      _context29.next = 25;
+                      _context34.next = 25;
                       break;
                     }
 
                     file = files[i];
 
                     if (!file.type) {
-                      _context29.next = 22;
+                      _context34.next = 22;
                       break;
                     }
 
-                    _context29.t0 = dataObj.files;
-                    _context29.t1 = "data:".concat(file.type, ";base64,");
-                    _context29.next = 17;
+                    _context34.t0 = dataObj.files;
+                    _context34.t1 = "data:".concat(file.type, ";base64,");
+                    _context34.next = 17;
                     return getBase64(file).then(function (data) {
                       return data.split(',')[1];
                     });
 
                   case 17:
-                    _context29.t2 = _context29.sent;
-                    _context29.t3 = _context29.t1.concat.call(_context29.t1, _context29.t2);
-                    _context29.t4 = file.name;
-                    _context29.t5 = {
-                      content: _context29.t3,
-                      name: _context29.t4,
+                    _context34.t2 = _context34.sent;
+                    _context34.t3 = _context34.t1.concat.call(_context34.t1, _context34.t2);
+                    _context34.t4 = file.name;
+                    _context34.t5 = {
+                      content: _context34.t3,
+                      name: _context34.t4,
                       spoiler: false
                     };
 
-                    _context29.t0.push.call(_context29.t0, _context29.t5);
+                    _context34.t0.push.call(_context34.t0, _context34.t5);
 
                   case 22:
                     ++i;
-                    _context29.next = 10;
+                    _context34.next = 10;
                     break;
 
                   case 25:
@@ -28017,7 +28262,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                     task = getFileName(form.attributes.action.value);
                     url = this._hasNewAPI ? "/".concat(task, "?json=1") : '/.api/' + task.replace('.js', '');
-                    return _context29.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
+                    return _context34.abrupt("return", $ajax(url, ajaxParams).then(function (xhr) {
                       return xhr.responseText;
                     })["catch"](function (err) {
                       return Promise.reject(err);
@@ -28025,13 +28270,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   case 31:
                   case "end":
-                    return _context29.stop();
+                    return _context34.stop();
                 }
               }
-            }, _callee19, this);
+            }, _callee24, this);
           }));
 
-          function sendHTML5Post(_x18, _x19, _x20, _x21) {
+          function sendHTML5Post(_x25, _x26, _x27, _x28) {
             return _sendHTML5Post.apply(this, arguments);
           }
 
@@ -28055,28 +28300,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super16 = _createSuper(FoolFuuka);
 
       function FoolFuuka(prot, dm) {
-        var _this102;
+        var _this103;
 
         _classCallCheck(this, FoolFuuka);
 
-        _this102 = _super16.call(this, prot, dm);
-        _this102.cReply = 'post_wrapper';
-        _this102.qDelForm = '#main';
-        _this102.qOmitted = '.omitted_text';
-        _this102.qOPostEnd = '.posts';
-        _this102.qPages = '.paginate > ul > li:nth-last-child(3)';
-        _this102.qPost = '.post[id]';
-        _this102.qPostHeader = 'header';
-        _this102.qPostImg = '.post_image, .thread_image';
-        _this102.qPostImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
-        _this102.qPostMsg = '.text';
-        _this102.qPostRef = '.post_data > a[data-function="quote"]';
-        _this102.qPostSubj = '.post_title';
-        _this102.qPostsParent = '.posts';
-        _this102.docExt = '';
-        _this102.firstPage = 1;
-        _this102.res = 'thread/';
-        return _this102;
+        _this103 = _super16.call(this, prot, dm);
+        _this103.cReply = 'post_wrapper';
+        _this103.qDelForm = '#main';
+        _this103.qOmitted = '.omitted_text';
+        _this103.qOPostEnd = '.posts';
+        _this103.qPages = '.paginate > ul > li:nth-last-child(3)';
+        _this103.qPost = '.post[id]';
+        _this103.qPostHeader = 'header';
+        _this103.qPostImg = '.post_image, .thread_image';
+        _this103.qPostImgInfo = '.post_file_metadata, .thread_image_box > .post_file';
+        _this103.qPostMsg = '.text';
+        _this103.qPostRef = '.post_data > a[data-function="quote"]';
+        _this103.qPostSubj = '.post_title';
+        _this103.qPostsParent = '.posts';
+        _this103.docExt = '';
+        _this103.firstPage = 1;
+        _this103.res = 'thread/';
+        return _this103;
       }
 
       _createClass(FoolFuuka, [{
@@ -28152,15 +28397,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super17 = _createSuper(_02ch);
 
       function _02ch(prot, dm) {
-        var _this103;
+        var _this104;
 
         _classCallCheck(this, _02ch);
 
-        _this103 = _super17.call(this, prot, dm);
-        _this103._02ch = true;
-        _this103.hasCatalog = true;
-        _this103._capUpdPromise = null;
-        return _this103;
+        _this104 = _super17.call(this, prot, dm);
+        _this104._02ch = true;
+        _this104.hasCatalog = true;
+        _this104._capUpdPromise = null;
+        return _this104;
       }
 
       _createClass(_02ch, [{
@@ -28186,18 +28431,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super18 = _createSuper(_0chan);
 
       function _0chan(prot, dm) {
-        var _this104;
+        var _this105;
 
         _classCallCheck(this, _0chan);
 
-        _this104 = _super18.call(this, prot, dm);
-        _this104.qDelForm = '#delform_instant';
-        _this104.qPostHeader = '.posthead';
-        _this104.formHeaders = false;
-        _this104.hasCatalog = true;
-        _this104.multiFile = true;
-        _this104.ru = true;
-        return _this104;
+        _this105 = _super18.call(this, prot, dm);
+        _this105.qDelForm = '#delform_instant';
+        _this105.qPostHeader = '.posthead';
+        _this105.formHeaders = false;
+        _this105.hasCatalog = true;
+        _this105.multiFile = true;
+        _this105.ru = true;
+        return _this105;
       }
 
       _createClass(_0chan, [{
@@ -28226,10 +28471,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "fixVideo",
         value: function fixVideo(isPost, data) {
-          var _this105 = this;
+          var _this106 = this;
 
           $Q('.video-embed', isPost ? data.el : data).forEach(function (el) {
-            (isPost ? data : _this105.getPostOfEl(el)).msg.prepend($q('.de-video-link', el), doc.createElement('br'));
+            (isPost ? data : _this106.getPostOfEl(el)).msg.prepend($q('.de-video-link', el), doc.createElement('br'));
             var parent = el.parentNode;
             el.remove();
 
@@ -28257,21 +28502,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super19 = _createSuper(_2__ch);
 
       function _2__ch(prot, dm) {
-        var _this106;
+        var _this107;
 
         _classCallCheck(this, _2__ch);
 
-        _this106 = _super19.call(this, prot, dm);
-        _this106.qOPostEnd = 'table:not(.postfiles)';
-        _this106.qPages = 'table[border="1"] td > a:last-of-type';
-        _this106.qPostImg = 'img.thumb';
-        _this106.docExt = '.html';
-        _this106.hasPicWrap = true;
-        _this106.jsonSubmit = true;
-        _this106.markupBB = true;
-        _this106.multiFile = true;
-        _this106.ru = true;
-        return _this106;
+        _this107 = _super19.call(this, prot, dm);
+        _this107.qOPostEnd = 'table:not(.postfiles)';
+        _this107.qPages = 'table[border="1"] td > a:last-of-type';
+        _this107.qPostImg = 'img.thumb';
+        _this107.docExt = '.html';
+        _this107.hasPicWrap = true;
+        _this107.jsonSubmit = true;
+        _this107.markupBB = true;
+        _this107.multiFile = true;
+        _this107.ru = true;
+        return _this107;
       }
 
       _createClass(_2__ch, [{
@@ -28371,48 +28616,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super20 = _createSuper(Makaba);
 
       function Makaba(prot, dm) {
-        var _this107;
+        var _this108;
 
         _classCallCheck(this, Makaba);
 
-        _this107 = _super20.call(this, prot, dm);
-        _this107.makaba = true;
-        _this107.cReply = 'de-reply-class';
-        _this107.qBan = '.post__pomyanem';
-        _this107.qClosed = '.sticky-img[src$="locked.png"]';
-        _this107.qDelForm = '#posts-form, #js-posts';
-        _this107.qFormFile = '.postform__raw.filer input[type="file"]';
-        _this107.qFormRedir = null;
-        _this107.qFormRules = '.rules';
-        _this107.qFormSubm = '#submit';
-        _this107.qFormTd = '.postform__raw';
-        _this107.qFormTr = '.postform__raw';
-        _this107.qFormTxta = '#shampoo';
-        _this107.qOmitted = '.thread__missed';
-        _this107.qOPost = '.post_type_oppost';
-        _this107.qPost = '.post_type_reply[data-num]';
-        _this107.qPostHeader = '.post__details';
-        _this107.qPostImg = '.post__file-preview';
-        _this107.qPostImgInfo = '.post__file-attr';
-        _this107.qPostMsg = '.post__message';
-        _this107.qPostName = '.post__anon, .post__email';
-        _this107.qPostRef = '.post__reflink:nth-child(2)';
-        _this107.qPostSubj = '.post__title';
-        _this107.qTrunc = null;
-        _this107.formParent = 'thread';
-        _this107.hasAltCaptcha = true;
-        _this107.hasArchive = true;
-        _this107.hasCatalog = true;
-        _this107.hasOPNum = true;
-        _this107.hasPicWrap = true;
-        _this107.JsonBuilder = MakabaPostsBuilder;
-        _this107.jsonSubmit = true;
-        _this107.markupBB = true;
-        _this107.multiFile = true;
-        _this107.timePattern = 'dd+nn+yy+w+hh+ii+ss';
-        _this107._capUpdPromise = null;
-        _this107._isBeta = false;
-        return _this107;
+        _this108 = _super20.call(this, prot, dm);
+        _this108.makaba = true;
+        _this108.cReply = 'de-reply-class';
+        _this108.qBan = '.post__pomyanem';
+        _this108.qClosed = '.sticky-img[src$="locked.png"]';
+        _this108.qDelForm = '#posts-form, #js-posts';
+        _this108.qFormFile = '.postform__raw.filer input[type="file"]';
+        _this108.qFormRedir = null;
+        _this108.qFormRules = '.rules';
+        _this108.qFormSubm = '#submit';
+        _this108.qFormTd = '.postform__raw';
+        _this108.qFormTr = '.postform__raw';
+        _this108.qFormTxta = '#shampoo';
+        _this108.qOmitted = '.thread__missed';
+        _this108.qOPost = '.post_type_oppost';
+        _this108.qPost = '.post_type_reply[data-num]';
+        _this108.qPostHeader = '.post__details';
+        _this108.qPostImg = '.post__file-preview';
+        _this108.qPostImgInfo = '.post__file-attr';
+        _this108.qPostMsg = '.post__message';
+        _this108.qPostName = '.post__anon, .post__email';
+        _this108.qPostRef = '.post__reflink:nth-child(2)';
+        _this108.qPostSubj = '.post__title';
+        _this108.qTrunc = null;
+        _this108.formParent = 'thread';
+        _this108.hasAltCaptcha = true;
+        _this108.hasArchive = true;
+        _this108.hasCatalog = true;
+        _this108.hasOPNum = true;
+        _this108.hasPicWrap = true;
+        _this108.JsonBuilder = MakabaPostsBuilder;
+        _this108.jsonSubmit = true;
+        _this108.markupBB = true;
+        _this108.multiFile = true;
+        _this108.timePattern = 'dd+nn+yy+w+hh+ii+ss';
+        _this108._capUpdPromise = null;
+        _this108._isBeta = false;
+        return _this108;
       }
 
       _createClass(Makaba, [{
@@ -28463,7 +28708,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "reportForm",
         get: function get() {
-          var _this108 = this;
+          var _this109 = this;
 
           var value = function value(pNum, tNum) {
             return $q('input[type="button"]', $popup('edit-report', "<input name=\"comment\" value=\"\" placeholder=\"".concat(pNum === tNum ? Lng.reportThr[lang] : Lng.reportPost[lang], "\" type=\"text\"> <input value=\"OK\" type=\"button\">"))).onclick = function (e) {
@@ -28476,7 +28721,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               var formData = new FormData();
               var data = {
-                board: _this108.b,
+                board: _this109.b,
                 thread: tNum,
                 post: pNum,
                 comment: inpEl.value
@@ -28516,7 +28761,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaInit",
         value: function captchaInit(cap) {
-          var _this109 = this;
+          var _this110 = this;
 
           var box = $q('.captcha-box, .captcha');
 
@@ -28530,12 +28775,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           if (!img || img.tagName !== 'IMG') {
             box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
 
-            var _ref47 = _toConsumableArray(box.children),
-                _img2 = _ref47[0],
-                inp = _ref47[1];
+            var _ref51 = _toConsumableArray(box.children),
+                _img2 = _ref51[0],
+                inp = _ref51[1];
 
             _img2.onclick = function () {
-              return _this109.updateCaptcha(cap);
+              return _this110.updateCaptcha(cap);
             };
 
             inp.tabIndex = 999;
@@ -28794,22 +29039,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super21 = _createSuper(_2chan);
 
       function _2chan(prot, dm) {
-        var _this110;
+        var _this111;
 
         _classCallCheck(this, _2chan);
 
-        _this110 = _super21.call(this, prot, dm);
-        _this110.qDelForm = 'form:not([enctype])';
-        _this110.qForm = '#fm';
-        _this110.qFormRedir = null;
-        _this110.qFormRules = '.chui';
-        _this110.qOmitted = 'font[color="#707070"]';
-        _this110.qPost = 'td:nth-child(2)';
-        _this110.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-        _this110.qPostRef = '.del';
-        _this110.docExt = '.htm';
-        _this110.formParent = 'resto';
-        return _this110;
+        _this111 = _super21.call(this, prot, dm);
+        _this111.qDelForm = 'form:not([enctype])';
+        _this111.qForm = '#fm';
+        _this111.qFormRedir = null;
+        _this111.qFormRules = '.chui';
+        _this111.qOmitted = 'font[color="#707070"]';
+        _this111.qPost = 'td:nth-child(2)';
+        _this111.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
+        _this111.qPostRef = '.del';
+        _this111.docExt = '.htm';
+        _this111.formParent = 'resto';
+        return _this111;
       }
 
       _createClass(_2chan, [{
@@ -28871,14 +29116,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super22 = _createSuper(_2channel);
 
       function _2channel(prot, dm) {
-        var _this111;
+        var _this112;
 
         _classCallCheck(this, _2channel);
 
-        _this111 = _super22.call(this, prot, dm);
-        _this111.hasAltCaptcha = false;
-        _this111.JsonBuilder = null;
-        return _this111;
+        _this112 = _super22.call(this, prot, dm);
+        _this112.hasAltCaptcha = false;
+        _this112.JsonBuilder = null;
+        return _this112;
       }
 
       _createClass(_2channel, [{
@@ -28991,15 +29236,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super23 = _createSuper(_2chRip);
 
       function _2chRip(prot, dm) {
-        var _this112;
+        var _this113;
 
         _classCallCheck(this, _2chRip);
 
-        _this112 = _super23.call(this, prot, dm);
-        _this112.jsonSubmit = true;
-        _this112.ru = true;
-        _this112._capUpdPromise = null;
-        return _this112;
+        _this113 = _super23.call(this, prot, dm);
+        _this113.jsonSubmit = true;
+        _this113.ru = true;
+        _this113._capUpdPromise = null;
+        return _this113;
       }
 
       _createClass(_2chRip, [{
@@ -29010,8 +29255,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref48) {
-            var id = _ref48.responseText;
+          return cap.updateHelper('/cgi/captcha?task=get_id', function (_ref52) {
+            var id = _ref52.responseText;
             $id('imgcaptcha').src = '/cgi/captcha?task=get_image&id=' + id;
             $id('captchaid').value = id;
           });
@@ -29044,19 +29289,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super24 = _createSuper(_410chan);
 
       function _410chan(prot, dm) {
-        var _this113;
+        var _this114;
 
         _classCallCheck(this, _410chan);
 
-        _this113 = _super24.call(this, prot, dm);
-        _this113.qFormRedir = 'input#noko';
-        _this113.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
-        _this113.hasCatalog = true;
-        _this113.markupBB = false;
-        _this113.ru = true;
-        _this113.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
-        _this113._capUpdPromise = null;
-        return _this113;
+        _this114 = _super24.call(this, prot, dm);
+        _this114.qFormRedir = 'input#noko';
+        _this114.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
+        _this114.hasCatalog = true;
+        _this114.markupBB = false;
+        _this114.ru = true;
+        _this114.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
+        _this114._capUpdPromise = null;
+        return _this114;
       }
 
       _createClass(_410chan, [{
@@ -29077,7 +29322,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var _this114 = this;
+          var _this115 = this;
 
           return cap.updateHelper("/api_adaptive.php?board=".concat(this.b), function (xhr) {
             if (xhr.responseText === '1') {
@@ -29093,7 +29338,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var img = $q('img', cap.parentEl);
             var src = img.getAttribute('src');
             img.src = '';
-            img.src = _this114.getCaptchaSrc(src);
+            img.src = _this115.getCaptchaSrc(src);
           });
         }
       }, {
@@ -29121,39 +29366,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super25 = _createSuper(_4chan);
 
       function _4chan(prot, dm) {
-        var _this115;
+        var _this116;
 
         _classCallCheck(this, _4chan);
 
-        _this115 = _super25.call(this, prot, dm);
-        _this115._4chan = true;
-        _this115.cReply = 'post reply';
-        _this115.qBan = 'strong[style="color: red;"]';
-        _this115.qClosed = '.archivedIcon';
-        _this115.qDelBtn = '.deleteform > input[type="submit"]';
-        _this115.qError = '#errmsg';
-        _this115.qForm = 'form[name="post"]';
-        _this115.qFormRedir = null;
-        _this115.qOmitted = '.summary.desktop';
-        _this115.qOPost = '.op';
-        _this115.qOPostEnd = '.replyContainer';
-        _this115.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
-        _this115.qPostHeader = '.postInfo';
-        _this115.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
-        _this115.qPostImgInfo = '.fileText';
-        _this115.qPostName = '.name';
-        _this115.qPostRef = '.postInfo > .postNum';
-        _this115.qPostSubj = '.subject';
-        _this115.anchor = '#p';
-        _this115.docExt = '';
-        _this115.firstPage = 1;
-        _this115.formParent = 'resto';
-        _this115.hasCatalog = true;
-        _this115.hasTextLinks = true;
-        _this115.JsonBuilder = _4chanPostsBuilder;
-        _this115.res = 'thread/';
-        _this115.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
-        return _this115;
+        _this116 = _super25.call(this, prot, dm);
+        _this116._4chan = true;
+        _this116.cReply = 'post reply';
+        _this116.qBan = 'strong[style="color: red;"]';
+        _this116.qClosed = '.archivedIcon';
+        _this116.qDelBtn = '.deleteform > input[type="submit"]';
+        _this116.qError = '#errmsg';
+        _this116.qForm = 'form[name="post"]';
+        _this116.qFormRedir = null;
+        _this116.qOmitted = '.summary.desktop';
+        _this116.qOPost = '.op';
+        _this116.qOPostEnd = '.replyContainer';
+        _this116.qPages = '.pagelist > .pages:not(.cataloglink) > a:last-of-type';
+        _this116.qPostHeader = '.postInfo';
+        _this116.qPostImg = '.fileThumb > img:not(.fileDeletedRes)';
+        _this116.qPostImgInfo = '.fileText';
+        _this116.qPostName = '.name';
+        _this116.qPostRef = '.postInfo > .postNum';
+        _this116.qPostSubj = '.subject';
+        _this116.anchor = '#p';
+        _this116.docExt = '';
+        _this116.firstPage = 1;
+        _this116.formParent = 'resto';
+        _this116.hasCatalog = true;
+        _this116.hasTextLinks = true;
+        _this116.JsonBuilder = _4chanPostsBuilder;
+        _this116.res = 'thread/';
+        _this116.timePattern = 'nn+dd+yy+w+hh+ii-?s?s?';
+        return _this116;
       }
 
       _createClass(_4chan, [{
@@ -29331,25 +29576,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super27 = _createSuper(Arhivach);
 
       function Arhivach(prot, dm) {
-        var _this116;
+        var _this117;
 
         _classCallCheck(this, Arhivach);
 
-        _this116 = _super27.call(this, prot, dm);
-        _this116.cReply = 'post';
-        _this116.qDelBtn = null;
-        _this116.qDelForm = 'body > .container-fluid';
-        _this116.qDelPassw = null;
-        _this116.qPost = '.post[postid]:not([postid=""])';
-        _this116.qPostHeader = '.post_head';
-        _this116.qPostImg = '.post_image > img';
-        _this116.qPostMsg = '.post_comment_body';
-        _this116.qPostRef = '.post_id, .post_head > b';
-        _this116.qPostSubj = '.post_subject';
-        _this116.docExt = '';
-        _this116.hasOPNum = true;
-        _this116.res = 'thread/';
-        return _this116;
+        _this117 = _super27.call(this, prot, dm);
+        _this117.cReply = 'post';
+        _this117.qDelBtn = null;
+        _this117.qDelForm = 'body > .container-fluid';
+        _this117.qDelPassw = null;
+        _this117.qPost = '.post[postid]:not([postid=""])';
+        _this117.qPostHeader = '.post_head';
+        _this117.qPostImg = '.post_image > img';
+        _this117.qPostMsg = '.post_comment_body';
+        _this117.qPostRef = '.post_id, .post_head > b';
+        _this117.qPostSubj = '.post_subject';
+        _this117.docExt = '';
+        _this117.hasOPNum = true;
+        _this117.res = 'thread/';
+        return _this117;
       }
 
       _createClass(Arhivach, [{
@@ -29429,14 +29674,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "init",
         value: function init() {
-          var _this117 = this;
+          var _this118 = this;
 
           defaultCfg.ajaxUpdThr = 0;
           setTimeout(function () {
             var delPosts = $Q('.post_deleted');
 
             for (var i = 0, len = delPosts.length; i < len; ++i) {
-              var post = pByNum.get(_this117.getPNum(delPosts[i]));
+              var post = pByNum.get(_this118.getPNum(delPosts[i]));
 
               if (post) {
                 post.thr.deletePosts(post, false, false);
@@ -29460,13 +29705,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super28 = _createSuper(CrystalCafe);
 
       function CrystalCafe(prot, dm) {
-        var _this118;
+        var _this119;
 
         _classCallCheck(this, CrystalCafe);
 
-        _this118 = _super28.call(this, prot, dm);
-        _this118.qPost = '.post.reply';
-        return _this118;
+        _this119 = _super28.call(this, prot, dm);
+        _this119.qPost = '.post.reply';
+        return _this119;
       }
 
       _createClass(CrystalCafe, [{
@@ -29497,30 +29742,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super29 = _createSuper(Dobrochan);
 
       function Dobrochan(prot, dm) {
-        var _this119;
+        var _this120;
 
         _classCallCheck(this, Dobrochan);
 
-        _this119 = _super29.call(this, prot, dm);
-        _this119.dobrochan = true;
-        _this119.qClosed = 'img[src="/images/locked.png"]';
-        _this119.qDelForm = 'form[action*="delete"]';
-        _this119.qError = '.post-error, h2';
-        _this119.qFormRedir = 'select[name="goto"]';
-        _this119.qOmitted = '.abbrev > span:last-of-type';
-        _this119.qPages = '.pages > tbody > tr > td';
-        _this119.qPostImgInfo = '.fileinfo';
-        _this119.qPostMsg = '.postbody';
-        _this119.qPostSubj = '.replytitle';
-        _this119.qTrunc = '.abbrev > span:first-of-type';
-        _this119.anchor = '#i';
-        _this119.formParent = 'thread_id';
-        _this119.hasPicWrap = true;
-        _this119.JsonBuilder = DobrochanPostsBuilder;
-        _this119.multiFile = true;
-        _this119.ru = true;
-        _this119.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
-        return _this119;
+        _this120 = _super29.call(this, prot, dm);
+        _this120.dobrochan = true;
+        _this120.qClosed = 'img[src="/images/locked.png"]';
+        _this120.qDelForm = 'form[action*="delete"]';
+        _this120.qError = '.post-error, h2';
+        _this120.qFormRedir = 'select[name="goto"]';
+        _this120.qOmitted = '.abbrev > span:last-of-type';
+        _this120.qPages = '.pages > tbody > tr > td';
+        _this120.qPostImgInfo = '.fileinfo';
+        _this120.qPostMsg = '.postbody';
+        _this120.qPostSubj = '.replytitle';
+        _this120.qTrunc = '.abbrev > span:first-of-type';
+        _this120.anchor = '#i';
+        _this120.formParent = 'thread_id';
+        _this120.hasPicWrap = true;
+        _this120.JsonBuilder = DobrochanPostsBuilder;
+        _this120.multiFile = true;
+        _this120.ru = true;
+        _this120.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
+        return _this120;
       }
 
       _createClass(Dobrochan, [{
@@ -29671,13 +29916,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super30 = _createSuper(Endchan);
 
       function Endchan(prot, dm) {
-        var _this120;
+        var _this121;
 
         _classCallCheck(this, Endchan);
 
-        _this120 = _super30.call(this, prot, dm);
-        _this120.qTrunc = '.contentOmissionIndicator > p';
-        return _this120;
+        _this121 = _super30.call(this, prot, dm);
+        _this121.qTrunc = '.contentOmissionIndicator > p';
+        return _this121;
       }
 
       _createClass(Endchan, [{
@@ -29712,29 +29957,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super31 = _createSuper(Ernstchan);
 
       function Ernstchan(prot, dm) {
-        var _this121;
+        var _this122;
 
         _classCallCheck(this, Ernstchan);
 
-        _this121 = _super31.call(this, prot, dm);
-        _this121.cReply = 'post';
-        _this121.qError = '.error > .info';
-        _this121.qFormRedir = 'input[name="gb2"][value="thread"]';
-        _this121.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
-        _this121.qOPost = '.thread_OP';
-        _this121.qPages = '.pagelist > li:nth-last-child(2)';
-        _this121.qPost = '.thread_reply';
-        _this121.qPostHeader = '.post_head';
-        _this121.qPostMsg = '.text';
-        _this121.qPostSubj = '.subject';
-        _this121.qPostTrip = '.tripcode';
-        _this121.qTrunc = '.tldr';
-        _this121.docExt = '';
-        _this121.firstPage = 1;
-        _this121.markupBB = true;
-        _this121.multiFile = true;
-        _this121.res = 'thread/';
-        return _this121;
+        _this122 = _super31.call(this, prot, dm);
+        _this122.cReply = 'post';
+        _this122.qError = '.error > .info';
+        _this122.qFormRedir = 'input[name="gb2"][value="thread"]';
+        _this122.qFormSpoiler = 'input[type="checkbox"][name="spoilered"]';
+        _this122.qOPost = '.thread_OP';
+        _this122.qPages = '.pagelist > li:nth-last-child(2)';
+        _this122.qPost = '.thread_reply';
+        _this122.qPostHeader = '.post_head';
+        _this122.qPostMsg = '.text';
+        _this122.qPostSubj = '.subject';
+        _this122.qPostTrip = '.tripcode';
+        _this122.qTrunc = '.tldr';
+        _this122.docExt = '';
+        _this122.firstPage = 1;
+        _this122.markupBB = true;
+        _this122.multiFile = true;
+        _this122.res = 'thread/';
+        return _this122;
       }
 
       _createClass(Ernstchan, [{
@@ -29785,13 +30030,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super32 = _createSuper(Gensokyo);
 
       function Gensokyo(prot, dm) {
-        var _this122;
+        var _this123;
 
         _classCallCheck(this, Gensokyo);
 
-        _this122 = _super32.call(this, prot, dm);
-        _this122.hasRefererErr = true;
-        return _this122;
+        _this123 = _super32.call(this, prot, dm);
+        _this123.hasRefererErr = true;
+        return _this123;
       }
 
       return _createClass(Gensokyo);
@@ -29805,14 +30050,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super33 = _createSuper(Iichan);
 
       function Iichan(prot, dm) {
-        var _this123;
+        var _this124;
 
         _classCallCheck(this, Iichan);
 
-        _this123 = _super33.call(this, prot, dm);
-        _this123.hasArchive = true;
-        _this123.hasCatalog = true;
-        return _this123;
+        _this124 = _super33.call(this, prot, dm);
+        _this124.hasArchive = true;
+        _this124.hasCatalog = true;
+        return _this124;
       }
 
       _createClass(Iichan, [{
@@ -29857,11 +30102,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "stormWallFixCaptcha",
         value: function stormWallFixCaptcha(url, img) {
-          var _this124 = this;
+          var _this125 = this;
 
           img.onload = img.onerror = function () {
             if (!(img.naturalHeight + img.naturalWidth)) {
-              _this124.stormWallHelper(url, null, emptyFn, function () {
+              _this125.stormWallHelper(url, null, emptyFn, function () {
                 img.src = '';
                 img.src = url;
               });
@@ -29943,18 +30188,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super34 = _createSuper(Kohlchan);
 
       function Kohlchan(prot, dm) {
-        var _this125;
+        var _this126;
 
         _classCallCheck(this, Kohlchan);
 
-        _this125 = _super34.call(this, prot, dm);
-        _this125.kohlchan = true;
-        _this125.qFormRules = '#rules_row';
-        _this125.qPostImg = '.imgLink > img, .de-img-link > img';
-        _this125.hasTextLinks = true;
-        _this125.markupBB = true;
-        _this125.timePattern = 'yyyy+nn+dd+hh+ii+ss';
-        return _this125;
+        _this126 = _super34.call(this, prot, dm);
+        _this126.kohlchan = true;
+        _this126.qFormRules = '#rules_row';
+        _this126.qPostImg = '.imgLink > img, .de-img-link > img';
+        _this126.hasTextLinks = true;
+        _this126.markupBB = true;
+        _this126.timePattern = 'yyyy+nn+dd+hh+ii+ss';
+        return _this126;
       }
 
       _createClass(Kohlchan, [{
@@ -30113,13 +30358,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super35 = _createSuper(Kropyvach);
 
       function Kropyvach(prot, dm) {
-        var _this126;
+        var _this127;
 
         _classCallCheck(this, Kropyvach);
 
-        _this126 = _super35.call(this, prot, dm);
-        _this126.markupBB = true;
-        return _this126;
+        _this127 = _super35.call(this, prot, dm);
+        _this127.markupBB = true;
+        return _this127;
       }
 
       _createClass(Kropyvach, [{
@@ -30145,13 +30390,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super36 = _createSuper(Lainchan);
 
       function Lainchan(prot, dm) {
-        var _this127;
+        var _this128;
 
         _classCallCheck(this, Lainchan);
 
-        _this127 = _super36.call(this, prot, dm);
-        _this127.qOPost = '.op';
-        return _this127;
+        _this128 = _super36.call(this, prot, dm);
+        _this128.qOPost = '.op';
+        return _this128;
       }
 
       _createClass(Lainchan, [{
@@ -30239,17 +30484,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super39 = _createSuper(Ponyach);
 
       function Ponyach(prot, dm) {
-        var _this128;
+        var _this129;
 
         _classCallCheck(this, Ponyach);
 
-        _this128 = _super39.call(this, prot, dm);
-        _this128.qBan = 'font[color="#FF0000"]';
-        _this128.qPostImgInfo = '.filesize[style="display: inline;"]';
-        _this128.formParent = 'replythread';
-        _this128.jsonSubmit = true;
-        _this128.multiFile = true;
-        return _this128;
+        _this129 = _super39.call(this, prot, dm);
+        _this129.qBan = 'font[color="#FF0000"]';
+        _this129.qPostImgInfo = '.filesize[style="display: inline;"]';
+        _this129.formParent = 'replythread';
+        _this129.jsonSubmit = true;
+        _this129.multiFile = true;
+        return _this129;
       }
 
       _createClass(Ponyach, [{
@@ -30279,9 +30524,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, {
         key: "getSubmitData",
-        value: function getSubmitData(_ref49) {
-          var error = _ref49.error,
-              id = _ref49.id;
+        value: function getSubmitData(_ref53) {
+          var error = _ref53.error,
+              id = _ref53.id;
           return {
             error: error,
             postNum: id && +id
@@ -30313,14 +30558,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super40 = _createSuper(Ponychan);
 
       function Ponychan(prot, dm) {
-        var _this129;
+        var _this130;
 
         _classCallCheck(this, Ponychan);
 
-        _this129 = _super40.call(this, prot, dm);
-        _this129.qOPost = '.opContainer';
-        _this129.jsonSubmit = false;
-        return _this129;
+        _this130 = _super40.call(this, prot, dm);
+        _this130.qOPost = '.opContainer';
+        _this130.jsonSubmit = false;
+        return _this130;
       }
 
       _createClass(Ponychan, [{
@@ -30379,15 +30624,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super42 = _createSuper(Synch);
 
       function Synch(prot, dm) {
-        var _this130;
+        var _this131;
 
         _classCallCheck(this, Synch);
 
-        _this130 = _super42.call(this, prot, dm);
-        _this130.qPages = '.pagination';
-        _this130.qPostImgInfo = '.unimportant';
-        _this130.markupBB = true;
-        return _this130;
+        _this131 = _super42.call(this, prot, dm);
+        _this131.qPages = '.pagination';
+        _this131.qPostImgInfo = '.unimportant';
+        _this131.markupBB = true;
+        return _this131;
       }
 
       _createClass(Synch, [{
@@ -30449,18 +30694,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _super43 = _createSuper(Warosu);
 
       function Warosu(prot, dm) {
-        var _this131;
+        var _this132;
 
         _classCallCheck(this, Warosu);
 
-        _this131 = _super43.call(this, prot, dm);
-        _this131.qDelForm = '.content';
-        _this131.qForm = '.subreply';
-        _this131.qPostImgInfo = 'span';
-        _this131.qPostRef = '.js';
-        _this131.qOPost = 'div[itemscope]';
-        _this131.res = 'thread/';
-        return _this131;
+        _this132 = _super43.call(this, prot, dm);
+        _this132.qDelForm = '.content';
+        _this132.qForm = '.subreply';
+        _this132.qPostImgInfo = 'span';
+        _this132.qPostRef = '.js';
+        _this132.qOPost = 'div[itemscope]';
+        _this132.res = 'thread/';
+        return _this132;
       }
 
       _createClass(Warosu, [{
@@ -30532,7 +30777,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   var DollchanAPI = {
     initAPI: function initAPI() {
-      var _this132 = this;
+      var _this133 = this;
 
       this.hasListeners = false;
 
@@ -30547,7 +30792,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var port = channel.port2;
       doc.defaultView.addEventListener('message', function (e) {
         if (e.data === 'de-request-api-message') {
-          _this132.hasListeners = true;
+          _this133.hasListeners = true;
           doc.defaultView.postMessage('de-answer-api-message', '*', [port]);
         }
       });
@@ -30563,8 +30808,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       }
     },
-    _handleMessage: function _handleMessage(_ref50) {
-      var arg = _ref50.data;
+    _handleMessage: function _handleMessage(_ref54) {
+      var arg = _ref54.data;
 
       if (!(arg !== null && arg !== void 0 && arg.name)) {
         return;
@@ -30619,10 +30864,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     return $ajax(gitRaw + 'src/modules/Wrap.js', {
       'Content-Type': 'text/plain'
-    }, true).then(function (_ref51) {
+    }, true).then(function (_ref55) {
       var _v$;
 
-      var responseText = _ref51.responseText;
+      var responseText = _ref55.responseText;
       var v = responseText.match(/const version = '([0-9.]+)';/);
       var remoteVer = v === null || v === void 0 ? void 0 : (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
 
@@ -30820,81 +31065,81 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   }
 
-  function runMain(_x25, _x26) {
+  function runMain(_x32, _x33) {
     return _runMain.apply(this, arguments);
   }
 
   function _runMain() {
-    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee26(checkDomains, dataPromise) {
+    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee34(checkDomains, dataPromise) {
       var _aib$init, _aib4;
 
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
-      return _regeneratorRuntime().wrap(function _callee26$(_context36) {
+      return _regeneratorRuntime().wrap(function _callee34$(_context44) {
         while (1) {
-          switch (_context36.prev = _context36.next) {
+          switch (_context44.prev = _context44.next) {
             case 0:
               Logger.initLogger();
 
               if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-                _context36.next = 3;
+                _context44.next = 3;
                 break;
               }
 
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 3:
               formEl = $q(aib.qDelForm + ', form[de-form]');
 
               if (formEl) {
-                _context36.next = 7;
+                _context44.next = 7;
                 break;
               }
 
               runFrames();
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 7:
               if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-                _context36.next = 9;
+                _context44.next = 9;
                 break;
               }
 
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 9:
               Logger.log('Imageboard check');
 
               if (locStorage) {
-                _context36.next = 14;
+                _context44.next = 14;
                 break;
               }
 
               if (checkStorage()) {
-                _context36.next = 13;
+                _context44.next = 13;
                 break;
               }
 
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 13:
               initNavFuncs();
 
             case 14:
-              _context36.next = 16;
+              _context44.next = 16;
               return dataPromise || readData();
 
             case 16:
-              _yield = _context36.sent;
+              _yield = _context44.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
               if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
-                _context36.next = 21;
+                _context44.next = 21;
                 break;
               }
 
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 21:
               docBody.classList.add('de-runned');
@@ -30902,13 +31147,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               addSVGIcons();
 
               if (!Cfg.disabled) {
-                _context36.next = 28;
+                _context44.next = 28;
                 break;
               }
 
               Panel.initPanel(formEl);
               scriptCSS();
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 28:
               if ('toJSON' in aProto) {
@@ -30951,22 +31196,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               Logger.log('Replace delform');
               pByEl = new Map();
               pByNum = new Map();
-              _context36.prev = 43;
+              _context44.prev = 43;
               DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 
               if (!Thread.first) {
                 console.error('No threads detected!');
               }
 
-              _context36.next = 53;
+              _context44.next = 53;
               break;
 
             case 48:
-              _context36.prev = 48;
-              _context36.t0 = _context36["catch"](43);
-              console.error('Delform parsing error:', getErrorMessage(_context36.t0));
+              _context44.prev = 48;
+              _context44.t0 = _context44["catch"](43);
+              console.error('Delform parsing error:', getErrorMessage(_context44.t0));
               $show(docBody);
-              return _context36.abrupt("return");
+              return _context44.abrupt("return");
 
             case 53:
               Logger.log('Parse delform');
@@ -31027,10 +31272,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 79:
             case "end":
-              return _context36.stop();
+              return _context44.stop();
           }
         }
-      }, _callee26, null, [[43, 48]]);
+      }, _callee34, null, [[43, 48]]);
     }));
     return _runMain.apply(this, arguments);
   }

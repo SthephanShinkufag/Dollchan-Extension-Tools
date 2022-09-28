@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '9e1ce1f';
+const commit = '10962d7';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2442,22 +2442,26 @@ function setStored(id, value) {
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
-		const obj = {};
-		obj[id] = value;
-		chrome.storage.sync.set(obj, () => {
-			if(chrome.runtime.lastError) {
-				// Store into storage.local if the storage.sync limit is exceeded
-				chrome.storage.local.set(obj, emptyFn);
-				chrome.storage.sync.remove(id, emptyFn);
-			} else {
-				chrome.storage.local.remove(id, emptyFn);
-			}
+		return new Promise((resolve, _) => {
+			const obj = {};
+			obj[id] = value;
+			chrome.storage.sync.set(obj, () => {
+				if(chrome.runtime.lastError) {
+					// Store into storage.local if the storage.sync limit is exceeded
+					chrome.storage.local.set(obj, emptyFn);
+					chrome.storage.sync.remove(id, emptyFn);
+				} else {
+					chrome.storage.local.remove(id, emptyFn);
+				}
+				resolve();
+			});
 		});
 	} else if(nav.hasPrestoStorage) {
 		prestoStorage.setItem(id, value);
 	} else {
 		locStorage[id] = value;
 	}
+	return null;
 }
 
 // Removes data from the global storage
@@ -2482,23 +2486,25 @@ async function getStoredObj(id) {
 }
 
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
-function saveCfgObj(dm, fn) {
-	getStoredObj('DESU_Config').then(val => {
-		const res = fn(val[dm]);
-		if(res) {
-			val[dm] = res;
-		} else {
-			delete val[dm];
-		}
-		setStored('DESU_Config', JSON.stringify(val));
-	});
+async function saveCfgObj(dm, fn) {
+	const val = await getStoredObj('DESU_Config');
+	const res = fn(val[dm]);
+	if(res) {
+		val[dm] = res;
+	} else {
+		delete val[dm];
+	}
+	const rv = setStored('DESU_Config', JSON.stringify(val));
+	if (rv) {
+		await rv;
+	}
 }
 
 // Saves the value for a particular config option
-function saveCfg(id, val) {
+async function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		saveCfgObj(aib.dm, cfg => {
+		await saveCfgObj(aib.dm, cfg => {
 			cfg[id] = val;
 			return cfg;
 		});
@@ -2506,8 +2512,8 @@ function saveCfg(id, val) {
 }
 
 // Toggles a particular config option (1|0)
-function toggleCfg(id) {
-	saveCfg(id, +!Cfg[id]);
+async function toggleCfg(id) {
+	await saveCfg(id, +!Cfg[id]);
 }
 
 function readData() {
@@ -4239,8 +4245,8 @@ const CfgWindow = {
 
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
-			getEditButton('cfg', fn => fn(Cfg, true, data => {
-				saveCfgObj(aib.dm, () => data);
+			getEditButton('cfg', fn => fn(Cfg, true, async data => {
+				await saveCfgObj(aib.dm, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -4250,18 +4256,20 @@ const CfgWindow = {
 				// "Load" button. Applies global settings for current domain.
 				$bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.load[lang] }"> ${ Lng.loadGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						saveCfgObj(aib.dm, () => data.global);
+						await saveCfgObj(aib.dm, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
 					}
-				});
+				};
 				// "Save" button. Copies the domain settings into global.
 				div = $bEnd(el, `<div id="de-list"><input type="button" value="${
 					Lng.save[lang] }"> ${ Lng.saveGlobal[lang] }</div>`
-				).firstElementChild.onclick = () => getStoredObj('DESU_Config').then(data => {
+				).firstElementChild.onclick = async () => {
+					const data = await getStoredObj('DESU_Config');
 					const obj = {};
 					const com = data[aib.dm];
 					for(const i in com) {
@@ -4272,9 +4280,9 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					saveCfgObj('global', () => data.global);
+					await saveCfgObj('global', () => data.global);
 					toggleWindow('cfg', true);
-				});
+				};
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
 			}) : '',
 
@@ -4430,17 +4438,17 @@ const CfgWindow = {
 	},
 
 	// Event handler for Setting window and its controls.
-	handleEvent(e) {
+	async handleEvent(e) {
 		const { type, target: el } = e;
 		const tag = el.tagName;
 		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
-			saveCfg('cfgTab', info);
+			await saveCfg('cfgTab', info);
 		}
 		if(type === 'change' && tag === 'SELECT') {
 			const info = el.getAttribute('info');
-			saveCfg(info, el.selectedIndex);
+			await saveCfg(info, el.selectedIndex);
 			this._updateDependant();
 			switch(info) {
 			case 'language':
@@ -4518,7 +4526,7 @@ const CfgWindow = {
 		}
 		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
 			const info = el.getAttribute('info');
-			toggleCfg(info);
+			await toggleCfg(info);
 			this._updateDependant();
 			switch(info) {
 			case 'expandTrunc':
@@ -4676,34 +4684,34 @@ const CfgWindow = {
 				const isCheck = checkCSSColor(el.value);
 				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
-					saveCfg('postBtnsBack', el.value);
+					await saveCfg('postBtnsBack', el.value);
 					updateCSS();
 				}
 				break;
 			}
 			case 'limitPostMsg':
-				saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				await saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': saveCfg('minImgSize', Math.max(+el.value, 1)); break;
-			case 'zoomFactor': saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'minImgSize': await saveCfg('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor': await saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
-			case 'minWebmWidth': saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'minWebmWidth': await saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'maskVisib':
-				saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				await saveCfg('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
 				break;
-			case 'linksOver': saveCfg('linksOver', +el.value | 0); break;
-			case 'linksOut': saveCfg('linksOut', +el.value | 0); break;
-			case 'ytApiKey': saveCfg('ytApiKey', el.value.trim()); break;
+			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
+			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
+			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
 			case 'passwValue': PostForm.setUserPassw(); break;
 			case 'nameValue': PostForm.setUserName(); break;
-			default: saveCfg(info, el.value);
+			default: await saveCfg(info, el.value);
 			}
 			return;
 		}
@@ -4720,7 +4728,7 @@ const CfgWindow = {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
 					e.preventDefault();
-					saveCfg('hideBySpell', 1);
+					await saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
 					Spells.toggle();
 					break;
@@ -4770,8 +4778,8 @@ const CfgWindow = {
 				// XXX: remove and make insertion in this._getCfgCommon()
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
-					fn => fn(Cfg.userCSSTxt, false, inputEl => {
-						saveCfg('userCSSTxt', inputEl.value);
+					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
+						await saveCfg('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),
