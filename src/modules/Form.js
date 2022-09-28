@@ -85,20 +85,20 @@ class PostForm {
 		$toggle(next && (next.style.display !== 'none') ||
 			el.previousElementSibling ? el : el.closest(aib.qFormTr));
 	}
-	static setUserName() {
+	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
 		if(el) {
-			saveCfg('nameValue', el.value);
+			await saveCfg('nameValue', el.value);
 		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
-	static setUserPassw() {
+	static async setUserPassw() {
 		if(!Cfg.userPassw) {
 			return;
 		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
-			saveCfg('passwValue', el.value);
+			await saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
@@ -369,10 +369,15 @@ class PostForm {
 		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
 			aib.disableRedirection(el);
 		}
-		this.form.onsubmit = e => {
+		this.form.onsubmit = async e => {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
-			html5Submit(this.form, this.subm, true).then(checkSubmit).catch(showSubmitError);
+			try {
+				await html5Submit(this.form, this.subm, true);
+				await checkSubmit();
+			} catch(e) {
+				showSubmitError(e);
+			}
 		};
 	}
 	_initCaptcha() {
@@ -480,8 +485,7 @@ class PostForm {
 				const { width, height } = s;
 				s.setProperty('width', width + 'px', 'important');
 				s.setProperty('height', height + 'px', 'important');
-				saveCfg('textaWidth', parseInt(width, 10));
-				saveCfg('textaHeight', parseInt(height, 10));
+				/*await*/ saveCfg('textaWidth', parseInt(width, 10), 'textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -502,8 +506,7 @@ class PostForm {
 				}
 				default: // mouseup
 					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
-					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+					/*await*/ saveCfg('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
 				}
 			}
 		});
@@ -548,8 +551,8 @@ class PostForm {
 			}
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
-		clearBtn.onclick = () => {
-			saveCfg('sageReply', 0);
+		clearBtn.onclick = async () => {
+			await saveCfg('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(

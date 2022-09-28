@@ -91,11 +91,21 @@ async function saveCfgObj(dm, fn) {
 }
 
 // Saves the value for a particular config option
-async function saveCfg(id, val) {
-	if(Cfg[id] !== val) {
-		Cfg[id] = val;
+async function saveCfg(...args) {
+	let isChanged = false;
+	for(let i = 0; i < args.length; i += 2) {
+		const id = args[i];
+		const val = args[i + 1];
+		if (Cfg[id] !== val) {
+			Cfg[id] = val;
+			isChanged = true;
+		}
+	}
+	if (isChanged) {
 		await saveCfgObj(aib.dm, cfg => {
-			cfg[id] = val;
+			for(let i = 0; i < args.length; i += 2) {
+				cfg[args[i]] = args[i + 1];
+			}
 			return cfg;
 		});
 	}

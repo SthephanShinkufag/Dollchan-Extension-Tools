@@ -25,7 +25,7 @@ function showSubmitError(error) {
 	DollchanAPI.notify('submitform', { success: false, error });
 }
 
-function checkSubmit(data) {
+async function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
 	const isDocument = data instanceof HTMLDocument;
@@ -69,7 +69,7 @@ function checkSubmit(data) {
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
-	saveCfgObj(aib.dm, lCfg => {
+	await saveCfgObj(aib.dm, lCfg => {
 		lCfg.stats[statsParam]++;
 		return lCfg;
 	});

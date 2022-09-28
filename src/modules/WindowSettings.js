@@ -357,7 +357,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(el); break;
+			case 'correctTime': await DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -387,8 +387,8 @@ const CfgWindow = {
 				pr.addMarkupPanel();
 				updateCSS();
 				break;
-			case 'userPassw': PostForm.setUserPassw(); break;
-			case 'userName': PostForm.setUserName(); break;
+			case 'userPassw': await PostForm.setUserPassw(); break;
+			case 'userName': await PostForm.setUserName(); break;
 			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
@@ -406,7 +406,7 @@ const CfgWindow = {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-				PostForm.setUserPassw();
+				await PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
 				e.preventDefault();
@@ -487,8 +487,8 @@ const CfgWindow = {
 			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
 			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
 			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
-			case 'passwValue': PostForm.setUserPassw(); break;
-			case 'nameValue': PostForm.setUserName(); break;
+			case 'passwValue': await PostForm.setUserPassw(); break;
+			case 'nameValue': await PostForm.setUserName(); break;
 			default: await saveCfg(info, el.value);
 			}
 			return;

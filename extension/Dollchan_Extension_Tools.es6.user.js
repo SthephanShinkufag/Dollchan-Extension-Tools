@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = 'c48e15f';
+const commit = '49940a3';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2501,11 +2501,21 @@ async function saveCfgObj(dm, fn) {
 }
 
 // Saves the value for a particular config option
-async function saveCfg(id, val) {
-	if(Cfg[id] !== val) {
-		Cfg[id] = val;
+async function saveCfg(...args) {
+	let isChanged = false;
+	for(let i = 0; i < args.length; i += 2) {
+		const id = args[i];
+		const val = args[i + 1];
+		if (Cfg[id] !== val) {
+			Cfg[id] = val;
+			isChanged = true;
+		}
+	}
+	if (isChanged) {
 		await saveCfgObj(aib.dm, cfg => {
-			cfg[id] = val;
+			for(let i = 0; i < args.length; i += 2) {
+				cfg[args[i]] = args[i + 1];
+			}
 			return cfg;
 		});
 	}
@@ -3261,7 +3271,7 @@ function makeDraggable(name, win, head) {
 		_X      : 0,
 		_Y      : 0,
 		_Z      : 0,
-		handleEvent(e) {
+		async handleEvent(e) {
 			if(!Cfg[name + 'WinDrag']) {
 				return;
 			}
@@ -3300,8 +3310,7 @@ function makeDraggable(name, win, head) {
 			case 'mouseleave':
 			case 'mouseup':
 				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-				saveCfg(name + 'WinX', this._X);
-				saveCfg(name + 'WinY', this._Y);
+				await saveCfg(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
 	});
@@ -3318,7 +3327,7 @@ class WinResizer {
 		this.tStyle = target.style;
 		$q('.de-resizer-' + dir, win).addEventListener('mousedown', this);
 	}
-	handleEvent(e) {
+	async handleEvent(e) {
 		let val, x, y;
 		const { wWidth: maxX, wHeight: maxY } = Post.sizing;
 		const { width } = this.wStyle;
@@ -3360,16 +3369,16 @@ class WinResizer {
 			return;
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-			saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+			await saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
 				return;
 			}
 			if(this.vertical) {
-				saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
+				await saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
 					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
-				saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
+				await saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
@@ -4579,7 +4588,7 @@ const CfgWindow = {
 				}
 				updateCSS();
 				break;
-			case 'correctTime': DateTime.toggleSettings(el); break;
+			case 'correctTime': await DateTime.toggleSettings(el); break;
 			case 'imgInfoLink': {
 				const img = $q('.de-fullimg-wrap');
 				if(img) {
@@ -4609,8 +4618,8 @@ const CfgWindow = {
 				pr.addMarkupPanel();
 				updateCSS();
 				break;
-			case 'userPassw': PostForm.setUserPassw(); break;
-			case 'userName': PostForm.setUserName(); break;
+			case 'userPassw': await PostForm.setUserPassw(); break;
+			case 'userName': await PostForm.setUserName(); break;
 			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
 			case 'noName': PostForm.hideField(pr.name); break;
 			case 'noSubj': PostForm.hideField(pr.subj); break;
@@ -4628,7 +4637,7 @@ const CfgWindow = {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-				PostForm.setUserPassw();
+				await PostForm.setUserPassw();
 				break;
 			case 'de-cfg-button-keys':
 				e.preventDefault();
@@ -4709,8 +4718,8 @@ const CfgWindow = {
 			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
 			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
 			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
-			case 'passwValue': PostForm.setUserPassw(); break;
-			case 'nameValue': PostForm.setUserName(); break;
+			case 'passwValue': await PostForm.setUserPassw(); break;
+			case 'nameValue': await PostForm.setUserName(); break;
 			default: await saveCfg(info, el.value);
 			}
 			return;
@@ -6280,10 +6289,10 @@ class DateTime {
 			!val.includes('y') || !(val.includes('n') || val.includes('m')) ||
 			/[^?\-+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 	}
-	static toggleSettings(el) {
+	static async toggleSettings(el) {
 		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
 			$popup('err-correcttime', Lng.cTimeError[lang]);
-			saveCfg('correctTime', 0);
+			await saveCfg('correctTime', 0);
 			el.checked = false;
 		}
 	}
@@ -7156,7 +7165,7 @@ const Pages = {
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
 		if(pr.passw) {
-			PostForm.setUserPassw();
+			await PostForm.setUserPassw();
 		}
 		embedPostMsgImages(newForm.el);
 		if(HotKeys.enabled) {
@@ -8632,20 +8641,20 @@ class PostForm {
 		$toggle(next && (next.style.display !== 'none') ||
 			el.previousElementSibling ? el : el.closest(aib.qFormTr));
 	}
-	static setUserName() {
+	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
 		if(el) {
-			saveCfg('nameValue', el.value);
+			await saveCfg('nameValue', el.value);
 		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
-	static setUserPassw() {
+	static async setUserPassw() {
 		if(!Cfg.userPassw) {
 			return;
 		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
-			saveCfg('passwValue', el.value);
+			await saveCfg('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
@@ -8916,10 +8925,15 @@ class PostForm {
 		if(aib.qFormRedir && (el = $q(aib.qFormRedir, this.form))) {
 			aib.disableRedirection(el);
 		}
-		this.form.onsubmit = e => {
+		this.form.onsubmit = async e => {
 			e.preventDefault();
 			$popup('upload', Lng.sending[lang], true);
-			html5Submit(this.form, this.subm, true).then(checkSubmit).catch(showSubmitError);
+			try {
+				await html5Submit(this.form, this.subm, true);
+				await checkSubmit();
+			} catch(e) {
+				showSubmitError(e);
+			}
 		};
 	}
 	_initCaptcha() {
@@ -9027,8 +9041,7 @@ class PostForm {
 				const { width, height } = s;
 				s.setProperty('width', width + 'px', 'important');
 				s.setProperty('height', height + 'px', 'important');
-				saveCfg('textaWidth', parseInt(width, 10));
-				saveCfg('textaHeight', parseInt(height, 10));
+				/*await*/ saveCfg('textaWidth', parseInt(width, 10), 'textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -9049,8 +9062,7 @@ class PostForm {
 				}
 				default: // mouseup
 					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
-					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+					/*await*/ saveCfg('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
 				}
 			}
 		});
@@ -9095,8 +9107,8 @@ class PostForm {
 			}
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
-		clearBtn.onclick = () => {
-			saveCfg('sageReply', 0);
+		clearBtn.onclick = async () => {
+			await saveCfg('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
@@ -9168,7 +9180,7 @@ function showSubmitError(error) {
 	DollchanAPI.notify('submitform', { success: false, error });
 }
 
-function checkSubmit(data) {
+async function checkSubmit(data) {
 	let error = null;
 	let postNum = null;
 	const isDocument = data instanceof HTMLDocument;
@@ -9212,7 +9224,7 @@ function checkSubmit(data) {
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
-	saveCfgObj(aib.dm, lCfg => {
+	await saveCfgObj(aib.dm, lCfg => {
 		lCfg.stats[statsParam]++;
 		return lCfg;
 	});
@@ -12492,10 +12504,10 @@ class ExpandableImage {
 		}
 		// Sync webm volume on all browser tabs
 		setTimeout(() => videoEl.dispatchEvent(new CustomEvent('volumechange')), 150);
-		videoEl.addEventListener('volumechange', ({ target: el, isTrusted }) => {
+		videoEl.addEventListener('volumechange', async ({ target: el, isTrusted }) => {
 			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
-				saveCfg('webmVolume', val);
+				await saveCfg('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
@@ -14554,11 +14566,11 @@ function initThreadUpdater(title, enableUpdate) {
 		get canShow() {
 			return Cfg.desktNotif && this._granted;
 		},
-		checkPermission() {
+		async checkPermission() {
 			if(Cfg.desktNotif && ('permission' in Notification)) {
 				switch(Notification.permission.toLowerCase()) {
 				case 'default': this._requestPermission(); break;
-				case 'denied': saveCfg('desktNotif', 0);
+				case 'denied': await saveCfg('desktNotif', 0);
 				}
 			}
 		},
@@ -14599,9 +14611,9 @@ function initThreadUpdater(title, enableUpdate) {
 		_notifEl : null,
 		_requestPermission() {
 			this._granted = false;
-			Notification.requestPermission(state => {
+			Notification.requestPermission(async state => {
 				if(state.toLowerCase() === 'denied') {
-					saveCfg('desktNotif', 0);
+					await saveCfg('desktNotif', 0);
 				} else {
 					this._granted = true;
 				}
@@ -17218,8 +17230,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(deWindow.location.pathname === '/settings') {
-				$q('input[type="button"]').addEventListener('click',
-					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
+				$q('input[type="button"]').addEventListener('click', async () => {
+					await readCfg();
+					await saveCfg('__hanarating', $id('rating').value);
+				});
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
@@ -17836,45 +17850,49 @@ const DollchanAPI = {
 };
 
 // Checking for Dollchan updates from github
-function checkForUpdates(isManual, lastUpdateTime) {
+async function checkForUpdates(isManual, lastUpdateTime) {
 	if(!isManual) {
 		if(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24) {
-			return Promise.reject(new Error('Itʼs not time for an update yet'));
+			throw new Error('Itʼs not time for an update yet');
 		}
 	}
-	return $ajax(
-		gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true
-	).then(({ responseText }) => {
-		const v = responseText.match(/const version = '([0-9.]+)';/);
-		const remoteVer = v?.[1]?.split('.');
-		if(!remoteVer) {
-			return Promise.reject(new Error('Canʼt get remote version'));
+	let responseText;
+	try {
+		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true));
+	} catch(e) {
+		if (isManual) {
+			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
+		} else {
+			throw new Error(Lng.noConnect[lang]);
 		}
-		const currentVer = version.split('.');
-		const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
-			nav.isESNext ? 'es6.' : '' }user.js`;
-		saveCfgObj('lastUpd', () => Date.now());
-		const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
-		const chLogLink = `<a target="_blank" href="${ gitWiki }${
-			lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
-		for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
-			if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
-				return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
-			} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
-				break;
-			}
+	}
+	const v = responseText.match(/const version = '([0-9.]+)';/);
+	const remoteVer = v?.[1]?.split('.');
+	if(!remoteVer) {
+		throw new Error('Canʼt get remote version');
+	}
+	const currentVer = version.split('.');
+	const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
+		nav.isESNext ? 'es6.' : '' }user.js`;
+	await saveCfgObj('lastUpd', () => Date.now());
+	const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
+	const chLogLink = `<a target="_blank" href="${ gitWiki }${
+		lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
+	for(let i = 0, len = Math.max(currentVer.length, remoteVer.length); i < len; ++i) {
+		if((+remoteVer[i] || 0) > (+currentVer[i] || 0)) {
+			return `${ link }${ Lng.updAvail[lang].replace('%s', v[1]) }</a>${ chLogLink }`;
+		} else if((+remoteVer[i] || 0) < (+currentVer[i] || 0)) {
+			break;
 		}
-		if(isManual) {
-			const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
-			const vc = version + '.' + c;
-			return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
-				`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
-					Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
-		}
-		return Promise.reject(new Error());
-	}, () => isManual ? `<div style="color: red; font-weigth: bold;">${
-		Lng.noConnect[lang] }</div>` : Promise.reject(new Error(Lng.noConnect[lang]))
-	);
+	}
+	if(isManual) {
+		const c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
+		const vc = version + '.' + c;
+		return c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) :
+			`${ Lng.haveLatestStable[lang].replace('%s', version) }\r\n${
+				Lng.newCommitsAvail[lang].replace('%s', `${ link }${ vc }</a>${ chLogLink }`) }`;
+	}
+	throw new Error();
 }
 
 function initPage() {

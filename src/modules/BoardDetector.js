@@ -1622,8 +1622,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			if(deWindow.location.pathname === '/settings') {
-				$q('input[type="button"]').addEventListener('click',
-					() => readCfg().then(() => saveCfg('__hanarating', $id('rating').value)));
+				$q('input[type="button"]').addEventListener('click', async () => {
+					await readCfg();
+					await saveCfg('__hanarating', $id('rating').value);
+				});
 				return true;
 			}
 			$script('UploadProgress = Function.prototype;');
