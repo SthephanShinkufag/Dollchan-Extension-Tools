@@ -75,8 +75,7 @@ async function getStoredObj(id) {
 	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
-// Replaces the domain config with an object. Removes the domain config, if there is no object.
-async function saveCfgObj(dm, fn) {
+async function saveCfgObjHelper(dm, fn) {
 	const val = await getStoredObj('DESU_Config');
 	const res = fn(val[dm]);
 	if(res) {
@@ -87,6 +86,37 @@ async function saveCfgObj(dm, fn) {
 	const rv = setStored('DESU_Config', JSON.stringify(val));
 	if (rv) {
 		await rv;
+	}
+}
+
+const saveCfgObjQueue = [];
+let saveCfgBusy = false;
+
+async function saveCfgQueue() {
+	while (saveCfgObjQueue.length > 0) {
+		const [[qDm, qFn, qRes, qRej]] = saveCfgObjQueue.splice(0, 1);
+		try {
+			await saveCfgObjHelper(qDm, qFn);
+			qRes();
+		} catch(e) {
+			qRej(e);
+		}
+	}
+	saveCfgBusy = false;
+}
+
+// Replaces the domain config with an object. Removes the domain config, if there is no object.
+async function saveCfgObj(dm, fn) {
+	if(saveCfgBusy) {
+		await new Promise((res, _) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
+		return;
+	}
+	saveCfgBusy = true;
+	await saveCfgObjHelper(dm, fn);
+	if (saveCfgObjQueue.length > 0) {
+		saveCfgQueue(); // run asynchronously without await
+	} else {
+		saveCfgBusy = false;
 	}
 }
 

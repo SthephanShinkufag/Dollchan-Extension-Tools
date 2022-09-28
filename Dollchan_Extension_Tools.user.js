@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '49940a3';
+  var commit = 'c488af9';
 
   var defaultCfg = {
     disabled: 0,
@@ -8861,8 +8861,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   function getStoredObj(_x4) {
     return _getStoredObj.apply(this, arguments);
-  } 
-
+  }
 
   function _getStoredObj() {
     _getStoredObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee44(id) {
@@ -8908,13 +8907,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return _getStoredObj.apply(this, arguments);
   }
 
-  function saveCfgObj(_x5, _x6) {
-    return _saveCfgObj.apply(this, arguments);
-  } 
+  function saveCfgObjHelper(_x5, _x6) {
+    return _saveCfgObjHelper.apply(this, arguments);
+  }
 
-
-  function _saveCfgObj() {
-    _saveCfgObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee45(dm, fn) {
+  function _saveCfgObjHelper() {
+    _saveCfgObjHelper = _asyncToGenerator( _regeneratorRuntime().mark(function _callee45(dm, fn) {
       var val, res, rv;
       return _regeneratorRuntime().wrap(function _callee45$(_context55) {
         while (1) {
@@ -8950,6 +8948,105 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }, _callee45);
     }));
+    return _saveCfgObjHelper.apply(this, arguments);
+  }
+
+  var saveCfgObjQueue = [];
+  var saveCfgBusy = false;
+
+  function saveCfgQueue() {
+    return _saveCfgQueue.apply(this, arguments);
+  } 
+
+
+  function _saveCfgQueue() {
+    _saveCfgQueue = _asyncToGenerator( _regeneratorRuntime().mark(function _callee46() {
+      var _saveCfgObjQueue$spli, _saveCfgObjQueue$spli2, _saveCfgObjQueue$spli3, qDm, qFn, qRes, qRej;
+
+      return _regeneratorRuntime().wrap(function _callee46$(_context56) {
+        while (1) {
+          switch (_context56.prev = _context56.next) {
+            case 0:
+              if (!(saveCfgObjQueue.length > 0)) {
+                _context56.next = 13;
+                break;
+              }
+
+              _saveCfgObjQueue$spli = saveCfgObjQueue.splice(0, 1), _saveCfgObjQueue$spli2 = _slicedToArray(_saveCfgObjQueue$spli, 1), _saveCfgObjQueue$spli3 = _slicedToArray(_saveCfgObjQueue$spli2[0], 4), qDm = _saveCfgObjQueue$spli3[0], qFn = _saveCfgObjQueue$spli3[1], qRes = _saveCfgObjQueue$spli3[2], qRej = _saveCfgObjQueue$spli3[3];
+              _context56.prev = 2;
+              _context56.next = 5;
+              return saveCfgObjHelper(qDm, qFn);
+
+            case 5:
+              qRes();
+              _context56.next = 11;
+              break;
+
+            case 8:
+              _context56.prev = 8;
+              _context56.t0 = _context56["catch"](2);
+              qRej(_context56.t0);
+
+            case 11:
+              _context56.next = 0;
+              break;
+
+            case 13:
+              saveCfgBusy = false;
+
+            case 14:
+            case "end":
+              return _context56.stop();
+          }
+        }
+      }, _callee46, null, [[2, 8]]);
+    }));
+    return _saveCfgQueue.apply(this, arguments);
+  }
+
+  function saveCfgObj(_x7, _x8) {
+    return _saveCfgObj.apply(this, arguments);
+  } 
+
+
+  function _saveCfgObj() {
+    _saveCfgObj = _asyncToGenerator( _regeneratorRuntime().mark(function _callee47(dm, fn) {
+      return _regeneratorRuntime().wrap(function _callee47$(_context57) {
+        while (1) {
+          switch (_context57.prev = _context57.next) {
+            case 0:
+              if (!saveCfgBusy) {
+                _context57.next = 4;
+                break;
+              }
+
+              _context57.next = 3;
+              return new Promise(function (res, _) {
+                saveCfgObjQueue.push([dm, fn, res, rej]);
+              });
+
+            case 3:
+              return _context57.abrupt("return");
+
+            case 4:
+              saveCfgBusy = true;
+              _context57.next = 7;
+              return saveCfgObjHelper(dm, fn);
+
+            case 7:
+              if (saveCfgObjQueue.length > 0) {
+                saveCfgQueue(); 
+              } else {
+                saveCfgBusy = false;
+              }
+
+            case 8:
+            case "end":
+              return _context57.stop();
+          }
+        }
+      }, _callee47);
+    }));
     return _saveCfgObj.apply(this, arguments);
   }
 
@@ -8959,7 +9056,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _saveCfg() {
-    _saveCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee46() {
+    _saveCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee48() {
       var _len2,
           args,
           _key2,
@@ -8967,14 +9064,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           i,
           id,
           val,
-          _args56 = arguments;
+          _args58 = arguments;
 
-      return _regeneratorRuntime().wrap(function _callee46$(_context56) {
+      return _regeneratorRuntime().wrap(function _callee48$(_context58) {
         while (1) {
-          switch (_context56.prev = _context56.next) {
+          switch (_context58.prev = _context58.next) {
             case 0:
-              for (_len2 = _args56.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                args[_key2] = _args56[_key2];
+              for (_len2 = _args58.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = _args58[_key2];
               }
 
               isChanged = false;
@@ -8990,11 +9087,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!isChanged) {
-                _context56.next = 6;
+                _context58.next = 6;
                 break;
               }
 
-              _context56.next = 6;
+              _context58.next = 6;
               return saveCfgObj(aib.dm, function (cfg) {
                 for (var _i20 = 0; _i20 < args.length; _i20 += 2) {
                   cfg[args[_i20]] = args[_i20 + 1];
@@ -9005,33 +9102,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 6:
             case "end":
-              return _context56.stop();
+              return _context58.stop();
           }
         }
-      }, _callee46);
+      }, _callee48);
     }));
     return _saveCfg.apply(this, arguments);
   }
 
-  function toggleCfg(_x7) {
+  function toggleCfg(_x9) {
     return _toggleCfg.apply(this, arguments);
   }
 
   function _toggleCfg() {
-    _toggleCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee47(id) {
-      return _regeneratorRuntime().wrap(function _callee47$(_context57) {
+    _toggleCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee49(id) {
+      return _regeneratorRuntime().wrap(function _callee49$(_context59) {
         while (1) {
-          switch (_context57.prev = _context57.next) {
+          switch (_context59.prev = _context59.next) {
             case 0:
-              _context57.next = 2;
+              _context59.next = 2;
               return saveCfg(id, +!Cfg[id]);
 
             case 2:
             case "end":
-              return _context57.stop();
+              return _context59.stop();
           }
         }
-      }, _callee47);
+      }, _callee49);
     }));
     return _toggleCfg.apply(this, arguments);
   }
@@ -9047,17 +9144,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
   function _readCfg() {
-    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee48() {
+    _readCfg = _asyncToGenerator( _regeneratorRuntime().mark(function _callee50() {
       var obj, val, isGlobal;
-      return _regeneratorRuntime().wrap(function _callee48$(_context58) {
+      return _regeneratorRuntime().wrap(function _callee50$(_context60) {
         while (1) {
-          switch (_context58.prev = _context58.next) {
+          switch (_context60.prev = _context60.next) {
             case 0:
-              _context58.next = 2;
+              _context60.next = 2;
               return getStoredObj('DESU_Config');
 
             case 2:
-              val = _context58.sent;
+              val = _context60.sent;
 
               if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
                 isGlobal = nav.hasGlobalStorage && !!val.global;
@@ -9163,10 +9260,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 24:
             case "end":
-              return _context58.stop();
+              return _context60.stop();
           }
         }
-      }, _callee48);
+      }, _callee50);
     }));
     return _readCfg.apply(this, arguments);
   }
@@ -10302,7 +10399,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee3, this);
         }));
 
-        function handleEvent(_x8) {
+        function handleEvent(_x10) {
           return _handleEvent.apply(this, arguments);
         }
 
@@ -10677,7 +10774,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee4);
       }));
 
-      return function (_x9) {
+      return function (_x11) {
         return _ref2.apply(this, arguments);
       };
     }()), 
@@ -11451,7 +11548,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee8);
           }));
 
-          return function (_x10) {
+          return function (_x12) {
             return _ref8.apply(this, arguments);
           };
         }());
@@ -11711,7 +11808,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee11);
           }));
 
-          return function (_x11) {
+          return function (_x13) {
             return _ref12.apply(this, arguments);
           };
         }(), true);
@@ -12407,7 +12504,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }, _callee13);
               }));
 
-              return function (_x12) {
+              return function (_x14) {
                 return _ref13.apply(this, arguments);
               };
             }());
@@ -14223,7 +14320,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee15);
         }));
 
-        function toggleSettings(_x13) {
+        function toggleSettings(_x15) {
           return _toggleSettings.apply(this, arguments);
         }
 
@@ -14817,7 +14914,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee16);
         }));
 
-        return function (_x14) {
+        return function (_x16) {
           return _ref17.apply(this, arguments);
         };
       }())["catch"](function (err) {
@@ -15260,7 +15357,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee17);
         }));
 
-        return function (_x15) {
+        return function (_x17) {
           return _ref20.apply(this, arguments);
         };
       }()).then(function () {
@@ -17221,7 +17318,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee24, this);
         }));
 
-        function _ihash(_x16) {
+        function _ihash(_x18) {
           return _ihash2.apply(this, arguments);
         }
 
@@ -18049,7 +18146,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee25, null, [[2, 9]]);
           }));
 
-          return function (_x17) {
+          return function (_x19) {
             return _ref25.apply(this, arguments);
           };
         }();
@@ -18241,7 +18338,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee26);
           }));
 
-          return function (_x18) {
+          return function (_x20) {
             return _ref26.apply(this, arguments);
           };
         }()); 
@@ -18589,38 +18686,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     });
   }
 
-  function checkSubmit(_x19) {
+  function checkSubmit(_x21) {
     return _checkSubmit.apply(this, arguments);
   }
 
   function _checkSubmit() {
-    _checkSubmit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee49(data) {
+    _checkSubmit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee51(data) {
       var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _pr2, tNum, _pByNum$get, thr, statsParam, dForm;
 
-      return _regeneratorRuntime().wrap(function _callee49$(_context59) {
+      return _regeneratorRuntime().wrap(function _callee51$(_context61) {
         while (1) {
-          switch (_context59.prev = _context59.next) {
+          switch (_context61.prev = _context61.next) {
             case 0:
               error = null;
               postNum = null;
               isDocument = data instanceof HTMLDocument;
 
               if (!aib.getSubmitData) {
-                _context59.next = 12;
+                _context61.next = 12;
                 break;
               }
 
               if (!aib.jsonSubmit) {
-                _context59.next = 9;
+                _context61.next = 9;
                 break;
               }
 
               if (!((_aib$captchaAfterSubm = (_aib3 = aib).captchaAfterSubmit) !== null && _aib$captchaAfterSubm !== void 0 && _aib$captchaAfterSubm.call(_aib3, data))) {
-                _context59.next = 7;
+                _context61.next = 7;
                 break;
               }
 
-              return _context59.abrupt("return");
+              return _context61.abrupt("return");
 
             case 7:
               _data = (isDocument ? data.body.textContent : data).trim();
@@ -18638,7 +18735,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 postNum = _aib$getSubmitData.postNum;
               }
 
-              _context59.next = 13;
+              _context61.next = 13;
               break;
 
             case 12:
@@ -18646,12 +18743,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 13:
               if (!error) {
-                _context59.next = 16;
+                _context61.next = 16;
                 break;
               }
 
               showSubmitError(error);
-              return _context59.abrupt("return");
+              return _context61.abrupt("return");
 
             case 16:
               _pr2 = pr, tNum = _pr2.tNum;
@@ -18682,7 +18779,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               });
               statsParam = tNum ? 'reply' : 'op';
               Cfg.stats[statsParam]++;
-              _context59.next = 25;
+              _context61.next = 25;
               return saveCfgObj(aib.dm, function (lCfg) {
                 lCfg.stats[statsParam]++;
                 return lCfg;
@@ -18690,7 +18787,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 25:
               if (tNum) {
-                _context59.next = 28;
+                _context61.next = 28;
                 break;
               }
 
@@ -18704,7 +18801,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
 
-              return _context59.abrupt("return");
+              return _context61.abrupt("return");
 
             case 28:
               if (aib.t) {
@@ -18734,36 +18831,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 31:
             case "end":
-              return _context59.stop();
+              return _context61.stop();
           }
         }
-      }, _callee49);
+      }, _callee51);
     }));
     return _checkSubmit.apply(this, arguments);
   }
 
-  function checkDelete(_x20) {
+  function checkDelete(_x22) {
     return _checkDelete.apply(this, arguments);
   } 
 
 
   function _checkDelete() {
-    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee50(data) {
+    _checkDelete = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52(data) {
       var err, els, threads, isThr, i, len, el;
-      return _regeneratorRuntime().wrap(function _callee50$(_context60) {
+      return _regeneratorRuntime().wrap(function _callee52$(_context62) {
         while (1) {
-          switch (_context60.prev = _context60.next) {
+          switch (_context62.prev = _context62.next) {
             case 0:
               err = getSubmitError(data instanceof HTMLDocument ? data : $createDoc(data));
 
               if (!err) {
-                _context60.next = 5;
+                _context62.next = 5;
                 break;
               }
 
               $popup('delete', Lng.errDelete[lang] + ':\n' + err);
               updater.sendErrNotif();
-              return _context60.abrupt("return");
+              return _context62.abrupt("return");
 
             case 5:
               els = $Q("[de-form] ".concat(aib.qPost.split(', ').join(' input:checked, [de-form] '), " input:checked"));
@@ -18780,22 +18877,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               if (!isThr) {
-                _context60.next = 15;
+                _context62.next = 15;
                 break;
               }
 
               Post.clearMarks();
-              _context60.next = 13;
+              _context62.next = 13;
               return Thread.first.loadNewPosts()["catch"](function (err) {
                 return infoLoadErrors(err);
               });
 
             case 13:
-              _context60.next = 17;
+              _context62.next = 17;
               break;
 
             case 15:
-              _context60.next = 17;
+              _context62.next = 17;
               return Promise.all(_toConsumableArray(threads).map(function (thr) {
                 return thr.loadPosts('new', false, false);
               }));
@@ -18805,10 +18902,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 18:
             case "end":
-              return _context60.stop();
+              return _context62.stop();
           }
         }
-      }, _callee50);
+      }, _callee52);
     }));
     return _checkDelete.apply(this, arguments);
   }
@@ -19084,12 +19181,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     };
   }
 
-  function html5Submit(_x21, _x22) {
+  function html5Submit(_x23, _x24) {
     return _html5Submit.apply(this, arguments);
   }
 
   function _html5Submit() {
-    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee51(form, submitter) {
+    _html5Submit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(form, submitter) {
       var needProgress,
           data,
           hasFiles,
@@ -19109,20 +19206,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           cleanData,
           ajaxParams,
           url,
-          _args61 = arguments;
+          _args63 = arguments;
 
-      return _regeneratorRuntime().wrap(function _callee51$(_context61) {
+      return _regeneratorRuntime().wrap(function _callee53$(_context63) {
         while (1) {
-          switch (_context61.prev = _context61.next) {
+          switch (_context63.prev = _context63.next) {
             case 0:
-              needProgress = _args61.length > 2 && _args61[2] !== undefined ? _args61[2] : false;
+              needProgress = _args63.length > 2 && _args63[2] !== undefined ? _args63[2] : false;
               data = new FormData();
               hasFiles = false;
               _iterator38 = _createForOfIteratorHelperLoose(getFormElements(form, submitter));
 
             case 4:
               if ((_step38 = _iterator38()).done) {
-                _context61.next = 30;
+                _context63.next = 30;
                 break;
               }
 
@@ -19130,15 +19227,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               val = value;
 
               if (!(name === 'de-file-txt')) {
-                _context61.next = 9;
+                _context63.next = 9;
                 break;
               }
 
-              return _context61.abrupt("continue", 28);
+              return _context63.abrupt("continue", 28);
 
             case 9:
               if (!(type === 'file')) {
-                _context61.next = 27;
+                _context63.next = 27;
                 break;
               }
 
@@ -19149,31 +19246,31 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               mime = value.type;
 
               if (!((Cfg.postSameImg || Cfg.removeEXIF) && (mime === 'image/jpeg' || mime === 'image/png' || mime === 'image/gif' || mime === 'video/webm' && !aib.makaba))) {
-                _context61.next = 26;
+                _context63.next = 26;
                 break;
               }
 
-              _context61.t0 = cleanFile;
-              _context61.next = 18;
+              _context63.t0 = cleanFile;
+              _context63.next = 18;
               return readFile(value);
 
             case 18:
-              _context61.t1 = _context61.sent.data;
-              _context61.t2 = el.obj ? el.obj.extraFile : null;
-              cleanData = (0, _context61.t0)(_context61.t1, _context61.t2);
+              _context63.t1 = _context63.sent.data;
+              _context63.t2 = el.obj ? el.obj.extraFile : null;
+              cleanData = (0, _context63.t0)(_context63.t1, _context63.t2);
 
               if (cleanData) {
-                _context61.next = 23;
+                _context63.next = 23;
                 break;
               }
 
-              return _context61.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
+              return _context63.abrupt("return", Promise.reject(new Error(Lng.fileCorrupt[lang] + ': ' + fileName)));
 
             case 23:
               val = new File(cleanData, newFileName, {
                 type: mime
               });
-              _context61.next = 27;
+              _context63.next = 27;
               break;
 
             case 26:
@@ -19187,16 +19284,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               data.append(name, val);
 
             case 28:
-              _context61.next = 4;
+              _context63.next = 4;
               break;
 
             case 30:
               if (!aib.sendHTML5Post) {
-                _context61.next = 32;
+                _context63.next = 32;
                 break;
               }
 
-              return _context61.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
+              return _context63.abrupt("return", aib.sendHTML5Post(form, data, needProgress, hasFiles));
 
             case 32:
               ajaxParams = {
@@ -19209,7 +19306,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               url = form.action;
-              return _context61.abrupt("return", $ajax(url, ajaxParams).then(function (_ref61) {
+              return _context63.abrupt("return", $ajax(url, ajaxParams).then(function (_ref61) {
                 var text = _ref61.responseText;
                 return aib.jsonSubmit ? text : aib.stormWallFixSubmit ? aib.stormWallFixSubmit(url, text, ajaxParams) : $createDoc(text);
               })["catch"](function (err) {
@@ -19218,10 +19315,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 36:
             case "end":
-              return _context61.stop();
+              return _context63.stop();
           }
         }
-      }, _callee51);
+      }, _callee53);
     }));
     return _html5Submit.apply(this, arguments);
   }
@@ -19650,7 +19747,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee30);
         }));
 
-        function addUrlFile(_x23) {
+        function addUrlFile(_x25) {
           return _addUrlFile.apply(this, arguments);
         }
 
@@ -21243,7 +21340,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee31, this);
         }));
 
-        function _clickMenu(_x24, _x25) {
+        function _clickMenu(_x26, _x27) {
           return _clickMenu2.apply(this, arguments);
         }
 
@@ -22455,7 +22552,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }, _callee32, this);
         }));
 
-        function _buildPview(_x26) {
+        function _buildPview(_x28) {
           return _buildPview2.apply(this, arguments);
         }
 
@@ -23756,7 +23853,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee33);
           }));
 
-          return function (_x27) {
+          return function (_x29) {
             return _ref44.apply(this, arguments);
           };
         }()); 
@@ -26688,7 +26785,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee36);
           }));
 
-          return function (_x28) {
+          return function (_x30) {
             return _ref50.apply(this, arguments);
           };
         }());
@@ -28226,7 +28323,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee37, this);
           }));
 
-          function changeReplyMode(_x29, _x30) {
+          function changeReplyMode(_x31, _x32) {
             return _changeReplyMode.apply(this, arguments);
           }
 
@@ -28713,7 +28810,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         }, _callee38);
                       }));
 
-                      return function getBase64(_x35) {
+                      return function getBase64(_x37) {
                         return _ref54.apply(this, arguments);
                       };
                     }();
@@ -28754,7 +28851,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         }, _callee39);
                       }));
 
-                      return function (_x36, _x37) {
+                      return function (_x38, _x39) {
                         return _ref55.apply(this, arguments);
                       };
                     }());
@@ -28836,7 +28933,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }, _callee40, this);
           }));
 
-          function sendHTML5Post(_x31, _x32, _x33, _x34) {
+          function sendHTML5Post(_x33, _x34, _x35, _x36) {
             return _sendHTML5Post.apply(this, arguments);
           }
 
@@ -31429,55 +31526,55 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   }; 
 
-  function checkForUpdates(_x38, _x39) {
+  function checkForUpdates(_x40, _x41) {
     return _checkForUpdates.apply(this, arguments);
   }
 
   function _checkForUpdates() {
-    _checkForUpdates = _asyncToGenerator( _regeneratorRuntime().mark(function _callee52(isManual, lastUpdateTime) {
+    _checkForUpdates = _asyncToGenerator( _regeneratorRuntime().mark(function _callee54(isManual, lastUpdateTime) {
       var _v$;
 
       var responseText, _yield$$ajax, v, remoteVer, currentVer, src, link, chLogLink, i, len, c, vc;
 
-      return _regeneratorRuntime().wrap(function _callee52$(_context62) {
+      return _regeneratorRuntime().wrap(function _callee54$(_context64) {
         while (1) {
-          switch (_context62.prev = _context62.next) {
+          switch (_context64.prev = _context64.next) {
             case 0:
               if (isManual) {
-                _context62.next = 3;
+                _context64.next = 3;
                 break;
               }
 
               if (!(Date.now() - +lastUpdateTime < [0, 1, 2, 7, 14, 30][Cfg.updDollchan] * 1e3 * 60 * 60 * 24)) {
-                _context62.next = 3;
+                _context64.next = 3;
                 break;
               }
 
               throw new Error('Itʼs not time for an update yet');
 
             case 3:
-              _context62.prev = 3;
-              _context62.next = 6;
+              _context64.prev = 3;
+              _context64.next = 6;
               return $ajax(gitRaw + 'src/modules/Wrap.js', {
                 'Content-Type': 'text/plain'
               }, true);
 
             case 6:
-              _yield$$ajax = _context62.sent;
+              _yield$$ajax = _context64.sent;
               responseText = _yield$$ajax.responseText;
-              _context62.next = 17;
+              _context64.next = 17;
               break;
 
             case 10:
-              _context62.prev = 10;
-              _context62.t0 = _context62["catch"](3);
+              _context64.prev = 10;
+              _context64.t0 = _context64["catch"](3);
 
               if (!isManual) {
-                _context62.next = 16;
+                _context64.next = 16;
                 break;
               }
 
-              return _context62.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
+              return _context64.abrupt("return", "<div style=\"color: red; font-weigth: bold;\">".concat(Lng.noConnect[lang], "</div>"));
 
             case 16:
               throw new Error(Lng.noConnect[lang]);
@@ -31487,7 +31584,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               remoteVer = v === null || v === void 0 ? void 0 : (_v$ = v[1]) === null || _v$ === void 0 ? void 0 : _v$.split('.');
 
               if (remoteVer) {
-                _context62.next = 21;
+                _context64.next = 21;
                 break;
               }
 
@@ -31496,7 +31593,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 21:
               currentVer = version.split('.');
               src = "".concat(gitRaw).concat(nav.isESNext ? 'src/' : '', "Dollchan_Extension_Tools.").concat(nav.isESNext ? 'es6.' : '', "user.js");
-              _context62.next = 25;
+              _context64.next = 25;
               return saveCfgObj('lastUpd', function () {
                 return Date.now();
               });
@@ -31508,49 +31605,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 28:
               if (!(i < len)) {
-                _context62.next = 38;
+                _context64.next = 38;
                 break;
               }
 
               if (!((+remoteVer[i] || 0) > (+currentVer[i] || 0))) {
-                _context62.next = 33;
+                _context64.next = 33;
                 break;
               }
 
-              return _context62.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
+              return _context64.abrupt("return", "".concat(link).concat(Lng.updAvail[lang].replace('%s', v[1]), "</a>").concat(chLogLink));
 
             case 33:
               if (!((+remoteVer[i] || 0) < (+currentVer[i] || 0))) {
-                _context62.next = 35;
+                _context64.next = 35;
                 break;
               }
 
-              return _context62.abrupt("break", 38);
+              return _context64.abrupt("break", 38);
 
             case 35:
               ++i;
-              _context62.next = 28;
+              _context64.next = 28;
               break;
 
             case 38:
               if (!isManual) {
-                _context62.next = 42;
+                _context64.next = 42;
                 break;
               }
 
               c = responseText.match(/const commit = '([0-9abcdef]+)';/)[1];
               vc = version + '.' + c;
-              return _context62.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
+              return _context64.abrupt("return", c === commit ? Lng.haveLatestCommit[lang].replace('%s', vc) : "".concat(Lng.haveLatestStable[lang].replace('%s', version), "\r\n").concat(Lng.newCommitsAvail[lang].replace('%s', "".concat(link).concat(vc, "</a>").concat(chLogLink))));
 
             case 42:
               throw new Error();
 
             case 43:
             case "end":
-              return _context62.stop();
+              return _context64.stop();
           }
         }
-      }, _callee52, null, [[3, 10]]);
+      }, _callee54, null, [[3, 10]]);
     }));
     return _checkForUpdates.apply(this, arguments);
   }
@@ -31717,81 +31814,81 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   }
 
-  function runMain(_x40, _x41) {
+  function runMain(_x42, _x43) {
     return _runMain.apply(this, arguments);
   }
 
   function _runMain() {
-    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee53(checkDomains, dataPromise) {
+    _runMain = _asyncToGenerator( _regeneratorRuntime().mark(function _callee55(checkDomains, dataPromise) {
       var _aib$init, _aib4;
 
       var formEl, _yield, _yield2, favObj, storageName, firstThr;
 
-      return _regeneratorRuntime().wrap(function _callee53$(_context63) {
+      return _regeneratorRuntime().wrap(function _callee55$(_context65) {
         while (1) {
-          switch (_context63.prev = _context63.next) {
+          switch (_context65.prev = _context65.next) {
             case 0:
               Logger.initLogger();
 
               if (!(!(docBody = doc.body) || !aib && !(aib = getImageBoard(checkDomains, true)))) {
-                _context63.next = 3;
+                _context65.next = 3;
                 break;
               }
 
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 3:
               formEl = $q(aib.qDelForm + ', form[de-form]');
 
               if (formEl) {
-                _context63.next = 7;
+                _context65.next = 7;
                 break;
               }
 
               runFrames();
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 7:
               if (!(docBody.classList.contains('de-runned') || aib.observeContent && !aib.observeContent(checkDomains, dataPromise))) {
-                _context63.next = 9;
+                _context65.next = 9;
                 break;
               }
 
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 9:
               Logger.log('Imageboard check');
 
               if (locStorage) {
-                _context63.next = 14;
+                _context65.next = 14;
                 break;
               }
 
               if (checkStorage()) {
-                _context63.next = 13;
+                _context65.next = 13;
                 break;
               }
 
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 13:
               initNavFuncs();
 
             case 14:
-              _context63.next = 16;
+              _context65.next = 16;
               return dataPromise || readData();
 
             case 16:
-              _yield = _context63.sent;
+              _yield = _context65.sent;
               _yield2 = _slicedToArray(_yield, 1);
               favObj = _yield2[0];
 
               if (!(!Cfg.disabled && (_aib$init = (_aib4 = aib).init) !== null && _aib$init !== void 0 && _aib$init.call(_aib4) || !localData && docBody.classList.contains('de-mode-local'))) {
-                _context63.next = 21;
+                _context65.next = 21;
                 break;
               }
 
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 21:
               docBody.classList.add('de-runned');
@@ -31799,13 +31896,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               addSVGIcons();
 
               if (!Cfg.disabled) {
-                _context63.next = 28;
+                _context65.next = 28;
                 break;
               }
 
               Panel.initPanel(formEl);
               scriptCSS();
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 28:
               if ('toJSON' in aProto) {
@@ -31848,22 +31945,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               Logger.log('Replace delform');
               pByEl = new Map();
               pByNum = new Map();
-              _context63.prev = 43;
+              _context65.prev = 43;
               DelForm.last = DelForm.first = new DelForm(formEl, aib.page, null);
 
               if (!Thread.first) {
                 console.error('No threads detected!');
               }
 
-              _context63.next = 53;
+              _context65.next = 53;
               break;
 
             case 48:
-              _context63.prev = 48;
-              _context63.t0 = _context63["catch"](43);
-              console.error('Delform parsing error:', getErrorMessage(_context63.t0));
+              _context65.prev = 48;
+              _context65.t0 = _context65["catch"](43);
+              console.error('Delform parsing error:', getErrorMessage(_context65.t0));
               $show(docBody);
-              return _context63.abrupt("return");
+              return _context65.abrupt("return");
 
             case 53:
               Logger.log('Parse delform');
@@ -31924,10 +32021,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 79:
             case "end":
-              return _context63.stop();
+              return _context65.stop();
           }
         }
-      }, _callee53, null, [[43, 48]]);
+      }, _callee55, null, [[43, 48]]);
     }));
     return _runMain.apply(this, arguments);
   }
