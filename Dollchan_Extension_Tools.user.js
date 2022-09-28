@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = 'c488af9';
+  var commit = 'a8cf67f';
 
   var defaultCfg = {
     disabled: 0,
@@ -9021,7 +9021,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               }
 
               _context57.next = 3;
-              return new Promise(function (res, _) {
+              return new Promise(function (res, rej) {
                 saveCfgObjQueue.push([dm, fn, res, rej]);
               });
 

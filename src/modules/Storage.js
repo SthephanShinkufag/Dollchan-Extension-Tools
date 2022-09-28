@@ -108,7 +108,7 @@ async function saveCfgQueue() {
 // Replaces the domain config with an object. Removes the domain config, if there is no object.
 async function saveCfgObj(dm, fn) {
 	if(saveCfgBusy) {
-		await new Promise((res, _) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
+		await new Promise((res, rej) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
 		return;
 	}
 	saveCfgBusy = true;
