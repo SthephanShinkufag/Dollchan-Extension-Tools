@@ -317,10 +317,10 @@ const CfgWindow = {
 			case 'removeHidd':
 			case 'noBoardRule':
 			case 'userCSS': updateCSS(); break;
-			case 'hideBySpell': Spells.toggle(); break;
+			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
 				if(Cfg.sortSpells) {
-					Spells.toggle();
+					await Spells.toggle();
 				}
 				break;
 			case 'hideRefPsts':
@@ -508,7 +508,7 @@ const CfgWindow = {
 					e.preventDefault();
 					await saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
-					Spells.toggle();
+					await Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
 					e.preventDefault();
@@ -516,7 +516,7 @@ const CfgWindow = {
 						return;
 					}
 					$id('de-spell-txt').value = '';
-					Spells.toggle();
+					await Spells.toggle();
 				}
 			}
 			return;

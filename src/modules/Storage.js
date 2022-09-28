@@ -552,7 +552,7 @@ function initStorageEvent() {
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
 			return;
-		case '__de-spells': (() => {
+		case '__de-spells': (async () => {
 			try {
 				data = JSON.parse(val);
 			} catch(err) {
@@ -565,7 +565,7 @@ function initStorageEvent() {
 			}
 			$hide(docBody);
 			if(data.data) {
-				Spells.setSpells(data.data, false);
+				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
@@ -573,7 +573,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disableSpells();
+				await Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';

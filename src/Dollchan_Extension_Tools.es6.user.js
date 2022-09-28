@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '10962d7';
+const commit = 'c48e15f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2962,7 +2962,7 @@ function initStorageEvent() {
 			Thread.first.updateHidden(HiddenThreads.getRawData()[aib.b]);
 			toggleWindow('hid', true);
 			return;
-		case '__de-spells': (() => {
+		case '__de-spells': (async () => {
 			try {
 				data = JSON.parse(val);
 			} catch(err) {
@@ -2975,7 +2975,7 @@ function initStorageEvent() {
 			}
 			$hide(docBody);
 			if(data.data) {
-				Spells.setSpells(data.data, false);
+				await Spells.setSpells(data.data, false);
 				Cfg.spells = JSON.stringify(data.data);
 				temp = $id('de-spell-txt');
 				if(temp) {
@@ -2983,7 +2983,7 @@ function initStorageEvent() {
 				}
 			} else {
 				SpellsRunner.unhideAll();
-				Spells.disableSpells();
+				await Spells.disableSpells();
 				temp = $id('de-spell-txt');
 				if(temp) {
 					temp.value = '';
@@ -4539,10 +4539,10 @@ const CfgWindow = {
 			case 'removeHidd':
 			case 'noBoardRule':
 			case 'userCSS': updateCSS(); break;
-			case 'hideBySpell': Spells.toggle(); break;
+			case 'hideBySpell': await Spells.toggle(); break;
 			case 'sortSpells':
 				if(Cfg.sortSpells) {
-					Spells.toggle();
+					await Spells.toggle();
 				}
 				break;
 			case 'hideRefPsts':
@@ -4730,7 +4730,7 @@ const CfgWindow = {
 					e.preventDefault();
 					await saveCfg('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
-					Spells.toggle();
+					await Spells.toggle();
 					break;
 				case 'de-btn-spell-clear':
 					e.preventDefault();
@@ -4738,7 +4738,7 @@ const CfgWindow = {
 						return;
 					}
 					$id('de-spell-txt').value = '';
-					Spells.toggle();
+					await Spells.toggle();
 				}
 			}
 			return;
@@ -7243,7 +7243,7 @@ const Spells = Object.create({
 		this._initSpells();
 		return this.reps;
 	},
-	addSpell(type, arg, isNeg) {
+	async addSpell(type, arg, isNeg) {
 		const fld = $id('de-spell-txt');
 		const val = fld?.value;
 		const chk = $q('input[info="hideBySpell"]');
@@ -7301,12 +7301,12 @@ const Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				saveCfg('hideBySpell', 1);
+				await saveCfg('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				saveCfg('hideBySpell', 0);
+				await saveCfg('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -7314,8 +7314,8 @@ const Spells = Object.create({
 			if(spells[1] && Cfg.sortSpells) {
 				this._sort(spells[1]);
 			}
-			saveCfg('spells', JSON.stringify(spells));
-			this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
 			}
@@ -7392,7 +7392,7 @@ const Spells = Object.create({
 		default: return `${ spell }(${ String(val) })`;
 		}
 	},
-	disableSpells() {
+	async disableSpells() {
 		const value = null;
 		const configurable = true;
 		Object.defineProperties(this, {
@@ -7400,7 +7400,7 @@ const Spells = Object.create({
 			outreps : { configurable, value },
 			reps    : { configurable, value }
 		});
-		saveCfg('hideBySpell', 0);
+		await saveCfg('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(const orep of this.outreps) {
@@ -7427,13 +7427,13 @@ const Spells = Object.create({
 		}
 		return txt;
 	},
-	setSpells(spells, sync) {
+	async setSpells(spells, sync) {
 		if(sync) {
 			this._sync(spells);
 		}
 		if(!Cfg.hideBySpell) {
 			SpellsRunner.unhideAll();
-			this.disableSpells();
+			await this.disableSpells();
 			return;
 		}
 		this._optimize(spells);
@@ -7447,21 +7447,21 @@ const Spells = Object.create({
 			SpellsRunner.unhideAll();
 		}
 	},
-	toggle() {
+	async toggle() {
 		let spells;
 		const fld = $id('de-spell-txt');
 		const val = fld.value;
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
-			this.setSpells(spells, true);
-			saveCfg('spells', JSON.stringify(spells));
+			await this.setSpells(spells, true);
+			await saveCfg('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
-				this.disableSpells();
-				saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				await this.disableSpells();
+				await saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
 				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -7532,7 +7532,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			this.disableSpells();
+			/*await*/ this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -10517,7 +10517,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
-			case 'de-btn-sage': Spells.addSpell(9, '', false); return;
+			case 'de-btn-sage': /*await*/ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
@@ -10684,7 +10684,7 @@ class AbstractPost {
 		e.preventDefault();
 		e.stopPropagation();
 	}
-	_clickMenu(el, e) {
+	async _clickMenu(el, e) {
 		const isHide = !this.isHidden;
 		const { num } = this;
 		switch(el.getAttribute('info')) {
@@ -10702,37 +10702,37 @@ class AbstractPost {
 				nav.matchesSelector(end, aib.qPostSubj)
 			)) {
 				if(this._selText.includes('\n')) {
-					Spells.addSpell(1 /* #exp */,
+					await Spells.addSpell(1 /* #exp */,
 						`/${ escapeRegExp(this._selText).replace(/\r?\n/g, '\\n') }/`, false);
 				} else {
-					Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
+					await Spells.addSpell(0 /* #words */, this._selText.toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.append(this._selRange.cloneContents());
-				Spells.addSpell(2 /* #exph */,
+				await Spells.addSpell(2 /* #exph */,
 					`/${ escapeRegExp(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) }/`, false);
 			}
 			return;
 		}
-		case 'hide-name': Spells.addSpell(6 /* #name */, this.posterName, false); return;
-		case 'hide-trip': Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
+		case 'hide-name': await Spells.addSpell(6 /* #name */, this.posterName, false); return;
+		case 'hide-trip': await Spells.addSpell(7 /* #trip */, this.posterTrip, false); return;
 		case 'hide-img': {
 			const { weight: w, width: wi, height: h } = this.images.firstAttach;
-			Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
+			await Spells.addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		}
 		case 'hide-imgn':
-			Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
+			await Spells.addSpell(3 /* #imgn */, `/${ escapeRegExp(this.images.firstAttach.name) }/`, false);
 			return;
-		case 'hide-ihash':
-			ImagesHashStorage.getHash(this.images.firstAttach).then(hash => {
-				if(hash !== -1) {
-					Spells.addSpell(4 /* #ihash */, hash, false);
-				}
-			});
+		case 'hide-ihash': {
+			const hash = await ImagesHashStorage.getHash(this.images.firstAttach);
+			if(hash !== -1) {
+				await Spells.addSpell(4 /* #ihash */, hash, false);
+			}
 			return;
-		case 'hide-noimg': Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
+		}
+		case 'hide-noimg': await Spells.addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'hide-text': {
 			const words = Post.getWrds(this.text);
 			for(let post = Thread.first.op; post; post = post.next) {
@@ -10740,24 +10740,23 @@ class AbstractPost {
 			}
 			return;
 		}
-		case 'hide-notext': Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
+		case 'hide-notext': await Spells.addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'hide-refs':
 			this.ref.toggleRef(isHide, true);
 			this.setUserVisib(isHide);
 			return;
-		case 'hide-refsonly': Spells.addSpell(0 /* #words */, '>>' + num, false); return;
+		case 'hide-refsonly': await Spells.addSpell(0 /* #words */, '>>' + num, false); return;
 		case 'img-load': {
+			e.preventDefault();
 			$popup('file-loading', Lng.loading[lang], true);
 			const url = el.href;
-			ContentLoader.loadImgData(url, false).then(data => {
-				if(!data) {
-					$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
-					return;
-				}
-				closePopup('file-loading');
-				downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
-			});
-			e.preventDefault();
+			const data = await ContentLoader.loadImgData(url, false)
+			if(!data) {
+				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
+				return;
+			}
+			closePopup('file-loading');
+			downloadBlob(new Blob([data], { type: getFileMime(url) }), el.getAttribute('download'));
 			return;
 		}
 		case 'post-markmy': {
