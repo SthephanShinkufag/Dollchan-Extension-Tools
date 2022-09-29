@@ -142,7 +142,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const formEl = super.fixHTML(data, isForm);
 			$Q('br.clear', formEl).forEach(brEl => {
 				const hr = brEl.nextElementSibling;
-				if(hr && hr.tagName.toLowerCase() === 'hr') {
+				if(hr?.tagName.toLowerCase() === 'hr') {
 					brEl.parentNode.after(hr);
 				}
 				brEl.remove();
