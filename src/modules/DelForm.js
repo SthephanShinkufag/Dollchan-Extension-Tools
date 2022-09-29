@@ -82,10 +82,10 @@ class DelForm {
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			const el = fNodes[i];
-			if(el.tagName === 'HR') {
+			if(el.tagName?.toLowerCase() === 'hr') {
 				el.before(cThr);
 				const lastEl = cThr.lastElementChild;
-				if(lastEl.tagName === 'BR') {
+				if(lastEl.tagName?.toLowerCase() === 'br') {
 					el.before(lastEl);
 				}
 				try {

@@ -69,9 +69,9 @@ async function checkSubmit(data) {
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
-	await saveCfgObj(aib.dm, lCfg => {
-		lCfg.stats[statsParam]++;
-		return lCfg;
+	await CfgSaver.saveObj(aib.domain, loadedCfg => {
+		loadedCfg.stats[statsParam]++;
+		return loadedCfg;
 	});
 	if(!tNum) {
 		if(postNum) {
@@ -154,24 +154,24 @@ function* getFormElements(form, submitter) {
 	constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
 		const field = controls[i];
-		const tagName = field.tagName.toLowerCase();
+		const tag = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
 		if(field.closest('datalist') || isFormElDisabled(field) ||
 			field !== submitter && (
-				tagName === 'button' ||
-				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
+				tag === 'button' ||
+				tag === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
 			) ||
-			tagName === 'input' && (
+			tag === 'input' && (
 				type === 'checkbox' && !field.checked ||
 				type === 'radio' && !field.checked ||
 				type === 'image' && !name
 			) ||
-			tagName === 'object'
+			tag === 'object'
 		) {
 			continue;
 		}
-		if(tagName === 'select') {
+		if(tag === 'select') {
 			const options = $Q('select > option, select > optgrout > option', field);
 			for(let j = 0, jlen = options.length; j < jlen; ++j) {
 				const option = options[j];
@@ -179,7 +179,7 @@ function* getFormElements(form, submitter) {
 					yield { type, el: field, name: fixName(name), value: option.value };
 				}
 			}
-		} else if(tagName === 'input') {
+		} else if(tag === 'input') {
 			switch(type) {
 			case 'image': throw new Error('input[type="image"] is not supported');
 			case 'checkbox':

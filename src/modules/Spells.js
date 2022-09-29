@@ -118,12 +118,12 @@ const Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				await saveCfg('hideBySpell', 1);
+				await CfgSaver.save('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				await saveCfg('hideBySpell', 0);
+				await CfgSaver.save('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -131,7 +131,7 @@ const Spells = Object.create({
 			if(spells[1] && Cfg.sortSpells) {
 				this._sort(spells[1]);
 			}
-			await saveCfg('spells', JSON.stringify(spells));
+			await CfgSaver.save('spells', JSON.stringify(spells));
 			await this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
@@ -217,7 +217,7 @@ const Spells = Object.create({
 			outreps : { configurable, value },
 			reps    : { configurable, value }
 		});
-		await saveCfg('hideBySpell', 0);
+		await CfgSaver.save('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(const orep of this.outreps) {
@@ -271,14 +271,14 @@ const Spells = Object.create({
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
 			await this.setSpells(spells, true);
-			await saveCfg('spells', JSON.stringify(spells));
+			await CfgSaver.save('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
 				await this.disableSpells();
-				await saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
 				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -349,7 +349,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			/*await*/ this.disableSpells();
+			/* await */ this.disableSpells();
 		}
 	},
 	_initHiders(data) {

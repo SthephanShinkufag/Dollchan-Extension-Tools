@@ -14,7 +14,7 @@ function $ajax(url, params = null, isCORS = false) {
 			params = {};
 		}
 		params.referrer =
-			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+			doc.referrer.startsWith(aib.protocol + '//' + aib.host) ? doc.referrer : deWindow.location;
 		params.referrerPolicy = 'unsafe-url';
 		if(params.data) {
 			params.body = params.data;

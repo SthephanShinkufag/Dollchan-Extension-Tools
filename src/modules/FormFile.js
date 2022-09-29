@@ -426,7 +426,7 @@ class FileInput {
 		const { fileTr } = this._parent;
 		$hide(fileTr);
 		$hide(this._txtWrap);
-		const isTr = fileTr.tagName === 'TR';
+		const isTr = fileTr.tagName.toLowerCase() === 'tr';
 		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
 			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
 			'<div class="de-file-txt-area"></div>');

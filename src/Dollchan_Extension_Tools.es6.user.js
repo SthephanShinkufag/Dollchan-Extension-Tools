@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '4fe4853';
+const commit = '7091bdf';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -2442,7 +2442,7 @@ function setStored(id, value) {
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
-		return new Promise((resolve, _) => {
+		return new Promise(resolve => {
 			const obj = {};
 			obj[id] = value;
 			chrome.storage.sync.set(obj, () => {
@@ -2485,86 +2485,81 @@ async function getStoredObj(id) {
 	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
-async function saveCfgObjHelper(dm, fn) {
-	const val = await getStoredObj('DESU_Config');
-	const res = fn(val[dm]);
-	if(res) {
-		val[dm] = res;
-	} else {
-		delete val[dm];
-	}
-	const rv = setStored('DESU_Config', JSON.stringify(val));
-	if (rv) {
-		await rv;
-	}
-}
+// == CONFIG DATA ============================================================================================
 
-const saveCfgObjQueue = [];
-let saveCfgBusy = false;
-
-async function saveCfgQueue() {
-	while (saveCfgObjQueue.length > 0) {
-		const [[qDm, qFn, qRes, qRej]] = saveCfgObjQueue.splice(0, 1);
-		try {
-			await saveCfgObjHelper(qDm, qFn);
-			qRes();
-		} catch(e) {
-			qRej(e);
-		}
-	}
-	saveCfgBusy = false;
-}
-
-// Replaces the domain config with an object. Removes the domain config, if there is no object.
-async function saveCfgObj(dm, fn) {
-	if(saveCfgBusy) {
-		await new Promise((res, rej) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
-		return;
-	}
-	saveCfgBusy = true;
-	await saveCfgObjHelper(dm, fn);
-	if (saveCfgObjQueue.length > 0) {
-		saveCfgQueue(); // run asynchronously without await
-	} else {
-		saveCfgBusy = false;
-	}
-}
-
-// Saves the value for a particular config option
-async function saveCfg(...args) {
-	let isChanged = false;
-	for(let i = 0; i < args.length; i += 2) {
-		const id = args[i];
-		const val = args[i + 1];
-		if (Cfg[id] !== val) {
-			Cfg[id] = val;
-			isChanged = true;
-		}
-	}
-	if (isChanged) {
-		await saveCfgObj(aib.dm, cfg => {
-			for(let i = 0; i < args.length; i += 2) {
-				cfg[args[i]] = args[i + 1];
+// Asynchronous saving of config. Fixes a race condition when saving from different browser tabs.
+const CfgSaver = {
+	// Saves enumerated options and values
+	async save(...args) {
+		let isChanged = false;
+		for(let i = 0; i < args.length; i += 2) {
+			const id = args[i];
+			const val = args[i + 1];
+			if(Cfg[id] !== val) {
+				Cfg[id] = val;
+				isChanged = true;
 			}
-			return cfg;
-		});
-	}
-}
+		}
+		if(isChanged) {
+			await this.saveObj(aib.domain, loadedCfg => {
+				for(let i = 0; i < args.length; i += 2) {
+					loadedCfg[args[i]] = args[i + 1];
+				}
+				return loadedCfg;
+			});
+		}
+	},
+	// Saves all domain options as an object
+	async saveObj(domain, fn) {
+		if(this._isBusy) {
+			await new Promise((resolve, reject) => {
+				this._queue.push([domain, fn, resolve, reject]);
+			});
+			return;
+		}
+		this._isBusy = true;
+		await this.saveObjHelper(domain, fn);
+		if(this._queue.length > 0) {
+			while(this._queue.length > 0) {
+				const [[qDomain, qFn, resolve, reject]] = this._queue.splice(0, 1);
+				try {
+					await this.saveObjHelper(qDomain, qFn);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
+			}
+		}
+		this._isBusy = false;
+	},
+	async saveObjHelper(domain, fn) {
+		const val = await getStoredObj('DESU_Config');
+		const res = fn(val[domain]);
+		if(res) {
+			val[domain] = res;
+		} else {
+			delete val[domain];
+		}
+		const rv = setStored('DESU_Config', JSON.stringify(val));
+		if(rv) {
+			await rv;
+		}
+	},
+
+	_isBusy : false,
+	_queue  : []
+};
 
 // Toggles a particular config option (1|0)
 async function toggleCfg(id) {
-	await saveCfg(id, +!Cfg[id]);
-}
-
-function readData() {
-	return Promise.all([readFavorites(), readCfg()]);
+	await CfgSaver.save(id, +!Cfg[id]);
 }
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
-	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
 		const isGlobal = nav.hasGlobalStorage && !!val.global;
 		obj = isGlobal ? val.global : {};
 		if(isGlobal) {
@@ -2617,7 +2612,7 @@ async function readCfg() {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	lang = Cfg.language;
-	val[aib.dm] = Cfg;
+	val[aib.domain] = Cfg;
 	if(val.commit !== commit && !localData) {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));
@@ -2638,7 +2633,9 @@ async function readCfg() {
 	}
 }
 
-// Initialize of hidden and favorites. Run spells.
+// == POSTS DATA =============================================================================================
+
+// Initialization of hidden and favorites. Run spells.
 function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
@@ -2778,8 +2775,6 @@ function readViewedPosts() {
 		});
 	}
 }
-
-// HIDDEN AND MY POSTS STORAGE
 
 class PostsStorage {
 	constructor() {
@@ -3105,7 +3100,7 @@ const Panel = Object.create({
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
-			if (el.tagName.toLowerCase() === 'a') {
+			if(el.tagName.toLowerCase() === 'a') {
 				return;
 			}
 			e.preventDefault();
@@ -3269,15 +3264,15 @@ const Panel = Object.create({
 			tag = 'a';
 			href = aib.catalogUrl;
 		}
-		return `<${tag} id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': ''}>
+		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
+			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
 				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
 				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
 			</svg>
-		</${tag}>`;
+		</${ tag }>`;
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&
@@ -3346,7 +3341,7 @@ function makeDraggable(name, win, head) {
 			case 'mouseleave':
 			case 'mouseup':
 				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-				await saveCfg(name + 'WinX', this._X, name + 'WinY', this._Y);
+				await CfgSaver.save(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
 	});
@@ -3405,16 +3400,17 @@ class WinResizer {
 			return;
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-			await saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+			await CfgSaver.save(this.cfgName,
+				parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
 				return;
 			}
 			if(this.vertical) {
-				await saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
+				await CfgSaver.save(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
 					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
-				await saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
+				await CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);
@@ -3566,7 +3562,7 @@ function showVideosWindow(body) {
 		// YouTube APT script. We canʼt insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
-		script.src = aib.prot + '//www.youtube.com/player_api';
+		script.src = aib.protocol + '//www.youtube.com/player_api';
 		script.id = 'de-ytube-api';
 		doc.head.append(script);
 	}
@@ -4291,7 +4287,7 @@ const CfgWindow = {
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 			getEditButton('cfg', fn => fn(Cfg, true, async data => {
-				await saveCfgObj(aib.dm, () => data);
+				await CfgSaver.saveObj(aib.domain, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -4304,7 +4300,7 @@ const CfgWindow = {
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						await saveCfgObj(aib.dm, () => data.global);
+						await CfgSaver.saveObj(aib.domain, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -4316,7 +4312,7 @@ const CfgWindow = {
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');
 					const obj = {};
-					const com = data[aib.dm];
+					const com = data[aib.domain];
 					for(const i in com) {
 						if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
 							i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
@@ -4325,7 +4321,7 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					await saveCfgObj('global', () => data.global);
+					await CfgSaver.saveObj('global', () => data.global);
 					toggleWindow('cfg', true);
 				};
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
@@ -4336,8 +4332,8 @@ const CfgWindow = {
 				const list = this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })`
+					Lng.hidPostThr[lang] + ` (${ aib.domain })`,
+					Lng.myPosts[lang] + ` (${ aib.domain })`
 				]);
 				// Create popup with controls
 				$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
@@ -4359,8 +4355,8 @@ const CfgWindow = {
 							$popup('err-invaliddata', Lng.invalidData[lang]);
 							return;
 						}
-						const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
-						const isOldCfg = !cfgObj && !favObj && !dmObj;
+						const { settings: cfgObj, favorites: favObj, [aib.domain]: domainObj } = obj;
+						const isOldCfg = !cfgObj && !favObj && !domainObj;
 						if(isOldCfg) {
 							setStored('DESU_Config', data);
 						}
@@ -4373,18 +4369,18 @@ const CfgWindow = {
 						if(favObj) {
 							saveRenewFavorites(favObj);
 						}
-						if(dmObj) {
-							if(dmObj.posts) {
-								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+						if(domainObj) {
+							if(domainObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(domainObj.posts);
 							}
-							if(dmObj.threads) {
-								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							if(domainObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(domainObj.threads);
 							}
-							if(dmObj.myposts) {
-								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							if(domainObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(domainObj.myposts);
 							}
 						}
-						if(cfgObj || dmObj || isOldCfg) {
+						if(cfgObj || domainObj || isOldCfg) {
 							$popup('cfg-file', Lng.updating[lang], true);
 							deWindow.location.reload();
 							return;
@@ -4400,10 +4396,10 @@ const CfgWindow = {
 				els[0].checked = true;
 				expFile.addEventListener('click', async e => {
 					const name = [];
-					const nameDm = [];
+					const nameDomain = [];
 					const d = new Date();
 					let val = [];
-					let valDm = [];
+					let valDomain = [];
 					for(let i = 0, len = els.length; i < len; ++i) {
 						if(!els[i].checked) {
 							continue;
@@ -4418,17 +4414,17 @@ const CfgWindow = {
 						case 1: name.push('Fav');
 							val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
 							break;
-						case 2: nameDm.push('Hid');
-							valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+						case 2: nameDomain.push('Hid');
+							valDomain.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
 								`"threads":${ locStorage['de-threads'] || '{}' }`);
 							break;
-						case 3: nameDm.push('You');
-							valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+						case 3: nameDomain.push('You');
+							valDomain.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
 						}
 					}
-					if((valDm = valDm.join(','))) {
-						val.push(`"${ aib.dm }":{${ valDm }}`);
-						name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+					if((valDomain = valDomain.join(','))) {
+						val.push(`"${ aib.domain }":{${ valDomain }}`);
+						name.push(`${ aib.domain } (${ nameDomain.join('+') })`);
 					}
 					if((val = val.join(','))) {
 						downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
@@ -4443,7 +4439,7 @@ const CfgWindow = {
 			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
 				'cfg-reset',
 				`<b>${ Lng.resetData[lang] }:</b><hr>` +
-				`<div class="de-list"><b>${ aib.dm }:</b>${
+				`<div class="de-list"><b>${ aib.domain }:</b>${
 					this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
 				}</div><hr>` +
 				`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
@@ -4469,7 +4465,7 @@ const CfgWindow = {
 					delStored('DESU_keys');
 				} else if(els[0].checked) {
 					getStoredObj('DESU_Config').then(data => {
-						delete data[aib.dm];
+						delete data[aib.domain];
 						setStored('DESU_Config', JSON.stringify(data));
 						$popup('cfg-reset', Lng.updating[lang], true);
 						deWindow.location.reload();
@@ -4485,15 +4481,15 @@ const CfgWindow = {
 	// Event handler for Setting window and its controls.
 	async handleEvent(e) {
 		const { type, target: el } = e;
-		const tag = el.tagName;
-		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
+		const tag = el.tagName.toLowerCase();
+		if(type === 'click' && tag === 'div' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
-			await saveCfg('cfgTab', info);
+			await CfgSaver.save('cfgTab', info);
 		}
-		if(type === 'change' && tag === 'SELECT') {
+		if(type === 'change' && tag === 'select') {
 			const info = el.getAttribute('info');
-			await saveCfg(info, el.selectedIndex);
+			await CfgSaver.save(info, el.selectedIndex);
 			this._updateDependant();
 			switch(info) {
 			case 'language':
@@ -4569,7 +4565,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
+		if(type === 'click' && tag === 'input' && el.type === 'checkbox') {
 			const info = el.getAttribute('info');
 			await toggleCfg(info);
 			this._updateDependant();
@@ -4669,7 +4665,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
+		if(type === 'click' && tag === 'input' && el.type === 'button') {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
@@ -4722,45 +4718,49 @@ const CfgWindow = {
 			}
 			}
 		}
-		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
+		if(type === 'keyup' && tag === 'input' && el.type === 'text') {
 			const info = el.getAttribute('info');
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
 				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
-					await saveCfg('postBtnsBack', el.value);
+					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
 				}
 				break;
 			}
 			case 'limitPostMsg':
-				await saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				await CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': await saveCfg('minImgSize', Math.max(+el.value, 1)); break;
-			case 'zoomFactor': await saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'minImgSize': await CfgSaver.save('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor':
+				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+				break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
-				await saveCfg('webmVolume', val);
+				await CfgSaver.save('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
-			case 'minWebmWidth': await saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'minWebmWidth':
+				await CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
+				break;
 			case 'maskVisib':
-				await saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				await CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
 				break;
-			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
-			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
-			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
+			case 'linksOver': await CfgSaver.save('linksOver', +el.value | 0); break;
+			case 'linksOut': await CfgSaver.save('linksOut', +el.value | 0); break;
+			case 'ytApiKey': await CfgSaver.save('ytApiKey', el.value.trim()); break;
 			case 'passwValue': await PostForm.setUserPassw(); break;
 			case 'nameValue': await PostForm.setUserName(); break;
-			default: await saveCfg(info, el.value);
+			default: await CfgSaver.save(info, el.value);
 			}
 			return;
 		}
-		if(tag === 'A') {
+		if(tag === 'a') {
 			if(el.id === 'de-btn-spell-add') {
 				switch(e.type) {
 				case 'click': e.preventDefault(); break;
@@ -4773,7 +4773,7 @@ const CfgWindow = {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
 					e.preventDefault();
-					await saveCfg('hideBySpell', 1);
+					await CfgSaver.save('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
 					await Spells.toggle();
 					break;
@@ -4788,7 +4788,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
+		if(tag === 'textarea' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
 	},
@@ -4824,7 +4824,7 @@ const CfgWindow = {
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
-						await saveCfg('userCSSTxt', inputEl.value);
+						await CfgSaver.save('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),
@@ -4843,7 +4843,7 @@ const CfgWindow = {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const info = el.getAttribute('info');
-			if(el.tagName === 'INPUT') {
+			if(el.tagName.toLowerCase() === 'input') {
 				if(el.type === 'checkbox') {
 					el.checked = !!Cfg[info];
 				} else {
@@ -4958,7 +4958,7 @@ const CfgWindow = {
 				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
-				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
+				${ aib.protocol === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
 			${ this._getSel('embedYTube') }
 			<div class="de-depend">
@@ -5265,7 +5265,8 @@ class Menu {
 				if(name.length > 20) {
 					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
 				}
-				const info = aib.dm !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
+				const info = aib.domain !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ?
+					' info="img-load"' : '';
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }"${ info } target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
 			};
@@ -5457,13 +5458,13 @@ const HotKeys = {
 		let idx;
 		const isThr = aib.t;
 		const el = e.target;
-		const tag = el.tagName;
+		const tag = el.tagName.toLowerCase();
 		const kc = e.keyCode |
 			(e.ctrlKey ? 0x1000 : 0) |
 			(e.shiftKey ? 0x2000 : 0) |
 			(e.altKey ? 0x4000 : 0) |
-			(tag === 'TEXTAREA' ||
-				tag === 'INPUT' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
+			(tag === 'textarea' ||
+				tag === 'input' && (el.type === 'text' || el.type === 'password') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(isThr || $id('de-popup-load-pages')) {
 				return;
@@ -6015,7 +6016,7 @@ const ContentLoader = {
 				$del(el);
 			}
 		}), () => {
-			const docName = `${ aib.dm }-${ delSymbols(aib.b) }-${ aib.t }`;
+			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
@@ -6026,7 +6027,7 @@ const ContentLoader = {
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
 					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
-				}${ JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) });`);
+				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
 				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
@@ -6064,12 +6065,12 @@ const ContentLoader = {
 			$Q(aib.qPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
+				escapeRegExp(aib._4chan ? '4cdn.org' : aib.domain) }\\/`, 'i');
 			$Q('link, *[src]', dc).forEach(el => {
 				if(els.indexOf(el) !== -1) {
 					return;
 				}
-				let url = el.tagName === 'LINK' ? el.href : el.src;
+				let url = el.tagName.toLowerCase() === 'link' ? el.href : el.src;
 				if(!urlRegex.test(url)) {
 					el.remove();
 					return;
@@ -6327,7 +6328,7 @@ class DateTime {
 	static async toggleSettings(el) {
 		if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || DateTime.checkPattern(Cfg.timePattern))) {
 			$popup('err-correcttime', Lng.cTimeError[lang]);
-			await saveCfg('correctTime', 0);
+			await CfgSaver.save('correctTime', 0);
 			el.checked = false;
 		}
 	}
@@ -6428,7 +6429,7 @@ class Videos {
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
-			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+			txt = `<iframe class="de-video-player" src="${ aib.protocol }//player.vimeo.com/video/${ id }${
 				Cfg.embedYTube === 1 ? '?autoplay=1' : ''
 			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
@@ -6485,8 +6486,8 @@ class Videos {
 			link.className = `de-video-link ${ isYtube ? 'de-ytube' : 'de-vimeo' }`;
 		} else {
 			const src = isYtube ?
-				`${ aib.prot }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
-				`${ aib.prot }//vimeo.com/${ m[1] }`;
+				`${ aib.protocol }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
+				`${ aib.protocol }//vimeo.com/${ m[1] }`;
 			link = $bEnd(this.post.msg, `<p class="de-video-ext"><a class="de-video-link ${
 				isYtube ? 'de-ytube' : 'de-vimeo' }${ time ? '" de-time="' + time : ''
 			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
@@ -6603,7 +6604,7 @@ class Videos {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
 					Videos._getYTInfoOembed(info, num, id);
 			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
+			return $ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
 				return Videos._titlesLoaderHelper(
 					info, num,
@@ -6665,7 +6666,7 @@ class Videos {
 		this.playerInfo = m;
 		el.classList.remove('de-video-expanded');
 		$show(el);
-		const str = `<a class="de-video-player" href="${ aib.prot }`;
+		const str = `<a class="de-video-player" href="${ aib.protocol }`;
 		if(isYtube) {
 			el.innerHTML = `${ str }//www.youtube.com/watch?v=${ m[1] }" target="_blank">` +
 				`<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/${ m[1] }/0.jpg"></a>`;
@@ -6673,7 +6674,7 @@ class Videos {
 		}
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
-		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
+		$ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 		}).catch(emptyFn);
 	}
@@ -6798,7 +6799,7 @@ function $ajax(url, params = null, isCORS = false) {
 			params = {};
 		}
 		params.referrer =
-			doc.referrer.startsWith(aib.prot + '//' + aib.host) ? doc.referrer : deWindow.location;
+			doc.referrer.startsWith(aib.protocol + '//' + aib.host) ? doc.referrer : deWindow.location;
 		params.referrerPolicy = 'unsafe-url';
 		if(params.data) {
 			params.body = params.data;
@@ -7345,12 +7346,12 @@ const Spells = Object.create({
 				isAdded = false;
 			}
 			if(isAdded) {
-				await saveCfg('hideBySpell', 1);
+				await CfgSaver.save('hideBySpell', 1);
 				if(chk) {
 					chk.checked = true;
 				}
 			} else if(!spells[1] && !spells[2] && !spells[3]) {
-				await saveCfg('hideBySpell', 0);
+				await CfgSaver.save('hideBySpell', 0);
 				if(chk) {
 					chk.checked = false;
 				}
@@ -7358,7 +7359,7 @@ const Spells = Object.create({
 			if(spells[1] && Cfg.sortSpells) {
 				this._sort(spells[1]);
 			}
-			await saveCfg('spells', JSON.stringify(spells));
+			await CfgSaver.save('spells', JSON.stringify(spells));
 			await this.setSpells(spells, true);
 			if(fld) {
 				fld.value = this.list;
@@ -7444,7 +7445,7 @@ const Spells = Object.create({
 			outreps : { configurable, value },
 			reps    : { configurable, value }
 		});
-		await saveCfg('hideBySpell', 0);
+		await CfgSaver.save('hideBySpell', 0);
 	},
 	outReplace(txt) {
 		for(const orep of this.outreps) {
@@ -7498,14 +7499,14 @@ const Spells = Object.create({
 		if(val && (spells = this.parseText(val))) {
 			closePopup('err-spell');
 			await this.setSpells(spells, true);
-			await saveCfg('spells', JSON.stringify(spells));
+			await CfgSaver.save('spells', JSON.stringify(spells));
 			fld.value = this.list;
 		} else {
 			if(!val) {
 				closePopup('err-spell');
 				SpellsRunner.unhideAll();
 				await this.disableSpells();
-				await saveCfg('spells', JSON.stringify([Date.now(), null, null, null]));
+				await CfgSaver.save('spells', JSON.stringify([Date.now(), null, null, null]));
 				sendStorageEvent('__de-spells', '{ hide: false, data: null }');
 			}
 			$q('input[info="hideBySpell"]').checked = false;
@@ -7576,7 +7577,7 @@ const Spells = Object.create({
 		if(spells) {
 			this._optimize(spells);
 		} else {
-			/*await*/ this.disableSpells();
+			/* await */ this.disableSpells();
 		}
 	},
 	_initHiders(data) {
@@ -8679,7 +8680,7 @@ class PostForm {
 	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
 		if(el) {
-			await saveCfg('nameValue', el.value);
+			await CfgSaver.save('nameValue', el.value);
 		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
@@ -8689,7 +8690,7 @@ class PostForm {
 		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
-			await saveCfg('passwValue', el.value);
+			await CfgSaver.save('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
@@ -8774,7 +8775,7 @@ class PostForm {
 	}
 	handleEvent(e) {
 		let el = e.target;
-		if(el.tagName !== 'DIV') {
+		if(el.tagName.toLowerCase() !== 'div') {
 			el = el.parentNode;
 		}
 		const { id } = el;
@@ -8966,8 +8967,8 @@ class PostForm {
 			try {
 				const data = await html5Submit(this.form, this.subm, true);
 				await checkSubmit(data);
-			} catch(e) {
-				showSubmitError(e);
+			} catch(err) {
+				showSubmitError(err);
 			}
 		};
 	}
@@ -9076,7 +9077,8 @@ class PostForm {
 				const { width, height } = s;
 				s.setProperty('width', width + 'px', 'important');
 				s.setProperty('height', height + 'px', 'important');
-				/*await*/ saveCfg('textaWidth', parseInt(width, 10), 'textaHeight', parseInt(height, 10));
+				/* await */ CfgSaver.save('textaWidth', parseInt(width, 10),
+					'textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -9097,7 +9099,8 @@ class PostForm {
 				}
 				default: // mouseup
 					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-					/*await*/ saveCfg('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
+					/* await */ CfgSaver.save('textaWidth', parseInt(this._elStyle.width, 10),
+						'textaHeight', parseInt(this._elStyle.height, 10));
 				}
 			}
 		});
@@ -9143,7 +9146,7 @@ class PostForm {
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = async () => {
-			await saveCfg('sageReply', 0);
+			await CfgSaver.save('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
@@ -9259,9 +9262,9 @@ async function checkSubmit(data) {
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
-	await saveCfgObj(aib.dm, lCfg => {
-		lCfg.stats[statsParam]++;
-		return lCfg;
+	await CfgSaver.saveObj(aib.domain, loadedCfg => {
+		loadedCfg.stats[statsParam]++;
+		return loadedCfg;
 	});
 	if(!tNum) {
 		if(postNum) {
@@ -9344,24 +9347,24 @@ function* getFormElements(form, submitter) {
 	constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
 		const field = controls[i];
-		const tagName = field.tagName.toLowerCase();
+		const tag = field.tagName.toLowerCase();
 		const type = field.getAttribute('type');
 		const name = field.getAttribute('name');
 		if(field.closest('datalist') || isFormElDisabled(field) ||
 			field !== submitter && (
-				tagName === 'button' ||
-				tagName === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
+				tag === 'button' ||
+				tag === 'input' && (type === 'submit' || type === 'reset' || type === 'button')
 			) ||
-			tagName === 'input' && (
+			tag === 'input' && (
 				type === 'checkbox' && !field.checked ||
 				type === 'radio' && !field.checked ||
 				type === 'image' && !name
 			) ||
-			tagName === 'object'
+			tag === 'object'
 		) {
 			continue;
 		}
-		if(tagName === 'select') {
+		if(tag === 'select') {
 			const options = $Q('select > option, select > optgrout > option', field);
 			for(let j = 0, jlen = options.length; j < jlen; ++j) {
 				const option = options[j];
@@ -9369,7 +9372,7 @@ function* getFormElements(form, submitter) {
 					yield { type, el: field, name: fixName(name), value: option.value };
 				}
 			}
-		} else if(tagName === 'input') {
+		} else if(tag === 'input') {
 			switch(type) {
 			case 'image': throw new Error('input[type="image"] is not supported');
 			case 'checkbox':
@@ -10056,7 +10059,7 @@ class FileInput {
 		const { fileTr } = this._parent;
 		$hide(fileTr);
 		$hide(this._txtWrap);
-		const isTr = fileTr.tagName === 'TR';
+		const isTr = fileTr.tagName.toLowerCase() === 'tr';
 		const txtArea = $q('.de-file-txt-area') || $bBegin(fileTr, isTr ?
 			'<tr class="de-file-txt-area"><td class="postblock"></td><td></td></tr>' :
 			'<div class="de-file-txt-area"></div>');
@@ -10262,7 +10265,7 @@ class Captcha {
 		}
 		this.initImage(img);
 		const a = img.parentNode;
-		if(a.tagName === 'A') {
+		if(a.tagName.toLowerCase() === 'a') {
 			a.replaceWith(img);
 		}
 		if(isUpdateImage) {
@@ -10349,7 +10352,7 @@ class Captcha {
 		// EXCLUDED FROM FIREFOX EXTENSION - START
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
-		script.src = aib.prot + '//www.google.com/recaptcha/api.js';
+		script.src = aib.protocol + '//www.google.com/recaptcha/api.js';
 		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
 		// EXCLUDED FROM FIREFOX EXTENSION - END
@@ -10451,8 +10454,8 @@ class AbstractPost {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
-			switch(el.tagName) {
-			case 'A':
+			switch(el.tagName.toLowerCase()) {
+			case 'a':
 				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
@@ -10460,7 +10463,7 @@ class AbstractPost {
 					return;
 				}
 				// Check if the link is not an image container
-				if(!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
+				if(!(temp = el.firstElementChild) || temp.tagName.toLowerCase() !== 'img') {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
@@ -10496,7 +10499,7 @@ class AbstractPost {
 				}
 				el = temp; // The link is an image container
 				/* falls through */
-			case 'IMG': // Click on attached image - expand/collapse
+			case 'img': // Click on attached image - expand/collapse
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
@@ -10508,8 +10511,8 @@ class AbstractPost {
 					this._clickImage(el, e);
 				}
 				return;
-			case 'OBJECT':
-			case 'VIDEO': // Click on attached video - expand/collapse
+			case 'object':
+			case 'video': // Click on attached video - expand/collapse
 				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
@@ -10564,7 +10567,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
-			case 'de-btn-sage': /*await*/ Spells.addSpell(9, '', false); return;
+			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
@@ -10586,7 +10589,8 @@ class AbstractPost {
 			}
 		}
 		// Mouseover/mouseout on attached images/videos - update title
-		if(!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
+		if(!isOutEvent && Cfg.expandImgs &&
+			el.tagName.toLowerCase() === 'img' && !el.classList.contains('de-fullimg') &&
 			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -10637,7 +10641,7 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
+			if(!Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
@@ -10797,7 +10801,7 @@ class AbstractPost {
 			e.preventDefault();
 			$popup('file-loading', Lng.loading[lang], true);
 			const url = el.href;
-			const data = await ContentLoader.loadImgData(url, false)
+			const data = await ContentLoader.loadImgData(url, false);
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;
@@ -11588,7 +11592,7 @@ class Pview extends AbstractPost {
 			}
 			const el = nav.fixEventEl(e.relatedTarget);
 			if(!el ||
-				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
+				isOverEvent && (el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
 			) {
 				if(isOverEvent) {
@@ -12025,9 +12029,9 @@ class ImagesViewer {
 			return;
 		case 'click': {
 			const el = e.target;
+			const tag = el.tagName.toLowerCase();
 			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
-				el.tagName !== 'IMG' &&
-				el.tagName !== 'VIDEO' &&
+				tag !== 'img' && tag !== 'video' &&
 				!el.classList.contains('de-fullimg-wrap') &&
 				!el.classList.contains('de-fullimg-wrap-link') &&
 				!el.classList.contains('de-fullimg-video-hack') &&
@@ -12542,7 +12546,7 @@ class ExpandableImage {
 		videoEl.addEventListener('volumechange', async ({ target: el, isTrusted }) => {
 			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
-				await saveCfg('webmVolume', val);
+				await CfgSaver.save('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
 		});
@@ -13886,7 +13890,7 @@ class Thread {
 			if(isEnable) {
 				let entry = favObj[host] || (favObj[host] = {});
 				entry = entry[board] || (entry[board] = {});
-				entry.url = aib.prot + '//' + aib.host + aib.getPageUrl(board, 0);
+				entry.url = aib.protocol + '//' + aib.host + aib.getPageUrl(board, 0);
 				const url = aib.getThrUrl(board, num);
 				entry[num] = { cnt, new: 0, you: 0, txt, url, last, time: Date.now() };
 			} else {
@@ -14605,7 +14609,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(Cfg.desktNotif && ('permission' in Notification)) {
 				switch(Notification.permission.toLowerCase()) {
 				case 'default': this._requestPermission(); break;
-				case 'denied': await saveCfg('desktNotif', 0);
+				case 'denied': await CfgSaver.save('desktNotif', 0);
 				}
 			}
 		},
@@ -14624,13 +14628,13 @@ function initThreadUpdater(title, enableUpdate) {
 			};
 			const post = Thread.first.last;
 			const toYou = repliesToYou.size;
-			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
+			const notif = new Notification(`${ aib.domain }/${ aib.b }/${ aib.t }: ${ newPosts } ${
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
 				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
-				tag  : aib.dm + aib.b + aib.t
+				tag  : aib.domain + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => deWindow.focus();
@@ -14648,7 +14652,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._granted = false;
 			Notification.requestPermission(async state => {
 				if(state.toLowerCase() === 'denied') {
-					await saveCfg('desktNotif', 0);
+					await CfgSaver.save('desktNotif', 0);
 				} else {
 					this._granted = true;
 				}
@@ -15010,10 +15014,10 @@ class DelForm {
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			const el = fNodes[i];
-			if(el.tagName === 'HR') {
+			if(el.tagName?.toLowerCase() === 'hr') {
 				el.before(cThr);
 				const lastEl = cThr.lastElementChild;
-				if(lastEl.tagName === 'BR') {
+				if(lastEl.tagName?.toLowerCase() === 'br') {
 					el.before(lastEl);
 				}
 				try {
@@ -15257,7 +15261,7 @@ function initNavFuncs() {
 =========================================================================================================== */
 
 class BaseBoard {
-	constructor(prot, dm) {
+	constructor(protocol, domain) {
 		// Imageboard-specific booleans
 		this._02ch = false;
 		this._4chan = false;
@@ -15302,7 +15306,7 @@ class BaseBoard {
 		// Other propertioes
 		this.anchor = '#';
 		this.b = '';
-		this.dm = dm;
+		this.domain = domain;
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formHeaders = false;
@@ -15320,7 +15324,7 @@ class BaseBoard {
 		this.markupBB = false;
 		this.multiFile = false;
 		this.page = 0;
-		this.prot = prot;
+		this.protocol = protocol;
 		this.res = 'res/';
 		this.ru = false;
 		this.t = false;
@@ -15370,7 +15374,7 @@ class BaseBoard {
 		return null;
 	}
 	get catalogUrl() { // Iichan
-		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
+		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
 		return null;
@@ -15418,7 +15422,7 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
 			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
@@ -15522,7 +15526,8 @@ class BaseBoard {
 		return videos;
 	}
 	getAbsLink(url) { // Sets here only
-		return (url[1] === '/' ? this.prot : url[0] === '/' ? this.prot + '//' + this.host : '') + url;
+		return (url[1] === '/' ? this.protocol :
+			url[0] === '/' ? this.protocol + '//' + this.host : '') + url;
 	}
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
@@ -15588,8 +15593,11 @@ class BaseBoard {
 		if(isOp) {
 			return el;
 		}
-		Object.defineProperty(this, 'getPostWrap',
-			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : el.closest('table') : el => el });
+		Object.defineProperty(this, 'getPostWrap', {
+			value: el.tagName.toLowerCase() === 'td' ?
+				(el, isOp) => isOp ? el : el.closest('table') :
+				el => el
+		});
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
@@ -15600,7 +15608,7 @@ class BaseBoard {
 		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(board, tNum) { // Arhivach
-		return this.prot + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
+		return this.protocol + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
@@ -15653,8 +15661,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="wakaba.pl"]', BaseBoard]);
 
 	class Kusaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
+
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
@@ -15692,8 +15701,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 	class Tinyboard extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
@@ -15784,7 +15793,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const formEl = super.fixHTML(data, isForm);
 			$Q('br.clear', formEl).forEach(brEl => {
 				const hr = brEl.nextElementSibling;
-				if(hr && hr.tagName === 'HR') {
+				if(hr && hr.tagName.toLowerCase() === 'hr') {
 					brEl.parentNode.after(hr);
 				}
 				brEl.remove();
@@ -15830,8 +15839,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
 	class Vichan extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelPassw = '#password';
 			this.qPostImg = '.post-image[alt]:not(.deleted)';
@@ -15875,8 +15884,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['tr#upload', Vichan]);
 
 	class TinyIB extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
@@ -15914,8 +15923,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
 	class newTinyIB extends TinyIB {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasCatalog = true;
 			this.markupBB = true;
@@ -15939,8 +15948,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['body.tinyib', newTinyIB]);
 
 	class Lynxchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'innerPost';
 			this.qDelBtn = '#deleteFormButton';
@@ -16142,8 +16151,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="contentActions.js"]', Lynxchan]);
 
 	class FoolFuuka extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post_wrapper';
 			this.qDelForm = '#main';
@@ -16207,8 +16216,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	// DOMAINS
 	class _02ch extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this._02ch = true;
 
 			this.hasCatalog = true;
@@ -16226,8 +16235,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['02ch.su'] = _02ch;
 
 	class _0chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = '#delform_instant';
 			this.qPostHeader = '.posthead';
@@ -16272,8 +16281,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2.0-chan.ru'] = _0chan;
 
 	class _2__ch extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPostEnd = 'table:not(.postfiles)';
 			this.qPages = 'table[border="1"] td > a:last-of-type';
@@ -16344,8 +16353,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
 	class /* _2ch */ Makaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.makaba = true;
 
 			this.cReply = 'de-reply-class';
@@ -16483,7 +16492,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			const img = box.firstChild;
-			if(!img || img.tagName !== 'IMG') {
+			if(!img || img.tagName.toLowerCase() !== 'img') {
 				box.innerHTML = `<img>
 					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
 					<input name="2chcaptcha_id" type="hidden">`;
@@ -16699,8 +16708,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = 'form:not([enctype])';
 			this.qForm = '#fm';
@@ -16732,7 +16741,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input', post).name;
 		}
 		getPostElOfEl(el) {
-			while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+			while(el && el.tagName.toLowerCase() !== 'td' && !el.hasAttribute('de-thread')) {
 				el = el.parentElement;
 			}
 			return el;
@@ -16748,8 +16757,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2chan.net'] = _2chan;
 
 	class _2channel extends Makaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasAltCaptcha = false;
 			this.JsonBuilder = null;
@@ -16825,8 +16834,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
 	class _2chRip extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.jsonSubmit = true;
 			this.ru = true;
@@ -16859,8 +16868,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.rip'] = ibDomains['dva-ch.net'] = _2chRip;
 
 	class _410chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
@@ -16911,8 +16920,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['410chan.org'] = _410chan;
 
 	class _4chan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this._4chan = true;
 
 			this.cReply = 'post reply';
@@ -17051,8 +17060,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['archived.moe'] = Archived;
 
 	class Arhivach extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post';
 			this.qDelBtn = null;
@@ -17137,8 +17146,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class CrystalCafe extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qPost = '.post.reply';
 		}
@@ -17155,8 +17164,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['crystal.cafe'] = CrystalCafe;
 
 	class Dobrochan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.dobrochan = true;
 
 			this.qClosed = 'img[src="/images/locked.png"]';
@@ -17236,12 +17245,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgSrcLink(img) {
 			// There can be a censored <img> without <a> parent
 			const el = img.parentNode;
-			return el.tagName === 'A' ? el :
+			return el.tagName.toLowerCase() === 'a' ? el :
 				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 		}
 		getImgWrap(img) {
 			const el = img.parentNode;
-			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
+			return el.tagName.toLowerCase() === 'a' ?
+				(el.previousElementSibling ? el : el.parentNode).parentNode :
 				img.previousElementSibling ? el : el.parentNode;
 		}
 		getJsonApiUrl(board, tNum) {
@@ -17267,7 +17277,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(deWindow.location.pathname === '/settings') {
 				$q('input[type="button"]').addEventListener('click', async () => {
 					await readCfg();
-					await saveCfg('__hanarating', $id('rating').value);
+					await CfgSaver.save('__hanarating', $id('rating').value);
 				});
 				return true;
 			}
@@ -17277,15 +17287,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		insertYtPlayer(msg, playerHtml) {
 			const prev = msg.previousElementSibling;
-			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
+			return $bBegin(prev.tagName.toLowerCase() === 'br' ? prev : msg, playerHtml);
 		}
 	}
 	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] =
 		ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
 		}
@@ -17308,8 +17318,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['endchan.net'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post';
 			this.qError = '.error > .info';
@@ -17360,8 +17370,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Gensokyo extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasRefererErr = true;
 		}
@@ -17369,8 +17379,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['gensokyo.4otaku.org'] = Gensokyo;
 
 	class Iichan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasArchive = true;
 			this.hasCatalog = true;
@@ -17385,7 +17395,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya3"]';
 		}
 		get catalogUrl() {
-			return `${ this.prot }//${ this.host }/${ this.b }/catalogue.html`;
+			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
 			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
@@ -17456,8 +17466,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['iichan.hk'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
@@ -17587,8 +17597,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.markupBB = true;
 		}
@@ -17602,8 +17612,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['kropyva.ch'] = Kropyvach;
 
 	class Lainchan extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPost = '.op';
 		}
@@ -17644,8 +17654,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['nowere.net'] = Nowere;
 
 	class Ponyach extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qBan = 'font[color="#FF0000"]';
 			this.qPostImgInfo = '.filesize[style="display: inline;"]';
@@ -17685,8 +17695,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ponyach.ru'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPost = '.opContainer';
 
@@ -17720,8 +17730,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['rfch.rocks'] = Rfch;
 
 	class Synch extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qPages = '.pagination';
 			this.qPostImgInfo = '.unimportant';
@@ -17765,8 +17775,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['syn-ch.org'] = Synch;
 
 	class Warosu extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
@@ -17789,34 +17799,34 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['warosu.org'] = Warosu;
 
 	const wLoc = deWindow.location;
-	const prot = wLoc.protocol;
-	let dm = localData?.dm;
+	const { protocol } = wLoc;
+	let domain = localData?.domain;
 	if(checkDomains) {
-		if(!dm) {
+		if(!domain) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
 			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
-				dm = ibKeys[i];
-				if(host === dm || host.endsWith('.' + dm)) {
-					return new ibDomains[dm](prot, dm);
+				domain = ibKeys[i];
+				if(host === domain || host.endsWith('.' + domain)) {
+					return new ibDomains[domain](protocol, domain);
 				}
 			}
-		} else if(dm in ibDomains) {
-			return new ibDomains[dm](prot, dm);
+		} else if(domain in ibDomains) {
+			return new ibDomains[domain](protocol, domain);
 		}
 	}
-	if(!dm) {
-		dm = wLoc.hostname;
+	if(!domain) {
+		domain = wLoc.hostname;
 	}
-	if(!dm || !checkEngines) {
+	if(!domain || !checkEngines) {
 		return null;
 	}
-	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	domain = domain.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	for(let i = ibEngines.length - 1; i >= 0; --i) {
 		const [path, Ctor] = ibEngines[i];
 		if($q(path, doc)) {
-			return new Ctor(prot, dm);
+			return new Ctor(protocol, domain);
 		}
 	}
 	return null;
@@ -17893,9 +17903,10 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	}
 	let responseText;
 	try {
-		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true));
-	} catch(e) {
-		if (isManual) {
+		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js',
+			{ 'Content-Type': 'text/plain' }, true));
+	} catch(err) {
+		if(isManual) {
 			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
 		} else {
 			throw new Error(Lng.noConnect[lang]);
@@ -17909,7 +17920,7 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	const currentVer = version.split('.');
 	const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
 		nav.isESNext ? 'es6.' : '' }user.js`;
-	await saveCfgObj('lastUpd', () => Date.now());
+	await CfgSaver.saveObj('lastUpd', () => Date.now());
 	const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 	const chLogLink = `<a target="_blank" href="${ gitWiki }${
 		lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
@@ -17937,9 +17948,9 @@ function initPage() {
 		}
 		if(!localData) {
 			Cfg.stats.view++;
-			saveCfgObj(aib.dm, lCfg => {
-				lCfg.stats.view++;
-				return lCfg;
+			CfgSaver.saveObj(aib.domain, loadedCfg => {
+				loadedCfg.stats.view++;
+				return loadedCfg;
 			});
 		}
 	} else {
@@ -18759,7 +18770,7 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	const [favObj] = await (dataPromise || readData());
+	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
 	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
@@ -18777,8 +18788,8 @@ async function runMain(checkDomains, dataPromise) {
 	initStorageEvent();
 	DollchanAPI.initAPI();
 	if(localData) {
-		aib.prot = 'http:';
-		aib.host = aib.dm;
+		aib.protocol = 'http:';
+		aib.host = aib.domain;
 		aib.b = localData.b;
 		aib.t = localData.t;
 		aib.docExt = '.html';
@@ -18793,7 +18804,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
-			rp => saveCfg('timeRPattern', rp));
+			rp => CfgSaver.save('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
 	MyPosts.readStorage();
@@ -18876,7 +18887,7 @@ function initMain() {
 			return;
 		}
 		initNavFuncs();
-		dataPromise = readData();
+		dataPromise = Promise.all([readFavorites(), readCfg()]);
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {

@@ -49,7 +49,7 @@ const ContentLoader = {
 				$del(el);
 			}
 		}), () => {
-			const docName = `${ aib.dm }-${ delSymbols(aib.b) }-${ aib.t }`;
+			const docName = `${ aib.domain }-${ delSymbols(aib.b) }-${ aib.t }`;
 			if(!imgOnly) {
 				$q('head', dc).insertAdjacentHTML('beforeend',
 					'<script type="text/javascript" src="data/dollscript.js" charset="utf-8"></script>');
@@ -60,7 +60,7 @@ const ContentLoader = {
 				tar.addString('data/dollscript.js', `${ nav.isESNext ?
 					`(${ String(deMainFuncInner) })(window, null, null, (x, y) => window.scrollTo(x, y), ` :
 					`(${ String(/* global deMainFuncOuter */ deMainFuncOuter) })(`
-				}${ JSON.stringify({ dm: aib.dm, b: aib.b, t: aib.t }) });`);
+				}${ JSON.stringify({ domain: aib.domain, b: aib.b, t: aib.t }) });`);
 				const dt = doc.doctype;
 				tar.addString(docName + '.html', '<!DOCTYPE ' + dt.name +
 					(dt.publicId ? ` PUBLIC "${ dt.publicId }"` : dt.systemId ? ' SYSTEM' : '') +
@@ -98,12 +98,12 @@ const ContentLoader = {
 			$Q(aib.qPost, dc).forEach((el, i) => el.setAttribute('de-num', i ? aib.getPNum(el) : aib.t));
 			const files = [];
 			const urlRegex = new RegExp(`^\\/\\/?|^https?:\\/\\/([^\\/]*\\.)?${
-				escapeRegExp(aib._4chan ? '4cdn.org' : aib.dm) }\\/`, 'i');
+				escapeRegExp(aib._4chan ? '4cdn.org' : aib.domain) }\\/`, 'i');
 			$Q('link, *[src]', dc).forEach(el => {
 				if(els.indexOf(el) !== -1) {
 					return;
 				}
-				let url = el.tagName === 'LINK' ? el.href : el.src;
+				let url = el.tagName.toLowerCase() === 'link' ? el.href : el.src;
 				if(!urlRegex.test(url)) {
 					el.remove();
 					return;

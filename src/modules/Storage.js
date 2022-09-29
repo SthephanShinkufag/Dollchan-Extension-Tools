@@ -32,7 +32,7 @@ function setStored(id, value) {
 	} else if(nav.hasOldGM) {
 		GM_setValue(id, value);
 	} else if(nav.hasWebStorage) {
-		return new Promise((resolve, _) => {
+		return new Promise(resolve => {
 			const obj = {};
 			obj[id] = value;
 			chrome.storage.sync.set(obj, () => {
@@ -75,86 +75,81 @@ async function getStoredObj(id) {
 	return JSON.parse(await getStored(id) || '{}') || {};
 }
 
-async function saveCfgObjHelper(dm, fn) {
-	const val = await getStoredObj('DESU_Config');
-	const res = fn(val[dm]);
-	if(res) {
-		val[dm] = res;
-	} else {
-		delete val[dm];
-	}
-	const rv = setStored('DESU_Config', JSON.stringify(val));
-	if (rv) {
-		await rv;
-	}
-}
+// == CONFIG DATA ============================================================================================
 
-const saveCfgObjQueue = [];
-let saveCfgBusy = false;
-
-async function saveCfgQueue() {
-	while (saveCfgObjQueue.length > 0) {
-		const [[qDm, qFn, qRes, qRej]] = saveCfgObjQueue.splice(0, 1);
-		try {
-			await saveCfgObjHelper(qDm, qFn);
-			qRes();
-		} catch(e) {
-			qRej(e);
-		}
-	}
-	saveCfgBusy = false;
-}
-
-// Replaces the domain config with an object. Removes the domain config, if there is no object.
-async function saveCfgObj(dm, fn) {
-	if(saveCfgBusy) {
-		await new Promise((res, rej) => { saveCfgObjQueue.push([dm, fn, res, rej]); });
-		return;
-	}
-	saveCfgBusy = true;
-	await saveCfgObjHelper(dm, fn);
-	if (saveCfgObjQueue.length > 0) {
-		saveCfgQueue(); // run asynchronously without await
-	} else {
-		saveCfgBusy = false;
-	}
-}
-
-// Saves the value for a particular config option
-async function saveCfg(...args) {
-	let isChanged = false;
-	for(let i = 0; i < args.length; i += 2) {
-		const id = args[i];
-		const val = args[i + 1];
-		if (Cfg[id] !== val) {
-			Cfg[id] = val;
-			isChanged = true;
-		}
-	}
-	if (isChanged) {
-		await saveCfgObj(aib.dm, cfg => {
-			for(let i = 0; i < args.length; i += 2) {
-				cfg[args[i]] = args[i + 1];
+// Asynchronous saving of config. Fixes a race condition when saving from different browser tabs.
+const CfgSaver = {
+	// Saves enumerated options and values
+	async save(...args) {
+		let isChanged = false;
+		for(let i = 0; i < args.length; i += 2) {
+			const id = args[i];
+			const val = args[i + 1];
+			if(Cfg[id] !== val) {
+				Cfg[id] = val;
+				isChanged = true;
 			}
-			return cfg;
-		});
-	}
-}
+		}
+		if(isChanged) {
+			await this.saveObj(aib.domain, loadedCfg => {
+				for(let i = 0; i < args.length; i += 2) {
+					loadedCfg[args[i]] = args[i + 1];
+				}
+				return loadedCfg;
+			});
+		}
+	},
+	// Saves all domain options as an object
+	async saveObj(domain, fn) {
+		if(this._isBusy) {
+			await new Promise((resolve, reject) => {
+				this._queue.push([domain, fn, resolve, reject]);
+			});
+			return;
+		}
+		this._isBusy = true;
+		await this.saveObjHelper(domain, fn);
+		if(this._queue.length > 0) {
+			while(this._queue.length > 0) {
+				const [[qDomain, qFn, resolve, reject]] = this._queue.splice(0, 1);
+				try {
+					await this.saveObjHelper(qDomain, qFn);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
+			}
+		}
+		this._isBusy = false;
+	},
+	async saveObjHelper(domain, fn) {
+		const val = await getStoredObj('DESU_Config');
+		const res = fn(val[domain]);
+		if(res) {
+			val[domain] = res;
+		} else {
+			delete val[domain];
+		}
+		const rv = setStored('DESU_Config', JSON.stringify(val));
+		if(rv) {
+			await rv;
+		}
+	},
+
+	_isBusy : false,
+	_queue  : []
+};
 
 // Toggles a particular config option (1|0)
 async function toggleCfg(id) {
-	await saveCfg(id, +!Cfg[id]);
-}
-
-function readData() {
-	return Promise.all([readFavorites(), readCfg()]);
+	await CfgSaver.save(id, +!Cfg[id]);
 }
 
 // Config initialization, checking for Dollchan update.
 async function readCfg() {
 	let obj;
 	const val = await getStoredObj('DESU_Config');
-	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+	if(!(aib.domain in val) || $isEmpty(obj = val[aib.domain])) {
 		const isGlobal = nav.hasGlobalStorage && !!val.global;
 		obj = isGlobal ? val.global : {};
 		if(isGlobal) {
@@ -207,7 +202,7 @@ async function readCfg() {
 		Cfg.stats = { view: 0, op: 0, reply: 0 };
 	}
 	lang = Cfg.language;
-	val[aib.dm] = Cfg;
+	val[aib.domain] = Cfg;
 	if(val.commit !== commit && !localData) {
 		if(doc.readyState === 'loading') {
 			doc.addEventListener('DOMContentLoaded', () => setTimeout(showDonateMsg, 1e3));
@@ -228,7 +223,9 @@ async function readCfg() {
 	}
 }
 
-// Initialize of hidden and favorites. Run spells.
+// == POSTS DATA =============================================================================================
+
+// Initialization of hidden and favorites. Run spells.
 function readPostsData(firstPost, favObj) {
 	let sVis = null;
 	try {
@@ -368,8 +365,6 @@ function readViewedPosts() {
 		});
 	}
 }
-
-// HIDDEN AND MY POSTS STORAGE
 
 class PostsStorage {
 	constructor() {

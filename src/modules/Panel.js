@@ -68,7 +68,7 @@ const Panel = Object.create({
 		el = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el;
 		switch(e.type) {
 		case 'click':
-			if (el.tagName.toLowerCase() === 'a') {
+			if(el.tagName.toLowerCase() === 'a') {
 				return;
 			}
 			e.preventDefault();
@@ -232,15 +232,15 @@ const Panel = Object.create({
 			tag = 'a';
 			href = aib.catalogUrl;
 		}
-		return `<${tag} id="de-panel-${ id }" class="de-abtn de-panel-button"
-			title="${title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': ''}>
+		return `<${ tag } id="de-panel-${ id }" class="de-abtn de-panel-button"
+			title="${ title || Lng.panelBtn[id][lang] }" ${ href ? 'href="' + href + '"': '' }>
 			<svg class="de-panel-svg">
 			${ id !== 'audio-off' ? `
 				<use xlink:href="#de-symbol-panel-${ useId || id }"/>` : `
 				<use class="de-use-audio-off" xlink:href="#de-symbol-panel-audio-off"/>
 				<use class="de-use-audio-on" xlink:href="#de-symbol-panel-audio-on"/>` }
 			</svg>
-		</${tag}>`;
+		</${ tag }>`;
 	},
 	_prepareToHide(rt) {
 		if(!Cfg.expandPanel && !$q('.de-win-active') &&

@@ -142,9 +142,9 @@ class ImagesViewer {
 			return;
 		case 'click': {
 			const el = e.target;
+			const tag = el.tagName.toLowerCase();
 			if(this.data.isVideo && ExpandableImage.isControlClick(e) ||
-				el.tagName !== 'IMG' &&
-				el.tagName !== 'VIDEO' &&
+				tag !== 'img' && tag !== 'video' &&
 				!el.classList.contains('de-fullimg-wrap') &&
 				!el.classList.contains('de-fullimg-wrap-link') &&
 				!el.classList.contains('de-fullimg-video-hack') &&
@@ -659,7 +659,7 @@ class ExpandableImage {
 		videoEl.addEventListener('volumechange', async ({ target: el, isTrusted }) => {
 			const val = el.muted ? 0 : Math.round(el.volume * 100);
 			if(isTrusted && val !== Cfg.webmVolume) {
-				await saveCfg('webmVolume', val);
+				await CfgSaver.save('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 			}
 		});

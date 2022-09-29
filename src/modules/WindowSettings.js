@@ -24,7 +24,7 @@ const CfgWindow = {
 		div.append(
 			// "Edit" button. Calls a popup with editor to edit Settings in JSON.
 			getEditButton('cfg', fn => fn(Cfg, true, async data => {
-				await saveCfgObj(aib.dm, () => data);
+				await CfgSaver.saveObj(aib.domain, () => data);
 				deWindow.location.reload();
 			})),
 
@@ -37,7 +37,7 @@ const CfgWindow = {
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');
 					if(data && ('global' in data) && !$isEmpty(data.global)) {
-						await saveCfgObj(aib.dm, () => data.global);
+						await CfgSaver.saveObj(aib.domain, () => data.global);
 						deWindow.location.reload();
 					} else {
 						$popup('err-noglobalcfg', Lng.noGlobalCfg[lang]);
@@ -49,7 +49,7 @@ const CfgWindow = {
 				).firstElementChild.onclick = async () => {
 					const data = await getStoredObj('DESU_Config');
 					const obj = {};
-					const com = data[aib.dm];
+					const com = data[aib.domain];
 					for(const i in com) {
 						if(i !== 'correctTime' && i !== 'timePattern' && i !== 'userCSS' &&
 							i !== 'userCSSTxt' && i !== 'stats' && com[i] !== defaultCfg[i]
@@ -58,7 +58,7 @@ const CfgWindow = {
 						}
 					}
 					data.global = obj;
-					await saveCfgObj('global', () => data.global);
+					await CfgSaver.saveObj('global', () => data.global);
 					toggleWindow('cfg', true);
 				};
 				el.insertAdjacentHTML('beforeend', `<hr><small>${ Lng.descrGlobal[lang] }</small>`);
@@ -69,8 +69,8 @@ const CfgWindow = {
 				const list = this._getList([
 					Lng.panelBtn.cfg[lang] + ' ' + Lng.allDomains[lang],
 					Lng.panelBtn.fav[lang],
-					Lng.hidPostThr[lang] + ` (${ aib.dm })`,
-					Lng.myPosts[lang] + ` (${ aib.dm })`
+					Lng.hidPostThr[lang] + ` (${ aib.domain })`,
+					Lng.myPosts[lang] + ` (${ aib.domain })`
 				]);
 				// Create popup with controls
 				$popup('cfg-file', `<b>${ Lng.fileImpExp[lang] }:</b><hr><!--
@@ -92,8 +92,8 @@ const CfgWindow = {
 							$popup('err-invaliddata', Lng.invalidData[lang]);
 							return;
 						}
-						const { settings: cfgObj, favorites: favObj, [aib.dm]: dmObj } = obj;
-						const isOldCfg = !cfgObj && !favObj && !dmObj;
+						const { settings: cfgObj, favorites: favObj, [aib.domain]: domainObj } = obj;
+						const isOldCfg = !cfgObj && !favObj && !domainObj;
 						if(isOldCfg) {
 							setStored('DESU_Config', data);
 						}
@@ -106,18 +106,18 @@ const CfgWindow = {
 						if(favObj) {
 							saveRenewFavorites(favObj);
 						}
-						if(dmObj) {
-							if(dmObj.posts) {
-								locStorage['de-posts'] = JSON.stringify(dmObj.posts);
+						if(domainObj) {
+							if(domainObj.posts) {
+								locStorage['de-posts'] = JSON.stringify(domainObj.posts);
 							}
-							if(dmObj.threads) {
-								locStorage['de-threads'] = JSON.stringify(dmObj.threads);
+							if(domainObj.threads) {
+								locStorage['de-threads'] = JSON.stringify(domainObj.threads);
 							}
-							if(dmObj.myposts) {
-								locStorage['de-myposts'] = JSON.stringify(dmObj.myposts);
+							if(domainObj.myposts) {
+								locStorage['de-myposts'] = JSON.stringify(domainObj.myposts);
 							}
 						}
-						if(cfgObj || dmObj || isOldCfg) {
+						if(cfgObj || domainObj || isOldCfg) {
 							$popup('cfg-file', Lng.updating[lang], true);
 							deWindow.location.reload();
 							return;
@@ -133,10 +133,10 @@ const CfgWindow = {
 				els[0].checked = true;
 				expFile.addEventListener('click', async e => {
 					const name = [];
-					const nameDm = [];
+					const nameDomain = [];
 					const d = new Date();
 					let val = [];
-					let valDm = [];
+					let valDomain = [];
 					for(let i = 0, len = els.length; i < len; ++i) {
 						if(!els[i].checked) {
 							continue;
@@ -151,17 +151,17 @@ const CfgWindow = {
 						case 1: name.push('Fav');
 							val.push(`"favorites":${ await getStored('DESU_Favorites') || '{}' }`);
 							break;
-						case 2: nameDm.push('Hid');
-							valDm.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
+						case 2: nameDomain.push('Hid');
+							valDomain.push(`"posts":${ locStorage['de-posts'] || '{}' }`,
 								`"threads":${ locStorage['de-threads'] || '{}' }`);
 							break;
-						case 3: nameDm.push('You');
-							valDm.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
+						case 3: nameDomain.push('You');
+							valDomain.push(`"myposts":${ locStorage['de-myposts'] || '{}' }`);
 						}
 					}
-					if((valDm = valDm.join(','))) {
-						val.push(`"${ aib.dm }":{${ valDm }}`);
-						name.push(`${ aib.dm } (${ nameDm.join('+') })`);
+					if((valDomain = valDomain.join(','))) {
+						val.push(`"${ aib.domain }":{${ valDomain }}`);
+						name.push(`${ aib.domain } (${ nameDomain.join('+') })`);
 					}
 					if((val = val.join(','))) {
 						downloadBlob(new Blob([`{${ val }}`], { type: 'application/json' }),
@@ -176,7 +176,7 @@ const CfgWindow = {
 			$button(Lng.reset[lang] + '…', Lng.resetCfg[lang], () => $popup(
 				'cfg-reset',
 				`<b>${ Lng.resetData[lang] }:</b><hr>` +
-				`<div class="de-list"><b>${ aib.dm }:</b>${
+				`<div class="de-list"><b>${ aib.domain }:</b>${
 					this._getList([Lng.panelBtn.cfg[lang], Lng.hidPostThr[lang], Lng.myPosts[lang]])
 				}</div><hr>` +
 				`<div class="de-list"><b>${ Lng.allDomains[lang] }:</b>${
@@ -202,7 +202,7 @@ const CfgWindow = {
 					delStored('DESU_keys');
 				} else if(els[0].checked) {
 					getStoredObj('DESU_Config').then(data => {
-						delete data[aib.dm];
+						delete data[aib.domain];
 						setStored('DESU_Config', JSON.stringify(data));
 						$popup('cfg-reset', Lng.updating[lang], true);
 						deWindow.location.reload();
@@ -218,15 +218,15 @@ const CfgWindow = {
 	// Event handler for Setting window and its controls.
 	async handleEvent(e) {
 		const { type, target: el } = e;
-		const tag = el.tagName;
-		if(type === 'click' && tag === 'DIV' && el.classList.contains('de-cfg-tab')) {
+		const tag = el.tagName.toLowerCase();
+		if(type === 'click' && tag === 'div' && el.classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
-			await saveCfg('cfgTab', info);
+			await CfgSaver.save('cfgTab', info);
 		}
-		if(type === 'change' && tag === 'SELECT') {
+		if(type === 'change' && tag === 'select') {
 			const info = el.getAttribute('info');
-			await saveCfg(info, el.selectedIndex);
+			await CfgSaver.save(info, el.selectedIndex);
 			this._updateDependant();
 			switch(info) {
 			case 'language':
@@ -302,7 +302,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(type === 'click' && tag === 'INPUT' && el.type === 'checkbox') {
+		if(type === 'click' && tag === 'input' && el.type === 'checkbox') {
 			const info = el.getAttribute('info');
 			await toggleCfg(info);
 			this._updateDependant();
@@ -402,7 +402,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(type === 'click' && tag === 'INPUT' && el.type === 'button') {
+		if(type === 'click' && tag === 'input' && el.type === 'button') {
 			switch(el.id) {
 			case 'de-cfg-button-pass':
 				$q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
@@ -455,45 +455,49 @@ const CfgWindow = {
 			}
 			}
 		}
-		if(type === 'keyup' && tag === 'INPUT' && el.type === 'text') {
+		if(type === 'keyup' && tag === 'input' && el.type === 'text') {
 			const info = el.getAttribute('info');
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
 				el.classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
-					await saveCfg('postBtnsBack', el.value);
+					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
 				}
 				break;
 			}
 			case 'limitPostMsg':
-				await saveCfg('limitPostMsg', Math.max(+el.value || 0, 50));
+				await CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': await saveCfg('minImgSize', Math.max(+el.value, 1)); break;
-			case 'zoomFactor': await saveCfg('zoomFactor', Math.min(Math.max(+el.value, 1), 100)); break;
+			case 'minImgSize': await CfgSaver.save('minImgSize', Math.max(+el.value, 1)); break;
+			case 'zoomFactor':
+				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+				break;
 			case 'webmVolume': {
 				const val = Math.min(+el.value || 0, 100);
-				await saveCfg('webmVolume', val);
+				await CfgSaver.save('webmVolume', val);
 				sendStorageEvent('__de-webmvolume', val);
 				break;
 			}
-			case 'minWebmWidth': await saveCfg('minWebmWidth', Math.max(+el.value, Cfg.minImgSize)); break;
+			case 'minWebmWidth':
+				await CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
+				break;
 			case 'maskVisib':
-				await saveCfg('maskVisib', Math.min(+el.value || 0, 100));
+				await CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
 				updateCSS();
 				break;
-			case 'linksOver': await saveCfg('linksOver', +el.value | 0); break;
-			case 'linksOut': await saveCfg('linksOut', +el.value | 0); break;
-			case 'ytApiKey': await saveCfg('ytApiKey', el.value.trim()); break;
+			case 'linksOver': await CfgSaver.save('linksOver', +el.value | 0); break;
+			case 'linksOut': await CfgSaver.save('linksOut', +el.value | 0); break;
+			case 'ytApiKey': await CfgSaver.save('ytApiKey', el.value.trim()); break;
 			case 'passwValue': await PostForm.setUserPassw(); break;
 			case 'nameValue': await PostForm.setUserName(); break;
-			default: await saveCfg(info, el.value);
+			default: await CfgSaver.save(info, el.value);
 			}
 			return;
 		}
-		if(tag === 'A') {
+		if(tag === 'a') {
 			if(el.id === 'de-btn-spell-add') {
 				switch(e.type) {
 				case 'click': e.preventDefault(); break;
@@ -506,7 +510,7 @@ const CfgWindow = {
 				switch(el.id) {
 				case 'de-btn-spell-apply':
 					e.preventDefault();
-					await saveCfg('hideBySpell', 1);
+					await CfgSaver.save('hideBySpell', 1);
 					$q('input[info="hideBySpell"]').checked = true;
 					await Spells.toggle();
 					break;
@@ -521,7 +525,7 @@ const CfgWindow = {
 			}
 			return;
 		}
-		if(tag === 'TEXTAREA' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
+		if(tag === 'textarea' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
 			this._updateRowMeter(el);
 		}
 	},
@@ -557,7 +561,7 @@ const CfgWindow = {
 				$q('input[info="userCSS"]').parentNode.after(getEditButton(
 					'css',
 					fn => fn(Cfg.userCSSTxt, false, async inputEl => {
-						await saveCfg('userCSSTxt', inputEl.value);
+						await CfgSaver.save('userCSSTxt', inputEl.value);
 						updateCSS();
 						toggleWindow('cfg', true);
 					}),
@@ -576,7 +580,7 @@ const CfgWindow = {
 		for(let i = 0, len = els.length; i < len; ++i) {
 			const el = els[i];
 			const info = el.getAttribute('info');
-			if(el.tagName === 'INPUT') {
+			if(el.tagName.toLowerCase() === 'input') {
 				if(el.type === 'checkbox') {
 					el.checked = !!Cfg[info];
 				} else {
@@ -691,7 +695,7 @@ const CfgWindow = {
 				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
-				${ aib.prot === 'http:' ? this._getBox('addVocaroo') : '' }
+				${ aib.protocol === 'http:' ? this._getBox('addVocaroo') : '' }
 			</div>
 			${ this._getSel('embedYTube') }
 			<div class="de-depend">

@@ -56,7 +56,7 @@ function makeDraggable(name, win, head) {
 			case 'mouseleave':
 			case 'mouseup':
 				['mouseleave', 'mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-				await saveCfg(name + 'WinX', this._X, name + 'WinY', this._Y);
+				await CfgSaver.save(name + 'WinX', this._X, name + 'WinY', this._Y);
 			}
 		}
 	});
@@ -115,16 +115,17 @@ class WinResizer {
 			return;
 		default: // mouseup
 			['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-			await saveCfg(this.cfgName, parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
+			await CfgSaver.save(this.cfgName,
+				parseInt(this.vertical ? this.tStyle.height : this.tStyle.width, 10));
 			if(this.win.classList.contains('de-win-fixed')) {
 				this.win.setAttribute('style', 'right: 0; bottom: 25px' + z);
 				return;
 			}
 			if(this.vertical) {
-				await saveCfg(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
+				await CfgSaver.save(this.name + 'WinY', cr.top < 1 ? 'top: 0' :
 					cr.bottom > maxY - 26 ? 'bottom: 25px' : `top: ${ cr.top }px`);
 			} else {
-				await saveCfg(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
+				await CfgSaver.save(this.name + 'WinX', cr.left < 1 ? 'left: 0' :
 					cr.right > maxX - 1 ? 'right: 0' : `left: ${ cr.left }px`);
 			}
 			this.win.setAttribute('style', Cfg[this.name + 'WinX'] + '; ' + Cfg[this.name + 'WinY'] + z);

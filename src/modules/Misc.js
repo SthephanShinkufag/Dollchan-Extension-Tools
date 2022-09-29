@@ -69,9 +69,10 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	}
 	let responseText;
 	try {
-		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js', { 'Content-Type': 'text/plain' }, true));
-	} catch(e) {
-		if (isManual) {
+		({ responseText } = await $ajax(gitRaw + 'src/modules/Wrap.js',
+			{ 'Content-Type': 'text/plain' }, true));
+	} catch(err) {
+		if(isManual) {
 			return `<div style="color: red; font-weigth: bold;">${ Lng.noConnect[lang] }</div>`;
 		} else {
 			throw new Error(Lng.noConnect[lang]);
@@ -85,7 +86,7 @@ async function checkForUpdates(isManual, lastUpdateTime) {
 	const currentVer = version.split('.');
 	const src = `${ gitRaw }${ nav.isESNext ? 'src/' : '' }Dollchan_Extension_Tools.${
 		nav.isESNext ? 'es6.' : '' }user.js`;
-	await saveCfgObj('lastUpd', () => Date.now());
+	await CfgSaver.saveObj('lastUpd', () => Date.now());
 	const link = `<a style="color: blue; font-weight: bold;" href="${ src }">`;
 	const chLogLink = `<a target="_blank" href="${ gitWiki }${
 		lang === 1 ? 'versions-en' : 'versions' }">\r\n${ Lng.changeLog[lang] }<a>`;
@@ -113,9 +114,9 @@ function initPage() {
 		}
 		if(!localData) {
 			Cfg.stats.view++;
-			saveCfgObj(aib.dm, lCfg => {
-				lCfg.stats.view++;
-				return lCfg;
+			CfgSaver.saveObj(aib.domain, loadedCfg => {
+				loadedCfg.stats.view++;
+				return loadedCfg;
 			});
 		}
 	} else {

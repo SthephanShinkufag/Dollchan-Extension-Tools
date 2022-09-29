@@ -3,7 +3,7 @@
 =========================================================================================================== */
 
 class BaseBoard {
-	constructor(prot, dm) {
+	constructor(protocol, domain) {
 		// Imageboard-specific booleans
 		this._02ch = false;
 		this._4chan = false;
@@ -48,7 +48,7 @@ class BaseBoard {
 		// Other propertioes
 		this.anchor = '#';
 		this.b = '';
-		this.dm = dm;
+		this.domain = domain;
 		this.docExt = null;
 		this.firstPage = 0;
 		this.formHeaders = false;
@@ -66,7 +66,7 @@ class BaseBoard {
 		this.markupBB = false;
 		this.multiFile = false;
 		this.page = 0;
-		this.prot = prot;
+		this.protocol = protocol;
 		this.res = 'res/';
 		this.ru = false;
 		this.t = false;
@@ -116,7 +116,7 @@ class BaseBoard {
 		return null;
 	}
 	get catalogUrl() { // Iichan
-		return `${ this.prot }//${ this.host }/${ this.b }/catalog.html`;
+		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
 		return null;
@@ -164,7 +164,7 @@ class BaseBoard {
 		return null;
 	}
 	get reCrossLinks() { // Sets here only
-		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.dm }\\/([a-z0-9]+)\\/${
+		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
 			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
 		return value;
@@ -268,7 +268,8 @@ class BaseBoard {
 		return videos;
 	}
 	getAbsLink(url) { // Sets here only
-		return (url[1] === '/' ? this.prot : url[0] === '/' ? this.prot + '//' + this.host : '') + url;
+		return (url[1] === '/' ? this.protocol :
+			url[0] === '/' ? this.protocol + '//' + this.host : '') + url;
 	}
 	getBanId(postEl) { // Makaba
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
@@ -334,8 +335,11 @@ class BaseBoard {
 		if(isOp) {
 			return el;
 		}
-		Object.defineProperty(this, 'getPostWrap',
-			{ value: el.tagName === 'TD' ? (el, isOp) => isOp ? el : el.closest('table') : el => el });
+		Object.defineProperty(this, 'getPostWrap', {
+			value: el.tagName.toLowerCase() === 'td' ?
+				(el, isOp) => isOp ? el : el.closest('table') :
+				el => el
+		});
 		return this.getPostWrap(el, isOp);
 	}
 	getSage(post) {
@@ -346,7 +350,7 @@ class BaseBoard {
 		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(board, tNum) { // Arhivach
-		return this.prot + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
+		return this.protocol + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;

@@ -272,7 +272,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(Cfg.desktNotif && ('permission' in Notification)) {
 				switch(Notification.permission.toLowerCase()) {
 				case 'default': this._requestPermission(); break;
-				case 'denied': await saveCfg('desktNotif', 0);
+				case 'denied': await CfgSaver.save('desktNotif', 0);
 				}
 			}
 		},
@@ -291,13 +291,13 @@ function initThreadUpdater(title, enableUpdate) {
 			};
 			const post = Thread.first.last;
 			const toYou = repliesToYou.size;
-			const notif = new Notification(`${ aib.dm }/${ aib.b }/${ aib.t }: ${ newPosts } ${
+			const notif = new Notification(`${ aib.domain }/${ aib.b }/${ aib.t }: ${ newPosts } ${
 				Lng.newPost[lang][lngQuantity(newPosts)] }. ${
 				toYou ? `${ toYou } ${ Lng.youReplies[lang][lngQuantity(toYou)] }.` : '' }`,
 			{
 				body : Lng.latestPost[lang] + ':\n' + post.text.substring(0, 250).replace(/\s+/g, ' '),
 				icon : post.images.firstAttach ? post.images.firstAttach.src : favicon.originalIcon,
-				tag  : aib.dm + aib.b + aib.t
+				tag  : aib.domain + aib.b + aib.t
 			});
 			notif.onshow = () => setTimeout(() => notif === this._notifEl && this.closeNotif(), 12e3);
 			notif.onclick = () => deWindow.focus();
@@ -315,7 +315,7 @@ function initThreadUpdater(title, enableUpdate) {
 			this._granted = false;
 			Notification.requestPermission(async state => {
 				if(state.toLowerCase() === 'denied') {
-					await saveCfg('desktNotif', 0);
+					await CfgSaver.save('desktNotif', 0);
 				} else {
 					this._granted = true;
 				}

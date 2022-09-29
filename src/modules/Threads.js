@@ -210,7 +210,7 @@ class Thread {
 			if(isEnable) {
 				let entry = favObj[host] || (favObj[host] = {});
 				entry = entry[board] || (entry[board] = {});
-				entry.url = aib.prot + '//' + aib.host + aib.getPageUrl(board, 0);
+				entry.url = aib.protocol + '//' + aib.host + aib.getPageUrl(board, 0);
 				const url = aib.getThrUrl(board, num);
 				entry[num] = { cnt, new: 0, you: 0, txt, url, last, time: Date.now() };
 			} else {

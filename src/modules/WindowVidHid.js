@@ -13,7 +13,7 @@ function showVideosWindow(body) {
 		// YouTube APT script. We canʼt insert scripts directly as html.
 		const script = doc.createElement('script');
 		script.type = 'text/javascript';
-		script.src = aib.prot + '//www.youtube.com/player_api';
+		script.src = aib.protocol + '//www.youtube.com/player_api';
 		script.id = 'de-ytube-api';
 		doc.head.append(script);
 	}

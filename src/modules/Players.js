@@ -30,7 +30,7 @@ class Videos {
 				(list ? '&' + list[0] : '') + '" frameborder="0" allowfullscreen></iframe>';
 		} else {
 			const id = m[1] + (m[2] ? m[2] : '');
-			txt = `<iframe class="de-video-player" src="${ aib.prot }//player.vimeo.com/video/${ id }${
+			txt = `<iframe class="de-video-player" src="${ aib.protocol }//player.vimeo.com/video/${ id }${
 				Cfg.embedYTube === 1 ? '?autoplay=1' : ''
 			}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
 		}
@@ -87,8 +87,8 @@ class Videos {
 			link.className = `de-video-link ${ isYtube ? 'de-ytube' : 'de-vimeo' }`;
 		} else {
 			const src = isYtube ?
-				`${ aib.prot }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
-				`${ aib.prot }//vimeo.com/${ m[1] }`;
+				`${ aib.protocol }//www.youtube.com/watch?v=${ m[1] }${ time ? '#t=' + time : '' }` :
+				`${ aib.protocol }//vimeo.com/${ m[1] }`;
 			link = $bEnd(this.post.msg, `<p class="de-video-ext"><a class="de-video-link ${
 				isYtube ? 'de-ytube' : 'de-vimeo' }${ time ? '" de-time="' + time : ''
 			}" href="${ src }">${ dataObj ? '' : src }</a></p>`).firstChild;
@@ -205,7 +205,7 @@ class Videos {
 				return Cfg.ytApiKey ? Videos._getYTInfoAPI(info, num, id) :
 					Videos._getYTInfoOembed(info, num, id);
 			}
-			return $ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
+			return $ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ id }.json`, null, true).then(xhr => {
 				const entry = JSON.parse(xhr.responseText)[0];
 				return Videos._titlesLoaderHelper(
 					info, num,
@@ -267,7 +267,7 @@ class Videos {
 		this.playerInfo = m;
 		el.classList.remove('de-video-expanded');
 		$show(el);
-		const str = `<a class="de-video-player" href="${ aib.prot }`;
+		const str = `<a class="de-video-player" href="${ aib.protocol }`;
 		if(isYtube) {
 			el.innerHTML = `${ str }//www.youtube.com/watch?v=${ m[1] }" target="_blank">` +
 				`<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/${ m[1] }/0.jpg"></a>`;
@@ -275,7 +275,7 @@ class Videos {
 		}
 		el.innerHTML = `${ str }//vimeo.com/${ m[1] }" target="_blank">` +
 			'<img class="de-video-thumb de-vimeo" src=""></a>';
-		$ajax(`${ aib.prot }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
+		$ajax(`${ aib.protocol }//vimeo.com/api/v2/video/${ m[1] }.json`, null, true).then(xhr => {
 			el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 		}).catch(emptyFn);
 	}

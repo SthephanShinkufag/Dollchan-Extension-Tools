@@ -69,7 +69,7 @@ async function runMain(checkDomains, dataPromise) {
 		}
 		initNavFuncs();
 	}
-	const [favObj] = await (dataPromise || readData());
+	const [favObj] = await (dataPromise || Promise.all([readFavorites(), readCfg()]));
 	if(!Cfg.disabled && aib.init?.() || !localData && docBody.classList.contains('de-mode-local')) {
 		return;
 	}
@@ -87,8 +87,8 @@ async function runMain(checkDomains, dataPromise) {
 	initStorageEvent();
 	DollchanAPI.initAPI();
 	if(localData) {
-		aib.prot = 'http:';
-		aib.host = aib.dm;
+		aib.protocol = 'http:';
+		aib.host = aib.domain;
 		aib.b = localData.b;
 		aib.t = localData.t;
 		aib.docExt = '.html';
@@ -103,7 +103,7 @@ async function runMain(checkDomains, dataPromise) {
 	Logger.log('Init');
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang,
-			rp => saveCfg('timeRPattern', rp));
+			rp => CfgSaver.save('timeRPattern', rp));
 		Logger.log('Time correction');
 	}
 	MyPosts.readStorage();
@@ -186,7 +186,7 @@ function initMain() {
 			return;
 		}
 		initNavFuncs();
-		dataPromise = readData();
+		dataPromise = Promise.all([readFavorites(), readCfg()]);
 	}
 	needScroll = true;
 	doc.addEventListener('onwheel' in doc.defaultView ? 'wheel' : 'mousewheel', function wFunc(e) {

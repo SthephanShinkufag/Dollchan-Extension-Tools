@@ -85,8 +85,8 @@ class AbstractPost {
 				this._menu.removeMenu();
 				this._menu = null;
 			}
-			switch(el.tagName) {
-			case 'A':
+			switch(el.tagName.toLowerCase()) {
+			case 'a':
 				// Click on YouTube link - show/hide player or thumbnail
 				if(el.classList.contains('de-video-link')) {
 					this.videos.clickLink(el, Cfg.embedYTube);
@@ -94,7 +94,7 @@ class AbstractPost {
 					return;
 				}
 				// Check if the link is not an image container
-				if(!(temp = el.firstElementChild) || temp.tagName !== 'IMG') {
+				if(!(temp = el.firstElementChild) || temp.tagName.toLowerCase() !== 'img') {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
@@ -130,7 +130,7 @@ class AbstractPost {
 				}
 				el = temp; // The link is an image container
 				/* falls through */
-			case 'IMG': // Click on attached image - expand/collapse
+			case 'img': // Click on attached image - expand/collapse
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg.embedYTube === 1) {
 						const { videos } = this;
@@ -142,8 +142,8 @@ class AbstractPost {
 					this._clickImage(el, e);
 				}
 				return;
-			case 'OBJECT':
-			case 'VIDEO': // Click on attached video - expand/collapse
+			case 'object':
+			case 'video': // Click on attached video - expand/collapse
 				if(Cfg.expandImgs !== 0 && !ExpandableImage.isControlClick(e)) {
 					this._clickImage(el, e);
 				}
@@ -198,7 +198,7 @@ class AbstractPost {
 				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
-			case 'de-btn-sage': /*await*/ Spells.addSpell(9, '', false); return;
+			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
 			case 'de-btn-stick': this.toggleSticky(true); return;
 			case 'de-btn-stick-on': this.toggleSticky(false); return;
 			}
@@ -220,7 +220,8 @@ class AbstractPost {
 			}
 		}
 		// Mouseover/mouseout on attached images/videos - update title
-		if(!isOutEvent && Cfg.expandImgs && el.tagName === 'IMG' && !el.classList.contains('de-fullimg') &&
+		if(!isOutEvent && Cfg.expandImgs &&
+			el.tagName.toLowerCase() === 'img' && !el.classList.contains('de-fullimg') &&
 			(temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)
 		) {
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -271,7 +272,7 @@ class AbstractPost {
 		case 'de-post-btns': el.removeAttribute('title'); return;
 		// Mouseover/mouseout on >>links - show/delete post previews
 		default:
-			if(!Cfg.linksNavig || el.tagName !== 'A' || el.isNotRefLink) {
+			if(!Cfg.linksNavig || el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) {
 				return;
 			}
 			if(!el.textContent.startsWith('>>')) {
@@ -431,7 +432,7 @@ class AbstractPost {
 			e.preventDefault();
 			$popup('file-loading', Lng.loading[lang], true);
 			const url = el.href;
-			const data = await ContentLoader.loadImgData(url, false)
+			const data = await ContentLoader.loadImgData(url, false);
 			if(!data) {
 				$popup('file-loading', Lng.cantLoad[lang] + ' URL: ' + url);
 				return;

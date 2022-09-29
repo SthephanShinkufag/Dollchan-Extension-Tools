@@ -179,7 +179,7 @@ class Pview extends AbstractPost {
 			}
 			const el = nav.fixEventEl(e.relatedTarget);
 			if(!el ||
-				isOverEvent && (el.tagName !== 'A' || el.isNotRefLink) ||
+				isOverEvent && (el.tagName.toLowerCase() !== 'a' || el.isNotRefLink) ||
 				el !== this.el && !this.el.contains(el)
 			) {
 				if(isOverEvent) {

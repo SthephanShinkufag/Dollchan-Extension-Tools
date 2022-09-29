@@ -10,8 +10,9 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="wakaba.pl"]', BaseBoard]);
 
 	class Kusaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
+
 			this.qError = 'h1, h2, div[style*="1.25em"]';
 			this.qFormRedir = 'input[name="redirecttothread"][value="1"]';
 
@@ -49,8 +50,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['script[src*="kusaba"]', Kusaba], ['form#delform[action$="/board.php"]', Kusaba]);
 
 	class Tinyboard extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post reply';
 			this.qClosed = '.fa-lock';
@@ -141,7 +142,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			const formEl = super.fixHTML(data, isForm);
 			$Q('br.clear', formEl).forEach(brEl => {
 				const hr = brEl.nextElementSibling;
-				if(hr && hr.tagName === 'HR') {
+				if(hr && hr.tagName.toLowerCase() === 'hr') {
 					brEl.parentNode.after(hr);
 				}
 				brEl.remove();
@@ -187,8 +188,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[name*="postcontrols"]', Tinyboard]);
 
 	class Vichan extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelPassw = '#password';
 			this.qPostImg = '.post-image[alt]:not(.deleted)';
@@ -232,8 +233,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['tr#upload', Vichan]);
 
 	class TinyIB extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
@@ -271,8 +272,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
 
 	class newTinyIB extends TinyIB {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasCatalog = true;
 			this.markupBB = true;
@@ -296,8 +297,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['body.tinyib', newTinyIB]);
 
 	class Lynxchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'innerPost';
 			this.qDelBtn = '#deleteFormButton';
@@ -499,8 +500,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['form[action$="contentActions.js"]', Lynxchan]);
 
 	class FoolFuuka extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post_wrapper';
 			this.qDelForm = '#main';
@@ -564,8 +565,8 @@ function getImageBoard(checkDomains, checkEngines) {
 
 	// DOMAINS
 	class _02ch extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this._02ch = true;
 
 			this.hasCatalog = true;
@@ -583,8 +584,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['02ch.su'] = _02ch;
 
 	class _0chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = '#delform_instant';
 			this.qPostHeader = '.posthead';
@@ -629,8 +630,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2.0-chan.ru'] = _0chan;
 
 	class _2__ch extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPostEnd = 'table:not(.postfiles)';
 			this.qPages = 'table[border="1"] td > a:last-of-type';
@@ -701,8 +702,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
 	class /* _2ch */ Makaba extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.makaba = true;
 
 			this.cReply = 'de-reply-class';
@@ -840,7 +841,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			const img = box.firstChild;
-			if(!img || img.tagName !== 'IMG') {
+			if(!img || img.tagName.toLowerCase() !== 'img') {
 				box.innerHTML = `<img>
 					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
 					<input name="2chcaptcha_id" type="hidden">`;
@@ -1056,8 +1057,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
 
 	class _2chan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = 'form:not([enctype])';
 			this.qForm = '#fm';
@@ -1089,7 +1090,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return +$q('input', post).name;
 		}
 		getPostElOfEl(el) {
-			while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
+			while(el && el.tagName.toLowerCase() !== 'td' && !el.hasAttribute('de-thread')) {
 				el = el.parentElement;
 			}
 			return el;
@@ -1105,8 +1106,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2chan.net'] = _2chan;
 
 	class _2channel extends Makaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasAltCaptcha = false;
 			this.JsonBuilder = null;
@@ -1182,8 +1183,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2channel.moe'] = ibDomains['2channel5xx5xchx.onion'] = _2channel;
 
 	class _2chRip extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.jsonSubmit = true;
 			this.ru = true;
@@ -1216,8 +1217,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['2ch.rip'] = ibDomains['dva-ch.net'] = _2chRip;
 
 	class _410chan extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
@@ -1268,8 +1269,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['410chan.org'] = _410chan;
 
 	class _4chan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this._4chan = true;
 
 			this.cReply = 'post reply';
@@ -1408,8 +1409,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['archived.moe'] = Archived;
 
 	class Arhivach extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post';
 			this.qDelBtn = null;
@@ -1494,8 +1495,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
 	class CrystalCafe extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qPost = '.post.reply';
 		}
@@ -1512,8 +1513,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['crystal.cafe'] = CrystalCafe;
 
 	class Dobrochan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.dobrochan = true;
 
 			this.qClosed = 'img[src="/images/locked.png"]';
@@ -1593,12 +1594,13 @@ function getImageBoard(checkDomains, checkEngines) {
 		getImgSrcLink(img) {
 			// There can be a censored <img> without <a> parent
 			const el = img.parentNode;
-			return el.tagName === 'A' ? el :
+			return el.tagName.toLowerCase() === 'a' ? el :
 				$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 		}
 		getImgWrap(img) {
 			const el = img.parentNode;
-			return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
+			return el.tagName.toLowerCase() === 'a' ?
+				(el.previousElementSibling ? el : el.parentNode).parentNode :
 				img.previousElementSibling ? el : el.parentNode;
 		}
 		getJsonApiUrl(board, tNum) {
@@ -1624,7 +1626,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			if(deWindow.location.pathname === '/settings') {
 				$q('input[type="button"]').addEventListener('click', async () => {
 					await readCfg();
-					await saveCfg('__hanarating', $id('rating').value);
+					await CfgSaver.save('__hanarating', $id('rating').value);
 				});
 				return true;
 			}
@@ -1634,15 +1636,15 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		insertYtPlayer(msg, playerHtml) {
 			const prev = msg.previousElementSibling;
-			return $bBegin(prev.tagName === 'BR' ? prev : msg, playerHtml);
+			return $bBegin(prev.tagName.toLowerCase() === 'br' ? prev : msg, playerHtml);
 		}
 	}
 	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] =
 		ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
 
 	class Endchan extends Lynxchan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qTrunc = '.contentOmissionIndicator > p';
 		}
@@ -1665,8 +1667,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['endchan.net'] = Endchan;
 
 	class Ernstchan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.cReply = 'post';
 			this.qError = '.error > .info';
@@ -1717,8 +1719,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ernstchan.xyz'] = Ernstchan;
 
 	class Gensokyo extends Kusaba {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasRefererErr = true;
 		}
@@ -1726,8 +1728,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['gensokyo.4otaku.org'] = Gensokyo;
 
 	class Iichan extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.hasArchive = true;
 			this.hasCatalog = true;
@@ -1742,7 +1744,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 'input[name="nya3"]';
 		}
 		get catalogUrl() {
-			return `${ this.prot }//${ this.host }/${ this.b }/catalogue.html`;
+			return `${ this.protocol }//${ this.host }/${ this.b }/catalogue.html`;
 		}
 		get css() {
 			return `${ !this.t ? '' : 'hr + #de-main { margin-top: -32px; } .logo { margin-bottom: 14px; }' }
@@ -1813,8 +1815,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['iichan.hk'] = Iichan;
 
 	class Kohlchan extends Lynxchan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 			this.kohlchan = true;
 
 			this.qFormRules = '#rules_row';
@@ -1944,8 +1946,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['kohlkanal.net'] = Kohlchan;
 
 	class Kropyvach extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.markupBB = true;
 		}
@@ -1959,8 +1961,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['kropyva.ch'] = Kropyvach;
 
 	class Lainchan extends Vichan {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPost = '.op';
 		}
@@ -2001,8 +2003,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['nowere.net'] = Nowere;
 
 	class Ponyach extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qBan = 'font[color="#FF0000"]';
 			this.qPostImgInfo = '.filesize[style="display: inline;"]';
@@ -2042,8 +2044,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['ponyach.ru'] = Ponyach;
 
 	class Ponychan extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qOPost = '.opContainer';
 
@@ -2077,8 +2079,8 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['rfch.rocks'] = Rfch;
 
 	class Synch extends Tinyboard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qPages = '.pagination';
 			this.qPostImgInfo = '.unimportant';
@@ -2122,8 +2124,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		ibDomains['syn-ch.org'] = Synch;
 
 	class Warosu extends BaseBoard {
-		constructor(prot, dm) {
-			super(prot, dm);
+		constructor(...args) {
+			super(...args);
 
 			this.qDelForm = '.content';
 			this.qForm = '.subreply';
@@ -2146,34 +2148,34 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibDomains['warosu.org'] = Warosu;
 
 	const wLoc = deWindow.location;
-	const prot = wLoc.protocol;
-	let dm = localData?.dm;
+	const { protocol } = wLoc;
+	let domain = localData?.domain;
 	if(checkDomains) {
-		if(!dm) {
+		if(!domain) {
 			const ibKeys = Object.keys(ibDomains);
 			let i = ibKeys.length;
 			const host = wLoc.hostname.toLowerCase();
 			while(i--) {
-				dm = ibKeys[i];
-				if(host === dm || host.endsWith('.' + dm)) {
-					return new ibDomains[dm](prot, dm);
+				domain = ibKeys[i];
+				if(host === domain || host.endsWith('.' + domain)) {
+					return new ibDomains[domain](protocol, domain);
 				}
 			}
-		} else if(dm in ibDomains) {
-			return new ibDomains[dm](prot, dm);
+		} else if(domain in ibDomains) {
+			return new ibDomains[domain](protocol, domain);
 		}
 	}
-	if(!dm) {
-		dm = wLoc.hostname;
+	if(!domain) {
+		domain = wLoc.hostname;
 	}
-	if(!dm || !checkEngines) {
+	if(!domain || !checkEngines) {
 		return null;
 	}
-	dm = dm.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	domain = domain.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	for(let i = ibEngines.length - 1; i >= 0; --i) {
 		const [path, Ctor] = ibEngines[i];
 		if($q(path, doc)) {
-			return new Ctor(prot, dm);
+			return new Ctor(protocol, domain);
 		}
 	}
 	return null;

@@ -88,7 +88,7 @@ class PostForm {
 	static async setUserName() {
 		const el = $q('input[info="nameValue"]');
 		if(el) {
-			await saveCfg('nameValue', el.value);
+			await CfgSaver.save('nameValue', el.value);
 		}
 		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
@@ -98,7 +98,7 @@ class PostForm {
 		}
 		const el = $q('input[info="passwValue"]');
 		if(el) {
-			await saveCfg('passwValue', el.value);
+			await CfgSaver.save('passwValue', el.value);
 		}
 		const value = pr.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
@@ -183,7 +183,7 @@ class PostForm {
 	}
 	handleEvent(e) {
 		let el = e.target;
-		if(el.tagName !== 'DIV') {
+		if(el.tagName.toLowerCase() !== 'div') {
 			el = el.parentNode;
 		}
 		const { id } = el;
@@ -375,8 +375,8 @@ class PostForm {
 			try {
 				const data = await html5Submit(this.form, this.subm, true);
 				await checkSubmit(data);
-			} catch(e) {
-				showSubmitError(e);
+			} catch(err) {
+				showSubmitError(err);
 			}
 		};
 	}
@@ -485,7 +485,8 @@ class PostForm {
 				const { width, height } = s;
 				s.setProperty('width', width + 'px', 'important');
 				s.setProperty('height', height + 'px', 'important');
-				/*await*/ saveCfg('textaWidth', parseInt(width, 10), 'textaHeight', parseInt(height, 10));
+				/* await */ CfgSaver.save('textaWidth', parseInt(width, 10),
+					'textaHeight', parseInt(height, 10));
 			});
 			return;
 		}
@@ -506,7 +507,8 @@ class PostForm {
 				}
 				default: // mouseup
 					['mousemove', 'mouseup'].forEach(e => docBody.removeEventListener(e, this));
-					/*await*/ saveCfg('textaWidth', parseInt(this._elStyle.width, 10), 'textaHeight', parseInt(this._elStyle.height, 10));
+					/* await */ CfgSaver.save('textaWidth', parseInt(this._elStyle.width, 10),
+						'textaHeight', parseInt(this._elStyle.height, 10));
 				}
 			}
 		});
@@ -552,7 +554,7 @@ class PostForm {
 		};
 		const [clearBtn, toggleBtn, closeBtn] = [...buttons.children];
 		clearBtn.onclick = async () => {
-			await saveCfg('sageReply', 0);
+			await CfgSaver.save('sageReply', 0);
 			this.toggleSage();
 			this.files.clearInputs();
 			[this.txta, this.name, this.mail, this.subj, this.video, this.cap && this.cap.textEl].forEach(
