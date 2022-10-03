@@ -94,7 +94,7 @@ class AbstractPost {
 					return;
 				}
 				// Check if the link is not an image container
-				if(!(temp = el.firstElementChild) || temp.tagName.toLowerCase() !== 'img') {
+				if((temp = el.firstElementChild)?.tagName.toLowerCase() !== 'img') {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);

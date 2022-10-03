@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '37aa628';
+const commit = '2854d99';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1850,7 +1850,7 @@ const pad2 = i => i < 10 ? '0' + i : i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = board => '/' + (board ? board + '/' : '');
+const fixBoardName = board => '/' + (board ? board + '/' : '');
 
 const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
 
@@ -2656,7 +2656,7 @@ function readPostsData(firstPost, favObj) {
 		return;
 	}
 	let updateFav = null;
-	const favBrd = favObj[aib.host]?.[aib.b] || {};
+	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -2664,8 +2664,8 @@ function readPostsData(firstPost, favObj) {
 	for(let post = firstPost; post; post = post.next) {
 		const { num } = post;
 		// Mark favorite threads, update favorites data
-		if(post.isOp && (num in favBrd)) {
-			const entry = favBrd[num];
+		if(post.isOp && (num in favBoardObj)) {
+			const entry = favBoardObj[num];
 			const { thr } = post;
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;
@@ -10463,7 +10463,7 @@ class AbstractPost {
 					return;
 				}
 				// Check if the link is not an image container
-				if(!(temp = el.firstElementChild) || temp.tagName.toLowerCase() !== 'img') {
+				if((temp = el.firstElementChild)?.tagName.toLowerCase() !== 'img') {
 					temp = el.parentNode;
 					if(temp === this.trunc) { // Click on "truncated message" link
 						this._getFullMsg(temp, false);
@@ -15014,10 +15014,10 @@ class DelForm {
 		const fNodes = [...formEl.childNodes];
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			const el = fNodes[i];
-			if(el?.tagName.toLowerCase() === 'hr') {
+			if(el.tagName?.toLowerCase() === 'hr') {
 				el.before(cThr);
 				const lastEl = cThr.lastElementChild;
-				if(lastEl?.tagName.toLowerCase() === 'br') {
+				if(lastEl.tagName?.toLowerCase() === 'br') {
 					el.before(lastEl);
 				}
 				try {
@@ -15574,7 +15574,7 @@ class BaseBoard {
 		return op;
 	}
 	getPageUrl(board, page) {
-		return fixBrd(board) + (page > 0 ? page + this.docExt : '');
+		return fixBoardName(board) + (page > 0 ? page + this.docExt : '');
 	}
 	getPNum(post) {
 		return +post.id.match(/\d+/);
@@ -15608,7 +15608,7 @@ class BaseBoard {
 		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(board, tNum) { // Arhivach
-		return this.protocol + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
+		return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
@@ -15814,7 +15814,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.title || el.textContent;
 		}
 		getPageUrl(board, page) {
-			return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
+			return page > 1 ? fixBoardName(board) + page + this.docExt : fixBoardName(board);
 		}
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
@@ -16026,7 +16026,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.closest('figure');
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
+			return fixBoardName(board) + (page > 1 ? page + this.docExt : 'index.html');
 		}
 		getPNum(post) {
 			return +$q('.deletionCheckBox', post).name.split('-')[2];
@@ -16193,7 +16193,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? `page/${ page }/` : '');
+			return fixBoardName(board) + (page > 1 ? `page/${ page }/` : '');
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-thread-num');
@@ -16324,7 +16324,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
 		getPageUrl(board, page) {
-			return `${ fixBrd(board) }${ page > 0 ? page : 0 }.memhtml`;
+			return `${ fixBoardName(board) }${ page > 0 ? page : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -16492,7 +16492,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			const img = box.firstChild;
-			if(!img || img.tagName.toLowerCase() !== 'img') {
+			if(img?.tagName?.toLowerCase() !== 'img') {
 				box.innerHTML = `<img>
 					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
 					<input name="2chcaptcha_id" type="hidden">`;
@@ -16735,7 +16735,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				span { font-size: inherit; }`;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
+			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
 		}
 		getPNum(post) {
 			return +$q('input', post).name;
@@ -17019,7 +17019,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? page : '');
+			return fixBoardName(board) + (page > 1 ? page : '');
 		}
 		getPostWrap(el) {
 			return el.parentNode;
@@ -17268,7 +17268,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 1;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
+			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
 		}
 		getTNum(thr) {
 			return +$q('a[name]', thr).name.match(/\d+/);
@@ -17358,7 +17358,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
+			return page > 1 ? fixBoardName(board) + 'page/' + page : fixBoardName(board);
 		}
 		getPostElOfEl(el) {
 			while(el && !nav.matchesSelector(el, '.post')) {

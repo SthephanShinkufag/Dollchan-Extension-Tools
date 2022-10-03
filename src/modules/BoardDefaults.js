@@ -316,7 +316,7 @@ class BaseBoard {
 		return op;
 	}
 	getPageUrl(board, page) {
-		return fixBrd(board) + (page > 0 ? page + this.docExt : '');
+		return fixBoardName(board) + (page > 0 ? page + this.docExt : '');
 	}
 	getPNum(post) {
 		return +post.id.match(/\d+/);
@@ -350,7 +350,7 @@ class BaseBoard {
 		return !!el && /sage/i.test(el.href);
 	}
 	getThrUrl(board, tNum) { // Arhivach
-		return this.protocol + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
+		return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;

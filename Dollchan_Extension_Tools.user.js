@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '37aa628';
+  var commit = '2854d99';
 
   var defaultCfg = {
     disabled: 0,
@@ -7935,7 +7935,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return start + arr.join(end + start) + end;
   };
 
-  var fixBrd = function fixBrd(board) {
+  var fixBoardName = function fixBoardName(board) {
     return '/' + (board ? board + '/' : '');
   };
 
@@ -9250,7 +9250,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     var updateFav = null;
-    var favBrd = ((_favObj$aib$host = favObj[aib.host]) === null || _favObj$aib$host === void 0 ? void 0 : _favObj$aib$host[aib.b]) || {};
+    var favBoardObj = ((_favObj$aib$host = favObj[aib.host]) === null || _favObj$aib$host === void 0 ? void 0 : _favObj$aib$host[aib.b]) || {};
     var spellsHide = Cfg.hideBySpell;
     var maybeSpells = new Maybe(SpellsRunner); 
 
@@ -9258,8 +9258,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _post = post,
           num = _post.num; 
 
-      if (post.isOp && num in favBrd) {
-        var entry = favBrd[num];
+      if (post.isOp && num in favBoardObj) {
+        var entry = favBoardObj[num];
         var _post2 = post,
             thr = _post2.thr;
         post.toggleFavBtn(true);
@@ -20767,7 +20767,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "handleEvent",
       value: function handleEvent(e) {
-        var _this61 = this;
+        var _temp,
+            _this61 = this;
 
         var temp;
         var el = nav.fixEventEl(e.target);
@@ -20803,7 +20804,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } 
 
 
-              if (!(temp = el.firstElementChild) || temp.tagName.toLowerCase() !== 'img') {
+              if (((_temp = temp = el.firstElementChild) === null || _temp === void 0 ? void 0 : _temp.tagName.toLowerCase()) !== 'img') {
                 temp = el.parentNode;
 
                 if (temp === this.trunc) {
@@ -27329,13 +27330,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var fNodes = _toConsumableArray(formEl.childNodes);
 
         for (i = 0, len = fNodes.length - 1; i < len; ++i) {
+          var _el$tagName;
+
           var el = fNodes[i];
 
-          if ((el === null || el === void 0 ? void 0 : el.tagName.toLowerCase()) === 'hr') {
+          if (((_el$tagName = el.tagName) === null || _el$tagName === void 0 ? void 0 : _el$tagName.toLowerCase()) === 'hr') {
+            var _lastEl$tagName;
+
             el.before(cThr);
             var lastEl = cThr.lastElementChild;
 
-            if ((lastEl === null || lastEl === void 0 ? void 0 : lastEl.tagName.toLowerCase()) === 'br') {
+            if (((_lastEl$tagName = lastEl.tagName) === null || _lastEl$tagName === void 0 ? void 0 : _lastEl$tagName.toLowerCase()) === 'br') {
               el.before(lastEl);
             }
 
@@ -28042,7 +28047,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getPageUrl",
       value: function getPageUrl(board, page) {
-        return fixBrd(board) + (page > 0 ? page + this.docExt : '');
+        return fixBoardName(board) + (page > 0 ? page + this.docExt : '');
       }
     }, {
       key: "getPNum",
@@ -28094,7 +28099,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getThrUrl",
       value: function getThrUrl(board, tNum) {
-        return this.protocol + '//' + this.host + fixBrd(board) + this.res + tNum + this.docExt;
+        return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum + this.docExt;
       }
     }, {
       key: "getTNum",
@@ -28137,10 +28142,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           this.t = +temp[1].match(/^[^\d]?\d+/)[0];
           this.page = this.firstPage;
         } else {
-          var _temp = url.match(/\/?(\d+)[^/]*?$/);
+          var _temp2 = url.match(/\/?(\d+)[^/]*?$/);
 
-          this.page = +(_temp === null || _temp === void 0 ? void 0 : _temp[1]) || this.firstPage;
-          this.b = url.replace(_temp && this.page ? _temp[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
+          this.page = +(_temp2 === null || _temp2 === void 0 ? void 0 : _temp2[1]) || this.firstPage;
+          this.b = url.replace(_temp2 && this.page ? _temp2[0] : /\/(?:[^/]+\.[a-z]+)?$/, '');
         }
 
         if (this.docExt === null) {
@@ -28415,7 +28420,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
+          return page > 1 ? fixBoardName(board) + page + this.docExt : fixBoardName(board);
         }
       }, {
         key: "getSubmitData",
@@ -28758,7 +28763,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
+          return fixBoardName(board) + (page > 1 ? page + this.docExt : 'index.html');
         }
       }, {
         key: "getPNum",
@@ -29084,7 +29089,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return fixBrd(board) + (page > 1 ? "page/".concat(page, "/") : '');
+          return fixBoardName(board) + (page > 1 ? "page/".concat(page, "/") : '');
         }
       }, {
         key: "getTNum",
@@ -29304,7 +29309,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return "".concat(fixBrd(board)).concat(page > 0 ? page : 0, ".memhtml");
+          return "".concat(fixBoardName(board)).concat(page > 0 ? page : 0, ".memhtml");
         }
       }, {
         key: "getSubmitData",
@@ -29504,7 +29509,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaInit",
         value: function captchaInit(cap) {
-          var _this117 = this;
+          var _img$tagName,
+              _this117 = this;
 
           var box = $q('.captcha-box, .captcha');
 
@@ -29515,7 +29521,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
           var img = box.firstChild;
 
-          if (!img || img.tagName.toLowerCase() !== 'img') {
+          if ((img === null || img === void 0 ? void 0 : (_img$tagName = img.tagName) === null || _img$tagName === void 0 ? void 0 : _img$tagName.toLowerCase()) !== 'img') {
             box.innerHTML = "<img>\n\t\t\t\t\t<input name=\"2chcaptcha_value\" maxlength=\"6\" type=\"text\" style=\"display: block;\">\n\t\t\t\t\t<input name=\"2chcaptcha_id\" type=\"hidden\">";
 
             var _ref59 = _toConsumableArray(box.children),
@@ -29822,7 +29828,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
+          return fixBoardName(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
         }
       }, {
         key: "getPNum",
@@ -30254,7 +30260,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return fixBrd(board) + (page > 1 ? page : '');
+          return fixBoardName(board) + (page > 1 ? page : '');
         }
       }, {
         key: "getPostWrap",
@@ -30647,7 +30653,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
+          return fixBoardName(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
         }
       }, {
         key: "getTNum",
@@ -30803,7 +30809,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "getPageUrl",
         value: function getPageUrl(board, page) {
-          return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
+          return page > 1 ? fixBoardName(board) + 'page/' + page : fixBoardName(board);
         }
       }, {
         key: "getPostElOfEl",

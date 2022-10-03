@@ -246,7 +246,7 @@ function readPostsData(firstPost, favObj) {
 		return;
 	}
 	let updateFav = null;
-	const favBrd = favObj[aib.host]?.[aib.b] || {};
+	const favBoardObj = favObj[aib.host]?.[aib.b] || {};
 	const spellsHide = Cfg.hideBySpell;
 	const maybeSpells = new Maybe(SpellsRunner);
 
@@ -254,8 +254,8 @@ function readPostsData(firstPost, favObj) {
 	for(let post = firstPost; post; post = post.next) {
 		const { num } = post;
 		// Mark favorite threads, update favorites data
-		if(post.isOp && (num in favBrd)) {
-			const entry = favBrd[num];
+		if(post.isOp && (num in favBoardObj)) {
+			const entry = favBoardObj[num];
 			const { thr } = post;
 			post.toggleFavBtn(true);
 			post.thr.isFav = true;

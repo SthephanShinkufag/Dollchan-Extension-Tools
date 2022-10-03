@@ -149,7 +149,7 @@ const pad2 = i => i < 10 ? '0' + i : i;
 
 const arrTags = (arr, start, end) => start + arr.join(end + start) + end;
 
-const fixBrd = board => '/' + (board ? board + '/' : '');
+const fixBoardName = board => '/' + (board ? board + '/' : '');
 
 const getFileName = url => url.substring(url.lastIndexOf('/') + 1);
 

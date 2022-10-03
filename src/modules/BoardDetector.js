@@ -163,7 +163,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el.title || el.textContent;
 		}
 		getPageUrl(board, page) {
-			return page > 1 ? fixBrd(board) + page + this.docExt : fixBrd(board);
+			return page > 1 ? fixBoardName(board) + page + this.docExt : fixBoardName(board);
 		}
 		getSubmitData({ error, id }) {
 			return { error, postNum: id && +id };
@@ -375,7 +375,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.closest('figure');
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? page + this.docExt : 'index.html');
+			return fixBoardName(board) + (page > 1 ? page + this.docExt : 'index.html');
 		}
 		getPNum(post) {
 			return +$q('.deletionCheckBox', post).name.split('-')[2];
@@ -542,7 +542,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? `page/${ page }/` : '');
+			return fixBoardName(board) + (page > 1 ? `page/${ page }/` : '');
 		}
 		getTNum(thr) {
 			return +thr.getAttribute('data-thread-num');
@@ -673,7 +673,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
 		}
 		getPageUrl(board, page) {
-			return `${ fixBrd(board) }${ page > 0 ? page : 0 }.memhtml`;
+			return `${ fixBoardName(board) }${ page > 0 ? page : 0 }.memhtml`;
 		}
 		getSubmitData(json) {
 			let error = null;
@@ -841,7 +841,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				return null;
 			}
 			const img = box.firstChild;
-			if(!img || img.tagName.toLowerCase() !== 'img') {
+			if(img?.tagName?.toLowerCase() !== 'img') {
 				box.innerHTML = `<img>
 					<input name="2chcaptcha_value" maxlength="6" type="text" style="display: block;">
 					<input name="2chcaptcha_id" type="hidden">`;
@@ -1084,7 +1084,7 @@ function getImageBoard(checkDomains, checkEngines) {
 				span { font-size: inherit; }`;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
+			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
 		}
 		getPNum(post) {
 			return +$q('input', post).name;
@@ -1368,7 +1368,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 1 ? page : '');
+			return fixBoardName(board) + (page > 1 ? page : '');
 		}
 		getPostWrap(el) {
 			return el.parentNode;
@@ -1617,7 +1617,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return 1;
 		}
 		getPageUrl(board, page) {
-			return fixBrd(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
+			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'index.xhtml');
 		}
 		getTNum(thr) {
 			return +$q('a[name]', thr).name.match(/\d+/);
@@ -1707,7 +1707,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return img.parentNode.parentNode.parentNode;
 		}
 		getPageUrl(board, page) {
-			return page > 1 ? fixBrd(board) + 'page/' + page : fixBrd(board);
+			return page > 1 ? fixBoardName(board) + 'page/' + page : fixBoardName(board);
 		}
 		getPostElOfEl(el) {
 			while(el && !nav.matchesSelector(el, '.post')) {
