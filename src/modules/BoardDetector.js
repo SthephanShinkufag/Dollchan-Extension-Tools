@@ -564,25 +564,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	ibEngines.push(['meta[name="generator"][content^="FoolFuuka"]', FoolFuuka]);
 
 	// DOMAINS
-	class _02ch extends Kusaba {
-		constructor(...args) {
-			super(...args);
-			this._02ch = true;
-
-			this.hasCatalog = true;
-			this._capUpdPromise = null;
-		}
-		captchaUpdate(cap) {
-			return cap.updateHelper('/captcha_update.php', xhr => {
-				cap.parentEl.innerHTML = xhr.responseText;
-				cap.textEl = $id('recaptcha_response_field');
-				cap.initImage($q('img', cap.parentEl));
-				cap.initTextEl();
-			});
-		}
-	}
-	ibDomains['02ch.su'] = _02ch;
-
 	class _0chan extends Kusaba {
 		constructor(...args) {
 			super(...args);
@@ -628,78 +609,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2.0-chan.ru'] = _0chan;
-
-	class _2__ch extends BaseBoard {
-		constructor(...args) {
-			super(...args);
-
-			this.qOPostEnd = 'table:not(.postfiles)';
-			this.qPages = 'table[border="1"] td > a:last-of-type';
-			this.qPostImg = 'img.thumb';
-
-			this.docExt = '.html';
-			this.hasPicWrap = true;
-			this.jsonSubmit = true;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.ru = true;
-		}
-		get qThread() {
-			return '.threadz';
-		}
-		get captchaInit() {
-			$id('captchadiv').innerHTML =
-				`<img src="${ this.getCaptchaSrc() }" style="vertical-align: bottom;" id="imgcaptcha">`;
-			return null;
-		}
-		get css() {
-			return '#fastload, .rfmap, span[id$="_display"] { display: none; }';
-		}
-		fixFileInputs(el) {
-			const str = '><input type="file" name="file"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		fixHTMLHelper(str) {
-			return str.replaceAll('data-original="/', 'src="/');
-		}
-		getCaptchaSrc() {
-			return `/${ this.b }/captcha.fpl?${ Math.random() }`;
-		}
-		getImgWrap(img) {
-			return img.parentNode.parentNode.parentNode;
-		}
-		getOmitted(el, len) {
-			let txt;
-			return el && (txt = el.textContent) ? +txt.match(/\d+/) - len : 1;
-		}
-		getPageUrl(board, page) {
-			return `${ fixBoardName(board) }${ page > 0 ? page : 0 }.memhtml`;
-		}
-		getSubmitData(json) {
-			let error = null;
-			let postNum = null;
-			if(json.post) {
-				postNum = +json.post;
-			} else {
-				error = Lng.error[lang];
-				if(json.error) {
-					error += ': ' + json.error.text;
-				}
-			}
-			return { error, postNum };
-		}
-		init() {
-			const btnEl = $q('#postform input[type="button"]');
-			if(btnEl) {
-				$replace(btnEl, '<input type="submit" value="Отправить">');
-			}
-			const delFormEl = $q(this.qDelForm);
-			$delAll('input[type="hidden"]', delFormEl);
-			delFormEl.append($q('.userdelete'));
-			return false;
-		}
-	}
-	ibDomains['2--ch.ru'] = ibDomains['2-ch.su'] = _2__ch;
 
 	class /* _2ch */ Makaba extends BaseBoard {
 		constructor(...args) {
@@ -1055,55 +964,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['2ch.hk'] = ibDomains['2ch.life'] = Makaba;
-
-	class _2chan extends BaseBoard {
-		constructor(...args) {
-			super(...args);
-
-			this.qDelForm = 'form:not([enctype])';
-			this.qForm = '#fm';
-			this.qFormRedir = null;
-			this.qFormRules = '.chui';
-			this.qOmitted = 'font[color="#707070"]';
-			this.qPost = 'td:nth-child(2)';
-			this.qPostImg = 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img';
-			this.qPostRef = '.del';
-
-			this.docExt = '.htm';
-			this.formParent = 'resto';
-		}
-		get qPostImgNameLink() {
-			return 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
-		}
-		get qThread() {
-			return '.thre';
-		}
-		get css() {
-			return `.ftbl { width: auto; margin: 0; }
-				.reply { background: #f0e0d6; }
-				span { font-size: inherit; }`;
-		}
-		getPageUrl(board, page) {
-			return fixBoardName(board) + (page > 0 ? page + this.docExt : 'futaba.htm');
-		}
-		getPNum(post) {
-			return +$q('input', post).name;
-		}
-		getPostElOfEl(el) {
-			while(el && el.tagName.toLowerCase() !== 'td' && !el.hasAttribute('de-thread')) {
-				el = el.parentElement;
-			}
-			return el;
-		}
-		getTNum(thr) {
-			return +$q('input[type="checkbox"]', thr).name.match(/\d+/);
-		}
-		init() {
-			$del($q('base', doc.head)); // <base> is not compartible with SVG
-			return false;
-		}
-	}
-	ibDomains['2chan.net'] = _2chan;
 
 	class _2channel extends Makaba {
 		constructor(...args) {
@@ -1493,24 +1353,6 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
-
-	class CrystalCafe extends Tinyboard {
-		constructor(...args) {
-			super(...args);
-
-			this.qPost = '.post.reply';
-		}
-		get qPostImgNameLink() {
-			return '.fileinfo > a[title]';
-		}
-		getImgInfo(wrap) {
-			return $q(this.qPostImgNameLink, wrap).title;
-		}
-		getTNum(thr) {
-			return +thr.id.match(/\d+/);
-		}
-	}
-	ibDomains['crystal.cafe'] = CrystalCafe;
 
 	class Dobrochan extends BaseBoard {
 		constructor(...args) {

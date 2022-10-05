@@ -5,7 +5,6 @@
 class BaseBoard {
 	constructor(protocol, domain) {
 		// Imageboard-specific booleans
-		this._02ch = false;
 		this._4chan = false;
 		this.dobrochan = false;
 		this.kohlchan = false;
@@ -24,11 +23,11 @@ class BaseBoard {
 		this.qFormPassw = 'tr input[type="password"]';
 		this.qFormRedir = 'input[name="postredir"][value="1"]';
 		this.qFormRules = '.rules, #rules';
-		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]'; // Ernstchan
+		this.qFormSpoiler = 'input[type="checkbox"][name="spoiler"]';
 		this.qFormSubm = 'tr input[type="submit"]';
 		this.qFormTd = 'td';
 		this.qFormTr = 'tr';
-		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])'; // Makaba
+		this.qFormTxta = 'tr:not([style*="none"]) textarea:not([style*="display:none"])';
 		this.qOmitted = '.omittedposts';
 		this.qOPost = '.oppost';
 		this.qOPostEnd = 'form > table, div > table, div[id^="repl"]';
@@ -84,7 +83,7 @@ class BaseBoard {
 		return $match('tr:not([style*="none"]) input:not([type="hidden"]):not([style*="none"])',
 			'[name="subject"]', '[name="field3"]');
 	}
-	get qMsgImgLink() { // Sets here only
+	get qMsgImgLink() {
 		const value = $match(this.qPostMsg.split(', ').join(' a, ') + ' a',
 			'[href$=".jpg"]', '[href$=".jpeg"]', '[href$=".png"]', '[href$=".gif"]');
 		Object.defineProperty(this, 'qMsgImgLink', { value });
@@ -103,19 +102,19 @@ class BaseBoard {
 		Object.defineProperty(this, 'qThread', { value });
 		return value;
 	}
-	get captchaAfterSubmit() { // Kohlchan
+	get captchaAfterSubmit() {
 		return null;
 	}
 	get captchaInit() {
 		return null;
 	}
-	get captchaLang() { // _410chan
+	get captchaLang() {
 		return this.ru ? 2 : 1;
 	}
 	get captchaUpdate() {
 		return null;
 	}
-	get catalogUrl() { // Iichan
+	get catalogUrl() {
 		return `${ this.protocol }//${ this.host }/${ this.b }/catalog.html`;
 	}
 	get changeReplyMode() {
@@ -127,7 +126,7 @@ class BaseBoard {
 	get deleteTruncMsg() {
 		return null;
 	}
-	get fixDeadLinks() { // _4chan
+	get fixDeadLinks() {
 		return null;
 	}
 	get fixHTMLHelper() {
@@ -136,10 +135,10 @@ class BaseBoard {
 	get fixFileInputs() {
 		return null;
 	}
-	get fixKCUnixFilenames() { // Kohlchan
+	get fixKCUnixFilenames() {
 		return null;
 	}
-	get getImgRedirectSrc() { // Archived
+	get getImgRedirectSrc() {
 		return null;
 	}
 	get getSubmitData() {
@@ -148,7 +147,7 @@ class BaseBoard {
 	get isArchived() {
 		return false;
 	}
-	get lastPage() { // Makaba
+	get lastPage() {
 		const el = $q(this.qPages);
 		let value = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
 		if(this.page === value + 1) {
@@ -160,10 +159,10 @@ class BaseBoard {
 	get markupTags() {
 		return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code'] : ['**', '*', '', '^H', '%%', '`'];
 	}
-	get observeContent() { // Makaba
+	get observeContent() {
 		return null;
 	}
-	get reCrossLinks() { // Sets here only
+	get reCrossLinks() {
 		const value = new RegExp(`>https?:\\/\\/[^\\/]*${ this.domain }\\/([a-z0-9]+)\\/${
 			escapeRegExp(this.res) }(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<`, 'g');
 		Object.defineProperty(this, 'reCrossLinks', { value });
@@ -172,22 +171,22 @@ class BaseBoard {
 	get reportForm() {
 		return null;
 	}
-	get sendHTML5Post() { // Lynxchan
+	get sendHTML5Post() {
 		return null;
 	}
-	get stormWallFixAjax() { // Iichan
+	get stormWallFixAjax() {
 		return null;
 	}
-	get stormWallFixCaptcha() { // Iichan
+	get stormWallFixCaptcha() {
 		return null;
 	}
-	get stormWallFixSubmit() { // Iichan
+	get stormWallFixSubmit() {
 		return null;
 	}
-	get stormWallHelper() { // Iichan
+	get stormWallHelper() {
 		return null;
 	}
-	disableRedirection(el) { // Dobrochan
+	disableRedirection(el) {
 		$hide(el.closest(aib.qFormTr));
 		el.checked = true;
 	}
@@ -267,11 +266,11 @@ class BaseBoard {
 		}
 		return videos;
 	}
-	getAbsLink(url) { // Sets here only
+	getAbsLink(url) {
 		return (url[1] === '/' ? this.protocol :
 			url[0] === '/' ? this.protocol + '//' + this.host : '') + url;
 	}
-	getBanId(postEl) { // Makaba
+	getBanId(postEl) {
 		return this.qBan && $q(this.qBan, postEl) ? 1 : 0;
 	}
 	getCapParent(el) {
@@ -300,7 +299,7 @@ class BaseBoard {
 	getOmitted(el) {
 		return +(el && (el.textContent || '').match(/\d+/)) + 1;
 	}
-	getOp(thr) { // Arhivach
+	getOp(thr) {
 		let op = localData ? $q('.de-oppost', thr) : $q(this.qOPost, thr);
 		if(op) {
 			return op;
@@ -328,7 +327,7 @@ class BaseBoard {
 		}
 		return el;
 	}
-	getPostOfEl(el) { // Sets here only
+	getPostOfEl(el) {
 		return pByEl.get(this.getPostElOfEl(el));
 	}
 	getPostWrap(el, isOp) {
@@ -349,13 +348,13 @@ class BaseBoard {
 		const el = $q('a[href^="mailto:"], a[href="sage"]', post);
 		return !!el && /sage/i.test(el.href);
 	}
-	getThrUrl(board, tNum) { // Arhivach
+	getThrUrl(board, tNum) {
 		return this.protocol + '//' + this.host + fixBoardName(board) + this.res + tNum + this.docExt;
 	}
 	getTNum(thr) {
 		return +$q('input[type="checkbox"]', thr).value;
 	}
-	insertYtPlayer(msg, playerHtml) { // Dobrochan
+	insertYtPlayer(msg, playerHtml) {
 		return $bBegin(msg, playerHtml);
 	}
 	insertFormButtons(postForm, el) {
@@ -367,7 +366,7 @@ class BaseBoard {
 	isAjaxStatusOK(status) {
 		return status === 200 || status === 206;
 	}
-	isIgnoreError(txt) { // Lynxchan
+	isIgnoreError(txt) {
 		return /successful|uploaded|updating|post deleted|post created|обновл|удален[о.]/i.test(txt);
 	}
 	parseURL() {
