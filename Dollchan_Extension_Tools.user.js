@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '0d9050a';
+  var commit = 'e185c58';
 
   var defaultCfg = {
     disabled: 0,
@@ -24144,7 +24144,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         var value = 0;
 
         if (this.info) {
-          var w = this.info.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
+          var w = this.info;
+
+          if (this.nameLink) {
+            w = w.replace(this.nameLink.innerText, '');
+          }
+
+          w = w.match(/(\d+(?:[.,]\d+)?)\s*([mмkк])?i?[bб]/i);
           var w1 = w[1].replace(',', '.');
           value = w[2] === 'M' ? w1 * 1e3 | 0 : !w[2] ? Math.round(w1 / 1e3) : w1;
         }
