@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '21.7.6.0';
-  var commit = '05d6611';
+  var commit = '0d9050a';
 
   var defaultCfg = {
     disabled: 0,
@@ -14951,7 +14951,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       var _loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
 
-      var obj = {
+      var newParams = {
         method: ((_params = params) === null || _params === void 0 ? void 0 : _params.method) || 'GET',
         url: nav.isSafari ? aib.getAbsLink(url) : url,
         onreadystatechange: function onreadystatechange(e) {
@@ -14959,7 +14959,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             clearTimeout(_loadTO);
           }
 
-          if (e.readyState === 4) {
+          if (e.readyState === 4 && !(e.responseHeaders.includes('content-type: text/html;') && typeof e.responseText === 'undefined')) {
             if (aib.isAjaxStatusOK(e.status)) {
               resolve(e);
             } else {
@@ -14973,21 +14973,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       if (params) {
         if (params.onprogress) {
-          obj.upload = {
+          newParams.upload = {
             onprogress: params.onprogress
           };
           delete params.onprogress;
         }
 
         delete params.method;
-        Object.assign(obj, params);
+        Object.assign(newParams, params);
       }
 
       if (nav.hasNewGM) {
-        GM.xmlHttpRequest(obj);
+        GM.xmlHttpRequest(newParams);
         cancelFn = emptyFn; 
       } else {
-        gmxhr = GM_xmlhttpRequest(obj);
+        gmxhr = GM_xmlhttpRequest(newParams);
 
         cancelFn = function cancelFn() {
           if (needTO) {

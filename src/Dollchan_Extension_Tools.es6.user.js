@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '21.7.6.0';
-const commit = '05d6611';
+const commit = '0d9050a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -6843,14 +6843,16 @@ function $ajax(url, params = null, isCORS = false) {
 			} catch(err) {}
 		};
 		let loadTO = needTO && setTimeout(timeoutFn, WAITING_TIME);
-		const obj = {
+		const newParams = {
 			method : params?.method || 'GET',
 			url    : nav.isSafari ? aib.getAbsLink(url) : url,
 			onreadystatechange(e) {
 				if(needTO) {
 					clearTimeout(loadTO);
 				}
-				if(e.readyState === 4) {
+				if(e.readyState === 4 && !(e.responseHeaders.includes('content-type: text/html;') &&
+					typeof e.responseText === 'undefined')
+				) {
 					if(aib.isAjaxStatusOK(e.status)) {
 						resolve(e);
 					} else {
@@ -6863,17 +6865,17 @@ function $ajax(url, params = null, isCORS = false) {
 		};
 		if(params) {
 			if(params.onprogress) {
-				obj.upload = { onprogress: params.onprogress };
+				newParams.upload = { onprogress: params.onprogress };
 				delete params.onprogress;
 			}
 			delete params.method;
-			Object.assign(obj, params);
+			Object.assign(newParams, params);
 		}
 		if(nav.hasNewGM) {
-			GM.xmlHttpRequest(obj);
+			GM.xmlHttpRequest(newParams);
 			cancelFn = emptyFn; // GreaseMonkey 4 cannot cancel xhr's
 		} else {
-			gmxhr = GM_xmlhttpRequest(obj);
+			gmxhr = GM_xmlhttpRequest(newParams);
 			cancelFn = () => {
 				if(needTO) {
 					clearTimeout(loadTO);
