@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         21.7.6.0
+// @version         22.10.23.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       © Dollchan Extension Team. See the LICENSE file for license rights and limitations (MIT).
@@ -27,8 +27,8 @@
 (function deMainFuncInner(deWindow, prestoStorage, FormData, scrollTo, localData) {
 'use strict';
 
-const version = '21.7.6.0';
-const commit = 'e185c58';
+const version = '22.10.23.0';
+const commit = 'd182c2a';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3557,16 +3557,6 @@ function showVideosWindow(body) {
 		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
-	// EXCLUDED FROM FIREFOX EXTENSION - START
-	if(!$id('de-ytube-api')) {
-		// YouTube APT script. We canʼt insert scripts directly as html.
-		const script = doc.createElement('script');
-		script.type = 'text/javascript';
-		script.src = aib.protocol + '//www.youtube.com/player_api';
-		script.id = 'de-ytube-api';
-		doc.head.append(script);
-	}
-	// EXCLUDED FROM FIREFOX EXTENSION - END
 	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
@@ -3577,47 +3567,6 @@ function showVideosWindow(body) {
 	const linkList = $add(`<div id="de-video-list" style="max-width: ${
 		+Cfg.YTubeWidth + 40 }px; max-height: ${
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
-
-	// EXCLUDED FROM FIREFOX EXTENSION - START
-	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
-	// The first video should not start automatically!
-	const script = doc.createElement('script');
-	script.type = 'text/javascript';
-	script.textContent = `(function() {
-		if('YT' in window && 'Player' in window.YT) {
-			onYouTubePlayerAPIReady();
-		} else {
-			window.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
-		}
-		function onYouTubePlayerAPIReady() {
-			window.de_addVideoEvents =
-				addEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));
-			window.de_addVideoEvents();
-		}
-		function addEvents() {
-			var autoplay = true;
-			if(this.hasAttribute('de-disableautoplay')) {
-				autoplay = false;
-				this.removeAttribute('de-disableautoplay');
-			}
-			new YT.Player(this.firstChild, { events: {
-				'onError': gotoNextVideo,
-				'onReady': autoplay ? function(e) {
-					e.target.playVideo();
-				} : Function.prototype,
-				'onStateChange': function(e) {
-					if(e.data === 0) {
-						gotoNextVideo();
-					}
-				}
-			}});
-		}
-		function gotoNextVideo() {
-			document.getElementById("de-video-btn-next").click();
-		}
-	})();`;
-	body.append(script);
-	// EXCLUDED FROM FIREFOX EXTENSION - END
 
 	// Events for control buttons
 	body.addEventListener('click', {
@@ -10350,15 +10299,7 @@ class Captcha {
 			$show(this.parentEl);
 		}
 	}
-	_updateRecap() {
-		// EXCLUDED FROM FIREFOX EXTENSION - START
-		const script = doc.createElement('script');
-		script.type = 'text/javascript';
-		script.src = aib.protocol + '//www.google.com/recaptcha/api.js';
-		doc.head.append(script);
-		setTimeout(() => script.remove(), 1e5);
-		// EXCLUDED FROM FIREFOX EXTENSION - END
-	}
+	_updateRecap() {}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
 			this.textEl.value = '';
