@@ -173,7 +173,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0;');
-			const formEl = $q('form[name="post"]');
+			const formEl = $q(this.qForm);
 			if(formEl) {
 				formEl.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
@@ -571,22 +571,22 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelForm = '#delform_instant';
 			this.qPostHeader = '.posthead';
 
+			this.captchaRu = true;
 			this.formHeaders = false;
 			this.hasCatalog = true;
 			this.multiFile = true;
-			this.ru = true;
 		}
 		get captchaInit() {
 			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
 			return null;
 		}
-		get captchaUpdate() {
-			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
-			return null;
-		}
 		get css() {
 			return `.content > hr, .extrabtns, .postbutt, .replymode { display: none; }
 				form { position: initial; }`;
+		}
+		captchaUpdate() {
+			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			return null;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
@@ -1046,8 +1046,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.captchaRu = true;
 			this.jsonSubmit = true;
-			this.ru = true;
 
 			this._capUpdPromise = null;
 		}
@@ -1083,9 +1083,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
+			this.captchaRu = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
-			this.ru = true;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 			this._capUpdPromise = null;
 		}
@@ -1371,11 +1371,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
+			this.captchaRu = true;
 			this.formParent = 'thread_id';
 			this.hasPicWrap = true;
 			this.JsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
-			this.ru = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
 		}
 		get css() {
@@ -1919,6 +1919,37 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 	}
 	ibDomains['rfch.rocks'] = Rfch;
+
+	class Spirech extends Vichan {
+		constructor(...args) {
+			super(...args);
+
+			this.qForm = 'form[name="post"], form[name="de-post"]';
+			this.qFormRules = '#post-info';
+
+			this.jsonSubmit = true;
+			this.markupBB = true;
+		}
+		get css() {
+			return `${ super.css }
+				.favorite-button, .stylebuttons, #symbols-left + br { display: none !important; }
+				#post-info { width: auto }`;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+		}
+		captchaUpdate() {
+			$script(`load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");
+				actually_load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");`);
+			return null;
+		}
+		init() {
+			super.init();
+			$script('$("textarea#body").on("change input propertychange", countSymbols); countSymbols();');
+			$q('form[name="post"]').name = 'de-post';
+		}
+	}
+	ibDomains['spirech.org'] = Spirech;
 
 	class Synch extends Tinyboard {
 		constructor(...args) {

@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'd182c2a';
+const commit = '3cf5bad';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -3557,6 +3557,16 @@ function showVideosWindow(body) {
 		body.innerHTML = `<b>${ Lng.noVideoLinks[lang] }</b>`;
 		return;
 	}
+	// EXCLUDED FROM FIREFOX EXTENSION - START
+	if(!$id('de-ytube-api')) {
+		// YouTube APT script. We canʼt insert scripts directly as html.
+		const script = doc.createElement('script');
+		script.type = 'text/javascript';
+		script.src = aib.protocol + '//www.youtube.com/player_api';
+		script.id = 'de-ytube-api';
+		doc.head.append(script);
+	}
+	// EXCLUDED FROM FIREFOX EXTENSION - END
 	body.innerHTML = `<div de-disableautoplay class="de-video-obj"></div>
 	<div id="de-video-buttons">
 		<a class="de-abtn" id="de-video-btn-prev" href="#" title="${ Lng.prevVideo[lang] }">&#x25C0;</a>
@@ -3567,6 +3577,47 @@ function showVideosWindow(body) {
 	const linkList = $add(`<div id="de-video-list" style="max-width: ${
 		+Cfg.YTubeWidth + 40 }px; max-height: ${
 		nav.viewportHeight() * 0.92 - +Cfg.YTubeHeigh - 82 }px;"></div>`);
+
+	// EXCLUDED FROM FIREFOX EXTENSION - START
+	// A script to detect the end of current video playback, and auto play next. Uses YouTube API.
+	// The first video should not start automatically!
+	const script = doc.createElement('script');
+	script.type = 'text/javascript';
+	script.textContent = `(function() {
+		if('YT' in window && 'Player' in window.YT) {
+			onYouTubePlayerAPIReady();
+		} else {
+			window.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
+		}
+		function onYouTubePlayerAPIReady() {
+			window.de_addVideoEvents =
+				addEvents.bind(document.querySelector('#de-win-vid > .de-win-body > .de-video-obj'));
+			window.de_addVideoEvents();
+		}
+		function addEvents() {
+			var autoplay = true;
+			if(this.hasAttribute('de-disableautoplay')) {
+				autoplay = false;
+				this.removeAttribute('de-disableautoplay');
+			}
+			new YT.Player(this.firstChild, { events: {
+				'onError': gotoNextVideo,
+				'onReady': autoplay ? function(e) {
+					e.target.playVideo();
+				} : Function.prototype,
+				'onStateChange': function(e) {
+					if(e.data === 0) {
+						gotoNextVideo();
+					}
+				}
+			}});
+		}
+		function gotoNextVideo() {
+			document.getElementById("de-video-btn-next").click();
+		}
+	})();`;
+	body.append(script);
+	// EXCLUDED FROM FIREFOX EXTENSION - END
 
 	// Events for control buttons
 	body.addEventListener('click', {
@@ -10299,7 +10350,15 @@ class Captcha {
 			$show(this.parentEl);
 		}
 	}
-	_updateRecap() {}
+	_updateRecap() {
+		// EXCLUDED FROM FIREFOX EXTENSION - START
+		const script = doc.createElement('script');
+		script.type = 'text/javascript';
+		script.src = aib.protocol + '//www.google.com/recaptcha/api.js';
+		doc.head.append(script);
+		setTimeout(() => script.remove(), 1e5);
+		// EXCLUDED FROM FIREFOX EXTENSION - END
+	}
 	_updateTextEl(isFocus) {
 		if(this.textEl) {
 			this.textEl.value = '';
@@ -15252,6 +15311,7 @@ class BaseBoard {
 		// Other propertioes
 		this.anchor = '#';
 		this.b = '';
+		this.captchaRu = false;
 		this.domain = domain;
 		this.docExt = null;
 		this.firstPage = 0;
@@ -15272,7 +15332,6 @@ class BaseBoard {
 		this.page = 0;
 		this.protocol = protocol;
 		this.res = 'res/';
-		this.ru = false;
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 	}
@@ -15314,7 +15373,7 @@ class BaseBoard {
 		return null;
 	}
 	get captchaLang() {
-		return this.ru ? 2 : 1;
+		return this.captchaRu ? 2 : 1;
 	}
 	get captchaUpdate() {
 		return null;
@@ -15770,7 +15829,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		init() {
 			$script('window.FormData = void 0;');
-			const formEl = $q('form[name="post"]');
+			const formEl = $q(this.qForm);
 			if(formEl) {
 				formEl.insertAdjacentHTML('beforeend',
 					'<input class="de-input-hidden" name="json_response" value="1" type="hidden">');
@@ -16168,22 +16227,22 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qDelForm = '#delform_instant';
 			this.qPostHeader = '.posthead';
 
+			this.captchaRu = true;
 			this.formHeaders = false;
 			this.hasCatalog = true;
 			this.multiFile = true;
-			this.ru = true;
 		}
 		get captchaInit() {
 			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
 			return null;
 		}
-		get captchaUpdate() {
-			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
-			return null;
-		}
 		get css() {
 			return `.content > hr, .extrabtns, .postbutt, .replymode { display: none; }
 				form { position: initial; }`;
+		}
+		captchaUpdate() {
+			$script('var captchaTimeout = 29.5;Captcha.state = "init";');
+			return null;
 		}
 		fixFileInputs(el) {
 			const str = '><input type="file" name="file"></div>';
@@ -16643,8 +16702,8 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.captchaRu = true;
 			this.jsonSubmit = true;
-			this.ru = true;
 
 			this._capUpdPromise = null;
 		}
@@ -16680,9 +16739,9 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qFormRedir = 'input#noko';
 			this.qPages = '.pgstbl > table > tbody > tr > td:nth-child(2)';
 
+			this.captchaRu = true;
 			this.hasCatalog = true;
 			this.markupBB = false;
-			this.ru = true;
 			this.timePattern = 'dd+nn+yyyy++w++hh+ii+ss';
 			this._capUpdPromise = null;
 		}
@@ -16968,11 +17027,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.qTrunc = '.abbrev > span:first-of-type';
 
 			this.anchor = '#i';
+			this.captchaRu = true;
 			this.formParent = 'thread_id';
 			this.hasPicWrap = true;
 			this.JsonBuilder = DobrochanPostsBuilder;
 			this.multiFile = true;
-			this.ru = true;
 			this.timePattern = 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?';
 		}
 		get css() {
@@ -17517,6 +17576,37 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['rfch.rocks'] = Rfch;
 
+	class Spirech extends Vichan {
+		constructor(...args) {
+			super(...args);
+
+			this.qForm = 'form[name="post"], form[name="de-post"]';
+			this.qFormRules = '#post-info';
+
+			this.jsonSubmit = true;
+			this.markupBB = true;
+		}
+		get css() {
+			return `${ super.css }
+				.favorite-button, .stylebuttons, #symbols-left + br { display: none !important; }
+				#post-info { width: auto }`;
+		}
+		get markupTags() {
+			return ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub'];
+		}
+		captchaUpdate() {
+			$script(`load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");
+				actually_load_captcha("/inc/captcha/entrypoint.php", "abcdefghijklmnopqrstuvwxyz");`);
+			return null;
+		}
+		init() {
+			super.init();
+			$script('$("textarea#body").on("change input propertychange", countSymbols); countSymbols();');
+			$q('form[name="post"]').name = 'de-post';
+		}
+	}
+	ibDomains['spirech.org'] = Spirech;
+
 	class Synch extends Tinyboard {
 		constructor(...args) {
 			super(...args);
@@ -18047,7 +18137,7 @@ function scriptCSS() {
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; }
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; }
 	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
@@ -18361,7 +18451,7 @@ function scriptCSS() {
 
 	/* Other */
 	.de-abtn { text-decoration: none !important; outline: none; }
-	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; height: 24px; font: 13px arial; }
+	.de-button { flex: none; padding: 0 ${ nav.isFirefox ? 2 : 4 }px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }
 	.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }
 	.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }
 	.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }

@@ -47,6 +47,7 @@ class BaseBoard {
 		// Other propertioes
 		this.anchor = '#';
 		this.b = '';
+		this.captchaRu = false;
 		this.domain = domain;
 		this.docExt = null;
 		this.firstPage = 0;
@@ -67,7 +68,6 @@ class BaseBoard {
 		this.page = 0;
 		this.protocol = protocol;
 		this.res = 'res/';
-		this.ru = false;
 		this.t = false;
 		this.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
 	}
@@ -109,7 +109,7 @@ class BaseBoard {
 		return null;
 	}
 	get captchaLang() {
-		return this.ru ? 2 : 1;
+		return this.captchaRu ? 2 : 1;
 	}
 	get captchaUpdate() {
 		return null;
