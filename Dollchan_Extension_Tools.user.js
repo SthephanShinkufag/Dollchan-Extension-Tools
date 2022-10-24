@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'be4d2bb';
+  var commit = '5f19fcd';
 
   var defaultCfg = {
     disabled: 0,
@@ -10102,6 +10102,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this._pcountEl.textContent = postCount;
       this._icountEl.textContent = imgsCount;
       this._acountEl.textContent = postersCount;
+
+      if (aib.makaba) {
+        $Q('span[title="Всего постов в треде"]').forEach(function (el) {
+          return el.innerHTML = el.innerHTML.replace(/\d+$/, postCount);
+        });
+        $Q('span[title="Всего файлов в треде"]').forEach(function (el) {
+          return el.innerHTML = el.innerHTML.replace(/\d+$/, imgsCount);
+        });
+        $Q('span[title="Постеры"]').forEach(function (el) {
+          return el.innerHTML = el.innerHTML.replace(/\d+$/, postersCount);
+        });
+      }
+
       this.isNew = false;
     },
     _el: null,
