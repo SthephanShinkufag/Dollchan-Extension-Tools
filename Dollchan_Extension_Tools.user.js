@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '5d62541';
+  var commit = 'be4d2bb';
 
   var defaultCfg = {
     disabled: 0,
@@ -30257,10 +30257,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _this123 = _super25.call.apply(_super25, [this].concat(args));
         _this123.qDelForm = '#posts';
+        _this123.hasCatalog = true;
         return _this123;
       }
 
-      return _createClass(Cyber2ch);
+      _createClass(Cyber2ch, [{
+        key: "css",
+        get: function get() {
+          return ".backlinks { display: none; }";
+        }
+      }]);
+
+      return Cyber2ch;
     }(TinyIB);
 
     ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;

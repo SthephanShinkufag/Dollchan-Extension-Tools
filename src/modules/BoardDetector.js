@@ -1359,6 +1359,11 @@ function getImageBoard(checkDomains, checkEngines) {
 			super(...args);
 
 			this.qDelForm = '#posts';
+
+			this.hasCatalog = true;
+		}
+		get css() {
+			return `.backlinks { display: none; }`;
 		}
 	}
 	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
