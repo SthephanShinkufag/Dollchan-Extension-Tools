@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '3cf5bad';
+const commit = '5d62541';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -10167,7 +10167,8 @@ class Captcha {
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
 		this.isSubmitWait = false;
-		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+		this._isHcap = !!$q('.h-captcha', this.parentEl);
+		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);
@@ -10176,17 +10177,20 @@ class Captcha {
 		}
 	}
 	addCaptcha() {
-		if(this.isAdded) { // Run this function only once
+		// Run this function only once
+		if(this.isAdded) {
 			return;
 		}
 		this.isAdded = true;
-		if(!this._isRecap) {
-			this.parentEl.innerHTML = this.originHTML;
-			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
-		} else {
+		if(this._isHcap) {
+			$show(this.parentEl);
+		} else if(this._isRecap) {
 			const el = $q('#g-recaptcha, .g-recaptcha');
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
+		} else {
+			this.parentEl.innerHTML = this.originHTML;
+			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
 		this.initCapPromise();
 	}
@@ -10353,8 +10357,8 @@ class Captcha {
 	_updateRecap() {
 		// EXCLUDED FROM FIREFOX EXTENSION - START
 		const script = doc.createElement('script');
-		script.type = 'text/javascript';
-		script.src = aib.protocol + '//www.google.com/recaptcha/api.js';
+		script.src = aib.protocol +
+			(this._isHcap ? '//js.hcaptcha.com/1/api.js' : '//www.google.com/recaptcha/api.js');
 		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
 		// EXCLUDED FROM FIREFOX EXTENSION - END
@@ -17010,6 +17014,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
+	class Cyber2ch extends TinyIB {
+		constructor(...args) {
+			super(...args);
+
+			this.qDelForm = '#posts';
+		}
+	}
+	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
+
 	class Dobrochan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
@@ -17605,7 +17618,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$q('form[name="post"]').name = 'de-post';
 		}
 	}
-	ibDomains['spirech.org'] = Spirech;
+	ibDomains['spirech.org'] = ibDomains['old52qbrspw6jivvrcjlybucxatpnzwea3oxrsw75be4ka53qfqhrnid.onion'] =
+		Spirech;
 
 	class Synch extends Tinyboard {
 		constructor(...args) {

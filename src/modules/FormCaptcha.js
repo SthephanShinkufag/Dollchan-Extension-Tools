@@ -10,7 +10,8 @@ class Captcha {
 		this.parentEl = nav.matchesSelector(el, aib.qFormTr) ? el : aib.getCapParent(el);
 		this.isAdded = false;
 		this.isSubmitWait = false;
-		this._isRecap = !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
+		this._isHcap = !!$q('.h-captcha', this.parentEl);
+		this._isRecap = this._isHcap || !!$q('[id*="recaptcha"], [class*="recaptcha"]', this.parentEl);
 		this._lastUpdate = null;
 		this.originHTML = this.parentEl.innerHTML;
 		$hide(this.parentEl);
@@ -19,17 +20,20 @@ class Captcha {
 		}
 	}
 	addCaptcha() {
-		if(this.isAdded) { // Run this function only once
+		// Run this function only once
+		if(this.isAdded) {
 			return;
 		}
 		this.isAdded = true;
-		if(!this._isRecap) {
-			this.parentEl.innerHTML = this.originHTML;
-			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
-		} else {
+		if(this._isHcap) {
+			$show(this.parentEl);
+		} else if(this._isRecap) {
 			const el = $q('#g-recaptcha, .g-recaptcha');
 			$replace(el, `<div id="g-recaptcha" class="g-recaptcha" data-sitekey="${
 				el.getAttribute('data-sitekey') }"></div>`);
+		} else {
+			this.parentEl.innerHTML = this.originHTML;
+			this.textEl = $q('input[type="text"][name*="aptcha"]', this.parentEl);
 		}
 		this.initCapPromise();
 	}
@@ -196,8 +200,8 @@ class Captcha {
 	_updateRecap() {
 		// EXCLUDED FROM FIREFOX EXTENSION - START
 		const script = doc.createElement('script');
-		script.type = 'text/javascript';
-		script.src = aib.protocol + '//www.google.com/recaptcha/api.js';
+		script.src = aib.protocol +
+			(this._isHcap ? '//js.hcaptcha.com/1/api.js' : '//www.google.com/recaptcha/api.js');
 		doc.head.append(script);
 		setTimeout(() => script.remove(), 1e5);
 		// EXCLUDED FROM FIREFOX EXTENSION - END

@@ -1354,6 +1354,15 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
+	class Cyber2ch extends TinyIB {
+		constructor(...args) {
+			super(...args);
+
+			this.qDelForm = '#posts';
+		}
+	}
+	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
+
 	class Dobrochan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
@@ -1949,7 +1958,8 @@ function getImageBoard(checkDomains, checkEngines) {
 			$q('form[name="post"]').name = 'de-post';
 		}
 	}
-	ibDomains['spirech.org'] = Spirech;
+	ibDomains['spirech.org'] = ibDomains['old52qbrspw6jivvrcjlybucxatpnzwea3oxrsw75be4ka53qfqhrnid.onion'] =
+		Spirech;
 
 	class Synch extends Tinyboard {
 		constructor(...args) {
