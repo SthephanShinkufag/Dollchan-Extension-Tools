@@ -4,7 +4,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '1245a28';
+const commit = '859073f';
 
 /* ==[ DefaultCfg.js ]== */
 /* ==[ Localization.js ]== */
