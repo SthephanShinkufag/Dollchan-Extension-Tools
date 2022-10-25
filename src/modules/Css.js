@@ -12,7 +12,7 @@ function scriptCSS() {
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; }
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; cursor: pointer; }
 	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
@@ -339,7 +339,7 @@ function scriptCSS() {
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 144px; height: 144px; }
+	.de-logo > svg { width: 112px; height: 112px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

@@ -75,6 +75,7 @@
 		"one-var": ["error", { "initialized": "never", "uninitialized": "consecutive" }],
 		"prefer-arrow-callback": "error",
 		"prefer-destructuring": ["error", { "object": true }],
+		"quotes": ["error", "single"],
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
 		"template-curly-spacing": ["error", "always"]

@@ -412,11 +412,11 @@ class MakabaPostsBuilder {
 			`<a href="${ data.email }" class="post__email">${ data.name }</a>` :
 			`<span class="post__anon">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : `post__adm">## Abu ##`,
-			'!!%mod%!!'        : `post__mod">## Mod ##`,
-			'!!%Inquisitor%!!' : `post__inquisitor">## Applejack ##`,
-			'!!%coder%!!'      : `post__mod">## Кодер ##`,
-			'!!%curunir%!!'    : `post__mod">## Curunir ##`,
+			'!!%adm%!!'        : 'post__adm">## Abu ##',
+			'!!%mod%!!'        : 'post__mod">## Mod ##',
+			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
+			'!!%coder%!!'      : 'post__mod">## Кодер ##',
+			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
 			'@@default'        :
 				`${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
@@ -440,14 +440,14 @@ class MakabaPostsBuilder {
 			`${ filesHTML ? ' post_withimg' : '' }" data-num="${ num }">
 			<div id="post-details-${ num }" class="post__details">
 				<input class="turnmeoff" type="checkbox" name="delete" value="${ num }">
-				${ !data.subject ? '' : w(`<span class="post__title">` +
+				${ !data.subject ? '' : w('<span class="post__title">' +
 					`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>`) }
 				${ w(`
 					${ emailEl }
-					${ data.icon ? `<span class="post__icon">` +
+					${ data.icon ? '<span class="post__icon">' +
 						`${ data.icon }</span>` : '' }
 					${ tripEl }
-					${ data.op === 1 ? `<span class="post__ophui"># OP</span>&nbsp;` : '' }
+					${ data.op === 1 ? '<span class="post__ophui"># OP</span>&nbsp;' : '' }
 				`) }
 				${ w(`<span class="post__time">${ data.date }</span>`) }
 				${ w(reflink) }
@@ -483,8 +483,8 @@ class MakabaPostsBuilder {
 			.replace(/<\/script>/ig, '</textarea>-->');
 		return `<article id="m${ data.num }" class="post__message">` +
 			`${ comment }${ _switch(data.banned, {
-				1           : `<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>`,
-				2           : `<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>`,
+				1           : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
+				2           : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
 				'@@default' : ''
 			}) }</article>`;
 	}

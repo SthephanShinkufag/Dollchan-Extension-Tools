@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'd6eca28';
+const commit = 'd137294';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -1954,19 +1954,17 @@ function checkCSSColor(color) {
 
 // Donation message after Dollchan update
 function showDonateMsg() {
-	const font = ' style="font: 13px monospace; color: green;"';
-	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
-		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
-		`<span class="de-list de-depend"><i${
-			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
-		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
-		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
-		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
-			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
-		`<span class="de-list de-depend">P2SH &ndash; <i${
-			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+	const item = (name, value) =>
+		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
+		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
+			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
+			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
+			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('YooMoney RUB', '410012122418236') +
+			item('WebMoney WMZ', 'Z100197626370') +
+		'</div>' +
 		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
 			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
 			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));
@@ -13406,11 +13404,11 @@ class MakabaPostsBuilder {
 			`<a href="${ data.email }" class="post__email">${ data.name }</a>` :
 			`<span class="post__anon">${ data.name }</span>`;
 		const tripEl = !data.trip ? '' : `<span class="${ _switch(data.trip, {
-			'!!%adm%!!'        : `post__adm">## Abu ##`,
-			'!!%mod%!!'        : `post__mod">## Mod ##`,
-			'!!%Inquisitor%!!' : `post__inquisitor">## Applejack ##`,
-			'!!%coder%!!'      : `post__mod">## Кодер ##`,
-			'!!%curunir%!!'    : `post__mod">## Curunir ##`,
+			'!!%adm%!!'        : 'post__adm">## Abu ##',
+			'!!%mod%!!'        : 'post__mod">## Mod ##',
+			'!!%Inquisitor%!!' : 'post__inquisitor">## Applejack ##',
+			'!!%coder%!!'      : 'post__mod">## Кодер ##',
+			'!!%curunir%!!'    : 'post__mod">## Curunir ##',
 			'@@default'        :
 				`${ data.trip_style ? data.trip_style : 'post__trip' }">` + data.trip
 		}) }</span>`;
@@ -13434,14 +13432,14 @@ class MakabaPostsBuilder {
 			`${ filesHTML ? ' post_withimg' : '' }" data-num="${ num }">
 			<div id="post-details-${ num }" class="post__details">
 				<input class="turnmeoff" type="checkbox" name="delete" value="${ num }">
-				${ !data.subject ? '' : w(`<span class="post__title">` +
+				${ !data.subject ? '' : w('<span class="post__title">' +
 					`${ data.subject + (data.tags ? ` /${ data.tags }/` : '') }</span>`) }
 				${ w(`
 					${ emailEl }
-					${ data.icon ? `<span class="post__icon">` +
+					${ data.icon ? '<span class="post__icon">' +
 						`${ data.icon }</span>` : '' }
 					${ tripEl }
-					${ data.op === 1 ? `<span class="post__ophui"># OP</span>&nbsp;` : '' }
+					${ data.op === 1 ? '<span class="post__ophui"># OP</span>&nbsp;' : '' }
 				`) }
 				${ w(`<span class="post__time">${ data.date }</span>`) }
 				${ w(reflink) }
@@ -13477,8 +13475,8 @@ class MakabaPostsBuilder {
 			.replace(/<\/script>/ig, '</textarea>-->');
 		return `<article id="m${ data.num }" class="post__message">` +
 			`${ comment }${ _switch(data.banned, {
-				1           : `<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>`,
-				2           : `<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>`,
+				1           : '<br><span class="post__pomyanem">(Автор этого поста был забанен.)</span>',
+				2           : '<br><span class="post__pomyanem">(Автор этого поста был предупрежден.)</span>',
 				'@@default' : ''
 			}) }</article>`;
 	}
@@ -16253,7 +16251,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get captchaInit() {
-			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
+			$script('Captcha.init(); Captcha.initForm(document.getElementById("postform"));');
 			return null;
 		}
 		get css() {
@@ -17039,7 +17037,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.backlinks { display: none; }`;
+			return '.backlinks { display: none; }';
 		}
 	}
 	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
@@ -18172,7 +18170,7 @@ function scriptCSS() {
 	#de-panel { position: fixed; right: 0; bottom: 0; z-index: 9999; border-radius: 15px 0 0 0; cursor: default; display: flex; min-height: 25px; color: #F5F5F5; }
 	#de-panel-logo { flex: none; margin: auto 3px auto 0; cursor: pointer; }
 	#de-panel-buttons { flex: 0 1 auto; display: flex; flex-flow: row wrap; align-items: center; padding: 0 0 0 2px; margin: 0; border-left: 1px solid #616b86; }
-	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; }
+	.de-panel-button { display: block; flex: none; margin: 0 1px; padding: 0; min-width: auto; transition: all .3s ease; border: none; background-color: transparent; color: inherit !important; cursor: pointer; }
 	.de-panel-button-active { stroke: #32ff32 !important; fill: #32ff32 !important; }
 	.de-panel-svg, #de-panel-logo, .de-panel-logo-svg, .de-panel-button { width: 25px; height: 25px; }
 	#de-panel-expimg, #de-panel-maskimg, #de-panel-preimg { stroke: currentColor; fill: currentColor; }
@@ -18499,7 +18497,7 @@ function scriptCSS() {
 	.de-list { padding-top: 4px; }
 	.de-list::before { content: "\u25CF"; margin-right: 4px; }
 	.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }
-	.de-logo > svg { width: 144px; height: 144px; }
+	.de-logo > svg { width: 112px; height: 112px; }
 	.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }
 	.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }
 	.de-menu-item:hover { background-color: #222; color: #fff; }

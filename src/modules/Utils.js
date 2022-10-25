@@ -253,19 +253,17 @@ function checkCSSColor(color) {
 
 // Donation message after Dollchan update
 function showDonateMsg() {
-	const font = ' style="font: 13px monospace; color: green;"';
-	$popup('donate', Lng.donateMsg[lang] + ':<br style="margin-bottom: 8px;">' +
-		'<div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div>' +
-		'<div style="display: inline-block;"><b><i>Yandex.Money</i></b><br>' +
-		`<span class="de-list de-depend"><i${
-			font }>410012122418236</i></span><br><b><i>WebMoney</i></b><br>` +
-		`<span class="de-list de-depend">WMZ &ndash; <i${ font }>Z100197626370</i></span><br>` +
-		`<span class="de-list de-depend">WMR &ndash; <i${ font }>R266614957054</i></span><br>` +
-		`<span class="de-list de-depend">WMU &ndash; <i${ font }>U142375546253</i></span><br>` +
-		`<b><i>Bitcoin</i></b><br><span class="de-list de-depend">P2PKH &ndash; <i${
-			font }>15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC</i></span><br>` +
-		`<span class="de-list de-depend">P2SH &ndash; <i${
-			font }>3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq</i></span></div>` +
+	const item = (name, value) =>
+		`<div><i>${ name }</i>: <i style="font: 14px monospace; color: green;">${ value }</i></div>`;
+	$popup('donate', Lng.donateMsg[lang] + `:<br style="margin-bottom: 8px;"><!--
+		--><div class="de-logo"><svg><use xlink:href="#de-symbol-panel-logo"/></svg></div><!--
+		--><div style="display: inline-flex; flex-direction: column; gap: 6px; vertical-align: top;">` +
+			item('BTC (P2PKH)', '14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T') +
+			item('BTC (P2SH)', '3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq') +
+			item('ETH', '0x32da2d420d189a8c2f2656466f2ba78f58c6331a') +
+			item('YooMoney RUB', '410012122418236') +
+			item('WebMoney WMZ', 'Z100197626370') +
+		'</div>' +
 		(nav.firefoxVer >= 56 && nav.scriptHandler !== 'WebExtension' ?
 			`<br><br>New: <a href="https://addons.mozilla.org/${ lang === 1 ? 'en-US' : 'ru' }` +
 			'/firefox/addon/dollchan-extension/" target="_blank">' + Lng.firefoxAddon[lang] : ''));

@@ -577,7 +577,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.multiFile = true;
 		}
 		get captchaInit() {
-			$script(`Captcha.init(); Captcha.initForm(document.getElementById("postform"));`);
+			$script('Captcha.init(); Captcha.initForm(document.getElementById("postform"));');
 			return null;
 		}
 		get css() {
@@ -1363,7 +1363,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			this.hasCatalog = true;
 		}
 		get css() {
-			return `.backlinks { display: none; }`;
+			return '.backlinks { display: none; }';
 		}
 	}
 	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
