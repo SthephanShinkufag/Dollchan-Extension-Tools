@@ -10,7 +10,7 @@
 - **[English wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/home-en)**
 - **[Russian wiki](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
 - **Homepage: [https://dollchan.net/](https://dollchan.net/)**
-- **License:** © 2021 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
+- **License:** © 2022 Dollchan Extension Tools Team.<br>See the [LICENSE file](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/blob/master/LICENSE) for license rights and limitations (MIT).
 
 ---
 **Dollchan Extension** is the userscript and extension that combines various options & features, making you hang out on [imageboards](https://en.wikipedia.org/wiki/Imageboard) in an easier and more convenient way. If you have visited sites like [4chan.org](http://4chan.org/) or [2ch.hk](https://2ch.hk/), then you probably already heard about it.
@@ -75,13 +75,10 @@ If you don't have a Dollchan repo, download and unpack the [repository archive](
 4. Done.
 
 ---
-### Donate
+### You can support the project by donating:
 
-- *YooMoney:*<br>
-    410012122418236
-- *WebMoney:*<br>
-    WMZ – Z100197626370<br>
-    WMR – R266614957054
-- *Bitcoin:*<br>
-    P2PKH – 15xEo7BVQ3zjztJqKSRVhTq3tt3rNSHFpC<br>
-    P2SH – 3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq
+- BTC (P2PKH): `14Y6eJW7dAzL8n6pqyLqrJWuX35uTs2R6T`
+- BTC (P2SH): `3AhNPPpvtxQoFCLXk5e9Hzh6Ex9h7EoNzq`
+- ETH: `0x32da2d420d189a8c2f2656466f2ba78f58c6331a`
+- YooMoney RUB: `410012122418236`
+- WebMoney WMZ: `Z100197626370`
