@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '859073f';
+const commit = 'd6eca28';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12150,6 +12150,8 @@ class ImagesViewer {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
+		$q('.de-fullimg-zoom', this._fullEl).textContent =
+			`${ parseInt(100 * width / this.data.width, 10) }%`;
 	}
 	_removeFullImg(e) {
 		const { data } = this;
@@ -12482,7 +12484,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</a></div>
+				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span></div>
 			</div>`);
 			const imgEl = $q('.de-fullimg', wrapEl);
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
@@ -12534,7 +12536,7 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">${ imgNameEl }</a>
+			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span>
 				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
@@ -18397,6 +18399,7 @@ function scriptCSS() {
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
+	.de-fullimg-zoom { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 58px; }

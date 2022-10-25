@@ -249,6 +249,8 @@ class ImagesViewer {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
+		$q('.de-fullimg-zoom', this._fullEl).textContent =
+			`${ parseInt(100 * width / this.data.width, 10) }%`;
 	}
 	_removeFullImg(e) {
 		const { data } = this;
@@ -581,7 +583,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</a></div>
+				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span></div>
 			</div>`);
 			const imgEl = $q('.de-fullimg', wrapEl);
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
@@ -633,7 +635,7 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">${ imgNameEl }</a>
+			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span>
 				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
