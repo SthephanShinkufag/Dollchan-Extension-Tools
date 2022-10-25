@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '5f19fcd';
+  var commit = '1245a28';
 
   var defaultCfg = {
     disabled: 0,
@@ -27373,6 +27373,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             cThr = doc.createElement('div');
           } else {
             cThr.append(el);
+
+            if (i === len - 1) {
+              try {
+                aib.getTNum(cThr);
+                threads.push(cThr);
+              } catch (err) {}
+            }
           }
         }
 

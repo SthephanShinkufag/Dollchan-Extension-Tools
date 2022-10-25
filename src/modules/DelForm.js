@@ -95,6 +95,12 @@ class DelForm {
 				cThr = doc.createElement('div');
 			} else {
 				cThr.append(el);
+				if(i === len - 1) {
+					try {
+						aib.getTNum(cThr);
+						threads.push(cThr);
+					} catch(err) {}
+				}
 			}
 		}
 		cThr.append(fNodes[i]);

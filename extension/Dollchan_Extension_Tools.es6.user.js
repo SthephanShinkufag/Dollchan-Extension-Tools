@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '5f19fcd';
+const commit = '1245a28';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -15045,6 +15045,12 @@ class DelForm {
 				cThr = doc.createElement('div');
 			} else {
 				cThr.append(el);
+				if(i === len - 1) {
+					try {
+						aib.getTNum(cThr);
+						threads.push(cThr);
+					} catch(err) {}
+				}
 			}
 		}
 		cThr.append(fNodes[i]);
