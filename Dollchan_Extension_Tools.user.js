@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'd137294';
+  var commit = '2d15838';
 
   var defaultCfg = {
     disabled: 0,
@@ -7188,6 +7188,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     resizeDPI: 0,
     resizeImgs: 1,
     minImgSize: 100,
+    maxImgSize: 9e4,
     zoomFactor: 25,
     webmControl: 1,
     webmTitles: 0,
@@ -7359,7 +7360,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         sel: [['Откл.', 'По ширине', 'Шир.+выс.'], ['Disable', 'By width', 'Width+Height'], ['Вимк.', 'По ширині', 'Шир.+выс.']],
         txt: ['Уменьшать при раскрытии в посте', 'Fit to screen for expanding in post', 'Зменшувати при розкритті в пості']
       },
-      minImgSize: ['Миним. размер раскрытых картинок (px)', 'Minimal size for expanded images (px)', 'Мінім. розмір розгорнутих зображень (px)'],
+      minImgSize: ['мин.', 'min', 'мін.'],
+      maxImgSize: ['макс. размер раскрытия (px)', 'max expansion size (px)', 'макс. розмір розгортання (px)'],
       zoomFactor: ['Чувствительность зума картинок [1-100%]', 'Images zoom sensibility [1-100%]', 'Чутливість зуму зображень [1-100%]'],
       webmControl: ['Показывать контрол-бар для WebM', 'Show control bar for WebM', 'Показувати смугу керування для WebM'],
       webmTitles: ['Получать названия WebM из метаданных', 'Load titles from WebM metadata', 'Отримувати назви WebM з метаданих'],
@@ -12287,13 +12289,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 137:
                 if (!(type === 'keyup' && tag === 'input' && el.type === 'text')) {
-                  _context19.next = 189;
+                  _context19.next = 192;
                   break;
                 }
 
                 _info3 = el.getAttribute('info');
                 _context19.t3 = _info3;
-                _context19.next = _context19.t3 === 'postBtnsBack' ? 142 : _context19.t3 === 'limitPostMsg' ? 149 : _context19.t3 === 'minImgSize' ? 153 : _context19.t3 === 'zoomFactor' ? 156 : _context19.t3 === 'webmVolume' ? 159 : _context19.t3 === 'minWebmWidth' ? 164 : _context19.t3 === 'maskVisib' ? 167 : _context19.t3 === 'linksOver' ? 171 : _context19.t3 === 'linksOut' ? 174 : _context19.t3 === 'ytApiKey' ? 177 : _context19.t3 === 'passwValue' ? 180 : _context19.t3 === 'nameValue' ? 183 : 186;
+                _context19.next = _context19.t3 === 'postBtnsBack' ? 142 : _context19.t3 === 'limitPostMsg' ? 149 : _context19.t3 === 'minImgSize' ? 153 : _context19.t3 === 'maxImgSize' ? 156 : _context19.t3 === 'zoomFactor' ? 159 : _context19.t3 === 'webmVolume' ? 162 : _context19.t3 === 'minWebmWidth' ? 167 : _context19.t3 === 'maskVisib' ? 170 : _context19.t3 === 'linksOver' ? 174 : _context19.t3 === 'linksOut' ? 177 : _context19.t3 === 'ytApiKey' ? 180 : _context19.t3 === 'passwValue' ? 183 : _context19.t3 === 'nameValue' ? 186 : 189;
                 break;
 
               case 142:
@@ -12312,7 +12314,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 updateCSS();
 
               case 148:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 149:
                 _context19.next = 151;
@@ -12320,166 +12322,173 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 151:
                 updateCSS();
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 153:
                 _context19.next = 155;
-                return CfgSaver.save('minImgSize', Math.max(+el.value, 1));
+                return CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
 
               case 155:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 156:
                 _context19.next = 158;
-                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+                return CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
 
               case 158:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 159:
-                val = Math.min(+el.value || 0, 100);
-                _context19.next = 162;
-                return CfgSaver.save('webmVolume', val);
+                _context19.next = 161;
+                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+
+              case 161:
+                return _context19.abrupt("break", 191);
 
               case 162:
+                val = Math.min(+el.value || 0, 100);
+                _context19.next = 165;
+                return CfgSaver.save('webmVolume', val);
+
+              case 165:
                 sendStorageEvent('__de-webmvolume', val);
-                return _context19.abrupt("break", 188);
-
-              case 164:
-                _context19.next = 166;
-                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
-
-              case 166:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 167:
                 _context19.next = 169;
-                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
+                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
 
               case 169:
+                return _context19.abrupt("break", 191);
+
+              case 170:
+                _context19.next = 172;
+                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
+
+              case 172:
                 updateCSS();
-                return _context19.abrupt("break", 188);
-
-              case 171:
-                _context19.next = 173;
-                return CfgSaver.save('linksOver', +el.value | 0);
-
-              case 173:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 174:
                 _context19.next = 176;
-                return CfgSaver.save('linksOut', +el.value | 0);
+                return CfgSaver.save('linksOver', +el.value | 0);
 
               case 176:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 177:
                 _context19.next = 179;
-                return CfgSaver.save('ytApiKey', el.value.trim());
+                return CfgSaver.save('linksOut', +el.value | 0);
 
               case 179:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 180:
                 _context19.next = 182;
-                return PostForm.setUserPassw();
+                return CfgSaver.save('ytApiKey', el.value.trim());
 
               case 182:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 183:
                 _context19.next = 185;
-                return PostForm.setUserName();
+                return PostForm.setUserPassw();
 
               case 185:
-                return _context19.abrupt("break", 188);
+                return _context19.abrupt("break", 191);
 
               case 186:
                 _context19.next = 188;
-                return CfgSaver.save(_info3, el.value);
+                return PostForm.setUserName();
 
               case 188:
-                return _context19.abrupt("return");
+                return _context19.abrupt("break", 191);
 
               case 189:
+                _context19.next = 191;
+                return CfgSaver.save(_info3, el.value);
+
+              case 191:
+                return _context19.abrupt("return");
+
+              case 192:
                 if (!(tag === 'a')) {
-                  _context19.next = 218;
+                  _context19.next = 221;
                   break;
                 }
 
                 if (!(el.id === 'de-btn-spell-add')) {
-                  _context19.next = 200;
+                  _context19.next = 203;
                   break;
                 }
 
                 _context19.t4 = e.type;
-                _context19.next = _context19.t4 === 'click' ? 194 : _context19.t4 === 'mouseover' ? 196 : _context19.t4 === 'mouseout' ? 198 : 199;
+                _context19.next = _context19.t4 === 'click' ? 197 : _context19.t4 === 'mouseover' ? 199 : _context19.t4 === 'mouseout' ? 201 : 202;
                 break;
 
-              case 194:
+              case 197:
                 e.preventDefault();
-                return _context19.abrupt("break", 199);
+                return _context19.abrupt("break", 202);
 
-              case 196:
+              case 199:
                 el.odelay = setTimeout(function () {
                   return addMenu(el);
                 }, Cfg.linksOver);
-                return _context19.abrupt("break", 199);
+                return _context19.abrupt("break", 202);
 
-              case 198:
+              case 201:
                 clearTimeout(el.odelay);
 
-              case 199:
+              case 202:
                 return _context19.abrupt("return");
 
-              case 200:
+              case 203:
                 if (!(type === 'click')) {
-                  _context19.next = 217;
+                  _context19.next = 220;
                   break;
                 }
 
                 _context19.t5 = el.id;
-                _context19.next = _context19.t5 === 'de-btn-spell-apply' ? 204 : _context19.t5 === 'de-btn-spell-clear' ? 211 : 217;
+                _context19.next = _context19.t5 === 'de-btn-spell-apply' ? 207 : _context19.t5 === 'de-btn-spell-clear' ? 214 : 220;
                 break;
 
-              case 204:
+              case 207:
                 e.preventDefault();
-                _context19.next = 207;
+                _context19.next = 210;
                 return CfgSaver.save('hideBySpell', 1);
 
-              case 207:
+              case 210:
                 $q('input[info="hideBySpell"]').checked = true;
-                _context19.next = 210;
+                _context19.next = 213;
                 return Spells.toggle();
 
-              case 210:
-                return _context19.abrupt("break", 217);
+              case 213:
+                return _context19.abrupt("break", 220);
 
-              case 211:
+              case 214:
                 e.preventDefault();
 
                 if (confirm(Lng.clear[lang] + '?')) {
-                  _context19.next = 214;
+                  _context19.next = 217;
                   break;
                 }
 
                 return _context19.abrupt("return");
 
-              case 214:
+              case 217:
                 $id('de-spell-txt').value = '';
-                _context19.next = 217;
+                _context19.next = 220;
                 return Spells.toggle();
 
-              case 217:
+              case 220:
                 return _context19.abrupt("return");
 
-              case 218:
+              case 221:
                 if (tag === 'textarea' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
                   _this19._updateRowMeter(el);
                 }
 
-              case 219:
+              case 222:
               case "end":
                 return _context19.stop();
             }
@@ -12577,7 +12586,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<div id=\"de-cfg-posts\" class=\"de-cfg-unvis\">\n\t\t\t".concat(localData ? '' : "".concat(this._getBox('ajaxUpdThr'), "\n\t\t\t\t").concat(this._getInp('updThrDelay'), "\n\t\t\t\t<div class=\"de-depend\">\n\t\t\t\t\t").concat(this._getBox('updCount'), "<br>\n\t\t\t\t\t").concat(this._getBox('favIcoBlink'), "<br>\n\t\t\t\t\t").concat('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '', "\n\t\t\t\t\t").concat(this._getBox('markNewPosts'), "<br>\n\t\t\t\t\t").concat(aib.dobrochan ? this._getBox('useDobrAPI') : '', "\n\t\t\t\t</div>"), "\n\t\t\t").concat(this._getBox('markMyPosts'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('expandTrunc'), "<br>") : '', "\n\t\t\t").concat(this._getBox('widePosts'), "<br>\n\t\t\t").concat(this._getInp('limitPostMsg', true, 5), "<br>\n\t\t\t").concat(this._getSel('showHideBtn'), "<br>\n\t\t\t").concat(!localData ? this._getSel('showRepBtn') : '', "<br>\n\t\t\t").concat(this._getSel('postBtnsCSS'), "\n\t\t\t").concat(this._getInp('postBtnsBack', false, 8), "<br>\n\t\t\t").concat(!localData ? this._getSel('thrBtns') : '', "<br>\n\t\t\t").concat(this._getSel('noSpoilers'), "<br>\n\t\t\t").concat(this._getBox('noPostNames'), "<br>\n\t\t\t").concat(this._getBox('correctTime'), "\n\t\t\t").concat(this._getInp('timeOffset', true, 1), "\n\t\t\t<a class=\"de-abtn\" target=\"_blank\" href=\"").concat(gitWiki, "Settings-time-") + "".concat(lang ? 'en' : 'ru', "\">[?]</a>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('timePattern', true, 24), "<br>\n\t\t\t\t").concat(this._getInp('timeRPattern', true, 24), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgImages: function _getCfgImages() {
-      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>', "\n\t\t\t").concat(nav.isPresto || aib._4chan ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile'), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs'), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
+      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>', "\n\t\t\t").concat(nav.isPresto || aib._4chan ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile'), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs'), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
     },
     _getCfgLinks: function _getCfgLinks() {
       return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks'), "<br>\n\t\t\t").concat(this._getBox('decodeLinks'), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs'), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3'), "\n\t\t\t\t").concat(aib.protocol === 'http:' ? this._getBox('addVocaroo') : '', "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles'), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo'), "\n\t\t\t</div>\n\t\t</div>");
@@ -12640,7 +12649,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var fn = this._toggleDependant;
       fn(Cfg.ajaxUpdThr, ['input[info="updThrDelay"]', 'input[info="updCount"]', 'input[info="favIcoBlink"]', 'input[info="markNewPosts"]', 'input[info="desktNotif"]']);
       fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
-      fn(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
+      fn(Cfg.expandImgs, ['input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]', 'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="maxImgSize"]', 'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]', 'input[info="minWebmWidth"]']);
       fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
       fn(Cfg.linksNavig, ['input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]', 'input[info="strikeHidd"]', 'input[info="noNavigHidd"]']);
       fn(Cfg.strikeHidd && Cfg.linksNavig, ['input[info="removeHidd"]']);
@@ -23332,6 +23341,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         } else {
           width = oldW * this._zoomFactor;
           height = oldH * this._zoomFactor;
+
+          if (width >= Cfg.maxImgSize && height >= Cfg.maxImgSize) {
+            return;
+          }
         }
 
         this._width = width;
@@ -23665,8 +23678,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
-        var maxWidth = Post.sizing.wWidth - 2;
-        var maxHeight = Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+        var maxWidth = Math.min(Post.sizing.wWidth - 2, Cfg.maxImgSize);
+        var maxHeight = Math.min(Post.sizing.wHeight - (Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0), Cfg.maxImgSize);
 
         if (width > maxWidth || height > maxHeight) {
           var _ar = width / height;

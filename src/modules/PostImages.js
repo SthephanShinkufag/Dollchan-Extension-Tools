@@ -240,6 +240,9 @@ class ImagesViewer {
 		} else {
 			width = oldW * this._zoomFactor;
 			height = oldH * this._zoomFactor;
+			if(width >= Cfg.maxImgSize && height >= Cfg.maxImgSize) {
+				return;
+			}
 		}
 		this._width = width;
 		this._height = height;
@@ -263,7 +266,7 @@ class ImagesViewer {
 			data.sendCloseEvent(e, false);
 		}
 	}
-	_resizeFullImg(el) {
+	_resizeFullImg(el) { // Set size for images/videos without initial size
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -477,9 +480,9 @@ class ExpandableImage {
 				width = this.isVideo ? minSize : height * ar;
 			}
 		}
-		const maxWidth = Post.sizing.wWidth - 2;
-		const maxHeight = Post.sizing.wHeight -
-			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+		const maxWidth = Math.min(Post.sizing.wWidth - 2, Cfg.maxImgSize);
+		const maxHeight = Math.min(Post.sizing.wHeight -
+			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0), Cfg.maxImgSize);
 		if(width > maxWidth || height > maxHeight) {
 			const ar = width / height;
 			if(ar > maxWidth / maxHeight) {

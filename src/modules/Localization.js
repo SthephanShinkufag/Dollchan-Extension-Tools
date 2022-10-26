@@ -199,9 +199,13 @@ const Lng = {
 				'Зменшувати при розкритті в пості']
 		},
 		minImgSize: [
-			'Миним. размер раскрытых картинок (px)',
-			'Minimal size for expanded images (px)',
-			'Мінім. розмір розгорнутих зображень (px)'],
+			'мин.',
+			'min',
+			'мін.'],
+		maxImgSize: [
+			'макс. размер раскрытия (px)',
+			'max expansion size (px)',
+			'макс. розмір розгортання (px)'],
 		zoomFactor: [
 			'Чувствительность зума картинок [1-100%]',
 			'Images zoom sensibility [1-100%]',

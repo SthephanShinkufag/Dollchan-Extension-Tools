@@ -471,7 +471,10 @@ const CfgWindow = {
 				await CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': await CfgSaver.save('minImgSize', Math.max(+el.value, 1)); break;
+			case 'minImgSize':
+				await CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
+				break;
+			case 'maxImgSize': await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'zoomFactor':
 				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 				break;
@@ -657,7 +660,7 @@ const CfgWindow = {
 				${ this._getBox('imgInfoLink') }<br>
 				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
-				${ this._getInp('minImgSize') }<br>
+				${ this._getInp('minImgSize') }${ this._getInp('maxImgSize') }<br>
 				${ this._getInp('zoomFactor') }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
@@ -845,9 +848,9 @@ const CfgWindow = {
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
-			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
-			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
-			'input[info="minWebmWidth"]'
+			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="maxImgSize"]',
+			'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]',
+			'input[info="webmVolume"]', 'input[info="minWebmWidth"]'
 		]);
 		fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		fn(Cfg.linksNavig, [

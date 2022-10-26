@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'd137294';
+const commit = '2d15838';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -72,6 +72,7 @@ const defaultCfg = {
 	resizeDPI    : 0,    //    donʼt upscale images on high DPI displays
 	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
+	maxImgSize   : 9e4,  //    maximum size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
 	webmTitles   : 0,    //    load titles from WebM metadata
@@ -373,9 +374,13 @@ const Lng = {
 				'Зменшувати при розкритті в пості']
 		},
 		minImgSize: [
-			'Миним. размер раскрытых картинок (px)',
-			'Minimal size for expanded images (px)',
-			'Мінім. розмір розгорнутих зображень (px)'],
+			'мин.',
+			'min',
+			'мін.'],
+		maxImgSize: [
+			'макс. размер раскрытия (px)',
+			'max expansion size (px)',
+			'макс. розмір розгортання (px)'],
 		zoomFactor: [
 			'Чувствительность зума картинок [1-100%]',
 			'Images zoom sensibility [1-100%]',
@@ -4740,7 +4745,10 @@ const CfgWindow = {
 				await CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
 				updateCSS();
 				break;
-			case 'minImgSize': await CfgSaver.save('minImgSize', Math.max(+el.value, 1)); break;
+			case 'minImgSize':
+				await CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
+				break;
+			case 'maxImgSize': await CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize)); break;
 			case 'zoomFactor':
 				await CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 				break;
@@ -4926,7 +4934,7 @@ const CfgWindow = {
 				${ this._getBox('imgInfoLink') }<br>
 				${ this._getSel('resizeImgs') }<br>
 				${ Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '' }
-				${ this._getInp('minImgSize') }<br>
+				${ this._getInp('minImgSize') }${ this._getInp('maxImgSize') }<br>
 				${ this._getInp('zoomFactor') }<br>
 				${ this._getBox('webmControl') }<br>
 				${ this._getBox('webmTitles') }<br>
@@ -5114,9 +5122,9 @@ const CfgWindow = {
 		fn(Cfg.postBtnsCSS === 2, ['input[info="postBtnsBack"]']);
 		fn(Cfg.expandImgs, [
 			'input[info="imgNavBtns"]', 'input[info="imgInfoLink"]', 'input[info="resizeDPI"]',
-			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]',
-			'input[info="webmControl"]', 'input[info="webmTitles"]', 'input[info="webmVolume"]',
-			'input[info="minWebmWidth"]'
+			'select[info="resizeImgs"]', 'input[info="minImgSize"]', 'input[info="maxImgSize"]',
+			'input[info="zoomFactor"]', 'input[info="webmControl"]', 'input[info="webmTitles"]',
+			'input[info="webmVolume"]', 'input[info="minWebmWidth"]'
 		]);
 		fn(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 		fn(Cfg.linksNavig, [
@@ -12139,6 +12147,9 @@ class ImagesViewer {
 		} else {
 			width = oldW * this._zoomFactor;
 			height = oldH * this._zoomFactor;
+			if(width >= Cfg.maxImgSize && height >= Cfg.maxImgSize) {
+				return;
+			}
 		}
 		this._width = width;
 		this._height = height;
@@ -12162,7 +12173,7 @@ class ImagesViewer {
 			data.sendCloseEvent(e, false);
 		}
 	}
-	_resizeFullImg(el) {
+	_resizeFullImg(el) { // Set size for images/videos without initial size
 		if(el !== this._fullEl) {
 			return;
 		}
@@ -12376,9 +12387,9 @@ class ExpandableImage {
 				width = this.isVideo ? minSize : height * ar;
 			}
 		}
-		const maxWidth = Post.sizing.wWidth - 2;
-		const maxHeight = Post.sizing.wHeight -
-			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0);
+		const maxWidth = Math.min(Post.sizing.wWidth - 2, Cfg.maxImgSize);
+		const maxHeight = Math.min(Post.sizing.wHeight -
+			(Cfg.imgInfoLink ? 24 : 2) - (nav.firefoxVer >= 59 && this.isVideo ? 19 : 0), Cfg.maxImgSize);
 		if(width > maxWidth || height > maxHeight) {
 			const ar = width / height;
 			if(ar > maxWidth / maxHeight) {

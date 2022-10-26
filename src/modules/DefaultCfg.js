@@ -40,6 +40,7 @@ const defaultCfg = {
 	resizeDPI    : 0,    //    donʼt upscale images on high DPI displays
 	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
+	maxImgSize   : 9e4,  //    maximum size for expanded images (px)
 	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
 	webmTitles   : 0,    //    load titles from WebM metadata
