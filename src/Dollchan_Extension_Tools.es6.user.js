@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '9230d58';
+const commit = 'f31a6ea';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -976,11 +976,11 @@ const Lng = {
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
 	reportPost: [
 		'Жалоба на пост',
-		'Report post',
+		'Report a post',
 		'Скарга на пост'],
 	reportThr: [
 		'Жалоба на тред',
-		'Report thread',
+		'Report a thread',
 		'Скарга на тред'],
 	markMyPost: [
 		'Пометить как мой пост',
@@ -14724,7 +14724,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds     : 0,
 		_state       : -1,
 		get _panelButton() {
-			const value = $q('a[id^="de-panel-upd"]');
+			const value = $q('button[id^="de-panel-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}

@@ -357,7 +357,7 @@ function initThreadUpdater(title, enableUpdate) {
 		_seconds     : 0,
 		_state       : -1,
 		get _panelButton() {
-			const value = $q('a[id^="de-panel-upd"]');
+			const value = $q('button[id^="de-panel-upd"]');
 			if(value) {
 				Object.defineProperty(this, '_panelButton', { value });
 			}

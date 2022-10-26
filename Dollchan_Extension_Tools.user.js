@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '9230d58';
+  var commit = 'f31a6ea';
 
   var defaultCfg = {
     disabled: 0,
@@ -7532,8 +7532,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ['Скачать весь тред', 'Скачать картинки'], ['Download thread', 'Download images'], ['Завантажити весь тред', 'Завантажити зображення']],
     selAudioNotif: [
     ['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'], ['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.'], ['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
-    reportPost: ['Жалоба на пост', 'Report post', 'Скарга на пост'],
-    reportThr: ['Жалоба на тред', 'Report thread', 'Скарга на тред'],
+    reportPost: ['Жалоба на пост', 'Report a post', 'Скарга на пост'],
+    reportThr: ['Жалоба на тред', 'Report a thread', 'Скарга на тред'],
     markMyPost: ['Пометить как мой пост', 'Mark as my post', 'Відмітити як мій пост'],
     deleteMyPost: ['Убрать из моих постов', 'Delete from my posts', 'Прибрати з моїх постів'],
     saveAs: ['Сохр. как ', 'Save as ', 'Збер. як '],
@@ -26920,7 +26920,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       _state: -1,
 
       get _panelButton() {
-        var value = $q('a[id^="de-panel-upd"]');
+        var value = $q('button[id^="de-panel-upd"]');
 
         if (value) {
           Object.defineProperty(this, '_panelButton', {

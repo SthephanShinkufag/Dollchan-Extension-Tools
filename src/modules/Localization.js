@@ -801,11 +801,11 @@ const Lng = {
 		['Кожні 30 сек.', 'Щохвилини', 'Кожні 2 хв.', 'Кожні 5 хв.']],
 	reportPost: [
 		'Жалоба на пост',
-		'Report post',
+		'Report a post',
 		'Скарга на пост'],
 	reportThr: [
 		'Жалоба на тред',
-		'Report thread',
+		'Report a thread',
 		'Скарга на тред'],
 	markMyPost: [
 		'Пометить как мой пост',
