@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '2d15838';
+const commit = 'ebbbd5b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12147,7 +12147,7 @@ class ImagesViewer {
 		} else {
 			width = oldW * this._zoomFactor;
 			height = oldH * this._zoomFactor;
-			if(width >= Cfg.maxImgSize && height >= Cfg.maxImgSize) {
+			if(width >= Cfg.maxImgSize || height >= Cfg.maxImgSize) {
 				return;
 			}
 		}

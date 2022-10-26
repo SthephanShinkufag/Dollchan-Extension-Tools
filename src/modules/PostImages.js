@@ -240,7 +240,7 @@ class ImagesViewer {
 		} else {
 			width = oldW * this._zoomFactor;
 			height = oldH * this._zoomFactor;
-			if(width >= Cfg.maxImgSize && height >= Cfg.maxImgSize) {
+			if(width >= Cfg.maxImgSize || height >= Cfg.maxImgSize) {
 				return;
 			}
 		}
