@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '2ab7161';
+const commit = '9230d58';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -73,7 +73,7 @@ const defaultCfg = {
 	resizeImgs   : 1,    //    resize large images to fit screen [0=off', '1=by width', '2=width+height]
 	minImgSize   : 100,  //    minimal size for expanded images (px)
 	maxImgSize   : 9e4,  //    maximum size for expanded images (px)
-	zoomFactor   : 25,   //    images zoom sensibility [1-100%]
+	zoomFactor   : 20,   //    images zoom sensibility [1-100%]
 	webmControl  : 1,    //    show control bar for WebM
 	webmTitles   : 0,    //    load titles from WebM metadata
 	webmVolume   : 100,  //    default volume for WebM [0-100%]
@@ -16918,6 +16918,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		}
 		getPostWrap(el) {
 			return el.parentNode;
+		}
+		reportForm(pNum) {
+			$script(`Report.open('${ pNum }', '${ this.b }');`);
+			return true;
 		}
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);

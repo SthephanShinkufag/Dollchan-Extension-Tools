@@ -7148,7 +7148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '2ab7161';
+  var commit = '9230d58';
 
   var defaultCfg = {
     disabled: 0,
@@ -7189,7 +7189,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     resizeImgs: 1,
     minImgSize: 100,
     maxImgSize: 9e4,
-    zoomFactor: 25,
+    zoomFactor: 20,
     webmControl: 1,
     webmTitles: 0,
     webmVolume: 100,
@@ -30074,6 +30074,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         key: "getPostWrap",
         value: function getPostWrap(el) {
           return el.parentNode;
+        }
+      }, {
+        key: "reportForm",
+        value: function reportForm(pNum) {
+          $script("Report.open('".concat(pNum, "', '").concat(this.b, "');"));
+          return true;
         }
       }, {
         key: "getSage",

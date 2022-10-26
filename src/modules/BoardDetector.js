@@ -1233,6 +1233,10 @@ function getImageBoard(checkDomains, checkEngines) {
 		getPostWrap(el) {
 			return el.parentNode;
 		}
+		reportForm(pNum) {
+			$script(`Report.open('${ pNum }', '${ this.b }');`);
+			return true;
+		}
 		getSage(post) {
 			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		}
