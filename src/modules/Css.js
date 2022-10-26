@@ -233,13 +233,13 @@ function scriptCSS() {
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
+	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
-	.de-fullimg-zoom { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 58px; }

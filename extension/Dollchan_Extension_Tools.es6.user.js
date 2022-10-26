@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'ebbbd5b';
+const commit = '2ab7161';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12001,7 +12001,6 @@ class ImagesViewer {
 	constructor(data) {
 		this.data = null;
 		this.isAutoPlay = false;
-		this._data = null;
 		this._elStyle = null;
 		this._fullEl = null;
 		this._height = 0;
@@ -12159,8 +12158,8 @@ class ImagesViewer {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
-		$q('.de-fullimg-zoom', this._fullEl).textContent =
-			`${ parseInt(100 * width / this.data.width, 10) }%`;
+		const scale = 100 * width / this.data.width;
+		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
 	}
 	_removeFullImg(e) {
 		const { data } = this;
@@ -12235,6 +12234,8 @@ class ImagesViewer {
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.append(this._fullEl);
+		const scale = 100 * width / data.width;
+		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
 		if(data.isImage) {
 			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
 				.append($q('img', this._fullEl));
@@ -12493,7 +12494,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span></div>
+				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span></div>
 			</div>`);
 			const imgEl = $q('.de-fullimg', wrapEl);
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
@@ -12545,7 +12546,7 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span>
+			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span>
 				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
@@ -18402,13 +18403,13 @@ function scriptCSS() {
 	.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }
 	.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }
 	.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }
+	.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }
 	.de-fullimg-wrap { position: relative; margin-bottom: 24px; }
 	.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }
 	.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }
 	.de-fullimg-wrap-inpost { min-width: ${ p }px; min-height: ${ p }px; float: left; ${ aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ' } }
 	.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }
-	.de-fullimg-zoom { color: #fff; font: bold 12px tahoma; cursor: default; }
 	.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }
 	.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }
 	#de-img-btn-auto { right: 0; margin-top: 58px; }

@@ -94,7 +94,6 @@ class ImagesViewer {
 	constructor(data) {
 		this.data = null;
 		this.isAutoPlay = false;
-		this._data = null;
 		this._elStyle = null;
 		this._fullEl = null;
 		this._height = 0;
@@ -252,8 +251,8 @@ class ImagesViewer {
 		this._elStyle.left = this._oldL + 'px';
 		this._oldT = parseInt(clientY - (height / oldH) * (clientY - this._oldT), 10);
 		this._elStyle.top = this._oldT + 'px';
-		$q('.de-fullimg-zoom', this._fullEl).textContent =
-			`${ parseInt(100 * width / this.data.width, 10) }%`;
+		const scale = 100 * width / this.data.width;
+		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
 	}
 	_removeFullImg(e) {
 		const { data } = this;
@@ -328,6 +327,8 @@ class ImagesViewer {
 			(Cfg.imgInfoLink ? 11 : 0) - (nav.firefoxVer >= 59 && data.isVideo ? 10 : 0) }px; left:${
 			this._oldL }px; width:${ width }px; height:${ height }px; display: block"></div>`);
 		el.append(this._fullEl);
+		const scale = 100 * width / data.width;
+		$q('.de-fullimg-scale', this._fullEl).textContent = scale === 100 ? '' : `${ parseInt(scale, 10) }%`;
 		if(data.isImage) {
 			$aBegin(this._fullEl, `<a class="de-fullimg-wrap-link" href="${ data.src }"></a>`)
 				.append($q('img', this._fullEl));
@@ -586,7 +587,7 @@ class ExpandableImage {
 			wrapEl = $add(`<div class="de-fullimg-wrap${ wrapClass }">
 				${ waitEl }
 				<img class="de-fullimg" src="${ src }" alt="${ src }">
-				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span></div>
+				<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span></div>
 			</div>`);
 			const imgEl = $q('.de-fullimg', wrapEl);
 			imgEl.onload = imgEl.onerror = ({ target: img }) => {
@@ -638,7 +639,7 @@ class ExpandableImage {
 				`${ hasTitle && title ? `title="${ title }" ` : '' }loop autoplay ` +
 				`${ Cfg.webmControl ? 'controls ' : '' }` +
 				`${ Cfg.webmVolume === 0 ? 'muted ' : '' }></video>
-			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-zoom"></span>
+			<div class="de-fullimg-info">${ imgNameEl }</a> <span class="de-fullimg-scale"></span>
 				<span class="de-fullimg-link de-webm-title">${ hasTitle && title ? title : '' }</span>
 				${ needTitle && !hasTitle ? `<svg class="de-wait">
 					<use xlink:href="#de-symbol-wait"/></svg>` : '' }
