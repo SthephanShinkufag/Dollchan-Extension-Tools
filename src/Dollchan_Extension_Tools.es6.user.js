@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'c82c64b';
+const commit = '6e8c012';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -4223,7 +4223,7 @@ function showFavoritesWindow(body, favObj) {
 				await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
 					switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
 					case '2ch.hk':
-					case '2ch.pm': {
+					case '2ch.life': {
 						const dc = $createDoc(xhr.responseText);
 						if(dc && $q('.message-title', dc)) {
 							throw new AjaxError(404, 'Error');
@@ -11333,7 +11333,7 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		return value;
 	}
 	get title() {
-		const value = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+		const value = this.subj || this.text.substring(0, 85).replace(/\s+/g, ' ');
 		Object.defineProperty(this, 'title', { value });
 		return value;
 	}
@@ -12362,6 +12362,12 @@ class ExpandableImage {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + origImgTop);
 			}
 		}
+		if(aib.kohlchan) {
+			const containerEl = $q('.contentOverflow', this.post.el);
+			if(containerEl && !$q('.de-fullimg-wrap-inpost', containerEl)) {
+				containerEl.removeAttribute('style');
+			}
+		}
 	}
 	computeFullSize() {
 		if(!this._size) {
@@ -12443,6 +12449,13 @@ class ExpandableImage {
 			const fullImgTop = this._fullEl.getBoundingClientRect().top;
 			if(fullImgTop < 0 || origImgTop < 0) {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+			}
+		}
+		if(aib.kohlchan) {
+			$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			const containerEl = $q('.contentOverflow', this.post.el);
+			if(containerEl) {
+				containerEl.style.maxHeight = 'unset';
 			}
 		}
 	}
@@ -18584,15 +18597,15 @@ function updateCSS() {
 			.de-btn-stick-on { color: #BFFFBF; }
 			.de-btn-unhide-user { color: #FFBFBF; }` }
 	.de-fullimg-wrap-inpost > .de-fullimg { ${ Cfg.resizeImgs ?
-		`max-width: 100%;${ Cfg.resizeImgs === 2 ? ' max-height: 96vh' : '' }` :
-		'width: auto' }; }
+		`max-width: 100%;${ Cfg.resizeImgs === 2 ? ' max-height: 96vh;' : '' }` :
+		'width: auto;' }; }
 	${ Cfg.maskImgs ?
 		`${ aib.qPostImg }, .de-img-embed, .de-video-obj { opacity: ${ Cfg.maskVisib / 100 } !important; }
 			${ aib.qPostImg.split(', ').join(':hover, ') }:hover, .de-img-embed:hover, .de-video-obj:hover { opacity: 1 !important; }
 			.de-video-obj:not(.de-video-obj-inline) { clear: both; }` : '' }
 	${ Cfg.imgNames === 1 ? '.de-img-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' : '' }
 	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
-		'.de-img-name { display: inline-block; max-width: 185px; vertical-align: top; }' :
+		'.de-img-name { display: inline-block; max-width: 230px; vertical-align: top; word-wrap: break-word; }' :
 		Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
 	${ Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '' }
 	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }

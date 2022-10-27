@@ -944,7 +944,7 @@ Post.Сontent = class PostContent extends TemporaryContent {
 		return value;
 	}
 	get title() {
-		const value = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ');
+		const value = this.subj || this.text.substring(0, 85).replace(/\s+/g, ' ');
 		Object.defineProperty(this, 'title', { value });
 		return value;
 	}

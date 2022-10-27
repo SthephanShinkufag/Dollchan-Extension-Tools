@@ -455,6 +455,12 @@ class ExpandableImage {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + origImgTop);
 			}
 		}
+		if(aib.kohlchan) {
+			const containerEl = $q('.contentOverflow', this.post.el);
+			if(containerEl && !$q('.de-fullimg-wrap-inpost', containerEl)) {
+				containerEl.removeAttribute('style');
+			}
+		}
 	}
 	computeFullSize() {
 		if(!this._size) {
@@ -536,6 +542,13 @@ class ExpandableImage {
 			const fullImgTop = this._fullEl.getBoundingClientRect().top;
 			if(fullImgTop < 0 || origImgTop < 0) {
 				scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + fullImgTop);
+			}
+		}
+		if(aib.kohlchan) {
+			$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			const containerEl = $q('.contentOverflow', this.post.el);
+			if(containerEl) {
+				containerEl.style.maxHeight = 'unset';
 			}
 		}
 	}

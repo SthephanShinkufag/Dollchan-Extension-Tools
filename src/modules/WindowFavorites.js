@@ -441,7 +441,7 @@ function showFavoritesWindow(body, favObj) {
 				await $ajax(el.getAttribute('de-url'), null, true).then(xhr => {
 					switch(el.getAttribute('de-host')) { // Makaba doesnʼt return 404
 					case '2ch.hk':
-					case '2ch.pm': {
+					case '2ch.life': {
 						const dc = $createDoc(xhr.responseText);
 						if(dc && $q('.message-title', dc)) {
 							throw new AjaxError(404, 'Error');
