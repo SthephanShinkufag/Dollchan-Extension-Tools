@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'f31a6ea';
+const commit = 'c82c64b';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -18594,7 +18594,7 @@ function updateCSS() {
 	${ Cfg.imgNames === 1 || Cfg.imgNames === 3 ?
 		'.de-img-name { display: inline-block; max-width: 185px; vertical-align: top; }' :
 		Cfg.imgNames === 2 ? '.de-img-name { text-decoration: none !important; text-transform: capitalize; }' : '' }
-	${ Cfg.widePosts ? '.de-reply { float: none; width: 99.9%; margin-left: 0; }' : '' }
+	${ Cfg.widePosts ? '.de-reply { float: none; width: 99vw; margin-left: 0; }' : '' }
 	${ aib.qPostMsg } { max-width: ${ Cfg.limitPostMsg }px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }
 	${ Cfg.strikeHidd ? '.de-link-hid { text-decoration: line-through !important; }' : '' }
 	${ Cfg.noSpoilers === 1 ?
