@@ -545,7 +545,9 @@ class ExpandableImage {
 			}
 		}
 		if(aib.kohlchan) {
-			$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			if(!this.isVideo) {
+				$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			}
 			const containerEl = $q('.contentOverflow', this.post.el);
 			if(containerEl) {
 				containerEl.style.maxHeight = 'unset';

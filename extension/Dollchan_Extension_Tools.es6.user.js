@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '6e8c012';
+const commit = '4ccf889';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -12452,7 +12452,9 @@ class ExpandableImage {
 			}
 		}
 		if(aib.kohlchan) {
-			$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			if(!this.isVideo) {
+				$q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+			}
 			const containerEl = $q('.contentOverflow', this.post.el);
 			if(containerEl) {
 				containerEl.style.maxHeight = 'unset';

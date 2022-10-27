@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '6e8c012';
+  var commit = '4ccf889';
 
   var defaultCfg = {
     disabled: 0,
@@ -23767,7 +23767,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         if (aib.kohlchan) {
-          $q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+          if (!this.isVideo) {
+            $q('.de-fullimg', this._fullEl).classList.add('imgExpanded');
+          }
+
           var containerEl = $q('.contentOverflow', this.post.el);
 
           if (containerEl) {
