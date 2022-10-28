@@ -236,15 +236,18 @@ function getImageBoard(checkDomains, checkEngines) {
 		constructor(...args) {
 			super(...args);
 
+			this.qDelForm = $id('posts') ? '#posts' : '#delform';
 			this.qError = 'body[align=center] div, div[style="margin-top: 50px;"]';
 			this.qPostImg = 'img.thumb, video.thumb';
 			this.qPostMsg = '.message';
+
+			this.hasCatalog = true;
 		}
 		get css() {
-			return '.replymode { display: none; }';
+			return '.backlinks, .replymode { display: none; }';
 		}
 		fixHTMLHelper(str) {
-			return str.replace(/="\.\.\//g, `="/${ this.b }/`);
+			return str.replace(/="\.\.\//g, this.b ? `="/${ this.b }/` : '="/');
 		}
 		getCaptchaSrc(src) {
 			return src.replace(/\?[^?]+$|$/, '?' + Math.random());
@@ -263,38 +266,12 @@ function getImageBoard(checkDomains, checkEngines) {
 			return super.getImgRealName(wrap);
 		}
 		init() {
-			defaultCfg.addTextBtns = 0;
 			$Q('.message > .omittedposts').forEach(
 				el => $replace(el, '<span class="abbrev">Post too long. <a href="#">Click to view.</a>'));
 			return false;
 		}
 	}
 	ibEngines.push(['form[action$="imgboard.php?delete"]', TinyIB]);
-
-	class newTinyIB extends TinyIB {
-		constructor(...args) {
-			super(...args);
-
-			this.hasCatalog = true;
-			this.markupBB = true;
-			this.multiFile = true;
-			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
-		}
-		get fixHTMLHelper() {
-			return null;
-		}
-		fixFileInputs(el) {
-			const str = '><input type="file" name="file[]"></div>';
-			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-		}
-		getImgRealName(wrap) {
-			return $q('.filesize > a', wrap).textContent;
-		}
-		init() {
-			return false;
-		}
-	}
-	ibEngines.push(['body.tinyib', newTinyIB]);
 
 	class Lynxchan extends BaseBoard {
 		constructor(...args) {
@@ -1358,20 +1335,6 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['arhivach.ng'] = ibDomains['arhivachovtj2jrp.onion'] = Arhivach;
 
-	class Cyber2ch extends TinyIB {
-		constructor(...args) {
-			super(...args);
-
-			this.qDelForm = '#posts';
-
-			this.hasCatalog = true;
-		}
-		get css() {
-			return '.backlinks { display: none; }';
-		}
-	}
-	ibDomains['cyber2ch.com'] = ibDomains['lainchan.ru'] = Cyber2ch;
-
 	class Dobrochan extends BaseBoard {
 		constructor(...args) {
 			super(...args);
@@ -1501,6 +1464,31 @@ function getImageBoard(checkDomains, checkEngines) {
 	}
 	ibDomains['dobrochan.com'] = ibDomains['dobrochan.org'] =
 		ibDomains['dobrochan.ru'] = ibDomains['dobrochan.net'] = Dobrochan;
+
+	class Dollchan extends TinyIB {
+		constructor(...args) {
+			super(...args);
+
+			this.markupBB = true;
+			this.multiFile = true;
+			this.timePattern = 'yy+nn+dd+w+hh+ii+ss';
+		}
+		get fixHTMLHelper() {
+			return null;
+		}
+		fixFileInputs(el) {
+			const str = '><input type="file" name="file[]"></div>';
+			el.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+		}
+		getImgRealName(wrap) {
+			return $q('.filesize > a', wrap).textContent;
+		}
+		init() {
+			defaultCfg.addTextBtns = 0;
+			return false;
+		}
+	}
+	ibDomains['dollchan.net'] = Dollchan;
 
 	class Endchan extends Lynxchan {
 		constructor(...args) {
