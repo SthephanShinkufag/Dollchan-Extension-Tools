@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = 'd40eb8f';
+  var commit = '019e95c';
 
   var defaultCfg = {
     disabled: 0,
@@ -12904,7 +12904,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               nameShort = name.substr(0, 20 - ext.length) + "\u2026" + ext;
             }
 
-            var info = aib.domain !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
+            var info = aib.domain !== href.match(/^(?:(?:blob:)?https?:\/\/)([^/]+)/)[1] ? ' info="img-load"' : '';
             return "<a class=\"de-menu-item\" href=\"".concat(href, "\" download=\"").concat(name, "\" title=\"").concat(title, "\"").concat(info, " target=\"_blank\">").concat(Lng.saveAs[lang], " &quot;").concat(nameShort, "&quot;</a>");
           };
 

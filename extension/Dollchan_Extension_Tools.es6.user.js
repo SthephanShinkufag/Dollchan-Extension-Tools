@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'd40eb8f';
+const commit = '019e95c';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -5294,7 +5294,7 @@ class Menu {
 				if(name.length > 20) {
 					nameShort = name.substr(0, 20 - ext.length) + '\u2026' + ext;
 				}
-				const info = aib.domain !== href.match(/^(?:https?:\/\/)([^/]+)/)[1] ?
+				const info = aib.domain !== href.match(/^(?:(?:blob:)?https?:\/\/)([^/]+)/)[1] ?
 					' info="img-load"' : '';
 				return `<a class="de-menu-item" href="${ href }" download="${ name }" title="${
 					title }"${ info } target="_blank">${ Lng.saveAs[lang] } &quot;${ nameShort }&quot;</a>`;
