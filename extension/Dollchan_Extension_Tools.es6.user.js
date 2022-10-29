@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = 'e00491a';
+const commit = '3c56261';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -830,9 +830,9 @@ const Lng = {
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
 		imglen: [
-			'Картинок в треде',
-			'Images in thread',
-			'Зображень у треді'],
+			'Картинок и сидео в треде',
+			'Images and videos in thread',
+			'Зображень та відео у треді'],
 		posters: [
 			'Постящих в треде',
 			'Posters in thread',
@@ -17185,7 +17185,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.filesize > a', wrap).textContent;
 		}
 		init() {
-			defaultCfg.addTextBtns = 0;
 			return false;
 		}
 	}
@@ -18200,8 +18199,9 @@ function scriptCSS() {
 	#de-panel-upd-warn { fill: #fff441; }
 	#de-panel-upd-off { fill: #ff3232; }
 	#de-panel-audio-on > .de-panel-svg > .de-use-audio-off, #de-panel-audio-off > .de-panel-svg > .de-use-audio-on { display: none; }
-	#de-panel-info { display: flex; flex: none; padding: 0 6px; margin-left: 2px; border-left: 1px solid #616b86; font: 18px serif; }
-	#de-panel-info-icount::before, #de-panel-info-acount:not(:empty)::before { content: "/"; }
+	#de-panel-info { display: flex; flex: none; gap: 4px; margin: 0 4px 0 2px; font: 18px arial; }
+	#de-panel-info > span { background-color: #fff2; padding: 0 1px; border: 1px solid #fff3; border-radius: 4px; }
+	#de-panel-info > span:empty { display: none; }
 	#de-svg-icons, #de-svg-icons > svg { height: 0; width: 0; position: fixed; }
 	.de-svg-fill { stroke: none; fill: currentColor; }
 	.de-svg-stroke { stroke: currentColor; fill: none; }
@@ -18213,17 +18213,17 @@ function scriptCSS() {
 		'{ background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }',
 		/* Gradient blue */
 		`{ background: linear-gradient(to bottom, #4b90df, #3d77be 20%, #376cb0 28%, #295591 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #183d77 52%, #1f4485 72%, #264c90 80%, #325f9e 100%); }
-		#de-panel-buttons, #de-panel-info { border-color: #8fbbed; }`,
+		#de-panel-buttons { border-color: #8fbbed; }`,
 		/* Solid grey */
 		`{ background-color: #777; }
-		#de-panel-buttons, #de-panel-info { border-color: #ccc; }
+		#de-panel-buttons { border-color: #ccc; }
 		.de-panel-svg:hover { border: 2px solid #444; border-radius: 5px; box-sizing: border-box; transition: none; }`,
 		/* Transparent blue */
 		'{ background-color: rgba(0,20,80,.72); }',
 		/* Square dark */
 		`{ background: none; background-color: #333; border-radius: 0 !important; }
 		#de-win-reply.de-win { border-radius: 0 !important; }
-		#de-panel-buttons, #de-panel-info { border-color: #666; }`
+		#de-panel-buttons { border-color: #666; }`
 	][Cfg.scriptStyle] }
 	.de-logo { background: linear-gradient(to bottom, #7b849b, #616b86 8%, #3a414f 52%, rgba(0,0,0,0) 52%), linear-gradient(to bottom, rgba(0,0,0,0) 48%, #121212 52%, #1f2740 100%); }
 	${ Cfg.scriptStyle === 2 ?

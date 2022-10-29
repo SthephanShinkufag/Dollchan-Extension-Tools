@@ -1484,7 +1484,6 @@ function getImageBoard(checkDomains, checkEngines) {
 			return $q('.filesize > a', wrap).textContent;
 		}
 		init() {
-			defaultCfg.addTextBtns = 0;
 			return false;
 		}
 	}

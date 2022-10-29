@@ -655,9 +655,9 @@ const Lng = {
 			'Posts in thread (without hidden)',
 			'Постів у треді (крім схованих)'],
 		imglen: [
-			'Картинок в треде',
-			'Images in thread',
-			'Зображень у треді'],
+			'Картинок и сидео в треде',
+			'Images and videos in thread',
+			'Зображень та відео у треді'],
 		posters: [
 			'Постящих в треде',
 			'Posters in thread',
