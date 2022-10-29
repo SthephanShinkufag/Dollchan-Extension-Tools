@@ -13,11 +13,11 @@ function getSubmitError(dc) {
 }
 
 function showSubmitError(error) {
-	if(pr.isQuick) {
-		pr.setReply(true, false);
+	if(postform.isQuick) {
+		postform.setReply(true, false);
 	}
 	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-		pr.refreshCap(true);
+		postform.refreshCap(true);
 	}
 	$popup('upload', error.toString());
 	updater.sendErrNotif();
@@ -51,7 +51,7 @@ async function checkSubmit(data) {
 		showSubmitError(error);
 		return;
 	}
-	const { tNum } = pr;
+	const { tNum } = postform;
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
@@ -65,7 +65,7 @@ async function checkSubmit(data) {
 			sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
 		}
 	}
-	pr.clearForm();
+	postform.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
@@ -97,8 +97,8 @@ async function checkSubmit(data) {
 	} else {
 		pByNum.get(tNum).thr.loadPosts('new', false, false).then(() => closePopup('upload'));
 	}
-	pr.closeReply();
-	pr.refreshCap();
+	postform.closeReply();
+	postform.refreshCap();
 }
 
 async function checkDelete(data) {

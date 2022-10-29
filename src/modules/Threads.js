@@ -119,7 +119,7 @@ class Thread {
 				oldCoord = nextThr?.top;
 				this.op.setUserVisib(!this.isHidden);
 				break;
-			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-reply': postform.showQuickReply(this.last, this.num, false, false, true); break;
 			case 'de-btn-replies':
 			case 'de-replies-show':
 			case 'de-replies-hide':
@@ -426,11 +426,11 @@ class Thread {
 		closePopup('load-thr');
 	}
 	_loadNewFromBuilder(pBuilder) {
-		const lastOffset = pr.isVisible ? pr.top : null;
+		const lastOffset = postform.isVisible ? postform.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		this._moveBtnsToEnd();
 		if(lastOffset !== null) {
-			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(

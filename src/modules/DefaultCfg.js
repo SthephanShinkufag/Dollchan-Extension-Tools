@@ -77,7 +77,7 @@ const defaultCfg = {
 	YTubeTitles  : 0,    //    load titles for YouTube links
 	ytApiKey     : '',   //    YouTube API key
 	addVimeo     : 1,    //    embed Vimeo links
-	// FORM
+	// POSTFORM
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
 	removeEXIF   : 1,    //    remove EXIF from JPEG

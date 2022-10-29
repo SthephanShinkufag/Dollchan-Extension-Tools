@@ -100,21 +100,22 @@ class AbstractPost {
 						this._getFullMsg(temp, false);
 						e.preventDefault();
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
+					} else if(Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
 						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotedText = deWindow.getSelection().toString();
-							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+							postform.showQuickReply(isPview ? Pview.topParent : this,
+								this.num, !isPview, false);
 							quotedText = '';
-						} else if(pr.isQuick || aib.t && pr.isHidden) {
-							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
+						} else if(postform.isQuick || aib.t && postform.isHidden) {
+							postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
-							const formText = pr.txta.value;
+							const formText = postform.txta.value;
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-							insertText(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
+							insertText(postform.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
@@ -192,10 +193,10 @@ class AbstractPost {
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-img':
 				quotedText = aib.getImgRealName(aib.getImgWrap(el));
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			case 'de-btn-reply':
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
@@ -453,7 +454,7 @@ class AbstractPost {
 		}
 		case 'post-reply': {
 			const isPview = this instanceof Pview;
-			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+			postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
 			quotedText = '';
 			return;
 		}

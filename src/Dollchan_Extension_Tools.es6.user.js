@@ -28,7 +28,7 @@
 'use strict';
 
 const version = '22.10.23.0';
-const commit = '503799e';
+const commit = 'd40eb8f';
 
 /* ==[ DefaultCfg.js ]========================================================================================
                                                 DEFAULT CONFIG
@@ -109,7 +109,7 @@ const defaultCfg = {
 	YTubeTitles  : 0,    //    load titles for YouTube links
 	ytApiKey     : '',   //    YouTube API key
 	addVimeo     : 1,    //    embed Vimeo links
-	// FORM
+	// POSTFORM
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
 	removeEXIF   : 1,    //    remove EXIF from JPEG
@@ -184,7 +184,12 @@ const defaultCfg = {
 =========================================================================================================== */
 
 const Lng = {
-	// "Settings" window: tab names
+	// Settings window: tooltips
+	cfgNeedReload: [
+		'Для применения необходима перезагрузка',
+		'Reboot required to apply',
+		'Для застосування необхідне перезавантаження'],
+	// Settings window: tab names
 	cfgTab: {
 		filters : ['Фильтры', 'Filters', 'Фільтри'],
 		posts   : ['Посты', 'Posts', 'Пости'],
@@ -194,7 +199,7 @@ const Lng = {
 		common  : ['Общее', 'Common', 'Спільне'],
 		info    : ['Инфо', 'Info', 'Інфо']
 	},
-	// "Settings" window: options
+	// Settings window: options
 	cfg: {
 		language: {
 			sel : [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
@@ -263,9 +268,9 @@ const Lng = {
 			'Highlight my own posts',
 			'Виділяти кольором мої пости'],
 		expandTrunc: [
-			'Авторазворот сокращенных постов*',
-			'Autoexpand truncated posts*',
-			'Авторозгортання скорочених постів*'],
+			'Авторазворот сокращенных постов',
+			'Autoexpand truncated posts',
+			'Авторозгортання скорочених постів'],
 		widePosts: [
 			'Растягивать посты по ширине экрана',
 			'Stretch posts to page width',
@@ -330,9 +335,9 @@ const Lng = {
 			'Hide poster names',
 			'Ховати імена в постах'],
 		correctTime: [
-			'Коррекция времени в постах* ',
-			'Time correction in posts* ',
-			'Корекція часу в постах* '],
+			'Коррекция времени в постах',
+			'Time correction in posts',
+			'Корекція часу в постах'],
 		timeOffset: [
 			'разница (ч) ',
 			'time offset (h) ',
@@ -413,23 +418,23 @@ const Lng = {
 				['Disable', 'All', 'Non-WebM'],
 				['Вимк.', 'Всі', 'Крім WebM']],
 			txt: [
-				'Предварительно загружать картинки*',
-				'Preload images*',
-				'Наперед завантажувати зображення*']
+				'Предварительно загружать картинки',
+				'Preload images',
+				'Наперед завантажувати зображення']
 		},
 		findImgFile: [
-			'Распознавать файлы, встроенные в картинках*',
-			'Detect embedded files in images*',
-			'Розпізнавати файли, що вбудовані в зображення*'],
+			'Распознавать файлы, встроенные в картинках',
+			'Detect embedded files in images',
+			'Розпізнавати файли, що вбудовані в зображення'],
 		openImgs: {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
 				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
-				'Заменять тамбнейлы на оригиналы*',
-				'Replace thumbnails with original images*',
-				'Замінювати зображення на оригінали*']
+				'Заменять тамбнейлы на оригиналы',
+				'Replace thumbnails with original images',
+				'Замінювати зображення на оригінали']
 		},
 		imgSrcBtns: [
 			'Добавлять кнопки "Поиск" для картинок',
@@ -452,9 +457,9 @@ const Lng = {
 
 		// "Links" tab
 		linksNavig: [
-			'Навигация постов по >>ссылкам* ',
-			'Posts navigation by >>links* ',
-			'Навігація постів по >>посиланнях* '],
+			'Навигация постов по >>ссылкам',
+			'Posts navigation by >>links',
+			'Навігація постів по >>посиланнях'],
 		linksOver: [
 			'Появление ',
 			'Appearance ',
@@ -484,51 +489,51 @@ const Lng = {
 			'Mark links to my posts with (You)',
 			'Позначати посилання на мої пости як (You)'],
 		crossLinks: [
-			'Заменять http:// на >>/b/ссылки*',
-			'Replace http:// with >>/b/links*',
-			'Замінювати https:// на >>/b/посилання*'],
+			'Заменять http:// на >>/b/ссылки',
+			'Replace http:// with >>/b/links',
+			'Замінювати https:// на >>/b/посилання'],
 		decodeLinks: [
-			'Декодировать %D0%A5%D1 в ссылках*',
-			'Decode %D0%A5%D1 in links*',
-			'Декодувати %D0%A5%D1 в посиланнях*'],
+			'Декодировать %D0%A5%D1 в ссылках',
+			'Decode %D0%A5%D1 in links',
+			'Декодувати %D0%A5%D1 в посиланнях'],
 		insertNum: [
-			'Вставлять >>ссылку по клику на №поста*',
-			'Insert >>link on №postnumber click*',
-			'Вставляти >>посилання на клік по №посту*'],
+			'Вставлять >>ссылку по клику на №поста',
+			'Insert >>link on №postnumber click',
+			'Вставляти >>посилання на клік по №посту'],
 		addOPLink: [
 			'>>ссылка при ответе на OP в списке тредов',
 			'Insert >>link when replying to OP on threads list',
 			'>>посилання при відповіді на OP у списці тредів'],
 		addImgs: [
-			'Загружать картинки к jpg/png/gif ссылкам*',
-			'Load images for jpg/png/gif links*',
-			'Додавати зображення до jpg/png/gif посилань*'],
+			'Загружать картинки к jpg/png/gif ссылкам',
+			'Load images for jpg/png/gif links',
+			'Додавати зображення до jpg/png/gif посилань'],
 		addMP3: [
-			'Плеер к mp3 ссылкам* ',
-			'Player for mp3 links* ',
-			'Плеєр до mp3 посилань* '],
+			'Плеер к mp3 ссылкам',
+			'Player for mp3 links',
+			'Плеєр до mp3 посилань'],
 		addVocaroo: [
-			'к Vocaroo ссылкам*',
-			'for Vocaroo links*',
-			'до Vocaroo посилань*'],
+			'к Vocaroo ссылкам',
+			'for Vocaroo links',
+			'до Vocaroo посилань'],
 		addVimeo: [
-			'Добавлять плеер к Vimeo ссылкам*',
-			'Add player for Vimeo links*',
-			'Додавати плеєр до Vimeo посилань*'],
+			'Добавлять плеер к Vimeo ссылкам',
+			'Add player for Vimeo links',
+			'Додавати плеєр до Vimeo посилань'],
 		embedYTube: {
 			sel: [
 				['Ничего', 'Превью+плеер', 'Плеер по клику'],
 				['Nothing', 'Preview+player', 'On click player'],
 				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 			txt: [
-				'к YouTube ссылкам* ',
-				'for YouTube links* ',
-				'до YouTube посилань* ']
+				'к YouTube ссылкам',
+				'for YouTube links',
+				'до YouTube посилань']
 		},
 		YTubeTitles: [
-			'Загружать названия к YouTube ссылкам*',
-			'Load titles for YouTube links*',
-			'Отримувати назви до YouTube посилань*'],
+			'Загружать названия к YouTube ссылкам',
+			'Load titles for YouTube links',
+			'Отримувати назви до YouTube посилань'],
 		ytApiKey: [
 			'Ключ YT API*',
 			'YT API Key*',
@@ -536,9 +541,9 @@ const Lng = {
 
 		// "Form" tab
 		ajaxPosting: [
-			'Отправка постов без перезагрузки*',
-			'Posting without page refresh*',
-			'Постування без оновлення сторінки*'],
+			'Отправка постов без перезагрузки',
+			'Posting without page refresh',
+			'Постування без оновлення сторінки'],
 		postSameImg: [
 			'Возможность отправки одинаковых картинок',
 			'Ability to post duplicate images',
@@ -700,17 +705,17 @@ const Lng = {
 				'Лічильник постів/зображень в треді']
 		},
 		rePageTitle: [
-			'Название треда в заголовке вкладки*',
-			'Show thread title in the page tab*',
-			'Назва треду в заголовку вкладки*'],
+			'Название треда в заголовке вкладки',
+			'Show thread title in the page tab',
+			'Назва треду в заголовку вкладки'],
 		inftyScroll: [
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
 		hideReplies: [
-			'Показывать только OP в списке тредов*',
-			'Show only OP in threads list*',
-			'Показувати лише OP в списку тредів*'],
+			'Показывать только OP в списке тредов',
+			'Show only OP in threads list',
+			'Показувати лише OP в списку тредів'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',
@@ -1704,8 +1709,8 @@ const aProto = Array.prototype;
 const gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
 const gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
 
-let aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, pr,
-	sesStorage, updater;
+let aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum,
+	postform, sesStorage, updater;
 let quotedText = '';
 let visPosts = 2;
 let topWinZ = 10;
@@ -3048,7 +3053,7 @@ const Panel = Object.create({
 	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
-		(pr?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
 				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
 					<svg class="de-panel-logo-svg">
@@ -4293,7 +4298,7 @@ const CfgWindow = {
 			this._getTab('posts') +
 			this._getTab('images') +
 			this._getTab('links') +
-			(pr.form || pr.oeForm ? this._getTab('form') : '') +
+			(postform.form || postform.oeForm ? this._getTab('form') : '') +
 			this._getTab('common') +
 			this._getTab('info')
 		}</div><div id="de-cfg-buttons">${ this._getSel('language') }</div>`);
@@ -4499,7 +4504,11 @@ const CfgWindow = {
 	async handleEvent(e) {
 		const { type, target: el } = e;
 		const tag = el.tagName.toLowerCase();
-		if(type === 'click' && tag === 'div' && el.classList.contains('de-cfg-tab')) {
+		const { classList } = el;
+		if(type === 'mouseover' && classList.contains('de-cfg-needreload') && !el.title) {
+			el.title = Lng.cfgNeedReload[lang];
+		}
+		if(type === 'click' && tag === 'div' && classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
 			await CfgSaver.save('cfgTab', info);
@@ -4512,13 +4521,13 @@ const CfgWindow = {
 			case 'language':
 				lang = el.selectedIndex;
 				Panel.removeMain();
-				if(pr.form) {
-					pr.addMarkupPanel();
-					pr.setPlaceholders();
-					pr.updateLanguage();
-					aib.updateSubmitBtn(pr.subm);
-					if(pr.files) {
-						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
+				if(postform.form) {
+					postform.addMarkupPanel();
+					postform.setPlaceholders();
+					postform.updateLanguage();
+					aib.updateSubmitBtn(postform.subm);
+					if(postform.files) {
+						$Q('.de-file-img, .de-file-txt-input', postform.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -4561,15 +4570,15 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'fileInputs':
-				pr.files.changeMode();
-				pr.setPlaceholders();
+				postform.files.changeMode();
+				postform.setPlaceholders();
 				updateCSS();
 				break;
 			case 'addPostForm':
-				pr.isBottom = Cfg.addPostForm === 1;
-				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
+				postform.isBottom = Cfg.addPostForm === 1;
+				postform.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
-			case 'addTextBtns': pr.addMarkupPanel();
+			case 'addTextBtns': postform.addMarkupPanel();
 				/* falls through */
 			case 'scriptStyle':
 			case 'panelCounter': this._updateCSS(); break;
@@ -4658,20 +4667,20 @@ const CfgWindow = {
 				}
 				break;
 			case 'addSageBtn':
-				PostForm.hideField(pr.mail.closest('label') || pr.mail);
-				setTimeout(() => pr.toggleSage(), 0);
+				PostForm.hideField(postform.mail.closest('label') || postform.mail);
+				setTimeout(() => postform.toggleSage(), 0);
 				updateCSS();
 				break;
-			case 'altCaptcha': pr.cap.initCapPromise(); break;
+			case 'altCaptcha': postform.cap.initCapPromise(); break;
 			case 'txtBtnsLoc':
-				pr.addMarkupPanel();
+				postform.addMarkupPanel();
 				updateCSS();
 				break;
 			case 'userPassw': await PostForm.setUserPassw(); break;
 			case 'userName': await PostForm.setUserName(); break;
-			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
-			case 'noName': PostForm.hideField(pr.name); break;
-			case 'noSubj': PostForm.hideField(pr.subj); break;
+			case 'noPassword': $toggle(postform.passw.closest(aib.qFormTr)); break;
+			case 'noName': PostForm.hideField(postform.name); break;
+			case 'noSubj': PostForm.hideField(postform.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
@@ -4740,7 +4749,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
-				el.classList.toggle('de-input-error', !isCheck);
+				classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
 					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
@@ -4910,7 +4919,7 @@ const CfgWindow = {
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
-			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
+			${ !localData ? `${ this._getBox('expandTrunc', true) }<br>` : '' }
 			${ this._getBox('widePosts') }<br>
 			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getSel('showHideBtn') }<br>
@@ -4920,7 +4929,7 @@ const CfgWindow = {
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
-			${ this._getBox('correctTime') }
+			${ this._getBox('correctTime', true) }
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
 				`${ lang ? 'en' : 'ru' }">[?]</a>
@@ -4947,11 +4956,11 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
+			${ nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>' }
 			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
-				${ this._getBox('findImgFile') }
+				${ this._getBox('findImgFile', true) }
 			</div>` }
-			${ this._getSel('openImgs') }<br>
+			${ this._getSel('openImgs', true) }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getSel('imgNames') }<br>
 			${ this._getInp('maskVisib') }
@@ -4961,7 +4970,7 @@ const CfgWindow = {
 	// "Links" tab
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
-			${ this._getBox('linksNavig') }
+			${ this._getBox('linksNavig', true) }
 			<div class="de-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
@@ -4971,22 +4980,22 @@ const CfgWindow = {
 				${ this._getBox('noNavigHidd') }
 			</div>
 			${ this._getBox('markMyLinks') }<br>
-			${ this._getBox('crossLinks') }<br>
-			${ this._getBox('decodeLinks') }<br>
+			${ this._getBox('crossLinks', true) }<br>
+			${ this._getBox('decodeLinks', true) }<br>
 			${ this._getBox('insertNum') }<br>
 			${ !localData ? `${ this._getBox('addOPLink') }<br>
-				${ this._getBox('addImgs') }<br>` : '' }
+				${ this._getBox('addImgs', true) }<br>` : '' }
 			<div>
-				${ this._getBox('addMP3') }
-				${ this._getBox('addVocaroo') }
+				${ this._getBox('addMP3', true) }
+				${ this._getBox('addVocaroo', true) }
 			</div>
-			${ this._getSel('embedYTube') }
+			${ this._getSel('embedYTube', true) }
 			<div class="de-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
-				${ this._getBox('YTubeTitles') }<br>
+				${ this._getBox('YTubeTitles', true) }<br>
 				${ this._getInp('ytApiKey', true, 25) }<br>
-				${ this._getBox('addVimeo') }
+				${ this._getBox('addVimeo', true) }
 			</div>
 		</div>`;
 	},
@@ -4994,36 +5003,36 @@ const CfgWindow = {
 	// "Form" tab
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
-			${ this._getBox('ajaxPosting') }<br>
-			${ pr.form ? `<div class="de-depend">
+			${ this._getBox('ajaxPosting', true) }<br>
+			${ postform.form ? `<div class="de-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }<br>
 				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
-				${ pr.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
+				${ postform.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
-			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
-			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
+			${ postform.form ? this._getSel('addPostForm') + '<br>' : '' }
+			${ postform.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
-			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ? `${ this._getBox('addSageBtn') }
+			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
+			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ pr.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
+			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
-			${ pr.txta ? `${ this._getSel('addTextBtns') }
+			${ postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
-			${ pr.passw ? `${ this._getInp('passwValue', false, 9) }
+			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
-			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
+			${ postform.name ? `${ this._getInp('nameValue', false, 9) }
 				${ this._getBox('userName') }<br>` : '' }
-			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
-				(pr.rules ? this._getBox('noBoardRule') : '') +
-				(pr.passw ? this._getBox('noPassword') : '') +
-				(pr.name ? this._getBox('noName') : '') +
-				(pr.subj ? this._getBox('noSubj') : '') : '' }
+			${ postform.rules || postform.passw || postform.name ? Lng.hide[lang] +
+				(postform.rules ? this._getBox('noBoardRule') : '') +
+				(postform.passw ? this._getBox('noPassword') : '') +
+				(postform.name ? this._getBox('noName') : '') +
+				(postform.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
 	},
 
@@ -5038,9 +5047,9 @@ const CfgWindow = {
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
 			${ this._getSel('panelCounter') }<br>
-			${ this._getBox('rePageTitle') }<br>
+			${ this._getBox('rePageTitle', true) }<br>
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
-				${ this._getBox('hideReplies') }<br>
+				${ this._getBox('hideReplies', true) }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('saveScroll') }<br>
 			${ this._getSel('favThrOrder') }<br>
@@ -5082,7 +5091,7 @@ const CfgWindow = {
 	},
 
 	// Creates a label with checkbox for option switching
-	_getBox: id => `<label class="de-cfg-label">
+	_getBox: (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
 		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
 	_getInfoTable: (data, needMs) => data.map(val => `<div class="de-info-row">
@@ -5099,9 +5108,9 @@ const CfgWindow = {
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
-		Lng.cfg[id].sel[lang].map((val, i) => `<option value="${ i }">${ val }</option>`).join('')
-	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
+	_getSel  : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
+		<select class="de-cfg-select" info="${ id }">${ Lng.cfg[id].sel[lang].map((val, i) =>
+		`<option value="${ i }">${ val }</option>`).join('') }</select> ${ Lng.cfg[id].txt[lang] }</label>`,
 	// Creates a tab for tab bar
 	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
 	// Switching the dependent inputs according to their parents
@@ -5511,10 +5520,10 @@ const HotKeys = {
 			const globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
-				if(pr.form) {
+				if(postform.form) {
 					post = this.cPost || this._getFirstVisPost(false, true) || Thread.first.op;
 					this.cPost = post;
-					pr.showQuickReply(post, post.num, true, false);
+					postform.showQuickReply(post, post.num, true, false);
 					post.select();
 				}
 				break;
@@ -5533,10 +5542,10 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(el !== pr.txta && el !== pr.cap.textEl) {
+				if(el !== postform.txta && el !== postform.cap.textEl) {
 					return;
 				}
-				pr.subm.click();
+				postform.subm.click();
 				break;
 			case 6: // Open/close "Favorites"
 				toggleWindow('fav', false);
@@ -5560,31 +5569,31 @@ const HotKeys = {
 				}
 				break;
 			case 12: // Bold text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-bold').click();
 				break;
 			case 13: // Italic text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-italic').click();
 				break;
 			case 14: // Strike text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-strike').click();
 				break;
 			case 15: // Spoiler text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-spoil').click();
 				break;
 			case 16: // Code text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-code').click();
@@ -7166,8 +7175,8 @@ const Pages = {
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
 		AttachedImage.closeImg();
-		if(pr.isQuick) {
-			pr.clearForm();
+		if(postform.isQuick) {
+			postform.clearForm();
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
@@ -7218,7 +7227,7 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
-		if(pr.passw) {
+		if(postform.passw) {
 			await PostForm.setUserPassw();
 		}
 		embedPostMsgImages(newForm.el);
@@ -8630,8 +8639,9 @@ class PostForm {
 				ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
 					const form = $q(aib.qForm, loadedDoc);
 					const oeForm = $q(qOeForm, loadedDoc);
-					pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
-				}, () => (pr = new PostForm(null, null, true)));
+					postform = new PostForm(form && doc.adoptNode(form),
+						oeForm && doc.adoptNode(oeForm), true);
+				}, () => (postform = new PostForm(null, null, true)));
 			} else {
 				this.form = null;
 			}
@@ -8700,7 +8710,7 @@ class PostForm {
 		if(el) {
 			await CfgSaver.save('nameValue', el.value);
 		}
-		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
+		postform.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
 	static async setUserPassw() {
 		if(!Cfg.userPassw) {
@@ -8710,7 +8720,7 @@ class PostForm {
 		if(el) {
 			await CfgSaver.save('passwValue', el.value);
 		}
-		const value = pr.passw.value = Cfg.passwValue;
+		const value = postform.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
 			if(passEl) {
 				passEl.value = value;
@@ -8817,7 +8827,7 @@ class PostForm {
 			KeyEditListener.setTitle(el, key);
 			return;
 		}
-		const txtaEl = pr.txta;
+		const txtaEl = postform.txta;
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {
@@ -9224,11 +9234,11 @@ function getSubmitError(dc) {
 }
 
 function showSubmitError(error) {
-	if(pr.isQuick) {
-		pr.setReply(true, false);
+	if(postform.isQuick) {
+		postform.setReply(true, false);
 	}
 	if(/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-		pr.refreshCap(true);
+		postform.refreshCap(true);
 	}
 	$popup('upload', error.toString());
 	updater.sendErrNotif();
@@ -9262,7 +9272,7 @@ async function checkSubmit(data) {
 		showSubmitError(error);
 		return;
 	}
-	const { tNum } = pr;
+	const { tNum } = postform;
 	if((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
 		MyPosts.set(postNum, tNum || postNum);
 	}
@@ -9276,7 +9286,7 @@ async function checkSubmit(data) {
 			sesStorage['de-fav-newthr'] = JSON.stringify({ num: postNum, date: Date.now() });
 		}
 	}
-	pr.clearForm();
+	postform.clearForm();
 	DollchanAPI.notify('submitform', { success: true, num: postNum });
 	const statsParam = tNum ? 'reply' : 'op';
 	Cfg.stats[statsParam]++;
@@ -9308,8 +9318,8 @@ async function checkSubmit(data) {
 	} else {
 		pByNum.get(tNum).thr.loadPosts('new', false, false).then(() => closePopup('upload'));
 	}
-	pr.closeReply();
-	pr.refreshCap();
+	postform.closeReply();
+	postform.refreshCap();
 }
 
 async function checkDelete(data) {
@@ -10491,21 +10501,22 @@ class AbstractPost {
 						this._getFullMsg(temp, false);
 						e.preventDefault();
 						e.stopPropagation();
-					} else if(Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) &&
+					} else if(Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) &&
 						!/Reply|Ответ/.test(el.textContent)
 					) { // Click on post number link - show quick reply or redirect with an #anchor
 						e.preventDefault();
 						e.stopPropagation();
 						if(!Cfg.showRepBtn) {
 							quotedText = deWindow.getSelection().toString();
-							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+							postform.showQuickReply(isPview ? Pview.topParent : this,
+								this.num, !isPview, false);
 							quotedText = '';
-						} else if(pr.isQuick || aib.t && pr.isHidden) {
-							pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
+						} else if(postform.isQuick || aib.t && postform.isHidden) {
+							postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
 						} else if(aib.t) {
-							const formText = pr.txta.value;
+							const formText = postform.txta.value;
 							const isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-							insertText(pr.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
+							insertText(postform.txta, `>>${ this.num }${ isOnNewLine ? '\n' : '' }`);
 						} else {
 							deWindow.location.assign(el.href.replace(/#i/, '#'));
 						}
@@ -10583,10 +10594,10 @@ class AbstractPost {
 			case 'de-btn-unhide-user': this.setUserVisib(!this.isHidden); return;
 			case 'de-btn-img':
 				quotedText = aib.getImgRealName(aib.getImgWrap(el));
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				return;
 			case 'de-btn-reply':
-				pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+				postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
 				quotedText = '';
 				return;
 			case 'de-btn-sage': /* await */ Spells.addSpell(9, '', false); return;
@@ -10844,7 +10855,7 @@ class AbstractPost {
 		}
 		case 'post-reply': {
 			const isPview = this instanceof Pview;
-			pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+			postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
 			quotedText = '';
 			return;
 		}
@@ -13846,7 +13857,7 @@ class Thread {
 				oldCoord = nextThr?.top;
 				this.op.setUserVisib(!this.isHidden);
 				break;
-			case 'de-btn-reply': pr.showQuickReply(this.last, this.num, false, false, true); break;
+			case 'de-btn-reply': postform.showQuickReply(this.last, this.num, false, false, true); break;
 			case 'de-btn-replies':
 			case 'de-replies-show':
 			case 'de-replies-hide':
@@ -14153,11 +14164,11 @@ class Thread {
 		closePopup('load-thr');
 	}
 	_loadNewFromBuilder(pBuilder) {
-		const lastOffset = pr.isVisible ? pr.top : null;
+		const lastOffset = postform.isVisible ? postform.top : null;
 		const [newPosts, newVisPosts] = this._parsePosts(pBuilder);
 		this._moveBtnsToEnd();
 		if(lastOffset !== null) {
-			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
+			scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
 		}
 		if(newPosts !== 0 || Panel.isNew) {
 			Panel.updateCounter(
@@ -15099,7 +15110,7 @@ class DelForm {
 				el.onsubmit = e => e.preventDefault();
 				delBtn.onclick = e => {
 					e.preventDefault();
-					pr.closeReply();
+					postform.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete)
 						.catch(err => $popup('delete', getErrorMessage(err)));
@@ -15799,7 +15810,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		async changeReplyMode(form, tNum) {
 			if(!this._origInputs && !$q('input[name="hash"]', form)) {
 				// Board without antibot protection
-				pr.subm.value = Lng.reply[lang];
+				postform.subm.value = Lng.reply[lang];
 				const pageInp = $q('input[name="page"]', form);
 				if(tNum) {
 					$del(pageInp);
@@ -15813,11 +15824,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				'input[type="hidden"]:not(.de-input-hidden)';
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
-				this._origInputs = [doc.createElement('div'), pr.subm.value];
+				this._origInputs = [doc.createElement('div'), postform.subm.value];
 				$Q(query, form).forEach(el => this._origInputs[0].append(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
-				pr.subm.value = this._origInputs[1];
+				postform.subm.value = this._origInputs[1];
 				$delAll(query, form);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
@@ -15826,7 +15837,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			// Post reply mode. Loading a thread with a form that contains the correct hidden fields.
 			const errFn = () => {
 				$popup('load-form', Lng.errFormLoad[lang]);
-				pr.closeReply();
+				postform.closeReply();
 			};
 			$popup('load-form', Lng.loading[lang], true);
 			await ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(loadedDoc => {
@@ -15835,7 +15846,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					errFn();
 					return;
 				}
-				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
+				postform.subm.value = $q(this.qFormSubm, loadedDoc).value;
 				$delAll(query, form);
 				$Q(query, loadedForm).forEach(el => form.append(doc.adoptNode(el)));
 				closePopup('load-form');
@@ -16450,7 +16461,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					data = JSON.parse(data);
 				} catch(err) {}
 				if(cap.isSubmitWait && data.result !== 1) {
-					pr.subm.click();
+					postform.subm.click();
 				}
 				switch(data.result) {
 				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
@@ -16659,7 +16670,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.captchaUpdate(cap);
 		}
 		captchaUpdate(cap) {
-			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + postform.tNum;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha');
 				let data = xhr.responseText;
@@ -17462,8 +17473,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					e.preventDefault();
 				}
 			};
-			if(pr.isQuick) {
-				pr.setReply(true, false);
+			if(postform.isQuick) {
+				postform.setReply(true, false);
 			}
 			updater.sendErrNotif();
 			updater.continueUpdater();
@@ -18274,6 +18285,7 @@ function scriptCSS() {
 	input[type="text"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }
 	.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }
 	.de-cfg-label { padding: 0; margin: 0; }
+	.de-cfg-needreload::after  { content: "* "; color: red; }
 	.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }
 	.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
 	.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }
@@ -18339,7 +18351,7 @@ function scriptCSS() {
 	/* Post panel */
 	.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }
 	.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }${
-	!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '' }
+	!postform.form && !postform.oeForm ? '.de-btn-reply { display: none; }' : '' }
 	.de-btn-img { vertical-align: top; }
 	.de-post-btns { margin-left: 4px; }
 	.de-post-btns-back { fill: inherit; stroke: none; }
@@ -18766,7 +18778,7 @@ async function runMain(checkDomains, dataPromise) {
 			deWindow.location.reload();
 		}
 	}
-	pr = new PostForm($q(aib.qForm));
+	postform = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enableHotKeys();

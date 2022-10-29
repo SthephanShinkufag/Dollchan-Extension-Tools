@@ -67,8 +67,8 @@ const Pages = {
 		pByNum = new Map();
 		Post.hiddenNums = new Set();
 		AttachedImage.closeImg();
-		if(pr.isQuick) {
-			pr.clearForm();
+		if(postform.isQuick) {
+			postform.clearForm();
 		}
 		DelForm.tNums = new Set();
 		for(const form of DelForm) {
@@ -119,7 +119,7 @@ const Pages = {
 	},
 	async _updateForms(newForm) {
 		readPostsData(newForm.firstThr.op, await readFavorites());
-		if(pr.passw) {
+		if(postform.passw) {
 			await PostForm.setUserPassw();
 		}
 		embedPostMsgImages(newForm.el);

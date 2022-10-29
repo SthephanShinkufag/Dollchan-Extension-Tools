@@ -96,7 +96,7 @@ function getImageBoard(checkDomains, checkEngines) {
 		async changeReplyMode(form, tNum) {
 			if(!this._origInputs && !$q('input[name="hash"]', form)) {
 				// Board without antibot protection
-				pr.subm.value = Lng.reply[lang];
+				postform.subm.value = Lng.reply[lang];
 				const pageInp = $q('input[name="page"]', form);
 				if(tNum) {
 					$del(pageInp);
@@ -110,11 +110,11 @@ function getImageBoard(checkDomains, checkEngines) {
 				'input[type="hidden"]:not(.de-input-hidden)';
 			if(!$q('input[name="thread"]', form)) {
 				// Switching from the thread creation to post reply mode occurs. Saving the original fields.
-				this._origInputs = [doc.createElement('div'), pr.subm.value];
+				this._origInputs = [doc.createElement('div'), postform.subm.value];
 				$Q(query, form).forEach(el => this._origInputs[0].append(el));
 			} else if(!tNum) {
 				// Switching from the post reply to thread creation occurs. Restoring the original fields.
-				pr.subm.value = this._origInputs[1];
+				postform.subm.value = this._origInputs[1];
 				$delAll(query, form);
 				form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
 				this._origInputs = null;
@@ -123,7 +123,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			// Post reply mode. Loading a thread with a form that contains the correct hidden fields.
 			const errFn = () => {
 				$popup('load-form', Lng.errFormLoad[lang]);
-				pr.closeReply();
+				postform.closeReply();
 			};
 			$popup('load-form', Lng.loading[lang], true);
 			await ajaxLoad(aib.getThrUrl(this.b, tNum), false).then(loadedDoc => {
@@ -132,7 +132,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					errFn();
 					return;
 				}
-				pr.subm.value = $q(this.qFormSubm, loadedDoc).value;
+				postform.subm.value = $q(this.qFormSubm, loadedDoc).value;
 				$delAll(query, form);
 				$Q(query, loadedForm).forEach(el => form.append(doc.adoptNode(el)));
 				closePopup('load-form');
@@ -747,7 +747,7 @@ function getImageBoard(checkDomains, checkEngines) {
 					data = JSON.parse(data);
 				} catch(err) {}
 				if(cap.isSubmitWait && data.result !== 1) {
-					pr.subm.click();
+					postform.subm.click();
 				}
 				switch(data.result) {
 				case 0: box.textContent = 'Пасскод недействителен. Перелогиньтесь.'; break;
@@ -956,7 +956,7 @@ function getImageBoard(checkDomains, checkEngines) {
 			return this.captchaUpdate(cap);
 		}
 		captchaUpdate(cap) {
-			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + pr.tNum;
+			const url = `/api/captcha/service_id?board=${ this.b }&thread=` + postform.tNum;
 			return cap.updateHelper(url, xhr => {
 				const box = $q('.captcha');
 				let data = xhr.responseText;
@@ -1759,8 +1759,8 @@ function getImageBoard(checkDomains, checkEngines) {
 					e.preventDefault();
 				}
 			};
-			if(pr.isQuick) {
-				pr.setReply(true, false);
+			if(postform.isQuick) {
+				postform.setReply(true, false);
 			}
 			updater.sendErrNotif();
 			updater.continueUpdater();

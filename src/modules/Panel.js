@@ -7,7 +7,7 @@ const Panel = Object.create({
 	initPanel(formEl) {
 		const imgLen = $Q(aib.qPostImg, formEl).length;
 		const isThr = aib.t;
-		(pr?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
+		(postform?.pArea[0] || formEl).insertAdjacentHTML('beforebegin', `<div id="de-main">
 			<div id="de-panel">
 				<div id="de-panel-logo" title="${ Lng.panelBtn.attach[lang] }">
 					<svg class="de-panel-logo-svg">

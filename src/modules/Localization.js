@@ -3,7 +3,12 @@
 =========================================================================================================== */
 
 const Lng = {
-	// "Settings" window: tab names
+	// Settings window: tooltips
+	cfgNeedReload: [
+		'Для применения необходима перезагрузка',
+		'Reboot required to apply',
+		'Для застосування необхідне перезавантаження'],
+	// Settings window: tab names
 	cfgTab: {
 		filters : ['Фильтры', 'Filters', 'Фільтри'],
 		posts   : ['Посты', 'Posts', 'Пости'],
@@ -13,7 +18,7 @@ const Lng = {
 		common  : ['Общее', 'Common', 'Спільне'],
 		info    : ['Инфо', 'Info', 'Інфо']
 	},
-	// "Settings" window: options
+	// Settings window: options
 	cfg: {
 		language: {
 			sel : [['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua'], ['Ru', 'En', 'Ua']],
@@ -82,9 +87,9 @@ const Lng = {
 			'Highlight my own posts',
 			'Виділяти кольором мої пости'],
 		expandTrunc: [
-			'Авторазворот сокращенных постов*',
-			'Autoexpand truncated posts*',
-			'Авторозгортання скорочених постів*'],
+			'Авторазворот сокращенных постов',
+			'Autoexpand truncated posts',
+			'Авторозгортання скорочених постів'],
 		widePosts: [
 			'Растягивать посты по ширине экрана',
 			'Stretch posts to page width',
@@ -149,9 +154,9 @@ const Lng = {
 			'Hide poster names',
 			'Ховати імена в постах'],
 		correctTime: [
-			'Коррекция времени в постах* ',
-			'Time correction in posts* ',
-			'Корекція часу в постах* '],
+			'Коррекция времени в постах',
+			'Time correction in posts',
+			'Корекція часу в постах'],
 		timeOffset: [
 			'разница (ч) ',
 			'time offset (h) ',
@@ -232,23 +237,23 @@ const Lng = {
 				['Disable', 'All', 'Non-WebM'],
 				['Вимк.', 'Всі', 'Крім WebM']],
 			txt: [
-				'Предварительно загружать картинки*',
-				'Preload images*',
-				'Наперед завантажувати зображення*']
+				'Предварительно загружать картинки',
+				'Preload images',
+				'Наперед завантажувати зображення']
 		},
 		findImgFile: [
-			'Распознавать файлы, встроенные в картинках*',
-			'Detect embedded files in images*',
-			'Розпізнавати файли, що вбудовані в зображення*'],
+			'Распознавать файлы, встроенные в картинках',
+			'Detect embedded files in images',
+			'Розпізнавати файли, що вбудовані в зображення'],
 		openImgs: {
 			sel: [
 				['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'],
 				['Disable', 'All types', 'Only GIF', 'Non-GIF'],
 				['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
 			txt: [
-				'Заменять тамбнейлы на оригиналы*',
-				'Replace thumbnails with original images*',
-				'Замінювати зображення на оригінали*']
+				'Заменять тамбнейлы на оригиналы',
+				'Replace thumbnails with original images',
+				'Замінювати зображення на оригінали']
 		},
 		imgSrcBtns: [
 			'Добавлять кнопки "Поиск" для картинок',
@@ -271,9 +276,9 @@ const Lng = {
 
 		// "Links" tab
 		linksNavig: [
-			'Навигация постов по >>ссылкам* ',
-			'Posts navigation by >>links* ',
-			'Навігація постів по >>посиланнях* '],
+			'Навигация постов по >>ссылкам',
+			'Posts navigation by >>links',
+			'Навігація постів по >>посиланнях'],
 		linksOver: [
 			'Появление ',
 			'Appearance ',
@@ -303,51 +308,51 @@ const Lng = {
 			'Mark links to my posts with (You)',
 			'Позначати посилання на мої пости як (You)'],
 		crossLinks: [
-			'Заменять http:// на >>/b/ссылки*',
-			'Replace http:// with >>/b/links*',
-			'Замінювати https:// на >>/b/посилання*'],
+			'Заменять http:// на >>/b/ссылки',
+			'Replace http:// with >>/b/links',
+			'Замінювати https:// на >>/b/посилання'],
 		decodeLinks: [
-			'Декодировать %D0%A5%D1 в ссылках*',
-			'Decode %D0%A5%D1 in links*',
-			'Декодувати %D0%A5%D1 в посиланнях*'],
+			'Декодировать %D0%A5%D1 в ссылках',
+			'Decode %D0%A5%D1 in links',
+			'Декодувати %D0%A5%D1 в посиланнях'],
 		insertNum: [
-			'Вставлять >>ссылку по клику на №поста*',
-			'Insert >>link on №postnumber click*',
-			'Вставляти >>посилання на клік по №посту*'],
+			'Вставлять >>ссылку по клику на №поста',
+			'Insert >>link on №postnumber click',
+			'Вставляти >>посилання на клік по №посту'],
 		addOPLink: [
 			'>>ссылка при ответе на OP в списке тредов',
 			'Insert >>link when replying to OP on threads list',
 			'>>посилання при відповіді на OP у списці тредів'],
 		addImgs: [
-			'Загружать картинки к jpg/png/gif ссылкам*',
-			'Load images for jpg/png/gif links*',
-			'Додавати зображення до jpg/png/gif посилань*'],
+			'Загружать картинки к jpg/png/gif ссылкам',
+			'Load images for jpg/png/gif links',
+			'Додавати зображення до jpg/png/gif посилань'],
 		addMP3: [
-			'Плеер к mp3 ссылкам* ',
-			'Player for mp3 links* ',
-			'Плеєр до mp3 посилань* '],
+			'Плеер к mp3 ссылкам',
+			'Player for mp3 links',
+			'Плеєр до mp3 посилань'],
 		addVocaroo: [
-			'к Vocaroo ссылкам*',
-			'for Vocaroo links*',
-			'до Vocaroo посилань*'],
+			'к Vocaroo ссылкам',
+			'for Vocaroo links',
+			'до Vocaroo посилань'],
 		addVimeo: [
-			'Добавлять плеер к Vimeo ссылкам*',
-			'Add player for Vimeo links*',
-			'Додавати плеєр до Vimeo посилань*'],
+			'Добавлять плеер к Vimeo ссылкам',
+			'Add player for Vimeo links',
+			'Додавати плеєр до Vimeo посилань'],
 		embedYTube: {
 			sel: [
 				['Ничего', 'Превью+плеер', 'Плеер по клику'],
 				['Nothing', 'Preview+player', 'On click player'],
 				['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
 			txt: [
-				'к YouTube ссылкам* ',
-				'for YouTube links* ',
-				'до YouTube посилань* ']
+				'к YouTube ссылкам',
+				'for YouTube links',
+				'до YouTube посилань']
 		},
 		YTubeTitles: [
-			'Загружать названия к YouTube ссылкам*',
-			'Load titles for YouTube links*',
-			'Отримувати назви до YouTube посилань*'],
+			'Загружать названия к YouTube ссылкам',
+			'Load titles for YouTube links',
+			'Отримувати назви до YouTube посилань'],
 		ytApiKey: [
 			'Ключ YT API*',
 			'YT API Key*',
@@ -355,9 +360,9 @@ const Lng = {
 
 		// "Form" tab
 		ajaxPosting: [
-			'Отправка постов без перезагрузки*',
-			'Posting without page refresh*',
-			'Постування без оновлення сторінки*'],
+			'Отправка постов без перезагрузки',
+			'Posting without page refresh',
+			'Постування без оновлення сторінки'],
 		postSameImg: [
 			'Возможность отправки одинаковых картинок',
 			'Ability to post duplicate images',
@@ -519,17 +524,17 @@ const Lng = {
 				'Лічильник постів/зображень в треді']
 		},
 		rePageTitle: [
-			'Название треда в заголовке вкладки*',
-			'Show thread title in the page tab*',
-			'Назва треду в заголовку вкладки*'],
+			'Название треда в заголовке вкладки',
+			'Show thread title in the page tab',
+			'Назва треду в заголовку вкладки'],
 		inftyScroll: [
 			'Бесконечная прокрутка страниц',
 			'Infinite scrolling for pages',
 			'Нескінченна прокрутка сторінок'],
 		hideReplies: [
-			'Показывать только OP в списке тредов*',
-			'Show only OP in threads list*',
-			'Показувати лише OP в списку тредів*'],
+			'Показывать только OP в списке тредов',
+			'Show only OP in threads list',
+			'Показувати лише OP в списку тредів'],
 		scrollToTop: [
 			'Всегда перемещаться вверх в списке тредов',
 			'Always scroll to top in the threads list',

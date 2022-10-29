@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '503799e';
+  var commit = 'd40eb8f';
 
   var defaultCfg = {
     disabled: 0,
@@ -7291,6 +7291,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   };
 
   var Lng = {
+    cfgNeedReload: ['Для применения необходима перезагрузка', 'Reboot required to apply', 'Для застосування необхідне перезавантаження'],
     cfgTab: {
       filters: ['Фильтры', 'Filters', 'Фільтри'],
       posts: ['Посты', 'Posts', 'Пости'],
@@ -7321,7 +7322,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       markNewPosts: ['Выделять цветом новые посты', 'Highlight new posts with color', 'Виділяти кольором нові пости'],
       useDobrAPI: ['dobrochan: использовать JSON API', 'dobrochan: use JSON API', 'dobrochan: використовувати JSON API'],
       markMyPosts: ['Выделять цветом мои посты', 'Highlight my own posts', 'Виділяти кольором мої пости'],
-      expandTrunc: ['Авторазворот сокращенных постов*', 'Autoexpand truncated posts*', 'Авторозгортання скорочених постів*'],
+      expandTrunc: ['Авторазворот сокращенных постов', 'Autoexpand truncated posts', 'Авторозгортання скорочених постів'],
       widePosts: ['Растягивать посты по ширине экрана', 'Stretch posts to page width', 'Розтягувати пости на ширину екрану'],
       limitPostMsg: ['Ограничение ширины текста в постах (px)', 'Limit text width in posts messages (px)', 'Обмеження ширини тексту в постах (px)'],
       thrBtns: {
@@ -7345,7 +7346,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         txt: ['Раскрытие текстовых спойлеров', 'Text spoilers expansion', 'Розкриття текстових спойлерів']
       },
       noPostNames: ['Скрывать имена в постах', 'Hide poster names', 'Ховати імена в постах'],
-      correctTime: ['Коррекция времени в постах* ', 'Time correction in posts* ', 'Корекція часу в постах* '],
+      correctTime: ['Коррекция времени в постах', 'Time correction in posts', 'Корекція часу в постах'],
       timeOffset: ['разница (ч) ', 'time offset (h) ', 'різниця (год) '],
       timePattern: ['Шаблон поиска', 'Search pattern', 'Шаблон пошуку'],
       timeRPattern: ['Шаблон замены', 'Replace pattern', 'Шаблон заміни'],
@@ -7369,12 +7370,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       minWebmWidth: ['Минимальная ширина WebM (px)', 'Minimal width for WebM (px)', 'Мінімальна ширина WebM (px)'],
       preLoadImgs: {
         sel: [['Откл.', 'Все', 'Без WebM'], ['Disable', 'All', 'Non-WebM'], ['Вимк.', 'Всі', 'Крім WebM']],
-        txt: ['Предварительно загружать картинки*', 'Preload images*', 'Наперед завантажувати зображення*']
+        txt: ['Предварительно загружать картинки', 'Preload images', 'Наперед завантажувати зображення']
       },
-      findImgFile: ['Распознавать файлы, встроенные в картинках*', 'Detect embedded files in images*', 'Розпізнавати файли, що вбудовані в зображення*'],
+      findImgFile: ['Распознавать файлы, встроенные в картинках', 'Detect embedded files in images', 'Розпізнавати файли, що вбудовані в зображення'],
       openImgs: {
         sel: [['Откл.', 'Все подряд', 'Только GIF', 'Кроме GIF'], ['Disable', 'All types', 'Only GIF', 'Non-GIF'], ['Вимк.', 'Всі', 'Лише GIF', 'Крім GIF']],
-        txt: ['Заменять тамбнейлы на оригиналы*', 'Replace thumbnails with original images*', 'Замінювати зображення на оригінали*']
+        txt: ['Заменять тамбнейлы на оригиналы', 'Replace thumbnails with original images', 'Замінювати зображення на оригінали']
       },
       imgSrcBtns: ['Добавлять кнопки "Поиск" для картинок', 'Add "Search" buttons for images', 'Додавати кнопки "Пошук" для зображень'],
       imgNames: {
@@ -7382,7 +7383,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         txt: ['имена картинок', 'filenames', 'імена зображень']
       },
       maskVisib: ['Видимость для NSFW-картинок [0-100%]', 'Visibility for NSFW images [0-100%]', 'Видимість для NSFW-зображень [0-100%]'],
-      linksNavig: ['Навигация постов по >>ссылкам* ', 'Posts navigation by >>links* ', 'Навігація постів по >>посиланнях* '],
+      linksNavig: ['Навигация постов по >>ссылкам', 'Posts navigation by >>links', 'Навігація постів по >>посиланнях'],
       linksOver: ['Появление ', 'Appearance ', 'Поява '],
       linksOut: ['Пропадание (мс)', 'Disappearance (ms)', 'Зникнення (мс)'],
       markViewed: ['Помечать просмотренные посты', 'Mark viewed posts', 'Позначати переглянуті пости'],
@@ -7390,21 +7391,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       removeHidd: ['Также удалять из обратных >>ссылок', 'Also remove from >>backlinks', 'Також видаляти із зворотніх >>посилань'],
       noNavigHidd: ['Не отображать превью для скрытых постов', 'Donʼt show previews for hidden posts', 'Не показувати превʼю до cхованих постів'],
       markMyLinks: ['Помечать ссылки на мои посты как (You)', 'Mark links to my posts with (You)', 'Позначати посилання на мої пости як (You)'],
-      crossLinks: ['Заменять http:// на >>/b/ссылки*', 'Replace http:// with >>/b/links*', 'Замінювати https:// на >>/b/посилання*'],
-      decodeLinks: ['Декодировать %D0%A5%D1 в ссылках*', 'Decode %D0%A5%D1 in links*', 'Декодувати %D0%A5%D1 в посиланнях*'],
-      insertNum: ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*', 'Вставляти >>посилання на клік по №посту*'],
+      crossLinks: ['Заменять http:// на >>/b/ссылки', 'Replace http:// with >>/b/links', 'Замінювати https:// на >>/b/посилання'],
+      decodeLinks: ['Декодировать %D0%A5%D1 в ссылках', 'Decode %D0%A5%D1 in links', 'Декодувати %D0%A5%D1 в посиланнях'],
+      insertNum: ['Вставлять >>ссылку по клику на №поста', 'Insert >>link on №postnumber click', 'Вставляти >>посилання на клік по №посту'],
       addOPLink: ['>>ссылка при ответе на OP в списке тредов', 'Insert >>link when replying to OP on threads list', '>>посилання при відповіді на OP у списці тредів'],
-      addImgs: ['Загружать картинки к jpg/png/gif ссылкам*', 'Load images for jpg/png/gif links*', 'Додавати зображення до jpg/png/gif посилань*'],
-      addMP3: ['Плеер к mp3 ссылкам* ', 'Player for mp3 links* ', 'Плеєр до mp3 посилань* '],
-      addVocaroo: ['к Vocaroo ссылкам*', 'for Vocaroo links*', 'до Vocaroo посилань*'],
-      addVimeo: ['Добавлять плеер к Vimeo ссылкам*', 'Add player for Vimeo links*', 'Додавати плеєр до Vimeo посилань*'],
+      addImgs: ['Загружать картинки к jpg/png/gif ссылкам', 'Load images for jpg/png/gif links', 'Додавати зображення до jpg/png/gif посилань'],
+      addMP3: ['Плеер к mp3 ссылкам', 'Player for mp3 links', 'Плеєр до mp3 посилань'],
+      addVocaroo: ['к Vocaroo ссылкам', 'for Vocaroo links', 'до Vocaroo посилань'],
+      addVimeo: ['Добавлять плеер к Vimeo ссылкам', 'Add player for Vimeo links', 'Додавати плеєр до Vimeo посилань'],
       embedYTube: {
         sel: [['Ничего', 'Превью+плеер', 'Плеер по клику'], ['Nothing', 'Preview+player', 'On click player'], ['Нічого', 'Превʼю+плеєр', 'Плеєр по кліку']],
-        txt: ['к YouTube ссылкам* ', 'for YouTube links* ', 'до YouTube посилань* ']
+        txt: ['к YouTube ссылкам', 'for YouTube links', 'до YouTube посилань']
       },
-      YTubeTitles: ['Загружать названия к YouTube ссылкам*', 'Load titles for YouTube links*', 'Отримувати назви до YouTube посилань*'],
+      YTubeTitles: ['Загружать названия к YouTube ссылкам', 'Load titles for YouTube links', 'Отримувати назви до YouTube посилань'],
       ytApiKey: ['Ключ YT API*', 'YT API Key*', 'Ключ YT API*'],
-      ajaxPosting: ['Отправка постов без перезагрузки*', 'Posting without page refresh*', 'Постування без оновлення сторінки*'],
+      ajaxPosting: ['Отправка постов без перезагрузки', 'Posting without page refresh', 'Постування без оновлення сторінки'],
       postSameImg: ['Возможность отправки одинаковых картинок', 'Ability to post duplicate images', 'Можливість надсилання однакових зображень'],
       removeEXIF: ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG ', 'Видаляти EXIF з JPEG '],
       removeFName: {
@@ -7455,9 +7456,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         sel: [['Откл.', 'Все посты', 'Без скрытых'], ['Disabled', 'All posts', 'Except hidden'], ['Вимкн.', 'Усі пости', 'Крім схованих']],
         txt: ['Счетчик постов/картинок в треде', 'Сounter for posts/images in thread', 'Лічильник постів/зображень в треді']
       },
-      rePageTitle: ['Название треда в заголовке вкладки*', 'Show thread title in the page tab*', 'Назва треду в заголовку вкладки*'],
+      rePageTitle: ['Название треда в заголовке вкладки', 'Show thread title in the page tab', 'Назва треду в заголовку вкладки'],
       inftyScroll: ['Бесконечная прокрутка страниц', 'Infinite scrolling for pages', 'Нескінченна прокрутка сторінок'],
-      hideReplies: ['Показывать только OP в списке тредов*', 'Show only OP in threads list*', 'Показувати лише OP в списку тредів*'],
+      hideReplies: ['Показывать только OP в списке тредов', 'Show only OP in threads list', 'Показувати лише OP в списку тредів'],
       scrollToTop: ['Всегда перемещаться вверх в списке тредов', 'Always scroll to top in the threads list', 'Завжди гортати догори в списку тредів'],
       saveScroll: ['Запоминать позицию скролла в тредах', 'Remember the scroll position in threads', 'Пам`ятати позицію скролла в тредах'],
       favThrOrder: {
@@ -7759,7 +7760,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var aProto = Array.prototype;
   var gitWiki = 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/';
   var gitRaw = 'https://raw.githubusercontent.com/SthephanShinkufag/Dollchan-Extension-Tools/master/';
-  var aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, pr, sesStorage, updater;
+  var aib, Cfg, docBody, dTime, dummy, isExpImg, isPreImg, lang, locStorage, nav, needScroll, pByEl, pByNum, postform, sesStorage, updater;
   var quotedText = '';
   var visPosts = 2;
   var topWinZ = 10;
@@ -9839,12 +9840,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var Panel = Object.create({
     isVidEnabled: false,
     initPanel: function initPanel(formEl) {
-      var _pr,
+      var _postform,
           _this12 = this;
 
       var imgLen = $Q(aib.qPostImg, formEl).length;
       var isThr = aib.t;
-      (((_pr = pr) === null || _pr === void 0 ? void 0 : _pr.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-pcount\" title=\"" + "".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang], "\">") + "".concat(Thread.first.pcount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-icount\" title=\"").concat(Lng.panelBtn.imglen[lang], "\">").concat(imgLen, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-acount\" title=\"").concat(Lng.panelBtn.posters[lang], "\"></span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
+      (((_postform = postform) === null || _postform === void 0 ? void 0 : _postform.pArea[0]) || formEl).insertAdjacentHTML('beforebegin', "<div id=\"de-main\">\n\t\t\t<div id=\"de-panel\">\n\t\t\t\t<div id=\"de-panel-logo\" title=\"".concat(Lng.panelBtn.attach[lang], "\">\n\t\t\t\t\t<svg class=\"de-panel-logo-svg\">\n\t\t\t\t\t\t<use xlink:href=\"#de-symbol-panel-logo\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<span id=\"de-panel-buttons\"").concat(!Cfg.expandPanel ? ' style="display: none;"' : '', ">\n\t\t\t\t").concat(Cfg.disabled ? this._getButton('enable') : this._getButton('cfg') + this._getButton('hid') + this._getButton('fav') + (Cfg.embedYTube ? this._getButton('vid') : '') + (!localData ? this._getButton('refresh') + (isThr || aib.page !== aib.firstPage ? this._getButton('goback') : '') + (!isThr && aib.page !== aib.lastPage ? this._getButton('gonext') : '') : '') + this._getButton('goup') + this._getButton('godown') + (imgLen ? this._getButton('expimg') + this._getButton('maskimg') : '') + (!localData && !nav.isPresto ? (imgLen && !Cfg.preLoadImgs ? this._getButton('preimg') : '') + (isThr ? this._getButton('savethr') : '') : '') + (!localData && isThr ? this._getButton(Cfg.ajaxUpdThr && !aib.isArchived ? 'upd-on' : 'upd-off') + (!nav.isSafari ? this._getButton('audio-off') : '') : '') + (aib.hasCatalog ? this._getButton('catalog') : '') + this._getButton('enable') + (isThr && Thread.first ? "<span id=\"de-panel-info\">\n\t\t\t\t\t\t<span id=\"de-panel-info-pcount\" title=\"" + "".concat(Lng.panelBtn[Cfg.panelCounter !== 2 ? 'pcount' : 'pcountNotHid'][lang], "\">") + "".concat(Thread.first.pcount, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-icount\" title=\"").concat(Lng.panelBtn.imglen[lang], "\">").concat(imgLen, "</span>\n\t\t\t\t\t\t<span id=\"de-panel-info-acount\" title=\"").concat(Lng.panelBtn.posters[lang], "\"></span>\n\t\t\t\t\t</span>") : ''), "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t\t").concat(Cfg.disabled ? '' : '<div id="de-wrapper-popup"></div><hr style="clear: both;">', "\n\t\t</div>"));
       this._el = $id('de-panel');
 
       this._el.addEventListener('click', this, true);
@@ -11553,7 +11554,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return body.addEventListener(e, _this18);
       }); 
 
-      var div = $bEnd(body, "<div id=\"de-cfg-bar\">".concat(this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (pr.form || pr.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info'), "</div><div id=\"de-cfg-buttons\">").concat(this._getSel('language'), "</div>")); 
+      var div = $bEnd(body, "<div id=\"de-cfg-bar\">".concat(this._getTab('filters') + this._getTab('posts') + this._getTab('images') + this._getTab('links') + (postform.form || postform.oeForm ? this._getTab('form') : '') + this._getTab('common') + this._getTab('info'), "</div><div id=\"de-cfg-buttons\">").concat(this._getSel('language'), "</div>")); 
 
       this._clickTab(Cfg.cfgTab);
 
@@ -11892,7 +11893,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this19 = this;
 
       return _asyncToGenerator( _regeneratorRuntime().mark(function _callee17() {
-        var type, el, tag, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
+        var type, el, tag, classList, info, _info, isHide, post, _iterator4, _step4, _el3, _info2, _post3, img, _iterator5, _step5, _el4, perf, arr, i, len, _info3, isCheck, val;
 
         return _regeneratorRuntime().wrap(function _callee17$(_context19) {
           while (1) {
@@ -11900,9 +11901,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 type = e.type, el = e.target;
                 tag = el.tagName.toLowerCase();
+                classList = el.classList;
 
-                if (!(type === 'click' && tag === 'div' && el.classList.contains('de-cfg-tab'))) {
-                  _context19.next = 7;
+                if (type === 'mouseover' && classList.contains('de-cfg-needreload') && !el.title) {
+                  el.title = Lng.cfgNeedReload[lang];
+                }
+
+                if (!(type === 'click' && tag === 'div' && classList.contains('de-cfg-tab'))) {
+                  _context19.next = 9;
                   break;
                 }
 
@@ -11910,38 +11916,38 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 _this19._clickTab(info);
 
-                _context19.next = 7;
+                _context19.next = 9;
                 return CfgSaver.save('cfgTab', info);
 
-              case 7:
+              case 9:
                 if (!(type === 'change' && tag === 'select')) {
-                  _context19.next = 49;
+                  _context19.next = 51;
                   break;
                 }
 
                 _info = el.getAttribute('info');
-                _context19.next = 11;
+                _context19.next = 13;
                 return CfgSaver.save(_info, el.selectedIndex);
 
-              case 11:
+              case 13:
                 _this19._updateDependant();
 
                 _context19.t0 = _info;
-                _context19.next = _context19.t0 === 'language' ? 15 : _context19.t0 === 'delHiddPost' ? 22 : _context19.t0 === 'postBtnsCSS' ? 26 : _context19.t0 === 'thrBtns' ? 29 : _context19.t0 === 'noSpoilers' ? 29 : _context19.t0 === 'resizeImgs' ? 29 : _context19.t0 === 'expandImgs' ? 31 : _context19.t0 === 'imgNames' ? 34 : _context19.t0 === 'fileInputs' ? 37 : _context19.t0 === 'addPostForm' ? 41 : _context19.t0 === 'addTextBtns' ? 44 : _context19.t0 === 'scriptStyle' ? 45 : _context19.t0 === 'panelCounter' ? 45 : _context19.t0 === 'favThrOrder' ? 47 : 48;
+                _context19.next = _context19.t0 === 'language' ? 17 : _context19.t0 === 'delHiddPost' ? 24 : _context19.t0 === 'postBtnsCSS' ? 28 : _context19.t0 === 'thrBtns' ? 31 : _context19.t0 === 'noSpoilers' ? 31 : _context19.t0 === 'resizeImgs' ? 31 : _context19.t0 === 'expandImgs' ? 33 : _context19.t0 === 'imgNames' ? 36 : _context19.t0 === 'fileInputs' ? 39 : _context19.t0 === 'addPostForm' ? 43 : _context19.t0 === 'addTextBtns' ? 46 : _context19.t0 === 'scriptStyle' ? 47 : _context19.t0 === 'panelCounter' ? 47 : _context19.t0 === 'favThrOrder' ? 49 : 50;
                 break;
 
-              case 15:
+              case 17:
                 lang = el.selectedIndex;
                 Panel.removeMain();
 
-                if (pr.form) {
-                  pr.addMarkupPanel();
-                  pr.setPlaceholders();
-                  pr.updateLanguage();
-                  aib.updateSubmitBtn(pr.subm);
+                if (postform.form) {
+                  postform.addMarkupPanel();
+                  postform.setPlaceholders();
+                  postform.updateLanguage();
+                  aib.updateSubmitBtn(postform.subm);
 
-                  if (pr.files) {
-                    $Q('.de-file-img, .de-file-txt-input', pr.form).forEach(function (el) {
+                  if (postform.files) {
+                    $Q('.de-file-img, .de-file-txt-input', postform.form).forEach(function (el) {
                       return el.title = Lng.youCanDrag[lang];
                     });
                   }
@@ -11951,9 +11957,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 Panel.initPanel(DelForm.first.el);
                 toggleWindow('cfg', false);
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
-              case 22:
+              case 24:
                 isHide = Cfg.delHiddPost === 1 || Cfg.delHiddPost === 2;
 
                 for (post = Thread.first.op; post; post = post.next) {
@@ -11963,9 +11969,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
-              case 26:
+              case 28:
                 updateCSS();
 
                 if (nav.isPresto) {
@@ -11973,18 +11979,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   addSVGIcons();
                 }
 
-                return _context19.abrupt("break", 48);
-
-              case 29:
-                updateCSS();
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
               case 31:
                 updateCSS();
-                AttachedImage.closeImg();
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
-              case 34:
+              case 33:
+                updateCSS();
+                AttachedImage.closeImg();
+                return _context19.abrupt("break", 50);
+
+              case 36:
                 if (Cfg.imgNames) {
                   for (_iterator4 = _createForOfIteratorHelperLoose(DelForm); !(_step4 = _iterator4()).done;) {
                     _el3 = _step4.value.el;
@@ -11997,78 +12003,78 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
-              case 37:
-                pr.files.changeMode();
-                pr.setPlaceholders();
+              case 39:
+                postform.files.changeMode();
+                postform.setPlaceholders();
                 updateCSS();
-                return _context19.abrupt("break", 48);
+                return _context19.abrupt("break", 50);
 
-              case 41:
-                pr.isBottom = Cfg.addPostForm === 1;
-                pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
-                return _context19.abrupt("break", 48);
+              case 43:
+                postform.isBottom = Cfg.addPostForm === 1;
+                postform.setReply(false, !aib.t || Cfg.addPostForm > 1);
+                return _context19.abrupt("break", 50);
 
-              case 44:
-                pr.addMarkupPanel();
-
-              case 45:
-                _this19._updateCSS();
-
-                return _context19.abrupt("break", 48);
+              case 46:
+                postform.addMarkupPanel();
 
               case 47:
+                _this19._updateCSS();
+
+                return _context19.abrupt("break", 50);
+
+              case 49:
                 readFavorites().then(function (favObj) {
                   var body = $q('#de-win-fav > .de-win-body');
                   body.innerHTML = '';
                   showFavoritesWindow(body, favObj);
                 });
 
-              case 48:
+              case 50:
                 return _context19.abrupt("return");
 
-              case 49:
+              case 51:
                 if (!(type === 'click' && tag === 'input' && el.type === 'checkbox')) {
-                  _context19.next = 115;
+                  _context19.next = 117;
                   break;
                 }
 
                 _info2 = el.getAttribute('info');
-                _context19.next = 53;
+                _context19.next = 55;
                 return toggleCfg(_info2);
 
-              case 53:
+              case 55:
                 _this19._updateDependant();
 
                 _context19.t1 = _info2;
-                _context19.next = _context19.t1 === 'expandTrunc' ? 57 : _context19.t1 === 'widePosts' ? 57 : _context19.t1 === 'showHideBtn' ? 57 : _context19.t1 === 'showRepBtn' ? 57 : _context19.t1 === 'noPostNames' ? 57 : _context19.t1 === 'imgNavBtns' ? 57 : _context19.t1 === 'strikeHidd' ? 57 : _context19.t1 === 'removeHidd' ? 57 : _context19.t1 === 'noBoardRule' ? 57 : _context19.t1 === 'userCSS' ? 57 : _context19.t1 === 'hideBySpell' ? 59 : _context19.t1 === 'sortSpells' ? 62 : _context19.t1 === 'hideRefPsts' ? 66 : _context19.t1 === 'ajaxUpdThr' ? 68 : _context19.t1 === 'updCount' ? 70 : _context19.t1 === 'desktNotif' ? 72 : _context19.t1 === 'markNewPosts' ? 74 : _context19.t1 === 'useDobrAPI' ? 76 : _context19.t1 === 'markMyPosts' ? 78 : _context19.t1 === 'markMyLinks' ? 78 : _context19.t1 === 'correctTime' ? 81 : _context19.t1 === 'imgInfoLink' ? 84 : _context19.t1 === 'imgSrcBtns' ? 88 : _context19.t1 === 'addSageBtn' ? 90 : _context19.t1 === 'altCaptcha' ? 94 : _context19.t1 === 'txtBtnsLoc' ? 96 : _context19.t1 === 'userPassw' ? 99 : _context19.t1 === 'userName' ? 102 : _context19.t1 === 'noPassword' ? 105 : _context19.t1 === 'noName' ? 107 : _context19.t1 === 'noSubj' ? 109 : _context19.t1 === 'inftyScroll' ? 111 : _context19.t1 === 'hotKeys' ? 113 : 114;
+                _context19.next = _context19.t1 === 'expandTrunc' ? 59 : _context19.t1 === 'widePosts' ? 59 : _context19.t1 === 'showHideBtn' ? 59 : _context19.t1 === 'showRepBtn' ? 59 : _context19.t1 === 'noPostNames' ? 59 : _context19.t1 === 'imgNavBtns' ? 59 : _context19.t1 === 'strikeHidd' ? 59 : _context19.t1 === 'removeHidd' ? 59 : _context19.t1 === 'noBoardRule' ? 59 : _context19.t1 === 'userCSS' ? 59 : _context19.t1 === 'hideBySpell' ? 61 : _context19.t1 === 'sortSpells' ? 64 : _context19.t1 === 'hideRefPsts' ? 68 : _context19.t1 === 'ajaxUpdThr' ? 70 : _context19.t1 === 'updCount' ? 72 : _context19.t1 === 'desktNotif' ? 74 : _context19.t1 === 'markNewPosts' ? 76 : _context19.t1 === 'useDobrAPI' ? 78 : _context19.t1 === 'markMyPosts' ? 80 : _context19.t1 === 'markMyLinks' ? 80 : _context19.t1 === 'correctTime' ? 83 : _context19.t1 === 'imgInfoLink' ? 86 : _context19.t1 === 'imgSrcBtns' ? 90 : _context19.t1 === 'addSageBtn' ? 92 : _context19.t1 === 'altCaptcha' ? 96 : _context19.t1 === 'txtBtnsLoc' ? 98 : _context19.t1 === 'userPassw' ? 101 : _context19.t1 === 'userName' ? 104 : _context19.t1 === 'noPassword' ? 107 : _context19.t1 === 'noName' ? 109 : _context19.t1 === 'noSubj' ? 111 : _context19.t1 === 'inftyScroll' ? 113 : _context19.t1 === 'hotKeys' ? 115 : 116;
                 break;
 
-              case 57:
-                updateCSS();
-                return _context19.abrupt("break", 114);
-
               case 59:
-                _context19.next = 61;
-                return Spells.toggle();
+                updateCSS();
+                return _context19.abrupt("break", 116);
 
               case 61:
-                return _context19.abrupt("break", 114);
+                _context19.next = 63;
+                return Spells.toggle();
 
-              case 62:
+              case 63:
+                return _context19.abrupt("break", 116);
+
+              case 64:
                 if (!Cfg.sortSpells) {
-                  _context19.next = 65;
+                  _context19.next = 67;
                   break;
                 }
 
-                _context19.next = 65;
+                _context19.next = 67;
                 return Spells.toggle();
 
-              case 65:
-                return _context19.abrupt("break", 114);
+              case 67:
+                return _context19.abrupt("break", 116);
 
-              case 66:
+              case 68:
                 for (_post3 = Thread.first.op; _post3; _post3 = _post3.next) {
                   if (!Cfg.hideRefPsts) {
                     _post3.ref.unhideRef();
@@ -12077,9 +12083,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 }
 
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
-              case 68:
+              case 70:
                 if (aib.t) {
                   if (Cfg.ajaxUpdThr) {
                     updater.enableUpdater();
@@ -12088,44 +12094,44 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 }
 
-                return _context19.abrupt("break", 114);
-
-              case 70:
-                updater.toggleCounter(Cfg.updCount);
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
               case 72:
+                updater.toggleCounter(Cfg.updCount);
+                return _context19.abrupt("break", 116);
+
+              case 74:
                 if (Cfg.desktNotif) {
                   Notification.requestPermission();
                 }
 
-                return _context19.abrupt("break", 114);
-
-              case 74:
-                Post.clearMarks();
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
               case 76:
-                aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;
-                return _context19.abrupt("break", 114);
+                Post.clearMarks();
+                return _context19.abrupt("break", 116);
 
               case 78:
+                aib.JsonBuilder = Cfg.useDobrAPI ? DobrochanPostsBuilder : null;
+                return _context19.abrupt("break", 116);
+
+              case 80:
                 if (!Cfg.markMyPosts && !Cfg.markMyLinks) {
                   locStorage.removeItem('de-myposts');
                   MyPosts.purge();
                 }
 
                 updateCSS();
-                return _context19.abrupt("break", 114);
-
-              case 81:
-                _context19.next = 83;
-                return DateTime.toggleSettings(el);
+                return _context19.abrupt("break", 116);
 
               case 83:
-                return _context19.abrupt("break", 114);
+                _context19.next = 85;
+                return DateTime.toggleSettings(el);
 
-              case 84:
+              case 85:
+                return _context19.abrupt("break", 116);
+
+              case 86:
                 img = $q('.de-fullimg-wrap');
 
                 if (img) {
@@ -12133,9 +12139,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 updateCSS();
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
-              case 88:
+              case 90:
                 if (Cfg.imgSrcBtns) {
                   for (_iterator5 = _createForOfIteratorHelperLoose(DelForm); !(_step5 = _iterator5()).done;) {
                     _el4 = _step5.value.el;
@@ -12148,94 +12154,94 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   $delAll('.de-btn-img');
                 }
 
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
-              case 90:
-                PostForm.hideField(pr.mail.closest('label') || pr.mail);
+              case 92:
+                PostForm.hideField(postform.mail.closest('label') || postform.mail);
                 setTimeout(function () {
-                  return pr.toggleSage();
+                  return postform.toggleSage();
                 }, 0);
                 updateCSS();
-                return _context19.abrupt("break", 114);
-
-              case 94:
-                pr.cap.initCapPromise();
-                return _context19.abrupt("break", 114);
+                return _context19.abrupt("break", 116);
 
               case 96:
-                pr.addMarkupPanel();
-                updateCSS();
-                return _context19.abrupt("break", 114);
+                postform.cap.initCapPromise();
+                return _context19.abrupt("break", 116);
 
-              case 99:
-                _context19.next = 101;
-                return PostForm.setUserPassw();
+              case 98:
+                postform.addMarkupPanel();
+                updateCSS();
+                return _context19.abrupt("break", 116);
 
               case 101:
-                return _context19.abrupt("break", 114);
+                _context19.next = 103;
+                return PostForm.setUserPassw();
 
-              case 102:
-                _context19.next = 104;
-                return PostForm.setUserName();
+              case 103:
+                return _context19.abrupt("break", 116);
 
               case 104:
-                return _context19.abrupt("break", 114);
+                _context19.next = 106;
+                return PostForm.setUserName();
 
-              case 105:
-                $toggle(pr.passw.closest(aib.qFormTr));
-                return _context19.abrupt("break", 114);
+              case 106:
+                return _context19.abrupt("break", 116);
 
               case 107:
-                PostForm.hideField(pr.name);
-                return _context19.abrupt("break", 114);
+                $toggle(postform.passw.closest(aib.qFormTr));
+                return _context19.abrupt("break", 116);
 
               case 109:
-                PostForm.hideField(pr.subj);
-                return _context19.abrupt("break", 114);
+                PostForm.hideField(postform.name);
+                return _context19.abrupt("break", 116);
 
               case 111:
-                toggleInfinityScroll();
-                return _context19.abrupt("break", 114);
+                PostForm.hideField(postform.subj);
+                return _context19.abrupt("break", 116);
 
               case 113:
+                toggleInfinityScroll();
+                return _context19.abrupt("break", 116);
+
+              case 115:
                 if (Cfg.hotKeys) {
                   HotKeys.enableHotKeys();
                 } else {
                   HotKeys.disableHotKeys();
                 }
 
-              case 114:
+              case 116:
                 return _context19.abrupt("return");
 
-              case 115:
+              case 117:
                 if (!(type === 'click' && tag === 'input' && el.type === 'button')) {
-                  _context19.next = 137;
+                  _context19.next = 139;
                   break;
                 }
 
                 _context19.t2 = el.id;
-                _context19.next = _context19.t2 === 'de-cfg-button-pass' ? 119 : _context19.t2 === 'de-cfg-button-keys' ? 123 : _context19.t2 === 'de-cfg-button-updnow' ? 128 : _context19.t2 === 'de-cfg-button-donate' ? 131 : _context19.t2 === 'de-cfg-button-debug' ? 133 : 137;
+                _context19.next = _context19.t2 === 'de-cfg-button-pass' ? 121 : _context19.t2 === 'de-cfg-button-keys' ? 125 : _context19.t2 === 'de-cfg-button-updnow' ? 130 : _context19.t2 === 'de-cfg-button-donate' ? 133 : _context19.t2 === 'de-cfg-button-debug' ? 135 : 139;
                 break;
 
-              case 119:
+              case 121:
                 $q('input[info="passwValue"]').value = Math.round(Math.random() * 1e12).toString(32);
-                _context19.next = 122;
+                _context19.next = 124;
                 return PostForm.setUserPassw();
 
-              case 122:
-                return _context19.abrupt("break", 137);
+              case 124:
+                return _context19.abrupt("break", 139);
 
-              case 123:
+              case 125:
                 e.preventDefault();
 
                 if (!$id('de-popup-edit-hotkeys')) {
-                  _context19.next = 126;
+                  _context19.next = 128;
                   break;
                 }
 
                 return _context19.abrupt("return");
 
-              case 126:
+              case 128:
                 Promise.resolve(HotKeys.readKeys()).then(function (keys) {
                   var temp = KeyEditListener.getEditMarkup(keys);
                   var el = $popup('edit-hotkeys', temp[1]);
@@ -12244,22 +12250,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     return el.addEventListener(e, fn, true);
                   });
                 });
-                return _context19.abrupt("break", 137);
+                return _context19.abrupt("break", 139);
 
-              case 128:
+              case 130:
                 $popup('updavail', Lng.loading[lang], true);
                 getStoredObj('DESU_Config').then(function (data) {
                   return checkForUpdates(true, data.lastUpd);
                 }).then(function (html) {
                   return $popup('updavail', html);
                 }, emptyFn);
-                return _context19.abrupt("break", 137);
-
-              case 131:
-                showDonateMsg();
-                return _context19.abrupt("break", 137);
+                return _context19.abrupt("break", 139);
 
               case 133:
+                showDonateMsg();
+                return _context19.abrupt("break", 139);
+
+              case 135:
                 perf = {};
                 arr = Logger.getLogData(true);
 
@@ -12287,208 +12293,208 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return key in defaultCfg && value === defaultCfg[key] ? undefined : value;
                 }, '\t');
 
-              case 137:
+              case 139:
                 if (!(type === 'keyup' && tag === 'input' && el.type === 'text')) {
-                  _context19.next = 192;
+                  _context19.next = 194;
                   break;
                 }
 
                 _info3 = el.getAttribute('info');
                 _context19.t3 = _info3;
-                _context19.next = _context19.t3 === 'postBtnsBack' ? 142 : _context19.t3 === 'limitPostMsg' ? 149 : _context19.t3 === 'minImgSize' ? 153 : _context19.t3 === 'maxImgSize' ? 156 : _context19.t3 === 'zoomFactor' ? 159 : _context19.t3 === 'webmVolume' ? 162 : _context19.t3 === 'minWebmWidth' ? 167 : _context19.t3 === 'maskVisib' ? 170 : _context19.t3 === 'linksOver' ? 174 : _context19.t3 === 'linksOut' ? 177 : _context19.t3 === 'ytApiKey' ? 180 : _context19.t3 === 'passwValue' ? 183 : _context19.t3 === 'nameValue' ? 186 : 189;
+                _context19.next = _context19.t3 === 'postBtnsBack' ? 144 : _context19.t3 === 'limitPostMsg' ? 151 : _context19.t3 === 'minImgSize' ? 155 : _context19.t3 === 'maxImgSize' ? 158 : _context19.t3 === 'zoomFactor' ? 161 : _context19.t3 === 'webmVolume' ? 164 : _context19.t3 === 'minWebmWidth' ? 169 : _context19.t3 === 'maskVisib' ? 172 : _context19.t3 === 'linksOver' ? 176 : _context19.t3 === 'linksOut' ? 179 : _context19.t3 === 'ytApiKey' ? 182 : _context19.t3 === 'passwValue' ? 185 : _context19.t3 === 'nameValue' ? 188 : 191;
                 break;
 
-              case 142:
+              case 144:
                 isCheck = checkCSSColor(el.value);
-                el.classList.toggle('de-input-error', !isCheck);
+                classList.toggle('de-input-error', !isCheck);
 
                 if (!isCheck) {
-                  _context19.next = 148;
+                  _context19.next = 150;
                   break;
                 }
 
-                _context19.next = 147;
+                _context19.next = 149;
                 return CfgSaver.save('postBtnsBack', el.value);
 
-              case 147:
+              case 149:
                 updateCSS();
 
-              case 148:
-                return _context19.abrupt("break", 191);
-
-              case 149:
-                _context19.next = 151;
-                return CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
+              case 150:
+                return _context19.abrupt("break", 193);
 
               case 151:
-                updateCSS();
-                return _context19.abrupt("break", 191);
+                _context19.next = 153;
+                return CfgSaver.save('limitPostMsg', Math.max(+el.value || 0, 50));
 
               case 153:
-                _context19.next = 155;
-                return CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
+                updateCSS();
+                return _context19.abrupt("break", 193);
 
               case 155:
-                return _context19.abrupt("break", 191);
+                _context19.next = 157;
+                return CfgSaver.save('minImgSize', Math.min(Math.max(+el.value, 1)), Cfg.maxImgSize);
 
-              case 156:
-                _context19.next = 158;
-                return CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
+              case 157:
+                return _context19.abrupt("break", 193);
 
               case 158:
-                return _context19.abrupt("break", 191);
+                _context19.next = 160;
+                return CfgSaver.save('maxImgSize', Math.max(+el.value, Cfg.minImgSize));
 
-              case 159:
-                _context19.next = 161;
-                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
+              case 160:
+                return _context19.abrupt("break", 193);
 
               case 161:
-                return _context19.abrupt("break", 191);
+                _context19.next = 163;
+                return CfgSaver.save('zoomFactor', Math.min(Math.max(+el.value, 1), 100));
 
-              case 162:
+              case 163:
+                return _context19.abrupt("break", 193);
+
+              case 164:
                 val = Math.min(+el.value || 0, 100);
-                _context19.next = 165;
+                _context19.next = 167;
                 return CfgSaver.save('webmVolume', val);
 
-              case 165:
-                sendStorageEvent('__de-webmvolume', val);
-                return _context19.abrupt("break", 191);
-
               case 167:
-                _context19.next = 169;
-                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
+                sendStorageEvent('__de-webmvolume', val);
+                return _context19.abrupt("break", 193);
 
               case 169:
-                return _context19.abrupt("break", 191);
+                _context19.next = 171;
+                return CfgSaver.save('minWebmWidth', Math.max(+el.value, Cfg.minImgSize));
 
-              case 170:
-                _context19.next = 172;
-                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
+              case 171:
+                return _context19.abrupt("break", 193);
 
               case 172:
-                updateCSS();
-                return _context19.abrupt("break", 191);
+                _context19.next = 174;
+                return CfgSaver.save('maskVisib', Math.min(+el.value || 0, 100));
 
               case 174:
-                _context19.next = 176;
-                return CfgSaver.save('linksOver', +el.value | 0);
+                updateCSS();
+                return _context19.abrupt("break", 193);
 
               case 176:
-                return _context19.abrupt("break", 191);
+                _context19.next = 178;
+                return CfgSaver.save('linksOver', +el.value | 0);
 
-              case 177:
-                _context19.next = 179;
-                return CfgSaver.save('linksOut', +el.value | 0);
+              case 178:
+                return _context19.abrupt("break", 193);
 
               case 179:
-                return _context19.abrupt("break", 191);
+                _context19.next = 181;
+                return CfgSaver.save('linksOut', +el.value | 0);
 
-              case 180:
-                _context19.next = 182;
-                return CfgSaver.save('ytApiKey', el.value.trim());
+              case 181:
+                return _context19.abrupt("break", 193);
 
               case 182:
-                return _context19.abrupt("break", 191);
+                _context19.next = 184;
+                return CfgSaver.save('ytApiKey', el.value.trim());
 
-              case 183:
-                _context19.next = 185;
-                return PostForm.setUserPassw();
+              case 184:
+                return _context19.abrupt("break", 193);
 
               case 185:
-                return _context19.abrupt("break", 191);
+                _context19.next = 187;
+                return PostForm.setUserPassw();
 
-              case 186:
-                _context19.next = 188;
-                return PostForm.setUserName();
+              case 187:
+                return _context19.abrupt("break", 193);
 
               case 188:
-                return _context19.abrupt("break", 191);
+                _context19.next = 190;
+                return PostForm.setUserName();
 
-              case 189:
-                _context19.next = 191;
-                return CfgSaver.save(_info3, el.value);
+              case 190:
+                return _context19.abrupt("break", 193);
 
               case 191:
+                _context19.next = 193;
+                return CfgSaver.save(_info3, el.value);
+
+              case 193:
                 return _context19.abrupt("return");
 
-              case 192:
+              case 194:
                 if (!(tag === 'a')) {
-                  _context19.next = 221;
+                  _context19.next = 223;
                   break;
                 }
 
                 if (!(el.id === 'de-btn-spell-add')) {
-                  _context19.next = 203;
+                  _context19.next = 205;
                   break;
                 }
 
                 _context19.t4 = e.type;
-                _context19.next = _context19.t4 === 'click' ? 197 : _context19.t4 === 'mouseover' ? 199 : _context19.t4 === 'mouseout' ? 201 : 202;
+                _context19.next = _context19.t4 === 'click' ? 199 : _context19.t4 === 'mouseover' ? 201 : _context19.t4 === 'mouseout' ? 203 : 204;
                 break;
 
-              case 197:
-                e.preventDefault();
-                return _context19.abrupt("break", 202);
-
               case 199:
+                e.preventDefault();
+                return _context19.abrupt("break", 204);
+
+              case 201:
                 el.odelay = setTimeout(function () {
                   return addMenu(el);
                 }, Cfg.linksOver);
-                return _context19.abrupt("break", 202);
-
-              case 201:
-                clearTimeout(el.odelay);
-
-              case 202:
-                return _context19.abrupt("return");
+                return _context19.abrupt("break", 204);
 
               case 203:
+                clearTimeout(el.odelay);
+
+              case 204:
+                return _context19.abrupt("return");
+
+              case 205:
                 if (!(type === 'click')) {
-                  _context19.next = 220;
+                  _context19.next = 222;
                   break;
                 }
 
                 _context19.t5 = el.id;
-                _context19.next = _context19.t5 === 'de-btn-spell-apply' ? 207 : _context19.t5 === 'de-btn-spell-clear' ? 214 : 220;
+                _context19.next = _context19.t5 === 'de-btn-spell-apply' ? 209 : _context19.t5 === 'de-btn-spell-clear' ? 216 : 222;
                 break;
 
-              case 207:
+              case 209:
                 e.preventDefault();
-                _context19.next = 210;
+                _context19.next = 212;
                 return CfgSaver.save('hideBySpell', 1);
 
-              case 210:
+              case 212:
                 $q('input[info="hideBySpell"]').checked = true;
-                _context19.next = 213;
+                _context19.next = 215;
                 return Spells.toggle();
 
-              case 213:
-                return _context19.abrupt("break", 220);
+              case 215:
+                return _context19.abrupt("break", 222);
 
-              case 214:
+              case 216:
                 e.preventDefault();
 
                 if (confirm(Lng.clear[lang] + '?')) {
-                  _context19.next = 217;
+                  _context19.next = 219;
                   break;
                 }
 
                 return _context19.abrupt("return");
 
-              case 217:
+              case 219:
                 $id('de-spell-txt').value = '';
-                _context19.next = 220;
+                _context19.next = 222;
                 return Spells.toggle();
 
-              case 220:
+              case 222:
                 return _context19.abrupt("return");
 
-              case 221:
+              case 223:
                 if (tag === 'textarea' && el.id === 'de-spell-txt' && (type === 'keydown' || type === 'scroll')) {
                   _this19._updateRowMeter(el);
                 }
 
-              case 222:
+              case 224:
               case "end":
                 return _context19.stop();
             }
@@ -12583,27 +12589,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<div id=\"de-cfg-filters\" class=\"de-cfg-unvis\">\n\t\t\t<div id=\"de-spell-panel\">\n\t\t\t\t".concat(this._getBox('hideBySpell'), "\n\t\t\t\t<a id=\"de-btn-spell-add\" class=\"de-abtn de-spell-btn\" href=\"#\">").concat(Lng.add[lang], "</a>\n\t\t\t\t<a id=\"de-btn-spell-apply\" class=\"de-abtn de-spell-btn\" href=\"#\">").concat(Lng.apply[lang], "</a>\n\t\t\t\t<a id=\"de-btn-spell-clear\" class=\"de-abtn de-spell-btn\" href=\"#\">").concat(Lng.clear[lang], "</a>\n\t\t\t\t<a class=\"de-abtn de-spell-btn\" href=\"").concat(gitWiki, "Spells-") + "".concat(lang ? 'en' : 'ru', "\" target=\"_blank\">[?]</a>\n\t\t\t</div>\n\t\t\t<div id=\"de-spell-editor\">\n\t\t\t\t<div id=\"de-spell-rowmeter\"></div>\n\t\t\t\t<textarea id=\"de-spell-txt\" wrap=\"off\"></textarea>\n\t\t\t</div>\n\t\t\t").concat(this._getBox('sortSpells'), "<br>\n\t\t\t").concat(this._getBox('hideRefPsts'), "<br>\n\t\t\t").concat(this._getBox('nextPageThr'), "<br>\n\t\t\t").concat(this._getSel('delHiddPost'), "\n\t\t</div>");
     },
     _getCfgPosts: function _getCfgPosts() {
-      return "<div id=\"de-cfg-posts\" class=\"de-cfg-unvis\">\n\t\t\t".concat(localData ? '' : "".concat(this._getBox('ajaxUpdThr'), "\n\t\t\t\t").concat(this._getInp('updThrDelay'), "\n\t\t\t\t<div class=\"de-depend\">\n\t\t\t\t\t").concat(this._getBox('updCount'), "<br>\n\t\t\t\t\t").concat(this._getBox('favIcoBlink'), "<br>\n\t\t\t\t\t").concat('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '', "\n\t\t\t\t\t").concat(this._getBox('markNewPosts'), "<br>\n\t\t\t\t\t").concat(aib.dobrochan ? this._getBox('useDobrAPI') : '', "\n\t\t\t\t</div>"), "\n\t\t\t").concat(this._getBox('markMyPosts'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('expandTrunc'), "<br>") : '', "\n\t\t\t").concat(this._getBox('widePosts'), "<br>\n\t\t\t").concat(this._getInp('limitPostMsg', true, 5), "<br>\n\t\t\t").concat(this._getSel('showHideBtn'), "<br>\n\t\t\t").concat(!localData ? this._getSel('showRepBtn') : '', "<br>\n\t\t\t").concat(this._getSel('postBtnsCSS'), "\n\t\t\t").concat(this._getInp('postBtnsBack', false, 8), "<br>\n\t\t\t").concat(!localData ? this._getSel('thrBtns') : '', "<br>\n\t\t\t").concat(this._getSel('noSpoilers'), "<br>\n\t\t\t").concat(this._getBox('noPostNames'), "<br>\n\t\t\t").concat(this._getBox('correctTime'), "\n\t\t\t").concat(this._getInp('timeOffset', true, 1), "\n\t\t\t<a class=\"de-abtn\" target=\"_blank\" href=\"").concat(gitWiki, "Settings-time-") + "".concat(lang ? 'en' : 'ru', "\">[?]</a>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('timePattern', true, 24), "<br>\n\t\t\t\t").concat(this._getInp('timeRPattern', true, 24), "\n\t\t\t</div>\n\t\t</div>");
+      return "<div id=\"de-cfg-posts\" class=\"de-cfg-unvis\">\n\t\t\t".concat(localData ? '' : "".concat(this._getBox('ajaxUpdThr'), "\n\t\t\t\t").concat(this._getInp('updThrDelay'), "\n\t\t\t\t<div class=\"de-depend\">\n\t\t\t\t\t").concat(this._getBox('updCount'), "<br>\n\t\t\t\t\t").concat(this._getBox('favIcoBlink'), "<br>\n\t\t\t\t\t").concat('Notification' in deWindow ? this._getBox('desktNotif') + '<br>' : '', "\n\t\t\t\t\t").concat(this._getBox('markNewPosts'), "<br>\n\t\t\t\t\t").concat(aib.dobrochan ? this._getBox('useDobrAPI') : '', "\n\t\t\t\t</div>"), "\n\t\t\t").concat(this._getBox('markMyPosts'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('expandTrunc', true), "<br>") : '', "\n\t\t\t").concat(this._getBox('widePosts'), "<br>\n\t\t\t").concat(this._getInp('limitPostMsg', true, 5), "<br>\n\t\t\t").concat(this._getSel('showHideBtn'), "<br>\n\t\t\t").concat(!localData ? this._getSel('showRepBtn') : '', "<br>\n\t\t\t").concat(this._getSel('postBtnsCSS'), "\n\t\t\t").concat(this._getInp('postBtnsBack', false, 8), "<br>\n\t\t\t").concat(!localData ? this._getSel('thrBtns') : '', "<br>\n\t\t\t").concat(this._getSel('noSpoilers'), "<br>\n\t\t\t").concat(this._getBox('noPostNames'), "<br>\n\t\t\t").concat(this._getBox('correctTime', true), "\n\t\t\t").concat(this._getInp('timeOffset', true, 1), "\n\t\t\t<a class=\"de-abtn\" target=\"_blank\" href=\"").concat(gitWiki, "Settings-time-") + "".concat(lang ? 'en' : 'ru', "\">[?]</a>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('timePattern', true, 24), "<br>\n\t\t\t\t").concat(this._getInp('timeRPattern', true, 24), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgImages: function _getCfgImages() {
-      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>', "\n\t\t\t").concat(nav.isPresto || aib._4chan ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile'), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs'), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
+      return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>', "\n\t\t\t").concat(nav.isPresto || aib._4chan ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile', true), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs', true), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
     },
     _getCfgLinks: function _getCfgLinks() {
-      return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks'), "<br>\n\t\t\t").concat(this._getBox('decodeLinks'), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs'), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3'), "\n\t\t\t\t").concat(this._getBox('addVocaroo'), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles'), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo'), "\n\t\t\t</div>\n\t\t</div>");
+      return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks', true), "<br>\n\t\t\t").concat(this._getBox('decodeLinks', true), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs', true), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3', true), "\n\t\t\t\t").concat(this._getBox('addVocaroo', true), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube', true), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles', true), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo', true), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgForm: function _getCfgForm() {
-      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting'), "<br>\n\t\t\t").concat(pr.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(pr.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(pr.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(pr.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(pr.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(pr.cap ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(this._getInp('capUpdTime'), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(pr.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(pr.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(pr.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
+      return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting', true), "<br>\n\t\t\t").concat(postform.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(postform.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(postform.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(postform.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(postform.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(postform.cap ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(this._getInp('capUpdTime'), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(postform.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(postform.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(postform.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(postform.rules || postform.passw || postform.name ? Lng.hide[lang] + (postform.rules ? this._getBox('noBoardRule') : '') + (postform.passw ? this._getBox('noPassword') : '') + (postform.name ? this._getBox('noName') : '') + (postform.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
     },
     _getCfgCommon: function _getCfgCommon() {
-      return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in docBody.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies'), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
+      return "<div id=\"de-cfg-common\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('scriptStyle'), "<br>\n\t\t\t").concat(this._getBox('userCSS'), "\n\t\t\t<a href=\"").concat(gitWiki, "css-tricks\" class=\"de-abtn\" target=\"_blank\">[?]</a><br>\n\t\t\t").concat('animation' in docBody.style ? this._getBox('animation') + '<br>' : '', "\n\t\t\t").concat(this._getBox('hotKeys'), "\n\t\t\t<input type=\"button\" id=\"de-cfg-button-keys\" class=\"de-cfg-button\" value=\"").concat(Lng.edit[lang], "\">\n\t\t\t<div class=\"de-depend\">").concat(this._getInp('loadPages'), "</div>\n\t\t\t").concat(this._getSel('panelCounter'), "<br>\n\t\t\t").concat(this._getBox('rePageTitle', true), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('inftyScroll'), "<br>\n\t\t\t\t").concat(this._getBox('hideReplies', true), "<br>\n\t\t\t\t").concat(this._getBox('scrollToTop'), "<br>") : '', "\n\t\t\t").concat(this._getBox('saveScroll'), "<br>\n\t\t\t").concat(this._getSel('favThrOrder'), "<br>\n\t\t\t").concat(this._getBox('favWinOn'), "<br>\n\t\t\t").concat(this._getBox('closePopups'), "\n\t\t</div>");
     },
     _getCfgInfo: function _getCfgInfo() {
       var statsTable = this._getInfoTable([[Lng.thrViewed[lang], Cfg.stats.view], [Lng.thrCreated[lang], Cfg.stats.op], [Lng.thrHidden[lang], HiddenThreads.getCount()], [Lng.postsSent[lang], Cfg.stats.reply]], false);
 
       return "<div id=\"de-cfg-info\" class=\"de-cfg-unvis\">\n\t\t\t<div style=\"padding-bottom: 10px;\">\n\t\t\t\t<a href=\"".concat(gitWiki, "versions\" target=\"_blank\">v").concat(version, ".").concat(commit) + "".concat(nav.isESNext ? '.es6' : '', "</a> |\n\t\t\t\t<a href=\"https://dollchan.net/\" target=\"_blank\">Homepage</a> |\n\t\t\t\t<a href=\"").concat(gitWiki).concat(lang === 1 ? 'home-en/' : '', "\" target=\"_blank\">Github</a> |\n\t\t\t\t<input type=\"button\" id=\"de-cfg-button-debug\" value=\"") + "".concat(Lng.debug[lang], "\" title=\"").concat(Lng.infoDebug[lang], "\">\n\t\t\t</div>\n\t\t\t<div id=\"de-info-table\">\n\t\t\t\t<div id=\"de-info-stats\">").concat(statsTable, "</div>\n\t\t\t\t<div id=\"de-info-log\">").concat(this._getInfoTable(Logger.getLogData(false), true), "</div>\n\t\t\t</div>\n\t\t\t").concat(!nav.hasWebStorage && !nav.isPresto && !localData || nav.hasGMXHR ? "\n\t\t\t\t".concat(this._getSel('updDollchan'), "\n\t\t\t\t<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-updnow\" value=\"").concat(Lng.checkNow[lang], "\">\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>") : "<div style=\"margin-top: 3px; text-align: center;\">&gt;&gt;\n\t\t\t\t\t<input type=\"button\" id=\"de-cfg-button-donate\" value=\"Donate\">\n\t\t\t\t&lt;&lt;</div>", "\n\t\t</div>");
     },
-    _getBox: function _getBox(id) {
-      return "<label class=\"de-cfg-label\">\n\t\t<input class=\"de-cfg-chkbox\" info=\"".concat(id, "\" type=\"checkbox\"> ").concat(Lng.cfg[id][lang], "</label>");
+    _getBox: function _getBox(id, needReload) {
+      return "<label class=\"de-cfg-label".concat(needReload ? ' de-cfg-needreload' : '', "\">\n\t\t<input class=\"de-cfg-chkbox\" info=\"").concat(id, "\" type=\"checkbox\"> ").concat(Lng.cfg[id][lang], "</label>");
     },
     _getInfoTable: function _getInfoTable(data, needMs) {
       return data.map(function (val) {
@@ -12621,10 +12627,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _getList: function _getList(arr) {
       return arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>');
     },
-    _getSel: function _getSel(id) {
-      return "<label class=\"de-cfg-label\"><select class=\"de-cfg-select\" info=\"".concat(id, "\">").concat(Lng.cfg[id].sel[lang].map(function (val, i) {
+    _getSel: function _getSel(id, needReload) {
+      return "<label class=\"de-cfg-label".concat(needReload ? ' de-cfg-needreload' : '', "\">\n\t\t<select class=\"de-cfg-select\" info=\"").concat(id, "\">").concat(Lng.cfg[id].sel[lang].map(function (val, i) {
         return "<option value=\"".concat(i, "\">").concat(val, "</option>");
-      }).join(''), "</select> ").concat(Lng.cfg[id].txt[lang], " </label>");
+      }).join(''), "</select> ").concat(Lng.cfg[id].txt[lang], "</label>");
     },
     _getTab: function _getTab(id) {
       return "<div class=\"".concat(aib.cReply, " de-cfg-tab\" info=\"").concat(id, "\">").concat(Lng.cfgTab[id][lang], "</div>");
@@ -13117,10 +13123,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         switch (globIdx) {
           case 2:
-            if (pr.form) {
+            if (postform.form) {
               post = this.cPost || this._getFirstVisPost(false, true) || Thread.first.op;
               this.cPost = post;
-              pr.showQuickReply(post, post.num, true, false);
+              postform.showQuickReply(post, post.num, true, false);
               post.select();
             }
 
@@ -13147,11 +13153,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 5:
-            if (el !== pr.txta && el !== pr.cap.textEl) {
+            if (el !== postform.txta && el !== postform.cap.textEl) {
               return;
             }
 
-            pr.subm.click();
+            postform.subm.click();
             break;
 
           case 6:
@@ -13186,7 +13192,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 12:
-            if (el !== pr.txta) {
+            if (el !== postform.txta) {
               return;
             }
 
@@ -13194,7 +13200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 13:
-            if (el !== pr.txta) {
+            if (el !== postform.txta) {
               return;
             }
 
@@ -13202,7 +13208,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 14:
-            if (el !== pr.txta) {
+            if (el !== postform.txta) {
               return;
             }
 
@@ -13210,7 +13216,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 15:
-            if (el !== pr.txta) {
+            if (el !== postform.txta) {
               return;
             }
 
@@ -13218,7 +13224,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             break;
 
           case 16:
-            if (el !== pr.txta) {
+            if (el !== postform.txta) {
               return;
             }
 
@@ -15433,8 +15439,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 Post.hiddenNums = new Set();
                 AttachedImage.closeImg();
 
-                if (pr.isQuick) {
-                  pr.clearForm();
+                if (postform.isQuick) {
+                  postform.clearForm();
                 }
 
                 DelForm.tNums = new Set();
@@ -15561,7 +15567,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context26.t2 = _context26.sent;
                 (0, _context26.t0)(_context26.t1, _context26.t2);
 
-                if (!pr.passw) {
+                if (!postform.passw) {
                   _context26.next = 9;
                   break;
                 }
@@ -17740,9 +17746,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(function (loadedDoc) {
             var form = $q(aib.qForm, loadedDoc);
             var oeForm = $q(qOeForm, loadedDoc);
-            pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
+            postform = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
           }, function () {
-            return pr = new PostForm(null, null, true);
+            return postform = new PostForm(null, null, true);
           });
         } else {
           this.form = null;
@@ -17985,7 +17991,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return;
         }
 
-        var txtaEl = pr.txta;
+        var txtaEl = postform.txta;
         var start = txtaEl.selectionStart,
             end = txtaEl.selectionEnd;
         var quote = Cfg.spacedQuote ? '> ' : '>';
@@ -18608,7 +18614,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return CfgSaver.save('nameValue', el.value);
 
                 case 4:
-                  pr.name.value = Cfg.userName ? Cfg.nameValue : '';
+                  postform.name.value = Cfg.userName ? Cfg.nameValue : '';
 
                 case 5:
                 case "end":
@@ -18653,7 +18659,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   return CfgSaver.save('passwValue', el.value);
 
                 case 6:
-                  value = pr.passw.value = Cfg.passwValue;
+                  value = postform.passw.value = Cfg.passwValue;
 
                   for (_iterator22 = _createForOfIteratorHelperLoose(DelForm); !(_step22 = _iterator22()).done;) {
                     passEl = _step22.value.passEl;
@@ -18732,12 +18738,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }
 
   function showSubmitError(error) {
-    if (pr.isQuick) {
-      pr.setReply(true, false);
+    if (postform.isQuick) {
+      postform.setReply(true, false);
     }
 
     if (/[cf]aptch|капч|подтвер|verifi/i.test(error)) {
-      pr.refreshCap(true);
+      postform.refreshCap(true);
     }
 
     $popup('upload', error.toString());
@@ -18755,7 +18761,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   function _checkSubmit() {
     _checkSubmit = _asyncToGenerator( _regeneratorRuntime().mark(function _callee54(data) {
-      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _pr2, tNum, _pByNum$get, thr, statsParam, dForm;
+      var error, postNum, isDocument, _aib$captchaAfterSubm, _aib3, _data, _aib$getSubmitData, _postform2, tNum, _pByNum$get, thr, statsParam, dForm;
 
       return _regeneratorRuntime().wrap(function _callee54$(_context64) {
         while (1) {
@@ -18814,7 +18820,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return _context64.abrupt("return");
 
             case 16:
-              _pr2 = pr, tNum = _pr2.tNum;
+              _postform2 = postform, tNum = _postform2.tNum;
 
               if ((Cfg.markMyPosts || Cfg.markMyLinks) && postNum) {
                 MyPosts.set(postNum, tNum || postNum);
@@ -18835,7 +18841,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
 
-              pr.clearForm();
+              postform.clearForm();
               DollchanAPI.notify('submitform', {
                 success: true,
                 num: postNum
@@ -18889,8 +18895,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 });
               }
 
-              pr.closeReply();
-              pr.refreshCap();
+              postform.closeReply();
+              postform.refreshCap();
 
             case 31:
             case "end":
@@ -20836,20 +20842,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                   e.preventDefault();
                   e.stopPropagation();
-                } else if (Cfg.insertNum && pr.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
+                } else if (Cfg.insertNum && postform.form && (this._pref === temp || this._pref === el) && !/Reply|Ответ/.test(el.textContent)) {
                   e.preventDefault();
                   e.stopPropagation();
 
                   if (!Cfg.showRepBtn) {
                     quotedText = deWindow.getSelection().toString();
-                    pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+                    postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
                     quotedText = '';
-                  } else if (pr.isQuick || aib.t && pr.isHidden) {
-                    pr.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
+                  } else if (postform.isQuick || aib.t && postform.isHidden) {
+                    postform.showQuickReply(isPview ? Pview.topParent : this, this.num, false, true);
                   } else if (aib.t) {
-                    var formText = pr.txta.value;
+                    var formText = postform.txta.value;
                     var isOnNewLine = formText === '' || formText.slice(-1) === '\n';
-                    insertText(pr.txta, ">>".concat(this.num).concat(isOnNewLine ? '\n' : ''));
+                    insertText(postform.txta, ">>".concat(this.num).concat(isOnNewLine ? '\n' : ''));
                   } else {
                     deWindow.location.assign(el.href.replace(/#i/, '#'));
                   }
@@ -20944,11 +20950,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             case 'de-btn-img':
               quotedText = aib.getImgRealName(aib.getImgWrap(el));
-              pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+              postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
               return;
 
             case 'de-btn-reply':
-              pr.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
+              postform.showQuickReply(isPview ? Pview.topParent : this, this.num, !isPview, false);
               quotedText = '';
               return;
 
@@ -21386,7 +21392,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 case 75:
                   isPview = this instanceof Pview;
-                  pr.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
+                  postform.showQuickReply(isPview ? Pview.topParent : this, num, !isPview, false);
                   quotedText = '';
                   return _context42.abrupt("return");
 
@@ -25722,7 +25728,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               break;
 
             case 'de-btn-reply':
-              pr.showQuickReply(this.last, this.num, false, false, true);
+              postform.showQuickReply(this.last, this.num, false, false, true);
               break;
 
             case 'de-btn-replies':
@@ -26132,7 +26138,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "_loadNewFromBuilder",
       value: function _loadNewFromBuilder(pBuilder) {
-        var lastOffset = pr.isVisible ? pr.top : null;
+        var lastOffset = postform.isVisible ? postform.top : null;
 
         var _this$_parsePosts = this._parsePosts(pBuilder),
             _this$_parsePosts2 = _slicedToArray(_this$_parsePosts, 2),
@@ -26142,7 +26148,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this._moveBtnsToEnd();
 
         if (lastOffset !== null) {
-          scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + pr.top - lastOffset);
+          scrollTo(deWindow.pageXOffset, deWindow.pageYOffset + postform.top - lastOffset);
         }
 
         if (newPosts !== 0 || Panel.isNew) {
@@ -27310,7 +27316,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
             delBtn.onclick = function (e) {
               e.preventDefault();
-              pr.closeReply();
+              postform.closeReply();
               $popup('delete', Lng.deleting[lang], true);
               html5Submit(el, e.target).then(checkDelete)["catch"](function (err) {
                 return $popup('delete', getErrorMessage(err));
@@ -28369,7 +28375,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       break;
                     }
 
-                    pr.subm.value = Lng.reply[lang];
+                    postform.subm.value = Lng.reply[lang];
                     pageInp = $q('input[name="page"]', form);
 
                     if (tNum) {
@@ -28388,7 +28394,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       break;
                     }
 
-                    this._origInputs = [doc.createElement('div'), pr.subm.value];
+                    this._origInputs = [doc.createElement('div'), postform.subm.value];
                     $Q(query, form).forEach(function (el) {
                       return _this104._origInputs[0].append(el);
                     });
@@ -28401,7 +28407,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       break;
                     }
 
-                    pr.subm.value = this._origInputs[1];
+                    postform.subm.value = this._origInputs[1];
                     $delAll(query, form);
                     form.insertAdjacentHTML('beforeend', this._origInputs[0].innerHTML);
                     this._origInputs = null;
@@ -28410,7 +28416,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   case 17:
                     errFn = function errFn() {
                       $popup('load-form', Lng.errFormLoad[lang]);
-                      pr.closeReply();
+                      postform.closeReply();
                     };
 
                     $popup('load-form', Lng.loading[lang], true);
@@ -28423,7 +28429,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         return;
                       }
 
-                      pr.subm.value = $q(_this104.qFormSubm, loadedDoc).value;
+                      postform.subm.value = $q(_this104.qFormSubm, loadedDoc).value;
                       $delAll(query, form);
                       $Q(query, loadedForm).forEach(function (el) {
                         return form.append(doc.adoptNode(el));
@@ -29408,7 +29414,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             } catch (err) {}
 
             if (cap.isSubmitWait && data.result !== 1) {
-              pr.subm.click();
+              postform.subm.click();
             }
 
             switch (data.result) {
@@ -29672,7 +29678,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, {
         key: "captchaUpdate",
         value: function captchaUpdate(cap) {
-          var url = "/api/captcha/service_id?board=".concat(this.b, "&thread=") + pr.tNum;
+          var url = "/api/captcha/service_id?board=".concat(this.b, "&thread=") + postform.tNum;
           return cap.updateHelper(url, function (xhr) {
             var box = $q('.captcha');
             var data = xhr.responseText;
@@ -30912,8 +30918,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           };
 
-          if (pr.isQuick) {
-            pr.setReply(true, false);
+          if (postform.isQuick) {
+            postform.setReply(true, false);
           }
 
           updater.sendErrNotif();
@@ -31736,12 +31742,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return;
     }
 
-    x += "\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ".concat(nav.isFirefox ? '2' : '4', "px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ").concat(nav.isPresto ? '' : 'vertical-align: -1px !important; ', "margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type=\"text\"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::").concat(nav.isFirefox ? '-moz-' : '', "selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ").concat(nav.isPresto ? '' : 'resize: none !important; ', "}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t").concat([
+    x += "\n\t/* Windows */\n\t.de-win .de-win-btn-toggle { transform: rotate(180deg); }\n\t.de-resizer { position: absolute; }\n\t.de-resizer-bottom { height: 6px; bottom: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-resizer-left { width: 6px; top: 0px; bottom: 0px; left: -3px; cursor: ew-resize; }\n\t.de-resizer-right { width: 6px; top: 0px; bottom: 0px; right: -3px; cursor: ew-resize; }\n\t.de-resizer-top { height: 6px; top: -3px; left: 0; right: 0; cursor: ns-resize; }\n\t.de-win > .de-win-head { cursor: move; }\n\t.de-win-buttons { position: absolute; right: 0; margin: 0 2px 0 0; font-size: 0; cursor: pointer; }\n\t.de-win-buttons > svg { transition: background .3s ease, box-shadow .3s ease; }\n\t.de-win-buttons > svg:hover { background-color: rgba(255,255,255,.2); box-shadow: 0 0 2px rgba(255,255,255,.4); }\n\t.de-win-inpost > .de-win-head > .de-win-buttons > svg:hover { background-color: rgba(64,64,64,.15); box-shadow: 0 0 2px rgba(64,64,64,.3); }\n\t#de-win-cfg { width: 355px; }\n\t#de-win-cfg, #de-win-fav, #de-win-hid, #de-win-vid { position: fixed; max-height: 92%; overflow-x: hidden; overflow-y: auto; }\n\t#de-win-cfg > .de-win-body { float: none; display: block; width: auto; min-width: 0; max-width: 100% !important; padding: 0 !important; margin: 0 !important; border: none; }\n\t#de-win-fav > .de-win-body, #de-win-hid > .de-win-body, #de-win-vid > .de-win-body { padding: 6px; border: 1px solid gray; }\n\t#de-win-hid { max-width: 60%; }\n\t#de-win-vid > .de-win-body { display: flex; flex-direction: column; align-items: center; }\n\t#de-win-vid .de-entry { white-space: normal; }\n\t.de-win-head { position: relative; padding: 2px; border-radius: 10px 10px 0 0; color: #F5F5F5; font: bold 14px/16px arial; text-align: center; cursor: default; }\n\n\t/* Settings window */\n\t.de-block { display: block; }\n\t#de-btn-spell-add { margin-left: auto; }\n\t#de-cfg-bar { display: flex; margin: 0; padding: 0; }\n\t.de-cfg-body { min-height: 354px; padding: 9px 7px 7px; margin-top: -1px; font: 13px/15px arial !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-cfg-body, #de-cfg-buttons { border: 1px solid #183d77; border-top: none; }\n\t.de-cfg-button { padding: 0 ".concat(nav.isFirefox ? '2' : '4', "px !important; margin: 0 4px; height: 21px; font: 12px arial !important; }\n\t#de-cfg-button-debug { padding: 0 2px; font: 13px/15px arial; }\n\t#de-cfg-buttons { display: flex; align-items: center; padding: 3px; }\n\t#de-cfg-buttons > label { flex: 1 0 auto; }\n\t.de-cfg-chkbox { ").concat(nav.isPresto ? '' : 'vertical-align: -1px !important; ', "margin: 2px 1px !important; }\n\t#de-cfg-info { display: flex; flex-direction: column; }\n\tinput[type=\"text\"].de-cfg-inptxt { width: auto; height: auto; min-height: 0; padding: 0 2px !important; margin: 1px 4px 1px 0 !important; font: 13px arial !important; border-width: 1px; }\n\t.de-cfg-inptxt, .de-cfg-label, .de-cfg-select { display: inline; width: auto; height: auto !important; font: 13px/15px arial !important; }\n\t.de-cfg-label { padding: 0; margin: 0; }\n\t.de-cfg-needreload::after  { content: \"* \"; color: red; }\n\t.de-cfg-select { padding: 0 2px; margin: 1px 0; font: 13px arial !important; float: none; appearance: auto; }\n\t.de-cfg-tab { flex: 1 0 auto; display: block !important; margin: 0 !important; float: none !important; width: auto !important; min-width: 0 !important; padding: 4px 0 !important; box-shadow: none !important; border: 1px solid #444 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; font: bold 12px arial; text-align: center; cursor: default; background-image: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab:hover { background-image: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\n\t.de-cfg-tab[selected], .de-cfg-tab[selected]:hover { background-image: none !important; border-bottom: none !important; }\n\t.de-cfg-tab::").concat(nav.isFirefox ? '-moz-' : '', "selection { background: transparent; }\n\t.de-cfg-unvis { display: none !important; }\n\t.de-depend { padding-left: 17px; }\n\t#de-info-log, #de-info-stats { width: 100%; padding: 0px 7px; }\n\t#de-info-log { overflow-y: auto; border-left: 1px solid grey; }\n\t.de-info-name { flex: 1 0 auto; }\n\t.de-info-row { display: flex; }\n\t#de-info-table { display: flex; flex: 1 0 auto; }\n\t.de-spell-btn { padding: 0 4px; }\n\t#de-spell-editor { display: flex; align-items: stretch; height: 256px; padding: 2px 0; }\n\t#de-spell-panel { display: flex; }\n\t#de-spell-txt { padding: 2px !important; margin: 0; width: 100%; min-width: 0; border: none !important; outline: none !important; font: 12px courier new; ").concat(nav.isPresto ? '' : 'resize: none !important; ', "}\n\t#de-spell-rowmeter { padding: 2px 3px 0 0; overflow: hidden; min-width: 2em; background-color: #616b86; text-align: right; color: #fff; font: 12px courier new; }\n\t#de-win-cfg.de-win-fixed { z-index: 10001 !important; }\n\n\t/* Settings window theme */\n\t").concat([
     "#de-cfg-bar { background-color: #1f2740; }\n\t\t.de-cfg-tab { border-color: #121421 !important; }",
     "#de-cfg-bar { background-color: #325f9e; }\n\t\t.de-cfg-tab { border-color: #183d77 !important; }",
     "#de-cfg-bar, #de-spell-rowmeter { background-color: #777; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #444; }",
     "#de-cfg-bar { background-color: rgba(0,20,80,.72); }\n\t\t.de-cfg-tab { border-color: #001450 !important; }",
-    "#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }"][Cfg.scriptStyle], "\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: \" +\"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }").concat(!pr.form && !pr.oeForm ? '.de-btn-reply { display: none; }' : '', "\n\t.de-btn-img { vertical-align: top; }\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t").concat(cont('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw=='), "\n\t").concat(cont('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw=='), "\n\t").concat(cont('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs='), "\n\t").concat(cont('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7'), "\n\t").concat(cont('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7'), "\n\t").concat(cont('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs='), "\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n");
+    "#de-cfg-bar { background-color: #222; }\n\t\t.de-cfg-body, #de-cfg-buttons { border-color: #666; }"][Cfg.scriptStyle], "\n\n\t/* Favorites window */\n\t.de-entry { display: flex !important; align-items: center; float: none !important; padding: 0 !important; margin: 1px 0 !important; min-width: 0 !important; border: none !important; font-size: 13px; overflow: hidden !important; white-space: nowrap; }\n\t.de-entry-title { flex: auto; padding-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\t#de-fav-buttons, #de-hid-buttons, #de-fav-del-confirm { padding-top: 6px; }\n\t.de-fav-entries { border-top: 1px solid rgba(80,80,80,.3); }\n\t.de-fav-entries-hide, .de-fav-inf-icon:not(.de-fav-closed):not(.de-fav-unavail):not(.de-fav-wait), .de-fav-closed > .de-fav-unavail-use, .de-fav-closed > .de-fav-wait-use, .de-fav-unavail > .de-fav-closed-use, .de-fav-unavail > .de-fav-wait-use, .de-fav-wait > .de-fav-closed-use, .de-fav-wait > .de-fav-unavail-use { display: none; }\n\t.de-fav-del-btn { margin-left: 2px; cursor: pointer; }\n\t.de-fav-del-btn > svg { width: 12px; height: 12px; opacity: 0.65; vertical-align: -2px; }\n\t.de-fav-del-btn[de-checked] > svg { color: red; background-color: rgba(255,0,0,.2); border-radius: 7px; opacity: 1; }\n\t.de-fav-header { display: flex; cursor: pointer; font-size: 13px; }\n\t.de-fav-header-btn { flex: 1 0 auto; margin-right: 2px; font-size: 11px; color: inherit; text-align: right; opacity: 0.65; }\n\t.de-fav-header-link { margin-left: 2px; color: inherit; font-weight: bold; text-decoration: none; outline: none; }\n\t.de-fav-inf { flex: none; padding: 0 4px 0 10px; font: bold 14px serif; cursor: default; }\n\t.de-fav-inf-icon, .de-fav-inf-iwrap  { width: 16px; height: 16px; }\n\t.de-fav-inf-icon { margin-bottom: -3px; }\n\t.de-fav-inf-new { color: #424f79; }\n\t.de-fav-inf-new::after { content: \" +\"; }\n\t.de-fav-inf-old { color: #4f7942; }\n\t.de-fav-inf-you { padding: 0 4px; margin-right: 4px; border-radius: 3px; color: #fff; background-color: #424f79; opacity: 0.65; }\n\t.de-fav-link { flex: none; margin-left: 2px; text-decoration: none; border: none; }\n\t.de-fav-table-unfold > .de-fold-block > .de-fav-entries { display: initial !important; }\n\t.de-fav-unavail { color: #cf4436; }\n\t.de-fold-block { border: 1px solid rgba(120,120,120,.8); border-radius: 2px; }\n\t.de-fold-block:not(:first-child) { border-top: none; }\n\n\t/* Post panel */\n\t.de-btn-hide > .de-btn-unhide-use, .de-btn-hide-user > .de-btn-unhide-use, .de-btn-unhide > .de-btn-hide-use, .de-btn-unhide-user > .de-btn-hide-use { display: none; }\n\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-img, .de-btn-reply, .de-btn-sage, .de-btn-stick, .de-btn-stick-on, .de-btn-unhide, .de-btn-unhide-user, .de-win-btn-clear, .de-win-btn-close, .de-win-btn-toggle { margin: 0 2px -3px 0 !important; cursor: pointer; width: 16px; height: 16px; }").concat(!postform.form && !postform.oeForm ? '.de-btn-reply { display: none; }' : '', "\n\t.de-btn-img { vertical-align: top; }\n\t.de-post-btns { margin-left: 4px; }\n\t.de-post-btns-back { fill: inherit; stroke: none; }\n\t.de-post-note:not(:empty) { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\n\t.de-thread-note { font-style: italic; }\n\n\t/* Sauce buttons */\n\t").concat(cont('.de-src-google', 'data:image/gif;base64,R0lGODlhEAAQAMQAAIy0+tHh/gJc8Qlh8UyM9H2r9/3///7//x+OfACSJy+mTZHQos3Te////f///v3HAP+uAPzWjvWTWeUTAPSdl/79/f////39/f///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABgALAAAAAAQABAAAAVuICaKh2Eax6hih+W+bqoaLjXdE+UaY2vhwInrInLhdBYbDEOL3GBQS4X2gEiiUBoEAhMIBl6CpaHlvrxocaO1XUQBgsLYxUgkot7AGONS2N0WCwgCYhZFfXaJCQguDiMvC34JCoCOKlgvK49QKyEAOw=='), "\n\t").concat(cont('.de-src-yandex', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP////v7+/r5+fb29vHx8eLi4tnZ2dTU1NDQ0MvLy8fHx8TExPzJv/immvlXRvq0re4UEdeGhtbFxcnJyby8vKampm5ubv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAVx4CWOZCkOQKqq5uoCQhnMQuPcc2CQuc3YuQBJQHQ8BA8HkUgYDZ6Qx+ABeVoVIoL2RmhAtODmpUD23iDkdEFkaBsiEAfE3a6IDngJJALH4ycjCIJyCXCCgiQJhXuLigl2IwqSk5QUJRQLmZqaFiaeniEAOw=='), "\n\t").concat(cont('.de-src-tineye', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP///wAAAAwOEhg4UDZ7skGNxkuf3Vycxx4nLerw9DlSX2FnanO21Epxg4LO62KOnpXj+ZGcmb7CvbZ6RfxmAIxBCzsGAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABcALAAAAAAQABAAAAWlYGIUZGGc6HgkxzSRozIgdHMUx0NR5hH8v8VjeFsoDAyFpcKcQByMnIGgYDAikmxkOLQWqNAGQhAQLBC/BgSXC0QivwgAgFbjHLQ5XDKXBBRrBA80WAABRgkJPwxfDw2HCYYBfHABDSQMDgoIEgs/ZgoPDmuYEFEHmQ6jT5ckBKirEE8HCgEWJQe5ZwJjQBYRBwQMsk8RFgJkP04sVrHGNAEVEAAhADs='), "\n\t").concat(cont('.de-src-saucenao', 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///wAAACwAAAAAEAAQAAACJ4yPacDtvpQCkU1KT0P75i49mbSAZACd6HN2pmbBI7pe9K1+4q5KBQA7'), "\n\t").concat(cont('.de-src-iqdb', 'data:image/gif;base64,R0lGODlhEAAQAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAANx/hV1ISW9YWvLOd/u0T+WlTNaqcKdtMv/r1mxML7OCVoxtUbmmlfPRuKKGeHpcTvK3nEEvKGpRTCcbGU48OYVua3tkYv///yH5BAEAAB8ALAAAAAAQABAAAAW4INV5ZDcmibM0iVJRnukpmnJJDdNwnDWSk4vCNMnpGJXfwqHReDQJTuTxmEhmqoTFEtRsNhltRTFZTBKUl2IzAmeE2csFA8kcKADLl5NgSDgaGRYAFVYQABkRgAxnGhcdEJEVhxYSDhwNEQkaEhSRGBgIGBUOGBwXERkcExyeFaGjr4E8qgcHDpKgkQpRGhwZYA4Vw6CvPBOpwD0ODlMSoxcJOQ8ZyhccBxkSkRRFDw4SD1/jF5MQIQA7'), "\n\t").concat(cont('.de-src-tracemoe', 'data:image/gif;base64,R0lGODlhEAAPALMAAAAAAP///9fY18HBwTg4ODw1No6PjoFnZhoBAXNGRf/V1KmRkf///wAAAAAAAAAAACH5BAEAAAwALAAAAAAQAA8AAAQ5EMhJq7046w0I9hMhBAIoiSQ4BiS1tgQrg7EceIM8UDm7S4aBwRIcYgoFjmSxQHASCkWCc6gelJkIADs='), "\n\n\t/* Posts counter */\n\t.de-post-counter { margin: 0 4px 0 2px; vertical-align: 1px; font: bold 11px tahoma; color: #4f7942; cursor: default; }\n\t.de-post-counter-deleted { color: #727579; }\n\t.de-post-counter-you { vertical-align: 1px; font: bold 11px tahoma; color: #505a7a; cursor: default; }\n\n\t/* Text markup buttons */\n\t.de-markup-back { fill: #f0f0f0; stroke: #808080; }\n\t#de-txt-panel { display: block; font-weight: bold; cursor: pointer; }\n\t#de-txt-panel > div { display: inline-block; }\n\t#de-txt-panel > div > svg { width: 23px; height: 22px; margin: 0 1px; }\r\n");
 
     if ('animation' in docBody.style) {
       x += "\n\t\t/* Show/hide animation */\n\t\t@keyframes de-open { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }\n\t\t@keyframes de-close { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }\n\t\t@keyframes de-blink {\n\t\t\t0%, 100% { transform: translateX(0); }\n\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\n\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\n\t\t}\n\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\n\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t@keyframes de-win-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\n\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\n\t\t.de-open { animation: de-open .15s ease-out both; }\n\t\t.de-close { animation: de-close .15s ease-in both; }\n\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\n\t\t.de-post-new { animation: de-post-new .2s ease-out both; }\n\t\t.de-win-open { animation: de-win-open .2s ease-out backwards; }\n\t\t.de-win-close { animation: de-win-close .2s ease-in both; }\r\n";
@@ -31985,7 +31991,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
               }
 
-              pr = new PostForm($q(aib.qForm));
+              postform = new PostForm($q(aib.qForm));
               Logger.log('Parse postform');
 
               if (Cfg.hotKeys) {

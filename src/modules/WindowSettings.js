@@ -13,7 +13,7 @@ const CfgWindow = {
 			this._getTab('posts') +
 			this._getTab('images') +
 			this._getTab('links') +
-			(pr.form || pr.oeForm ? this._getTab('form') : '') +
+			(postform.form || postform.oeForm ? this._getTab('form') : '') +
 			this._getTab('common') +
 			this._getTab('info')
 		}</div><div id="de-cfg-buttons">${ this._getSel('language') }</div>`);
@@ -219,7 +219,11 @@ const CfgWindow = {
 	async handleEvent(e) {
 		const { type, target: el } = e;
 		const tag = el.tagName.toLowerCase();
-		if(type === 'click' && tag === 'div' && el.classList.contains('de-cfg-tab')) {
+		const { classList } = el;
+		if(type === 'mouseover' && classList.contains('de-cfg-needreload') && !el.title) {
+			el.title = Lng.cfgNeedReload[lang];
+		}
+		if(type === 'click' && tag === 'div' && classList.contains('de-cfg-tab')) {
 			const info = el.getAttribute('info');
 			this._clickTab(info);
 			await CfgSaver.save('cfgTab', info);
@@ -232,13 +236,13 @@ const CfgWindow = {
 			case 'language':
 				lang = el.selectedIndex;
 				Panel.removeMain();
-				if(pr.form) {
-					pr.addMarkupPanel();
-					pr.setPlaceholders();
-					pr.updateLanguage();
-					aib.updateSubmitBtn(pr.subm);
-					if(pr.files) {
-						$Q('.de-file-img, .de-file-txt-input', pr.form).forEach(
+				if(postform.form) {
+					postform.addMarkupPanel();
+					postform.setPlaceholders();
+					postform.updateLanguage();
+					aib.updateSubmitBtn(postform.subm);
+					if(postform.files) {
+						$Q('.de-file-img, .de-file-txt-input', postform.form).forEach(
 							el => (el.title = Lng.youCanDrag[lang]));
 					}
 				}
@@ -281,15 +285,15 @@ const CfgWindow = {
 				updateCSS();
 				break;
 			case 'fileInputs':
-				pr.files.changeMode();
-				pr.setPlaceholders();
+				postform.files.changeMode();
+				postform.setPlaceholders();
 				updateCSS();
 				break;
 			case 'addPostForm':
-				pr.isBottom = Cfg.addPostForm === 1;
-				pr.setReply(false, !aib.t || Cfg.addPostForm > 1);
+				postform.isBottom = Cfg.addPostForm === 1;
+				postform.setReply(false, !aib.t || Cfg.addPostForm > 1);
 				break;
-			case 'addTextBtns': pr.addMarkupPanel();
+			case 'addTextBtns': postform.addMarkupPanel();
 				/* falls through */
 			case 'scriptStyle':
 			case 'panelCounter': this._updateCSS(); break;
@@ -378,20 +382,20 @@ const CfgWindow = {
 				}
 				break;
 			case 'addSageBtn':
-				PostForm.hideField(pr.mail.closest('label') || pr.mail);
-				setTimeout(() => pr.toggleSage(), 0);
+				PostForm.hideField(postform.mail.closest('label') || postform.mail);
+				setTimeout(() => postform.toggleSage(), 0);
 				updateCSS();
 				break;
-			case 'altCaptcha': pr.cap.initCapPromise(); break;
+			case 'altCaptcha': postform.cap.initCapPromise(); break;
 			case 'txtBtnsLoc':
-				pr.addMarkupPanel();
+				postform.addMarkupPanel();
 				updateCSS();
 				break;
 			case 'userPassw': await PostForm.setUserPassw(); break;
 			case 'userName': await PostForm.setUserName(); break;
-			case 'noPassword': $toggle(pr.passw.closest(aib.qFormTr)); break;
-			case 'noName': PostForm.hideField(pr.name); break;
-			case 'noSubj': PostForm.hideField(pr.subj); break;
+			case 'noPassword': $toggle(postform.passw.closest(aib.qFormTr)); break;
+			case 'noName': PostForm.hideField(postform.name); break;
+			case 'noSubj': PostForm.hideField(postform.subj); break;
 			case 'inftyScroll': toggleInfinityScroll(); break;
 			case 'hotKeys':
 				if(Cfg.hotKeys) {
@@ -460,7 +464,7 @@ const CfgWindow = {
 			switch(info) {
 			case 'postBtnsBack': {
 				const isCheck = checkCSSColor(el.value);
-				el.classList.toggle('de-input-error', !isCheck);
+				classList.toggle('de-input-error', !isCheck);
 				if(isCheck) {
 					await CfgSaver.save('postBtnsBack', el.value);
 					updateCSS();
@@ -630,7 +634,7 @@ const CfgWindow = {
 					${ aib.dobrochan ? this._getBox('useDobrAPI') : '' }
 				</div>` }
 			${ this._getBox('markMyPosts') }<br>
-			${ !localData ? `${ this._getBox('expandTrunc') }<br>` : '' }
+			${ !localData ? `${ this._getBox('expandTrunc', true) }<br>` : '' }
 			${ this._getBox('widePosts') }<br>
 			${ this._getInp('limitPostMsg', true, 5) }<br>
 			${ this._getSel('showHideBtn') }<br>
@@ -640,7 +644,7 @@ const CfgWindow = {
 			${ !localData ? this._getSel('thrBtns') : '' }<br>
 			${ this._getSel('noSpoilers') }<br>
 			${ this._getBox('noPostNames') }<br>
-			${ this._getBox('correctTime') }
+			${ this._getBox('correctTime', true) }
 			${ this._getInp('timeOffset', true, 1) }
 			<a class="de-abtn" target="_blank" href="${ gitWiki }Settings-time-` +
 				`${ lang ? 'en' : 'ru' }">[?]</a>
@@ -667,11 +671,11 @@ const CfgWindow = {
 				${ this._getInp('webmVolume') }<br>
 				${ this._getInp('minWebmWidth') }
 			</div>
-			${ nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>' }
+			${ nav.isPresto ? '' : this._getSel('preLoadImgs', true) + '<br>' }
 			${ nav.isPresto || aib._4chan ? '' : `<div class="de-depend">
-				${ this._getBox('findImgFile') }
+				${ this._getBox('findImgFile', true) }
 			</div>` }
-			${ this._getSel('openImgs') }<br>
+			${ this._getSel('openImgs', true) }<br>
 			${ this._getBox('imgSrcBtns') }<br>
 			${ this._getSel('imgNames') }<br>
 			${ this._getInp('maskVisib') }
@@ -681,7 +685,7 @@ const CfgWindow = {
 	// "Links" tab
 	_getCfgLinks() {
 		return `<div id="de-cfg-links" class="de-cfg-unvis">
-			${ this._getBox('linksNavig') }
+			${ this._getBox('linksNavig', true) }
 			<div class="de-depend">
 				${ this._getInp('linksOver') }
 				${ this._getInp('linksOut') }<br>
@@ -691,22 +695,22 @@ const CfgWindow = {
 				${ this._getBox('noNavigHidd') }
 			</div>
 			${ this._getBox('markMyLinks') }<br>
-			${ this._getBox('crossLinks') }<br>
-			${ this._getBox('decodeLinks') }<br>
+			${ this._getBox('crossLinks', true) }<br>
+			${ this._getBox('decodeLinks', true) }<br>
 			${ this._getBox('insertNum') }<br>
 			${ !localData ? `${ this._getBox('addOPLink') }<br>
-				${ this._getBox('addImgs') }<br>` : '' }
+				${ this._getBox('addImgs', true) }<br>` : '' }
 			<div>
-				${ this._getBox('addMP3') }
-				${ this._getBox('addVocaroo') }
+				${ this._getBox('addMP3', true) }
+				${ this._getBox('addVocaroo', true) }
 			</div>
-			${ this._getSel('embedYTube') }
+			${ this._getSel('embedYTube', true) }
 			<div class="de-depend">
 				${ this._getInp('YTubeWidth', false) }\u00D7
 				${ this._getInp('YTubeHeigh', false) }(px)<br>
-				${ this._getBox('YTubeTitles') }<br>
+				${ this._getBox('YTubeTitles', true) }<br>
 				${ this._getInp('ytApiKey', true, 25) }<br>
-				${ this._getBox('addVimeo') }
+				${ this._getBox('addVimeo', true) }
 			</div>
 		</div>`;
 	},
@@ -714,36 +718,36 @@ const CfgWindow = {
 	// "Form" tab
 	_getCfgForm() {
 		return `<div id="de-cfg-form" class="de-cfg-unvis">
-			${ this._getBox('ajaxPosting') }<br>
-			${ pr.form ? `<div class="de-depend">
+			${ this._getBox('ajaxPosting', true) }<br>
+			${ postform.form ? `<div class="de-depend">
 				${ this._getBox('postSameImg') }<br>
 				${ this._getBox('removeEXIF') }<br>
 				${ this._getSel('removeFName') }<br>
 				${ this._getBox('sendErrNotif') }<br>
 				${ this._getBox('scrAfterRep') }<br>
-				${ pr.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
+				${ postform.files && !nav.isPresto ? this._getSel('fileInputs') : '' }
 			</div>` : '' }
-			${ pr.form ? this._getSel('addPostForm') + '<br>' : '' }
-			${ pr.txta ? this._getBox('spacedQuote') + '<br>' : '' }
+			${ postform.form ? this._getSel('addPostForm') + '<br>' : '' }
+			${ postform.txta ? this._getBox('spacedQuote') + '<br>' : '' }
 			${ this._getBox('favOnReply') }<br>
-			${ pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
-			${ pr.mail ? `${ this._getBox('addSageBtn') }
+			${ postform.subj ? this._getBox('warnSubjTrip') + '<br>' : '' }
+			${ postform.mail ? `${ this._getBox('addSageBtn') }
 				${ this._getBox('saveSage') }<br>` : '' }
-			${ pr.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
+			${ postform.cap ? `${ aib.hasAltCaptcha ? `${ this._getBox('altCaptcha') }<br>` : '' }
 				${ this._getInp('capUpdTime') }<br>
 				${ this._getSel('captchaLang') }<br>` : '' }
-			${ pr.txta ? `${ this._getSel('addTextBtns') }
+			${ postform.txta ? `${ this._getSel('addTextBtns') }
 				${ !aib._4chan ? this._getBox('txtBtnsLoc') : '' }<br>` : '' }
-			${ pr.passw ? `${ this._getInp('passwValue', false, 9) }
+			${ postform.passw ? `${ this._getInp('passwValue', false, 9) }
 				${ this._getBox('userPassw') }<input type="button"` +
 				` id="de-cfg-button-pass" class="de-cfg-button" value="${ Lng.change[lang] }"><br>` : '' }
-			${ pr.name ? `${ this._getInp('nameValue', false, 9) }
+			${ postform.name ? `${ this._getInp('nameValue', false, 9) }
 				${ this._getBox('userName') }<br>` : '' }
-			${ pr.rules || pr.passw || pr.name ? Lng.hide[lang] +
-				(pr.rules ? this._getBox('noBoardRule') : '') +
-				(pr.passw ? this._getBox('noPassword') : '') +
-				(pr.name ? this._getBox('noName') : '') +
-				(pr.subj ? this._getBox('noSubj') : '') : '' }
+			${ postform.rules || postform.passw || postform.name ? Lng.hide[lang] +
+				(postform.rules ? this._getBox('noBoardRule') : '') +
+				(postform.passw ? this._getBox('noPassword') : '') +
+				(postform.name ? this._getBox('noName') : '') +
+				(postform.subj ? this._getBox('noSubj') : '') : '' }
 		</div>`;
 	},
 
@@ -758,9 +762,9 @@ const CfgWindow = {
 			<input type="button" id="de-cfg-button-keys" class="de-cfg-button" value="${ Lng.edit[lang] }">
 			<div class="de-depend">${ this._getInp('loadPages') }</div>
 			${ this._getSel('panelCounter') }<br>
-			${ this._getBox('rePageTitle') }<br>
+			${ this._getBox('rePageTitle', true) }<br>
 			${ !localData ? `${ this._getBox('inftyScroll') }<br>
-				${ this._getBox('hideReplies') }<br>
+				${ this._getBox('hideReplies', true) }<br>
 				${ this._getBox('scrollToTop') }<br>` : '' }
 			${ this._getBox('saveScroll') }<br>
 			${ this._getSel('favThrOrder') }<br>
@@ -802,7 +806,7 @@ const CfgWindow = {
 	},
 
 	// Creates a label with checkbox for option switching
-	_getBox: id => `<label class="de-cfg-label">
+	_getBox: (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
 		<input class="de-cfg-chkbox" info="${ id }" type="checkbox"> ${ Lng.cfg[id][lang] }</label>`,
 	// Creates a table for Info tab
 	_getInfoTable: (data, needMs) => data.map(val => `<div class="de-info-row">
@@ -819,9 +823,9 @@ const CfgWindow = {
 	// Creates a menu with a list of checkboxes. Uses for popup window.
 	_getList : arr => arrTags(arr, '<label class="de-block"><input type="checkbox"> ', '</label>'),
 	// Creates a select for multiple option values
-	_getSel  : id => `<label class="de-cfg-label"><select class="de-cfg-select" info="${ id }">${
-		Lng.cfg[id].sel[lang].map((val, i) => `<option value="${ i }">${ val }</option>`).join('')
-	}</select> ${ Lng.cfg[id].txt[lang] } </label>`,
+	_getSel  : (id, needReload) => `<label class="de-cfg-label${ needReload ? ' de-cfg-needreload' : '' }">
+		<select class="de-cfg-select" info="${ id }">${ Lng.cfg[id].sel[lang].map((val, i) =>
+		`<option value="${ i }">${ val }</option>`).join('') }</select> ${ Lng.cfg[id].txt[lang] }</label>`,
 	// Creates a tab for tab bar
 	_getTab: id => `<div class="${ aib.cReply } de-cfg-tab" info="${ id }">${ Lng.cfgTab[id][lang] }</div>`,
 	// Switching the dependent inputs according to their parents

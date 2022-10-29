@@ -120,7 +120,7 @@ class DelForm {
 				el.onsubmit = e => e.preventDefault();
 				delBtn.onclick = e => {
 					e.preventDefault();
-					pr.closeReply();
+					postform.closeReply();
 					$popup('delete', Lng.deleting[lang], true);
 					html5Submit(el, e.target).then(checkDelete)
 						.catch(err => $popup('delete', getErrorMessage(err)));

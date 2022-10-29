@@ -20,8 +20,9 @@ class PostForm {
 				ajaxLoad(aib.getThrUrl(aib.b, Thread.first.num), false).then(loadedDoc => {
 					const form = $q(aib.qForm, loadedDoc);
 					const oeForm = $q(qOeForm, loadedDoc);
-					pr = new PostForm(form && doc.adoptNode(form), oeForm && doc.adoptNode(oeForm), true);
-				}, () => (pr = new PostForm(null, null, true)));
+					postform = new PostForm(form && doc.adoptNode(form),
+						oeForm && doc.adoptNode(oeForm), true);
+				}, () => (postform = new PostForm(null, null, true)));
 			} else {
 				this.form = null;
 			}
@@ -90,7 +91,7 @@ class PostForm {
 		if(el) {
 			await CfgSaver.save('nameValue', el.value);
 		}
-		pr.name.value = Cfg.userName ? Cfg.nameValue : '';
+		postform.name.value = Cfg.userName ? Cfg.nameValue : '';
 	}
 	static async setUserPassw() {
 		if(!Cfg.userPassw) {
@@ -100,7 +101,7 @@ class PostForm {
 		if(el) {
 			await CfgSaver.save('passwValue', el.value);
 		}
-		const value = pr.passw.value = Cfg.passwValue;
+		const value = postform.passw.value = Cfg.passwValue;
 		for(const { passEl } of DelForm) {
 			if(passEl) {
 				passEl.value = value;
@@ -207,7 +208,7 @@ class PostForm {
 			KeyEditListener.setTitle(el, key);
 			return;
 		}
-		const txtaEl = pr.txta;
+		const txtaEl = postform.txta;
 		const { selectionStart: start, selectionEnd: end } = txtaEl;
 		const quote = Cfg.spacedQuote ? '> ' : '>';
 		if(id === 'de-btn-quote') {

@@ -132,7 +132,7 @@ async function runMain(checkDomains, dataPromise) {
 			deWindow.location.reload();
 		}
 	}
-	pr = new PostForm($q(aib.qForm));
+	postform = new PostForm($q(aib.qForm));
 	Logger.log('Parse postform');
 	if(Cfg.hotKeys) {
 		HotKeys.enableHotKeys();

@@ -106,10 +106,10 @@ const HotKeys = {
 			const globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Quick reply
-				if(pr.form) {
+				if(postform.form) {
 					post = this.cPost || this._getFirstVisPost(false, true) || Thread.first.op;
 					this.cPost = post;
-					pr.showQuickReply(post, post.num, true, false);
+					postform.showQuickReply(post, post.num, true, false);
 					post.select();
 				}
 				break;
@@ -128,10 +128,10 @@ const HotKeys = {
 				}
 				break;
 			case 5: // Send post (txt)
-				if(el !== pr.txta && el !== pr.cap.textEl) {
+				if(el !== postform.txta && el !== postform.cap.textEl) {
 					return;
 				}
-				pr.subm.click();
+				postform.subm.click();
 				break;
 			case 6: // Open/close "Favorites"
 				toggleWindow('fav', false);
@@ -155,31 +155,31 @@ const HotKeys = {
 				}
 				break;
 			case 12: // Bold text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-bold').click();
 				break;
 			case 13: // Italic text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-italic').click();
 				break;
 			case 14: // Strike text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-strike').click();
 				break;
 			case 15: // Spoiler text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-spoil').click();
 				break;
 			case 16: // Code text (txt)
-				if(el !== pr.txta) {
+				if(el !== postform.txta) {
 					return;
 				}
 				$id('de-btn-code').click();
