@@ -5,12 +5,14 @@
 const defaultCfg = {
 	disabled     : 0,    // Dollchan enabled by default
 	language     : 0,    // Dollchan language [0=ru, 1=en]
+	// FILTERS
 	hideBySpell  : 1,    // hide posts by spells
 	spells       : null, // user defined spells
 	sortSpells   : 0,    // sort spells and remove duplicates
 	hideRefPsts  : 0,    // hide replies to hidden posts
 	nextPageThr  : 0,    // load threads from next pages instead of hidden
 	delHiddPost  : 0,    // remove placeholders [0=off, 1=all, 2=posts only, 3=threads only]
+	// POSTS
 	ajaxUpdThr   : 1,    // threads updater
 	updThrDelay  : 20,   //    update interval (sec)
 	updCount     : 1,    //    show countdown to thread update
@@ -26,14 +28,14 @@ const defaultCfg = {
 	showRepBtn   : 1,    // show "Quick reply" buttons [0=off, 1=with menu, 2=no menu]
 	postBtnsCSS  : 2,    // post buttons style [0=simple, 1=gradient grey, 2=custom]
 	postBtnsBack : '#8c8c8c', //    custom background color
-	thrBtns      : 1,    /* additional buttons under threads
-		[0=off, 1=all, 2=all (on board), 3='New posts' on board] */
+	thrBtns      : 1,    // buttons under threads [0=off, 1=all, 2=all (on board), 3='New posts' on board]
 	noSpoilers   : 1,    // text spoilers expansion [0=off, 1=grey, 2=native]
 	noPostNames  : 0,    // hide poster names
 	correctTime  : 0,    // time correction in posts
 	timeOffset   : '+0', //    time offset (h)
 	timePattern  : '',   //    search pattern
 	timeRPattern : '',   //    replace pattern
+	// IMAGES
 	expandImgs   : 2,    // expand images on click [0=off, 1=in post, 2=by center]
 	imgNavBtns   : 1,    //    add buttons to navigate images
 	imgInfoLink  : 1,    //    show name under expanded image
@@ -53,6 +55,7 @@ const defaultCfg = {
 	imgNames     : 0,    // image names in links [0=off, 1=original, 2=hide]
 	maskImgs     : 0,    // NSFW mode
 	maskVisib    : 7,    // image opacity in NSFW mode [0-100%]
+	// LINKS
 	linksNavig   : 1,    // posts navigation by >>links
 	linksOver    : 100,  //    delay appearance (ms)
 	linksOut     : 1500, //    delay disappearance (ms)
@@ -74,6 +77,7 @@ const defaultCfg = {
 	YTubeTitles  : 0,    //    load titles for YouTube links
 	ytApiKey     : '',   //    YouTube API key
 	addVimeo     : 1,    //    embed Vimeo links
+	// FORM
 	ajaxPosting  : 1,    // posting without refresh
 	postSameImg  : 1,    //    ability to post duplicate images
 	removeEXIF   : 1,    //    remove EXIF from JPEG
@@ -101,6 +105,7 @@ const defaultCfg = {
 	noPassword   : 1,    // hide form "Password" field
 	noName       : 0,    // hide form "Name" field
 	noSubj       : 0,    // hide form "Subject" field
+	// COMMON
 	scriptStyle  : 0,    /* Dollchan style
 		[0=Gradient darkblue, 1=gradient blue, 2=solid grey, 3=transparent blue, 4=square dark] */
 	userCSS      : 0,    // user CSS
@@ -110,9 +115,9 @@ const defaultCfg = {
 	hotKeys      : 1,    // hotkeys
 	loadPages    : 1,    //    number of pages that are loaded on F5
 	panelCounter : 1,    // panel counter for posts/images [0=off, 1=all posts, 2=except hidden]
-	hideReplies  : 0,    // show only op-posts in threads list
 	rePageTitle  : 1,    // show thread title in the page tab
 	inftyScroll  : 1,    // infinite scrolling for pages
+	hideReplies  : 0,    // show only op-posts in threads list
 	scrollToTop  : 0,    // always scroll to top in the threads list
 	saveScroll   : 1,    // remember the scroll position in threads
 	favThrOrder  : 0,    /* threads sorting order in the Favorites window
@@ -120,6 +125,7 @@ const defaultCfg = {
 	favWinOn     : 0,    // always open the Favorites window
 	closePopups  : 0,    // close popups automatically
 	updDollchan  : 2,    // Check for Dollchan updates [0=off, 1=per day, 2=2days, 3=week, 4=2weeks, 5=month]
+	// WINDOWS
 	textaWidth   : 300,  // textarea width (px)
 	textaHeight  : 115,  // textarea height (px)
 	replyWinDrag : 0,          // draggable "Quick Reply" form

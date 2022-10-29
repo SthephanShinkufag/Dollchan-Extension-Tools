@@ -275,7 +275,7 @@ function scriptCSS() {
 	a.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }
 	.de-video-title[de-time]::after { content: " [" attr(de-time) "]"; color: red; }
 	.de-video-title[de-time].de-current::after { content: " [" attr(de-time) "] \u25CF"; color: red; }
-	.de-vocaroo > embed { display: inline-block; }
+	.de-vocaroo { display: block; }
 	video { background: black; }
 
 	/* File inputs */

@@ -698,7 +698,7 @@ const CfgWindow = {
 				${ this._getBox('addImgs') }<br>` : '' }
 			<div>
 				${ this._getBox('addMP3') }
-				${ aib.protocol === 'http:' ? this._getBox('addVocaroo') : '' }
+				${ this._getBox('addVocaroo') }
 			</div>
 			${ this._getSel('embedYTube') }
 			<div class="de-depend">

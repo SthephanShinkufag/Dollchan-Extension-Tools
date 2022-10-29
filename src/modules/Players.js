@@ -370,16 +370,12 @@ function embedAudioLinks(data) {
 		}
 	}
 	if(Cfg.addVocaroo) {
-		const els = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
-		for(let i = 0, len = els.length; i < len; ++i) {
-			const link = els[i];
-			const el = link.previousSibling;
-			if(!el || el.className !== 'de-vocaroo') { // Donʼt embed already embedded links
-				link.insertAdjacentHTML('beforebegin', `<div class="de-vocaroo">
-					<embed src="http://vocaroo.com/player.swf?playMediaID=${ getFileName(link.href) }` +
-						`" width="148" height="44" wmode="transparent" type="application/x-shockwave-flash">
-				</div>`);
+		$Q('a[href*="voca.ro"], a[href*="vocaroo.com"]', isPost ? data.el : data).forEach(link => {
+			if(!(link.previousSibling?.className === 'de-vocaroo')) {
+				link.insertAdjacentHTML('beforebegin',
+					`<iframe class="de-vocaroo" width="300" height="48" src="https://vocaroo.com/embed/${
+						getFileName(link.href) }" frameborder="0"></iframe>`);
 			}
-		}
+		});
 	}
 }

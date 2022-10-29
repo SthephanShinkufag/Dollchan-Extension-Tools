@@ -7149,7 +7149,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var _marked = _regeneratorRuntime().mark(getFormElements);
 
   var version = '22.10.23.0';
-  var commit = '3c56261';
+  var commit = '503799e';
 
   var defaultCfg = {
     disabled: 0,
@@ -7176,7 +7176,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     postBtnsCSS: 2,
     postBtnsBack: '#8c8c8c',
     thrBtns: 1,
-
     noSpoilers: 1,
     noPostNames: 0,
     correctTime: 0,
@@ -7259,9 +7258,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     hotKeys: 1,
     loadPages: 1,
     panelCounter: 1,
-    hideReplies: 0,
     rePageTitle: 1,
     inftyScroll: 1,
+    hideReplies: 0,
     scrollToTop: 0,
     saveScroll: 1,
     favThrOrder: 0,
@@ -12590,7 +12589,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return "<div id=\"de-cfg-images\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getSel('expandImgs'), "<br>\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getBox('imgNavBtns'), "<br>\n\t\t\t\t").concat(this._getBox('imgInfoLink'), "<br>\n\t\t\t\t").concat(this._getSel('resizeImgs'), "<br>\n\t\t\t\t").concat(Post.sizing.dPxRatio > 1 ? this._getBox('resizeDPI') + '<br>' : '', "\n\t\t\t\t").concat(this._getInp('minImgSize')).concat(this._getInp('maxImgSize'), "<br>\n\t\t\t\t").concat(this._getInp('zoomFactor'), "<br>\n\t\t\t\t").concat(this._getBox('webmControl'), "<br>\n\t\t\t\t").concat(this._getBox('webmTitles'), "<br>\n\t\t\t\t").concat(this._getInp('webmVolume'), "<br>\n\t\t\t\t").concat(this._getInp('minWebmWidth'), "\n\t\t\t</div>\n\t\t\t").concat(nav.isPresto ? '' : this._getSel('preLoadImgs') + '<br>', "\n\t\t\t").concat(nav.isPresto || aib._4chan ? '' : "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('findImgFile'), "\n\t\t\t</div>"), "\n\t\t\t").concat(this._getSel('openImgs'), "<br>\n\t\t\t").concat(this._getBox('imgSrcBtns'), "<br>\n\t\t\t").concat(this._getSel('imgNames'), "<br>\n\t\t\t").concat(this._getInp('maskVisib'), "\n\t\t</div>");
     },
     _getCfgLinks: function _getCfgLinks() {
-      return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks'), "<br>\n\t\t\t").concat(this._getBox('decodeLinks'), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs'), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3'), "\n\t\t\t\t").concat(aib.protocol === 'http:' ? this._getBox('addVocaroo') : '', "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles'), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo'), "\n\t\t\t</div>\n\t\t</div>");
+      return "<div id=\"de-cfg-links\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('linksNavig'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('linksOver'), "\n\t\t\t\t").concat(this._getInp('linksOut'), "<br>\n\t\t\t\t").concat(this._getBox('markViewed'), "<br>\n\t\t\t\t").concat(this._getBox('strikeHidd'), "\n\t\t\t\t<div class=\"de-depend\">").concat(this._getBox('removeHidd'), "</div>\n\t\t\t\t").concat(this._getBox('noNavigHidd'), "\n\t\t\t</div>\n\t\t\t").concat(this._getBox('markMyLinks'), "<br>\n\t\t\t").concat(this._getBox('crossLinks'), "<br>\n\t\t\t").concat(this._getBox('decodeLinks'), "<br>\n\t\t\t").concat(this._getBox('insertNum'), "<br>\n\t\t\t").concat(!localData ? "".concat(this._getBox('addOPLink'), "<br>\n\t\t\t\t").concat(this._getBox('addImgs'), "<br>") : '', "\n\t\t\t<div>\n\t\t\t\t").concat(this._getBox('addMP3'), "\n\t\t\t\t").concat(this._getBox('addVocaroo'), "\n\t\t\t</div>\n\t\t\t").concat(this._getSel('embedYTube'), "\n\t\t\t<div class=\"de-depend\">\n\t\t\t\t").concat(this._getInp('YTubeWidth', false), "\xD7\n\t\t\t\t").concat(this._getInp('YTubeHeigh', false), "(px)<br>\n\t\t\t\t").concat(this._getBox('YTubeTitles'), "<br>\n\t\t\t\t").concat(this._getInp('ytApiKey', true, 25), "<br>\n\t\t\t\t").concat(this._getBox('addVimeo'), "\n\t\t\t</div>\n\t\t</div>");
     },
     _getCfgForm: function _getCfgForm() {
       return "<div id=\"de-cfg-form\" class=\"de-cfg-unvis\">\n\t\t\t".concat(this._getBox('ajaxPosting'), "<br>\n\t\t\t").concat(pr.form ? "<div class=\"de-depend\">\n\t\t\t\t".concat(this._getBox('postSameImg'), "<br>\n\t\t\t\t").concat(this._getBox('removeEXIF'), "<br>\n\t\t\t\t").concat(this._getSel('removeFName'), "<br>\n\t\t\t\t").concat(this._getBox('sendErrNotif'), "<br>\n\t\t\t\t").concat(this._getBox('scrAfterRep'), "<br>\n\t\t\t\t").concat(pr.files && !nav.isPresto ? this._getSel('fileInputs') : '', "\n\t\t\t</div>") : '', "\n\t\t\t").concat(pr.form ? this._getSel('addPostForm') + '<br>' : '', "\n\t\t\t").concat(pr.txta ? this._getBox('spacedQuote') + '<br>' : '', "\n\t\t\t").concat(this._getBox('favOnReply'), "<br>\n\t\t\t").concat(pr.subj ? this._getBox('warnSubjTrip') + '<br>' : '', "\n\t\t\t").concat(pr.mail ? "".concat(this._getBox('addSageBtn'), "\n\t\t\t\t").concat(this._getBox('saveSage'), "<br>") : '', "\n\t\t\t").concat(pr.cap ? "".concat(aib.hasAltCaptcha ? "".concat(this._getBox('altCaptcha'), "<br>") : '', "\n\t\t\t\t").concat(this._getInp('capUpdTime'), "<br>\n\t\t\t\t").concat(this._getSel('captchaLang'), "<br>") : '', "\n\t\t\t").concat(pr.txta ? "".concat(this._getSel('addTextBtns'), "\n\t\t\t\t").concat(!aib._4chan ? this._getBox('txtBtnsLoc') : '', "<br>") : '', "\n\t\t\t").concat(pr.passw ? "".concat(this._getInp('passwValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userPassw'), "<input type=\"button\"") + " id=\"de-cfg-button-pass\" class=\"de-cfg-button\" value=\"".concat(Lng.change[lang], "\"><br>") : '', "\n\t\t\t").concat(pr.name ? "".concat(this._getInp('nameValue', false, 9), "\n\t\t\t\t").concat(this._getBox('userName'), "<br>") : '', "\n\t\t\t").concat(pr.rules || pr.passw || pr.name ? Lng.hide[lang] + (pr.rules ? this._getBox('noBoardRule') : '') + (pr.passw ? this._getBox('noPassword') : '') + (pr.name ? this._getBox('noName') : '') + (pr.subj ? this._getBox('noSubj') : '') : '', "\n\t\t</div>");
@@ -14847,16 +14846,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     if (Cfg.addVocaroo) {
-      var _els2 = $Q('a[href*="vocaroo.com"]', isPost ? data.el : data);
+      $Q('a[href*="voca.ro"], a[href*="vocaroo.com"]', isPost ? data.el : data).forEach(function (link) {
+        var _link$previousSibling;
 
-      for (var _i10 = 0, _len8 = _els2.length; _i10 < _len8; ++_i10) {
-        var _link = _els2[_i10];
-        var _el6 = _link.previousSibling;
-
-        if (!_el6 || _el6.className !== 'de-vocaroo') {
-          _link.insertAdjacentHTML('beforebegin', "<div class=\"de-vocaroo\">\n\t\t\t\t\t<embed src=\"http://vocaroo.com/player.swf?playMediaID=".concat(getFileName(_link.href)) + "\" width=\"148\" height=\"44\" wmode=\"transparent\" type=\"application/x-shockwave-flash\">\n\t\t\t\t</div>");
+        if (!(((_link$previousSibling = link.previousSibling) === null || _link$previousSibling === void 0 ? void 0 : _link$previousSibling.className) === 'de-vocaroo')) {
+          link.insertAdjacentHTML('beforebegin', "<iframe class=\"de-vocaroo\" width=\"300\" height=\"48\" src=\"https://vocaroo.com/embed/".concat(getFileName(link.href), "\" frameborder=\"0\"></iframe>"));
         }
-      }
+      });
     }
   }
 
@@ -16348,19 +16344,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         );
       });
 
-      for (var _i11 = 0, _len9 = sp.length - 1; _i11 < _len9; ++_i11) {
-        var j = _i11 + 1;
+      for (var _i10 = 0, _len8 = sp.length - 1; _i10 < _len8; ++_i10) {
+        var j = _i10 + 1;
 
-        if (sp[_i11][0] === sp[j][0] && sp[_i11][1] <= sp[j][1] && sp[_i11][1] >= sp[j][1] && (sp[_i11][2] === null || 
-        sp[_i11][2] === undefined || 
-        sp[_i11][2] <= sp[j][2] && sp[_i11][2] >= sp[j][2])) {
+        if (sp[_i10][0] === sp[j][0] && sp[_i10][1] <= sp[j][1] && sp[_i10][1] >= sp[j][1] && (sp[_i10][2] === null || 
+        sp[_i10][2] === undefined || 
+        sp[_i10][2] <= sp[j][2] && sp[_i10][2] >= sp[j][2])) {
           sp.splice(j, 1);
-          _i11--;
-          _len9--; 
-        } else if (sp[_i11][0] === 0xFF) {
-          sp.push(sp.splice(_i11, 1)[0]);
-          _i11--;
-          _len9--;
+          _i10--;
+          _len8--; 
+        } else if (sp[_i10][0] === 0xFF) {
+          sp.push(sp.splice(_i10, 1)[0]);
+          _i10--;
+          _len8--;
         }
       }
     },
@@ -16816,8 +16812,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               var val = 0;
               var arr = m[1].split(/, */);
 
-              for (var _i12 = 0, len = arr.length; _i12 < len; ++_i12) {
-                switch (arr[_i12]) {
+              for (var _i11 = 0, len = arr.length; _i11 < len; ++_i11) {
+                switch (arr[_i11]) {
                   case 'samelines':
                     val |= 1;
                     break;
@@ -17585,11 +17581,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var keys = 0;
             var pop = 0;
 
-            for (var _i13 = 0, _n2 = len / 4; _i13 < len; keys++) {
-              x = arr[_i13];
+            for (var _i12 = 0, _n2 = len / 4; _i12 < len; keys++) {
+              x = arr[_i12];
               var _j = 0;
 
-              while (arr[_i13++] === x) {
+              while (arr[_i12++] === x) {
                 _j++;
               }
 
@@ -17643,8 +17639,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             var capsw = 0;
             var casew = 0;
 
-            for (var _i14 = 0; _i14 < len; ++_i14) {
-              x = arr[_i14];
+            for (var _i13 = 0; _i13 < len; ++_i13) {
+              x = arr[_i13];
 
               if ((x.match(/[a-zа-я]/ig) || []).length < 5) {
                 continue;
@@ -17705,8 +17701,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }
 
-        for (var _arr2 = val[1], _i15 = _arr2.length - 1; _i15 >= 0; --_i15) {
-          if (num >= _arr2[_i15][0] && num <= _arr2[_i15][1]) {
+        for (var _arr2 = val[1], _i14 = _arr2.length - 1; _i14 >= 0; --_i14) {
+          if (num >= _arr2[_i14][0] && num <= _arr2[_i14][1]) {
             return true;
           }
         }
@@ -17948,8 +17944,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           el = el.parentNode;
         }
 
-        var _el7 = el,
-            id = _el7.id;
+        var _el6 = el,
+            id = _el6.id;
 
         if (!id.startsWith('de-btn')) {
           return;
@@ -24280,10 +24276,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (Cfg.addImgs || localData) {
         els = $Q('.de-img-embed', post.el);
 
-        for (var _i16 = 0, _len10 = els.length; _i16 < _len10; ++_i16) {
-          var _el8 = els[_i16];
-          last = new EmbeddedImage(post, _el8, last);
-          filesMap.set(_el8, last);
+        for (var _i15 = 0, _len9 = els.length; _i15 < _len9; ++_i15) {
+          var _el7 = els[_i15];
+          last = new EmbeddedImage(post, _el7, last);
+          filesMap.set(_el7, last);
 
           if (!first) {
             first = last;
@@ -24421,9 +24417,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var values = 256 / (levels - 1);
       var hash = 0;
 
-      for (var _i17 = 0; _i17 < newh; ++_i17) {
+      for (var _i16 = 0; _i16 < newh; ++_i16) {
         for (var _j3 = 0; _j3 < neww; ++_j3) {
-          var temp = _i17 / (newh - 1) * (oldh - 1);
+          var temp = _i16 / (newh - 1) * (oldh - 1);
           var l = Math.min(temp | 0, oldh - 2);
           var u = temp - l;
           temp = _j3 / (neww - 1) * (oldw - 1);
@@ -24658,7 +24654,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }, {
       key: "getRefLinks",
       value: _regeneratorRuntime().mark(function getRefLinks(i, thrUrl) {
-        var msg, links, _i18, len, link, tc, lNum, url;
+        var msg, links, _i17, len, link, tc, lNum, url;
 
         return _regeneratorRuntime().wrap(function getRefLinks$(_context47) {
           while (1) {
@@ -24666,15 +24662,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 0:
                 msg = i === 0 ? $q(aib.qPostMsg, this._form) : $q(aib.qPostMsg, this._posts[i - 1]);
                 links = $Q('a', msg);
-                _i18 = 0, len = links.length;
+                _i17 = 0, len = links.length;
 
               case 3:
-                if (!(_i18 < len)) {
+                if (!(_i17 < len)) {
                   _context47.next = 16;
                   break;
                 }
 
-                link = links[_i18];
+                link = links[_i17];
                 tc = link.textContent;
 
                 if (!(tc[0] === '>' && tc[1] === '>')) {
@@ -24700,7 +24696,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
               case 13:
-                ++_i18;
+                ++_i17;
                 _context47.next = 3;
                 break;
 
@@ -25966,8 +25962,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           fragm = temp.content;
           var posts = $Q(aib.qPost, fragm);
 
-          for (var _i19 = 0, len = posts.length; _i19 < len; ++_i19) {
-            last = this._addPost(fragm, posts[_i19], begin + _i19 + 1, last, maybeVParser);
+          for (var _i18 = 0, len = posts.length; _i18 < len; ++_i18) {
+            last = this._addPost(fragm, posts[_i18], begin + _i18 + 1, last, maybeVParser);
             newVisCount -= maybeSpells.value.runSpells(last);
             embedPostMsgImages(last.el);
           }
@@ -28244,7 +28240,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Kusaba);
 
-        for (var _len11 = arguments.length, args = new Array(_len11), _key4 = 0; _key4 < _len11; _key4++) {
+        for (var _len10 = arguments.length, args = new Array(_len10), _key4 = 0; _key4 < _len10; _key4++) {
           args[_key4] = arguments[_key4];
         }
 
@@ -28310,7 +28306,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Tinyboard);
 
-        for (var _len12 = arguments.length, args = new Array(_len12), _key5 = 0; _key5 < _len12; _key5++) {
+        for (var _len11 = arguments.length, args = new Array(_len11), _key5 = 0; _key5 < _len11; _key5++) {
           args[_key5] = arguments[_key5];
         }
 
@@ -28539,7 +28535,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Vichan);
 
-        for (var _len13 = arguments.length, args = new Array(_len13), _key6 = 0; _key6 < _len13; _key6++) {
+        for (var _len12 = arguments.length, args = new Array(_len12), _key6 = 0; _key6 < _len12; _key6++) {
           args[_key6] = arguments[_key6];
         }
 
@@ -28609,7 +28605,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, TinyIB);
 
-        for (var _len14 = arguments.length, args = new Array(_len14), _key7 = 0; _key7 < _len14; _key7++) {
+        for (var _len13 = arguments.length, args = new Array(_len13), _key7 = 0; _key7 < _len13; _key7++) {
           args[_key7] = arguments[_key7];
         }
 
@@ -28682,7 +28678,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Lynxchan);
 
-        for (var _len15 = arguments.length, args = new Array(_len15), _key8 = 0; _key8 < _len15; _key8++) {
+        for (var _len14 = arguments.length, args = new Array(_len14), _key8 = 0; _key8 < _len14; _key8++) {
           args[_key8] = arguments[_key8];
         }
 
@@ -29048,7 +29044,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, FoolFuuka);
 
-        for (var _len16 = arguments.length, args = new Array(_len16), _key9 = 0; _key9 < _len16; _key9++) {
+        for (var _len15 = arguments.length, args = new Array(_len15), _key9 = 0; _key9 < _len15; _key9++) {
           args[_key9] = arguments[_key9];
         }
 
@@ -29149,7 +29145,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, _0chan);
 
-        for (var _len17 = arguments.length, args = new Array(_len17), _key10 = 0; _key10 < _len17; _key10++) {
+        for (var _len16 = arguments.length, args = new Array(_len16), _key10 = 0; _key10 < _len16; _key10++) {
           args[_key10] = arguments[_key10];
         }
 
@@ -29225,7 +29221,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Makaba);
 
-        for (var _len18 = arguments.length, args = new Array(_len18), _key11 = 0; _key11 < _len18; _key11++) {
+        for (var _len17 = arguments.length, args = new Array(_len17), _key11 = 0; _key11 < _len17; _key11++) {
           args[_key11] = arguments[_key11];
         }
 
@@ -29653,7 +29649,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, _2channel);
 
-        for (var _len19 = arguments.length, args = new Array(_len19), _key12 = 0; _key12 < _len19; _key12++) {
+        for (var _len18 = arguments.length, args = new Array(_len18), _key12 = 0; _key12 < _len18; _key12++) {
           args[_key12] = arguments[_key12];
         }
 
@@ -29777,7 +29773,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, _2chRip);
 
-        for (var _len20 = arguments.length, args = new Array(_len20), _key13 = 0; _key13 < _len20; _key13++) {
+        for (var _len19 = arguments.length, args = new Array(_len19), _key13 = 0; _key13 < _len19; _key13++) {
           args[_key13] = arguments[_key13];
         }
 
@@ -29834,7 +29830,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, _410chan);
 
-        for (var _len21 = arguments.length, args = new Array(_len21), _key14 = 0; _key14 < _len21; _key14++) {
+        for (var _len20 = arguments.length, args = new Array(_len20), _key14 = 0; _key14 < _len20; _key14++) {
           args[_key14] = arguments[_key14];
         }
 
@@ -29915,7 +29911,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, _4chan);
 
-        for (var _len22 = arguments.length, args = new Array(_len22), _key15 = 0; _key15 < _len22; _key15++) {
+        for (var _len21 = arguments.length, args = new Array(_len21), _key15 = 0; _key15 < _len21; _key15++) {
           args[_key15] = arguments[_key15];
         }
 
@@ -30135,7 +30131,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Arhivach);
 
-        for (var _len23 = arguments.length, args = new Array(_len23), _key16 = 0; _key16 < _len23; _key16++) {
+        for (var _len22 = arguments.length, args = new Array(_len22), _key16 = 0; _key16 < _len22; _key16++) {
           args[_key16] = arguments[_key16];
         }
 
@@ -30268,7 +30264,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Dobrochan);
 
-        for (var _len24 = arguments.length, args = new Array(_len24), _key17 = 0; _key17 < _len24; _key17++) {
+        for (var _len23 = arguments.length, args = new Array(_len23), _key17 = 0; _key17 < _len23; _key17++) {
           args[_key17] = arguments[_key17];
         }
 
@@ -30460,7 +30456,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Dollchan);
 
-        for (var _len25 = arguments.length, args = new Array(_len25), _key18 = 0; _key18 < _len25; _key18++) {
+        for (var _len24 = arguments.length, args = new Array(_len24), _key18 = 0; _key18 < _len24; _key18++) {
           args[_key18] = arguments[_key18];
         }
 
@@ -30509,7 +30505,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Endchan);
 
-        for (var _len26 = arguments.length, args = new Array(_len26), _key19 = 0; _key19 < _len26; _key19++) {
+        for (var _len25 = arguments.length, args = new Array(_len25), _key19 = 0; _key19 < _len25; _key19++) {
           args[_key19] = arguments[_key19];
         }
 
@@ -30554,7 +30550,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Ernstchan);
 
-        for (var _len27 = arguments.length, args = new Array(_len27), _key20 = 0; _key20 < _len27; _key20++) {
+        for (var _len26 = arguments.length, args = new Array(_len26), _key20 = 0; _key20 < _len26; _key20++) {
           args[_key20] = arguments[_key20];
         }
 
@@ -30631,7 +30627,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Gensokyo);
 
-        for (var _len28 = arguments.length, args = new Array(_len28), _key21 = 0; _key21 < _len28; _key21++) {
+        for (var _len27 = arguments.length, args = new Array(_len27), _key21 = 0; _key21 < _len27; _key21++) {
           args[_key21] = arguments[_key21];
         }
 
@@ -30655,7 +30651,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Iichan);
 
-        for (var _len29 = arguments.length, args = new Array(_len29), _key22 = 0; _key22 < _len29; _key22++) {
+        for (var _len28 = arguments.length, args = new Array(_len28), _key22 = 0; _key22 < _len28; _key22++) {
           args[_key22] = arguments[_key22];
         }
 
@@ -30797,7 +30793,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Kohlchan);
 
-        for (var _len30 = arguments.length, args = new Array(_len30), _key23 = 0; _key23 < _len30; _key23++) {
+        for (var _len29 = arguments.length, args = new Array(_len29), _key23 = 0; _key23 < _len29; _key23++) {
           args[_key23] = arguments[_key23];
         }
 
@@ -30971,7 +30967,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Kropyvach);
 
-        for (var _len31 = arguments.length, args = new Array(_len31), _key24 = 0; _key24 < _len31; _key24++) {
+        for (var _len30 = arguments.length, args = new Array(_len30), _key24 = 0; _key24 < _len30; _key24++) {
           args[_key24] = arguments[_key24];
         }
 
@@ -31007,7 +31003,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Lainchan);
 
-        for (var _len32 = arguments.length, args = new Array(_len32), _key25 = 0; _key25 < _len32; _key25++) {
+        for (var _len31 = arguments.length, args = new Array(_len31), _key25 = 0; _key25 < _len31; _key25++) {
           args[_key25] = arguments[_key25];
         }
 
@@ -31105,7 +31101,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Ponyach);
 
-        for (var _len33 = arguments.length, args = new Array(_len33), _key26 = 0; _key26 < _len33; _key26++) {
+        for (var _len32 = arguments.length, args = new Array(_len32), _key26 = 0; _key26 < _len32; _key26++) {
           args[_key26] = arguments[_key26];
         }
 
@@ -31183,7 +31179,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Ponychan);
 
-        for (var _len34 = arguments.length, args = new Array(_len34), _key27 = 0; _key27 < _len34; _key27++) {
+        for (var _len33 = arguments.length, args = new Array(_len33), _key27 = 0; _key27 < _len33; _key27++) {
           args[_key27] = arguments[_key27];
         }
 
@@ -31253,7 +31249,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Spirech);
 
-        for (var _len35 = arguments.length, args = new Array(_len35), _key28 = 0; _key28 < _len35; _key28++) {
+        for (var _len34 = arguments.length, args = new Array(_len34), _key28 = 0; _key28 < _len34; _key28++) {
           args[_key28] = arguments[_key28];
         }
 
@@ -31306,7 +31302,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Synch);
 
-        for (var _len36 = arguments.length, args = new Array(_len36), _key29 = 0; _key29 < _len36; _key29++) {
+        for (var _len35 = arguments.length, args = new Array(_len35), _key29 = 0; _key29 < _len35; _key29++) {
           args[_key29] = arguments[_key29];
         }
 
@@ -31380,7 +31376,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
         _classCallCheck(this, Warosu);
 
-        for (var _len37 = arguments.length, args = new Array(_len37), _key30 = 0; _key30 < _len37; _key30++) {
+        for (var _len36 = arguments.length, args = new Array(_len36), _key30 = 0; _key30 < _len36; _key30++) {
           args[_key30] = arguments[_key30];
         }
 
@@ -31447,8 +31443,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     domain = domain.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 
-    for (var _i20 = ibEngines.length - 1; _i20 >= 0; --_i20) {
-      var _ibEngines$_i = _slicedToArray(ibEngines[_i20], 2),
+    for (var _i19 = ibEngines.length - 1; _i19 >= 0; --_i19) {
+      var _ibEngines$_i = _slicedToArray(ibEngines[_i19], 2),
           path = _ibEngines$_i[0],
           Ctor = _ibEngines$_i[1];
 
@@ -31754,7 +31750,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
 
     var p = Math.max(Cfg.minImgSize || 0, 50);
-    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; }\n\n\t/* Embedders */\n\t").concat(cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo > embed { display: inline-block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 112px; height: 112px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
+    x += "\n\t/* Full images */\n\t.de-img-embed, .de-fullimg { border: none; outline: none; cursor: pointer; image-orientation: from-image; }\n\t.de-img-embed { max-width: 200px; max-height: 200px; }\n\t.de-fullimg { display: block; }\n\t.de-fullimg, .de-fullimg-wrap-link { flex: 0 0 auto; transition: none !important; max-width: none; max-height: none; }\n\t.de-fullimg-after { clear: left; }\n\t.de-fullimg-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\n\t.de-fullimg-info { position: absolute; bottom: -22px; left: 50%; padding: 1px 4px; transform: translateX(-50%); background-color: rgba(64,64,64,.8); white-space: nowrap; line-height: 17px; }\n\t.de-fullimg-info > .de-btn-img { color: #fff; }\n\t.de-fullimg-link { float: none !important; display: inline-block; font: bold 12px tahoma; color: #fff !important; text-decoration: none; outline: none; }\n\t.de-fullimg-link:hover { color: #fff !important; background: rgba(64,64,64,.6); }\n\t.de-fullimg-load { position: absolute; z-index: 2; width: 50px; height: 50px; top: 50%; left: 50%; margin: -25px; }\n\t.de-fullimg-rotated { transform-origin: top left; width: auto !important; max-width: none !important; }\n\t.de-fullimg-scale { color: #fff; font: bold 12px tahoma; cursor: default; }\n\t.de-fullimg-video-hack { width: 100%; height: calc(100% - 40px); position: absolute; z-index: 1; cursor: pointer; }\n\t.de-fullimg-wrap { position: relative; margin-bottom: 24px; }\n\t.de-fullimg-wrap-center, .de-fullimg-wrap-link, .de-fullimg-video > video { width: 100%; height: 100%; max-height: 100%; }\n\t.de-fullimg-wrap-center > .de-fullimg-wrap-link > .de-fullimg { height: 100%; }\n\t.de-fullimg-wrap-inpost { min-width: ".concat(p, "px; min-height: ").concat(p, "px; float: left; ").concat(aib.multiFile ? '' : 'margin: 2px 5px; -moz-box-sizing: border-box; box-sizing: border-box; ', " }\n\t.de-fullimg-wrap-nosize > .de-fullimg-wrap-link > .de-fullimg { opacity: 0.3; }\n\t.de-img-btn { position: fixed; top: 50%; z-index: 10000; height: 36px; width: 36px; border-radius: 10px 0 0 10px; color: #f0f0f0; cursor: pointer; }\n\t.de-img-btn > svg { height: 32px; width: 32px; margin: 2px; }\n\t#de-img-btn-auto { right: 0; margin-top: 58px; }\n\t.de-img-btn-auto-on { color: #ffe100; }\n\t#de-img-btn-next { right: 0; margin-top: -18px; }\n\t.de-img-btn-none { display: none; }\n\t#de-img-btn-prev { left: 0; margin-top: -18px; transform: scaleX(-1); }\n\t#de-img-btn-rotate { right: 0; margin-top: 20px; }\n\t.de-webm-title { color: #ffe100 !important; }\n\n\t/* Embedders */\n\t").concat(cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico'), "\n\t").concat(cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico'), "\n\t").concat(cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw=='), "\n\t").concat(cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw=='), "\n\t.de-current::after { content: \" \u25CF\"; }\n\t.de-img-arch, .de-img-audio { margin-left: 4px; color: inherit; text-decoration: none; font-weight: bold; }\n\t.de-mp3 { margin: 5px 20px; }\n\t.de-video-obj { margin: 5px 20px; white-space: nowrap; }\n\t.de-video-obj-inline { display: inline-block; }\n\t#de-video-btn-resize { padding: 0 14px 8px 0; margin: 0 8px; border: 2px solid; border-radius: 2px; }\n\t#de-video-btn-hide, #de-video-btn-prev { margin-left: auto; }\n\t#de-video-buttons { display: flex; margin-bottom: 2px; align-items: center; width: 100%; line-height: 16px; }\n\t#de-video-buttons > a:not(:hover) { color: inherit; }\n\t.de-video-expanded { width: 854px !important; height: 480px !important; }\n\t#de-video-list { padding: 0 0 4px; overflow-y: auto; width: 100%; }\n\t.de-video-refpost { margin: 0 3px; color: inherit; text-decoration: none; cursor: pointer; }\n\t.de-video-resizer::after { content: \"\u2795\"; margin: 0 -15px 0 3px; vertical-align: 6px; color: #000; font-size: 12px; cursor: pointer; }\n\t.de-video-player, .de-video-thumb { width: 100%; height: 100%; }\n\ta.de-video-player { display: inline-block; position: relative; border-spacing: 0; border: none; }\n\ta.de-video-player::after { content: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAWCAQAAACMYb/JAAAArklEQVR4AYXSr05CYRjA4cPGxjRosTijdvNJzmD1CrwAvQWugASNwGg0MoErOIVCPCMx0hmBMaAA4mPX8/2rT/i+9/1lPu0M3MtCN1OAvS+NEFkDmHqoJwcAbHzUkb9n7C5FqLynCAzdpAhLrynCRc9VnEDpKUWYpUmZIlt5nBQeY889amvGPj33HBvdt45WbAELeWyNP/qu/8dwBrDyVp9UBRi5DYXZdTLxEs77F5bCVAHlDJ1UAAAAAElFTkSuQmCC\"); position: absolute;top: 50%; left: 50%; padding: 12px 24px; margin: -22px 0 0 -32px; background-color: rgba(255,0,0,.4); border-radius: 8px; line-height: 0; }\n\ta.de-video-player:hover::after { background-color: rgba(255,0,0,.7); }\n\t.de-video-title[de-time]::after { content: \" [\" attr(de-time) \"]\"; color: red; }\n\t.de-video-title[de-time].de-current::after { content: \" [\" attr(de-time) \"] \u25CF\"; color: red; }\n\t.de-vocaroo { display: block; }\n\tvideo { background: black; }\n\n\t/* File inputs */\n\t.de-file { display: inline-block; vertical-align: top; margin: 1px; height: ").concat(p = aib.multiFile ? 90 : 130, "px; width: ").concat(p, "px; text-align: center; background-color: rgba(96,96,96,.15); border: 1px dashed grey; }\n\t.de-file > .de-file-img > div { display: flex; justify-content: center; align-items: center; height: ").concat(p, "px; cursor: pointer; }\n\t.de-file > .de-file-utils { display: none; height: 18px; margin-top: -20px; padding: 1px 0; background: rgba(64,64,64,.6); position: relative; -moz-box-sizing: initial; box-sizing: initial; }\n\t.de-file > .de-file-utils > .de-file-rarmsg { display: block; position: absolute; bottom: 20px; width: 100%; margin: 0; background: rgba(64,64,64,.6); color: #fff; }\n\t#de-file-area { margin-top: 1px; width: 275px; min-width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\n\t.de-file-drag { background: rgba(96,96,96,.8); border: 1px solid grey; opacity: .7; }\n\t.de-file:hover:not(.de-file-drag) > .de-file-utils { display: block !important; }\n\timg.de-file-img, video.de-file-img { max-width: ").concat(p, "px; max-height: ").concat(p, "px; }\n\t.de-file-input { max-width: 300px; }\n\t.de-file-input + .de-file-utils { margin-left: 4px; }\n\t.de-file-off > .de-file-img > div::after { content: \"").concat(Lng.dropFileHere[lang], "\"; display: block; width: 80px; margin: 0 auto; font: 11px arial; opacity: .8; white-space: initial; }\n\t.de-file-rarmsg { margin: 0 2px; vertical-align: 4px; font: bold 11px tahoma; cursor: default; }\n\t.de-file-btn-del, .de-file-btn-rar, .de-file-btn-ren, .de-file-btn-txt { margin: 0 1px; cursor: pointer; }\n\t.de-file-btn-del > svg, .de-file-btn-rar > svg, .de-file-btn-ren > svg, .de-file-btn-txt > svg { width: 16px; height: 16px; }\n\t.de-file-spoil { margin: 0 3px; vertical-align: 1px; }\n\t.de-file-txt-add { font-weight: bold; width: 21px; padding: 0 !important; }\n\t.de-file-txt-input { border: 1px solid #9c9c9c; padding: 2px; font: 12px/16px sans-serif; }\n\t.de-file-txt-noedit { background: rgba(255,255,255,.5); cursor: pointer; }\n\t.de-file-utils { display: inline-block; float: none; vertical-align: -3px; }\n\n\t/* Reply form */\n\t.de-parea { text-align: center; }\n\t.de-parea-btn-close::after { content: \"").concat(Lng.hideForm[lang], "\"; }\n\t.de-parea-btn-thr::after { content: \"").concat(Lng.makeThr[lang], "\"; }\n\t.de-parea-btn-reply::after { content: \"").concat(Lng.makeReply[lang], "\"; }\n\t#de-pform > form { padding: 0; margin: 0; border: none; }\n\t#de-resizer-text { display: inline-block !important; float: none !important; padding: 5px; margin: ").concat(nav.isPresto ? '-2px -10px' : '0 0 -2px -10px', "; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\n\t.de-win-inpost { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\n\t.de-win-inpost > .de-resizer { display: none; }\n\t.de-win-inpost > .de-win-head { background: none; color: inherit; }\n\t#de-win-reply { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\n\t#de-win-reply.de-win { position: fixed !important; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\n\t#de-win-reply.de-win > .de-win-body { padding: 2px 2px 0 1px; border: 1px solid gray; }\n\t#de-win-reply.de-win .de-textarea { min-width: 98% !important; resize: none !important; }\n\t#de-win-reply.de-win #de-resizer-text { display: none !important; }\n\t#de-sagebtn { display: inline-block; margin: 3px 4px 0 4px !important; cursor: pointer; }\n\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }\n\n\t/* Thread navigation */\n\t#de-thr-navarrow { display: none; position: absolute; top: 50%; left: 34px; transform: translateY(-50%); width: 7px; height: 7px; }\n\t#de-thr-navpanel { color: #F5F5F5; height: 98px; width: 41px; position: fixed; top: 50%; left: 0px; padding: 0; margin: -49px 0 0; background: #777; border: 1px solid #525252; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; z-index: 1000; }\n\t.de-thr-navpanel-hidden { opacity: .7; margin-left: -34px !important; }\n\t.de-thr-navpanel-hidden > #de-thr-navarrow { display: initial; }\n\t#de-thr-navup { padding: 12px 9px 13px 8px; border-radius: 0 5px 0 0; }\n\t#de-thr-navdown { padding: 13px 9px 12px 8px; border-radius: 0 0 5px 0; }\n\t#de-thr-navup, #de-thr-navdown { width: 41px; height: 49px; -moz-box-sizing: border-box; box-sizing: border-box; }\n\t:not(.de-thr-navpanel-hidden) > #de-thr-navup:hover, :not(.de-thr-navpanel-hidden) > #de-thr-navdown:hover { background: #555; }\n\n\t/* Other */\n\t.de-abtn { text-decoration: none !important; outline: none; }\n\t.de-button { flex: none; padding: 0 ").concat(nav.isFirefox ? 2 : 4, "px !important; margin: 1px 2px; min-width: auto !iportant; height: 24px; font: 13px arial; }\n\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\n\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\n\t.de-input-key { padding: 0 2px !important; margin: 0 !important; font: 13px/15px arial !important; }\n\tinput[type=\"text\"].de-input-selected { background: rgba(255,255,150,0.4) !important }\n\t.de-link-backref { text-decoration: none; }\n\t.de-link-parent { outline: 1px dotted !important; }\n\t.de-link-pview { font-weight: bold; }\n\t.de-list { padding-top: 4px; }\n\t.de-list::before { content: \"\u25CF\"; margin-right: 4px; }\n\t.de-logo { display: inline-block; margin-right: 10px; fill: inherit; color: #F5F5F5; border-radius: 80px 0 0 0; }\n\t.de-logo > svg { width: 112px; height: 112px; }\n\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto !important; min-width: 0 !important; z-index: 10002; border: 1px solid grey !important; text-align: left; }\n\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\n\t.de-menu-item:hover { background-color: #222; color: #fff; }\n\t.de-omitted { color: grey; }\n\t.de-omitted::before { content: \"").concat(Lng.postsOmitted[lang], "\"; }\n\t.de-popup { overflow: visible !important; clear: both !important; width: auto !important; min-width: 0pt !important; padding: 8px !important; margin: 1px !important; border: 1px solid grey !important; display: block !important; float: right !important; max-width: initial !important; }\n\t.de-popup-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; line-height: 1.15; }\n\t.de-popup-msg { display: inline-block; white-space: pre-wrap; }\n\t.de-popup-msg > hr { margin: 0 !important; }\n\t.de-post-hiddencontent { display: none !important; }\n\t.de-pview { position: absolute !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\n\t.de-pview-info { padding: 3px 6px !important; }\n\t.de-ref-del::after { content: \" (Del)\"; }\n\t.de-ref-op::after { content: \" (OP)\"; }\n\t.de-refcomma:last-child { display: none; }\n\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\n\t.de-refmap::before { content: \"").concat(Lng.replies[lang], " \"; }\n\t.de-replies-hide::after { content: \"").concat(Lng.hidePosts[lang], "\"; }\n\t.de-replies-show::after { content: \"").concat(Lng.showPosts[lang], "\"; }\n\t.de-thr-buttons { clear: left; margin-top: 5px; }\n\t").concat(aib.t ? '.de-thr-buttons > .de-btn-reply { display: none; }' : '', "\n\t.de-thr-collapse-link::after { content: \"").concat(Lng.collapseThr[lang], "\"; }\n\t.de-thr-hid { display: block; padding: 2px; }\n\t.de-thr-updater-link::after { content: \"").concat(Lng.getNewPosts[lang], "\"; }\n\t#de-updater-count::before { content: \": \"; }\n\t.de-viewed { color: #747488 !important; }\n\t.de-wait, .de-fav-wait , .de-fullimg-load { animation: de-wait-anim 1s linear infinite; }\n\t.de-wait { margin: 0 2px -3px 0 !important; width: 16px; height: 16px; }\n\t#de-wrapper-popup { overflow-x: hidden !important; overflow-y: auto !important; -moz-box-sizing: border-box; box-sizing: border-box; max-height: 100vh; position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\n\t@keyframes de-wait-anim { to { transform: rotate(360deg); } }\n\tform > hr { clear: both }");
     $css(x).id = 'de-css';
     $css('').id = 'de-css-dynamic';
     $css('').id = 'de-css-user';
